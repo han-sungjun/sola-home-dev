@@ -429,7 +429,7 @@
 
   <script type="module">
     import './firebase-config.js';
-    import { APP_ENV, LOGIN_FUNCTION_URL } from './env-config.js';
+    import { ENV, API_URL } from './env-config.js';
     import {
       getApp
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -461,11 +461,9 @@
 
     const REDIRECT_AFTER_LOGIN = './app.html';
     const SIGNUP_PAGE_URL = './signup.html';
-
+    const LOGIN_FUNCTION_URL = API_URL[ENV].login;
 
     document.body.style.opacity = '0';
-
-    console.log('[ENV]', APP_ENV);
 
     const qs = (selector) => document.querySelector(selector);
 
