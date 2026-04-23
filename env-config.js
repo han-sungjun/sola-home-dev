@@ -79,6 +79,12 @@ export const APP_ORIGIN = {
 export const IS_DEV = ENV === "dev";
 export const IS_PROD = ENV === "prod";
 
+/* signup.html 등에서 바로 쓸 수 있도록 호환용 export 추가 */
+export const CURRENT_FIREBASE_CONFIG = FIREBASE_CONFIG[ENV];
+export const CURRENT_API = API_URL[ENV];
+export const CURRENT_ROUTE = ROUTE_URL[ENV];
+export const CURRENT_APP_ORIGIN = APP_ORIGIN[ENV];
+
 console.log("[env-config] loaded", {
   host,
   origin,
