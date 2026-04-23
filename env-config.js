@@ -41,10 +41,10 @@ export const FIREBASE_CONFIG = {
 
 export const API_URL = {
   dev: {
-    login: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/loginWithId",
-    signup: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/signupWithId",
-    checkLoginId: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/checkLoginId",
-    checkNickname: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/checkNickname"
+    login: "https://loginwithid-292137041544.asia-northeast3.run.app",
+    signup: "https://signupwithid-292137041544.asia-northeast3.run.app",
+    checkLoginId: "https://checkloginid-292137041544.asia-northeast3.run.app",
+    checkNickname: "https://checknickname-292137041544.asia-northeast3.run.app"
   },
   prod: {
     login: "https://asia-northeast3-sola-home.cloudfunctions.net/loginWithId",
