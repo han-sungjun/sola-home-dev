@@ -41,16 +41,16 @@ export const FIREBASE_CONFIG = {
 
 export const API_URL = {
   dev: {
-    login: "https://loginwithid-l6mntiaxgq-du.a.run.app",
-    signup: "https://signupwithid-l6mntiaxgq-du.a.run.app",
-    checkLoginId: "https://checkloginid-l6mntiaxgq-du.a.run.app",
-    checkNickname: "https://checknickname-l6mntiaxgq-du.a.run.app"
+    login: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/loginWithId",
+    signup: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/signupWithId",
+    checkLoginId: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/checkLoginId",
+    checkNickname: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/checkNickname"
   },
   prod: {
-    login: "https://loginwithid-PROD_URL_HERE.a.run.app",
-    signup: "https://signupwithid-PROD_URL_HERE.a.run.app",
-    checkLoginId: "https://checkloginid-PROD_URL_HERE.a.run.app",
-    checkNickname: "https://checknickname-PROD_URL_HERE.a.run.app"
+    login: "https://asia-northeast3-sola-home.cloudfunctions.net/loginWithId",
+    signup: "https://asia-northeast3-sola-home.cloudfunctions.net/signupWithId",
+    checkLoginId: "https://asia-northeast3-sola-home.cloudfunctions.net/checkLoginId",
+    checkNickname: "https://asia-northeast3-sola-home.cloudfunctions.net/checkNickname"
   }
 };
 
