@@ -360,6 +360,24 @@
       box-shadow:none !important;
     }
 
+
+    .env-badge{
+      display:none;
+      align-items:center;
+      gap:8px;
+      margin-bottom:14px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff7ed;
+      color:#c2410c;
+      border:1px solid #fed7aa;
+      font-size:12px;
+      font-weight:800;
+      width:max-content;
+      box-shadow:0 8px 20px rgba(194,65,12,.08);
+    }
+    .env-badge.show{display:inline-flex}
+
   </style>
 </head>
 <body>
@@ -378,6 +396,8 @@
           <p>인증이 완료되면 앱으로 이동합니다</p>
         </div>
       </div>
+
+      <div id="envBadge" class="env-badge" aria-live="polite">🧪 DEV 환경</div>
 
       <div class="stage-chip">1단계 · 휴대폰 확인</div>
 
@@ -432,6 +452,15 @@
     </div>
   </div>
 
-  <script type="module" src="./phone-verify.js"></script>
+  <script type="module">
+    import { ENV } from './env-config.js';
+
+    const envBadgeEl = document.getElementById('envBadge');
+    if (envBadgeEl && ENV === 'dev') {
+      envBadgeEl.classList.add('show');
+    }
+
+    await import('./phone-verify.js');
+  </script>
 </body>
 </html>
