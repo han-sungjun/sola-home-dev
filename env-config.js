@@ -1,59 +1,72 @@
-// ===============================
-// 환경 자동 감지 (dev / prod)
-// ===============================
+const host = window.location.hostname;
+const origin = window.location.origin;
 
-const hostname = location.hostname;
+const DEV_HOSTS = new Set([
+  "localhost",
+  "127.0.0.1",
+  "www.sola-home-dev.kr",
+  "sola-home-dev.kr"
+]);
 
-const isDev =
-  hostname.includes("dev") ||
-  hostname.includes("localhost") ||
-  hostname.startsWith("192.") ||
-  hostname.startsWith("127.");
+const PROD_HOSTS = new Set([
+  "www.sola-home.kr",
+  "sola-home.kr"
+]);
 
-export const ENV = isDev ? "dev" : "prod";
+const isDevHost = DEV_HOSTS.has(host);
+const isProdHost = PROD_HOSTS.has(host);
 
+export const ENV = isDevHost ? "dev" : "prod";
 
-// ===============================
-// Firebase 설정
-// ===============================
-
-export const FIREBASE_CONFIG = {
-  dev: {
-    apiKey: "AIzaSyCC4ZilL1Gv_zy0_iw36b0CO4Uq7vYX6rE",
-    authDomain: "sola-home-dev.firebaseapp.com",
-    projectId: "sola-home-dev",
-    storageBucket: "sola-home-dev.firebasestorage.app",
-    messagingSenderId: "292137041544",
-    appId: "1:292137041544:web:c648f4380b1562a31e693d",
-    measurementId: "G-R7TZ1PG6QP"
-  },
-
-  prod: {
-    apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
-    authDomain: "sola-home-4979a.firebaseapp.com",
-    projectId: "sola-home-4979a",
-    storageBucket: "sola-home-4979a.firebasestorage.app",
-    messagingSenderId: "337132471819",
-    appId: "1:337132471819:web:848cd357fecda459a2e90e"
-  }
+export const APP_ORIGIN = {
+  dev: host === "localhost" || host === "127.0.0.1"
+    ? origin
+    : "https://www.sola-home-dev.kr",
+  prod: "https://www.sola-home.kr"
 };
-
-
-// ===============================
-// Cloud Functions URL
-// ===============================
 
 export const API_URL = {
   dev: {
-    login: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/loginWithId",
-    signup: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/signupWithId",
-    checkLoginId: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/checkLoginId",
-    checkNickname: "https://asia-northeast3-sola-home-dev.cloudfunctions.net/checkNickname"
+    login: "https://loginwithid-l6mntiaxgq-du.a.run.app",
+    signup: "https://signupwithid-l6mntiaxgq-du.a.run.app",
+    checkLoginId: "https://checkloginid-l6mntiaxgq-du.a.run.app",
+    checkNickname: "https://checknickname-l6mntiaxgq-du.a.run.app"
   },
   prod: {
-    login: "https://asia-northeast3-sola-home-4979a.cloudfunctions.net/loginWithId",
-    signup: "https://asia-northeast3-sola-home-4979a.cloudfunctions.net/signupWithId",
-    checkLoginId: "https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkLoginId",
-    checkNickname: "https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkNickname"
+    login: "https://loginwithid-PROD_URL_HERE.a.run.app",
+    signup: "https://signupwithid-PROD_URL_HERE.a.run.app",
+    checkLoginId: "https://checkloginid-PROD_URL_HERE.a.run.app",
+    checkNickname: "https://checknickname-PROD_URL_HERE.a.run.app"
   }
 };
+
+export const ROUTE_URL = {
+  dev: {
+    login: "./index.html",
+    signup: "./signup.html",
+    app: "./app.html",
+    phoneVerify: "./phone-verify.html"
+  },
+  prod: {
+    login: "./index.html",
+    signup: "./signup.html",
+    app: "./app.html",
+    phoneVerify: "./phone-verify.html"
+  }
+};
+
+export const IS_DEV = ENV === "dev";
+export const IS_PROD = ENV === "prod";
+
+export const CURRENT_API = API_URL[ENV];
+export const CURRENT_ROUTE = ROUTE_URL[ENV];
+export const CURRENT_ORIGIN = APP_ORIGIN[ENV];
+
+console.log("[env-config] loaded", {
+  host,
+  origin,
+  env: ENV,
+  isDevHost,
+  isProdHost,
+  api: CURRENT_API
+});
