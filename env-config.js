@@ -18,11 +18,25 @@ const isProdHost = PROD_HOSTS.has(host);
 
 export const ENV = isDevHost ? "dev" : "prod";
 
-export const APP_ORIGIN = {
-  dev: host === "localhost" || host === "127.0.0.1"
-    ? origin
-    : "https://www.sola-home-dev.kr",
-  prod: "https://www.sola-home.kr"
+export const FIREBASE_CONFIG = {
+  dev: {
+    apiKey: "AIzaSyCC4ZilL1Gv_zy0_iw36b0CO4Uq7vYX6rE",
+    authDomain: "sola-home-dev.firebaseapp.com",
+    projectId: "sola-home-dev",
+    storageBucket: "sola-home-dev.firebasestorage.app",
+    messagingSenderId: "292137041544",
+    appId: "1:292137041544:web:c648f4380b1562a31e693d",
+    measurementId: "G-R7TZ1PG6QP"
+  },
+  prod: {
+    apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
+    authDomain: "sola-home-4979a.firebaseapp.com",
+    projectId: "sola-home-4979a",
+    storageBucket: "sola-home-4979a.firebasestorage.app",
+    messagingSenderId: "337132471819",
+    appId: "1:337132471819:web:848cd357fecda459a2e90e",
+    measurementId: "G-E7R9JJGGJE"
+  }
 };
 
 export const API_URL = {
@@ -55,12 +69,15 @@ export const ROUTE_URL = {
   }
 };
 
+export const APP_ORIGIN = {
+  dev: host === "localhost" || host === "127.0.0.1"
+    ? origin
+    : "https://www.sola-home-dev.kr",
+  prod: "https://www.sola-home.kr"
+};
+
 export const IS_DEV = ENV === "dev";
 export const IS_PROD = ENV === "prod";
-
-export const CURRENT_API = API_URL[ENV];
-export const CURRENT_ROUTE = ROUTE_URL[ENV];
-export const CURRENT_ORIGIN = APP_ORIGIN[ENV];
 
 console.log("[env-config] loaded", {
   host,
@@ -68,5 +85,6 @@ console.log("[env-config] loaded", {
   env: ENV,
   isDevHost,
   isProdHost,
-  api: CURRENT_API
+  firebaseProjectId: FIREBASE_CONFIG[ENV]?.projectId,
+  api: API_URL[ENV]
 });
