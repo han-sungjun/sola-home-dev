@@ -866,12 +866,12 @@ body.gnb-open .admin-bottom-nav{
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { APP_ENV, firebaseConfig, LOGIN_FUNCTION_URL } from './env-config.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { mountIdleTimer } from "./tracking.js";
-    const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
+    console.log('[ENV]', APP_ENV);
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
-    const LOGIN_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/loginWithId';
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const globalLoadingBar = qs('#globalLoadingBar');

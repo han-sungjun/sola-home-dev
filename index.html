@@ -429,6 +429,7 @@
 
   <script type="module">
     import './firebase-config.js';
+    import { APP_ENV, LOGIN_FUNCTION_URL } from './env-config.js';
     import {
       getApp
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -460,9 +461,11 @@
 
     const REDIRECT_AFTER_LOGIN = './app.html';
     const SIGNUP_PAGE_URL = './signup.html';
-    const LOGIN_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/loginWithId';
+
 
     document.body.style.opacity = '0';
+
+    console.log('[ENV]', APP_ENV);
 
     const qs = (selector) => document.querySelector(selector);
 
