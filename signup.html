@@ -446,7 +446,35 @@
     .strength-text.medium{ color:#b45309; }
     .strength-text.strong{ color:var(--success); }
 
-</style>
+
+
+    .env-badge{
+      display:none;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      margin-top:12px;
+      padding:9px 13px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#eef2ff 0%,#ede9fe 100%);
+      border:1px solid #c7d2fe;
+      color:#4338ca;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.02em;
+      box-shadow:0 10px 24px rgba(79,70,229,.10);
+    }
+    .env-badge.show{display:inline-flex}
+    .env-badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#6366f1;
+      box-shadow:0 0 0 4px rgba(99,102,241,.14);
+      flex:0 0 auto;
+    }
+
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -464,6 +492,7 @@
           <p>아이디 기반 계정으로 가입 신청합니다</p>
         </div>
       </div>
+      <div class="env-badge" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
 
       <div class="pill" id="statusPill">회원가입 신청 후 관리자의 승인 절차가 진행됩니다.</div>
 
@@ -599,6 +628,9 @@
   <script type="module">
     import './firebase-config.js';
     import { ENV, API_URL } from './env-config.js';
+
+    const envBadge = document.getElementById('envBadge');
+    if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
