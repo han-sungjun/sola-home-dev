@@ -598,6 +598,7 @@
 
   <script type="module">
     import './firebase-config.js';
+    import { ENV, API_URL } from './env-config.js';
     import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
@@ -613,9 +614,9 @@
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
 
-    const SIGNUP_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/signupWithId';
-    const CHECK_LOGIN_ID_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkLoginId';
-    const CHECK_NICKNAME_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkNickname';
+    const SIGNUP_FUNCTION_URL = API_URL[ENV].signup;
+    const CHECK_LOGIN_ID_URL = API_URL[ENV].checkLoginId;
+    const CHECK_NICKNAME_URL = API_URL[ENV].checkNickname;
 
     let loadingCount = 0;
     let loginIdCheckedValue = '';
