@@ -3,12 +3,7 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-com
 
 // ENV 분기
 const hostname = self.location.hostname;
-
-const isDev =
-  hostname === "localhost" ||
-  hostname === "127.0.0.1" ||
-  hostname === "www.sola-home-dev.kr" ||
-  hostname === "sola-home-dev.kr";
+const isDev = hostname.includes("dev");
 
 const firebaseConfig = isDev
   ? {
@@ -33,6 +28,7 @@ const firebaseConfig = isDev
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+// 백그라운드 수신
 messaging.onBackgroundMessage((payload) => {
   const title = payload.data?.title || "알림";
   const body = payload.data?.body || "";
@@ -43,7 +39,7 @@ messaging.onBackgroundMessage((payload) => {
     body,
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
-    vibrate: [200, 100, 200],
+    vibrate: [200, 100, 200], // 중요 알림 느낌
     data: {
       url,
       noticeId
@@ -51,25 +47,35 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
+// 클릭 처리
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || "/";
+  const data = event.notification?.data || {};
+  const targetUrl = data.url || "/";
+  const noticeId = data.noticeId || "";
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
-        for (const client of clientList) {
-          if (client.url.includes("/app.html")) {
-            return client.focus();
-          }
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          client.postMessage({
+            type: "OPEN_NOTICE",
+            noticeId,
+            url: targetUrl
+          });
+
+          return client.focus();
         }
-        return clients.openWindow(url);
-      })
+      }
+
+      return clients.openWindow(targetUrl);
+    })
   );
 });
 
-self.addEventListener("install", () => {
+// SW 최신화
+self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
