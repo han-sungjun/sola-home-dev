@@ -642,6 +642,7 @@
     const REDIRECT_AFTER_LOGIN = './app.html';
     const SIGNUP_PAGE_URL = './signup.html';
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
+    const PASSWORD_RESET_LOOKUP_URL = API_URL[ENV].getUserForPasswordReset || '';
 
     document.body.style.opacity = '0';
 
@@ -1107,19 +1108,35 @@
       const normalized = normalizeLoginId(loginId);
       if (!normalized) return null;
 
-      const usersQuery = query(
-        collection(db, 'users'),
-        where('loginId', '==', normalized),
-        limit(1)
-      );
+      if (!PASSWORD_RESET_LOOKUP_URL) {
+        throw new Error('getUserForPasswordReset URL is not configured');
+      }
 
-      const snap = await getDocs(usersQuery);
-      if (snap.empty) return null;
+      const res = await fetch(PASSWORD_RESET_LOOKUP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loginId: normalized })
+      });
 
-      const userDoc = snap.docs[0];
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (_) {
+        data = null;
+      }
+
+      if (!res.ok) {
+        const message = data?.error || data?.message || `password reset lookup failed: ${res.status}`;
+        throw new Error(message);
+      }
+
+      if (!data?.exists) return null;
+
       return {
-        uid: userDoc.id,
-        ...(userDoc.data() || {})
+        uid: String(data.uid || ''),
+        loginId: normalized,
+        email: String(data.email || ''),
+        phoneNumber: String(data.phoneNumber || '')
       };
     }
 
@@ -1207,8 +1224,10 @@
           message = '저장된 이메일 형식이 올바르지 않습니다. 관리자에게 이메일 확인을 요청해 주세요.';
         } else if (code === 'auth/too-many-requests') {
           message = '재설정 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+        } else if (String(error?.message || '').includes('getUserForPasswordReset URL is not configured')) {
+          message = '비밀번호 재설정 조회 API 주소가 설정되지 않았습니다. env-config.js의 getUserForPasswordReset 값을 확인해 주세요.';
         } else if (String(error?.message || '').includes('Missing or insufficient permissions')) {
-          message = '회원 정보 조회 권한이 없어 재설정을 진행할 수 없습니다.\n보안상 Cloud Functions 기반 재설정 함수가 필요합니다.';
+          message = '회원 정보 조회 권한이 없어 재설정을 진행할 수 없습니다. Cloud Functions 연결 상태를 확인해 주세요.';
         }
 
         setSheetResult(resetPwResultEl, message, 'error');
