@@ -1054,7 +1054,7 @@ body.gnb-open .bottom-nav{
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -1857,6 +1857,39 @@ async function refreshPushStatus(){
       return nextMap;
     }
 
+    const GEO_CACHE_MS = 60000;
+    const GEO_OPTIONS = { enableHighAccuracy: true, timeout: 15000, maximumAge: GEO_CACHE_MS };
+
+    function hasFreshUserLocation(){
+      return !!state.userLocation && (Date.now() - Number(state.userLocationFetchedAt || 0)) < GEO_CACHE_MS;
+    }
+
+    function setUserLocationFromPosition(position){
+      state.userLocation = {
+        lat: Number(position.coords.latitude),
+        lng: Number(position.coords.longitude)
+      };
+      state.userLocationFetchedAt = Date.now();
+      recalculateBenefitDistances();
+      return state.userLocation;
+    }
+
+    function getReliableCurrentPosition({ forceRefresh = false } = {}){
+      if(!navigator.geolocation){
+        return Promise.reject(new Error('geolocation_not_supported'));
+      }
+
+      if(!forceRefresh && hasFreshUserLocation()){
+        return Promise.resolve(state.userLocation);
+      }
+
+      return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition((position) => {
+          resolve(setUserLocationFromPosition(position));
+        }, reject, GEO_OPTIONS);
+      });
+    }
+
     function ensureBenefitDistances(){
       if(!shouldUseDistanceFilter()){
         updateDistanceFilterHelp();
@@ -1867,27 +1900,33 @@ async function refreshPushStatus(){
         updateDistanceFilterHelp();
         return Promise.resolve(false);
       }
+
+      if(hasFreshUserLocation()){
+        recalculateBenefitDistances();
+        state.distanceStatus = 'ready';
+        updateDistanceFilterHelp();
+        return Promise.resolve(true);
+      }
+
       state.distanceStatus = 'loading';
       updateDistanceFilterHelp();
-      return new Promise((resolve) => {
-        navigator.geolocation.getCurrentPosition((position) => {
-          state.userLocation = {
-            lat: Number(position.coords.latitude),
-            lng: Number(position.coords.longitude)
-          };
-          recalculateBenefitDistances();
+      return getReliableCurrentPosition()
+        .then(() => {
           state.distanceStatus = 'ready';
           updateDistanceFilterHelp();
-          resolve(true);
-        }, (error) => {
+          return true;
+        })
+        .catch((error) => {
           console.warn('거리순 정렬 위치 확인 실패', error);
           state.distanceStatus = 'error';
-          state.userLocation = null;
-          state.distanceMap = {};
+          if(!hasFreshUserLocation()){
+            state.userLocation = null;
+            state.userLocationFetchedAt = 0;
+            state.distanceMap = {};
+          }
           updateDistanceFilterHelp();
-          resolve(false);
-        }, { enableHighAccuracy:false, timeout:7000, maximumAge:60000 });
-      });
+          return false;
+        });
     }
 
     function updateDistanceText(item = {}){
@@ -1901,6 +1940,18 @@ async function refreshPushStatus(){
       const isStillCurrent = () => {
         const modal = qs('#detailModal');
         return modal?.open && state.activeDistanceBenefitId === itemId && state.distanceRequestSeq === requestSeq;
+      };
+
+      const applyDistanceText = (currentLocation, { cached = false } = {}) => {
+        if(!isStillCurrent() || !currentLocation) return;
+        const distance = getDistanceMeters(currentLocation.lat, currentLocation.lng, pos.lat, pos.lng);
+        if(distance > 200000){
+          target.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+          target.classList.add('muted');
+          return;
+        }
+        target.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
+        target.classList.remove('muted');
       };
 
       const pos = getBenefitLatLng(item);
@@ -1921,24 +1972,25 @@ async function refreshPushStatus(){
         return;
       }
 
+      // 모바일 안정화: 최근 1분 이내 위치가 있으면 즉시 표시하고, 뒤에서 새 위치로 한 번 더 갱신합니다.
+      if(hasFreshUserLocation()){
+        applyDistanceText(state.userLocation, { cached: true });
+        getReliableCurrentPosition({ forceRefresh: true })
+          .then((currentLocation) => applyDistanceText(currentLocation, { cached: false }))
+          .catch((error) => console.warn('상세 거리 백그라운드 갱신 실패', error));
+        return;
+      }
+
       target.textContent = '현재 위치를 확인하는 중입니다...';
       target.classList.remove('muted');
-      navigator.geolocation.getCurrentPosition((position) => {
-        if(!isStillCurrent()) return;
-        const distance = getDistanceMeters(position.coords.latitude, position.coords.longitude, pos.lat, pos.lng);
-        if(distance > 200000){
-          target.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+      getReliableCurrentPosition()
+        .then((currentLocation) => applyDistanceText(currentLocation, { cached: false }))
+        .catch((error) => {
+          if(!isStillCurrent()) return;
+          console.warn('현재 위치 확인 실패', error);
+          target.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
           target.classList.add('muted');
-          return;
-        }
-        target.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.`;
-        target.classList.remove('muted');
-      }, (error) => {
-        if(!isStillCurrent()) return;
-        console.warn('현재 위치 확인 실패', error);
-        target.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
-        target.classList.add('muted');
-      }, { enableHighAccuracy:false, timeout:7000, maximumAge:0 });
+        });
     }
 
     function locationPanelHtml(item = {}){
