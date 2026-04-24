@@ -107,8 +107,13 @@
   display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;
   border:1px solid var(--line);border-radius:18px;background:#fff;
 }
-.summary-row strong{font-size:14px}
-.summary-row span{font-size:12px;color:var(--muted)}
+.summary-row > div{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.summary-row strong{font-size:14px;display:block;line-height:1.25}
+.summary-row span{font-size:12px;color:var(--muted);display:block;margin-top:2px;line-height:1.35}
 .admin-groups{display:grid;gap:14px}
 
   .admin-nav-btn .nav-label{font-size:11px}
