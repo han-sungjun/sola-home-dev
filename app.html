@@ -1613,6 +1613,46 @@ async function refreshPushStatus(){
     }
 
     const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
+
+    function toDateFromFirestore(value){
+      if(!value) return null;
+      try{
+        if(typeof value.toDate === 'function') return value.toDate();
+        if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+        if(value instanceof Date) return value;
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }catch(_){
+        return null;
+      }
+    }
+
+    function formatKoreanDate(value){
+      const date = toDateFromFirestore(value);
+      if(!date) return '';
+      return new Intl.DateTimeFormat('ko-KR', {
+        year:'numeric',
+        month:'numeric',
+        day:'numeric'
+      }).format(date);
+    }
+
+    function benefitDateTag(item = {}){
+      const createdText = formatKoreanDate(item.createdAt);
+      return createdText ? `<span class="tag">🗓️ 등록일 ${createdText}</span>` : '';
+    }
+
+    function benefitDateText(item = {}){
+      const createdText = formatKoreanDate(item.createdAt);
+      return createdText ? `등록일 ${createdText}` : '';
+    }
+
+    function benefitDetailDateHtml(item = {}){
+      const createdText = formatKoreanDate(item.createdAt);
+      const updatedText = formatKoreanDate(item.updatedAt);
+      if(!createdText && !updatedText) return '';
+      return `<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">등록 정보</strong>${createdText ? `등록일 ${createdText}` : ''}${createdText && updatedText ? '<br>' : ''}${updatedText ? `수정일 ${updatedText}` : ''}</div>`;
+    }
     const CATEGORY_ICONS = {
       '전체':'🏷️',
       '음식':'🍜',
@@ -1629,7 +1669,7 @@ async function refreshPushStatus(){
       '기타':'📍'
     };
     const getCategoryIcon = (category) => CATEGORY_ICONS[normalizeCategory(category)] || '📍';
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const getFavorites=()=>state.favoriteIds || [];
 
     function getFavoritesCollectionRef(){
@@ -1885,6 +1925,8 @@ async function refreshPushStatus(){
             name: data.name || benefit?.name || '이름 없는 매장',
             category: benefit?.category || '기타',
             condition: benefit?.condition || '',
+            createdAt: benefit?.createdAt || null,
+            updatedAt: benefit?.updatedAt || null,
             score,
             benefit: benefit || null
           };
@@ -1915,7 +1957,7 @@ async function refreshPushStatus(){
           <div class="popular-rank">${index + 1}</div>
           <div class="popular-meta">
             <div class="popular-name">${item.name}</div>
-            <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}</div>
+            <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}${benefitDateText(item) ? ' · ' + benefitDateText(item) : ''}</div>
           </div>
           <div class="popular-score">
             <strong>${item.score}</strong>
@@ -1967,7 +2009,7 @@ async function refreshPushStatus(){
     }
     function getFilteredBenefits(mode='normal'){const favorites=new Set(getFavorites());return getVisibleBenefits().filter(item=>{const matchCategory=state.category==='전체'||normalizeCategory(item.category)===normalizeCategory(state.category);const q=state.keyword.trim().toLowerCase();const blob=[item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();const matchKeyword=!q||blob.includes(q);const matchFilter=state.filter==='all'?true:(item.discountValue>=15||item.recommended);const matchMode=mode==='favorite'?favorites.has(item.id):true;return matchCategory&&matchKeyword&&matchFilter&&matchMode;}).sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));}
     const getBadgeClass=(item)=>item.service?'badge service':(item.discountValue<=5?'badge low':'badge');
-    function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
+    function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
     function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
@@ -1977,7 +2019,7 @@ async function refreshPushStatus(){
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
       const naverMapLink=item.url || `https://map.naver.com/v5/search/${encodeURIComponent(item.address)}`;
-      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span></div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>${item.address}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone}</div></div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a></div><div style="margin-top:8px;"><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>${item.address}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone}</div>${benefitDetailDateHtml(item)}</div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a></div><div style="margin-top:8px;"><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
       const modal=qs('#detailModal');
       if(modal.open)modal.close();
       modal.showModal();
