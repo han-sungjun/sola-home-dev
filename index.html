@@ -179,6 +179,16 @@
       color:var(--text);
       border:1px solid var(--line);
     }
+    .btn-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:4px;
+    }
+    .btn-row .btn{
+      width:100%;
+      margin-top:0;
+    }
     .btn[disabled]{
       opacity:.65;
       cursor:not-allowed;
@@ -484,17 +494,18 @@
         </div>
 
         <div class="find-links">
-          <button id="openFindIdBtn" class="find-link" type="button">아이디 안내</button>
-          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 재설정 안내</button>
+          <button id="openFindIdBtn" class="find-link" type="button">아이디 찾기</button>
+          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 재설정</button>
         </div>
 
         <div class="helper">
           승인 완료된 아이디만 로그인할 수 있습니다.
         </div>
 
-        <button id="loginBtn" class="btn btn-primary" type="submit">로그인</button>
-        <button id="signupBtn" class="btn btn-soft" type="button">회원가입</button>
-        <button id="logoutBtn" class="btn btn-soft hidden" type="button">로그아웃</button>
+        <div class="btn-row">
+          <button id="loginBtn" class="btn btn-primary" type="submit">로그인</button>
+          <button id="signupBtn" class="btn btn-soft" type="button">회원가입</button>
+        </div>
       </form>
 
       <div id="notice" class="notice info"></div>
@@ -635,7 +646,6 @@
     const passwordEl = qs('#password');
     const loginBtn = qs('#loginBtn');
     const signupBtn = qs('#signupBtn');
-    const logoutBtn = qs('#logoutBtn');
     const noticeEl = qs('#notice');
     const loginForm = qs('#loginForm');
     const openFindIdBtn = qs('#openFindIdBtn');
@@ -1099,26 +1109,6 @@
       }, 60);
     });
 
-    logoutBtn.addEventListener('click', async () => {
-      const confirmed = await openModalConfirm('로그아웃 하시겠습니까?', logoutBtn, '로그아웃', '로그아웃', '취소');
-      if (!confirmed) return;
-
-      startLoading();
-      logoutBtn.disabled = true;
-
-      try {
-        await signOut(auth);
-        showNotice('로그아웃되었습니다.', 'success');
-        logoutBtn.classList.add('hidden');
-        document.body.style.opacity = '1';
-      } catch (error) {
-        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다.', logoutBtn);
-        showNotice('로그아웃 처리 중 오류가 발생했습니다.', 'error');
-      } finally {
-        logoutBtn.disabled = false;
-        finishLoading();
-      }
-    });
 
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -1264,7 +1254,6 @@
       document.body.style.opacity = '1';
 
       if (user) {
-        logoutBtn.classList.remove('hidden');
         startLoading();
         await enforceAccessPolicy(user, {
           shouldRedirectOnApproved: true,
@@ -1273,7 +1262,6 @@
         return;
       }
 
-      logoutBtn.classList.add('hidden');
       finishLoading();
     });
 
@@ -1307,7 +1295,7 @@
       </div>
 
       <div class="sheet-tabs">
-        <button class="sheet-tab active" id="tabFindId" type="button">아이디 안내</button>
+        <button class="sheet-tab active" id="tabFindId" type="button">아이디 찾기</button>
         <button class="sheet-tab" id="tabResetPw" type="button">재설정 안내</button>
       </div>
 
