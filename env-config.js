@@ -45,8 +45,8 @@ export const API_URL = {
     signup: "https://signupwithid-292137041544.asia-northeast3.run.app",
     checkLoginId: "https://checkloginid-292137041544.asia-northeast3.run.app",
     checkNickname: "https://checknickname-292137041544.asia-northeast3.run.app",
-	getUserForPasswordReset: "https://getuserforpasswordreset-XXXX.a.run.app",
-    updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-XXXX.a.run.app",
+	getUserForPasswordReset: "https://getuserforpasswordreset-l6nmtiaxgq-du.a.run.app",
+    updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-l6nmtiaxgq-du.a.run.app",
   },
   prod: {
     login: "https://asia-northeast3-sola-home.cloudfunctions.net/loginWithId",
