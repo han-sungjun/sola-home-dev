@@ -342,9 +342,17 @@
   <script type="module">
     import './firebase-config.js';
     import { ENV, CURRENT_API, CURRENT_ROUTE } from './env-config.js';
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
+
+    const db = getFirestore();
 
     const signupForm = document.getElementById('signupForm');
     const noticeEl = document.getElementById('notice');
@@ -695,6 +703,34 @@
       setTimeout(() => replaceWithLoader(LOGIN_PAGE_URL), 60);
     });
 
+    async function createSignupPushJob({
+      building = '',
+      unit = '',
+      name = '',
+      nickname = '',
+      memberType = ''
+    } = {}) {
+      try {
+        await addDoc(collection(db, 'push_jobs'), {
+          type: 'signup',
+          target: 'admin',
+          title: '신규 회원가입 접수',
+          body: `${building}동 ${unit}호 회원가입 신청이 접수되었습니다.`,
+          clickUrl: '/sola-admin-x92ks.html?tab=members&filter=pending',
+          important: true,
+          status: 'queued',
+          targetBuilding: String(building || ''),
+          targetUnit: String(unit || ''),
+          applicantName: String(name || ''),
+          applicantNickname: String(nickname || ''),
+          memberType: String(memberType || ''),
+          createdAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.warn('회원가입 관리자 푸시 작업 생성 실패:', error);
+      }
+    }
+
     signupForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       hideNotice();
@@ -831,6 +867,14 @@
         if (!response.ok || !result.ok) {
           throw new Error(result.message || '회원가입 신청 중 오류가 발생했습니다.');
         }
+
+        await createSignupPushJob({
+          building,
+          unit,
+          name,
+          nickname,
+          memberType
+        });
 
         finishLoading();
         showNotice(result.message || '회원가입 신청이 완료되었습니다.', 'success');
