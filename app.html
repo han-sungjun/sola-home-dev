@@ -878,14 +878,10 @@ body.gnb-open .bottom-nav{
     window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
-    const app=initializeApp(firebaseConfig);
+    const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
     let messaging = null;
-	
-	console.log("[ENV]", ENV);
-	console.log("[CONFIG]", FIREBASE_CONFIG);
-	console.log("[ACTIVE CONFIG]", FIREBASE_CONFIG[ENV]);
 
     async function initPushSystem(){
       try{
