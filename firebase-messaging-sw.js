@@ -39,18 +39,21 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || "/";
+  const targetUrl = event.notification?.data?.url || "/";
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
-        for (const client of clientList) {
-          if (client.url.includes("/app.html")) {
-            return client.focus();
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          if ("navigate" in client) {
+            await client.navigate(targetUrl);
           }
+          return client.focus();
         }
-        return clients.openWindow(url);
-      })
+      }
+
+      return clients.openWindow(targetUrl);
+    })
   );
 });
 
