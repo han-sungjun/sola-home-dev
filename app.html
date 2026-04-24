@@ -825,6 +825,51 @@ body.gnb-open .bottom-nav{
       pointer-events:auto;
     }
 
+
+/* 거리순 정렬 + 반경 필터 */
+.distance-filter-panel{
+  display:grid;
+  gap:10px;
+  padding:14px;
+  border-radius:22px;
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(15,23,42,.08);
+  box-shadow:0 12px 26px rgba(15,23,42,.06);
+}
+.distance-filter-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.distance-select-wrap{display:grid;gap:6px;min-width:0}
+.distance-select-wrap label{font-size:12px;font-weight:900;color:#475569;letter-spacing:-.02em}
+.distance-select-wrap select{
+  width:100%;
+  min-height:44px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  color:#0f172a;
+  font-size:13px;
+  font-weight:800;
+  padding:0 12px;
+  outline:none;
+}
+.distance-filter-help{
+  padding:10px 12px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.5;
+}
+.distance-filter-help.active{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.distance-filter-help.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
+.distance-tag{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;font-weight:900}
+@media (max-width:370px){.distance-filter-row{grid-template-columns:1fr}}
+
 /* 1차 위치 기능: 혜택 상세 지도/길찾기/거리 표시 */
 .location-panel{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.07)}
 .location-panel .location-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
@@ -894,7 +939,7 @@ body.gnb-open .bottom-nav{
         <div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
       </div>
       <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div></div>
+      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
@@ -1009,7 +1054,7 @@ body.gnb-open .bottom-nav{
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -1764,6 +1809,87 @@ async function refreshPushStatus(){
       return `약 ${(n / 1000).toFixed(n < 10000 ? 1 : 0)}km`;
     }
 
+
+    function shouldUseDistanceFilter(){
+      return state.benefitSortMode === 'distance' || state.distanceRadius !== 'all';
+    }
+
+    function getItemDistance(item = {}){
+      const value = state.distanceMap?.[item.id];
+      return Number.isFinite(value) ? value : null;
+    }
+
+    function updateDistanceFilterHelp(){
+      const help = qs('#distanceFilterHelp');
+      if(!help) return;
+      help.classList.remove('active','error');
+      if(!shouldUseDistanceFilter()){
+        help.textContent = '가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.';
+        return;
+      }
+      if(state.distanceStatus === 'ready'){
+        help.classList.add('active');
+        help.textContent = '현재 위치 기준으로 거리 표시와 반경 필터가 적용 중입니다.';
+        return;
+      }
+      if(state.distanceStatus === 'error'){
+        help.classList.add('error');
+        help.textContent = '현재 위치 권한을 허용해야 가까운 순/반경 필터를 사용할 수 있습니다.';
+        return;
+      }
+      help.classList.add('active');
+      help.textContent = '현재 위치를 확인하는 중입니다...';
+    }
+
+    function recalculateBenefitDistances(){
+      const current = state.userLocation;
+      const nextMap = {};
+      if(!current) return nextMap;
+      getVisibleBenefits().forEach((item) => {
+        const pos = getBenefitLatLng(item);
+        if(!pos) return;
+        const distance = getDistanceMeters(current.lat, current.lng, pos.lat, pos.lng);
+        if(Number.isFinite(distance) && distance <= 200000){
+          nextMap[item.id] = distance;
+        }
+      });
+      state.distanceMap = nextMap;
+      return nextMap;
+    }
+
+    function ensureBenefitDistances(){
+      if(!shouldUseDistanceFilter()){
+        updateDistanceFilterHelp();
+        return Promise.resolve(false);
+      }
+      if(!navigator.geolocation){
+        state.distanceStatus = 'error';
+        updateDistanceFilterHelp();
+        return Promise.resolve(false);
+      }
+      state.distanceStatus = 'loading';
+      updateDistanceFilterHelp();
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition((position) => {
+          state.userLocation = {
+            lat: Number(position.coords.latitude),
+            lng: Number(position.coords.longitude)
+          };
+          recalculateBenefitDistances();
+          state.distanceStatus = 'ready';
+          updateDistanceFilterHelp();
+          resolve(true);
+        }, (error) => {
+          console.warn('거리순 정렬 위치 확인 실패', error);
+          state.distanceStatus = 'error';
+          state.userLocation = null;
+          state.distanceMap = {};
+          updateDistanceFilterHelp();
+          resolve(false);
+        }, { enableHighAccuracy:false, timeout:7000, maximumAge:60000 });
+      });
+    }
+
     function updateDistanceText(item = {}){
       const target = qs('#distanceText');
       if(!target) return;
@@ -1910,6 +2036,7 @@ async function refreshPushStatus(){
     function subscribeBenefits(){
       onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
         state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
+        if(state.userLocation) recalculateBenefitDistances();
         state.loading = false;
         renderAll();
         markInitialDataLoaded('benefits');
@@ -2227,9 +2354,42 @@ async function refreshPushStatus(){
       updateToggle();
       applyChipsState();
     }
-    function getFilteredBenefits(mode='normal'){const favorites=new Set(getFavorites());return getVisibleBenefits().filter(item=>{const matchCategory=state.category==='전체'||normalizeCategory(item.category)===normalizeCategory(state.category);const q=state.keyword.trim().toLowerCase();const blob=[item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();const matchKeyword=!q||blob.includes(q);const matchFilter=state.filter==='all'?true:(item.discountValue>=15||item.recommended);const matchMode=mode==='favorite'?favorites.has(item.id):true;return matchCategory&&matchKeyword&&matchFilter&&matchMode;}).sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));}
+    function getFilteredBenefits(mode='normal'){
+      const favorites = new Set(getFavorites());
+      const radius = state.distanceRadius === 'all' ? null : Number(state.distanceRadius);
+      const useRadius = Number.isFinite(radius) && radius > 0;
+
+      const items = getVisibleBenefits().filter(item => {
+        const matchCategory = state.category === '전체' || normalizeCategory(item.category) === normalizeCategory(state.category);
+        const q = state.keyword.trim().toLowerCase();
+        const blob = [item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();
+        const matchKeyword = !q || blob.includes(q);
+        const matchFilter = state.filter === 'all' ? true : (item.discountValue >= 15 || item.recommended);
+        const matchMode = mode === 'favorite' ? favorites.has(item.id) : true;
+        const distance = getItemDistance(item);
+        const matchRadius = !useRadius || (Number.isFinite(distance) && distance <= radius);
+        return matchCategory && matchKeyword && matchFilter && matchMode && matchRadius;
+      });
+
+      if(state.benefitSortMode === 'distance'){
+        return items.sort((a,b) => {
+          const da = getItemDistance(a);
+          const db = getItemDistance(b);
+          const va = Number.isFinite(da) ? da : Number.POSITIVE_INFINITY;
+          const vb = Number.isFinite(db) ? db : Number.POSITIVE_INFINITY;
+          return (va - vb) || a.name.localeCompare(b.name,'ko');
+        });
+      }
+
+      return items.sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));
+    }
     const getBadgeClass=(item)=>item.service?'badge service':(item.discountValue<=5?'badge low':'badge');
-    function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
+    function cardTemplate(item,isFavorite){
+      const shortAddress = item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address;
+      const distance = getItemDistance(item);
+      const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
+      return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span>${distanceTag}<span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
+    }
     function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
@@ -2253,9 +2413,11 @@ async function refreshPushStatus(){
       qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
     }
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();};
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
-    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';qs('#searchInput').value='';changeView('benefits');};
+    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
+    qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
+    qs('#distanceRadiusSelect')?.addEventListener('change', async (e)=>{state.distanceRadius=e.target.value||'all';await ensureBenefitDistances();renderAll();});
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){changeView(btn.dataset.view);}};});
     const gnbToggleBtn = qs('#gnbToggleBtn');
     const gnbSheet = qs('#gnbSheet');
