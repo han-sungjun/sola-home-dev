@@ -1,9 +1,16 @@
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
 
-// ENV 분기
-const hostname = self.location.hostname;
-const isDev = hostname.includes("dev");
+/* =========================
+   dev / prod 환경 분기 안정화
+========================= */
+const swUrl = String(self.location.href || "");
+const swHost = String(self.location.hostname || "");
+
+const isDev =
+  swUrl.includes("sola-home-dev") ||
+  swHost.includes("sola-home-dev") ||
+  swHost.includes("dev");
 
 const firebaseConfig = isDev
   ? {
@@ -28,54 +35,160 @@ const firebaseConfig = isDev
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// 백그라운드 수신
-messaging.onBackgroundMessage((payload) => {
-  const title = payload.data?.title || "알림";
-  const body = payload.data?.body || "";
-  const url = payload.data?.url || "/";
-  const noticeId = payload.data?.noticeId || "";
+/* =========================
+   중복 알림 방지용
+========================= */
+const recentNotificationKeys = new Map();
 
-  self.registration.showNotification(title, {
-    body,
+function makeNotificationKey({ title, body, url, noticeId, type }) {
+  return [
+    String(type || ""),
+    String(noticeId || ""),
+    String(title || ""),
+    String(body || ""),
+    String(url || "")
+  ].join("|");
+}
+
+function isDuplicateNotification(key) {
+  const now = Date.now();
+  const last = recentNotificationKeys.get(key);
+
+  recentNotificationKeys.set(key, now);
+
+  for (const [k, t] of recentNotificationKeys.entries()) {
+    if (now - t > 7000) {
+      recentNotificationKeys.delete(k);
+    }
+  }
+
+  return last && now - last < 2500;
+}
+
+/* =========================
+   payload 정규화
+========================= */
+function normalizePayload(payload) {
+  const data = payload?.data || payload || {};
+
+  const title =
+    data.title ||
+    payload?.notification?.title ||
+    "알림";
+
+  const body =
+    data.body ||
+    payload?.notification?.body ||
+    "";
+
+  const url =
+    data.url ||
+    data.clickUrl ||
+    data.link ||
+    payload?.fcmOptions?.link ||
+    payload?.webpush?.fcmOptions?.link ||
+    "/";
+
+  const noticeId = data.noticeId || "";
+  const type = data.type || "notice";
+
+  return {
+    title: String(title || "알림"),
+    body: String(body || ""),
+    url: String(url || "/"),
+    noticeId: String(noticeId || ""),
+    type: String(type || "notice")
+  };
+}
+
+function showPushNotification(payload) {
+  const normalized = normalizePayload(payload);
+
+  const key = makeNotificationKey(normalized);
+  if (isDuplicateNotification(key)) return;
+
+  return self.registration.showNotification(normalized.title, {
+    body: normalized.body,
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
-    vibrate: [200, 100, 200], // 중요 알림 느낌
+    vibrate: [200, 100, 200],
     data: {
-      url,
-      noticeId
+      url: normalized.url,
+      noticeId: normalized.noticeId,
+      type: normalized.type
     }
   });
+}
+
+/* =========================
+   Firebase 백그라운드 수신
+========================= */
+messaging.onBackgroundMessage((payload) => {
+  return showPushNotification(payload);
 });
 
-// 클릭 처리
+/* =========================
+   모바일 fallback push 수신
+   - 일부 모바일 브라우저에서 data-only push 보강
+========================= */
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  event.waitUntil(
+    (async () => {
+      let payload = {};
+
+      try {
+        payload = event.data.json();
+      } catch (e) {
+        payload = {
+          title: "알림",
+          body: event.data.text() || "",
+          url: "/"
+        };
+      }
+
+      await showPushNotification(payload);
+    })()
+  );
+});
+
+/* =========================
+   알림 클릭 처리
+========================= */
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const data = event.notification?.data || {};
   const targetUrl = data.url || "/";
   const noticeId = data.noticeId || "";
+  const type = data.type || "";
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && "focus" in client) {
-          client.postMessage({
-            type: "OPEN_NOTICE",
-            noticeId,
-            url: targetUrl
-          });
+    clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then(async (clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && "focus" in client) {
+            client.postMessage({
+              type: "OPEN_PUSH",
+              pushType: type,
+              noticeId,
+              url: targetUrl
+            });
 
-          return client.focus();
+            return client.focus();
+          }
         }
-      }
 
-      return clients.openWindow(targetUrl);
-    })
+        return clients.openWindow(targetUrl);
+      })
   );
 });
 
-// SW 최신화
-self.addEventListener("install", (event) => {
+/* =========================
+   SW 최신화
+========================= */
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
