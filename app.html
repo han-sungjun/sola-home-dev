@@ -1699,13 +1699,32 @@ async function refreshPushStatus(){
       return `<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">등록 정보</strong>${createdText ? `등록일 ${createdText}` : ''}${createdText && updatedText ? '<br>' : ''}${updatedText ? `수정일 ${updatedText}` : ''}</div>`;
     }
 
-    function hasBenefitLocation(item = {}){
-      return Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng));
+    function normalizeKoreaLatLng(rawLat, rawLng){
+      let lat = Number(rawLat);
+      let lng = Number(rawLng);
+      if(!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+      // Firestore 입력 과정에서 lat/lng가 서로 바뀐 경우 자동 보정
+      // 한국 좌표 대략: 위도 33~39, 경도 124~132
+      const looksLikeKoreaLat = (value) => value >= 32 && value <= 40;
+      const looksLikeKoreaLng = (value) => value >= 123 && value <= 133;
+
+      if(looksLikeKoreaLng(lat) && looksLikeKoreaLat(lng)){
+        const temp = lat;
+        lat = lng;
+        lng = temp;
+      }
+
+      if(!looksLikeKoreaLat(lat) || !looksLikeKoreaLng(lng)) return null;
+      return { lat, lng };
     }
 
     function getBenefitLatLng(item = {}){
-      if(!hasBenefitLocation(item)) return null;
-      return { lat:Number(item.lat), lng:Number(item.lng) };
+      return normalizeKoreaLatLng(item.lat, item.lng);
+    }
+
+    function hasBenefitLocation(item = {}){
+      return !!getBenefitLatLng(item);
     }
 
     function buildMapSearchLink(item = {}){
@@ -1773,6 +1792,11 @@ async function refreshPushStatus(){
       navigator.geolocation.getCurrentPosition((position) => {
         if(!isStillCurrent()) return;
         const distance = getDistanceMeters(position.coords.latitude, position.coords.longitude, pos.lat, pos.lng);
+        if(distance > 200000){
+          target.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+          target.classList.add('muted');
+          return;
+        }
         target.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.`;
         target.classList.remove('muted');
       }, (error) => {
