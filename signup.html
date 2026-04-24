@@ -110,6 +110,16 @@
     .btn:active{transform:scale(.985)}
     .btn-primary{background:var(--primary);color:#fff}
     .btn-soft{margin-top:10px;background:#fff;color:var(--text);border:1px solid var(--line)}
+    .btn-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:4px;
+    }
+    .btn-row .btn{
+      width:100%;
+      margin-top:0;
+    }
     .btn[disabled]{opacity:.65;cursor:not-allowed}
     .mini-btn{
       border:none;border-radius:14px;padding:12px 14px;cursor:pointer;font-weight:800;
@@ -210,6 +220,18 @@
     .strength-text.medium{color:#b45309}
     .strength-text.strong{color:var(--success)}
     @media (max-width: 560px){.inline-2{grid-template-columns:1fr}}
+
+
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:10001;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert.show{display:flex}
+    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
+    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
+    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
+    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+
   </style>
 </head>
 <body>
@@ -327,8 +349,10 @@
           가입 신청 후 관리자 승인 전에는 로그인할 수 없습니다. 승인 후 휴대폰 인증이 필요할 수 있습니다.
         </div>
 
-        <button id="signupBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
-        <button id="goLoginBtn" class="btn btn-soft" type="button">로그인으로 돌아가기</button>
+        <div class="btn-row">
+          <button id="signupBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
+          <button id="goLoginBtn" class="btn btn-soft" type="button">로그인으로 돌아가기</button>
+        </div>
       </form>
 
       <div id="notice" class="notice info"></div>
@@ -443,6 +467,12 @@
       document.getElementById('pwBar2'),
       document.getElementById('pwBar3')
     ];
+    const alertEl = document.getElementById('appAlert');
+    const alertMsgEl = document.getElementById('appAlertMessage');
+    const alertTitleEl = document.getElementById('appAlertTitle');
+    const alertConfirmEl = document.getElementById('appAlertConfirm');
+    let alertFocusTarget = null;
+    let alertResolver = null;
 
     const fields = {
       loginId: document.getElementById('loginId'),
@@ -479,6 +509,43 @@
       noticeEl.className = 'notice info';
       noticeEl.textContent = '';
     }
+
+    function openModalAlert(message, focusTarget = null, title = '안내') {
+      alertFocusTarget = focusTarget;
+      alertTitleEl.textContent = title;
+      alertMsgEl.textContent = message;
+      alertEl.classList.add('show');
+      alertEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => alertConfirmEl.focus());
+      return new Promise((resolve) => {
+        alertResolver = resolve;
+      });
+    }
+
+    function closeModal(result = true) {
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+
+      if (alertFocusTarget) {
+        alertFocusTarget.focus();
+        try {
+          const len = alertFocusTarget.value?.length || 0;
+          alertFocusTarget.setSelectionRange(len, len);
+        } catch (_) {}
+      }
+
+      const resolver = alertResolver;
+      alertResolver = null;
+      if (resolver) resolver(result);
+    }
+
+    alertConfirmEl.addEventListener('click', () => closeModal(true));
+    alertEl.addEventListener('click', (event) => {
+      if (event.target === alertEl) closeModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && alertEl.classList.contains('show')) closeModal(false);
+    });
 
     function setInlineStatus(element, message = '', type = 'info') {
       if (!element) return;
@@ -616,6 +683,11 @@
 
     function normalizeDigits(value = '') {
       return String(value).replace(/\D/g, '');
+    }
+
+    async function stopWithAlert(message, focusTarget = null) {
+      showNotice(message, 'error');
+      await openModalAlert(message, focusTarget);
     }
 
     function setSubmitting(isSubmitting) {
@@ -797,90 +869,78 @@
       const agreePolicy = !!fields.agreePolicy.checked;
 
       if (!loginId) {
-        showNotice('아이디를 입력해주세요.', 'error');
-        fields.loginId.focus();
+        await stopWithAlert('아이디를 입력해주세요.', fields.loginId);
         return;
       }
 
       if (!validateLoginIdFormat(loginId)) {
-        showNotice('아이디는 영문 소문자와 숫자만, 4~20자로 입력해 주세요.', 'error');
-        fields.loginId.focus();
+        await stopWithAlert('아이디는 영문 소문자와 숫자만, 4~20자로 입력해 주세요.', fields.loginId);
         return;
       }
 
       if (!nickname) {
-        showNotice('닉네임을 입력해주세요.', 'error');
-        fields.nickname.focus();
+        await stopWithAlert('닉네임을 입력해주세요.', fields.nickname);
         return;
       }
 
       if (!validateNicknameFormat(nickname)) {
-        showNotice('닉네임은 2자 이상 입력해 주세요.', 'error');
-        fields.nickname.focus();
+        await stopWithAlert('닉네임은 2자 이상 입력해 주세요.', fields.nickname);
         return;
       }
 
       if (!password) {
-        showNotice('비밀번호를 입력해주세요.', 'error');
-        fields.password.focus();
+        await stopWithAlert('비밀번호를 입력해주세요.', fields.password);
         return;
       }
 
       if (password.length < 6) {
-        showNotice('비밀번호는 6자 이상이어야 합니다.', 'error');
-        fields.password.focus();
+        await stopWithAlert('비밀번호는 6자 이상이어야 합니다.', fields.password);
         return;
       }
 
       if (!passwordConfirm) {
-        showNotice('비밀번호 확인을 입력해주세요.', 'error');
-        fields.passwordConfirm.focus();
+        await stopWithAlert('비밀번호 확인을 입력해주세요.', fields.passwordConfirm);
         return;
       }
 
       if (password !== passwordConfirm) {
         validatePasswordMatch();
-        showNotice('비밀번호와 비밀번호 확인이 일치하지 않습니다.', 'error');
-        fields.passwordConfirm.focus();
+        await stopWithAlert('비밀번호와 비밀번호 확인이 일치하지 않습니다.', fields.passwordConfirm);
         return;
       }
 
       if (!name) {
-        showNotice('성명을 입력해주세요.', 'error');
-        fields.name.focus();
+        await stopWithAlert('성명을 입력해주세요.', fields.name);
         return;
       }
 
       if (!phoneNumber) {
-        showNotice('휴대폰 번호를 입력해주세요.', 'error');
-        fields.phoneNumber.focus();
+        await stopWithAlert('휴대폰 번호를 입력해주세요.', fields.phoneNumber);
         return;
       }
 
       if (!building || !unit) {
-        showNotice('동과 호수를 입력해주세요.', 'error');
-        (!building ? fields.building : fields.unit).focus();
+        await stopWithAlert('동과 호수를 입력해주세요.', !building ? fields.building : fields.unit);
         return;
       }
 
       if (!residentProofFile) {
-        showNotice('입주민 인증 사진을 업로드해 주세요.', 'error');
-        fields.residentProof.focus();
+        await stopWithAlert('입주민 인증 사진을 업로드해 주세요.', fields.residentProof);
         return;
       }
 
       if (!agreePrivacy || !agreePolicy) {
-        showNotice('필수 동의 항목에 체크해 주세요.', 'error');
+        await stopWithAlert('필수 동의 항목에 체크해 주세요.', !agreePrivacy ? fields.agreePrivacy : fields.agreePolicy);
         return;
       }
 
       if (loginIdCheckedValue !== loginId) {
-        showNotice('아이디 중복 확인을 완료해 주세요.', 'error');
+        await stopWithAlert('아이디 중복 확인을 완료해 주세요.', checkLoginIdBtn);
         return;
       }
 
       if (nicknameCheckedValue !== nickname) {
-        showNotice('닉네임 중복 확인을 완료해 주세요.', 'error');
+        await stopWithAlert('닉네임 중복 확인을 완료해 주세요.', checkNicknameBtn);
         return;
       }
 
@@ -928,6 +988,20 @@
       }
     });
   </script>
+
+
+  <div class="app-alert" id="appAlert" aria-hidden="true">
+    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
+      <div class="app-alert-head">
+        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
+      </div>
+      <p class="app-alert-message" id="appAlertMessage"></p>
+      <div class="app-alert-actions">
+        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
 
   <div id="pageLoader" class="page-loader" aria-hidden="true">
     <div class="loader-mark" aria-label="로딩 중" role="status">
