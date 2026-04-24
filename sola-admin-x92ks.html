@@ -1081,18 +1081,19 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     async function queuePushJob({noticeId,title,body,pinned=false,targetType='all',targetUid='',targetBuilding='',targetUnit=''}){
       if(!state.isAdmin||!db) return;
       const safeNoticeId = String(noticeId || '').trim();
+      const normalizedTarget = targetType === 'user' ? 'uid' : (targetType || 'all');
       const clickUrl = safeNoticeId
         ? `${window.location.origin}/app.html?view=notices&noticeId=${encodeURIComponent(safeNoticeId)}`
         : `${window.location.origin}/app.html?view=notices`;
+
       await addDoc(collection(db,PUSH_JOBS_COLLECTION),{
-        type:'notice_broadcast',
+        type:'notice',
+        target: normalizedTarget,
         noticeId:safeNoticeId,
         title:title||'새 공지',
         body:body||'',
-        pinned:!!pinned,
         important:!!pinned,
         clickUrl,
-        targetType:targetType||'all',
         targetUid:targetUid||'',
         targetBuilding:targetBuilding||'',
         targetUnit:targetUnit||'',
@@ -1100,7 +1101,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         createdAt:serverTimestamp()
       });
     }
-
     async function validateBenefitForm(){
       const checks = [
         { el: qs('#name'), message: '매장명을 입력해 주세요.' },
@@ -1473,54 +1473,190 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       renderMemberGroup(qs('#memberRejectedList'), buckets.rejected, '반려된 회원이 없습니다.');
       renderMemberGroup(qs('#memberWithdrawnList'), buckets.withdrawn, '탈퇴 상태 회원이 없습니다.');
     }
+    async function createSignupResultPushJob(member, action, rejectReason = ''){
+      if(!state.isAdmin || !db || !member?.id) return;
+
+      const isApprove = action === 'approve';
+
+      await addDoc(collection(db, PUSH_JOBS_COLLECTION), {
+        type: 'signup_result',
+        target: 'uid',
+        targetUid: member.id,
+        title: isApprove ? '회원가입 승인 완료' : '회원가입 반려 안내',
+        body: isApprove
+          ? '회원가입이 승인되었습니다. 로그인 후 서비스를 이용해 주세요.'
+          : `회원가입이 반려되었습니다.${rejectReason ? ` 사유: ${rejectReason}` : ''}`,
+        clickUrl: `${window.location.origin}/index.html`,
+        important: true,
+        status: 'queued',
+        memberId: member.id,
+        memberLoginId: member.loginId || '',
+        memberEmail: member.email || '',
+        result: isApprove ? 'approved' : 'rejected',
+        rejectReason: rejectReason || '',
+        createdAt: serverTimestamp()
+      });
+    }
+
+    function escapeEmailHtml(value = ''){
+      return String(value)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
+    }
+
+    async function createSignupResultEmail(member, action, rejectReason = ''){
+      if(!state.isAdmin || !db || !member?.email) return;
+
+      const isApprove = action === 'approve';
+      const displayName = escapeEmailHtml(member.name || member.nickname || '입주민');
+      const safeRejectReason = escapeEmailHtml(rejectReason || '관리자 확인 필요');
+      const loginUrl = `${window.location.origin}/index.html`;
+
+      await addDoc(collection(db, 'mail'), {
+        to: member.email,
+        message: {
+          subject: isApprove
+            ? '[더운정 마이힐스] 회원가입 승인 안내'
+            : '[더운정 마이힐스] 회원가입 반려 안내',
+          html: isApprove
+            ? `
+              <div style="font-family:Arial,'Noto Sans KR',sans-serif;line-height:1.7;color:#111827;">
+                <h2>회원가입이 승인되었습니다.</h2>
+                <p>안녕하세요. ${displayName}님</p>
+                <p>더운정 마이힐스 회원가입 신청이 승인되었습니다.</p>
+                <p>이제 로그인 후 입주민 전용 서비스를 이용하실 수 있습니다.</p>
+                <p><a href="${loginUrl}">로그인 페이지로 이동</a></p>
+              </div>
+            `
+            : `
+              <div style="font-family:Arial,'Noto Sans KR',sans-serif;line-height:1.7;color:#111827;">
+                <h2>회원가입 신청이 반려되었습니다.</h2>
+                <p>안녕하세요. ${displayName}님</p>
+                <p>더운정 마이힐스 회원가입 신청이 반려되었습니다.</p>
+                <p><strong>반려 사유:</strong> ${safeRejectReason}</p>
+                <p>내용을 확인하신 뒤 필요 시 다시 신청해 주세요.</p>
+              </div>
+            `
+        },
+        createdAt: serverTimestamp()
+      });
+    }
+
     async function updateMemberStatus(memberId, action){
       if(!state.isAdmin || !db){
         await openModalAlert('관리자 로그인 후 처리할 수 있습니다.', qs('#adminLoginId'));
         return;
       }
+
       const member = state.members.find(item => item.id === memberId);
       if(!member) return;
+
       const adminEmail = auth?.currentUser?.email || 'admin';
       const payload = { updatedAt: serverTimestamp() };
-      let message='처리가 완료되었습니다.';
+      let message = '처리가 완료되었습니다.';
+      let rejectReason = '';
+      let shouldNotifySignupResult = false;
+
       if(action === 'approve'){
         const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 승인할까요?`, qs('#view-members'), '회원 승인', '승인', '취소');
         if(!confirmed) return;
-        Object.assign(payload, { approvalStatus:'approved', accountStatus:'active', approvedAt:serverTimestamp(), approvedBy:adminEmail, rejectReason:'', rejectedAt:null, rejectedBy:'', restoredAt:null, restoredBy:'', restoreReason:'' });
-        message='회원 승인이 완료되었습니다.';
+
+        Object.assign(payload, {
+          approvalStatus:'approved',
+          accountStatus:'active',
+          approvedAt:serverTimestamp(),
+          approvedBy:adminEmail,
+          rejectReason:'',
+          rejectedAt:null,
+          rejectedBy:'',
+          restoredAt:null,
+          restoredBy:'',
+          restoreReason:''
+        });
+
+        message = '회원 승인이 완료되었습니다.';
+        shouldNotifySignupResult = true;
+
       } else if(action === 'reject'){
         const reasonEl = document.querySelector(`[data-reject-reason="${memberId}"]`);
-        const rejectReason = String(reasonEl?.value || '').trim();
+        rejectReason = String(reasonEl?.value || '').trim();
+
         if(!rejectReason){
           await openModalAlert('반려 사유를 입력해 주세요.', reasonEl || qs('#view-members'));
           return;
         }
+
         const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 반려할까요?`, reasonEl || qs('#view-members'), '회원 반려', '반려', '취소');
         if(!confirmed) return;
-        Object.assign(payload, { approvalStatus:'rejected', accountStatus:'active', rejectReason, rejectedAt:serverTimestamp(), rejectedBy:adminEmail });
-        message='회원 반려 처리가 완료되었습니다.';
+
+        Object.assign(payload, {
+          approvalStatus:'rejected',
+          accountStatus:'active',
+          rejectReason,
+          rejectedAt:serverTimestamp(),
+          rejectedBy:adminEmail
+        });
+
+        message = '회원 반려 처리가 완료되었습니다.';
+        shouldNotifySignupResult = true;
+
       } else if(action === 'restore'){
         const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 복구할까요?`, qs('#view-members'), '회원 복구', '복구', '취소');
         if(!confirmed) return;
-        Object.assign(payload, { accountStatus:'active', approvalStatus:'approved', restoredAt:serverTimestamp(), restoredBy:adminEmail, restoreReason:'관리자 복구', withdrawReason:'', withdrawnAt:null, withdrawnBy:'' });
-        message='회원 복구가 완료되었습니다.';
+
+        Object.assign(payload, {
+          accountStatus:'active',
+          approvalStatus:'approved',
+          restoredAt:serverTimestamp(),
+          restoredBy:adminEmail,
+          restoreReason:'관리자 복구',
+          withdrawReason:'',
+          withdrawnAt:null,
+          withdrawnBy:''
+        });
+
+        message = '회원 복구가 완료되었습니다.';
+
       } else if(action === 'withdraw'){
         const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 탈퇴 상태로 변경할까요?`, qs('#view-members'), '탈퇴 처리', '처리', '취소');
         if(!confirmed) return;
-        Object.assign(payload, { accountStatus:'withdrawn', withdrawnAt:serverTimestamp(), withdrawnBy:adminEmail, withdrawReason:'관리자 처리' });
-        message='회원이 탈퇴 상태로 변경되었습니다.';
+
+        Object.assign(payload, {
+          accountStatus:'withdrawn',
+          withdrawnAt:serverTimestamp(),
+          withdrawnBy:adminEmail,
+          withdrawReason:'관리자 처리'
+        });
+
+        message = '회원이 탈퇴 상태로 변경되었습니다.';
+
       } else {
         return;
       }
+
       try{
         showGlobalLoading();
+
         await updateDoc(doc(db, USERS_COLLECTION, memberId), payload);
+
+        if(shouldNotifySignupResult){
+          await createSignupResultPushJob(member, action, rejectReason);
+
+          if(member.email){
+            await createSignupResultEmail(member, action, rejectReason);
+          }
+        }
+
         hideGlobalLoading();
         await openModalAlert(message, qs('#view-members'));
+
       }catch(e){
         console.error(e);
         hideGlobalLoading();
-        await openModalAlert('회원 상태 변경에 실패했습니다.', qs('#view-members'));
+        await openModalAlert('회원 상태 변경에 실패했습니다. 콘솔 오류를 확인해 주세요.', qs('#view-members'));
       }
     }
     function subscribeMembers(){
