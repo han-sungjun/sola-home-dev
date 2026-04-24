@@ -72,6 +72,39 @@
 .popular-score strong{display:block;font-size:16px}
 .popular-score span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
 
+/* TOP 5 medal / highlight / count animation */
+.popular-item.rank-1{
+  border-color:#fbbf24;
+  background:linear-gradient(180deg,#fff7ed 0%,#ffffff 72%);
+  box-shadow:0 18px 36px rgba(245,158,11,.16), inset 0 0 0 1px rgba(251,191,36,.18);
+}
+.popular-item.rank-1 .popular-name{
+  color:#92400e;
+}
+.popular-rank.medal{
+  background:#fff;
+  font-size:22px;
+  color:#0f172a;
+}
+.popular-rank.gold{
+  box-shadow:0 10px 24px rgba(245,158,11,.25);
+  border:1px solid rgba(251,191,36,.35);
+}
+.popular-rank.silver{
+  box-shadow:0 10px 24px rgba(148,163,184,.22);
+  border:1px solid rgba(148,163,184,.35);
+}
+.popular-rank.bronze{
+  box-shadow:0 10px 24px rgba(180,83,9,.22);
+  border:1px solid rgba(180,83,9,.28);
+}
+.popular-count{
+  display:block;
+  font-size:16px;
+  font-weight:900;
+}
+
+
 .bottom-nav{
   grid-template-columns:repeat(4,1fr)!important;
   gap:6px;
@@ -1942,6 +1975,36 @@ async function refreshPushStatus(){
       });
     }
 
+    function getRankBadge(rank){
+      if(rank === 1) return '<div class="popular-rank medal gold" aria-label="1위">🥇</div>';
+      if(rank === 2) return '<div class="popular-rank medal silver" aria-label="2위">🥈</div>';
+      if(rank === 3) return '<div class="popular-rank medal bronze" aria-label="3위">🥉</div>';
+      return `<div class="popular-rank" aria-label="${rank}위">${rank}</div>`;
+    }
+
+    function animatePopularCount(el, target){
+      if(!el) return;
+      const end = Math.max(0, Number(target || 0));
+      if(end === 0){
+        el.textContent = '0';
+        return;
+      }
+
+      let current = 0;
+      const steps = 24;
+      const step = Math.max(1, Math.ceil(end / steps));
+      clearInterval(el._popularCountTimer);
+
+      el._popularCountTimer = setInterval(() => {
+        current += step;
+        if(current >= end){
+          current = end;
+          clearInterval(el._popularCountTimer);
+        }
+        el.textContent = current.toLocaleString('ko-KR');
+      }, 24);
+    }
+
     function renderPopularTop5(){
       const wrap = qs('#popularList');
       if(!wrap) return;
@@ -1951,16 +2014,17 @@ async function refreshPushStatus(){
         return;
       }
       state.popularItems.forEach((item, index) => {
+        const rank = index + 1;
         const row = document.createElement('article');
-        row.className = 'popular-item';
+        row.className = `popular-item ${rank === 1 ? 'rank-1' : ''}`;
         row.innerHTML = `
-          <div class="popular-rank">${index + 1}</div>
+          ${getRankBadge(rank)}
           <div class="popular-meta">
             <div class="popular-name">${item.name}</div>
             <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}${benefitDateText(item) ? ' · ' + benefitDateText(item) : ''}</div>
           </div>
           <div class="popular-score">
-            <strong>${item.score}</strong>
+            <strong class="popular-count">0</strong>
             <span>상세조회</span>
           </div>
         `;
@@ -1970,6 +2034,7 @@ async function refreshPushStatus(){
           }
         };
         wrap.appendChild(row);
+        animatePopularCount(row.querySelector('.popular-count'), item.score);
       });
     }
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
