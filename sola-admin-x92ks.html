@@ -758,6 +758,93 @@ body.gnb-open .admin-bottom-nav{
       .hero-env{top:16px;right:16px;padding:8px 11px;font-size:11px}
     }
 
+
+/* ===== Mobile overflow alignment fix: match dashboard width across all tabs ===== */
+.app,
+.shell,
+.admin-view,
+.admin-groups,
+.dashboard-grid,
+.admin-card,
+.panel,
+.hero,
+.form-grid,
+.mini-list,
+.summary-list{
+  max-width:100%;
+  min-width:0;
+}
+
+.admin-card,
+.panel,
+.hero{
+  overflow:hidden;
+}
+
+.grid-2{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.field,
+.field input,
+.field select,
+.field textarea,
+.check-row,
+.btn{
+  min-width:0;
+  max-width:100%;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+}
+
+.admin-bottom-nav{
+  left:50% !important;
+  right:auto !important;
+  width:calc(100% - 32px) !important;
+  max-width:calc(var(--app-max) - 32px) !important;
+  transform:translateX(-50%) !important;
+  box-sizing:border-box;
+}
+
+@media (max-width:560px){
+  .app{
+    width:100%;
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .admin-card,
+  .panel,
+  .hero{
+    width:100%;
+  }
+
+  .grid-2{
+    grid-template-columns:1fr;
+  }
+
+  .check-row{
+    gap:12px;
+  }
+}
+
+@media (max-width:380px){
+  .app{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .admin-bottom-nav{
+    width:calc(100% - 24px) !important;
+    padding-left:10px;
+    padding-right:10px;
+  }
+}
+
   </style>
 </head>
 <body>
