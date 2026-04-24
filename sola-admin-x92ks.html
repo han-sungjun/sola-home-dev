@@ -803,22 +803,8 @@ body.gnb-open .admin-bottom-nav{
 .member-proof-copy span{color:#64748b;font-size:12px;line-height:1.35}
 .member-reject-box{display:grid;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed #e2e8f0}
 .member-reject-box label{font-size:13px;color:#334155;font-weight:800}
-/* 회원 처리 버튼: 반려 사유 입력란과 겹치지 않도록 카드 하단 일반 배치 */
-.member-reject-box textarea{
-  min-height:96px;
-  margin-bottom:12px;
-}
-.member-action-sticky{
-  position:static;
-  display:flex;
-  gap:10px;
-  padding-top:12px;
-  margin-top:12px;
-  border-top:1px dashed #e2e8f0;
-  background:#fff;
-  z-index:auto;
-}
-.member-action-sticky .btn{flex:1;padding:12px 14px}
+.member-action-sticky{position:sticky;bottom:86px;display:flex;gap:10px;padding-top:12px;margin-top:12px;background:linear-gradient(180deg,rgba(255,255,255,.72),#fff 45%);z-index:5}
+.member-action-sticky .btn{flex:1;padding:10px 12px}
 @media (max-width:420px){.member-summary{flex-direction:column;align-items:stretch}.member-summary-side{width:100%;justify-content:space-between}.member-summary-side .tags{justify-content:flex-start;max-width:none}}
 
 
@@ -908,6 +894,42 @@ body.gnb-open .admin-bottom-nav{
   }
 }
 
+
+/* ===== Benefit list date + sort UI ===== */
+.benefit-list-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.benefit-sort-select{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#334155;
+  font-size:12px;
+  font-weight:800;
+  padding:8px 28px 8px 12px;
+  outline:none;
+  max-width:126px;
+}
+.benefit-date-line{
+  color:#94a3b8;
+  font-size:12px;
+  line-height:1.45;
+  margin-top:4px;
+}
+.tag.updated-tag{
+  background:#fff7ed;
+  border-color:#fed7aa;
+  color:#c2410c;
+  font-weight:800;
+}
+@media (max-width:420px){
+  .benefit-list-head{align-items:flex-start}
+  .benefit-sort-select{max-width:116px;font-size:11px;padding:7px 24px 7px 10px}
+}
+
   </style>
 </head>
 <body>
@@ -995,7 +1017,7 @@ body.gnb-open .admin-bottom-nav{
         <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label></div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><input id="address" /></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="네이버 지도 또는 카카오 지도 URL" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
       
       
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><small id="benefitListCount">0건</small></div><div class="mini-list" id="adminList"></div></div>
+        <div class="admin-card"><div class="section-head benefit-list-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><div style="display:flex;align-items:center;gap:8px;"><small id="benefitListCount">0건</small><select id="benefitSortSelect" class="benefit-sort-select" aria-label="혜택 정렬"><option value="latest">최신순</option><option value="updated">수정순</option><option value="name">이름순</option></select></div></div><div class="mini-list" id="adminList"></div></div>
     
       </div>
     </div>
@@ -1081,7 +1103,7 @@ body.gnb-open .admin-bottom-nav{
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
-    const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
     const initialLoadState = { benefits:false, notices:false, pushJobs:false, users:false };
@@ -1207,7 +1229,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
@@ -1226,7 +1248,90 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
     function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
-    function renderAdminList(){const list=qs('#adminList');const dashboardList=qs('#dashboardBenefitList');if(list) list.innerHTML='';if(dashboardList) dashboardList.innerHTML='';if(!state.benefits.length){if(list) list.innerHTML='<div class="notice">등록된 항목이 없습니다.</div>'; if(dashboardList) dashboardList.innerHTML='<div class="notice">등록된 항목이 없습니다.</div>'; return;}const items=[...state.benefits].sort((a,b)=>a.name.localeCompare(b.name,'ko'));items.forEach((item,index)=>{const html=`<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div></div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`; if(list){const el=document.createElement('div');el.className='mini-item';el.innerHTML=html;el.querySelector('.edit-btn').onclick=()=>fillForm(item);el.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);list.appendChild(el);} if(dashboardList && index < 3){const el2=document.createElement('div');el2.className='mini-item';el2.innerHTML=html;el2.querySelector('.edit-btn').onclick=()=>{fillForm(item);changeAdminView('benefits');};el2.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);dashboardList.appendChild(el2);}});}
+    function getTimestampSeconds(ts){
+      if(!ts) return 0;
+      if(typeof ts.seconds === 'number') return ts.seconds;
+      if(typeof ts.toDate === 'function') return Math.floor(ts.toDate().getTime()/1000);
+      const date = new Date(ts);
+      const time = date.getTime();
+      return Number.isFinite(time) ? Math.floor(time/1000) : 0;
+    }
+
+    function formatAdminDate(ts){
+      const seconds = getTimestampSeconds(ts);
+      if(!seconds) return '-';
+      const date = new Date(seconds * 1000);
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,'0');
+      const d = String(date.getDate()).padStart(2,'0');
+      return `${y}.${m}.${d}`;
+    }
+
+    function isRecentlyUpdatedBenefit(item){
+      const updated = getTimestampSeconds(item.updatedAt);
+      if(!updated) return false;
+      const created = getTimestampSeconds(item.createdAt);
+      if(created && Math.abs(updated - created) < 60) return false;
+      return (Date.now()/1000 - updated) < 60 * 60 * 24 * 3;
+    }
+
+    function sortBenefits(items){
+      const list = [...items];
+      if(benefitSortMode === 'name'){
+        return list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
+      }
+      if(benefitSortMode === 'updated'){
+        return list.sort((a,b)=>{
+          const bt = getTimestampSeconds(b.updatedAt) || getTimestampSeconds(b.createdAt);
+          const at = getTimestampSeconds(a.updatedAt) || getTimestampSeconds(a.createdAt);
+          return bt - at;
+        });
+      }
+      return list.sort((a,b)=>{
+        const bt = getTimestampSeconds(b.createdAt) || getTimestampSeconds(b.updatedAt);
+        const at = getTimestampSeconds(a.createdAt) || getTimestampSeconds(a.updatedAt);
+        return bt - at;
+      });
+    }
+
+    function buildBenefitItemHtml(item){
+      const createdText = formatAdminDate(item.createdAt);
+      const updatedText = formatAdminDate(item.updatedAt);
+      const dateLine = `등록 ${createdText} · 수정 ${updatedText}`;
+      return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div></div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
+    }
+
+    function renderAdminList(){
+      const list=qs('#adminList');
+      const dashboardList=qs('#dashboardBenefitList');
+      if(list) list.innerHTML='';
+      if(dashboardList) dashboardList.innerHTML='';
+      if(!state.benefits.length){
+        if(list) list.innerHTML='<div class="notice">등록된 항목이 없습니다.</div>';
+        if(dashboardList) dashboardList.innerHTML='<div class="notice">등록된 항목이 없습니다.</div>';
+        return;
+      }
+      const items=sortBenefits(state.benefits);
+      items.forEach((item,index)=>{
+        const html=buildBenefitItemHtml(item);
+        if(list){
+          const el=document.createElement('div');
+          el.className='mini-item';
+          el.innerHTML=html;
+          el.querySelector('.edit-btn').onclick=()=>fillForm(item);
+          el.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);
+          list.appendChild(el);
+        }
+        if(dashboardList && index < 3){
+          const el2=document.createElement('div');
+          el2.className='mini-item';
+          el2.innerHTML=html;
+          el2.querySelector('.edit-btn').onclick=()=>{fillForm(item);changeAdminView('benefits');};
+          el2.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);
+          dashboardList.appendChild(el2);
+        }
+      });
+    }
     function renderNoticeList(){const list=qs('#noticeAdminList');const dashboardList=qs('#dashboardNoticeList');if(list) list.innerHTML='';if(dashboardList) dashboardList.innerHTML='';if(!state.notices.length){if(list) list.innerHTML='<div class="notice">등록된 공지가 없습니다.</div>'; if(dashboardList) dashboardList.innerHTML='<div class="notice">등록된 공지가 없습니다.</div>'; return;}const items=[...state.notices].sort((a,b)=>{if(Number(b.pinned)!==Number(a.pinned)) return Number(b.pinned)-Number(a.pinned);const at=a.updatedAt?.seconds||a.createdAt?.seconds||0;const bt=b.updatedAt?.seconds||b.createdAt?.seconds||0;return bt-at;});items.forEach((item,index)=>{const html=`<div class="mini-item-head"><div><h5>${item.title}</h5><div style="color:#64748b;font-size:13px;line-height:1.55;white-space:pre-wrap;">${item.content.slice(0,80)}${item.content.length>80?'…':''}</div><div class="tags">${item.pinned?'<span class="tag rec">중요</span>':''}<span class="tag">${item.category}</span>${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div></div><div class="tags" style="margin-top:0;"><button class="btn btn-soft notice-edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger notice-del-btn" style="padding:8px 10px;">삭제</button></div></div>`; if(list){const el=document.createElement('div');el.className='mini-item';el.innerHTML=html;el.querySelector('.notice-edit-btn').onclick=()=>fillNoticeForm(item);el.querySelector('.notice-del-btn').onclick=()=>deleteNotice(item.id,item.title);list.appendChild(el);} if(dashboardList && index < 3){const el2=document.createElement('div');el2.className='mini-item';el2.innerHTML=html;el2.querySelector('.notice-edit-btn').onclick=()=>{fillNoticeForm(item);changeAdminView('notices');};el2.querySelector('.notice-del-btn').onclick=()=>deleteNotice(item.id,item.title);dashboardList.appendChild(el2);}});}
     function renderPushJobList(){const list=qs('#pushJobList');if(!list) return;list.innerHTML='';if(!state.pushJobs.length){list.innerHTML='<div class="notice">생성된 푸시 작업이 없습니다.</div>';return;}const items=[...state.pushJobs].sort((a,b)=>{const at=a.createdAt?.seconds||0;const bt=b.createdAt?.seconds||0;return bt-at;});items.forEach(item=>{const el=document.createElement('div');el.className='mini-item';el.innerHTML=`<div class="mini-item-head"><div><h5>${item.title||'제목 없음'}</h5><div style="color:#64748b;font-size:13px;line-height:1.55;white-space:pre-wrap;">${(item.body||'').slice(0,80)}${(item.body||'').length>80?'…':''}</div><div class="tags"><span class="tag">${item.status||'queued'}</span>${item.noticeId?`<span class="tag">notice:${item.noticeId}</span>`:''}</div></div></div>`;list.appendChild(el);});}
     async function queuePushJob({noticeId,title,body,pinned=false,targetType='all',targetUid='',targetBuilding='',targetUnit=''}){
@@ -2096,6 +2201,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     });
 
+    const benefitSortSelect=qs('#benefitSortSelect'); if(benefitSortSelect){benefitSortSelect.value=benefitSortMode; benefitSortSelect.addEventListener('change',()=>{benefitSortMode=benefitSortSelect.value||'latest'; renderAdminList();});}
     qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
   </script>
 
