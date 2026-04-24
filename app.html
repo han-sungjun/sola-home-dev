@@ -834,7 +834,11 @@ body.gnb-open .bottom-nav{
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
-    window.VAPID_PUBLIC_KEY = window.VAPID_PUBLIC_KEY || 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
+    const VAPID_PUBLIC_KEY_BY_ENV = {
+      dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
+      prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
+    };
+    window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
