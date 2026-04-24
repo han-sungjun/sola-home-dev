@@ -803,8 +803,22 @@ body.gnb-open .admin-bottom-nav{
 .member-proof-copy span{color:#64748b;font-size:12px;line-height:1.35}
 .member-reject-box{display:grid;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed #e2e8f0}
 .member-reject-box label{font-size:13px;color:#334155;font-weight:800}
-.member-action-sticky{position:sticky;bottom:86px;display:flex;gap:10px;padding-top:12px;margin-top:12px;background:linear-gradient(180deg,rgba(255,255,255,.72),#fff 45%);z-index:5}
-.member-action-sticky .btn{flex:1;padding:10px 12px}
+/* 회원 처리 버튼: 반려 사유 입력란과 겹치지 않도록 카드 하단 일반 배치 */
+.member-reject-box textarea{
+  min-height:96px;
+  margin-bottom:12px;
+}
+.member-action-sticky{
+  position:static;
+  display:flex;
+  gap:10px;
+  padding-top:12px;
+  margin-top:12px;
+  border-top:1px dashed #e2e8f0;
+  background:#fff;
+  z-index:auto;
+}
+.member-action-sticky .btn{flex:1;padding:12px 14px}
 @media (max-width:420px){.member-summary{flex-direction:column;align-items:stretch}.member-summary-side{width:100%;justify-content:space-between}.member-summary-side .tags{justify-content:flex-start;max-width:none}}
 
 
