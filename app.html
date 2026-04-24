@@ -891,6 +891,10 @@ body.gnb-open .bottom-nav{
 .map-mode-panel{display:grid;gap:12px}.map-mode-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.map-mode-status{padding:11px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1.5}.map-mode-status.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}.map-mode-status.muted{background:#f8fafc;border-color:#e2e8f0;color:#64748b}.map-mode-canvas-wrap{position:relative;overflow:hidden;border-radius:28px;border:1px solid rgba(15,23,42,.08);background:#e5e7eb;min-height:440px;box-shadow:0 18px 36px rgba(15,23,42,.10)}#benefitMap{width:100%;height:440px}.map-mode-list{display:grid;gap:10px}.map-place-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:var(--shadow);cursor:pointer}.map-place-card strong{display:block;font-size:14px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}.map-place-card span{display:block;margin-top:4px;font-size:12px;color:#64748b;line-height:1.35}.map-marker-store{min-width:34px;height:34px;padding:0 10px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:4px;background:#0f172a;color:#fff;font-size:12px;font-weight:900;box-shadow:0 10px 22px rgba(15,23,42,.25);border:2px solid #fff;white-space:nowrap}.map-marker-cluster{min-width:44px;height:44px;padding:0 11px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-size:14px;font-weight:1000;box-shadow:0 14px 28px rgba(37,99,235,.28);border:3px solid #fff}.map-marker-user{width:18px;height:18px;border-radius:999px;background:#2563eb;border:4px solid #fff;box-shadow:0 0 0 5px rgba(37,99,235,.18),0 10px 20px rgba(37,99,235,.20)}
 @media (max-width:370px){.map-mode-actions{grid-template-columns:1fr}#benefitMap,.map-mode-canvas-wrap{height:390px;min-height:390px}}
 
+
+/* ===== 근접 알림 토스트 (앱 실행 중) ===== */
+.proximity-toast{position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:9998;display:none;justify-content:center;pointer-events:none}.proximity-toast.show{display:flex;animation:proximityToastIn .24s ease both}.proximity-toast-card{width:min(100%,448px);display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:22px;background:rgba(15,23,42,.94);color:#fff;box-shadow:0 22px 44px rgba(15,23,42,.24);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);pointer-events:auto}.proximity-toast-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:0 0 auto}.proximity-toast-copy{min-width:0;flex:1}.proximity-toast-title{font-size:14px;font-weight:900;line-height:1.35}.proximity-toast-message{margin-top:4px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.78)}.proximity-toast-close{border:none;background:rgba(255,255,255,.10);color:#fff;width:32px;height:32px;border-radius:12px;cursor:pointer;flex:0 0 auto}@keyframes proximityToastIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
   </style>
 </head>
 <body>
@@ -1887,6 +1891,81 @@ async function refreshPushStatus(){
 
     const GEO_CACHE_MS = 60000;
     const GEO_OPTIONS = { enableHighAccuracy: true, timeout: 15000, maximumAge: GEO_CACHE_MS };
+    const PROXIMITY_ALERT_KEY = 'myhills_proximity_alert_history_v1';
+    const PROXIMITY_ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+    const PROXIMITY_ALERT_STAGES = [
+      { key: '100', radius: 100, title: '거의 도착권 혜택', label: '100m 이내', vibrate: [220, 80, 220, 80, 220] },
+      { key: '300', radius: 300, title: '바로 근처 혜택', label: '300m 이내', vibrate: [180, 80, 180] },
+      { key: '500', radius: 500, title: '근처 혜택 발견', label: '500m 이내', vibrate: [160] }
+    ];
+
+    function readProximityAlertHistory(){
+      try{return JSON.parse(localStorage.getItem(PROXIMITY_ALERT_KEY) || '{}') || {};}catch(_){return {};}
+    }
+
+    function writeProximityAlertHistory(history = {}){
+      try{localStorage.setItem(PROXIMITY_ALERT_KEY, JSON.stringify(history || {}));}catch(_){ }
+    }
+
+    function getProximityStage(distance){
+      const meters = Number(distance);
+      if(!Number.isFinite(meters)) return null;
+      return PROXIMITY_ALERT_STAGES.find((stage) => meters <= stage.radius) || null;
+    }
+
+    function showProximityToast({ title = '근처 혜택 발견', message = '' } = {}){
+      let host = qs('#proximityToast');
+      if(!host){
+        host = document.createElement('div');
+        host.id = 'proximityToast';
+        host.className = 'proximity-toast';
+        host.innerHTML = '<div class="proximity-toast-card"><div class="proximity-toast-icon">📍</div><div class="proximity-toast-copy"><div class="proximity-toast-title" id="proximityToastTitle"></div><div class="proximity-toast-message" id="proximityToastMessage"></div></div><button type="button" class="proximity-toast-close" id="proximityToastClose" aria-label="닫기">×</button></div>';
+        document.body.appendChild(host);
+        qs('#proximityToastClose')?.addEventListener('click', () => host.classList.remove('show'));
+      }
+      qs('#proximityToastTitle').textContent = title;
+      qs('#proximityToastMessage').textContent = message;
+      host.classList.add('show');
+      clearTimeout(showProximityToast._timer);
+      showProximityToast._timer = setTimeout(() => host.classList.remove('show'), 6200);
+    }
+
+    async function showProximityBrowserNotification({ title = '근처 혜택 발견', message = '', item = null, stage = null } = {}){
+      try{
+        if(navigator.vibrate && stage?.vibrate) navigator.vibrate(stage.vibrate);
+        if(Notification?.permission !== 'granted') return;
+        const options = {body:message,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',tag:'proximity-' + (item?.id || 'nearby') + '-' + (stage?.key || 'all'),renotify:false,data:{benefitId:item?.id || '',type:'proximity'}};
+        if(window.pushSwRegistration?.showNotification) await window.pushSwRegistration.showNotification(title, options);
+        else new Notification(title, options);
+      }catch(error){console.warn('근접 알림 표시 실패', error);}
+    }
+
+    function checkProximityAlerts({ silent = false } = {}){
+      if(!state.userLocation || !Array.isArray(state.benefits) || !state.benefits.length) return;
+      const now = Date.now();
+      const history = readProximityAlertHistory();
+      const candidates = [];
+      getVisibleBenefits().forEach((item) => {
+        if(item.visible === false) return;
+        const pos = getBenefitLatLng(item);
+        if(!pos) return;
+        const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
+        const stage = getProximityStage(distance);
+        if(!stage) return;
+        const key = item.id + '_' + stage.key;
+        const lastAt = Number(history[key] || 0);
+        if(lastAt && now - lastAt < PROXIMITY_ALERT_COOLDOWN_MS) return;
+        candidates.push({ item, distance, stage, key });
+      });
+      candidates.sort((a, b) => a.distance - b.distance);
+      const first = candidates[0];
+      if(!first) return;
+      history[first.key] = now;
+      writeProximityAlertHistory(history);
+      const message = first.item.name + ' · 현재 위치에서 ' + formatDistance(first.distance) + ' (' + first.stage.label + ')';
+      if(!silent) showProximityToast({ title:first.stage.title, message });
+      showProximityBrowserNotification({ title:first.stage.title, message, item:first.item, stage:first.stage });
+    }
 
     function hasFreshUserLocation(){
       return !!state.userLocation && (Date.now() - Number(state.userLocationFetchedAt || 0)) < GEO_CACHE_MS;
@@ -1899,6 +1978,7 @@ async function refreshPushStatus(){
       };
       state.userLocationFetchedAt = Date.now();
       recalculateBenefitDistances();
+      setTimeout(() => checkProximityAlerts(), 80);
       return state.userLocation;
     }
 
