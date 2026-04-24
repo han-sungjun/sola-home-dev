@@ -1779,13 +1779,17 @@ async function refreshPushStatus(){
 
       const pos = getBenefitLatLng(item);
       target.dataset.benefitId = itemId;
-      target.textContent = '현재 위치 기준 거리를 준비 중입니다.';
       target.classList.add('muted');
 
+      // lat/lng가 0, null, 빈값, 한국 좌표 범위 밖이면 현재 위치 계산 자체를 시작하지 않습니다.
       if(!pos){
-        target.textContent = '매장 좌표가 등록되지 않아 거리 표시를 생략합니다. 지도/길찾기는 주소 기준으로 이용할 수 있습니다.';
+        target.dataset.invalidCoordinate = 'true';
+        target.textContent = '📍 매장 좌표가 아직 등록되지 않아 거리 표시를 생략합니다.';
         return;
       }
+
+      target.dataset.invalidCoordinate = 'false';
+      target.textContent = '현재 위치 기준 거리를 준비 중입니다.';
       if(!navigator.geolocation){
         target.textContent = '이 브라우저에서는 현재 위치 확인을 지원하지 않습니다.';
         return;
@@ -1815,15 +1819,20 @@ async function refreshPushStatus(){
       const address = String(item.address || '').trim();
       const mapLink = buildMapSearchLink(item);
       const directionLink = buildDirectionLink(item);
+      const pos = getBenefitLatLng(item);
+      const distanceText = pos
+        ? '현재 위치 기준 거리를 준비 중입니다.'
+        : '📍 매장 좌표가 아직 등록되지 않아 거리 표시를 생략합니다.';
+      const distanceAttr = pos ? '' : ' data-invalid-coordinate="true"';
       return `<div class="panel location-panel">
         <div class="location-title"><strong>위치 안내</strong><span class="pill">📍 1차 위치 기능</span></div>
         <div class="location-address">${address || '등록된 주소가 없습니다.'}</div>
-        <div class="location-distance muted" id="distanceText">현재 위치 기준 거리를 준비 중입니다.</div>
+        <div class="location-distance muted" id="distanceText"${distanceAttr}>${distanceText}</div>
         <div class="location-actions">
           <a class="btn btn-soft block" id="mapBtn" href="${mapLink}" target="_blank" rel="noopener">📍 지도 보기</a>
           <a class="btn btn-primary block" id="directionBtn" href="${directionLink}" target="_blank" rel="noopener">🧭 길찾기</a>
         </div>
-        <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 브라우저에서 권한을 허용한 경우에만 계산됩니다.</div>
+        <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
       </div>`;
     }
     const CATEGORY_ICONS = {
