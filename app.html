@@ -2044,18 +2044,58 @@ async function refreshPushStatus(){
     }
 
     function loadNaverMapsSdk(){
-      if(window.naver?.maps) return Promise.resolve(window.naver.maps);
+      const isReady = () => !!(window.naver && window.naver.maps && window.naver.maps.Map && window.naver.maps.LatLng);
+
+      const waitForReady = (timeout = 8000) => new Promise((resolve, reject) => {
+        if(isReady()) return resolve(window.naver.maps);
+
+        const startedAt = Date.now();
+        const timer = setInterval(() => {
+          if(isReady()){
+            clearInterval(timer);
+            resolve(window.naver.maps);
+            return;
+          }
+
+          if(Date.now() - startedAt > timeout){
+            clearInterval(timer);
+            reject(new Error('naver_maps_not_loaded'));
+          }
+        }, 50);
+      });
+
+      if(isReady()) return Promise.resolve(window.naver.maps);
       if(!NAVER_MAP_CLIENT_ID) return Promise.reject(new Error('naver_map_client_id_missing'));
       if(naverMapsLoadPromise) return naverMapsLoadPromise;
+
       naverMapsLoadPromise = new Promise((resolve, reject) => {
         const callbackName = 'initNaverMapSdk_' + Date.now();
-        window[callbackName] = () => { delete window[callbackName]; window.naver?.maps ? resolve(window.naver.maps) : reject(new Error('naver_maps_not_loaded')); };
+
+        window[callbackName] = () => {
+          delete window[callbackName];
+          waitForReady().then(resolve).catch(reject);
+        };
+
         const script = document.createElement('script');
-        script.type = 'text/javascript'; script.async = true;
+        script.type = 'text/javascript';
+        script.async = true;
         script.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(NAVER_MAP_CLIENT_ID) + '&callback=' + callbackName;
-        script.onerror = () => { delete window[callbackName]; reject(new Error('naver_maps_script_load_failed')); };
+
+        script.onload = () => {
+          waitForReady().then(resolve).catch(() => {});
+        };
+
+        script.onerror = () => {
+          delete window[callbackName];
+          reject(new Error('naver_maps_script_load_failed'));
+        };
+
         document.head.appendChild(script);
+      }).catch((error) => {
+        naverMapsLoadPromise = null;
+        throw error;
       });
+
       return naverMapsLoadPromise;
     }
     function setMapModeStatus(message, type = 'muted'){const el=qs('#mapModeStatus'); if(!el)return; el.classList.remove('muted','error'); if(type)el.classList.add(type); el.textContent=message;}
@@ -2066,7 +2106,7 @@ async function refreshPushStatus(){
     function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
     function renderMapPlaceList(items=[]){const wrap=qs('#mapPlaceList'); if(!wrap)return; const topItems=[...items].sort((a,b)=>{const da=getItemDistance(a), db=getItemDistance(b); const va=Number.isFinite(da)?da:Number.POSITIVE_INFINITY; const vb=Number.isFinite(db)?db:Number.POSITIVE_INFINITY; return (va-vb)||a.name.localeCompare(b.name,'ko');}).slice(0,8); if(!topItems.length){wrap.innerHTML='<div class="panel empty">지도에 표시할 좌표 등록 매장이 없습니다.</div>';return;} wrap.innerHTML=topItems.map(item=>{const d=getItemDistance(item); const dist=Number.isFinite(d)?' · '+formatDistance(d):''; return '<div class="map-place-card" data-benefit-id="'+item.id+'"><div><strong>'+item.name+'</strong><span>'+item.category+dist+'</span></div><span>보기 ›</span></div>';}).join(''); wrap.querySelectorAll('.map-place-card').forEach(card=>card.addEventListener('click',()=>{const item=state.benefits.find(v=>v.id===card.dataset.benefitId); if(item)openDetail(item);}));}
     async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false));}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
-    function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); if(state.userLocation){benefitMapUserMarker=new nm.Marker({position:new nm.LatLng(state.userLocation.lat,state.userLocation.lng),map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,benefitMapInstance.getZoom?benefitMapInstance.getZoom():15); const bounds=new nm.LatLngBounds(); if(state.userLocation)bounds.extend(new nm.LatLng(state.userLocation.lat,state.userLocation.lng)); clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); bounds.extend(position); const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.min(19,Number(benefitMapInstance.getZoom()||15)+1));}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds){try{if(items.length===1&&!state.userLocation){const only=getBenefitLatLng(items[0]); if(only){benefitMapInstance.setCenter(new nm.LatLng(only.lat,only.lng)); benefitMapInstance.setZoom(16);}}else if(items.length>0||state.userLocation){try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}catch(e){console.warn("지도 bounds 적용 실패",e);}}}
+    function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,benefitMapInstance.getZoom?benefitMapInstance.getZoom():15); clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.min(19,Number(benefitMapInstance.getZoom()||15)+1));}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
     async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
     async function renderDetailMiniMap(item={}){const mapEl=qs('#detailNaverMap'); const pos=getBenefitLatLng(item); if(!mapEl||!pos)return; if(!NAVER_MAP_CLIENT_ID){mapEl.innerHTML='<div class="detail-map-empty">NAVER_MAP_CLIENT_ID를 입력하면 지도가 표시됩니다.</div>';return;} try{await loadNaverMapsSdk(); if(!qs('#detailNaverMap'))return; const nm=window.naver.maps; const store=new nm.LatLng(pos.lat,pos.lng); detailMapInstance=new nm.Map('detailNaverMap',{center:store,zoom:16,zoomControl:false,scrollWheel:false,draggable:true}); new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100}); const bounds=new nm.LatLngBounds(); bounds.extend(store); if(hasFreshUserLocation()){const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); bounds.extend(me); new nm.Marker({position:me,map:detailMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:120}); new nm.Polyline({map:detailMapInstance,path:[me,store],strokeColor:'#2563eb',strokeWeight:4,strokeOpacity:.82}); try{detailMapInstance.fitBounds(bounds,{top:34,right:34,bottom:34,left:34});}catch(_){detailMapInstance.fitBounds(bounds);}}else{getReliableCurrentPosition({forceRefresh:false}).then(()=>renderDetailMiniMap(item)).catch(()=>{});}}catch(e){console.warn('상세 미니 지도 렌더링 실패',e); if(qs('#detailNaverMap'))qs('#detailNaverMap').innerHTML='<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';}}
 
