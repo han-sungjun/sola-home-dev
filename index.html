@@ -1032,13 +1032,24 @@
     }
 
     function closeModal(result=false){
-      alertEl.classList.remove('show');
-      alertEl.setAttribute('aria-hidden', 'true');
-      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
-      const resolver = alertResolver;
-      alertResolver = null;
-      if(resolver) resolver(result);
-    }
+	  alertEl.classList.remove('show');
+	  alertEl.setAttribute('aria-hidden', 'true');
+
+	  // 항상 포커싱 이동
+	  if(alertFocusTarget){
+		alertFocusTarget.focus();
+
+		// 커서 맨 뒤로 (UX 개선)
+		const len = alertFocusTarget.value.length;
+		try{
+		  alertFocusTarget.setSelectionRange(len, len);
+		}catch(e){}
+	  }
+
+	  const resolver = alertResolver;
+	  alertResolver = null;
+	  if(resolver) resolver(result);
+	}
 
     alertConfirmEl.addEventListener('click', () => closeModal(true));
     alertCancelEl.addEventListener('click', () => closeModal(false));
