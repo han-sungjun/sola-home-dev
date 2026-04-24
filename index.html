@@ -427,6 +427,32 @@
       flex:0 0 auto;
     }
 
+
+    /* ===== DEV ENV badge: signup page hero style override ===== */
+    .hero > .eyebrow,
+    .hero > h1,
+    .hero > p{
+      position:relative;
+      z-index:2;
+    }
+    .hero .env-badge.hero-env{
+      position:absolute;
+      top:16px;
+      right:16px;
+      margin-top:0;
+      z-index:3;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.38);
+      color:#fff;
+      box-shadow:none;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .hero .env-badge.hero-env .env-badge-dot{
+      background:#a5b4fc;
+      box-shadow:0 0 0 4px rgba(255,255,255,.16);
+    }
+
   </style>
 </head>
 <body>
