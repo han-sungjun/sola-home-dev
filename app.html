@@ -746,6 +746,13 @@ body.gnb-open .bottom-nav{
       .hero-env{top:16px;right:16px;padding:8px 11px;font-size:11px}
     }
 
+  
+
+    /* 카테고리 칩: PC 드래그 스크롤 중에도 버튼 클릭 이벤트가 죽지 않도록 보정 */
+    .chips.dragging .chip{
+      pointer-events:auto;
+    }
+
   </style>
 </head>
 <body>
@@ -923,29 +930,36 @@ body.gnb-open .bottom-nav{
       let isPointerDown = false;
       let startX = 0;
       let startScrollLeft = 0;
-      let moved = false;
+      let didDrag = false;
+      let suppressNextClick = false;
+      const DRAG_THRESHOLD = 6;
 
       const stopDragging = () => {
+        if(didDrag) suppressNextClick = true;
         isPointerDown = false;
+        didDrag = false;
         el.classList.remove('dragging');
-        requestAnimationFrame(() => { moved = false; });
       };
 
       el.addEventListener('mousedown', (event) => {
         if(event.button !== 0) return;
         isPointerDown = true;
-        moved = false;
+        didDrag = false;
+        suppressNextClick = false;
         startX = event.pageX;
         startScrollLeft = el.scrollLeft;
-        el.classList.add('dragging');
       });
 
       el.addEventListener('mousemove', (event) => {
         if(!isPointerDown) return;
         const distance = event.pageX - startX;
-        if(Math.abs(distance) > 3) moved = true;
-        event.preventDefault();
-        el.scrollLeft = startScrollLeft - distance;
+
+        if(Math.abs(distance) > DRAG_THRESHOLD){
+          didDrag = true;
+          el.classList.add('dragging');
+          event.preventDefault();
+          el.scrollLeft = startScrollLeft - distance;
+        }
       });
 
       el.addEventListener('mouseup', stopDragging);
@@ -955,9 +969,10 @@ body.gnb-open .bottom-nav{
       el.addEventListener('dragstart', (event) => event.preventDefault());
 
       el.addEventListener('click', (event) => {
-        if(!moved) return;
+        if(!suppressNextClick) return;
         event.preventDefault();
         event.stopPropagation();
+        suppressNextClick = false;
       }, true);
     }
 
