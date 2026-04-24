@@ -799,8 +799,6 @@ body.gnb-open .bottom-nav{
       <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
 
-      </div>
-
       <div class="panel" style="margin-top:14px;">
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
@@ -896,7 +894,10 @@ body.gnb-open .bottom-nav{
 				badge: '/icons/icon-192.png',
 				data: {
 				  url: targetUrl
-				}
+				},
+                tag: payload?.data?.noticeId ? `notice-${payload.data.noticeId}` : undefined,
+                renotify: payload?.data?.important === 'true',
+                vibrate: payload?.data?.important === 'true' ? [200, 100, 200] : undefined
 			  });
 			  return;
 			}
@@ -923,6 +924,13 @@ body.gnb-open .bottom-nav{
     }
 
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
+
+    const initialUrlParams = new URLSearchParams(window.location.search || '');
+    const pendingDeepLink = {
+      view: initialUrlParams.get('view') || '',
+      noticeId: initialUrlParams.get('noticeId') || ''
+    };
+    let pendingNoticeOpened = false;
     
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
 
@@ -1284,6 +1292,8 @@ const permission = await Notification.requestPermission();
           enabled: true,
           platform: 'web',
           userAgent: navigator.userAgent || '',
+          env: ENV,
+          projectId: firebaseConfig.projectId || '',
           updatedAt: serverTimestamp(),
           createdAt: serverTimestamp()
         }, { merge:true });
@@ -1611,6 +1621,7 @@ async function refreshPushStatus(){
             return bTime - aTime;
           });
         renderNotices();
+        handlePendingNoticeDeepLink();
         markInitialDataLoaded('notices');
       }, (error) => {
         console.error('공지 로드 실패', error);
@@ -1647,6 +1658,33 @@ async function refreshPushStatus(){
       modal.showModal();
     }
 
+    function openNoticeById(noticeId){
+      const id = String(noticeId || '').trim();
+      if(!id) return false;
+      const item = (state.notices || []).find((notice) => notice.id === id);
+      if(!item) return false;
+      changeView('notices');
+      requestAnimationFrame(() => {
+        openNotice(item);
+        const targetEl = document.querySelector(`[data-notice-id="${CSS.escape(id)}"]`);
+        if(targetEl){
+          targetEl.scrollIntoView({ behavior:'smooth', block:'center' });
+        }
+      });
+      return true;
+    }
+
+    function handlePendingNoticeDeepLink(){
+      if(pendingNoticeOpened) return;
+      if(pendingDeepLink.view !== 'notices' || !pendingDeepLink.noticeId) return;
+      if(!state.notices || !state.notices.length) return;
+      pendingNoticeOpened = openNoticeById(pendingDeepLink.noticeId);
+      if(pendingNoticeOpened){
+        const cleanUrl = `${window.location.pathname}?view=notices&noticeId=${encodeURIComponent(pendingDeepLink.noticeId)}`;
+        window.history.replaceState({}, '', cleanUrl);
+      }
+    }
+
     function renderNotices(){
       const listEl = qs('#noticeList');
       const homeListEl = qs('#homeNoticeList');
@@ -1660,6 +1698,7 @@ async function refreshPushStatus(){
           items.forEach((item) => {
             const el = document.createElement('article');
             el.className = 'notice-item';
+            el.dataset.noticeId = item.id;
             el.innerHTML = noticeCardTemplate(item);
             el.onclick = () => openNotice(item);
             listEl.appendChild(el);
@@ -1676,6 +1715,7 @@ async function refreshPushStatus(){
           homeItems.forEach((item) => {
             const el = document.createElement('article');
             el.className = 'notice-item';
+            el.dataset.noticeId = item.id;
             el.innerHTML = noticeCardTemplate(item);
             el.onclick = () => openNotice(item);
             homeListEl.appendChild(el);
