@@ -1009,7 +1009,7 @@ body.gnb-open .bottom-nav{
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -1744,28 +1744,43 @@ async function refreshPushStatus(){
     function updateDistanceText(item = {}){
       const target = qs('#distanceText');
       if(!target) return;
+
+      const itemId = String(item.id || '');
+      const requestSeq = ++state.distanceRequestSeq;
+      state.activeDistanceBenefitId = itemId;
+
+      const isStillCurrent = () => {
+        const modal = qs('#detailModal');
+        return modal?.open && state.activeDistanceBenefitId === itemId && state.distanceRequestSeq === requestSeq;
+      };
+
       const pos = getBenefitLatLng(item);
+      target.dataset.benefitId = itemId;
+      target.textContent = '현재 위치 기준 거리를 준비 중입니다.';
+      target.classList.add('muted');
+
       if(!pos){
         target.textContent = '매장 좌표가 등록되면 현재 위치 기준 거리를 표시할 수 있습니다.';
-        target.classList.add('muted');
         return;
       }
       if(!navigator.geolocation){
         target.textContent = '이 브라우저에서는 현재 위치 확인을 지원하지 않습니다.';
-        target.classList.add('muted');
         return;
       }
+
       target.textContent = '현재 위치를 확인하는 중입니다...';
       target.classList.remove('muted');
       navigator.geolocation.getCurrentPosition((position) => {
+        if(!isStillCurrent()) return;
         const distance = getDistanceMeters(position.coords.latitude, position.coords.longitude, pos.lat, pos.lng);
         target.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.`;
         target.classList.remove('muted');
       }, (error) => {
+        if(!isStillCurrent()) return;
         console.warn('현재 위치 확인 실패', error);
         target.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
         target.classList.add('muted');
-      }, { enableHighAccuracy:false, timeout:7000, maximumAge:1000 * 60 * 5 });
+      }, { enableHighAccuracy:false, timeout:7000, maximumAge:0 });
     }
 
     function locationPanelHtml(item = {}){
