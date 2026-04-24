@@ -1123,6 +1123,11 @@
           reason: 'login_success'
         });
 
+        await logVisitHistory({
+          page: 'login',
+          detail: 'login_success'
+        });
+
         finishLoading();
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
 
@@ -1189,7 +1194,7 @@
       finishLoading();
     });
 
-    logVisitHistory().catch(() => {});
+    
   </script>
 
   <div class="app-alert" id="appAlert" aria-hidden="true">
