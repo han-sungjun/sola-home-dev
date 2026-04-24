@@ -984,9 +984,30 @@ body.gnb-open .bottom-nav{
       }
     }
 
+    function clearNoticeDeepLinkUrl(){
+      const hasDeepLink = window.location.search.includes('noticeId=') || window.location.search.includes('view=notices');
+      if(!hasDeepLink) return;
+      const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+      window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
+    }
+
+    function canOpenNoticeDeepLink(){
+      const approvalStatus = String(state.currentUserProfile?.approvalStatus || '');
+      const accountStatus = String(state.currentUserProfile?.accountStatus || '');
+      return !!state.currentUser && approvalStatus === 'approved' && accountStatus === 'active';
+    }
+
     function requestOpenNoticeFromPush({ noticeId = '', url = '' } = {}){
       const resolvedNoticeId = String(noticeId || extractNoticeIdFromUrl(url) || '').trim();
       if(!resolvedNoticeId) return;
+
+      if(!canOpenNoticeDeepLink()){
+        pendingDeepLink.view = '';
+        pendingDeepLink.noticeId = '';
+        pendingNoticeOpened = false;
+        clearNoticeDeepLinkUrl();
+        return;
+      }
 
       pendingDeepLink.view = 'notices';
       pendingDeepLink.noticeId = resolvedNoticeId;
@@ -996,8 +1017,7 @@ body.gnb-open .bottom-nav{
         const opened = openNoticeById(resolvedNoticeId);
         if(opened){
           pendingNoticeOpened = true;
-          const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-          window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
+          clearNoticeDeepLinkUrl();
         }
         return;
       }
@@ -1775,12 +1795,22 @@ async function refreshPushStatus(){
     function openNoticeById(noticeId){
       const id = String(noticeId || '').trim();
       if(!id) return false;
+
+      if(!canOpenNoticeDeepLink()){
+        pendingDeepLink.view = '';
+        pendingDeepLink.noticeId = '';
+        pendingNoticeOpened = false;
+        clearNoticeDeepLinkUrl();
+        return false;
+      }
+
       const item = (state.notices || []).find((notice) => notice.id === id);
       if(!item) return false;
       changeView('notices');
       setTimeout(() => {
         scrollToNoticeCard(id);
         openNotice(item);
+        clearNoticeDeepLinkUrl();
       }, 140);
       return true;
     }
@@ -1788,11 +1818,19 @@ async function refreshPushStatus(){
     function handlePendingNoticeDeepLink(){
       if(pendingNoticeOpened) return;
       if(pendingDeepLink.view !== 'notices' || !pendingDeepLink.noticeId) return;
+
+      if(!canOpenNoticeDeepLink()){
+        pendingDeepLink.view = '';
+        pendingDeepLink.noticeId = '';
+        pendingNoticeOpened = false;
+        clearNoticeDeepLinkUrl();
+        return;
+      }
+
       if(!state.notices || !state.notices.length) return;
       pendingNoticeOpened = openNoticeById(pendingDeepLink.noticeId);
       if(pendingNoticeOpened){
-        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-        window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
+        clearNoticeDeepLinkUrl();
       }
     }
 
