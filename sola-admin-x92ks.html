@@ -1415,21 +1415,34 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           body:JSON.stringify({ address })
         });
         const data = await res.json().catch(() => ({}));
-        if(!res.ok || !data.ok){
-          throw new Error(data.error || `좌표 조회 실패 (${res.status})`);
+
+        // geocodeAddress 함수는 성공 시 { lat, lng, roadAddress, jibunAddress } 형태를 반환합니다.
+        // 기존 data.ok 체크는 서버 응답 형식과 맞지 않아 정상 응답도 실패로 처리될 수 있어 제거합니다.
+        if(!res.ok){
+          const message = data?.error || data?.message || `좌표 조회 실패 (${res.status})`;
+          throw new Error(message);
         }
+
         const lat = Number(data.lat);
         const lng = Number(data.lng);
         if(!isValidKoreaCoord(lat, lng)){
           throw new Error('조회된 좌표가 한국 범위를 벗어났습니다. 주소를 더 구체적으로 입력해 주세요.');
         }
+
         qs('#lat').value = String(lat);
         qs('#lng').value = String(lng);
-        if(!String(qs('#url')?.value || '').trim()){
-          qs('#url').value = makeNaverMapSearchUrl(address);
+
+        const resolvedAddress = String(data.roadAddress || data.jibunAddress || address).trim();
+        if(resolvedAddress && qs('#address')){
+          qs('#address').value = resolvedAddress;
         }
+
+        if(!String(qs('#url')?.value || '').trim()){
+          qs('#url').value = makeNaverMapSearchUrl(resolvedAddress || address);
+        }
+
         setGeoStatus(`좌표 조회 완료: 위도 ${lat}, 경도 ${lng}`, 'success');
-        return { lat, lng };
+        return { lat, lng, address: resolvedAddress };
       }catch(error){
         console.error('좌표 자동 조회 실패', error);
         qs('#lat').value = '';
