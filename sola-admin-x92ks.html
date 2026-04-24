@@ -17,19 +17,9 @@
     .panel,.admin-card{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:16px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
     .section-head{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 0}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.admin-grid,.form-grid,.mini-list{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:#334155;font-weight:700}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;background:#fff}.field textarea{min-height:82px;resize:vertical}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-row{display:flex;gap:18px;flex-wrap:nowrap;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}.check-row label{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer;font-size:14px;color:#334155;font-weight:700}
     .btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}.btn-blue{background:var(--blue);color:#fff}.btn-danger{background:#fee2e2;color:var(--danger)}
-    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-ok{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-wait{background:#fff7ed;border-color:#fed7aa;color:#c2410c;font-weight:700}.tag.phone-exempt{background:#eef2ff;border-color:#c7d2fe;color:#4338ca;font-weight:700}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:10px;margin-top:10px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
+    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-ok{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-wait{background:#fff7ed;border-color:#fed7aa;color:#c2410c;font-weight:700}.tag.phone-exempt{background:#eef2ff;border-color:#c7d2fe;color:#4338ca;font-weight:700}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:6px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
     @media (max-width:370px){.stats,.grid-2{grid-template-columns:1fr}}
-
-.member-meta div{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}  
-.member-meta strong{
-  font-size:12px;
-  color:#64748b;
-  font-weight:700;
-}
+  
 .admin-topbar{
   display:flex;
   flex-direction:column;
@@ -117,13 +107,8 @@
   display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;
   border:1px solid var(--line);border-radius:18px;background:#fff;
 }
-.summary-row > div{
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-}
-.summary-row strong{font-size:14px;display:block;line-height:1.25}
-.summary-row span{font-size:12px;color:var(--muted);display:block;margin-top:2px;line-height:1.35}
+.summary-row strong{font-size:14px}
+.summary-row span{font-size:12px;color:var(--muted)}
 .admin-groups{display:grid;gap:14px}
 
   .admin-nav-btn .nav-label{font-size:11px}
@@ -774,6 +759,55 @@ body.gnb-open .admin-bottom-nav{
     }
 
 
+/* ===== Member card accordion + section layout ===== */
+.member-card{
+  padding:0;
+  overflow:hidden;
+}
+.member-accordion{
+  border:none;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+.member-summary{
+  list-style:none;
+  cursor:pointer;
+  padding:14px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.member-summary::-webkit-details-marker{display:none}
+.member-summary-main{min-width:0;flex:1}
+.member-summary-main strong{display:block;font-size:15px;color:#0f172a;letter-spacing:-.02em}
+.member-summary-main span{display:block;margin-top:4px;color:#64748b;font-size:12px;line-height:1.35;word-break:break-word}
+.member-summary-side{display:flex;align-items:flex-start;gap:8px;flex:0 0 auto}
+.member-summary-side .tags{margin-top:0;justify-content:flex-end;max-width:190px}
+.accordion-arrow{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;font-size:14px;transition:transform .18s ease;flex:0 0 auto}
+.member-accordion[open] .accordion-arrow{transform:rotate(180deg)}
+.member-detail{padding:0 14px 14px}
+.member-meta{display:grid;gap:14px;margin-top:4px;color:#475569;font-size:13px;line-height:1.55}
+.meta-group{display:grid;gap:10px}
+.meta-item{display:grid;gap:3px}
+.meta-item strong,.meta-title{font-size:13px;color:#334155;font-weight:800;line-height:1.25}
+.meta-item span,.meta-content{display:block;color:#475569;font-size:13px;line-height:1.55;word-break:break-word}
+.meta-section{padding-top:12px;border-top:1px dashed #e2e8f0}
+.meta-title{margin-bottom:7px}
+.member-proof-wrap{display:grid;gap:8px}
+.member-proof-card{display:flex;align-items:center;gap:10px;width:min(100%,320px);padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;color:#0f172a;text-decoration:none}
+.member-proof-thumb{width:52px;height:52px;border-radius:14px;object-fit:cover;background:#f1f5f9;border:1px solid #e2e8f0;flex:0 0 auto}
+.member-proof-copy{min-width:0;display:grid;gap:3px}
+.member-proof-copy strong{color:#0f172a;font-size:14px;line-height:1.25}
+.member-proof-copy span{color:#64748b;font-size:12px;line-height:1.35}
+.member-reject-box{display:grid;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed #e2e8f0}
+.member-reject-box label{font-size:13px;color:#334155;font-weight:800}
+.member-action-sticky{position:sticky;bottom:86px;display:flex;gap:10px;padding-top:12px;margin-top:12px;background:linear-gradient(180deg,rgba(255,255,255,.72),#fff 45%);z-index:5}
+.member-action-sticky .btn{flex:1;padding:10px 12px}
+@media (max-width:420px){.member-summary{flex-direction:column;align-items:stretch}.member-summary-side{width:100%;justify-content:space-between}.member-summary-side .tags{justify-content:flex-start;max-width:none}}
+
+
 /* ===== Mobile overflow alignment fix: match dashboard width across all tabs ===== */
 .app,
 .shell,
@@ -858,124 +892,6 @@ body.gnb-open .admin-bottom-nav{
     padding-left:10px;
     padding-right:10px;
   }
-}
-
-
-/* ===== Member proof thumbnail + preview modal ===== */
-.member-proof-wrap{
-  display:grid;
-  gap:8px;
-  margin-top:8px;
-}
-.member-proof-label{
-  font-size:13px;
-  color:#334155;
-  font-weight:800;
-}
-.member-proof-card{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  width:100%;
-  max-width:320px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:#fff;
-  cursor:pointer;
-  text-align:left;
-  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-}
-.member-proof-card:hover{
-  transform:translateY(-1px);
-  box-shadow:0 12px 24px rgba(15,23,42,.08);
-  border-color:#cbd5e1;
-}
-.member-proof-thumb{
-  width:54px;
-  height:54px;
-  border-radius:14px;
-  object-fit:cover;
-  background:#f8fafc;
-  border:1px solid #e5e7eb;
-  flex:0 0 auto;
-}
-.member-proof-text{
-  display:grid;
-  gap:3px;
-  min-width:0;
-}
-.member-proof-text strong{
-  font-size:14px;
-  color:#0f172a;
-}
-.member-proof-text span{
-  font-size:12px;
-  color:#64748b;
-}
-.proof-modal{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:rgba(15,23,42,.72);
-  backdrop-filter:blur(4px);
-  -webkit-backdrop-filter:blur(4px);
-  z-index:100002;
-}
-.proof-modal.show{display:flex}
-.proof-modal-card{
-  width:min(100%,720px);
-  max-height:90dvh;
-  display:grid;
-  gap:12px;
-  background:#fff;
-  border-radius:24px;
-  padding:14px;
-  box-shadow:0 30px 70px rgba(0,0,0,.28);
-}
-.proof-modal-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  padding:2px 2px 0;
-}
-.proof-modal-title{
-  margin:0;
-  font-size:17px;
-  letter-spacing:-.03em;
-}
-.proof-modal-close{
-  width:42px;
-  height:42px;
-  border:none;
-  border-radius:14px;
-  background:#f8fafc;
-  color:#0f172a;
-  font-size:20px;
-  font-weight:900;
-  cursor:pointer;
-}
-.proof-modal-img{
-  width:100%;
-  max-height:72dvh;
-  object-fit:contain;
-  border-radius:18px;
-  background:#f8fafc;
-  border:1px solid #e5e7eb;
-}
-.proof-modal-actions{
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-}
-@media (max-width:420px){
-  .member-proof-card{max-width:100%}
-  .proof-modal-card{padding:12px;border-radius:22px}
-  .proof-modal-img{max-height:68dvh}
 }
 
   </style>
@@ -1631,7 +1547,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       members.forEach(member=>{
         const card=document.createElement('div');
         card.className='mini-item member-card';
-        const isReviewable = member.accountStatus !== 'withdrawn' && member.approvalStatus !== 'approved';
+        const canReject = member.accountStatus !== 'withdrawn' && member.approvalStatus !== 'rejected';
+        const shouldOpen = member.approvalStatus === 'pending' || member.approvalStatus === 'resubmitted';
         const statusTags = [];
         if(member.accountStatus==='withdrawn') statusTags.push('<span class="tag hidden-tag">탈퇴</span>');
         if(member.approvalStatus==='pending') statusTags.push('<span class="tag">승인 대기</span>');
@@ -1639,49 +1556,96 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         if(member.approvalStatus==='approved') statusTags.push('<span class="tag live-tag">승인 완료</span>');
         if(member.approvalStatus==='rejected') statusTags.push('<span class="tag hidden-tag">반려</span>');
         statusTags.push(getPhoneVerificationTag(member));
+
+        const buildingUnit = `${member.building || '-'}동 ${member.unit || '-'}호`;
+        const summaryStatus = member.accountStatus === 'withdrawn'
+          ? '탈퇴'
+          : member.approvalStatus === 'approved'
+            ? '승인 완료'
+            : member.approvalStatus === 'rejected'
+              ? '반려'
+              : member.approvalStatus === 'resubmitted'
+                ? '재신청'
+                : '승인 대기';
+
         card.innerHTML = `
-          <div class="mini-item-head">
-            <div>
-              <h5>${member.name || member.nickname || '이름 미입력'}</h5>
-              <div style="color:#64748b;font-size:13px;line-height:1.45;">${member.email || '-'}${member.nickname ? ` · 닉네임 ${member.nickname}` : ''}</div>
+          <details class="member-accordion" ${shouldOpen ? 'open' : ''}>
+            <summary class="member-summary">
+              <div class="member-summary-main">
+                <strong>${member.name || member.nickname || '이름 미입력'}</strong>
+                <span>${buildingUnit} · ${summaryStatus}${member.nickname ? ` · 닉네임 ${member.nickname}` : ''}</span>
+                <span>${member.email || '-'}</span>
+              </div>
+              <div class="member-summary-side">
+                <div class="tags">${statusTags.join('')}</div>
+                <span class="accordion-arrow">⌄</span>
+              </div>
+            </summary>
+
+            <div class="member-detail">
+              <div class="member-meta">
+                <div class="meta-group">
+                  <div class="meta-item"><strong>아이디</strong><span>${member.loginId || '-'}</span></div>
+                  <div class="meta-item"><strong>동·호수</strong><span>${buildingUnit}</span></div>
+                  <div class="meta-item"><strong>구성원 구분</strong><span>${member.memberType || '-'}</span></div>
+                  <div class="meta-item"><strong>휴대폰 번호</strong><span>${member.phoneNumber || '-'}</span></div>
+                  <div class="meta-item"><strong>휴대폰 인증 시각</strong><span>${formatTs(member.phoneVerifiedAt)}</span></div>
+                  <div class="meta-item"><strong>신청일</strong><span>${formatTs(member.createdAt)}</span></div>
+                  <div class="meta-item"><strong>최종 수정</strong><span>${formatTs(member.updatedAt)}</span></div>
+                </div>
+
+                ${member.intro ? `
+                  <div class="meta-section">
+                    <div class="meta-title">소개</div>
+                    <div class="meta-content">${member.intro}</div>
+                  </div>
+                ` : ''}
+
+                ${member.rejectReason ? `
+                  <div class="meta-section">
+                    <div class="meta-title">반려 사유</div>
+                    <div class="meta-content">${member.rejectReason}</div>
+                  </div>
+                ` : ''}
+
+                ${member.withdrawReason ? `
+                  <div class="meta-section">
+                    <div class="meta-title">탈퇴 사유</div>
+                    <div class="meta-content">${member.withdrawReason}</div>
+                  </div>
+                ` : ''}
+
+                ${member.residentProofUrl ? `
+                  <div class="meta-section">
+                    <div class="meta-title">인증 자료</div>
+                    <div class="member-proof-wrap">
+                      <a class="member-proof-card" href="${member.residentProofUrl}" target="_blank" rel="noopener noreferrer">
+                        <img class="member-proof-thumb" src="${member.residentProofUrl}" alt="인증 자료 썸네일" loading="lazy" />
+                        <span class="member-proof-copy">
+                          <strong>인증 자료 보기</strong>
+                          <span>썸네일을 누르면 크게 볼 수 있습니다.</span>
+                        </span>
+                      </a>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+
+              ${canReject ? `
+                <div class="member-reject-box">
+                  <label for="rejectReason-${member.id}">반려 사유</label>
+                  <textarea id="rejectReason-${member.id}" placeholder="반려 처리 시 사유를 입력하세요." data-reject-reason="${member.id}">${member.rejectReason || ''}</textarea>
+                </div>
+              ` : ''}
+
+              <div class="member-action-sticky">
+                ${member.accountStatus==='withdrawn' ? `<button class="btn btn-blue" type="button" data-member-action="restore" data-member-id="${member.id}">복구</button>` : ''}
+                ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='approved' ? `<button class="btn btn-blue" type="button" data-member-action="approve" data-member-id="${member.id}">승인</button>` : ''}
+                ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='rejected' ? `<button class="btn btn-danger" type="button" data-member-action="reject" data-member-id="${member.id}">반려</button>` : ''}
+                ${member.accountStatus!=='withdrawn' && member.approvalStatus==='approved' ? `<button class="btn btn-soft" type="button" data-member-action="withdraw" data-member-id="${member.id}">탈퇴 처리</button>` : ''}
+              </div>
             </div>
-            <div class="tags" style="margin-top:0;">${statusTags.join('')}</div>
-          </div>
-          <div class="member-meta">
-            <div><strong>아이디</strong> ${member.loginId || '-'}</div>
-            <div><strong>동·호수</strong> ${member.building || '-'}동 ${member.unit || '-'}호</div>
-            <div><strong>구성원 구분</strong> ${member.memberType || '-'}</div>
-            <div><strong>휴대폰 번호</strong> ${member.phoneNumber || '-'}</div>
-            <div><strong>휴대폰 인증 시각</strong> ${formatTs(member.phoneVerifiedAt)}</div>
-            <div><strong>신청일</strong> ${formatTs(member.createdAt)}</div>
-            <div><strong>최종 수정</strong> ${formatTs(member.updatedAt)}</div>
-            ${member.intro ? `<div><strong>소개</strong> ${member.intro}</div>` : ''}
-            ${member.rejectReason ? `<div><strong>반려 사유</strong> ${member.rejectReason}</div>` : ''}
-            ${member.withdrawReason ? `<div><strong>탈퇴 사유</strong> ${member.withdrawReason}</div>` : ''}
-            ${member.residentProofUrl ? `
-            <div class="member-proof-wrap">
-              <div class="member-proof-label">인증 자료</div>
-              <button class="member-proof-card" type="button" data-proof-open="${member.residentProofUrl}">
-                <img class="member-proof-thumb" src="${member.residentProofUrl}" alt="인증 자료 미리보기" loading="lazy" />
-                <span class="member-proof-text">
-                  <strong>인증 자료 보기</strong>
-                  <span>썸네일을 누르면 크게 볼 수 있습니다.</span>
-                </span>
-              </button>
-            </div>
-            ` : ''}
-          </div>
-          ${isReviewable ? `
-            <div class="member-reject-box">
-              <textarea placeholder="반려 사유를 입력하세요." data-reject-reason="${member.id}">${member.rejectReason || ''}</textarea>
-            </div>
-          ` : ''}
-          <div class="member-actions">
-            ${member.accountStatus==='withdrawn' ? `<button class="btn btn-blue" type="button" data-member-action="restore" data-member-id="${member.id}">복구</button>` : ''}
-            ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='approved' ? `<button class="btn btn-blue" type="button" data-member-action="approve" data-member-id="${member.id}">승인</button>` : ''}
-            ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='rejected' ? `<button class="btn btn-danger" type="button" data-member-action="reject" data-member-id="${member.id}">반려</button>` : ''}
-            ${member.accountStatus!=='withdrawn' && member.approvalStatus==='approved' ? `<button class="btn btn-soft" type="button" data-member-action="withdraw" data-member-id="${member.id}">탈퇴 처리</button>` : ''}
-          </div>
+          </details>
         `;
         listEl.appendChild(card);
       });
@@ -2307,20 +2271,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
   </div>
 
 
-  <div class="proof-modal" id="proofPreviewModal" aria-hidden="true">
-    <div class="proof-modal-card" role="dialog" aria-modal="true" aria-labelledby="proofPreviewTitle">
-      <div class="proof-modal-head">
-        <h3 class="proof-modal-title" id="proofPreviewTitle">인증 자료</h3>
-        <button class="proof-modal-close" id="proofPreviewCloseBtn" type="button" aria-label="닫기">×</button>
-      </div>
-      <img class="proof-modal-img" id="proofPreviewImg" src="" alt="인증 자료 확대 이미지" />
-      <div class="proof-modal-actions">
-        <a class="btn btn-soft" id="proofPreviewOpenLink" href="#" target="_blank" rel="noopener noreferrer">새 창으로 열기</a>
-      </div>
-    </div>
-  </div>
-
-
 
   <script type="module">
     import { renderAdminStatsUI } from "./tracking.js";
@@ -2399,52 +2349,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     var activeBtn = document.querySelector('.admin-nav-btn.active');
     var view = activeBtn ? activeBtn.getAttribute('data-admin-view') : 'dashboard';
     setActiveGnb(view || 'dashboard');
-  });
-})();
-</script>
-
-
-<script>
-(function(){
-  const modal = document.getElementById('proofPreviewModal');
-  const img = document.getElementById('proofPreviewImg');
-  const openLink = document.getElementById('proofPreviewOpenLink');
-  const closeBtn = document.getElementById('proofPreviewCloseBtn');
-
-  function openProofPreview(url){
-    if(!modal || !img || !url) return;
-    img.src = url;
-    if(openLink) openLink.href = url;
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    setTimeout(() => closeBtn?.focus(), 20);
-  }
-
-  function closeProofPreview(){
-    if(!modal || !img) return;
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-    img.src = '';
-    if(openLink) openLink.href = '#';
-  }
-
-  document.addEventListener('click', function(event){
-    const trigger = event.target.closest('[data-proof-open]');
-    if(trigger){
-      event.preventDefault();
-      openProofPreview(trigger.getAttribute('data-proof-open'));
-      return;
-    }
-    if(event.target === modal){
-      closeProofPreview();
-    }
-  });
-
-  closeBtn?.addEventListener('click', closeProofPreview);
-  window.addEventListener('keydown', function(event){
-    if(event.key === 'Escape' && modal?.classList.contains('show')){
-      closeProofPreview();
-    }
   });
 })();
 </script>
