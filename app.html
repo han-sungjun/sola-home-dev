@@ -722,6 +722,30 @@ body.gnb-open .bottom-nav{
       flex:0 0 auto;
     }
 
+
+    /* DEV/PROD 환경 배지: 히어로 카드 우측 상단 표시 */
+    .hero > *{position:relative;z-index:1}
+    .hero-env{
+      position:absolute;
+      top:18px;
+      right:18px;
+      margin-top:0;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.36);
+      color:#fff;
+      box-shadow:none;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      z-index:2;
+    }
+    .hero-env .env-badge-dot{
+      background:#a5b4fc;
+      box-shadow:0 0 0 4px rgba(255,255,255,.18);
+    }
+    @media (max-width:420px){
+      .hero-env{top:16px;right:16px;padding:8px 11px;font-size:11px}
+    }
+
   </style>
 </head>
 <body>
@@ -760,12 +784,12 @@ body.gnb-open .bottom-nav{
               <p>입주민 전용 혜택 웹앱</p>
             </div>
           </div>
-          <div class="env-badge" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
+          
         </div>
       </div>
     </header>
     <section id="view-home" class="">
-      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
+      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
 
       </div>
