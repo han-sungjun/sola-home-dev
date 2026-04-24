@@ -932,7 +932,9 @@ body.gnb-open .bottom-nav{
 				icon: '/icons/icon-192.png',
 				badge: '/icons/icon-192.png',
 				data: {
-				  url: targetUrl
+				  url: targetUrl,
+				  noticeId: payload?.data?.noticeId || '',
+				  important: payload?.data?.important || ''
 				},
                 tag: payload?.data?.noticeId ? `notice-${payload.data.noticeId}` : undefined,
                 renotify: payload?.data?.important === 'true',
@@ -972,6 +974,48 @@ body.gnb-open .bottom-nav{
     let pendingNoticeOpened = false;
     
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+    function extractNoticeIdFromUrl(url = ''){
+      try{
+        const parsed = new URL(String(url || ''), window.location.origin);
+        return parsed.searchParams.get('noticeId') || '';
+      }catch(_){
+        return '';
+      }
+    }
+
+    function requestOpenNoticeFromPush({ noticeId = '', url = '' } = {}){
+      const resolvedNoticeId = String(noticeId || extractNoticeIdFromUrl(url) || '').trim();
+      if(!resolvedNoticeId) return;
+
+      pendingDeepLink.view = 'notices';
+      pendingDeepLink.noticeId = resolvedNoticeId;
+      pendingNoticeOpened = false;
+
+      if(state.notices && state.notices.length){
+        const opened = openNoticeById(resolvedNoticeId);
+        if(opened){
+          pendingNoticeOpened = true;
+          const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+          window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
+        }
+        return;
+      }
+
+      changeView('notices');
+    }
+
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        const data = event.data || {};
+        if(data.type !== 'OPEN_NOTICE') return;
+
+        requestOpenNoticeFromPush({
+          noticeId: data.noticeId || '',
+          url: data.url || ''
+        });
+      });
+    }
 
     function enableHorizontalDragScroll(selector){
       const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
@@ -1747,8 +1791,8 @@ async function refreshPushStatus(){
       if(!state.notices || !state.notices.length) return;
       pendingNoticeOpened = openNoticeById(pendingDeepLink.noticeId);
       if(pendingNoticeOpened){
-        const cleanUrl = `${window.location.pathname}?view=notices&noticeId=${encodeURIComponent(pendingDeepLink.noticeId)}`;
-        window.history.replaceState({}, '', cleanUrl);
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
       }
     }
 

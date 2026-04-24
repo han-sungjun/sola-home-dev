@@ -1628,7 +1628,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           const userData = userSnap.exists() ? (userSnap.data() || {}) : {};
           state.adminProfile = userData;
 
-          const isAdminRole = userData.role === 'admin';
+          const isAdminRole = userData.role === 'admin' || userData.role === 'root';
           const isApproved = userData.approvalStatus === 'approved';
           const isActive = userData.accountStatus === 'active';
 
