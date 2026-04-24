@@ -882,6 +882,10 @@ body.gnb-open .bottom-nav{
     const auth=getAuth(app);
     const db=getFirestore(app);
     let messaging = null;
+	
+	console.log("[ENV]", ENV);
+	console.log("[CONFIG]", FIREBASE_CONFIG);
+	console.log("[ACTIVE CONFIG]", FIREBASE_CONFIG[ENV]);
 
     async function initPushSystem(){
       try{
