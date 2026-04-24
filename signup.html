@@ -342,8 +342,90 @@
   <script type="module">
     import './firebase-config.js';
     import { ENV, CURRENT_API, CURRENT_ROUTE } from './env-config.js';
+    import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
+
+    const app = getApp();
+    const messaging = getMessaging(app);
+
+    /* =========================
+       Foreground 시스템 알림 처리
+       - PC 탭 활성 상태에서도 시스템 알림 표시
+       - 백그라운드는 firebase-messaging-sw.js가 처리
+    ========================= */
+    function isDesktopForegroundPushTarget() {
+      const ua = String(navigator.userAgent || '').toLowerCase();
+      return !(
+        ua.includes('android') ||
+        ua.includes('iphone') ||
+        ua.includes('ipad') ||
+        ua.includes('mobile') ||
+        ua.includes('samsungbrowser')
+      );
+    }
+
+    function normalizeForegroundPushPayload(payload = {}) {
+      const data = payload.data || {};
+      return {
+        title: String(data.title || payload.notification?.title || '알림'),
+        body: String(data.body || payload.notification?.body || ''),
+        url: String(data.url || data.clickUrl || data.link || payload.fcmOptions?.link || '/'),
+        noticeId: String(data.noticeId || ''),
+        type: String(data.type || 'notice')
+      };
+    }
+
+    function buildForegroundPushTag(item) {
+      return [item.type, item.noticeId, item.title, item.body, item.url].join('|');
+    }
+
+    function openForegroundPushUrl(url = '/') {
+      const targetUrl = String(url || '/');
+      try {
+        const absoluteUrl = new URL(targetUrl, window.location.origin).href;
+        window.location.href = absoluteUrl;
+      } catch (_) {
+        window.location.href = '/';
+      }
+    }
+
+    function setupForegroundSystemPush(messagingInstance) {
+      if (!messagingInstance) return;
+
+      onMessage(messagingInstance, (payload) => {
+        try {
+          if (!isDesktopForegroundPushTarget()) return;
+          if (!('Notification' in window)) return;
+          if (Notification.permission !== 'granted') return;
+
+          const item = normalizeForegroundPushPayload(payload);
+          const notification = new Notification(item.title, {
+            body: item.body,
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+            tag: buildForegroundPushTag(item),
+            renotify: false,
+            data: {
+              url: item.url,
+              noticeId: item.noticeId,
+              type: item.type
+            }
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+            openForegroundPushUrl(item.url);
+          };
+        } catch (error) {
+          console.warn('foreground 시스템 알림 처리 실패', error);
+        }
+      });
+    }
+
+    setupForegroundSystemPush(messaging);
 
 
     const signupForm = document.getElementById('signupForm');
