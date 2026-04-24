@@ -1702,7 +1702,10 @@ async function refreshPushStatus(){
     function normalizeKoreaLatLng(rawLat, rawLng){
       let lat = Number(rawLat);
       let lng = Number(rawLng);
+
+      // 좌표가 비어 있거나 Firestore 기본값처럼 0 / 0으로 들어간 경우 거리 계산 제외
       if(!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      if(lat === 0 || lng === 0) return null;
 
       // Firestore 입력 과정에서 lat/lng가 서로 바뀐 경우 자동 보정
       // 한국 좌표 대략: 위도 33~39, 경도 124~132
@@ -1715,6 +1718,7 @@ async function refreshPushStatus(){
         lng = temp;
       }
 
+      // 0/0, 해외 좌표, 오입력 좌표는 거리 표시하지 않음
       if(!looksLikeKoreaLat(lat) || !looksLikeKoreaLng(lng)) return null;
       return { lat, lng };
     }
@@ -1779,7 +1783,7 @@ async function refreshPushStatus(){
       target.classList.add('muted');
 
       if(!pos){
-        target.textContent = '매장 좌표가 등록되면 현재 위치 기준 거리를 표시할 수 있습니다.';
+        target.textContent = '매장 좌표가 등록되지 않아 거리 표시를 생략합니다. 지도/길찾기는 주소 기준으로 이용할 수 있습니다.';
         return;
       }
       if(!navigator.geolocation){
