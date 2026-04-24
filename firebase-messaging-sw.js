@@ -36,6 +36,23 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 /* =========================
+   모바일 판별
+   - fallback push는 모바일에서만 실행
+   - PC Chrome 중복 알림 방지
+========================= */
+function isMobileBrowser() {
+  const ua = String(self.navigator?.userAgent || "").toLowerCase();
+
+  return (
+    ua.includes("android") ||
+    ua.includes("iphone") ||
+    ua.includes("ipad") ||
+    ua.includes("mobile") ||
+    ua.includes("samsungbrowser")
+  );
+}
+
+/* =========================
    중복 알림 방지용
 ========================= */
 const recentNotificationKeys = new Map();
@@ -57,12 +74,12 @@ function isDuplicateNotification(key) {
   recentNotificationKeys.set(key, now);
 
   for (const [k, t] of recentNotificationKeys.entries()) {
-    if (now - t > 7000) {
+    if (now - t > 10000) {
       recentNotificationKeys.delete(k);
     }
   }
 
-  return last && now - last < 2500;
+  return !!(last && now - last < 4000);
 }
 
 /* =========================
@@ -101,17 +118,25 @@ function normalizePayload(payload) {
   };
 }
 
+/* =========================
+   알림 표시 공통 함수
+========================= */
 function showPushNotification(payload) {
   const normalized = normalizePayload(payload);
-
   const key = makeNotificationKey(normalized);
-  if (isDuplicateNotification(key)) return;
+
+  if (isDuplicateNotification(key)) return Promise.resolve();
 
   return self.registration.showNotification(normalized.title, {
     body: normalized.body,
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     vibrate: [200, 100, 200],
+
+    // PC 중복 알림 덮어쓰기용
+    tag: key,
+    renotify: false,
+
     data: {
       url: normalized.url,
       noticeId: normalized.noticeId,
@@ -129,9 +154,11 @@ messaging.onBackgroundMessage((payload) => {
 
 /* =========================
    모바일 fallback push 수신
-   - 일부 모바일 브라우저에서 data-only push 보강
+   - 모바일 data-only push 보강
+   - PC에서는 실행하지 않음
 ========================= */
 self.addEventListener("push", (event) => {
+  if (!isMobileBrowser()) return;
   if (!event.data) return;
 
   event.waitUntil(
