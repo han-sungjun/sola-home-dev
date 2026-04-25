@@ -129,8 +129,8 @@ function showPushNotification(payload) {
 
   return self.registration.showNotification(normalized.title, {
     body: normalized.body,
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
+    icon: "/icons/push-icon.png",
+    badge: "/icons/badge-icon.png",
     vibrate: [200, 100, 200],
 
     // PC 중복 알림 덮어쓰기용
