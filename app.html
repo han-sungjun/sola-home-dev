@@ -1349,6 +1349,97 @@ body.gnb-open .bottom-nav{
   }
 }
 
+  
+/* ===== 최근 NEW / 혜택 TOP 배지 / TOP 순위 차등 강조 ===== */
+.new-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:20px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+  vertical-align:middle;
+}
+.new-badge.hot{
+  background:#fff7ed;
+  border-color:#fed7aa;
+  color:#c2410c;
+}
+.card{
+  position:relative;
+}
+.benefit-top-badge{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:2;
+  min-height:24px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+  letter-spacing:.01em;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#334155;
+  box-shadow:0 8px 18px rgba(15,23,42,.08);
+}
+.card.top-rank-1{
+  border-color:#fbbf24;
+  background:radial-gradient(circle at top right, rgba(251,191,36,.16), transparent 30%), #fff;
+  box-shadow:0 18px 36px rgba(245,158,11,.14), inset 0 0 0 1px rgba(251,191,36,.14);
+}
+.card.top-rank-2{
+  border-color:#cbd5e1;
+  box-shadow:0 16px 32px rgba(100,116,139,.12), inset 0 0 0 1px rgba(148,163,184,.10);
+}
+.card.top-rank-3{
+  border-color:#fdba74;
+  box-shadow:0 16px 32px rgba(180,83,9,.10), inset 0 0 0 1px rgba(251,146,60,.10);
+}
+.card.top-rank-4,
+.card.top-rank-5{
+  border-color:#dbeafe;
+  box-shadow:0 14px 28px rgba(37,99,235,.08);
+}
+.card.top-rank-1 .benefit-top-badge{
+  background:#92400e;
+  border-color:#92400e;
+  color:#fff;
+}
+.card.top-rank-2 .benefit-top-badge{
+  background:#f8fafc;
+  border-color:#cbd5e1;
+  color:#475569;
+}
+.card.top-rank-3 .benefit-top-badge{
+  background:#fff7ed;
+  border-color:#fed7aa;
+  color:#c2410c;
+}
+.card.top-rank-4 .benefit-top-badge,
+.card.top-rank-5 .benefit-top-badge{
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+}
+.notice-item{
+  position:relative;
+}
+.notice-new-badge{
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:1000;
+}
+
   </style>
 </head>
 <body>
@@ -1406,7 +1497,7 @@ body.gnb-open .bottom-nav{
         <div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
       </div>
       <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
+      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 순위 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
@@ -1759,6 +1850,89 @@ body.gnb-open .bottom-nav{
     let pendingNoticeOpened = false;
     
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+    function dateLikeToDate(value){
+      if(!value) return null;
+      if(value instanceof Date && !Number.isNaN(value.getTime())) return value;
+      if(value?.toDate){
+        try{
+          const d = value.toDate();
+          return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+        }catch(_){}
+      }
+      if(typeof value === 'object'){
+        if(typeof value.seconds === 'number'){
+          const d = new Date(value.seconds * 1000);
+          return Number.isNaN(d.getTime()) ? null : d;
+        }
+        if(typeof value._seconds === 'number'){
+          const d = new Date(value._seconds * 1000);
+          return Number.isNaN(d.getTime()) ? null : d;
+        }
+      }
+      if(typeof value === 'number'){
+        const d = new Date(value > 10000000000 ? value : value * 1000);
+        return Number.isNaN(d.getTime()) ? null : d;
+      }
+      if(typeof value === 'string'){
+        const match = value.match(/(\d{4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/);
+        if(match){
+          const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+          return Number.isNaN(d.getTime()) ? null : d;
+        }
+      }
+      return null;
+    }
+
+    function getItemBaseDate(item = {}){
+      return dateLikeToDate(item.createdAt) ||
+        dateLikeToDate(item.registeredAt) ||
+        dateLikeToDate(item.createdDate) ||
+        dateLikeToDate(item.registeredDate) ||
+        dateLikeToDate(item.updatedAt) ||
+        null;
+    }
+
+    function isRecentItem(item = {}, days = 7){
+      const date = getItemBaseDate(item);
+      if(!date) return false;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const diff = today.getTime() - target.getTime();
+      return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+    }
+
+    function recentNewBadgeHtml(item = {}, hot = false){
+      return isRecentItem(item, 7) ? `<span class="new-badge ${hot ? 'hot' : ''}">NEW</span>` : '';
+    }
+
+    function getBenefitCreatedTime(item = {}){
+      const d = getItemBaseDate(item);
+      return d ? d.getTime() : 0;
+    }
+
+    function getTopBenefitRankMap(){
+      const map = new Map();
+      (state.popularItems || []).slice(0, 5).forEach((row, index) => {
+        const benefitId = row?.benefit?.id || row?.benefitId || row?.id || '';
+        if(benefitId) map.set(String(benefitId), index + 1);
+      });
+      return map;
+    }
+
+    function getBenefitTopRank(item = {}){
+      return getTopBenefitRankMap().get(String(item.id || '')) || 0;
+    }
+
+    function benefitTopBadgeHtml(item = {}){
+      const rank = getBenefitTopRank(item);
+      if(!rank || rank > 5) return '';
+      const label = rank === 1 ? 'TOP 1' : `TOP ${rank}`;
+      return `<span class="benefit-top-badge">${label}</span>`;
+    }
+
+
 
     function escapeHtml(value = ''){
       return String(value ?? '')
@@ -2509,7 +2683,9 @@ async function refreshPushStatus(){
 
     function benefitDateTag(item = {}){
       const createdText = formatKoreanDate(item.createdAt);
-      return createdText ? `<span class="tag">🗓️ 등록일 ${createdText}</span>` : '';
+      const newBadge = recentNewBadgeHtml(item);
+      const dateTag = createdText ? `<span class="tag">🗓️ 등록일 ${createdText}</span>` : '';
+      return `${newBadge}${dateTag}`;
     }
 
     function benefitDateText(item = {}){
@@ -3073,6 +3249,7 @@ async function refreshPushStatus(){
         <div class="notice-meta">
           ${item.pinned ? '<span class="notice-badge pin">📌 중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
           <span class="notice-badge">${item.category}</span>
+          ${recentNewBadgeHtml(item)}
           ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
         </div>
         <h4>${item.title}</h4>
@@ -4327,7 +4504,7 @@ function getShareTrackingParams(){
       state.popularItems.forEach((item, index) => {
         const rank = index + 1;
         const row = document.createElement('article');
-        row.className = `popular-item ${rank === 1 ? 'rank-1' : ''}`;
+        row.className = `popular-item rank-${rank}`;
         row.innerHTML = `
           ${getRankBadge(rank)}
           <div class="popular-meta">
@@ -4410,6 +4587,18 @@ function getShareTrackingParams(){
         });
       }
 
+      if(state.benefitSortMode === 'latest'){
+        return items.sort((a,b) => (getBenefitCreatedTime(b) - getBenefitCreatedTime(a)) || a.name.localeCompare(b.name,'ko'));
+      }
+
+      if(state.benefitSortMode === 'top'){
+        return items.sort((a,b) => {
+          const ra = getBenefitTopRank(a) || 999;
+          const rb = getBenefitTopRank(b) || 999;
+          return (ra - rb) || ((b.recommended?1:0)-(a.recommended?1:0)) || (b.discountValue-a.discountValue) || a.name.localeCompare(b.name,'ko');
+        });
+      }
+
       return items.sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));
     }
     const getBadgeClass=(item)=>{
@@ -4424,9 +4613,9 @@ function getShareTrackingParams(){
       const shortAddress = item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address;
       const distance = getItemDistance(item);
       const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
-      return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span>${distanceTag}<span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
+      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span>${distanceTag}<span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
     }
-    function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
+    function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');const topRank=getBenefitTopRank(item);card.className=`card ${topRank ? `top-rank-${topRank}` : ''}`;card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
