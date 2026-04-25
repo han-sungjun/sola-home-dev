@@ -49,7 +49,7 @@ async function sessionCheck(options = {}) {
 
     const user = snap.data();
 
-    // ✅ 중복 로그인 차단
+    // 중복 로그인 차단
     const serverSessionId = user.activeSessionId || "";
 
     if (serverSessionId && localSessionId && localSessionId !== serverSessionId) {
@@ -127,7 +127,7 @@ async function sessionCheck(options = {}) {
       return false;
     }
 
-    // ✅ 중요: sessionId 유지 저장
+    // 중요: sessionId 유지 저장
     localStorage.setItem("loginUser", JSON.stringify({
       uid,
       loginId: parsed.loginId || user.loginId || "",

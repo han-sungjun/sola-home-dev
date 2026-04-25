@@ -1,0 +1,9 @@
+{
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/app", "dest": "/app.html" },
+    { "src": "/admin", "dest": "/sola-admin-x92ks.html" },
+
+    { "src": "/(.*)", "dest": "/error.html", "status": 404 }
+  ]
+}
