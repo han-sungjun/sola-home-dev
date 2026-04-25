@@ -1367,8 +1367,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const safeNoticeId = String(noticeId || '').trim();
       const normalizedTarget = targetType === 'user' ? 'uid' : (targetType || 'all');
       const clickUrl = safeNoticeId
-        ? `${window.location.origin}/app.html?view=notices&noticeId=${encodeURIComponent(safeNoticeId)}`
-        : `${window.location.origin}/app.html?view=notices`;
+        ? `${window.location.origin}/app?view=notices&noticeId=${encodeURIComponent(safeNoticeId)}`
+        : `${window.location.origin}/app?view=notices`;
 
       await addDoc(collection(db,PUSH_JOBS_COLLECTION),{
         type:'notice',
