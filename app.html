@@ -995,6 +995,71 @@ body.gnb-open .bottom-nav{
     const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
+
+    /* =========================
+       Security Guard / Session Check
+       - Firestore 기반 계정 상태 검증
+       - activeSessionId 기반 중복 로그인 감지
+       - security_logs 기록
+    ========================= */
+    const SECURITY_LOGS_COLLECTION = 'security_logs';
+
+    function getStoredLoginUser(){
+      try{
+        return JSON.parse(localStorage.getItem('loginUser') || '{}') || {};
+      }catch(_){
+        return {};
+      }
+    }
+
+    function saveVerifiedLoginUser(user, profile, sessionId){
+      try{
+        localStorage.setItem('loginUser', JSON.stringify({
+          uid: user.uid,
+          loginId: profile.loginId || profile.loginID || '',
+          sessionId: sessionId || '',
+          role: profile.role || profile.userRole || 'resident',
+          approvalStatus: profile.approvalStatus || '',
+          phoneVerified: !!profile.phoneVerified,
+          accountStatus: profile.accountStatus || ''
+        }));
+      }catch(error){
+        console.warn('loginUser 저장 실패', error);
+      }
+    }
+
+    async function writeSecurityLog(type, detail = {}){
+      try{
+        const stored = getStoredLoginUser();
+        await addDoc(collection(db, SECURITY_LOGS_COLLECTION), {
+          uid: state.currentUser?.uid || stored.uid || null,
+          loginId: state.currentUserProfile?.loginId || stored.loginId || null,
+          type,
+          path: location.pathname,
+          href: location.href,
+          userAgent: navigator.userAgent,
+          detail,
+          createdAt: serverTimestamp()
+        });
+      }catch(error){
+        console.warn('보안 로그 저장 실패', error);
+      }
+    }
+
+    function consumePendingDeepLinkSafely(){
+      const pending = sessionStorage.getItem('pendingDeepLink');
+      if(!pending) return null;
+      sessionStorage.removeItem('pendingDeepLink');
+
+      try{
+        const url = new URL(pending, location.origin);
+        if(url.origin !== location.origin) return null;
+        if(url.pathname.includes('admin') || url.pathname.includes('sola-admin')) return null;
+        return url.href;
+      }catch(_){
+        return null;
+      }
+    }
     // 네이버 지도 JavaScript SDK Client ID를 입력하세요. (Dynamic Map / 지도 모드)
     const NAVER_MAP_CLIENT_ID = 'ouflkgfkts';
     let naverMapsLoadPromise = null;
@@ -1661,14 +1726,35 @@ async function refreshPushStatus(){
       return new Promise((resolve) => {
         onAuthStateChanged(auth, async (user) => {
           if(!user){
+            sessionStorage.setItem('pendingDeepLink', location.href);
             redirectToLogin();
             resolve(false);
             return;
           }
+
           state.currentUser = user;
           state.currentUserProfile = await loadCurrentUserProfile(user);
 
           if(!state.currentUserProfile){
+            await writeSecurityLog('USER_DOC_NOT_FOUND', { uid:user.uid });
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(() => {});
+            redirectToLogin();
+            resolve(false);
+            return;
+          }
+
+          const stored = getStoredLoginUser();
+          const localSessionId = stored.sessionId || '';
+          const serverSessionId = state.currentUserProfile.activeSessionId || '';
+
+          if(serverSessionId && localSessionId && localSessionId !== serverSessionId){
+            await writeSecurityLog('SESSION_CONFLICT', {
+              localSessionId,
+              serverSessionId
+            });
+            await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.');
+            localStorage.removeItem('loginUser');
             await signOut(auth).catch(() => {});
             redirectToLogin();
             resolve(false);
@@ -1680,7 +1766,32 @@ async function refreshPushStatus(){
           const phoneVerificationRequired = state.currentUserProfile.phoneVerificationRequired !== false;
           const phoneVerified = !!state.currentUserProfile.phoneVerified;
 
+          if(accountStatus === 'withdrawn'){
+            await writeSecurityLog('WITHDRAWN_ACCOUNT_ACCESS', { accountStatus });
+            await openModalAlert('탈퇴된 계정입니다.');
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(() => {});
+            redirectToLogin();
+            resolve(false);
+            return;
+          }
+
+          if(accountStatus === 'blocked'){
+            await writeSecurityLog('BLOCKED_ACCOUNT_ACCESS', {
+              accountStatus,
+              blockedReason: state.currentUserProfile.blockedReason || ''
+            });
+            await openModalAlert('보안 정책에 따라 차단된 계정입니다.');
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(() => {});
+            redirectToLogin();
+            resolve(false);
+            return;
+          }
+
           if(approvalStatus !== 'approved' || accountStatus !== 'active'){
+            await writeSecurityLog('UNAPPROVED_ACCESS', { approvalStatus, accountStatus });
+            localStorage.removeItem('loginUser');
             await signOut(auth).catch(() => {});
             redirectToLogin();
             resolve(false);
@@ -1693,8 +1804,18 @@ async function refreshPushStatus(){
             return;
           }
 
+          saveVerifiedLoginUser(user, state.currentUserProfile, localSessionId || serverSessionId);
+
           updateUserChip();
           await refreshPushStatus();
+
+          const pendingDeepLink = consumePendingDeepLinkSafely();
+          if(pendingDeepLink && pendingDeepLink !== location.href){
+            window.location.replace(pendingDeepLink);
+            resolve(false);
+            return;
+          }
+
           resolve(true);
         }, () => {
           redirectToLogin();

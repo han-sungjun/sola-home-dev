@@ -2109,6 +2109,56 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       db=getFirestore(app);
       const messaging=getMessaging(app);
 
+      /* =========================
+         Security Guard / Admin Session Check
+         - Firestore 기반 관리자 권한 검증
+         - activeSessionId 기반 중복 로그인 감지
+         - security_logs 기록
+      ========================= */
+      const SECURITY_LOGS_COLLECTION = 'security_logs';
+
+      function getStoredLoginUser(){
+        try{
+          return JSON.parse(localStorage.getItem('loginUser') || '{}') || {};
+        }catch(_){
+          return {};
+        }
+      }
+
+      function saveVerifiedLoginUser(user, profile, sessionId){
+        try{
+          localStorage.setItem('loginUser', JSON.stringify({
+            uid: user.uid,
+            loginId: profile.loginId || profile.loginID || '',
+            sessionId: sessionId || '',
+            role: profile.role || profile.userRole || '',
+            approvalStatus: profile.approvalStatus || '',
+            phoneVerified: !!profile.phoneVerified,
+            accountStatus: profile.accountStatus || ''
+          }));
+        }catch(error){
+          console.warn('loginUser 저장 실패', error);
+        }
+      }
+
+      async function writeSecurityLog(type, detail = {}){
+        try{
+          const stored = getStoredLoginUser();
+          await addDoc(collection(db, SECURITY_LOGS_COLLECTION), {
+            uid: auth.currentUser?.uid || stored.uid || null,
+            loginId: state.adminProfile?.loginId || stored.loginId || null,
+            type,
+            path: location.pathname,
+            href: location.href,
+            userAgent: navigator.userAgent,
+            detail,
+            createdAt: serverTimestamp()
+          });
+        }catch(error){
+          console.warn('보안 로그 저장 실패', error);
+        }
+      }
+
     /* =========================
        Foreground 시스템 알림 처리
        - PC 탭 활성 상태에서도 시스템 알림 표시
@@ -2210,19 +2260,71 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           const userData = userSnap.exists() ? (userSnap.data() || {}) : {};
           state.adminProfile = userData;
 
-          const isAdminRole = userData.role === 'admin' || userData.role === 'root';
+          const stored = getStoredLoginUser();
+          const localSessionId = stored.sessionId || '';
+          const serverSessionId = userData.activeSessionId || '';
+
+          if(serverSessionId && localSessionId && localSessionId !== serverSessionId){
+            await writeSecurityLog('SESSION_CONFLICT', { localSessionId, serverSessionId });
+            qs('#authStatusText').textContent='중복 로그인 감지';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(()=>{});
+            return;
+          }
+
+          const role = userData.role || userData.userRole || '';
+          const isAdminRole = role === 'admin' || role === 'root' || role === 'superAdmin';
           const isApproved = userData.approvalStatus === 'approved';
           const isActive = userData.accountStatus === 'active';
 
+          if(userData.accountStatus === 'withdrawn'){
+            await writeSecurityLog('WITHDRAWN_ACCOUNT_ACCESS', { accountStatus:userData.accountStatus });
+            qs('#authStatusText').textContent='탈퇴 계정';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('탈퇴된 계정입니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(()=>{});
+            return;
+          }
+
+          if(userData.accountStatus === 'blocked'){
+            await writeSecurityLog('BLOCKED_ACCOUNT_ACCESS', {
+              accountStatus:userData.accountStatus,
+              blockedReason:userData.blockedReason || ''
+            });
+            qs('#authStatusText').textContent='차단 계정';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('보안 정책에 따라 차단된 계정입니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(()=>{});
+            return;
+          }
+
           if(!isAdminRole || !isApproved || !isActive){
+            await writeSecurityLog('ADMIN_ACCESS_DENIED', {
+              role,
+              approvalStatus:userData.approvalStatus || '',
+              accountStatus:userData.accountStatus || ''
+            });
             qs('#authStatusText').textContent='관리자 권한 없음';
             updateAdminHeader(user);
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('관리자 권한이 있는 계정만 접근할 수 있습니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
             await signOut(auth).catch(()=>{});
             return;
           }
+
+          saveVerifiedLoginUser(user, userData, localSessionId || serverSessionId);
 
           state.isAdmin = true;
           qs('#authStatusText').textContent=`로그인됨: ${userData.loginId || user.email || user.uid}`;
