@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
-  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
   <meta name="robots" content="index,follow">
   <title>더운정 마이힐스</title>
@@ -2631,19 +2631,8 @@ async function refreshPushStatus(){
       try{ return new URL(value, location.origin).href; }catch(_){ return ''; }
     }
 
-    function getShareBaseOrigin(){
-      const host = String(location.hostname || '').toLowerCase();
-
-      // 카카오 Developers의 Web/JavaScript SDK 도메인 등록값과
-      // 공유 링크 origin을 일치시키기 위해 운영/개발 모두 www 기준으로 고정합니다.
-      if(host.includes('sola-home-dev.kr')) return 'https://www.sola-home-dev.kr';
-      if(host.includes('sola-home.kr')) return 'https://www.sola-home.kr';
-
-      return location.origin;
-    }
-
     function getShareUrl(type, id){
-      return `${getShareBaseOrigin()}/${type}/${encodeURIComponent(String(id || ''))}`;
+      return `${location.origin}/${type}/${encodeURIComponent(String(id || ''))}`;
     }
 
     function getItemShareImage(item = {}){
@@ -2686,7 +2675,6 @@ async function refreshPushStatus(){
         ? (item.title || '더운정 마이힐스 공지')
         : (item.name || '더운정 마이힐스 혜택');
       const description = getShareDescription(type, item);
-      const imageUrl = getItemShareImage(item);
 
       if(!ensureKakaoReady()){
         await copyShareUrl(type, item);
@@ -2699,28 +2687,17 @@ async function refreshPushStatus(){
       };
 
       try{
+        /*
+          카카오톡 일부 환경에서 feed 카드 본문/버튼 클릭이 약하게 동작하는 경우가 있어
+          URL이 메시지 본문에 직접 노출되는 text 템플릿으로 전환합니다.
+          - 클릭 가능 URL이 카톡 말풍선에 직접 표시됨
+          - link도 함께 전달되어 버튼/본문 링크가 모두 동일 URL로 이동
+        */
         window.Kakao.Share.sendDefault({
-          objectType: 'feed',
-          content: {
-            title,
-            description,
-            imageUrl,
-            link: kakaoLink
-          },
-
-          // 일부 카카오톡 환경에서 카드 본문 클릭이 약하게 동작할 수 있어
-          // 기본 버튼명과 명시적 버튼 링크를 함께 넣어 클릭 영역을 확실히 확보합니다.
-          buttonTitle: '바로 열기',
-          buttons: [
-            {
-              title: '바로 열기',
-              link: kakaoLink
-            },
-            {
-              title: '링크 복사',
-              link: kakaoLink
-            }
-          ]
+          objectType: 'text',
+          text: `${title}\n${description}\n\n${shareUrl}`,
+          link: kakaoLink,
+          buttonTitle: '앱에서 바로 보기'
         });
       }catch(error){
         console.warn('카카오 공유 실패', error);
