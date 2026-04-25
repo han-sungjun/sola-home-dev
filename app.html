@@ -1574,165 +1574,27 @@ body.gnb-open .bottom-nav{
 @media (prefers-reduced-motion: reduce){.popular-item.rank-up,.popular-item.rank-down,.popular-item.rank-new,.hot-now-live::before{animation:none !important;}}
 @media (max-width:420px){.hot-now-copy b{max-width:180px;}}
 
-  
 
 /* ================================
-🔥 TOP 5 FINAL ACTION UPGRADE
-- TOP 1 CTA / Glow / Share BEST pulse
-- Nearby HOT / Reactions / Living UI
+   TOP5 / NEARBY / RESIDENT RANK FINAL
 ================================ */
-.popular-item.rank-1{
-  position:relative;
-  overflow:hidden;
-  animation:
-    topOneFloat 2.8s ease-in-out infinite,
-    topOneGlow 2.4s ease-in-out infinite !important;
-}
-.popular-item.rank-1::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:24px;
-  pointer-events:none;
-  background:radial-gradient(circle at top right, rgba(251,191,36,.32), transparent 40%);
-  opacity:.9;
-}
-@keyframes topOneGlow{
-  0%,100%{box-shadow:0 22px 44px rgba(245,158,11,.18), inset 0 0 0 1px rgba(251,191,36,.22)}
-  50%{box-shadow:0 28px 60px rgba(245,158,11,.30), 0 0 0 5px rgba(251,191,36,.10), inset 0 0 0 1px rgba(251,191,36,.28)}
-}
-.popular-item.rank-1.rank-up,
-.popular-item.rank-1.rank-down,
-.popular-item.rank-1.rank-new{
-  animation:
-    popularRankChange .55s ease both,
-    topOneFloat 2.8s ease-in-out .55s infinite,
-    topOneGlow 2.4s ease-in-out .55s infinite !important;
-}
-@keyframes popularRankChange{
-  0%{opacity:.6;transform:translateY(10px) scale(.96)}
-  60%{opacity:1;transform:translateY(-4px) scale(1.02)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
-}
-.popular-share-best,.share-best-badge,.best-share-badge{
-  animation:shareBestPulse 1.6s ease-in-out infinite;
-}
-@keyframes shareBestPulse{
-  0%,100%{transform:scale(1);filter:brightness(1)}
-  50%{transform:scale(1.08);filter:brightness(1.15)}
-}
-.popular-item{
-  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background-color .22s ease;
-}
+.popular-item.rank-1{position:relative;overflow:hidden;animation:topOneFloat 2.8s ease-in-out infinite,topOneGlow 2.4s ease-in-out infinite !important;}
+.popular-item.rank-1::before{content:"";position:absolute;inset:-2px;border-radius:24px;pointer-events:none;background:radial-gradient(circle at top right, rgba(251,191,36,.32), transparent 40%);opacity:.9;}
+@keyframes topOneGlow{0%,100%{box-shadow:0 22px 44px rgba(245,158,11,.18), inset 0 0 0 1px rgba(251,191,36,.22)}50%{box-shadow:0 28px 60px rgba(245,158,11,.30), 0 0 0 5px rgba(251,191,36,.10), inset 0 0 0 1px rgba(251,191,36,.28)}}
+.popular-item.rank-1.rank-up,.popular-item.rank-1.rank-down,.popular-item.rank-1.rank-new{animation:popularRankChange .55s ease both,topOneFloat 2.8s ease-in-out .55s infinite,topOneGlow 2.4s ease-in-out .55s infinite !important;}
+.share-best-badge,.popular-share-best,.best-share-badge{animation:shareBestPulse 1.6s ease-in-out infinite}
+@keyframes shareBestPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.15)}}
+.popular-item{transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background-color .22s ease}
 .popular-item:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 26px 52px rgba(15,23,42,.14)}
 .popular-item:active{transform:scale(.985)}
 .popular-item:hover .popular-score strong{transform:scale(1.08);text-shadow:0 6px 16px rgba(0,0,0,.12)}
 .popular-item:hover .popular-rank{transform:translateY(-2px) scale(1.06)}
-.top1-urgent{
-  display:inline-flex;
-  align-items:center;
-  width:max-content;
-  margin-top:8px;
-  padding:6px 9px;
-  border-radius:999px;
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#c2410c;
-  font-size:11px;
-  font-weight:1000;
-}
-.top1-cta{
-  margin-top:8px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-.top1-btn{
-  border:none;
-  border-radius:14px;
-  padding:11px 9px;
-  font-size:12px;
-  font-weight:1000;
-  cursor:pointer;
-  background:linear-gradient(135deg,#ef4444,#f97316);
-  color:#fff;
-  box-shadow:0 12px 24px rgba(239,68,68,.22);
-  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-}
-.top1-btn.secondary{
-  background:#0f172a;
-  box-shadow:0 12px 24px rgba(15,23,42,.18);
-}
-.top1-btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
-.top1-btn:active{transform:scale(.96)}
-.share-trigger{
-  margin-top:10px;
-  padding:10px 12px;
-  border-radius:15px;
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#c2410c;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  font-size:12px;
-  font-weight:900;
-}
-.share-trigger button{
-  border:none;
-  background:#ef4444;
-  color:#fff;
-  border-radius:11px;
-  padding:7px 10px;
-  font-size:11px;
-  font-weight:1000;
-  cursor:pointer;
-  white-space:nowrap;
-}
-.reaction-box{
-  margin-top:10px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-}
-.reaction-btn{
-  border:1px solid #e2e8f0;
-  border-radius:14px;
-  background:#fff;
-  color:#334155;
-  min-height:38px;
-  font-size:12px;
-  font-weight:1000;
-  cursor:pointer;
-  transition:transform .16s ease, background-color .16s ease, box-shadow .16s ease;
-}
-.reaction-btn:hover{transform:translateY(-1px);background:#f8fafc;box-shadow:0 10px 20px rgba(15,23,42,.06)}
-.reaction-btn:active{transform:scale(.96)}
-.nearby-hot-panel{
-  margin-bottom:14px;
-  background:linear-gradient(180deg,#ecfeff 0%,#ffffff 78%);
-  border-color:#a5f3fc;
-}
-.nearby-hot-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
-.nearby-hot-title{margin:0;font-size:17px;letter-spacing:-.03em}
-.nearby-hot-desc{margin:5px 0 0;color:#0e7490;font-size:12px;font-weight:800;line-height:1.5}
-.nearby-hot-live{padding:6px 9px;border-radius:999px;background:#cffafe;color:#0e7490;border:1px solid #67e8f9;font-size:10px;font-weight:1000;animation:shareBestPulse 1.8s ease-in-out infinite}
-.nearby-hot-list{display:grid;gap:10px}
-.nearby-hot-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border-radius:18px;background:#fff;border:1px solid rgba(14,116,144,.16);box-shadow:0 10px 22px rgba(14,116,144,.08);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease}
-.nearby-hot-item:hover{transform:translateY(-2px);box-shadow:0 16px 28px rgba(14,116,144,.13)}
-.nearby-hot-copy{min-width:0;display:flex;align-items:center;gap:10px}
-.nearby-hot-rank{width:32px;height:32px;border-radius:13px;display:grid;place-items:center;background:#0e7490;color:#fff;font-size:12px;font-weight:1000;flex:0 0 auto}
-.nearby-hot-meta{min-width:0}
-.nearby-hot-meta b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}
-.nearby-hot-meta small{display:block;margin-top:3px;color:#64748b;font-size:11px;line-height:1.35}
-.nearby-hot-score{text-align:right;flex:0 0 auto}
-.nearby-hot-score strong{display:block;font-size:15px;font-weight:1000;color:#0e7490}
-.nearby-hot-score span{display:block;margin-top:2px;font-size:10px;color:#64748b;font-weight:800}
-.nearby-hot-request{display:grid;gap:8px;padding:14px;border-radius:18px;background:#fff;border:1px solid rgba(14,116,144,.16);text-align:center}
-.nearby-hot-request p{margin:0;color:#475569;font-size:13px;line-height:1.6;font-weight:800}
-.nearby-hot-request button{border:none;border-radius:14px;padding:12px 14px;background:#0e7490;color:#fff;font-size:13px;font-weight:1000;cursor:pointer}
-@media (max-width:370px){.top1-cta,.reaction-box{grid-template-columns:1fr}.share-trigger{align-items:flex-start;flex-direction:column}.nearby-hot-meta b{max-width:170px}}
+.popular-item.rank-up,.popular-item.rank-down,.popular-item.rank-new{animation:popularRankChange .55s ease both}
+@keyframes popularRankChange{0%{opacity:.6;transform:translateY(10px) scale(.96)}60%{opacity:1;transform:translateY(-4px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.top1-urgent{margin-top:8px;font-size:11px;font-weight:1000;color:#ef4444;letter-spacing:-.02em}.top1-cta{display:flex;gap:8px;margin-top:8px}.top1-btn{width:100%;border:none;border-radius:14px;padding:11px 12px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:13px;font-weight:1000;box-shadow:0 12px 24px rgba(239,68,68,.23);cursor:pointer;transition:transform .16s ease, box-shadow .16s ease}.top1-btn:hover{transform:translateY(-1px);box-shadow:0 16px 28px rgba(239,68,68,.28)}.top1-btn:active{transform:scale(.96)}
+.nearby-proximity-panel,.resident-rank-panel{margin-top:14px}.nearby-proximity-head,.resident-rank-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.nearby-proximity-title,.resident-rank-title{margin:0;font-size:18px;letter-spacing:-.04em}.nearby-proximity-desc,.resident-rank-desc{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.nearby-proximity-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.nearby-mini-btn{border:none;border-radius:16px;padding:13px 12px;background:#0f172a;color:#fff;font-weight:900;cursor:pointer;box-shadow:0 12px 24px rgba(15,23,42,.16)}.nearby-mini-btn.soft{background:#fff;color:#0f172a;border:1px solid var(--line);box-shadow:none}.nearby-proximity-status{margin-top:10px;padding:10px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1.5}.nearby-proximity-status.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
+.reaction-box{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.reaction-btn{border:1px solid #e2e8f0;background:#fff;border-radius:16px;padding:12px 8px;font-size:13px;font-weight:900;cursor:pointer;transition:transform .16s ease, background-color .16s ease, border-color .16s ease}.reaction-btn:hover{transform:translateY(-1px);background:#f8fafc;border-color:#cbd5e1}.reaction-btn:active{transform:scale(.97)}.reaction-help{margin:-2px 0 12px;padding:10px 12px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:900;line-height:1.5}
+.share-power{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:900}.share-power.hot{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.resident-rank-list{display:grid;gap:10px}.resident-rank-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:0 10px 22px rgba(15,23,42,.05)}.resident-rank-left{display:flex;align-items:center;gap:10px;min-width:0}.resident-rank-medal{width:36px;height:36px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:1000;flex:0 0 auto}.resident-rank-copy{min-width:0}.resident-rank-name{font-size:14px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-sub{margin-top:3px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-score{text-align:right;flex:0 0 auto}.resident-rank-score strong{display:block;font-size:18px;line-height:1.1}.resident-rank-score span{font-size:11px;color:var(--muted);font-weight:800}@media (max-width:370px){.nearby-proximity-actions,.reaction-box{grid-template-columns:1fr}.resident-rank-name,.resident-rank-sub{max-width:160px}}
 
   </style>
 </head>
@@ -1827,7 +1689,7 @@ body.gnb-open .bottom-nav{
       </div>
     </section>
 
-    <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 클릭 + 즐겨찾기 + 공유수를 합산한 실시간 인기 매장입니다.</div></div><div id="hotNowPanel" class="panel hot-now-panel hidden"><div class="hot-now-head"><div><h3 class="hot-now-title">🔥 지금 뜨는 매장</h3><p class="hot-now-desc">공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.</p></div><span class="hot-now-live">LIVE</span></div><div class="hot-now-list" id="hotNowList"></div></div><div id="nearbyHotPanel" class="panel nearby-hot-panel hidden"><div class="nearby-hot-head"><div><h3 class="nearby-hot-title">📍 근처에서 지금 뜨는 혜택</h3><p class="nearby-hot-desc">현재 위치와 실시간 HOT 점수를 결합해 도보권 혜택을 보여줍니다.</p></div><span class="nearby-hot-live">NEAR</span></div><div class="nearby-hot-list" id="nearbyHotList"></div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></section>
+    <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 클릭 + 즐겨찾기 + 공유수 + 입주민 반응을 합산한 실시간 인기 매장입니다.</div></div><div id="hotNowPanel" class="panel hot-now-panel hidden"><div class="hot-now-head"><div><h3 class="hot-now-title">🔥 지금 뜨는 매장</h3><p class="hot-now-desc">공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.</p></div><span class="hot-now-live">LIVE</span></div><div class="hot-now-list" id="hotNowList"></div></div><div id="nearbyProximityPanel" class="panel nearby-proximity-panel"><div class="nearby-proximity-head"><div><h3 class="nearby-proximity-title">📍 근처 자동 알림</h3><p class="nearby-proximity-desc">100m / 300m 안에 들어오면 앱 실행 중 토스트와 브라우저 알림으로 알려줍니다.</p></div></div><div class="nearby-proximity-actions"><button type="button" class="nearby-mini-btn" id="enableNearbyAutoPushBtn">근처 알림 시작</button><button type="button" class="nearby-mini-btn soft" id="checkNearbyNowBtn">지금 주변 확인</button></div><div class="nearby-proximity-status" id="nearbyProximityStatus">위치 권한을 허용하면 근처 혜택 알림이 동작합니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div><div id="residentRankPanel" class="panel resident-rank-panel"><div class="resident-rank-head"><div><h3 class="resident-rank-title">🏆 입주민 활동 랭킹</h3><p class="resident-rank-desc">조회, 공유, 추천, HOT 반응을 점수로 합산합니다.</p></div><small id="residentRankUpdatedText">실시간 집계</small></div><div class="resident-rank-list" id="residentRankList"><div class="notice-empty">아직 활동 랭킹 데이터가 없습니다.</div></div></div></section>
   </div></div>
   <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="map"><span class="nav-icon">🗺️</span><span class="nav-label">지도</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button></nav>
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
@@ -2992,10 +2854,46 @@ async function refreshPushStatus(){
           type,
           createdAt: serverTimestamp()
         });
+        recordResidentActivity(type, residentActivityPoints(type), benefitId).catch(() => {});
       }catch(error){
         console.error('이벤트 기록 실패', type, benefitId, error);
       }
     }
+
+    function residentActivityPoints(type = ''){
+      const key = String(type || '');
+      if(key.includes('share')) return 5;
+      if(key === 'favorite') return 3;
+      if(key === 'recommend') return 4;
+      if(key === 'hot') return 6;
+      if(key === 'like') return 2;
+      if(key.includes('click')) return 2;
+      if(key.includes('view')) return 1;
+      return 1;
+    }
+    async function recordResidentActivity(type = 'activity', points = 1, benefitId = ''){
+      const uid = state.currentUser?.uid; if(!uid) return;
+      const profile = state.currentUserProfile || {}; const safePoints = Math.max(1, Number(points || 1));
+      try{
+        await addDoc(collection(db, 'activity_logs'), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '', type, benefitId: benefitId || null, points: safePoints, createdAt: serverTimestamp()});
+        await setDoc(doc(db, 'user_stats', uid), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '입주민', role: profile.role || profile.userRole || '', score: increment(safePoints), activityCount: increment(1), lastActivityType: type, lastBenefitId: benefitId || null, updatedAt: serverTimestamp()}, { merge:true });
+      }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
+    }
+    async function handleResidentReaction(benefitId = '', reactionType = 'like'){
+      if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return; }
+      const uid = state.currentUser.uid; const reactionId = `${benefitId}_${uid}_${reactionType}`; const reactionRef = doc(db, 'benefit_reactions', reactionId);
+      const existing = await getDoc(reactionRef).catch(() => null); if(existing?.exists?.()){ await openModalAlert('이미 반영된 반응입니다.'); return; }
+      const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' }; const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
+      const statField = fieldMap[reactionType] || 'likeCount'; const points = residentActivityPoints(reactionType);
+      try{
+        await setDoc(reactionRef, { benefitId, uid, type: reactionType, createdAt: serverTimestamp() }, { merge:true });
+        await setDoc(doc(db, BENEFIT_STATS_COLLECTION, benefitId), {benefitId, [statField]: increment(1), popularScore: increment(points), updatedAt: serverTimestamp()}, { merge:true });
+        await recordResidentActivity(reactionType, points, benefitId);
+        await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.\n인기점수에 바로 반영됩니다.`);
+      }catch(error){console.warn('입주민 반응 저장 실패', error); await openModalAlert('반응 저장 중 오류가 발생했습니다.');}
+    }
+    function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">🔥 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like">👍 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend">❤️ 추천</button><button type="button" class="reaction-btn" data-reaction="hot">🔥 HOT</button></div>`; }
+    function bindResidentReactionButtons(item = {}){ qsa('.reaction-btn').forEach((btn) => { btn.onclick = async (event) => { event.preventDefault(); event.stopPropagation(); await handleResidentReaction(item.id, btn.dataset.reaction || 'like'); }; }); }
 
     const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
 
@@ -3753,6 +3651,7 @@ function getShareTrackingParams(){
             lastSharedAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           }, { merge:true });
+          await recordResidentActivity('share', 5, item.id);
         }
       }catch(error){
         console.warn('공유 액션 로그 저장 실패', error);
@@ -4247,13 +4146,14 @@ function getShareTrackingParams(){
 
     function calcPopularScoreFromStats(data = {}) {
       const detailViewCount = Number(data.detailViewCount || 0);
-      const clickCount = Number(data.clickCount || data.cardClickCount || 0);
+      const clickCount = Number(data.clickCount || 0);
+      const cardClickCount = Number(data.cardClickCount || 0);
       const favoriteCount = Number(data.favoriteCount || 0);
       const shareClickCount = Number(data.shareClickCount || 0);
       const likeCount = Number(data.likeCount || 0);
       const recommendCount = Number(data.recommendCount || 0);
       const hotCount = Number(data.hotCount || 0);
-      return detailViewCount + clickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6;
+      return detailViewCount + clickCount + cardClickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6;
     }
 
     function getShareBestItemId(items = []) {
@@ -4289,9 +4189,6 @@ function getShareTrackingParams(){
           const clickCount = Number(data.clickCount || 0);
           const favoriteCount = Number(data.favoriteCount || 0);
           const shareClickCount = Number(data.shareClickCount || 0);
-          const likeCount = Number(data.likeCount || 0);
-          const recommendCount = Number(data.recommendCount || 0);
-          const hotCount = Number(data.hotCount || 0);
           const popularScore = calcPopularScoreFromStats(data);
 
           return {
@@ -4305,9 +4202,9 @@ function getShareTrackingParams(){
             clickCount,
             favoriteCount,
             shareClickCount,
-            likeCount,
-            recommendCount,
-            hotCount,
+            likeCount: Number(data.likeCount || 0),
+            recommendCount: Number(data.recommendCount || 0),
+            hotCount: Number(data.hotCount || 0),
             score: popularScore,
             popularScore,
             benefit: benefit || null
@@ -4342,7 +4239,6 @@ function getShareTrackingParams(){
 
         renderPopularTop5();
         renderHotNowStores();
-        renderNearbyHotStores();
         if (typeof savePopularRankSnapshot === 'function') savePopularRankSnapshot(state.popularItems);
         const updatedText = qs('#popularUpdatedText');
         if (updatedText) updatedText.textContent = `실시간 집계 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
@@ -4941,7 +4837,7 @@ function getShareTrackingParams(){
           </div>
           <div class="popular-row">
             <div class="label">인기 지표</div>
-            <div class="value">조회 ${Number(item.detailViewCount || 0).toLocaleString('ko-KR')} · 즐겨찾기 ${Number(item.favoriteCount || 0).toLocaleString('ko-KR')} · 공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')} · 추천 ${Number((item.likeCount || 0) + (item.recommendCount || 0) + (item.hotCount || 0)).toLocaleString('ko-KR')}</div>
+            <div class="value">조회 ${Number(item.detailViewCount || 0).toLocaleString('ko-KR')} · 즐겨찾기 ${Number(item.favoriteCount || 0).toLocaleString('ko-KR')} · 공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')} · 추천 ${Number(item.recommendCount || 0).toLocaleString('ko-KR')} · HOT ${Number(item.hotCount || 0).toLocaleString('ko-KR')}</div>
           </div>
           <div class="popular-row popular-date-row ${isNew ? 'is-new' : ''}">
             <div class="label">등록일</div>
@@ -4955,164 +4851,6 @@ function getShareTrackingParams(){
 
 
 
-
-    function getPopularBenefit(item = {}) {
-      return item.benefit || state.benefits.find((benefit) => benefit.id === item.id) || null;
-    }
-
-    function getNearbyDistanceBonus(distance) {
-      const meters = Number(distance);
-      if (!Number.isFinite(meters)) return 0;
-      if (meters <= 100) return 30;
-      if (meters <= 300) return 20;
-      if (meters <= 500) return 10;
-      return 0;
-    }
-
-    function calcNearbyHotScore(item = {}, distance = null) {
-      const baseScore = Number(item.popularScore || item.score || 0);
-      const recentBoost = Number(item.shareClickCount || 0) * 5 + Number(item.hotCount || 0) * 6;
-      return baseScore + recentBoost + getNearbyDistanceBonus(distance);
-    }
-
-    async function requestNearbyHotLocation() {
-      try {
-        await getReliableCurrentPosition({ forceRefresh: true });
-        renderNearbyHotStores();
-      } catch (error) {
-        console.warn('근처 HOT 위치 확인 실패', error);
-        await openModalAlert('현재 위치 권한이 필요합니다.\n브라우저 위치 권한을 허용한 뒤 다시 시도해 주세요.');
-      }
-    }
-
-    function renderNearbyHotStores() {
-      const panel = qs('#nearbyHotPanel');
-      const list = qs('#nearbyHotList');
-      if (!panel || !list) return;
-
-      const hasCandidates = (state.popularItems || []).some((item) => {
-        const benefit = getPopularBenefit(item);
-        return !!benefit && !!getBenefitLatLng(benefit);
-      });
-
-      if (!hasCandidates) {
-        panel.classList.add('hidden');
-        list.innerHTML = '';
-        return;
-      }
-
-      panel.classList.remove('hidden');
-
-      if (!state.userLocation) {
-        list.innerHTML = `
-          <div class="nearby-hot-request">
-            <p>현재 위치를 허용하면<br>가까운 HOT 혜택을 바로 보여드립니다.</p>
-            <button type="button" id="nearbyHotLocationBtn">📍 근처 HOT 보기</button>
-          </div>
-        `;
-        qs('#nearbyHotLocationBtn')?.addEventListener('click', requestNearbyHotLocation);
-        return;
-      }
-
-      const items = (state.popularItems || [])
-        .map((item) => {
-          const benefit = getPopularBenefit(item);
-          const pos = benefit ? getBenefitLatLng(benefit) : null;
-          if (!benefit || !pos) return null;
-          const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
-          if (!Number.isFinite(distance) || distance > 3000) return null;
-          return {
-            ...item,
-            benefit,
-            distance,
-            nearbyHotScore: calcNearbyHotScore(item, distance)
-          };
-        })
-        .filter(Boolean)
-        .sort((a, b) => Number(b.nearbyHotScore || 0) - Number(a.nearbyHotScore || 0))
-        .slice(0, 3);
-
-      if (!items.length) {
-        list.innerHTML = `
-          <div class="nearby-hot-request">
-            <p>3km 이내 HOT 혜택이 아직 없습니다.<br>다른 위치에서 다시 확인해 보세요.</p>
-            <button type="button" id="nearbyHotLocationBtn">📍 위치 다시 확인</button>
-          </div>
-        `;
-        qs('#nearbyHotLocationBtn')?.addEventListener('click', requestNearbyHotLocation);
-        return;
-      }
-
-      list.innerHTML = items.map((item, index) => `
-        <article class="nearby-hot-item" data-benefit-id="${escapeHtml(item.id)}">
-          <div class="nearby-hot-copy">
-            <div class="nearby-hot-rank">${index + 1}</div>
-            <div class="nearby-hot-meta">
-              <b>${escapeHtml(item.name || item.benefit?.name || '이름 없는 매장')}</b>
-              <small>${formatDistance(item.distance)} · 공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')} · 추천 ${Number((item.likeCount || 0) + (item.recommendCount || 0) + (item.hotCount || 0)).toLocaleString('ko-KR')}</small>
-            </div>
-          </div>
-          <div class="nearby-hot-score">
-            <strong>${Number(item.nearbyHotScore || 0).toLocaleString('ko-KR')}</strong>
-            <span>근처HOT</span>
-          </div>
-        </article>
-      `).join('');
-
-      list.querySelectorAll('.nearby-hot-item').forEach((el) => {
-        const id = el.dataset.benefitId;
-        const item = items.find((v) => v.id === id);
-        el.onclick = () => {
-          if (item?.benefit) openDetail(item.benefit);
-        };
-      });
-    }
-
-    async function reactToBenefit(benefitId, type) {
-      try {
-        const uid = state.currentUser?.uid;
-        if (!uid) {
-          await openModalAlert('로그인 후 추천할 수 있습니다.');
-          return;
-        }
-
-        const safeType = ['like','recommend','hot'].includes(type) ? type : 'like';
-        const benefit = state.benefits.find((item) => item.id === benefitId) || {};
-        const reactionRef = doc(db, 'benefit_reactions', `${benefitId}_${uid}_${safeType}`);
-        const reactionSnap = await getDoc(reactionRef);
-        if (reactionSnap.exists()) {
-          await openModalAlert('이미 반응이 반영되었습니다.');
-          return;
-        }
-
-        await setDoc(reactionRef, {
-          benefitId,
-          uid,
-          type: safeType,
-          createdAt: serverTimestamp()
-        });
-
-        const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
-        const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
-        const weightMap = { like:2, recommend:4, hot:6 };
-        await setDoc(statRef, {
-          benefitId,
-          name: benefit.name || benefit.title || '',
-          updatedAt: serverTimestamp()
-        }, { merge:true });
-        await updateDoc(statRef, {
-          [fieldMap[safeType]]: increment(1),
-          reactionCount: increment(1),
-          popularScore: increment(weightMap[safeType]),
-          updatedAt: serverTimestamp()
-        });
-
-        await openModalAlert('입주민 반응이 반영되었습니다 👍');
-      } catch (error) {
-        console.warn('입주민 반응 저장 실패', error);
-        await openModalAlert('반응 저장 중 오류가 발생했습니다.');
-      }
-    }
 
     function renderHotNowStores(){
       const panel = qs('#hotNowPanel');
@@ -5169,7 +4907,6 @@ function getShareTrackingParams(){
       if(!state.popularItems.length){
         wrap.innerHTML = '<div class="panel empty">아직 집계된 인기 매장이 없습니다.</div>';
         renderHotNowStores();
-        renderNearbyHotStores();
         return;
       }
       state.popularItems.forEach((item, index) => {
@@ -5188,23 +4925,8 @@ function getShareTrackingParams(){
               ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
               ${item.isShareBest ? '<span class="share-best-badge">🔗 공유 BEST</span>' : ''}
             </div>
-            ${rank === 1 ? `
-              <div class="top1-urgent">🔥 지금 가장 인기 있는 혜택</div>
-              <div class="top1-cta">
-                <button type="button" class="top1-btn" data-popular-action="open">혜택 바로보기</button>
-                <button type="button" class="top1-btn secondary" data-popular-action="share">카카오 공유</button>
-              </div>
-            ` : ''}
+            ${rank === 1 ? '<div class="top1-urgent">🔥 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
             ${renderPopularDetail(item)}
-            <div class="reaction-box" aria-label="입주민 추천 반응">
-              <button type="button" class="reaction-btn" data-reaction="like">👍 좋아요 ${Number(item.likeCount || 0).toLocaleString('ko-KR')}</button>
-              <button type="button" class="reaction-btn" data-reaction="recommend">❤️ 추천 ${Number(item.recommendCount || 0).toLocaleString('ko-KR')}</button>
-              <button type="button" class="reaction-btn" data-reaction="hot">🔥 HOT ${Number(item.hotCount || 0).toLocaleString('ko-KR')}</button>
-            </div>
-            <div class="share-trigger">
-              <span>📢 공유하면 인기점수가 올라가고 더 많은 입주민이 혜택을 봅니다</span>
-              <button type="button" data-popular-action="share">공유</button>
-            </div>
           </div>
           <div class="popular-score">
             <strong class="popular-count">0</strong>
@@ -5216,26 +4938,10 @@ function getShareTrackingParams(){
             openDetail(item.benefit);
           }
         };
-        row.querySelectorAll('button').forEach((button) => {
-          button.addEventListener('click', (event) => event.stopPropagation());
-        });
-        row.querySelector('[data-popular-action="open"]')?.addEventListener('click', () => {
-          if(item.benefit) openDetail(item.benefit);
-        });
-        row.querySelectorAll('[data-popular-action="share"]').forEach((button) => {
-          button.addEventListener('click', () => {
-            const target = item.benefit || { id:item.id, name:item.name, title:item.name, category:item.category, condition:item.condition };
-            shareKakaoItem('benefit', target);
-          });
-        });
-        row.querySelectorAll('[data-reaction]').forEach((button) => {
-          button.addEventListener('click', () => reactToBenefit(item.id, button.dataset.reaction));
-        });
         wrap.appendChild(row);
         animatePopularCount(row.querySelector('.popular-count'), item.score);
       });
       renderHotNowStores();
-      renderNearbyHotStores();
     }
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
     const getCategoryCounts=()=> {
@@ -5337,13 +5043,14 @@ function getShareTrackingParams(){
       increaseStat(item.id, item.name, 'detailViewCount');
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
-      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
       const modal=qs('#detailModal');
       if(modal.open)modal.close();
       modal.showModal();
       qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
       qs('#benefitKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('benefit', item));
       qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
+      bindResidentReactionButtons(item);
       updateDistanceText(item);
       setTimeout(() => renderDetailMiniMap(item), 120);
       qs('#modalFavBtn').onclick=async ()=>{
@@ -5355,6 +5062,73 @@ function getShareTrackingParams(){
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
       qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
     }
+
+    let residentProximityWatchId = null;
+
+    function setNearbyProximityStatus(message, isError = false){
+      const el = qs('#nearbyProximityStatus');
+      if(!el) return;
+      el.textContent = message;
+      el.classList.toggle('error', !!isError);
+    }
+
+    async function enableNearbyAutoPush(){
+      try{
+        if(!navigator.geolocation){ setNearbyProximityStatus('이 브라우저에서는 위치 기반 알림을 사용할 수 없습니다.', true); return; }
+        await getReliableCurrentPosition({ forceRefresh:true });
+        checkProximityAlerts({ silent:false });
+        if(residentProximityWatchId === null){
+          residentProximityWatchId = navigator.geolocation.watchPosition((position) => {
+            setUserLocationFromPosition(position);
+            checkProximityAlerts({ silent:false });
+            renderNearbyHotStores();
+          }, (error) => {
+            console.warn('근처 자동 알림 위치 감시 실패', error);
+            setNearbyProximityStatus('위치 권한을 허용해야 근처 자동 알림을 사용할 수 있습니다.', true);
+          }, GEO_OPTIONS);
+        }
+        setNearbyProximityStatus('근처 자동 알림이 켜졌습니다. 100m / 300m 진입 시 알려드립니다.');
+        renderNearbyHotStores();
+      }catch(error){ console.warn('근처 자동 알림 시작 실패', error); setNearbyProximityStatus('위치 권한을 허용해야 근처 자동 알림을 사용할 수 있습니다.', true); }
+    }
+
+    async function checkNearbyNow(){
+      try{ await getReliableCurrentPosition({ forceRefresh:true }); recalculateBenefitDistances(); checkProximityAlerts({ silent:false }); renderNearbyHotStores(); setNearbyProximityStatus('현재 위치 기준으로 주변 혜택을 확인했습니다.'); }
+      catch(error){ console.warn('주변 혜택 확인 실패', error); setNearbyProximityStatus('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해 주세요.', true); }
+    }
+
+    function renderNearbyHotStores(){
+      if(!qs('#nearbyProximityPanel') || !state.userLocation) return;
+      const candidates = (state.popularItems || []).map((item) => {
+        const benefit = item.benefit || state.benefits.find((v) => v.id === item.id) || item;
+        const pos = getBenefitLatLng(benefit); if(!pos) return null;
+        const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
+        let distanceBonus = 0; if(distance <= 100) distanceBonus = 30; else if(distance <= 300) distanceBonus = 20; else if(distance <= 500) distanceBonus = 10;
+        return { ...item, benefit, distance, nearbyScore: Number(item.popularScore || item.score || 0) + distanceBonus };
+      }).filter(Boolean).filter((item) => Number.isFinite(item.distance) && item.distance <= 500).sort((a,b) => b.nearbyScore - a.nearbyScore).slice(0,3);
+      if(!candidates.length) return;
+      setNearbyProximityStatus('🔥 근처 HOT: ' + candidates.map((item, index) => `${index + 1}. ${item.name} · ${formatDistance(item.distance)}`).join('  /  '));
+    }
+
+    function renderResidentRankings(items = []){
+      const list = qs('#residentRankList'); if(!list) return;
+      if(!items.length){ list.innerHTML = '<div class="notice-empty">아직 활동 랭킹 데이터가 없습니다.</div>'; return; }
+      list.innerHTML = items.map((item, index) => {
+        const rank = index + 1; const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+        return `<div class="resident-rank-row"><div class="resident-rank-left"><div class="resident-rank-medal">${medal}</div><div class="resident-rank-copy"><div class="resident-rank-name">${escapeHtml(item.nickname || item.loginId || '입주민')}</div><div class="resident-rank-sub">활동 ${Number(item.activityCount || 0).toLocaleString('ko-KR')}회 · 최근 ${escapeHtml(item.lastActivityType || 'activity')}</div></div></div><div class="resident-rank-score"><strong>${Number(item.score || 0).toLocaleString('ko-KR')}</strong><span>점수</span></div></div>`;
+      }).join('');
+    }
+
+    function subscribeResidentActivityRanking(){
+      try{
+        const rankQuery = query(collection(db, 'user_stats'), orderBy('score','desc'), limit(5));
+        onSnapshot(rankQuery, (snapshot) => {
+          renderResidentRankings(snapshot.docs.map((d) => ({ id:d.id, ...d.data() })));
+          const text = qs('#residentRankUpdatedText'); if(text) text.textContent = `실시간 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
+        }, (error) => { console.warn('입주민 활동 랭킹 로드 실패', error); renderResidentRankings([]); });
+      }catch(error){ console.warn('입주민 활동 랭킹 초기화 실패', error); }
+    }
+
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='shareinsights') setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
@@ -5364,6 +5138,8 @@ function getShareTrackingParams(){
     qs('#mapUseMyLocationBtn')?.addEventListener('click', centerMapToMyLocation);
     qs('#mapRefreshBtn')?.addEventListener('click', () => renderMapMode({ fitBounds: true }));
     qs('#shareInsightRefreshBtn')?.addEventListener('click', renderShareInsights);
+    qs('#enableNearbyAutoPushBtn')?.addEventListener('click', enableNearbyAutoPush);
+    qs('#checkNearbyNowBtn')?.addEventListener('click', checkNearbyNow);
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){changeView(btn.dataset.view);}};});
     const gnbToggleBtn = qs('#gnbToggleBtn');
     const gnbSheet = qs('#gnbSheet');
@@ -5614,6 +5390,7 @@ function getShareTrackingParams(){
         subscribeBenefits();
         subscribeNotices();
         subscribePopularStats();
+        subscribeResidentActivityRanking();
         subscribeFavorites();
       }else{
         qs('#firebaseNotice').classList.remove('hidden');
