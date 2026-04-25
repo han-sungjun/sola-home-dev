@@ -1636,7 +1636,7 @@ body.gnb-open .bottom-nav{
       </div>
     </section>
 
-    <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 기준으로 가장 많이 본 매장을 따로 모아봤습니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></section>
+    <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 즐겨찾기 + 공유수를 합산한 인기 매장입니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></section>
   </div></div>
   <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="map"><span class="nav-icon">🗺️</span><span class="nav-label">지도</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button></nav>
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
@@ -2375,20 +2375,8 @@ function setPushStatusUi(enabled){
     });
 
     const redirectToLogin=()=>{
-      try{
-        const deepLink = parseCleanDeepLink();
-        const hasQueryDeepLink = !!(deepLink && deepLink.mode === 'query');
-        const hasPathDeepLink = location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/');
-
-        // /app?open=benefit&id=... 처럼 공유/OG 리디렉트로 들어온 경우도
-        // 로그인 후 다시 같은 상세 모달로 복귀할 수 있도록 보존합니다.
-        if(hasQueryDeepLink || hasPathDeepLink){
-          sessionStorage.setItem('pendingDeepLink', location.href);
-        }
-      }catch(_){
-        if(location.search.includes('open=') && location.search.includes('id=')){
-          sessionStorage.setItem('pendingDeepLink', location.href);
-        }
+      if(location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/')){
+        sessionStorage.setItem('pendingDeepLink', location.href);
       }
       window.location.replace(LOGIN_PAGE_URL);
     };
@@ -2769,19 +2757,36 @@ async function refreshPushStatus(){
         });
       });
     }
+    function getPopularScoreWeight(field){
+      const key = String(field || '');
+      if(key === 'detailViewCount') return 1;
+      if(key === 'cardClickCount') return 1;
+      if(key === 'favoriteCount') return 3;
+      if(key === 'shareClickCount') return 5;
+      return 0;
+    }
+
     async function increaseStat(benefitId, benefitName, field){
       if(!benefitId || !field) return;
       try{
         const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
+        const popularWeight = getPopularScoreWeight(field);
         await setDoc(statRef, {
           benefitId,
           name: benefitName || '',
           updatedAt: serverTimestamp()
         }, { merge:true });
-        await updateDoc(statRef, {
+
+        const updatePayload = {
           [field]: increment(1),
           updatedAt: serverTimestamp()
-        });
+        };
+
+        if(popularWeight > 0){
+          updatePayload.popularScore = increment(popularWeight);
+        }
+
+        await updateDoc(statRef, updatePayload);
       }catch(error){
         console.error('통계 증가 실패', field, benefitId, error);
       }
@@ -3546,6 +3551,18 @@ function getShareTrackingParams(){
           detail,
           createdAt: serverTimestamp()
         });
+
+        if(event === 'kakao_share_open' && type === 'benefit' && item?.id){
+          const statRef = doc(db, BENEFIT_STATS_COLLECTION, item.id);
+          await setDoc(statRef, {
+            benefitId: item.id,
+            name: item.name || item.title || '',
+            shareClickCount: increment(1),
+            popularScore: increment(5),
+            lastSharedAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          }, { merge:true });
+        }
       }catch(error){
         console.warn('공유 액션 로그 저장 실패', error);
       }
@@ -3674,7 +3691,7 @@ function getShareTrackingParams(){
       const title = buildKakaoShareTitle(type, item);
       const description = buildKakaoShareDescription(type, item);
       const imageUrl = getItemShareImage(item);
-      const sharedCount = Number(item.shareCount || item.sharedCount || item.clickCount || item.viewCount || 0) || 0;
+      const sharedCount = Number(item.shareClickCount || item.shareCount || item.sharedCount || item.clickCount || item.viewCount || 0) || 0;
 
       if(!ensureKakaoReady()){
         await copyShareUrl(type, item);
@@ -4016,13 +4033,22 @@ function getShareTrackingParams(){
       }
     }
 
+    function calcPopularScoreFromStats(data = {}){
+      const detailViewCount = Number(data.detailViewCount || 0);
+      const cardClickCount = Number(data.cardClickCount || 0);
+      const favoriteCount = Number(data.favoriteCount || 0);
+      const shareClickCount = Number(data.shareClickCount || 0);
+      const savedScore = Number(data.popularScore || 0);
+      const calculatedScore = detailViewCount + cardClickCount + (favoriteCount * 3) + (shareClickCount * 5);
+      return Math.max(savedScore, calculatedScore);
+    }
+
     function subscribePopularStats(){
-      const popularQuery = query(collection(db, BENEFIT_STATS_COLLECTION), orderBy('detailViewCount', 'desc'), limit(5));
-      onSnapshot(popularQuery, (snapshot) => {
+      onSnapshot(collection(db, BENEFIT_STATS_COLLECTION), (snapshot) => {
         state.popularItems = snapshot.docs.map((d) => {
           const data = d.data() || {};
           const benefit = state.benefits.find((item) => item.id === d.id);
-          const score = Number(data.detailViewCount || 0);
+          const score = calcPopularScoreFromStats(data);
           return {
             id: d.id,
             name: data.name || benefit?.name || '이름 없는 매장',
@@ -4031,9 +4057,17 @@ function getShareTrackingParams(){
             createdAt: benefit?.createdAt || null,
             updatedAt: benefit?.updatedAt || null,
             score,
+            detailViewCount: Number(data.detailViewCount || 0),
+            cardClickCount: Number(data.cardClickCount || 0),
+            favoriteCount: Number(data.favoriteCount || 0),
+            shareClickCount: Number(data.shareClickCount || 0),
             benefit: benefit || null
           };
-        }).filter((item) => item.score > 0);
+        })
+        .filter((item) => item.score > 0)
+        .sort((a,b) => (b.score - a.score) || String(a.name || '').localeCompare(String(b.name || ''),'ko'))
+        .slice(0, 5);
+
         renderPopularTop5();
         markInitialDataLoaded('popular');
       }, () => {
@@ -4628,6 +4662,10 @@ function getShareTrackingParams(){
             <div class="label">혜택</div>
             <div class="value${hotClass}">${renderBenefitPartsHtml(benefit)}</div>
           </div>
+          <div class="popular-row">
+            <div class="label">인기 지표</div>
+            <div class="value">조회 ${Number(item.detailViewCount || 0).toLocaleString('ko-KR')} · 즐겨찾기 ${Number(item.favoriteCount || 0).toLocaleString('ko-KR')} · 공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')}</div>
+          </div>
           <div class="popular-row popular-date-row ${isNew ? 'is-new' : ''}">
             <div class="label">등록일</div>
             <div class="value">${renderPopularDateHtml(item)}</div>
@@ -4664,7 +4702,7 @@ function getShareTrackingParams(){
           </div>
           <div class="popular-score">
             <strong class="popular-count">0</strong>
-            <span>상세조회</span>
+            <span>인기점수</span>
           </div>
         `;
         row.onclick = () => {
