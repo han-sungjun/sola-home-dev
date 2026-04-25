@@ -1116,48 +1116,26 @@ body.gnb-open .bottom-nav{
 
 
   
-/* ===== 브랜드형 QR: 중앙 로고 + 네이비 테마 + 매장별 자동 스타일 ===== */
-.qr-canvas-wrap{
-  position:relative;
-  overflow:hidden;
-}
-.qr-brand-title{
-  margin:2px 0 10px;
-  font-size:14px;
-  font-weight:900;
-  letter-spacing:-.03em;
-  color:#0f172a;
-}
-.qr-brand-sub{
-  margin:-5px 0 12px;
-  font-size:12px;
-  font-weight:800;
-  color:#64748b;
-}
-.qr-canvas-wrap.qr-theme-hot{
-  background:linear-gradient(180deg,#fff7ed 0%,#ffffff 72%);
-  border-color:#fed7aa;
-}
-.qr-canvas-wrap.qr-theme-mid{
-  background:linear-gradient(180deg,#fffbeb 0%,#ffffff 72%);
-  border-color:#fde68a;
-}
-.qr-canvas-wrap.qr-theme-normal{
-  background:linear-gradient(180deg,#eff6ff 0%,#ffffff 72%);
-  border-color:#bfdbfe;
-}
-.qr-canvas-wrap.qr-theme-notice{
-  background:linear-gradient(180deg,#f8fafc 0%,#ffffff 72%);
-  border-color:#cbd5e1;
-}
-#qrCanvas{
-  width:220px;
-  height:220px;
-  max-width:100%;
-  border-radius:18px;
-  background:#fff;
-  box-shadow:0 12px 24px rgba(15,23,42,.06);
-}
+/* ===== 브랜드형 QR: 네이비 테마 + 중앙 로고 ===== */
+.qr-canvas-wrap{position:relative;overflow:hidden;}
+.qr-brand-title{margin:2px 0 10px;font-size:14px;font-weight:900;letter-spacing:-.03em;color:#0f172a;}
+.qr-brand-sub{margin:-5px 0 12px;font-size:12px;font-weight:800;color:#64748b;}
+.qr-canvas-wrap.qr-theme-hot{background:linear-gradient(180deg,#fff7ed 0%,#ffffff 72%);border-color:#fed7aa;}
+.qr-canvas-wrap.qr-theme-mid{background:linear-gradient(180deg,#fffbeb 0%,#ffffff 72%);border-color:#fde68a;}
+.qr-canvas-wrap.qr-theme-normal{background:linear-gradient(180deg,#eff6ff 0%,#ffffff 72%);border-color:#bfdbfe;}
+.qr-canvas-wrap.qr-theme-notice{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 72%);border-color:#cbd5e1;}
+#qrCanvas{width:220px;height:220px;max-width:100%;border-radius:18px;background:#fff;box-shadow:0 12px 24px rgba(15,23,42,.06);}
+
+/* ===== TOP 5 가독성 개선 ===== */
+.popular-item{align-items:flex-start;padding:16px;border-radius:22px;}
+.popular-meta{display:grid;gap:8px;}
+.popular-name{font-size:16px;line-height:1.35;white-space:normal;overflow:visible;text-overflow:clip;}
+.popular-sub{font-size:12px;line-height:1.55;margin-top:0;color:#475569;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.popular-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+.popular-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:11px;font-weight:800;line-height:1;}
+.popular-chip.hot{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+.popular-score strong{font-size:20px;font-weight:1000;}
+.popular-score span{font-size:11px;}
 
   </style>
 </head>
@@ -3220,30 +3198,6 @@ function getShareTrackingParams(){
       return Promise.reject(new Error('qrcode_library_not_loaded'));
     }
 
-    function getQrThemeClass(type, item = {}){
-      if(type === 'notice') return 'qr-theme-notice';
-
-      const raw = String(item.discount || item.rate || item.benefit || item.condition || '');
-      const match = raw.match(/(\d+)\s*%/);
-      const pct = match ? Number(match[1]) : 0;
-
-      if(pct >= 50) return 'qr-theme-hot';
-      if(pct >= 30) return 'qr-theme-mid';
-      return 'qr-theme-normal';
-    }
-
-    function getQrBrandText(type, item = {}){
-      const title = type === 'notice'
-        ? (item.title || '공지사항')
-        : (item.name || item.title || '입주민 혜택');
-
-      const sub = type === 'notice'
-        ? '더운정 마이힐스 공지 QR'
-        : '더운정 마이힐스 혜택 QR';
-
-      return { title, sub };
-    }
-
     function drawRoundedRect(ctx, x, y, w, h, r){
       const radius = Math.min(r, w / 2, h / 2);
       ctx.beginPath();
@@ -3251,22 +3205,20 @@ function getShareTrackingParams(){
       ctx.arcTo(x + w, y, x + w, y + h, radius);
       ctx.arcTo(x + w, y + h, x, y + h, radius);
       ctx.arcTo(x, y + h, x, y, radius);
-      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.arcTo(x, y, x + radius, y, radius);
       ctx.closePath();
     }
 
     async function drawQrCenterLogo(canvas){
       if(!canvas) return;
-
       const ctx = canvas.getContext('2d');
       if(!ctx) return;
 
-      const size = canvas.width;
+      const size = canvas.width || 220;
       const box = Math.round(size * 0.22);
       const x = Math.round((size - box) / 2);
       const y = Math.round((size - box) / 2);
 
-      // QR 인식 안정성을 위해 로고 뒤에 흰색 안전영역을 먼저 그림
       ctx.save();
       ctx.shadowColor = 'rgba(15,23,42,.16)';
       ctx.shadowBlur = 10;
@@ -3276,7 +3228,6 @@ function getShareTrackingParams(){
       ctx.fill();
       ctx.restore();
 
-      // 테두리
       ctx.save();
       drawRoundedRect(ctx, x + 1, y + 1, box - 2, box - 2, 11);
       ctx.strokeStyle = '#e5e7eb';
@@ -3301,7 +3252,6 @@ function getShareTrackingParams(){
         ctx.drawImage(img, x + pad, y + pad, box - pad * 2, box - pad * 2);
         ctx.restore();
       }else{
-        // 로고 로드 실패 시에도 브랜드 이니셜로 대체
         ctx.save();
         ctx.fillStyle = '#b91c1c';
         ctx.font = `900 ${Math.round(box * 0.34)}px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif`;
@@ -3310,6 +3260,26 @@ function getShareTrackingParams(){
         ctx.fillText('H', x + box / 2, y + box / 2);
         ctx.restore();
       }
+    }
+
+    function getQrThemeClass(type, item = {}){
+      if(type === 'notice') return 'qr-theme-notice';
+      const raw = String(item.discount || item.rate || item.benefit || item.condition || '');
+      const match = raw.match(/(\d+)\s*%/);
+      const pct = match ? Number(match[1]) : 0;
+      if(pct >= 50) return 'qr-theme-hot';
+      if(pct >= 30) return 'qr-theme-mid';
+      return 'qr-theme-normal';
+    }
+
+    function getQrBrandText(type, item = {}){
+      const title = type === 'notice'
+        ? (item.title || '공지사항')
+        : (item.name || item.title || '입주민 혜택');
+      const sub = type === 'notice'
+        ? '더운정 마이힐스 공지 QR'
+        : '더운정 마이힐스 혜택 QR';
+      return { title, sub };
     }
 
     async function showQrCode(type, item = {}){
@@ -3337,7 +3307,6 @@ function getShareTrackingParams(){
 
       try{
         if(!canvas) throw new Error('qr_canvas_missing');
-
         const QR = await ensureQrCodeLibrary();
         await QR.toCanvas(canvas, url, {
           width: 220,
@@ -3348,7 +3317,6 @@ function getShareTrackingParams(){
             light: '#ffffff'
           }
         });
-
         await drawQrCenterLogo(canvas);
       }catch(error){
         console.warn('QR 생성 실패', error);
@@ -3358,14 +3326,15 @@ function getShareTrackingParams(){
         }
       }
 
-      if(qs('#qrCopyBtn')) qs('#qrCopyBtn').onclick = () => copyShareUrl(type, item);
+      const copyBtn = qs('#qrCopyBtn');
+      if(copyBtn) copyBtn.onclick = () => copyShareUrl(type, item);
+
       if(modal){
         if(modal.open) modal.close();
         modal.showModal();
       }
     }
 
-    function shareActionsHtml
     function shareActionsHtml(prefix){
       return `
         <div class="share-actions">
