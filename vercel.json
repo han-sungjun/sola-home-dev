@@ -4,6 +4,11 @@
     { "src": "/app", "dest": "/app.html" },
     { "src": "/admin", "dest": "/sola-admin-x92ks.html" },
 
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|webmanifest|txt|map|woff|woff2|ttf))",
+      "dest": "/$1"
+    },
+
     { "src": "/(.*)", "dest": "/error.html", "status": 404 }
   ]
 }
