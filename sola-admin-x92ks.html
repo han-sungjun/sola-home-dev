@@ -922,7 +922,7 @@ body.gnb-open .admin-bottom-nav{
   </nav>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { mountIdleTimer } from "./tracking.js";
@@ -1591,7 +1591,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     if(hasFirebaseConfig()){
       qs('#firebaseNotice').classList.add('hidden');
-      const app=initializeApp(firebaseConfig);
+      const app=getApps().length ? getApp() : initializeApp(firebaseConfig);
       auth=getAuth(app);
       db=getFirestore(app);
 
