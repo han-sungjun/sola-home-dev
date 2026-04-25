@@ -1055,6 +1055,7 @@ body.gnb-open .bottom-nav{
        - security_logs 기록
     ========================= */
     const SECURITY_LOGS_COLLECTION = 'security_logs';
+    const SHARE_CLICK_LOGS_COLLECTION = 'share_click_logs';
 
     function getStoredLoginUser(){
       try{
@@ -1223,7 +1224,8 @@ body.gnb-open .bottom-nav{
         closeContentModals();
         return;
       }
-      handleCleanDeepLink({ force:true });
+      await handleShareClickLog();
+        handleCleanDeepLink({ force:true });
     });
 
     // 네이버 지도 JavaScript SDK Client ID를 입력하세요. (Dynamic Map / 지도 모드)
@@ -2642,8 +2644,83 @@ async function refreshPushStatus(){
       return location.origin;
     }
 
-    function getShareUrl(type, id){
-      return `${getShareBaseOrigin()}/${type}/${encodeURIComponent(String(id || ''))}`;
+    function getShareUrl(type, id, params = {}){
+      const url = new URL(`${getShareBaseOrigin()}/${type}/${encodeURIComponent(String(id || ''))}`);
+
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if(value !== undefined && value !== null && String(value) !== ''){
+          url.searchParams.set(key, String(value));
+        }
+      });
+
+      return url.toString();
+    }
+
+    function getShareButtonUrl(type, id, button = 'app'){
+      return getShareUrl(type, id, {
+        from: 'kakao',
+        btn: button,
+        target: type
+      });
+    }
+
+    function getShareTrackingParams(){
+      try{
+        const params = new URLSearchParams(location.search || '');
+        const from = params.get('from') || '';
+        const button = params.get('btn') || '';
+        const target = params.get('target') || '';
+
+        if(from !== 'kakao') return null;
+
+        const deepLink = parseCleanDeepLink();
+        if(!deepLink || !deepLink.id || !deepLink.type) return null;
+
+        return {
+          from,
+          button: button || 'unknown',
+          target: target || deepLink.type,
+          type: deepLink.type,
+          targetId: deepLink.id
+        };
+      }catch(_){
+        return null;
+      }
+    }
+
+    function getShareClickLogKey(data){
+      if(!data) return '';
+      return `shareClickLogged:${data.from}:${data.button}:${data.type}:${data.targetId}`;
+    }
+
+    async function handleShareClickLog(){
+      const data = getShareTrackingParams();
+      if(!data) return;
+
+      const logKey = getShareClickLogKey(data);
+      if(logKey && sessionStorage.getItem(logKey) === '1') return;
+
+      try{
+        const stored = getStoredLoginUser();
+
+        await addDoc(collection(db, SHARE_CLICK_LOGS_COLLECTION), {
+          type: data.type,
+          targetId: data.targetId,
+          from: data.from,
+          button: data.button,
+          target: data.target,
+          uid: state.currentUser?.uid || stored.uid || null,
+          loginId: state.currentUserProfile?.loginId || stored.loginId || null,
+          path: location.pathname,
+          href: location.href,
+          userAgent: navigator.userAgent,
+          createdAt: serverTimestamp()
+        });
+
+        if(logKey) sessionStorage.setItem(logKey, '1');
+      }catch(error){
+        console.warn('공유 클릭 로그 저장 실패', error);
+      }
     }
 
     function getItemShareImage(item = {}){
@@ -2737,6 +2814,76 @@ async function refreshPushStatus(){
     }
 
     async function shareKakaoItem(type, item = {}){
+      const shareUrl = getShareUrl(type, item.id);
+      const appButtonUrl = getShareButtonUrl(type, item.id, 'app');
+      const webButtonUrl = getShareButtonUrl(type, item.id, 'web');
+
+      const title = buildKakaoShareTitle(type, item);
+      const description = `${buildKakaoShareDescription(type, item)}\n👇 아래 버튼을 눌러 확인하세요`;
+      const imageUrl = getItemShareImage(item);
+
+      if(!ensureKakaoReady()){
+        await copyShareUrl(type, item);
+        return;
+      }
+
+      const kakaoLink = {
+        mobileWebUrl: shareUrl,
+        webUrl: shareUrl
+      };
+
+      const kakaoAppButtonLink = {
+        mobileWebUrl: appButtonUrl,
+        webUrl: appButtonUrl
+      };
+
+      const kakaoWebButtonLink = {
+        mobileWebUrl: webButtonUrl,
+        webUrl: webButtonUrl
+      };
+
+      try{
+        window.Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: kakaoLink
+          },
+          itemContent: {
+            profileText: '더운정 마이힐스',
+            titleImageUrl: imageUrl,
+            titleImageText: type === 'notice' ? '공지사항' : '입주민 혜택',
+            titleImageCategory: type === 'notice' ? 'NOTICE' : 'BENEFIT',
+            items: [
+              {
+                item: type === 'notice' ? '구분' : '혜택',
+                itemOp: type === 'notice' ? '공지사항' : compactShareText(item.category || item.condition || '입주민 전용', 18)
+              },
+              {
+                item: '바로가기',
+                itemOp: '아래 버튼 클릭'
+              }
+            ]
+          },
+          buttonTitle: '앱에서 바로 보기',
+          buttons: [
+            {
+              title: '📱 앱에서 바로 보기',
+              link: kakaoAppButtonLink
+            },
+            {
+              title: '🔗 웹에서 열기',
+              link: kakaoWebButtonLink
+            }
+          ]
+        });
+      }catch(error){
+        console.warn('카카오 공유 실패', error);
+        await copyShareUrl(type, item);
+      }
+    }){
       const shareUrl = getShareUrl(type, item.id);
       const title = buildKakaoShareTitle(type, item);
       const description = buildKakaoShareDescription(type, item);
