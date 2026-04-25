@@ -1,25 +1,15 @@
 <!DOCTYPE html>
 <!-- saved from url=(0025)https://www.sola-home.kr/ -->
-<html lang="ko"><head>
-  <!-- PWA / App Icon -->
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0F172A" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="더운정 마이힐스" />
-  <link rel="icon" href="/icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
-
-  <!-- iOS Splash Images -->
-  <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
-  <link rel="apple-touch-startup-image" href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
-  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
-  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
   <meta name="robots" content="index,follow">
   <title>더운정 마이힐스</title>
   <meta property="og:type" content="website">
@@ -69,6 +59,7 @@
     .app-alert-confirm:active{transform:scale(.98)}
     .app-alert-cancel:hover{background:#f8fafc;border-color:#cbd5e1}
     .app-alert-cancel:active{transform:scale(.98)}
+
 
     /* dialog/top-layer alert: detailModal/noticeModal 위에 항상 표시 */
     dialog.app-alert{
@@ -149,6 +140,7 @@
   font-weight:900;
 }
 
+
 .bottom-nav{
   grid-template-columns:repeat(5,1fr)!important;
   gap:6px;
@@ -183,6 +175,8 @@
   .user-name{font-size:13px}
   .user-sub{font-size:10px}
 }
+
+
 
 .gnb-wrap{
   position:relative;
@@ -808,6 +802,8 @@ body.gnb-open .bottom-nav{
   margin-top:14px;
 }
 
+
+
     .env-badge{
       display:none;
       align-items:center;
@@ -833,6 +829,7 @@ body.gnb-open .bottom-nav{
       box-shadow:0 0 0 4px rgba(99,102,241,.14);
       flex:0 0 auto;
     }
+
 
     /* DEV/PROD 환경 배지: 히어로 카드 우측 상단 표시 */
     .hero > *{position:relative;z-index:1}
@@ -863,6 +860,7 @@ body.gnb-open .bottom-nav{
     .chips.dragging .chip{
       pointer-events:auto;
     }
+
 
 /* 거리순 정렬 + 반경 필터 */
 .distance-filter-panel{
@@ -920,12 +918,15 @@ body.gnb-open .bottom-nav{
 .location-note{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.55}
 @media (max-width:370px){.location-actions{grid-template-columns:1fr}}
 
+
+
 /* ===== 지도 모드 + 상세 미니 지도 (Dynamic Map) ===== */
 .detail-map-box{margin-top:12px;border-radius:20px;overflow:hidden;border:1px solid #e2e8f0;background:#f8fafc;min-height:178px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.75)}
 .detail-map-canvas{width:100%;height:178px}
 .detail-map-empty{min-height:178px;display:grid;place-items:center;padding:16px;color:#64748b;font-size:13px;font-weight:800;text-align:center;line-height:1.5}
 .map-mode-panel{display:grid;gap:12px}.map-mode-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.map-mode-status{padding:11px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1.5}.map-mode-status.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}.map-mode-status.muted{background:#f8fafc;border-color:#e2e8f0;color:#64748b}.map-mode-canvas-wrap{position:relative;overflow:hidden;border-radius:28px;border:1px solid rgba(15,23,42,.08);background:#e5e7eb;min-height:440px;box-shadow:0 18px 36px rgba(15,23,42,.10)}#benefitMap{width:100%;height:440px}.map-mode-list{display:grid;gap:10px}.map-place-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:var(--shadow);cursor:pointer}.map-place-card strong{display:block;font-size:14px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}.map-place-card span{display:block;margin-top:4px;font-size:12px;color:#64748b;line-height:1.35}.map-marker-store{min-width:34px;height:34px;padding:0 10px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:4px;background:#0f172a;color:#fff;font-size:12px;font-weight:900;box-shadow:0 10px 22px rgba(15,23,42,.25);border:2px solid #fff;white-space:nowrap}.map-marker-cluster{min-width:44px;height:44px;padding:0 11px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-size:14px;font-weight:1000;box-shadow:0 14px 28px rgba(37,99,235,.28);border:3px solid #fff}.map-marker-user{width:18px;height:18px;border-radius:999px;background:#2563eb;border:4px solid #fff;box-shadow:0 0 0 5px rgba(37,99,235,.18),0 10px 20px rgba(37,99,235,.20)}
 @media (max-width:370px){.map-mode-actions{grid-template-columns:1fr}#benefitMap,.map-mode-canvas-wrap{height:390px;min-height:390px}}
+
 
 /* ===== 근접 알림 토스트 (앱 실행 중) ===== */
 .proximity-toast{position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:9998;display:none;justify-content:center;pointer-events:none}.proximity-toast.show{display:flex;animation:proximityToastIn .24s ease both}.proximity-toast-card{width:min(100%,448px);display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:22px;background:rgba(15,23,42,.94);color:#fff;box-shadow:0 22px 44px rgba(15,23,42,.24);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);pointer-events:auto}.proximity-toast-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:0 0 auto}.proximity-toast-copy{min-width:0;flex:1}.proximity-toast-title{font-size:14px;font-weight:900;line-height:1.35}.proximity-toast-message{margin-top:4px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.78)}.proximity-toast-close{border:none;background:rgba(255,255,255,.10);color:#fff;width:32px;height:32px;border-radius:12px;cursor:pointer;flex:0 0 auto}@keyframes proximityToastIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -1112,6 +1113,7 @@ body.gnb-open .bottom-nav{
   .insight-grid{grid-template-columns:1fr}
   .insight-rank-copy b,.insight-rank-copy small{max-width:180px}
 }
+
 
   
 /* ===== 브랜드형 QR: 네이비 테마 + 중앙 로고 ===== */
@@ -1541,6 +1543,7 @@ body.gnb-open .bottom-nav{
   }
 }
 
+
 /* ===== TOP 5 실시간 랭킹 확장: 순위 변동 / 공유 BEST / 지금 뜨는 매장 ===== */
 .popular-item{position:relative;overflow:hidden;}
 .popular-item.rank-up{animation:popularRankUpFlash .9s ease both;}
@@ -1571,6 +1574,7 @@ body.gnb-open .bottom-nav{
 @media (prefers-reduced-motion: reduce){.popular-item.rank-up,.popular-item.rank-down,.popular-item.rank-new,.hot-now-live::before{animation:none !important;}}
 @media (max-width:420px){.hot-now-copy b{max-width:180px;}}
 
+
 /* ================================
    TOP5 / NEARBY / RESIDENT RANK FINAL
 ================================ */
@@ -1593,167 +1597,6 @@ body.gnb-open .bottom-nav{
 .share-power{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:900}.share-power.hot{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.resident-rank-list{display:grid;gap:10px}.resident-rank-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:0 10px 22px rgba(15,23,42,.05)}.resident-rank-left{display:flex;align-items:center;gap:10px;min-width:0}.resident-rank-medal{width:36px;height:36px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:1000;flex:0 0 auto}.resident-rank-copy{min-width:0}.resident-rank-name{font-size:14px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-sub{margin-top:3px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-score{text-align:right;flex:0 0 auto}.resident-rank-score strong{display:block;font-size:18px;line-height:1.1}.resident-rank-score span{font-size:11px;color:var(--muted);font-weight:800}@media (max-width:370px){.nearby-proximity-actions,.reaction-box{grid-template-columns:1fr}.resident-rank-name,.resident-rank-sub{max-width:160px}}
 
   </style>
-
-  <!-- Add to Home + First Launch UX -->
-  <style id="myhills-install-ux-style">
-    .myhills-install-banner{
-      position:fixed;
-      left:16px;
-      right:16px;
-      bottom:calc(18px + env(safe-area-inset-bottom,0px));
-      z-index:100000;
-      display:none;
-      pointer-events:none;
-    }
-    .myhills-install-banner.show{
-      display:block;
-      animation:myhillsInstallUp .28s ease both;
-      pointer-events:auto;
-    }
-    .myhills-install-card{
-      width:min(100%,480px);
-      margin:0 auto;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:14px 14px;
-      border-radius:24px;
-      color:#fff;
-      background:rgba(15,23,42,.94);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow:0 22px 48px rgba(15,23,42,.28);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
-    }
-    .myhills-install-icon{
-      width:46px;
-      height:46px;
-      border-radius:16px;
-      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
-      border:1px solid rgba(255,255,255,.12);
-      flex:0 0 auto;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
-    }
-    .myhills-install-copy{
-      flex:1;
-      min-width:0;
-      line-height:1.35;
-    }
-    .myhills-install-copy strong{
-      display:block;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:-.02em;
-      color:#fff;
-    }
-    .myhills-install-copy span{
-      display:block;
-      margin-top:3px;
-      font-size:12px;
-      font-weight:700;
-      color:rgba(255,255,255,.72);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .myhills-install-actions{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex:0 0 auto;
-    }
-    .myhills-install-btn,
-    .myhills-install-close{
-      border:none;
-      cursor:pointer;
-      font:inherit;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .myhills-install-btn{
-      min-width:62px;
-      padding:11px 13px;
-      border-radius:15px;
-      color:#fff;
-      background:linear-gradient(135deg,#ef4444,#b91c1c);
-      font-size:13px;
-      font-weight:900;
-      box-shadow:0 10px 22px rgba(239,68,68,.25);
-    }
-    .myhills-install-close{
-      width:34px;
-      height:34px;
-      border-radius:13px;
-      color:rgba(255,255,255,.82);
-      background:rgba(255,255,255,.08);
-      font-size:18px;
-      line-height:1;
-    }
-    .myhills-install-btn:active,
-    .myhills-install-close:active{
-      transform:scale(.96);
-    }
-    .myhills-first-launch{
-      position:fixed;
-      inset:0;
-      z-index:100001;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:
-        radial-gradient(circle at 65% 30%,rgba(239,68,68,.22),transparent 34%),
-        linear-gradient(180deg,#0F172A 0%,#111827 100%);
-      opacity:1;
-      transition:opacity .48s ease, visibility .48s ease;
-    }
-    .myhills-first-launch.show{
-      display:flex;
-    }
-    .myhills-first-launch.hide{
-      opacity:0;
-      visibility:hidden;
-    }
-    .myhills-first-launch-inner{
-      display:grid;
-      place-items:center;
-      gap:16px;
-      transform:translateY(4px);
-      animation:myhillsSplashIn .58s cubic-bezier(.2,.9,.2,1) both;
-    }
-    .myhills-first-launch-icon{
-      width:96px;
-      height:96px;
-      border-radius:28px;
-      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
-      box-shadow:0 24px 50px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.08);
-    }
-    .myhills-first-launch-title{
-      color:#fff;
-      font-size:18px;
-      font-weight:900;
-      letter-spacing:-.04em;
-    }
-    .myhills-first-launch-sub{
-      margin-top:-8px;
-      color:rgba(255,255,255,.68);
-      font-size:12px;
-      font-weight:700;
-    }
-    @keyframes myhillsInstallUp{
-      from{opacity:0;transform:translateY(12px)}
-      to{opacity:1;transform:translateY(0)}
-    }
-    @keyframes myhillsSplashIn{
-      from{opacity:0;transform:translateY(10px) scale(.92)}
-      to{opacity:1;transform:translateY(0) scale(1)}
-    }
-    @media (max-width:380px){
-      .myhills-install-card{padding:12px}
-      .myhills-install-copy span{display:none}
-      .myhills-install-icon{width:42px;height:42px}
-      .myhills-install-btn{min-width:58px;padding:10px 12px}
-    }
-  </style>
-
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -5803,132 +5646,21 @@ function getShareTrackingParams(){
 </script>
 
 
-  <!-- Add to Home + First Launch UX -->
-  <div id="myhillsFirstLaunch" class="myhills-first-launch" aria-hidden="true">
-    <div class="myhills-first-launch-inner">
-      <div class="myhills-first-launch-icon" aria-hidden="true"></div>
-      <div class="myhills-first-launch-title">더운정 마이힐스</div>
-      <div class="myhills-first-launch-sub">입주민 전용 혜택 웹앱</div>
-    </div>
-  </div>
+<script>
+function handlePushDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const noticeId = params.get("noticeId");
 
-  <div id="myhillsInstallBanner" class="myhills-install-banner" aria-hidden="true">
-    <div class="myhills-install-card">
-      <div class="myhills-install-icon" aria-hidden="true"></div>
-      <div class="myhills-install-copy">
-        <strong>마이힐스를 앱처럼 이용해보세요</strong>
-        <span>홈 화면에 추가하면 더 빠르게 열 수 있습니다.</span>
-      </div>
-      <div class="myhills-install-actions">
-        <button id="myhillsInstallBtn" class="myhills-install-btn" type="button">설치</button>
-        <button id="myhillsInstallClose" class="myhills-install-close" type="button" aria-label="설치 안내 닫기">×</button>
-      </div>
-    </div>
-  </div>
+  if (!noticeId) return;
 
+  setTimeout(() => {
+    if (window.openNoticeDetailById) {
+      window.openNoticeDetailById(noticeId);
+    }
+  }, 700);
+}
 
-  <script id="myhills-install-ux-script">
-    (function(){
-      const INSTALL_HIDE_KEY = "myhills_install_banner_closed_v1";
-      const FIRST_LAUNCH_KEY = "myhills_first_launch_seen_v1";
-
-      function isStandaloneMode(){
-        return window.matchMedia("(display-mode: standalone)").matches ||
-          window.navigator.standalone === true ||
-          document.referrer.startsWith("android-app://");
-      }
-
-      function initFirstLaunch(){
-        const splash = document.getElementById("myhillsFirstLaunch");
-        if (!splash) return;
-
-        const shouldShow = isStandaloneMode() && !localStorage.getItem(FIRST_LAUNCH_KEY);
-        if (!shouldShow) {
-          splash.remove();
-          return;
-        }
-
-        splash.classList.add("show");
-        localStorage.setItem(FIRST_LAUNCH_KEY, "1");
-
-        window.setTimeout(function(){
-          splash.classList.add("hide");
-          window.setTimeout(function(){
-            if (splash && splash.parentNode) splash.remove();
-          }, 520);
-        }, 1250);
-      }
-
-      function initInstallBanner(){
-        let deferredPrompt = null;
-        const banner = document.getElementById("myhillsInstallBanner");
-        const installBtn = document.getElementById("myhillsInstallBtn");
-        const closeBtn = document.getElementById("myhillsInstallClose");
-
-        if (!banner || !installBtn || !closeBtn) return;
-
-        function hideBanner(saveClose){
-          banner.classList.remove("show");
-          banner.setAttribute("aria-hidden", "true");
-          if (saveClose) localStorage.setItem(INSTALL_HIDE_KEY, String(Date.now()));
-        }
-
-        function showBanner(){
-          if (isStandaloneMode()) return;
-          if (localStorage.getItem(INSTALL_HIDE_KEY)) return;
-          banner.classList.add("show");
-          banner.setAttribute("aria-hidden", "false");
-        }
-
-        window.addEventListener("beforeinstallprompt", function(event){
-          event.preventDefault();
-          deferredPrompt = event;
-          window.setTimeout(showBanner, 1200);
-        });
-
-        installBtn.addEventListener("click", async function(){
-          if (!deferredPrompt) {
-            hideBanner(false);
-            return;
-          }
-
-          deferredPrompt.prompt();
-
-          try {
-            const choice = await deferredPrompt.userChoice;
-            if (choice && choice.outcome === "accepted") {
-              hideBanner(true);
-            }
-          } catch (e) {
-            console.warn("설치 안내 처리 실패:", e);
-          }
-
-          deferredPrompt = null;
-        });
-
-        closeBtn.addEventListener("click", function(){
-          hideBanner(true);
-        });
-
-        window.addEventListener("appinstalled", function(){
-          hideBanner(true);
-        });
-
-        if (isStandaloneMode()) {
-          hideBanner(false);
-        }
-      }
-
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", function(){
-          initFirstLaunch();
-          initInstallBanner();
-        });
-      } else {
-        initFirstLaunch();
-        initInstallBanner();
-      }
-    })();
-  </script>
+window.addEventListener("load", handlePushDeepLink);
+</script>
 
 </body></html>
