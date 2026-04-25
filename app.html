@@ -1138,36 +1138,28 @@ body.gnb-open .bottom-nav{
 .popular-score span{font-size:11px;}
 
   
-/* ===== TOP 5 문단형 가독성 개선 ===== */
-.popular-item{
-  position:relative;
-}
-.popular-copy-block{
+/* ===== TOP 5 라벨/값 블록형 가독성 개선 ===== */
+.popular-detail{
+  margin-top:8px;
   display:grid;
-  gap:6px;
-  margin-top:2px;
+  gap:10px;
 }
-.popular-category-line,
-.popular-benefit-line,
-.popular-date-line{
-  display:flex;
-  align-items:flex-start;
-  gap:6px;
-  min-width:0;
-  font-size:12px;
-  line-height:1.5;
-  color:#475569;
+.popular-row{
+  display:grid;
+  gap:3px;
 }
-.popular-category-line::before{content:"🏷️"; flex:0 0 auto;}
-.popular-benefit-line::before{content:"🎁"; flex:0 0 auto;}
-.popular-date-line::before{content:"🗓️"; flex:0 0 auto;}
-.popular-copy-block .label{
-  flex:0 0 auto;
+.popular-row .label{
+  font-size:11px;
   font-weight:900;
-  color:#334155;
+  color:#94a3b8;
+  letter-spacing:-.02em;
+  line-height:1.2;
 }
-.popular-copy-block .value{
-  min-width:0;
+.popular-row .value{
+  font-size:13px;
+  font-weight:700;
+  color:#334155;
+  line-height:1.55;
   word-break:keep-all;
   overflow-wrap:anywhere;
 }
@@ -1175,19 +1167,6 @@ body.gnb-open .bottom-nav{
   display:block;
   -webkit-line-clamp:unset;
   overflow:visible;
-}
-@media (max-width:390px){
-  .popular-item{
-    gap:10px;
-  }
-  .popular-score{
-    min-width:40px;
-  }
-  .popular-category-line,
-  .popular-benefit-line,
-  .popular-date-line{
-    font-size:11px;
-  }
 }
 
   </style>
@@ -3846,25 +3825,61 @@ function getShareTrackingParams(){
       }
     }
 
-    function parsePopularTextParts(item = {}){
-      const category = item.category || item.type || item.group || '기타';
-      const rawBenefit = String(item.condition || item.description || item.desc || item.benefit || item.subtitle || '').trim();
-      const registeredAt = item.createdAtText || item.createdDate || item.registeredAtText || item.dateText || '';
+    function splitBenefitAndDateText(text = ''){
+      const raw = String(text || '').trim();
+      if(!raw) return { benefit: '', date: '' };
 
-      return {
-        category: category || '기타',
-        benefit: rawBenefit || '혜택 조건은 상세보기에서 확인해 주세요.',
-        date: registeredAt || '등록일 정보 없음'
-      };
+      const dateMatch = raw.match(/(?:등록일\s*)?(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.?)/);
+      const date = dateMatch ? dateMatch[1].trim() : '';
+
+      let benefit = raw;
+      if(dateMatch){
+        benefit = raw.slice(0, dateMatch.index).trim();
+      }
+
+      benefit = benefit
+        .replace(/[·ㆍ]\s*등록일\s*$/g, '')
+        .replace(/\s*등록일\s*$/g, '')
+        .replace(/[·ㆍ]\s*$/g, '')
+        .trim();
+
+      return { benefit, date };
     }
 
-    function popularCopyBlockHtml(item = {}){
-      const parts = parsePopularTextParts(item);
+    function getPopularCategory(item = {}){
+      return item.category || item.type || item.group || item.kind || '기타';
+    }
+
+    function getPopularBenefit(item = {}){
+      const direct = item.condition || item.benefit || item.description || item.desc || item.subtitle || '';
+      const parsed = splitBenefitAndDateText(direct);
+      return parsed.benefit || direct || '혜택 조건은 상세보기에서 확인해 주세요.';
+    }
+
+    function getPopularDate(item = {}){
+      const directDate = item.createdAtText || item.createdDate || item.registeredAtText || item.dateText || '';
+      if(directDate) return directDate;
+
+      const raw = item.condition || item.benefit || item.description || item.desc || item.subtitle || '';
+      const parsed = splitBenefitAndDateText(raw);
+      return parsed.date || '등록일 정보 없음';
+    }
+
+    function renderPopularDetail(item = {}){
       return `
-        <div class="popular-copy-block">
-          <div class="popular-category-line"><span class="label">분류</span><span class="value">${escapeHtml(parts.category)}</span></div>
-          <div class="popular-benefit-line"><span class="label">혜택</span><span class="value">${escapeHtml(parts.benefit)}</span></div>
-          <div class="popular-date-line"><span class="label">등록일</span><span class="value">${escapeHtml(parts.date)}</span></div>
+        <div class="popular-detail">
+          <div class="popular-row">
+            <div class="label">품목</div>
+            <div class="value">${escapeHtml(getPopularCategory(item))}</div>
+          </div>
+          <div class="popular-row">
+            <div class="label">혜택</div>
+            <div class="value">${escapeHtml(getPopularBenefit(item))}</div>
+          </div>
+          <div class="popular-row">
+            <div class="label">등록일</div>
+            <div class="value">${escapeHtml(getPopularDate(item))}</div>
+          </div>
         </div>
       `;
     }
@@ -3888,7 +3903,7 @@ function getShareTrackingParams(){
           ${getRankBadge(rank)}
           <div class="popular-meta">
             <div class="popular-name">${item.name}</div>
-            <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}${benefitDateText(item) ? ' · ' + benefitDateText(item) : ''}</div>
+            ${renderPopularDetail(item)}
           </div>
           <div class="popular-score">
             <strong class="popular-count">0</strong>
