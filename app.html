@@ -1041,7 +1041,7 @@ body.gnb-open .bottom-nav{
     window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
     // 카카오 Developers > 앱 키 > JavaScript 키를 입력하세요.
     const KAKAO_JS_KEY = 'e52b154b3966372f9700ff0b35e15ccc';
-    const DEFAULT_SHARE_IMAGE_URL = `${location.origin}/icons/icon-192.png`;
+    const DEFAULT_SHARE_IMAGE_URL = `/icons/icon-512.png`;
     const LOGIN_PAGE_URL = '/';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app = initializeApp({ ...firebaseConfig });
@@ -2728,7 +2728,18 @@ async function refreshPushStatus(){
     }
 
     function getItemShareImage(item = {}){
-      return toAbsoluteUrl(item.imageUrl || item.thumbnailUrl || item.thumbnail || item.photoUrl || item.image || DEFAULT_SHARE_IMAGE_URL) || DEFAULT_SHARE_IMAGE_URL;
+      const raw = item.imageUrl || item.thumbnailUrl || item.thumbnail || item.photoUrl || item.image || DEFAULT_SHARE_IMAGE_URL;
+      const url = toAbsoluteUrl(raw);
+
+      if(url && url.startsWith(location.origin)){
+        return url.replace(location.origin, getShareBaseOrigin());
+      }
+
+      if(url && url.startsWith('/')){
+        return `${getShareBaseOrigin()}${url}`;
+      }
+
+      return url || `${getShareBaseOrigin()}/icons/icon-512.png`;
     }
 
     function getShareDescription(type, item = {}){
@@ -2823,7 +2834,7 @@ async function refreshPushStatus(){
       const webButtonUrl = getShareButtonUrl(type, item.id, 'web');
 
       const title = buildKakaoShareTitle(type, item);
-      const description = `${buildKakaoShareDescription(type, item)}\n👇 아래 버튼을 눌러 확인하세요`;
+      const description = `${buildKakaoShareDescription(type, item)}\n\n👇 아래 버튼을 눌러 확인하세요`;
       const imageUrl = getItemShareImage(item);
 
       if(!ensureKakaoReady()){
@@ -2855,23 +2866,7 @@ async function refreshPushStatus(){
             imageUrl,
             link: kakaoLink
           },
-          itemContent: {
-            profileText: '더운정 마이힐스',
-            titleImageUrl: imageUrl,
-            titleImageText: type === 'notice' ? '공지사항' : '입주민 혜택',
-            titleImageCategory: type === 'notice' ? 'NOTICE' : 'BENEFIT',
-            items: [
-              {
-                item: type === 'notice' ? '구분' : '혜택',
-                itemOp: type === 'notice' ? '공지사항' : compactShareText(item.category || item.condition || '입주민 전용', 18)
-              },
-              {
-                item: '바로가기',
-                itemOp: '아래 버튼 클릭'
-              }
-            ]
-          },
-          buttonTitle: '앱에서 바로 보기',
+          buttonTitle: '📱 앱에서 바로 보기',
           buttons: [
             {
               title: '📱 앱에서 바로 보기',
