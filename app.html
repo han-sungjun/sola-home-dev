@@ -1224,8 +1224,12 @@ body.gnb-open .bottom-nav{
         closeContentModals();
         return;
       }
-      await handleShareClickLog();
-        handleCleanDeepLink({ force:true });
+
+      handleShareClickLog()
+        .catch(error => console.warn('공유 클릭 로그 처리 실패', error))
+        .finally(() => {
+          handleCleanDeepLink({ force:true });
+        });
     });
 
     // 네이버 지도 JavaScript SDK Client ID를 입력하세요. (Dynamic Map / 지도 모드)
