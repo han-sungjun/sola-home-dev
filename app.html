@@ -1056,6 +1056,7 @@ body.gnb-open .bottom-nav{
     ========================= */
     const SECURITY_LOGS_COLLECTION = 'security_logs';
     const SHARE_CLICK_LOGS_COLLECTION = 'share_click_logs';
+    const SHARE_VISIT_LOGS_COLLECTION = 'share_visit_logs';
 
     function getStoredLoginUser(){
       try{
@@ -2647,6 +2648,16 @@ function getShareBaseOrigin(){
       return location.origin;
     }
 
+    function createShareId(){
+      try{
+        if(window.crypto && typeof window.crypto.randomUUID === 'function'){
+          return window.crypto.randomUUID();
+        }
+      }catch(_){ }
+
+      return `share_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+
     function getShareUrl(type, id, params = {}){
       const url = new URL(`${getShareBaseOrigin()}/${type}/${encodeURIComponent(String(id || ''))}`);
 
@@ -2659,11 +2670,12 @@ function getShareBaseOrigin(){
       return url.toString();
     }
 
-    function getShareButtonUrl(type, id, button = 'card'){
+    function getShareButtonUrl(type, id, button = 'card', shareId = ''){
       return getShareUrl(type, id, {
         from: 'kakao',
         btn: button,
-        target: type
+        target: type,
+        shareId
       });
     }
 function getShareTrackingParams(){
@@ -2672,6 +2684,7 @@ function getShareTrackingParams(){
         const from = params.get('from') || '';
         const button = params.get('btn') || '';
         const target = params.get('target') || '';
+        const shareId = params.get('shareId') || '';
 
         if(from !== 'kakao') return null;
 
@@ -2682,6 +2695,7 @@ function getShareTrackingParams(){
           from,
           button: button || 'card',
           target: target || deepLink.type,
+          shareId,
           type: deepLink.type,
           targetId: deepLink.id
         };
@@ -2692,7 +2706,7 @@ function getShareTrackingParams(){
 
     function getShareClickLogKey(data){
       if(!data) return '';
-      return `shareClickLogged:${data.from}:${data.button}:${data.type}:${data.targetId}`;
+      return `shareVisitLogged:${data.from}:${data.button}:${data.type}:${data.targetId}:${data.shareId || 'no-share-id'}`;
     }
 
     async function handleShareClickLog(){
@@ -2704,16 +2718,20 @@ function getShareTrackingParams(){
 
       try{
         const stored = getStoredLoginUser();
+        const profile = state.currentUserProfile || {};
 
-        await addDoc(collection(db, SHARE_CLICK_LOGS_COLLECTION), {
-          event: 'deep_link_open',
+        await addDoc(collection(db, SHARE_VISIT_LOGS_COLLECTION), {
+          event: 'share_link_visit',
+          shareId: data.shareId || null,
           type: data.type,
           targetId: data.targetId,
           from: data.from,
           button: data.button,
           target: data.target,
-          uid: state.currentUser?.uid || stored.uid || null,
-          loginId: state.currentUserProfile?.loginId || stored.loginId || null,
+          visitorUid: state.currentUser?.uid || stored.uid || null,
+          visitorLoginId: profile.loginId || stored.loginId || null,
+          visitorNickname: profile.nickname || profile.displayName || profile.name || null,
+          visitorRole: profile.role || profile.userRole || null,
           path: location.pathname,
           href: location.href,
           referrer: document.referrer || '',
@@ -2723,7 +2741,7 @@ function getShareTrackingParams(){
 
         if(logKey) sessionStorage.setItem(logKey, '1');
       }catch(error){
-        console.warn('공유 클릭 로그 저장 실패', error);
+        console.warn('공유 유입 로그 저장 실패', error);
       }
     }
 
@@ -2735,8 +2753,10 @@ function getShareTrackingParams(){
           type,
           targetId: item?.id || null,
           targetTitle: type === 'notice' ? (item?.title || '') : (item?.name || item?.title || ''),
-          uid: state.currentUser?.uid || stored.uid || null,
-          loginId: state.currentUserProfile?.loginId || stored.loginId || null,
+          sharedByUid: state.currentUser?.uid || stored.uid || null,
+          sharedByLoginId: state.currentUserProfile?.loginId || stored.loginId || null,
+          sharedByNickname: state.currentUserProfile?.nickname || state.currentUserProfile?.displayName || state.currentUserProfile?.name || null,
+          sharedByRole: state.currentUserProfile?.role || state.currentUserProfile?.userRole || null,
           path: location.pathname,
           href: location.href,
           userAgent: navigator.userAgent,
@@ -2771,9 +2791,10 @@ function getShareTrackingParams(){
     }
 
     async function copyShareUrl(type, item = {}){
-      const url = getShareButtonUrl(type, item.id, 'copy');
+      const shareId = createShareId();
+      const url = getShareButtonUrl(type, item.id, 'copy', shareId);
       try{
-        await writeShareActionLog('copy_share_url', type, item, { url });
+        await writeShareActionLog('copy_share_url', type, item, { url, shareId, channel:'copy' });
         await navigator.clipboard.writeText(url);
         await openModalAlert('공유 링크가 복사되었습니다.');
       }catch(error){
@@ -2862,9 +2883,10 @@ function getShareTrackingParams(){
     }
 
     async function shareKakaoItem(type, item = {}){
-      const cardShareUrl = getShareButtonUrl(type, item.id, 'card');
-      const webShareUrl = getShareButtonUrl(type, item.id, 'web');
-      const appShareUrl = getShareButtonUrl(type, item.id, 'app');
+      const shareId = createShareId();
+      const cardShareUrl = getShareButtonUrl(type, item.id, 'card', shareId);
+      const webShareUrl = getShareButtonUrl(type, item.id, 'web', shareId);
+      const appShareUrl = getShareButtonUrl(type, item.id, 'app', shareId);
 
       const title = buildKakaoShareTitle(type, item);
       const description = buildKakaoShareDescription(type, item);
@@ -2878,13 +2900,14 @@ function getShareTrackingParams(){
 
       try{
         await writeShareActionLog('kakao_share_open', type, item, {
+          shareId,
+          channel: 'kakao',
           cardShareUrl,
           webShareUrl,
           appShareUrl
         });
 
-        window.Kakao.Share.createDefaultButton({
-		  container: '#kakaotalk-sharing-btn',
+        window.Kakao.Share.sendDefault({
           objectType: 'feed',
           content: {
             title: title,
@@ -2897,8 +2920,8 @@ function getShareTrackingParams(){
           },
           social: {
             likeCount: sharedCount,
-		    commentCount: sharedCount,
-		    sharedCount: sharedCount,
+			commentCount: sharedCount,
+			sharedCount: sharedCount,
           },
           buttons: [
             {
@@ -2924,8 +2947,9 @@ function getShareTrackingParams(){
     }
 
     async function showQrCode(type, item = {}){
-      const url = getShareButtonUrl(type, item.id, 'qr');
-      await writeShareActionLog('show_qr_share', type, item, { url });
+      const shareId = createShareId();
+      const url = getShareButtonUrl(type, item.id, 'qr', shareId);
+      await writeShareActionLog('show_qr_share', type, item, { url, shareId, channel:'qr' });
       const modal = qs('#qrModal');
       const canvas = qs('#qrCanvas');
       const urlBox = qs('#qrShareUrl');
@@ -3529,6 +3553,7 @@ function getShareTrackingParams(){
       await initPushSystem();
       const ok = await ensureAuthenticatedUser();
       if(!ok) return;
+      await handleShareClickLog();
       await refreshPushStatus();
       renderAll();
       if(hasFirebaseConfig()){
