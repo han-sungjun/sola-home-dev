@@ -12,6 +12,16 @@
   <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
   <meta name="robots" content="index,follow">
   <title>더운정 마이힐스</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="더운정 마이힐스">
+  <meta property="og:title" content="더운정 마이힐스">
+  <meta property="og:description" content="입주민 전용 혜택과 공지 바로가기">
+  <meta property="og:image" content="https://www.sola-home.kr/icons/icon-192.png">
+  <meta property="og:url" content="https://www.sola-home.kr/app">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="더운정 마이힐스">
+  <meta name="twitter:description" content="입주민 전용 혜택과 공지 바로가기">
+  <meta name="twitter:image" content="https://www.sola-home.kr/icons/icon-192.png">
   <style>
     :root{--bg:#f5f7fb;--surface:rgba(255,255,255,.82);--line:#e5e7eb;--line-soft:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--accent2:#f59e0b;--blue:#2563eb;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}a{color:inherit;text-decoration:none}
@@ -895,12 +905,10 @@ body.gnb-open .bottom-nav{
 /* ===== 근접 알림 토스트 (앱 실행 중) ===== */
 .proximity-toast{position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:9998;display:none;justify-content:center;pointer-events:none}.proximity-toast.show{display:flex;animation:proximityToastIn .24s ease both}.proximity-toast-card{width:min(100%,448px);display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:22px;background:rgba(15,23,42,.94);color:#fff;box-shadow:0 22px 44px rgba(15,23,42,.24);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);pointer-events:auto}.proximity-toast-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:0 0 auto}.proximity-toast-copy{min-width:0;flex:1}.proximity-toast-title{font-size:14px;font-weight:900;line-height:1.35}.proximity-toast-message{margin-top:4px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.78)}.proximity-toast-close{border:none;background:rgba(255,255,255,.10);color:#fff;width:32px;height:32px;border-radius:12px;cursor:pointer;flex:0 0 auto}@keyframes proximityToastIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-
-
-/* ===== 공유 / QR 기능 ===== */
+/* ===== 공유/QR 기능 ===== */
 .share-actions{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:10px;
   margin-top:12px;
 }
@@ -910,7 +918,7 @@ body.gnb-open .bottom-nav{
   font-size:13px;
   white-space:nowrap;
 }
-.qr-modal-body{
+.qr-modal-card{
   display:grid;
   gap:14px;
   text-align:center;
@@ -918,23 +926,18 @@ body.gnb-open .bottom-nav{
 .qr-canvas-wrap{
   display:grid;
   place-items:center;
-  padding:18px;
+  padding:16px;
   border-radius:22px;
   background:#f8fafc;
   border:1px solid var(--line);
 }
-#qrCanvas{
-  width:220px;
-  height:220px;
-  max-width:100%;
-}
-.qr-url-text{
+.qr-share-url{
   word-break:break-all;
+  color:var(--muted);
   font-size:12px;
   line-height:1.55;
-  color:var(--muted);
 }
-@media (max-width:390px){
+@media (max-width:370px){
   .share-actions{grid-template-columns:1fr;}
 }
 
@@ -1018,10 +1021,9 @@ body.gnb-open .bottom-nav{
   <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="map"><span class="nav-icon">🗺️</span><span class="nav-label">지도</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button></nav>
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
   <dialog id="noticeModal"><div class="modal-head"><div class="pill">공지사항</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
-  <dialog id="qrModal"><div class="modal-head"><div class="pill">QR 공유</div><button class="close-btn" id="closeQrModal">✕</button></div><div class="modal-body qr-modal-body"><div class="qr-canvas-wrap"><canvas id="qrCanvas" width="220" height="220"></canvas></div><div class="qr-url-text" id="qrShareUrlText"></div><button class="btn btn-primary block" id="qrCopyBtn" type="button">🔗 링크 복사</button></div></dialog>
-
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <dialog id="qrModal"><div class="modal-head"><div class="pill">공유 QR</div><button class="close-btn" id="closeQrModal">✕</button></div><div class="modal-body"><div class="qr-modal-card"><div class="qr-canvas-wrap"><canvas id="qrCanvas" width="220" height="220"></canvas></div><div class="qr-share-url" id="qrShareUrl"></div><button class="btn btn-primary block" id="qrCopyBtn" type="button">URL 복사</button></div></div></dialog>
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { ENV, FIREBASE_CONFIG } from './env-config.js';
@@ -1037,6 +1039,9 @@ body.gnb-open .bottom-nav{
       prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
     };
     window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
+    // 카카오 Developers > 앱 키 > JavaScript 키를 입력하세요.
+    const KAKAO_JS_KEY = '';
+    const DEFAULT_SHARE_IMAGE_URL = `${location.origin}/icons/icon-192.png`;
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app = initializeApp({ ...firebaseConfig });
@@ -1147,143 +1152,6 @@ body.gnb-open .bottom-nav{
       const cleanId = String(id || '').trim();
       if(!type || !cleanId) return;
       setCleanUrl(`/${type}/${encodeURIComponent(cleanId)}`, { replace });
-    }
-
-
-
-    /* =========================
-       Share / Kakao / QR
-       - 딥링크 URL 복사
-       - 카카오톡 공유
-       - QR 코드 표시
-    ========================= */
-    const KAKAO_JS_KEY = 'e52b154b3966372f9700ff0b35e15ccc'; // TODO: 카카오 Developers JavaScript 키 입력 시 카카오톡 공유가 활성화됩니다.
-    let lastQrShareUrl = '';
-
-    function buildShareUrl(type, id){
-      const cleanType = String(type || '').trim();
-      const cleanId = String(id || '').trim();
-      if(!cleanType || !cleanId) return location.origin + getCleanAppPath();
-      return `${location.origin}/${cleanType}/${encodeURIComponent(cleanId)}`;
-    }
-
-    function fallbackCopyText(text){
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.setAttribute('readonly', 'readonly');
-      textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
-      document.body.appendChild(textarea);
-      textarea.select();
-      let ok = false;
-      try{ ok = document.execCommand('copy'); }catch(_){ ok = false; }
-      textarea.remove();
-      return ok;
-    }
-
-    async function copyShareUrl(type, id){
-      const url = buildShareUrl(type, id);
-      try{
-        if(navigator.clipboard?.writeText){
-          await navigator.clipboard.writeText(url);
-        }else{
-          const copied = fallbackCopyText(url);
-          if(!copied) throw new Error('fallback copy failed');
-        }
-        await openModalAlert('공유 링크가 복사되었습니다.\n필요한 곳에 붙여넣기 해주세요.');
-      }catch(error){
-        console.warn('공유 링크 복사 실패', error);
-        await openModalAlert(`자동 복사가 제한되었습니다.\n아래 링크를 직접 복사해 주세요.\n\n${url}`);
-      }
-      return url;
-    }
-
-    function initKakaoShare(){
-      try{
-        if(!window.Kakao || !KAKAO_JS_KEY) return false;
-        if(!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
-        return true;
-      }catch(error){
-        console.warn('카카오 SDK 초기화 실패', error);
-        return false;
-      }
-    }
-
-    async function shareKakao(type, id, title='더운정 마이힐스', description='입주민 전용 혜택/공지 바로가기'){
-      const url = buildShareUrl(type, id);
-      const canShareKakao = initKakaoShare();
-
-      if(canShareKakao && window.Kakao?.Share?.sendDefault){
-        try{
-          window.Kakao.Share.sendDefault({
-            objectType:'feed',
-            content:{
-              title: title || '더운정 마이힐스',
-              description: description || '입주민 전용 혜택/공지 바로가기',
-              imageUrl:`${location.origin}/icons/icon-192.png`,
-              link:{ mobileWebUrl:url, webUrl:url }
-            },
-            buttons:[{
-              title:'바로 열기',
-              link:{ mobileWebUrl:url, webUrl:url }
-            }]
-          });
-          return;
-        }catch(error){
-          console.warn('카카오 공유 실패, URL 복사로 대체', error);
-        }
-      }
-
-      await copyShareUrl(type, id);
-    }
-
-    async function showQrCode(type, id){
-      const url = buildShareUrl(type, id);
-      lastQrShareUrl = url;
-      const modal = qs('#qrModal');
-      const canvas = qs('#qrCanvas');
-      const textEl = qs('#qrShareUrlText');
-
-      if(textEl) textEl.textContent = url;
-      if(!modal || !canvas){
-        await copyShareUrl(type, id);
-        return;
-      }
-
-      try{
-        if(window.QRCode?.toCanvas){
-          await window.QRCode.toCanvas(canvas, url, { width:220, margin:2 });
-        }else{
-          throw new Error('QRCode library not loaded');
-        }
-        if(modal.open) modal.close();
-        modal.showModal();
-      }catch(error){
-        console.warn('QR 코드 생성 실패', error);
-        await copyShareUrl(type, id);
-      }
-    }
-
-    function shareButtonHtml(type, id){
-      return `
-        <div class="share-actions">
-          <button class="btn btn-soft block" type="button" data-share-copy="${type}" data-share-id="${id}">🔗 URL 복사</button>
-          <button class="btn btn-soft block" type="button" data-share-kakao="${type}" data-share-id="${id}">💬 카카오톡</button>
-          <button class="btn btn-soft block" type="button" data-share-qr="${type}" data-share-id="${id}">📷 QR 보기</button>
-        </div>
-      `;
-    }
-
-    function bindShareButtons(root, item, type){
-      if(!root || !item?.id) return;
-      const title = item.title || item.name || '더운정 마이힐스';
-      const description = type === 'notice'
-        ? String(item.content || '입주민 공지사항 바로가기').slice(0, 80)
-        : String(item.condition || '입주민 전용 혜택 바로가기').slice(0, 80);
-
-      root.querySelector(`[data-share-copy="${type}"]`)?.addEventListener('click', () => copyShareUrl(type, item.id));
-      root.querySelector(`[data-share-kakao="${type}"]`)?.addEventListener('click', () => shareKakao(type, item.id, title, description));
-      root.querySelector(`[data-share-qr="${type}"]`)?.addEventListener('click', () => showQrCode(type, item.id));
     }
 
     function clearCleanDeepLinkUrl({ replace=true } = {}){
@@ -1743,7 +1611,12 @@ function setPushStatusUi(enabled){
       if(event.key === 'Escape') closeModal(false);
     });
 
-    const redirectToLogin=()=>window.location.replace(LOGIN_PAGE_URL);
+    const redirectToLogin=()=>{
+      if(location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/')){
+        sessionStorage.setItem('pendingDeepLink', location.href);
+      }
+      window.location.replace(LOGIN_PAGE_URL);
+    };
     function getDisplayNickname(){
       return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
     }
@@ -2630,7 +2503,7 @@ async function refreshPushStatus(){
       const lngRaw = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.location?.lng ?? item.location?.lon ?? item.location?.longitude ?? '';
       const lat = Number(latRaw);
       const lng = Number(lngRaw);
-      return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',lat:Number.isFinite(lat)?lat:null,lng:Number.isFinite(lng)?lng:null,service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};
+      return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',lat:Number.isFinite(lat)?lat:null,lng:Number.isFinite(lng)?lng:null,service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};
     }
     const getFavorites=()=>state.favoriteIds || [];
 
@@ -2712,7 +2585,8 @@ async function refreshPushStatus(){
         pinned: !!item.pinned,
         visible: item.visible !== false,
         createdAt: item.createdAt || null,
-        updatedAt: item.updatedAt || null
+        updatedAt: item.updatedAt || null,
+        imageUrl: item.imageUrl || item.thumbnailUrl || item.thumbnail || item.photoUrl || item.image || ''
       };
     }
 
@@ -2750,6 +2624,124 @@ async function refreshPushStatus(){
       `;
     }
 
+
+    function toAbsoluteUrl(url = ''){
+      const value = String(url || '').trim();
+      if(!value) return '';
+      try{ return new URL(value, location.origin).href; }catch(_){ return ''; }
+    }
+
+    function getShareUrl(type, id){
+      return `${location.origin}/${type}/${encodeURIComponent(String(id || ''))}`;
+    }
+
+    function getItemShareImage(item = {}){
+      return toAbsoluteUrl(item.imageUrl || item.thumbnailUrl || item.thumbnail || item.photoUrl || item.image || DEFAULT_SHARE_IMAGE_URL) || DEFAULT_SHARE_IMAGE_URL;
+    }
+
+    function getShareDescription(type, item = {}){
+      const raw = type === 'notice'
+        ? (item.content || '입주민 전용 공지 바로가기')
+        : (item.condition || item.address || '입주민 전용 혜택 바로가기');
+      return String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 90) || '더운정 마이힐스 바로가기';
+    }
+
+    async function copyShareUrl(type, item = {}){
+      const url = getShareUrl(type, item.id);
+      try{
+        await navigator.clipboard.writeText(url);
+        await openModalAlert('공유 링크가 복사되었습니다.');
+      }catch(error){
+        console.warn('공유 URL 복사 실패', error);
+        window.prompt('아래 링크를 복사해 주세요.', url);
+      }
+    }
+
+    function ensureKakaoReady(){
+      if(!KAKAO_JS_KEY) return false;
+      if(!window.Kakao) return false;
+      try{
+        if(!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+        return true;
+      }catch(error){
+        console.warn('카카오 SDK 초기화 실패', error);
+        return false;
+      }
+    }
+
+    async function shareKakaoItem(type, item = {}){
+      const shareUrl = getShareUrl(type, item.id);
+      const title = type === 'notice'
+        ? (item.title || '더운정 마이힐스 공지')
+        : (item.name || '더운정 마이힐스 혜택');
+      const description = getShareDescription(type, item);
+      const imageUrl = getItemShareImage(item);
+
+      if(!ensureKakaoReady()){
+        await copyShareUrl(type, item);
+        return;
+      }
+
+      try{
+        window.Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: {
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl
+            }
+          },
+          buttons: [
+            {
+              title: '바로 열기',
+              link: {
+                mobileWebUrl: shareUrl,
+                webUrl: shareUrl
+              }
+            }
+          ]
+        });
+      }catch(error){
+        console.warn('카카오 공유 실패', error);
+        await copyShareUrl(type, item);
+      }
+    }
+
+    async function showQrCode(type, item = {}){
+      const url = getShareUrl(type, item.id);
+      const modal = qs('#qrModal');
+      const canvas = qs('#qrCanvas');
+      const urlBox = qs('#qrShareUrl');
+      if(urlBox) urlBox.textContent = url;
+
+      try{
+        if(window.QRCode && canvas){
+          await window.QRCode.toCanvas(canvas, url, { width:220, margin:2 });
+        }
+      }catch(error){
+        console.warn('QR 생성 실패', error);
+      }
+
+      if(qs('#qrCopyBtn')) qs('#qrCopyBtn').onclick = () => copyShareUrl(type, item);
+      if(modal){
+        if(modal.open) modal.close();
+        modal.showModal();
+      }
+    }
+
+    function shareActionsHtml(prefix){
+      return `
+        <div class="share-actions">
+          <button class="btn btn-soft block" id="${prefix}CopyShareBtn" type="button">🔗 URL 복사</button>
+          <button class="btn btn-soft block" id="${prefix}KakaoShareBtn" type="button">💬 카카오톡</button>
+          <button class="btn btn-soft block" id="${prefix}QrShareBtn" type="button">📷 QR 보기</button>
+        </div>
+      `;
+    }
+
     function openNotice(item, options = {}){
       const { skipUrlUpdate = false } = options;
       if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('notice', item.id);
@@ -2763,11 +2755,13 @@ async function refreshPushStatus(){
         </div>
         <h3 style="margin:0 0 12px;font-size:24px;letter-spacing:-.04em;">${item.title}</h3>
         <div style="white-space:pre-wrap;line-height:1.75;color:#334155;">${item.content}</div>
-        ${shareButtonHtml('notice', item.id)}
+        ${shareActionsHtml('notice')}
       `;
       if(modal.open) modal.close();
       modal.showModal();
-      bindShareButtons(qs('#noticeModalBody'), item, 'notice');
+      qs('#noticeCopyShareBtn')?.addEventListener('click', () => copyShareUrl('notice', item));
+      qs('#noticeKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('notice', item));
+      qs('#noticeQrShareBtn')?.addEventListener('click', () => showQrCode('notice', item));
     }
 
     function scrollToNoticeCard(noticeId){
@@ -3054,11 +3048,13 @@ async function refreshPushStatus(){
       increaseStat(item.id, item.name, 'detailViewCount');
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
-      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${shareButtonHtml('benefit', item.id)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
       const modal=qs('#detailModal');
       if(modal.open)modal.close();
       modal.showModal();
-      bindShareButtons(qs('#modalBody'), item, 'benefit');
+      qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
+      qs('#benefitKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('benefit', item));
+      qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
       updateDistanceText(item);
       setTimeout(() => renderDetailMiniMap(item), 120);
       qs('#modalFavBtn').onclick=async ()=>{
@@ -3268,23 +3264,9 @@ async function refreshPushStatus(){
       });
     });
 
-    qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
-    qs('#qrCopyBtn')?.addEventListener('click', async () => {
-      if(lastQrShareUrl){
-        try{
-          if(navigator.clipboard?.writeText){
-            await navigator.clipboard.writeText(lastQrShareUrl);
-          }else{
-            fallbackCopyText(lastQrShareUrl);
-          }
-          await openModalAlert('QR 링크가 복사되었습니다.');
-        }catch(_){
-          await openModalAlert(`아래 링크를 직접 복사해 주세요.\n\n${lastQrShareUrl}`);
-        }
-      }
-    });
     qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
     qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal').close(); clearCleanDeepLinkUrl({ replace:true });};
+    qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
     qs('#detailModal')?.addEventListener('close', () => {
       if(parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
     });

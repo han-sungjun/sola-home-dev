@@ -640,15 +640,10 @@
     setupForegroundSystemPush(messaging);
 
     const REDIRECT_AFTER_LOGIN = './app.html';
-    const SIGNUP_PAGE_URL = './signup.html';
-    const LOGIN_FUNCTION_URL = API_URL[ENV].login;
-    const PASSWORD_RESET_LOOKUP_URL = API_URL[ENV].getUserForPasswordReset || '';
-
     function consumePendingDeepLinkForLogin(){
       const pending = sessionStorage.getItem('pendingDeepLink');
       if(!pending) return '';
       sessionStorage.removeItem('pendingDeepLink');
-
       try{
         const url = new URL(pending, location.origin);
         if(url.origin !== location.origin) return '';
@@ -658,11 +653,12 @@
         return '';
       }
     }
-
     function getPostLoginRedirectUrl(){
       return consumePendingDeepLinkForLogin() || REDIRECT_AFTER_LOGIN;
     }
-
+    const SIGNUP_PAGE_URL = './signup.html';
+    const LOGIN_FUNCTION_URL = API_URL[ENV].login;
+    const PASSWORD_RESET_LOOKUP_URL = API_URL[ENV].getUserForPasswordReset || '';
 
     document.body.style.opacity = '0';
 
