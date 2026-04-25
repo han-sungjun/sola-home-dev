@@ -28,10 +28,6 @@
       "src": "/benefit/(.*)",
       "dest": "/app.html"
     },
-	    {
-      "src": "/share/notice.html",
-      "dest": "/notice.html"
-    },
     {
       "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|webmanifest|txt|map|woff|woff2|ttf))",
       "dest": "/$1"
