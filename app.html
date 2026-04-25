@@ -1041,7 +1041,7 @@ body.gnb-open .bottom-nav{
     window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
     // 카카오 Developers > 앱 키 > JavaScript 키를 입력하세요.
     const KAKAO_JS_KEY = 'e52b154b3966372f9700ff0b35e15ccc';
-    const DEFAULT_SHARE_IMAGE_URL = `/icons/icon-512.png`;
+    const DEFAULT_SHARE_IMAGE_URL = `/icons/kakao-share-default.png?v=20260425a`;
     const LOGIN_PAGE_URL = '/';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app = initializeApp({ ...firebaseConfig });
@@ -2829,6 +2829,45 @@ async function refreshPushStatus(){
     }
 
     async function shareKakaoItem(type, item = {}){
+      const shareUrl = getShareUrl(type, item.id, {
+        from: 'kakao',
+        btn: 'card',
+        target: type
+      });
+
+      const title = buildKakaoShareTitle(type, item);
+      const description = `${buildKakaoShareDescription(type, item)}\n\n👇 카드 하단의 버튼을 눌러 확인하세요`;
+      const imageUrl = getItemShareImage(item);
+
+      if(!ensureKakaoReady()){
+        await copyShareUrl(type, item);
+        return;
+      }
+
+      const kakaoLink = {
+        mobileWebUrl: shareUrl,
+        webUrl: shareUrl
+      };
+
+      try{
+        window.Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: kakaoLink
+          },
+
+          // 카카오톡 클라이언트별 버튼 노출 안정성을 위해
+          // buttons 배열 대신 기본 buttonTitle 단일 버튼 구조를 사용합니다.
+          buttonTitle: '앱에서 바로 보기'
+        });
+      }catch(error){
+        console.warn('카카오 공유 실패', error);
+        await copyShareUrl(type, item);
+      }
+    }){
       const shareUrl = getShareUrl(type, item.id);
       const appButtonUrl = getShareButtonUrl(type, item.id, 'app');
       const webButtonUrl = getShareButtonUrl(type, item.id, 'web');
