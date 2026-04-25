@@ -1440,6 +1440,24 @@ body.gnb-open .bottom-nav{
   font-weight:1000;
 }
 
+  
+/* ===== TOP 5: TOP1 뱃지와 조회수 겹침 방지 ===== */
+.popular-item.rank-1::after{
+  top:16px;
+  right:74px;
+}
+.popular-score{
+  position:relative;
+  z-index:3;
+  min-width:54px;
+}
+@media (max-width:390px){
+  .popular-item.rank-1::after{
+    right:68px;
+    top:16px;
+  }
+}
+
   </style>
 </head>
 <body>
