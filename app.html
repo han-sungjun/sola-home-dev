@@ -1169,6 +1169,63 @@ body.gnb-open .bottom-nav{
   overflow:visible;
 }
 
+  
+/* ===== TOP 5 추가 개선: 혜택 자동 줄바꿈 / 50% 강조 / TOP1 전체 하이라이트 ===== */
+.popular-item.rank-1{
+  border-color:#fbbf24 !important;
+  background:
+    radial-gradient(circle at top right, rgba(251,191,36,.22), transparent 34%),
+    linear-gradient(180deg,#fff7ed 0%,#ffffff 74%) !important;
+  box-shadow:
+    0 22px 44px rgba(245,158,11,.18),
+    inset 0 0 0 1px rgba(251,191,36,.22) !important;
+}
+.popular-item.rank-1::after{
+  content:"TOP 1";
+  position:absolute;
+  top:12px;
+  right:14px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#92400e;
+  color:#fff;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.02em;
+}
+.popular-benefit-list{
+  display:grid;
+  gap:5px;
+}
+.popular-benefit-part{
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+  min-width:0;
+}
+.popular-benefit-part::before{
+  content:"•";
+  color:#94a3b8;
+  font-weight:1000;
+  line-height:1.45;
+  flex:0 0 auto;
+}
+.popular-benefit-part.hot{
+  padding:6px 8px;
+  border-radius:12px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#c2410c;
+  font-weight:900;
+}
+.popular-benefit-part.hot::before{
+  color:#f97316;
+}
+.popular-row .value.hot-value{
+  color:#c2410c;
+  font-weight:900;
+}
+
   </style>
 </head>
 <body>
@@ -3865,7 +3922,42 @@ function getShareTrackingParams(){
       return parsed.date || '등록일 정보 없음';
     }
 
+    function splitBenefitParts(text = ''){
+      const raw = String(text || '').trim();
+      if(!raw) return [];
+
+      return raw
+        .split(/\s*[\/·ㆍ]\s*/g)
+        .map(v => v.trim())
+        .filter(Boolean);
+    }
+
+    function isHotBenefitText(text = ''){
+      const matches = String(text || '').match(/(\d+)\s*%/g) || [];
+      return matches.some(v => Number(String(v).replace(/[^\d]/g, '')) >= 50);
+    }
+
+    function renderBenefitPartsHtml(benefitText = ''){
+      const parts = splitBenefitParts(benefitText);
+      const list = parts.length ? parts : [benefitText || '혜택 조건은 상세보기에서 확인해 주세요.'];
+
+      return `
+        <div class="popular-benefit-list">
+          ${list.map(part => `
+            <div class="popular-benefit-part ${isHotBenefitText(part) ? 'hot' : ''}">
+              <span>${escapeHtml(part)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+
+
     function renderPopularDetail(item = {}){
+      const benefit = getPopularBenefit(item);
+      const hotClass = isHotBenefitText(benefit) ? ' hot-value' : '';
+
       return `
         <div class="popular-detail">
           <div class="popular-row">
@@ -3874,7 +3966,7 @@ function getShareTrackingParams(){
           </div>
           <div class="popular-row">
             <div class="label">혜택</div>
-            <div class="value">${escapeHtml(getPopularBenefit(item))}</div>
+            <div class="value${hotClass}">${renderBenefitPartsHtml(benefit)}</div>
           </div>
           <div class="popular-row">
             <div class="label">등록일</div>
@@ -3883,6 +3975,7 @@ function getShareTrackingParams(){
         </div>
       `;
     }
+
 
 
 
