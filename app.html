@@ -2789,52 +2789,6 @@ async function refreshPushStatus(){
         console.warn('카카오 공유 실패', error);
         await copyShareUrl(type, item);
       }
-    }){
-      const shareUrl = getShareUrl(type, item.id);
-      const title = type === 'notice'
-        ? (item.title || '더운정 마이힐스 공지')
-        : (item.name || '더운정 마이힐스 혜택');
-      const description = getShareDescription(type, item);
-      const imageUrl = getItemShareImage(item);
-
-      if(!ensureKakaoReady()){
-        await copyShareUrl(type, item);
-        return;
-      }
-
-      const kakaoLink = {
-        mobileWebUrl: shareUrl,
-        webUrl: shareUrl
-      };
-
-      try{
-        window.Kakao.Share.sendDefault({
-          objectType: 'feed',
-          content: {
-            title,
-            description,
-            imageUrl,
-            link: kakaoLink
-          },
-
-          // 일부 카카오톡 환경에서 카드 본문 클릭이 약하게 동작할 수 있어
-          // 기본 버튼명과 명시적 버튼 링크를 함께 넣어 클릭 영역을 확실히 확보합니다.
-          buttonTitle: '바로 열기',
-          buttons: [
-            {
-              title: '바로 열기',
-              link: kakaoLink
-            },
-            {
-              title: '링크 복사',
-              link: kakaoLink
-            }
-          ]
-        });
-      }catch(error){
-        console.warn('카카오 공유 실패', error);
-        await copyShareUrl(type, item);
-      }
     }
 
     async function showQrCode(type, item = {}){
