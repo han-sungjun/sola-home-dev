@@ -16,12 +16,12 @@
   <meta property="og:site_name" content="더운정 마이힐스">
   <meta property="og:title" content="더운정 마이힐스">
   <meta property="og:description" content="입주민 전용 혜택과 공지 바로가기">
-  <meta property="og:image" content="https://www.sola-home.kr/icons/icon-192.png?v=20260425a">
+  <meta property="og:image" content="https://www.sola-home.kr/icons/icon-512.png?v=20260425b">
   <meta property="og:url" content="https://www.sola-home.kr/app">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="더운정 마이힐스">
   <meta name="twitter:description" content="입주민 전용 혜택과 공지 바로가기">
-  <meta name="twitter:image" content="https://www.sola-home.kr/icons/icon-192.png?v=20260425a">
+  <meta name="twitter:image" content="https://www.sola-home.kr/icons/icon-512.png?v=20260425b">
   <style>
     :root{--bg:#f5f7fb;--surface:rgba(255,255,255,.82);--line:#e5e7eb;--line-soft:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--accent2:#f59e0b;--blue:#2563eb;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}a{color:inherit;text-decoration:none}
@@ -1041,7 +1041,7 @@ body.gnb-open .bottom-nav{
     window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
     // 카카오 Developers > 앱 키 > JavaScript 키를 입력하세요.
     const KAKAO_JS_KEY = 'e52b154b3966372f9700ff0b35e15ccc';
-    const DEFAULT_SHARE_IMAGE_URL = `/icons/icon-192.png?v=20260425a`;
+    const DEFAULT_SHARE_IMAGE_URL = `/icons/icon-512.png?v=20260425b`;
     const LOGIN_PAGE_URL = '/';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app = initializeApp({ ...firebaseConfig });
@@ -2706,6 +2706,7 @@ function getShareTrackingParams(){
         const stored = getStoredLoginUser();
 
         await addDoc(collection(db, SHARE_CLICK_LOGS_COLLECTION), {
+          event: 'deep_link_open',
           type: data.type,
           targetId: data.targetId,
           from: data.from,
@@ -2715,6 +2716,7 @@ function getShareTrackingParams(){
           loginId: state.currentUserProfile?.loginId || stored.loginId || null,
           path: location.pathname,
           href: location.href,
+          referrer: document.referrer || '',
           userAgent: navigator.userAgent,
           createdAt: serverTimestamp()
         });
@@ -2722,6 +2724,27 @@ function getShareTrackingParams(){
         if(logKey) sessionStorage.setItem(logKey, '1');
       }catch(error){
         console.warn('공유 클릭 로그 저장 실패', error);
+      }
+    }
+
+    async function writeShareActionLog(event, type, item = {}, detail = {}){
+      try{
+        const stored = getStoredLoginUser();
+        await addDoc(collection(db, SHARE_CLICK_LOGS_COLLECTION), {
+          event,
+          type,
+          targetId: item?.id || null,
+          targetTitle: type === 'notice' ? (item?.title || '') : (item?.name || item?.title || ''),
+          uid: state.currentUser?.uid || stored.uid || null,
+          loginId: state.currentUserProfile?.loginId || stored.loginId || null,
+          path: location.pathname,
+          href: location.href,
+          userAgent: navigator.userAgent,
+          detail,
+          createdAt: serverTimestamp()
+        });
+      }catch(error){
+        console.warn('공유 액션 로그 저장 실패', error);
       }
     }
 
@@ -2737,7 +2760,7 @@ function getShareTrackingParams(){
         return `${getShareBaseOrigin()}${url}`;
       }
 
-      return url || `${getShareBaseOrigin()}/icons/icon-192.png?v=20260425a`;
+      return url || `${getShareBaseOrigin()}/icons/icon-512.png?v=20260425b`;
     }
 
     function getShareDescription(type, item = {}){
@@ -2748,8 +2771,9 @@ function getShareTrackingParams(){
     }
 
     async function copyShareUrl(type, item = {}){
-      const url = getShareUrl(type, item.id);
+      const url = getShareButtonUrl(type, item.id, 'copy');
       try{
+        await writeShareActionLog('copy_share_url', type, item, { url });
         await navigator.clipboard.writeText(url);
         await openModalAlert('공유 링크가 복사되었습니다.');
       }catch(error){
@@ -2838,56 +2862,58 @@ function getShareTrackingParams(){
     }
 
     async function shareKakaoItem(type, item = {}){
-      const shareUrl = getShareButtonUrl(type, item.id, 'card');
+      const cardShareUrl = getShareButtonUrl(type, item.id, 'card');
+      const webShareUrl = getShareButtonUrl(type, item.id, 'web');
+      const appShareUrl = getShareButtonUrl(type, item.id, 'app');
 
       const title = buildKakaoShareTitle(type, item);
-      const description = `${buildKakaoShareDescription(type, item)}\n\n👇 카드 하단의 '앱에서 바로 보기' 버튼을 눌러 확인하세요`;
+      const description = buildKakaoShareDescription(type, item);
       const imageUrl = getItemShareImage(item);
+      const sharedCount = Number(item.shareCount || item.sharedCount || item.clickCount || item.viewCount || 0) || 0;
 
       if(!ensureKakaoReady()){
         await copyShareUrl(type, item);
         return;
       }
 
-      const kakaoLink = {
-        mobileWebUrl: shareUrl,
-        webUrl: shareUrl
-      };
-
       try{
-        Kakao.Share.sendDefault({
-		  objectType: 'feed',
-		  content: {
-			title: shareTitle,
-			description: shareDesc,
-			imageUrl: shareImageUrl,
-			link: {
-			  mobileWebUrl: shareUrl,
-			  webUrl: shareUrl
-			}
-		  },
-		  social: {
-			likeCount: 0,
-			commentCount: 0,
-			sharedCount: 0
-		  },
-		  buttons: [
-			{
-			  title: '웹으로 보기',
-			  link: {
-				mobileWebUrl: shareUrl,
-				webUrl: shareUrl
-			  }
-			},
-			{
-			  title: '앱으로 보기',
-			  link: {
-				mobileWebUrl: shareUrl,
-				webUrl: shareUrl
-			  }
-			}
-		  ]
-		});
+        await writeShareActionLog('kakao_share_open', type, item, {
+          cardShareUrl,
+          webShareUrl,
+          appShareUrl
+        });
+
+        window.Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: {
+              mobileWebUrl: cardShareUrl,
+              webUrl: cardShareUrl
+            }
+          },
+          social: {
+            sharedCount
+          },
+          buttons: [
+            {
+              title: '웹으로 보기',
+              link: {
+                mobileWebUrl: webShareUrl,
+                webUrl: webShareUrl
+              }
+            },
+            {
+              title: '앱으로 보기',
+              link: {
+                mobileWebUrl: appShareUrl,
+                webUrl: appShareUrl
+              }
+            }
+          ]
+        });
       }catch(error){
         console.warn('카카오 공유 실패', error);
         await copyShareUrl(type, item);
@@ -2895,7 +2921,8 @@ function getShareTrackingParams(){
     }
 
     async function showQrCode(type, item = {}){
-      const url = getShareUrl(type, item.id);
+      const url = getShareButtonUrl(type, item.id, 'qr');
+      await writeShareActionLog('show_qr_share', type, item, { url });
       const modal = qs('#qrModal');
       const canvas = qs('#qrCanvas');
       const urlBox = qs('#qrShareUrl');
