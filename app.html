@@ -1543,6 +1543,37 @@ body.gnb-open .bottom-nav{
   }
 }
 
+
+/* ===== TOP 5 실시간 랭킹 확장: 순위 변동 / 공유 BEST / 지금 뜨는 매장 ===== */
+.popular-item{position:relative;overflow:hidden;}
+.popular-item.rank-up{animation:popularRankUpFlash .9s ease both;}
+.popular-item.rank-down{animation:popularRankDownFlash .9s ease both;}
+.popular-item.rank-new{animation:popularRankNewFlash .9s ease both;}
+.popular-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.share-best-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:22px;padding:4px 8px;border-radius:999px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000;line-height:1;box-shadow:0 8px 18px rgba(37,99,235,.10);}
+.hot-now-panel{margin-bottom:14px;background:linear-gradient(180deg,#fff7ed 0%,#ffffff 78%);border-color:#fed7aa;}
+.hot-now-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.hot-now-title{margin:0;font-size:17px;font-weight:1000;letter-spacing:-.04em;}
+.hot-now-desc{margin:5px 0 0;color:#92400e;font-size:12px;line-height:1.55;font-weight:800;}
+.hot-now-live{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#fff;border:1px solid #fed7aa;color:#c2410c;font-size:10px;font-weight:1000;white-space:nowrap;}
+.hot-now-live::before{content:"";width:7px;height:7px;border-radius:999px;background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.12);animation:hotLivePulse 1.45s ease-in-out infinite;}
+.hot-now-list{display:grid;gap:9px;}
+.hot-now-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;border-radius:18px;background:#fff;border:1px solid rgba(251,146,60,.24);box-shadow:0 10px 22px rgba(194,65,12,.06);cursor:pointer;}
+.hot-now-left{min-width:0;display:flex;align-items:center;gap:10px;}
+.hot-now-rank{width:30px;height:30px;border-radius:12px;display:grid;place-items:center;background:#0f172a;color:#fff;font-size:12px;font-weight:1000;flex:0 0 auto;}
+.hot-now-copy{min-width:0;}
+.hot-now-copy b{display:block;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px;}
+.hot-now-copy small{display:block;margin-top:3px;color:#92400e;font-size:11px;font-weight:800;line-height:1.35;}
+.hot-now-score{text-align:right;flex:0 0 auto;}
+.hot-now-score strong{display:block;font-size:15px;font-weight:1000;color:#c2410c;}
+.hot-now-score span{display:block;margin-top:2px;font-size:10px;color:#64748b;font-weight:800;}
+@keyframes popularRankUpFlash{0%{box-shadow:0 0 0 0 rgba(22,163,74,0), var(--shadow);}35%{box-shadow:0 0 0 5px rgba(22,163,74,.18), 0 22px 42px rgba(22,163,74,.12);transform:translateY(-2px);}100%{box-shadow:var(--shadow);transform:translateY(0);}}
+@keyframes popularRankDownFlash{0%{box-shadow:0 0 0 0 rgba(244,63,94,0), var(--shadow);}35%{box-shadow:0 0 0 5px rgba(244,63,94,.14), 0 22px 42px rgba(244,63,94,.10);transform:translateY(2px);}100%{box-shadow:var(--shadow);transform:translateY(0);}}
+@keyframes popularRankNewFlash{0%{opacity:.72;transform:translateY(8px) scale(.985);}100%{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes hotLivePulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.25);opacity:.78;}}
+@media (prefers-reduced-motion: reduce){.popular-item.rank-up,.popular-item.rank-down,.popular-item.rank-new,.hot-now-live::before{animation:none !important;}}
+@media (max-width:420px){.hot-now-copy b{max-width:180px;}}
+
   </style>
 </head>
 <body>
@@ -1636,7 +1667,7 @@ body.gnb-open .bottom-nav{
       </div>
     </section>
 
-    <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 즐겨찾기 + 공유수를 합산한 인기 매장입니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></section>
+    <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 클릭 + 즐겨찾기 + 공유수를 합산한 실시간 인기 매장입니다.</div></div><div id="hotNowPanel" class="panel hot-now-panel hidden"><div class="hot-now-head"><div><h3 class="hot-now-title">🔥 지금 뜨는 매장</h3><p class="hot-now-desc">공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.</p></div><span class="hot-now-live">LIVE</span></div><div class="hot-now-list" id="hotNowList"></div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></section>
   </div></div>
   <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="map"><span class="nav-icon">🗺️</span><span class="nav-label">지도</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button></nav>
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
@@ -4034,91 +4065,126 @@ function getShareTrackingParams(){
     }
 	
 	function getPopularTrendClass(currentRank, previousRank) {
-	  if (!previousRank) return 'same';
-	  if (currentRank < previousRank) return 'up';
-	  if (currentRank > previousRank) return 'down';
-	  return 'same';
-	}
-	
-	function getPopularTrendText(currentRank, previousRank) {
-	  if (!previousRank) return 'NEW';
-	  if (currentRank < previousRank) return `▲ ${previousRank - currentRank}`;
-	  if (currentRank > previousRank) return `▼ ${currentRank - previousRank}`;
-	  return '―';
-	}
+      if (!previousRank) return 'same';
+      if (currentRank < previousRank) return 'up';
+      if (currentRank > previousRank) return 'down';
+      return 'same';
+    }
 
+    function getPopularTrendText(currentRank, previousRank) {
+      if (!previousRank) return 'NEW';
+      if (currentRank < previousRank) return `▲ ${previousRank - currentRank}`;
+      if (currentRank > previousRank) return `▼ ${currentRank - previousRank}`;
+      return '―';
+    }
+
+    function getPopularRowMotionClass(item = {}) {
+      if (!item.previousRank) return 'rank-new';
+      if (item.rank < item.previousRank) return 'rank-up';
+      if (item.rank > item.previousRank) return 'rank-down';
+      return '';
+    }
 
     function calcPopularScoreFromStats(data = {}) {
-	  const detailViewCount = Number(data.detailViewCount || 0);
-	  const clickCount = Number(data.clickCount || 0);
-	  const favoriteCount = Number(data.favoriteCount || 0);
-	  const shareClickCount = Number(data.shareClickCount || 0);
+      const detailViewCount = Number(data.detailViewCount || 0);
+      const clickCount = Number(data.clickCount || 0);
+      const favoriteCount = Number(data.favoriteCount || 0);
+      const shareClickCount = Number(data.shareClickCount || 0);
+      return detailViewCount + clickCount + favoriteCount * 3 + shareClickCount * 5;
+    }
 
-	  return detailViewCount + clickCount + favoriteCount * 3 + shareClickCount * 5;
-	}
+    function getShareBestItemId(items = []) {
+      const candidates = items
+        .filter((item) => Number(item.shareClickCount || 0) > 0)
+        .sort((a, b) => {
+          const shareDiff = Number(b.shareClickCount || 0) - Number(a.shareClickCount || 0);
+          if (shareDiff) return shareDiff;
+          return Number(b.popularScore || b.score || 0) - Number(a.popularScore || a.score || 0);
+        });
+      return candidates[0]?.id || '';
+    }
 
     function subscribePopularStats() {
-	  const popularQuery = query(
-		collection(db, BENEFIT_STATS_COLLECTION),
-		orderBy('detailViewCount', 'desc'),
-		limit(30)
-	  );
+      const popularQuery = query(
+        collection(db, BENEFIT_STATS_COLLECTION),
+        orderBy('detailViewCount', 'desc'),
+        limit(80)
+      );
 
-	  onSnapshot(popularQuery, (snapshot) => {
-		const previousRanks = new Map(
-		  (state.popularItems || []).map((item, index) => [item.id, index + 1])
-		);
+      onSnapshot(popularQuery, (snapshot) => {
+        const runtimePreviousRanks = new Map(
+          (state.popularItems || []).map((item, index) => [item.id, index + 1])
+        );
+        const storedPreviousRankMap = typeof getPopularPreviousRankMap === 'function'
+          ? getPopularPreviousRankMap()
+          : {};
 
-		const rankedItems = snapshot.docs.map((d) => {
-		  const data = d.data() || {};
-		  const benefit = state.benefits.find((item) => item.id === d.id);
-		  const popularScore = calcPopularScoreFromStats(data);
+        const rankedItems = snapshot.docs.map((d) => {
+          const data = d.data() || {};
+          const benefit = state.benefits.find((item) => item.id === d.id);
+          const detailViewCount = Number(data.detailViewCount || 0);
+          const clickCount = Number(data.clickCount || 0);
+          const favoriteCount = Number(data.favoriteCount || 0);
+          const shareClickCount = Number(data.shareClickCount || 0);
+          const popularScore = calcPopularScoreFromStats(data);
 
-		  return {
-			id: d.id,
-			name: data.name || benefit?.name || '이름 없는 매장',
-			category: benefit?.category || '기타',
-			condition: benefit?.condition || '',
-			createdAt: benefit?.createdAt || null,
-			updatedAt: benefit?.updatedAt || null,
+          return {
+            id: d.id,
+            name: data.name || benefit?.name || '이름 없는 매장',
+            category: benefit?.category || data.category || '기타',
+            condition: benefit?.condition || data.condition || '',
+            createdAt: benefit?.createdAt || data.createdAt || null,
+            updatedAt: benefit?.updatedAt || data.updatedAt || null,
+            detailViewCount,
+            clickCount,
+            favoriteCount,
+            shareClickCount,
+            score: popularScore,
+            popularScore,
+            benefit: benefit || null
+          };
+        })
+        .filter((item) => item.popularScore > 0)
+        .sort((a, b) => {
+          const scoreDiff = Number(b.popularScore || 0) - Number(a.popularScore || 0);
+          if (scoreDiff) return scoreDiff;
+          const shareDiff = Number(b.shareClickCount || 0) - Number(a.shareClickCount || 0);
+          if (shareDiff) return shareDiff;
+          return Number(b.detailViewCount || 0) - Number(a.detailViewCount || 0);
+        })
+        .slice(0, 5)
+        .map((item, index) => {
+          const currentRank = index + 1;
+          const previousRank = runtimePreviousRanks.get(item.id) || Number(storedPreviousRankMap[getPopularItemKey(item)] || 0);
+          return {
+            ...item,
+            rank: currentRank,
+            previousRank,
+            trendClass: getPopularTrendClass(currentRank, previousRank),
+            trendText: getPopularTrendText(currentRank, previousRank)
+          };
+        });
 
-			detailViewCount: Number(data.detailViewCount || 0),
-			clickCount: Number(data.clickCount || 0),
-			favoriteCount: Number(data.favoriteCount || 0),
-			shareClickCount: Number(data.shareClickCount || 0),
+        const shareBestItemId = getShareBestItemId(rankedItems);
+        state.popularItems = rankedItems.map((item) => ({
+          ...item,
+          isShareBest: !!shareBestItemId && item.id === shareBestItemId
+        }));
 
-			score: popularScore,
-			popularScore,
-			benefit: benefit || null
-		  };
-		})
-		.filter((item) => item.popularScore > 0)
-		.sort((a, b) => b.popularScore - a.popularScore)
-		.slice(0, 5)
-		.map((item, index) => {
-		  const currentRank = index + 1;
-		  const previousRank = previousRanks.get(item.id);
-
-		  return {
-			...item,
-			rank: currentRank,
-			previousRank,
-			trendClass: getPopularTrendClass(currentRank, previousRank),
-			trendText: getPopularTrendText(currentRank, previousRank)
-		  };
-		});
-
-		state.popularItems = rankedItems;
-		renderPopularTop5();
-		markInitialDataLoaded('popular');
-	  }, () => {
-		const wrap = qs('#popularList');
-		if (wrap) {
-		  wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
-		}
-		markInitialDataLoaded('popular');
-	  });
-	}
+        renderPopularTop5();
+        renderHotNowStores();
+        if (typeof savePopularRankSnapshot === 'function') savePopularRankSnapshot(state.popularItems);
+        const updatedText = qs('#popularUpdatedText');
+        if (updatedText) updatedText.textContent = `실시간 집계 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
+        markInitialDataLoaded('popular');
+      }, () => {
+        const wrap = qs('#popularList');
+        if (wrap) {
+          wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
+        }
+        markInitialDataLoaded('popular');
+      });
+    }
 
     function getRankBadge(rank){
       if(rank === 1) return '<div class="popular-rank medal gold" aria-label="1위">🥇</div>';
@@ -4720,25 +4786,79 @@ function getShareTrackingParams(){
 
 
 
+    function renderHotNowStores(){
+      const panel = qs('#hotNowPanel');
+      const list = qs('#hotNowList');
+      if(!panel || !list) return;
+
+      const items = (state.popularItems || [])
+        .filter((item) => Number(item.popularScore || item.score || 0) > 0)
+        .slice()
+        .sort((a, b) => {
+          const hotA = Number(a.shareClickCount || 0) * 5 + Number(a.favoriteCount || 0) * 3 + Number(a.clickCount || 0);
+          const hotB = Number(b.shareClickCount || 0) * 5 + Number(b.favoriteCount || 0) * 3 + Number(b.clickCount || 0);
+          if(hotB !== hotA) return hotB - hotA;
+          return Number(b.popularScore || b.score || 0) - Number(a.popularScore || a.score || 0);
+        })
+        .slice(0, 3);
+
+      if(!items.length){
+        panel.classList.add('hidden');
+        list.innerHTML = '';
+        return;
+      }
+
+      panel.classList.remove('hidden');
+      list.innerHTML = items.map((item, index) => `
+        <article class="hot-now-item" data-benefit-id="${escapeHtml(item.id)}">
+          <div class="hot-now-left">
+            <div class="hot-now-rank">${index + 1}</div>
+            <div class="hot-now-copy">
+              <b>${escapeHtml(item.name || '이름 없는 매장')}</b>
+              <small>공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')} · 즐겨찾기 ${Number(item.favoriteCount || 0).toLocaleString('ko-KR')} · 조회 ${Number(item.detailViewCount || 0).toLocaleString('ko-KR')}</small>
+            </div>
+          </div>
+          <div class="hot-now-score">
+            <strong>${Number(item.popularScore || item.score || 0).toLocaleString('ko-KR')}</strong>
+            <span>인기점수</span>
+          </div>
+        </article>
+      `).join('');
+
+      list.querySelectorAll('.hot-now-item').forEach((el) => {
+        const id = el.dataset.benefitId;
+        const item = items.find((v) => v.id === id);
+        el.onclick = () => {
+          if(item?.benefit) openDetail(item.benefit);
+        };
+      });
+    }
+
     function renderPopularTop5(){
       const wrap = qs('#popularList');
       if(!wrap) return;
       wrap.innerHTML = '';
       if(!state.popularItems.length){
         wrap.innerHTML = '<div class="panel empty">아직 집계된 인기 매장이 없습니다.</div>';
+        renderHotNowStores();
         return;
       }
       state.popularItems.forEach((item, index) => {
         const rank = index + 1;
         const row = document.createElement('article');
-        row.className = `popular-item rank-${rank}`;
+        const motionClass = getPopularRowMotionClass(item);
+        row.className = `popular-item rank-${rank} ${motionClass}`.trim();
         row.innerHTML = `
           <div class="popular-rank-wrap">
             ${getRankBadge(rank)}
             ${rank === 1 ? '<span class="best-badge">👑 BEST</span>' : ''}
           </div>
           <div class="popular-meta">
-            <div class="popular-name">${item.name}</div>
+            <div class="popular-name-row">
+              <div class="popular-name">${escapeHtml(item.name || '이름 없는 매장')}</div>
+              ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
+              ${item.isShareBest ? '<span class="share-best-badge">🔗 공유 BEST</span>' : ''}
+            </div>
             ${renderPopularDetail(item)}
           </div>
           <div class="popular-score">
@@ -4754,6 +4874,7 @@ function getShareTrackingParams(){
         wrap.appendChild(row);
         animatePopularCount(row.querySelector('.popular-count'), item.score);
       });
+      renderHotNowStores();
     }
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
     const getCategoryCounts=()=> {
