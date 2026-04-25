@@ -1226,6 +1226,39 @@ body.gnb-open .bottom-nav{
   font-weight:900;
 }
 
+  
+/* ===== TOP 5 등록일 포맷 / NEW 뱃지 / 7일 이내 강조 ===== */
+.popular-date-value{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.popular-date-value.is-new{
+  color:#1d4ed8;
+  font-weight:1000;
+}
+.popular-new-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:20px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+}
+.popular-date-row.is-new{
+  padding:6px 8px;
+  border-radius:12px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+}
+
   </style>
 </head>
 <body>
@@ -3914,13 +3947,84 @@ function getShareTrackingParams(){
     }
 
     function getPopularDate(item = {}){
-      const directDate = item.createdAtText || item.createdDate || item.registeredAtText || item.dateText || '';
-      if(directDate) return directDate;
-
-      const raw = item.condition || item.benefit || item.description || item.desc || item.subtitle || '';
-      const parsed = splitBenefitAndDateText(raw);
-      return parsed.date || '등록일 정보 없음';
+      const raw = getPopularDateRaw(item);
+      return raw ? formatDateYmdDot(raw) : '등록일 정보 없음';
     }
+
+
+    function parseKoreanDateToDate(value = ''){
+      const raw = String(value || '').trim();
+      const match = raw.match(/(\d{4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/);
+      if(!match) return null;
+
+      const y = Number(match[1]);
+      const m = Number(match[2]);
+      const d = Number(match[3]);
+
+      if(!y || !m || !d) return null;
+      const date = new Date(y, m - 1, d);
+      if(Number.isNaN(date.getTime())) return null;
+      return date;
+    }
+
+    function formatDateYmdDot(value = ''){
+      const date = value instanceof Date ? value : parseKoreanDateToDate(value);
+      if(!date) return String(value || '').replace(/^등록일\s*/,'').trim() || '등록일 정보 없음';
+
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}.${m}.${d}`;
+    }
+
+    function isWithinRecentDays(value = '', days = 7){
+      const date = value instanceof Date ? value : parseKoreanDateToDate(value);
+      if(!date) return false;
+
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const diff = start.getTime() - target.getTime();
+
+      return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+    }
+
+    function getPopularDateRaw(item = {}){
+      const direct =
+        item.createdAtText ||
+        item.createdDate ||
+        item.registeredAtText ||
+        item.dateText ||
+        '';
+
+      if(direct) return String(direct).replace(/^등록일\s*/, '').trim();
+
+      const raw =
+        item.condition ||
+        item.benefit ||
+        item.description ||
+        item.desc ||
+        item.subtitle ||
+        '';
+
+      const match = String(raw).match(/(?:등록일\s*)?(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.?)/);
+      return match ? match[1].trim() : '';
+    }
+
+    function renderPopularDateHtml(item = {}){
+      const raw = getPopularDateRaw(item);
+      const formatted = formatDateYmdDot(raw);
+      const isNew = raw && isWithinRecentDays(raw, 7);
+
+      return `
+        <span class="popular-date-value ${isNew ? 'is-new' : ''}">
+          <span>${escapeHtml(formatted)}</span>
+          ${isNew ? '<span class="popular-new-badge">NEW</span>' : ''}
+        </span>
+      `;
+    }
+
+
 
     function splitBenefitParts(text = ''){
       const raw = String(text || '').trim();
@@ -3957,6 +4061,8 @@ function getShareTrackingParams(){
     function renderPopularDetail(item = {}){
       const benefit = getPopularBenefit(item);
       const hotClass = isHotBenefitText(benefit) ? ' hot-value' : '';
+      const rawDate = getPopularDateRaw(item);
+      const isNew = rawDate && isWithinRecentDays(rawDate, 7);
 
       return `
         <div class="popular-detail">
@@ -3968,13 +4074,14 @@ function getShareTrackingParams(){
             <div class="label">혜택</div>
             <div class="value${hotClass}">${renderBenefitPartsHtml(benefit)}</div>
           </div>
-          <div class="popular-row">
+          <div class="popular-row popular-date-row ${isNew ? 'is-new' : ''}">
             <div class="label">등록일</div>
-            <div class="value">${escapeHtml(getPopularDate(item))}</div>
+            <div class="value">${renderPopularDateHtml(item)}</div>
           </div>
         </div>
       `;
     }
+
 
 
 
