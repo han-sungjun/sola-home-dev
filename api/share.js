@@ -98,7 +98,7 @@ module.exports = async function handler(req, res) {
     const imageUrl = escapeHtml(pickImage(data, defaultImage));
 
     const shareUrl = `${appUrl}/share/${type}/${encodeURIComponent(id)}`;
-    const deepLinkUrl = `${appUrl}/app.html?open=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}&from=share`;
+    const deepLinkUrl = `${appUrl}/app?open=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}&from=share`;
 
     const html = `<!doctype html>
 <html lang="ko">
