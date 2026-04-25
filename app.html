@@ -2375,8 +2375,20 @@ function setPushStatusUi(enabled){
     });
 
     const redirectToLogin=()=>{
-      if(location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/')){
-        sessionStorage.setItem('pendingDeepLink', location.href);
+      try{
+        const deepLink = parseCleanDeepLink();
+        const hasQueryDeepLink = !!(deepLink && deepLink.mode === 'query');
+        const hasPathDeepLink = location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/');
+
+        // /app?open=benefit&id=... 처럼 공유/OG 리디렉트로 들어온 경우도
+        // 로그인 후 다시 같은 상세 모달로 복귀할 수 있도록 보존합니다.
+        if(hasQueryDeepLink || hasPathDeepLink){
+          sessionStorage.setItem('pendingDeepLink', location.href);
+        }
+      }catch(_){
+        if(location.search.includes('open=') && location.search.includes('id=')){
+          sessionStorage.setItem('pendingDeepLink', location.href);
+        }
       }
       window.location.replace(LOGIN_PAGE_URL);
     };
