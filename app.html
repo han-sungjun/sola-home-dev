@@ -16,12 +16,12 @@
   <meta property="og:site_name" content="더운정 마이힐스">
   <meta property="og:title" content="더운정 마이힐스">
   <meta property="og:description" content="입주민 전용 혜택과 공지 바로가기">
-  <meta property="og:image" content="https://www.sola-home.kr/icons/icon-192.png">
+  <meta property="og:image" content="https://www.sola-home.kr/icons/kakao-share-default.png?v=20260425a">
   <meta property="og:url" content="https://www.sola-home.kr/app">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="더운정 마이힐스">
   <meta name="twitter:description" content="입주민 전용 혜택과 공지 바로가기">
-  <meta name="twitter:image" content="https://www.sola-home.kr/icons/icon-192.png">
+  <meta name="twitter:image" content="https://www.sola-home.kr/icons/kakao-share-default.png?v=20260425a">
   <style>
     :root{--bg:#f5f7fb;--surface:rgba(255,255,255,.82);--line:#e5e7eb;--line-soft:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--accent2:#f59e0b;--blue:#2563eb;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}a{color:inherit;text-decoration:none}
@@ -2636,8 +2636,7 @@ async function refreshPushStatus(){
       if(!value) return '';
       try{ return new URL(value, location.origin).href; }catch(_){ return ''; }
     }
-
-    function getShareBaseOrigin(){
+function getShareBaseOrigin(){
       const host = String(location.hostname || '').toLowerCase();
 
       // 카카오 Developers 도메인 등록값과 공유 링크 origin을 일치시키기 위해
@@ -2660,15 +2659,14 @@ async function refreshPushStatus(){
       return url.toString();
     }
 
-    function getShareButtonUrl(type, id, button = 'app'){
+    function getShareButtonUrl(type, id, button = 'card'){
       return getShareUrl(type, id, {
         from: 'kakao',
         btn: button,
         target: type
       });
     }
-
-    function getShareTrackingParams(){
+function getShareTrackingParams(){
       try{
         const params = new URLSearchParams(location.search || '');
         const from = params.get('from') || '';
@@ -2682,7 +2680,7 @@ async function refreshPushStatus(){
 
         return {
           from,
-          button: button || 'unknown',
+          button: button || 'card',
           target: target || deepLink.type,
           type: deepLink.type,
           targetId: deepLink.id
@@ -2739,7 +2737,7 @@ async function refreshPushStatus(){
         return `${getShareBaseOrigin()}${url}`;
       }
 
-      return url || `${getShareBaseOrigin()}/icons/icon-512.png`;
+      return url || `${getShareBaseOrigin()}/icons/kakao-share-default.png?v=20260425a`;
     }
 
     function getShareDescription(type, item = {}){
@@ -2761,11 +2759,22 @@ async function refreshPushStatus(){
     }
 
     function ensureKakaoReady(){
-      if(!KAKAO_JS_KEY) return false;
-      if(!window.Kakao) return false;
       try{
-        if(!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
-        return true;
+        if(!window.Kakao){
+          console.warn('카카오 SDK가 로드되지 않았습니다.');
+          return false;
+        }
+
+        if(!KAKAO_JS_KEY){
+          console.warn('KAKAO_JS_KEY가 비어 있습니다.');
+          return false;
+        }
+
+        if(!window.Kakao.isInitialized()){
+          window.Kakao.init(KAKAO_JS_KEY);
+        }
+
+        return window.Kakao.isInitialized();
       }catch(error){
         console.warn('카카오 SDK 초기화 실패', error);
         return false;
@@ -2829,14 +2838,10 @@ async function refreshPushStatus(){
     }
 
     async function shareKakaoItem(type, item = {}){
-      const shareUrl = getShareUrl(type, item.id, {
-        from: 'kakao',
-        btn: 'card',
-        target: type
-      });
+      const shareUrl = getShareButtonUrl(type, item.id, 'card');
 
       const title = buildKakaoShareTitle(type, item);
-      const description = `${buildKakaoShareDescription(type, item)}\n\n👇 카드 하단의 버튼을 눌러 확인하세요`;
+      const description = `${buildKakaoShareDescription(type, item)}\n\n👇 카드 하단의 '앱에서 바로 보기' 버튼을 눌러 확인하세요`;
       const imageUrl = getItemShareImage(item);
 
       if(!ensureKakaoReady()){
@@ -2862,60 +2867,6 @@ async function refreshPushStatus(){
           // 카카오톡 클라이언트별 버튼 노출 안정성을 위해
           // buttons 배열 대신 기본 buttonTitle 단일 버튼 구조를 사용합니다.
           buttonTitle: '앱에서 바로 보기'
-        });
-      }catch(error){
-        console.warn('카카오 공유 실패', error);
-        await copyShareUrl(type, item);
-      }
-    }){
-      const shareUrl = getShareUrl(type, item.id);
-      const appButtonUrl = getShareButtonUrl(type, item.id, 'app');
-      const webButtonUrl = getShareButtonUrl(type, item.id, 'web');
-
-      const title = buildKakaoShareTitle(type, item);
-      const description = `${buildKakaoShareDescription(type, item)}\n\n👇 아래 버튼을 눌러 확인하세요`;
-      const imageUrl = getItemShareImage(item);
-
-      if(!ensureKakaoReady()){
-        await copyShareUrl(type, item);
-        return;
-      }
-
-      const kakaoLink = {
-        mobileWebUrl: shareUrl,
-        webUrl: shareUrl
-      };
-
-      const kakaoAppButtonLink = {
-        mobileWebUrl: appButtonUrl,
-        webUrl: appButtonUrl
-      };
-
-      const kakaoWebButtonLink = {
-        mobileWebUrl: webButtonUrl,
-        webUrl: webButtonUrl
-      };
-
-      try{
-        window.Kakao.Share.sendDefault({
-          objectType: 'feed',
-          content: {
-            title,
-            description,
-            imageUrl,
-            link: kakaoLink
-          },
-          buttonTitle: '📱 앱에서 바로 보기',
-          buttons: [
-            {
-              title: '📱 앱에서 바로 보기',
-              link: kakaoAppButtonLink
-            },
-            {
-              title: '🔗 웹에서 열기',
-              link: kakaoWebButtonLink
-            }
-          ]
         });
       }catch(error){
         console.warn('카카오 공유 실패', error);
