@@ -1574,6 +1574,135 @@ body.gnb-open .bottom-nav{
 @media (prefers-reduced-motion: reduce){.popular-item.rank-up,.popular-item.rank-down,.popular-item.rank-new,.hot-now-live::before{animation:none !important;}}
 @media (max-width:420px){.hot-now-copy b{max-width:180px;}}
 
+/* ================================
+🔥 TOP 5 FINAL UPGRADE (완성형)
+================================ */
+
+/* ===== 1위 Glow + Float 유지 ===== */
+.popular-item.rank-1{
+  position:relative;
+  overflow:hidden;
+  animation:
+    topOneFloat 2.8s ease-in-out infinite,
+    topOneGlow 2.4s ease-in-out infinite !important;
+}
+
+/* 1위 빛 번짐 */
+.popular-item.rank-1::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:24px;
+  pointer-events:none;
+  background:radial-gradient(circle at top right, rgba(251,191,36,.32), transparent 40%);
+  opacity:.9;
+}
+
+/* glow 애니메이션 */
+@keyframes topOneGlow{
+  0%,100%{
+    box-shadow:
+      0 22px 44px rgba(245,158,11,.18),
+      inset 0 0 0 1px rgba(251,191,36,.22);
+  }
+  50%{
+    box-shadow:
+      0 28px 60px rgba(245,158,11,.30),
+      0 0 0 5px rgba(251,191,36,.10),
+      inset 0 0 0 1px rgba(251,191,36,.28);
+  }
+}
+
+/* ===== 공유 BEST 배지 ===== */
+.popular-share-best,
+.best-share-badge{
+  animation: shareBestPulse 1.6s ease-in-out infinite;
+}
+
+/* pulse */
+@keyframes shareBestPulse{
+  0%,100%{
+    transform:scale(1);
+    filter:brightness(1);
+  }
+  50%{
+    transform:scale(1.08);
+    filter:brightness(1.15);
+  }
+}
+
+/* ===== TOP 5 전체 생동감 ===== */
+.popular-item{
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease,
+    border-color .22s ease,
+    background-color .22s ease;
+}
+
+/* hover */
+.popular-item:hover{
+  transform:translateY(-3px) scale(1.01);
+  box-shadow:0 26px 52px rgba(15,23,42,.14);
+}
+
+/* 클릭 */
+.popular-item:active{
+  transform:scale(.985);
+}
+
+/* ===== 점수 강조 ===== */
+.popular-score strong{
+  transition:transform .18s ease, text-shadow .18s ease;
+}
+
+.popular-item:hover .popular-score strong{
+  transform:scale(1.08);
+  text-shadow:0 6px 16px rgba(0,0,0,.12);
+}
+
+/* ===== 순위 배지 ===== */
+.popular-rank{
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.popular-item:hover .popular-rank{
+  transform:translateY(-2px) scale(1.06);
+}
+
+/* ===== 순위 변동 애니메이션 유지 ===== */
+.popular-item.rank-up,
+.popular-item.rank-down,
+.popular-item.rank-new{
+  animation: popularRankChange .55s ease both;
+}
+
+/* ===== 1위 애니메이션 충돌 방지 ===== */
+.popular-item.rank-1.rank-up,
+.popular-item.rank-1.rank-down,
+.popular-item.rank-1.rank-new{
+  animation:
+    popularRankChange .55s ease both,
+    topOneFloat 2.8s ease-in-out .55s infinite,
+    topOneGlow 2.4s ease-in-out .55s infinite !important;
+}
+
+/* ===== 순위 변경 ===== */
+@keyframes popularRankChange{
+  0%{
+    opacity:.6;
+    transform:translateY(10px) scale(.96);
+  }
+  60%{
+    opacity:1;
+    transform:translateY(-4px) scale(1.02);
+  }
+  100%{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
   </style>
 </head>
 <body>
