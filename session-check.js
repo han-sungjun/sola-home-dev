@@ -9,7 +9,7 @@ async function sessionCheck(options = {}) {
   const raw = localStorage.getItem("loginUser");
 
   if (!raw) {
-    location.replace("/index.html");
+    location.replace("/");
     return false;
   }
 
@@ -18,7 +18,7 @@ async function sessionCheck(options = {}) {
     parsed = JSON.parse(raw);
   } catch (e) {
     localStorage.removeItem("loginUser");
-    location.replace("/index.html");
+    location.replace("/");
     return false;
   }
 
@@ -27,7 +27,7 @@ async function sessionCheck(options = {}) {
 
   if (!uid) {
     localStorage.removeItem("loginUser");
-    location.replace("/index.html");
+    location.replace("/");
     return false;
   }
 
@@ -43,7 +43,7 @@ async function sessionCheck(options = {}) {
       }
 
       localStorage.removeItem("loginUser");
-      location.replace("/index.html");
+      location.replace("/");
       return false;
     }
 
@@ -64,7 +64,7 @@ async function sessionCheck(options = {}) {
 
       alert("다른 기기에서 로그인되어 현재 세션이 종료되었습니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/index.html");
+      location.replace("/");
       return false;
     }
 
@@ -77,7 +77,7 @@ async function sessionCheck(options = {}) {
 
       alert("탈퇴된 계정입니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/index.html");
+      location.replace("/");
       return false;
     }
 
@@ -91,7 +91,7 @@ async function sessionCheck(options = {}) {
 
       alert("보안 정책에 따라 차단된 계정입니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/index.html");
+      location.replace("/");
       return false;
     }
 
@@ -104,12 +104,12 @@ async function sessionCheck(options = {}) {
 
       alert("관리자 승인 후 이용 가능합니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/index.html");
+      location.replace("/");
       return false;
     }
 
     if (user.phoneVerified !== true) {
-      location.replace("/phone-verify.html");
+      location.replace("/phone-verify");
       return false;
     }
 
@@ -123,7 +123,7 @@ async function sessionCheck(options = {}) {
       }
 
       alert("관리자 권한이 없습니다.");
-      location.replace("/app.html");
+      location.replace("/app");
       return false;
     }
 
@@ -151,7 +151,7 @@ async function sessionCheck(options = {}) {
     }
 
     localStorage.removeItem("loginUser");
-    location.replace("/index.html");
+    location.replace("/");
     return false;
   }
 }

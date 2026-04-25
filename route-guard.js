@@ -5,15 +5,14 @@
 
   const PUBLIC_PAGES = [
     "/",
-    "/index.html",
-    "/signup.html",
-    "/phone-verify.html",
-    "/error.html"
+    "/signup",
+    "/phone-verify",
+    "/error"
   ];
 
   const ADMIN_PAGES = [
-    "/sola-admin-x92ks.html",
-    "/admin.html"
+    "/sola-admin-x92ks",
+    "/admin"
   ];
 
   function go(url) {
@@ -40,13 +39,13 @@
 
     sessionStorage.setItem("pendingDeepLink", location.href);
 
-    go("/index.html");
+    go("/");
     return;
   }
 
-  if (loginUser && loginUser.phoneVerified === false && path !== "/phone-verify.html") {
+  if (loginUser && loginUser.phoneVerified === false && path !== "/phone-verify") {
     console.warn("휴대폰 인증 필요");
-    go("/phone-verify.html");
+    go("/phone-verify");
     return;
   }
 
@@ -57,7 +56,7 @@
     !isPublicPage
   ) {
     console.warn("승인되지 않은 계정");
-    go("/index.html");
+    go("/");
     return;
   }
 
@@ -71,13 +70,13 @@
 
     if (!isAdmin) {
       console.warn("관리자 권한 없음");
-      go("/app.html");
+      go("/app");
       return;
     }
   }
 
-  if (loginUser && (path === "/" || path === "/index.html")) {
-    go("/app.html");
+  if (loginUser && (path === "/")) {
+    go("/app");
     return;
   }
 })();
