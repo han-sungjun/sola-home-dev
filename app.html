@@ -1490,6 +1490,59 @@ body.gnb-open .bottom-nav{
   }
 }
 
+  
+/* ===== TOP1 BEST 안정 배치 + 펄스 + 1위 메달 glow ===== */
+.popular-item.rank-1::after{
+  content:none !important;
+  display:none !important;
+}
+.popular-rank-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:5px;
+  flex:0 0 auto;
+}
+.popular-item.rank-1 .popular-rank{
+  margin-bottom:0 !important;
+  box-shadow:
+    0 0 0 4px rgba(251,191,36,.16),
+    0 12px 28px rgba(245,158,11,.28) !important;
+  animation:topMedalGlow 2.2s ease-in-out infinite;
+}
+.best-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-height:22px;
+  padding:4px 9px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#92400e 0%,#b45309 100%);
+  color:#fff;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.035em;
+  line-height:1;
+  box-shadow:0 8px 18px rgba(146,64,14,.18);
+  animation:bestBadgePulse 2.4s ease-in-out infinite;
+}
+@keyframes bestBadgePulse{
+  0%,100%{transform:scale(1);box-shadow:0 8px 18px rgba(146,64,14,.18)}
+  50%{transform:scale(1.055);box-shadow:0 12px 24px rgba(146,64,14,.26)}
+}
+@keyframes topMedalGlow{
+  0%,100%{filter:drop-shadow(0 0 0 rgba(251,191,36,0))}
+  50%{filter:drop-shadow(0 0 10px rgba(251,191,36,.58))}
+}
+@media (prefers-reduced-motion: reduce){
+  .best-badge,
+  .popular-item.rank-1 .popular-rank{
+    animation:none !important;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -4556,7 +4609,10 @@ function getShareTrackingParams(){
         const row = document.createElement('article');
         row.className = `popular-item rank-${rank}`;
         row.innerHTML = `
-          ${getRankBadge(rank)}
+          <div class="popular-rank-wrap">
+            ${getRankBadge(rank)}
+            ${rank === 1 ? '<span class="best-badge">👑 BEST</span>' : ''}
+          </div>
           <div class="popular-meta">
             <div class="popular-name">${item.name}</div>
             ${renderPopularDetail(item)}
