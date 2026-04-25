@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <!-- PWA / App Icon -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0F172A" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="description" content="더운정 마이힐스 회원가입" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+
+  <!-- iOS Splash Images -->
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="더운정 마이힐스 회원가입" />
   <title>더운정 마이힐스 - 회원가입</title>
   <style>
     :root{
@@ -185,7 +195,6 @@
     @keyframes loaderFloat{0%,100%{ transform:translateY(0) scale(1);}50%{ transform:translateY(-3px) scale(1.03);}}
     @keyframes loaderPulse{0%{ opacity:.88;}50%{ opacity:1;}100%{ opacity:.9;}}
 
-
     /* ===== 운영계 기준: 인라인 상태 메시지 + 비밀번호 보안 UI ===== */
     .inline-check{
       margin-top:6px;
@@ -220,7 +229,6 @@
     .strength-text.medium{color:#b45309}
     .strength-text.strong{color:var(--success)}
     @media (max-width: 560px){.inline-2{grid-template-columns:1fr}}
-
 
     .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:10001;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
     .app-alert.show{display:flex}
