@@ -1259,6 +1259,96 @@ body.gnb-open .bottom-nav{
   border:1px solid #bfdbfe;
 }
 
+  
+/* ===== TOP 5 고급 효과: 1~3위 숫자 강조 / TOP1 애니메이션 / 순위 변동 ===== */
+.popular-score{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:3px;
+  min-width:48px;
+}
+.popular-score strong{
+  font-weight:1000;
+  letter-spacing:-.03em;
+  line-height:1;
+  transition:transform .18s ease;
+}
+.popular-score span{
+  font-size:11px;
+  font-weight:800;
+  color:#64748b;
+}
+.popular-item.rank-1{
+  animation:topOneFloat 2.8s ease-in-out infinite;
+}
+.popular-item.rank-1 .popular-score strong{
+  font-size:30px;
+  color:#b45309;
+  text-shadow:0 3px 10px rgba(251,191,36,.45);
+}
+.popular-item.rank-2 .popular-score strong{
+  font-size:25px;
+  color:#475569;
+  text-shadow:0 2px 8px rgba(148,163,184,.35);
+}
+.popular-item.rank-3 .popular-score strong{
+  font-size:23px;
+  color:#92400e;
+  text-shadow:0 2px 8px rgba(180,83,9,.30);
+}
+.popular-item.rank-4 .popular-score strong,
+.popular-item.rank-5 .popular-score strong{
+  font-size:20px;
+  color:#0f172a;
+}
+.popular-score.bump strong{
+  animation:popularCountBump .42s ease both;
+}
+.popular-trend{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  height:21px;
+  padding:0 7px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+  border:1px solid transparent;
+}
+.popular-trend.up{
+  background:#ecfdf5;
+  border-color:#bbf7d0;
+  color:#15803d;
+}
+.popular-trend.down{
+  background:#fff1f2;
+  border-color:#fecdd3;
+  color:#be123c;
+}
+.popular-trend.same{
+  background:#f8fafc;
+  border-color:#e2e8f0;
+  color:#64748b;
+}
+@keyframes topOneFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-3px) scale(1.006)}
+}
+@keyframes popularCountBump{
+  0%{transform:scale(.82);opacity:.55}
+  60%{transform:scale(1.14);opacity:1}
+  100%{transform:scale(1)}
+}
+@media (prefers-reduced-motion: reduce){
+  .popular-item.rank-1,
+  .popular-score.bump strong{
+    animation:none;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -4077,6 +4167,77 @@ function getShareTrackingParams(){
       const match = String(raw).match(/(?:등록일\s*)?(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.?)/);
       return match ? match[1].trim() : '';
     }
+
+    const POPULAR_RANK_SNAPSHOT_KEY = 'myhills_popular_rank_snapshot_v1';
+
+    function getPopularItemKey(item = {}){
+      return String(item.id || item.docId || item.name || item.title || '').trim();
+    }
+
+    function getPopularPreviousRankMap(){
+      try{
+        const raw = localStorage.getItem(POPULAR_RANK_SNAPSHOT_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        const map = {};
+        if(Array.isArray(list)){
+          list.forEach((entry) => {
+            if(entry && entry.key) map[entry.key] = Number(entry.rank || 0);
+          });
+        }
+        return map;
+      }catch(_){
+        return {};
+      }
+    }
+
+    function savePopularRankSnapshot(items = []){
+      try{
+        const snapshot = items.slice(0, 5).map((item, index) => ({
+          key: getPopularItemKey(item),
+          rank: index + 1
+        })).filter(v => v.key);
+        localStorage.setItem(POPULAR_RANK_SNAPSHOT_KEY, JSON.stringify(snapshot));
+      }catch(error){
+        console.warn('인기 순위 스냅샷 저장 실패', error);
+      }
+    }
+
+    function getPopularTrendHtml(item = {}, rank = 0, previousRankMap = {}){
+      const key = getPopularItemKey(item);
+      const prev = key ? Number(previousRankMap[key] || 0) : 0;
+
+      if(!prev) return '<span class="popular-trend same">NEW</span>';
+      if(prev > rank) return `<span class="popular-trend up">▲ ${prev - rank}</span>`;
+      if(prev < rank) return `<span class="popular-trend down">▼ ${rank - prev}</span>`;
+      return '<span class="popular-trend same">━</span>';
+    }
+
+    function animatePopularCounts(){
+      const els = document.querySelectorAll('.popular-count[data-count]');
+      els.forEach((el) => {
+        const target = Math.max(0, Number(el.dataset.count || 0));
+        const duration = 720;
+        const startTime = performance.now();
+        const parent = el.closest('.popular-score');
+        if(parent) parent.classList.add('bump');
+
+        function tick(now){
+          const progress = Math.min(1, (now - startTime) / duration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = String(Math.round(target * eased));
+          if(progress < 1){
+            requestAnimationFrame(tick);
+          }else{
+            el.textContent = String(target);
+            if(parent) setTimeout(() => parent.classList.remove('bump'), 280);
+          }
+        }
+
+        requestAnimationFrame(tick);
+      });
+    }
+
+
 
 
     function renderPopularDateHtml(item = {}){
