@@ -49,9 +49,9 @@
     <h1>404</h1>
     <p>요청하신 페이지를 찾을 수 없습니다.</p>
     <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
-	  <button onclick="location.href='/app.html'">홈</button>
-	  <button onclick="location.href='/app.html#benefits'">혜택</button>
-	  <button onclick="location.href='/app.html#top5'">TOP5</button>
+	  <button onclick="location.href='/app'">홈</button>
+	  <button onclick="location.href='/app#benefits'">혜택</button>
+	  <button onclick="location.href='/app#top5'">TOP5</button>
 	</div>
   </div>
 
@@ -79,9 +79,9 @@
 		const user = JSON.parse(localStorage.getItem("loginUser") || "null");
 
 		if (user) {
-		  location.replace("/app.html");
+		  location.replace("/app");
 		} else {
-		  location.replace("/index.html");
+		  location.replace("/");
 		}
 	  }
 
