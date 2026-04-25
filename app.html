@@ -1737,19 +1737,47 @@ body.gnb-open .bottom-nav{
 
     /* =========================
        Clean URL Deep Link Router
-       - /notice/{id}  -> 공지 상세
-       - /benefit/{id} -> 혜택 상세
-       - app.html 하나로 처리하는 SPA 라우팅
+       - /app?open=notice&id={id}  -> 공지 상세
+       - /app?open=benefit&id={id} -> 혜택 상세
+       - /notice/{id}, /benefit/{id} 기존 클린 URL도 유지
+       - /share/{type}/{id}는 Vercel Function에서 OG 생성 후 /app?...으로 진입
     ========================= */
     let lastHandledCleanDeepLinkKey = '';
 
+    function normalizeDeepLinkType(type){
+      const value = String(type || '').trim().toLowerCase();
+      if(value === 'benefit' || value === 'benefits') return 'benefit';
+      if(value === 'notice' || value === 'notices') return 'notice';
+      return '';
+    }
+
     function parseCleanDeepLink(){
+      // 1) Vercel OG 공유 링크가 리다이렉트하는 쿼리형 딥링크
+      //    /app?open=benefit&id=문서ID&from=share
+      //    /app?open=notice&id=문서ID&from=share
+      try{
+        const params = new URLSearchParams(location.search || '');
+        const queryType = normalizeDeepLinkType(params.get('open'));
+        const queryId = String(params.get('id') || '').trim();
+        if(queryType && queryId){
+          return {
+            type: queryType,
+            id: decodeURIComponent(queryId),
+            mode: 'query'
+          };
+        }
+      }catch(_){ }
+
+      // 2) 기존 클린 URL 딥링크
+      //    /notice/{id}, /benefit/{id}
       const parts = String(location.pathname || '').split('/').filter(Boolean);
-      if(parts.length >= 2 && parts[0] === 'notice'){
-        return { type:'notice', id:decodeURIComponent(parts[1] || '') };
-      }
-      if(parts.length >= 2 && parts[0] === 'benefit'){
-        return { type:'benefit', id:decodeURIComponent(parts[1] || '') };
+      const pathType = normalizeDeepLinkType(parts[0]);
+      if(parts.length >= 2 && pathType){
+        return {
+          type: pathType,
+          id: decodeURIComponent(parts[1] || ''),
+          mode: 'path'
+        };
       }
       return null;
     }
@@ -1779,6 +1807,8 @@ body.gnb-open .bottom-nav{
     function clearCleanDeepLinkUrl({ replace=true } = {}){
       const deepLink = parseCleanDeepLink();
       if(!deepLink) return;
+      // 공유/딥링크 진입 후 모달을 닫으면 /app?open=... 또는 /benefit/...을
+      // 앱 기본 주소로 정리해서 뒤로가기 재오픈을 방지합니다.
       setCleanUrl(getCleanAppPath(), { replace });
     }
 
@@ -3395,7 +3425,10 @@ function getShareBaseOrigin(){
     }
 
     function getShareUrl(type, id, params = {}){
-      const url = new URL(`${getShareBaseOrigin()}/${type}/${encodeURIComponent(String(id || ''))}`);
+      const shareType = normalizeDeepLinkType(type) || String(type || '').trim();
+      // 카카오 크롤러가 JS 실행 전 OG 태그를 읽을 수 있도록
+      // 정적 app 경로가 아니라 Vercel Function 라우트(/share/...)를 공유합니다.
+      const url = new URL(`${getShareBaseOrigin()}/share/${shareType}/${encodeURIComponent(String(id || ''))}`);
 
       Object.entries(params || {}).forEach(([key, value]) => {
         if(value !== undefined && value !== null && String(value) !== ''){
