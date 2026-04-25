@@ -4032,52 +4032,93 @@ function getShareTrackingParams(){
         }
       }
     }
+	
+	function getPopularTrendClass(currentRank, previousRank) {
+	  if (!previousRank) return 'same';
+	  if (currentRank < previousRank) return 'up';
+	  if (currentRank > previousRank) return 'down';
+	  return 'same';
+	}
+	
+	function getPopularTrendText(currentRank, previousRank) {
+	  if (!previousRank) return 'NEW';
+	  if (currentRank < previousRank) return `▲ ${previousRank - currentRank}`;
+	  if (currentRank > previousRank) return `▼ ${currentRank - previousRank}`;
+	  return '―';
+	}
 
-    function calcPopularScoreFromStats(data = {}){
-      const detailViewCount = Number(data.detailViewCount || 0);
-      const cardClickCount = Number(data.cardClickCount || 0);
-      const favoriteCount = Number(data.favoriteCount || 0);
-      const shareClickCount = Number(data.shareClickCount || 0);
-      const savedScore = Number(data.popularScore || 0);
-      const calculatedScore = detailViewCount + cardClickCount + (favoriteCount * 3) + (shareClickCount * 5);
-      return Math.max(savedScore, calculatedScore);
-    }
 
-    function subscribePopularStats(){
-      onSnapshot(collection(db, BENEFIT_STATS_COLLECTION), (snapshot) => {
-        state.popularItems = snapshot.docs.map((d) => {
-          const data = d.data() || {};
-          const benefit = state.benefits.find((item) => item.id === d.id);
-          const score = calcPopularScoreFromStats(data);
-          return {
-            id: d.id,
-            name: data.name || benefit?.name || '이름 없는 매장',
-            category: benefit?.category || '기타',
-            condition: benefit?.condition || '',
-            createdAt: benefit?.createdAt || null,
-            updatedAt: benefit?.updatedAt || null,
-            score,
-            detailViewCount: Number(data.detailViewCount || 0),
-            cardClickCount: Number(data.cardClickCount || 0),
-            favoriteCount: Number(data.favoriteCount || 0),
-            shareClickCount: Number(data.shareClickCount || 0),
-            benefit: benefit || null
-          };
-        })
-        .filter((item) => item.score > 0)
-        .sort((a,b) => (b.score - a.score) || String(a.name || '').localeCompare(String(b.name || ''),'ko'))
-        .slice(0, 5);
+    function calcPopularScoreFromStats(data = {}) {
+	  const detailViewCount = Number(data.detailViewCount || 0);
+	  const clickCount = Number(data.clickCount || 0);
+	  const favoriteCount = Number(data.favoriteCount || 0);
+	  const shareClickCount = Number(data.shareClickCount || 0);
 
-        renderPopularTop5();
-        markInitialDataLoaded('popular');
-      }, () => {
-        const wrap = qs('#popularList');
-        if (wrap) {
-          wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
-        }
-        markInitialDataLoaded('popular');
-      });
-    }
+	  return detailViewCount + clickCount + favoriteCount * 3 + shareClickCount * 5;
+	}
+
+    function subscribePopularStats() {
+	  const popularQuery = query(
+		collection(db, BENEFIT_STATS_COLLECTION),
+		orderBy('detailViewCount', 'desc'),
+		limit(30)
+	  );
+
+	  onSnapshot(popularQuery, (snapshot) => {
+		const previousRanks = new Map(
+		  (state.popularItems || []).map((item, index) => [item.id, index + 1])
+		);
+
+		const rankedItems = snapshot.docs.map((d) => {
+		  const data = d.data() || {};
+		  const benefit = state.benefits.find((item) => item.id === d.id);
+		  const popularScore = calcPopularScoreFromStats(data);
+
+		  return {
+			id: d.id,
+			name: data.name || benefit?.name || '이름 없는 매장',
+			category: benefit?.category || '기타',
+			condition: benefit?.condition || '',
+			createdAt: benefit?.createdAt || null,
+			updatedAt: benefit?.updatedAt || null,
+
+			detailViewCount: Number(data.detailViewCount || 0),
+			clickCount: Number(data.clickCount || 0),
+			favoriteCount: Number(data.favoriteCount || 0),
+			shareClickCount: Number(data.shareClickCount || 0),
+
+			score: popularScore,
+			popularScore,
+			benefit: benefit || null
+		  };
+		})
+		.filter((item) => item.popularScore > 0)
+		.sort((a, b) => b.popularScore - a.popularScore)
+		.slice(0, 5)
+		.map((item, index) => {
+		  const currentRank = index + 1;
+		  const previousRank = previousRanks.get(item.id);
+
+		  return {
+			...item,
+			rank: currentRank,
+			previousRank,
+			trendClass: getPopularTrendClass(currentRank, previousRank),
+			trendText: getPopularTrendText(currentRank, previousRank)
+		  };
+		});
+
+		state.popularItems = rankedItems;
+		renderPopularTop5();
+		markInitialDataLoaded('popular');
+	  }, () => {
+		const wrap = qs('#popularList');
+		if (wrap) {
+		  wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
+		}
+		markInitialDataLoaded('popular');
+	  });
+	}
 
     function getRankBadge(rank){
       if(rank === 1) return '<div class="popular-rank medal gold" aria-label="1위">🥇</div>';
