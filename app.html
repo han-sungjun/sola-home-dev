@@ -2894,7 +2894,6 @@ function getShareTrackingParams(){
       const cardShareUrl = getShareButtonUrl(type, item.id, 'card', shareId);
       const webShareUrl = getShareButtonUrl(type, item.id, 'web', shareId);
       const appShareUrl = getShareButtonUrl(type, item.id, 'app', shareId);
-      const kakaoPcSafeUrl = getKakaoPcSafeAppUrl();
 
       const title = buildKakaoShareTitle(type, item);
       const description = buildKakaoShareDescription(type, item);
@@ -2913,44 +2912,43 @@ function getShareTrackingParams(){
           cardShareUrl,
           webShareUrl,
           appShareUrl,
-          kakaoPcSafeUrl,
-          note: '카카오톡 카드/버튼 URL은 PC 버튼 활성화를 위해 /app 고정 URL로 전송'
+          note: '제품 링크 관리 도메인 등록 완료 기준: 카카오 카드/버튼 URL을 실제 상세 딥링크로 전송'
         });
 
         Kakao.Share.sendDefault({
-		  objectType: 'feed',
-		  content: {
-			title: title,
-			description: description,
-			imageUrl: imageUrl,
-			link: {
-			  // [내 애플리케이션] > [플랫폼] 에서 등록한 사이트 도메인과 일치해야 함
-			  mobileWebUrl: kakaoPcSafeUrl,
-			  webUrl: kakaoPcSafeUrl,
-			},
-		  },
-		  social: {
-			likeCount: sharedCount,
-			commentCount: sharedCount,
-			sharedCount: sharedCount,
-		  },
-		  buttons: [
-			{
-			  title: '웹으로 보기',
-			  link: {
-				mobileWebUrl: kakaoPcSafeUrl,
-				webUrl: kakaoPcSafeUrl,
-			  },
-			},
-			{
-			  title: '앱으로 보기',
-			  link: {
-				mobileWebUrl: kakaoPcSafeUrl,
-				webUrl: kakaoPcSafeUrl,
-			  },
-			},
-		  ],
-		});
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: {
+              // [제품 링크 관리] 및 [JavaScript SDK 도메인]에 등록된 도메인과 일치해야 합니다.
+              mobileWebUrl: cardShareUrl,
+              webUrl: cardShareUrl
+            }
+          },
+          social: {
+            likeCount: sharedCount,
+            commentCount: sharedCount,
+            sharedCount: sharedCount
+          },
+          buttons: [
+            {
+              title: '웹으로 보기',
+              link: {
+                mobileWebUrl: webShareUrl,
+                webUrl: webShareUrl
+              }
+            },
+            {
+              title: '앱으로 보기',
+              link: {
+                mobileWebUrl: appShareUrl,
+                webUrl: appShareUrl
+              }
+            }
+          ]
+        });
       }catch(error){
         console.warn('카카오 공유 실패', error);
         await copyShareUrl(type, item);
