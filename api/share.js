@@ -31,7 +31,7 @@ function normalizeType(type) {
 
 function getCollectionName(type) {
   if (type === "benefit") return "benefits";
-  if (type === "notice") return "announcements";
+  if (type === "notice") return "notices";
   return "";
 }
 
