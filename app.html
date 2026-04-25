@@ -1458,6 +1458,38 @@ body.gnb-open .bottom-nav{
   }
 }
 
+  
+/* ===== TOP 1: TOP 1 표시를 BEST로 변경하고 메달 아래 정렬 ===== */
+.popular-item.rank-1::after{
+  content:"BEST";
+  top:58px;
+  left:14px;
+  right:auto;
+  min-width:44px;
+  height:22px;
+  padding:0 8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#92400e;
+  color:#fff;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 8px 18px rgba(146,64,14,.18);
+}
+.popular-item.rank-1 .popular-rank{
+  margin-bottom:22px;
+}
+@media (max-width:390px){
+  .popular-item.rank-1::after{
+    top:58px;
+    left:14px;
+    right:auto;
+  }
+}
+
   </style>
 </head>
 <body>
