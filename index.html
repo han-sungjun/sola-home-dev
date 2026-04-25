@@ -644,6 +644,26 @@
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
     const PASSWORD_RESET_LOOKUP_URL = API_URL[ENV].getUserForPasswordReset || '';
 
+    function consumePendingDeepLinkForLogin(){
+      const pending = sessionStorage.getItem('pendingDeepLink');
+      if(!pending) return '';
+      sessionStorage.removeItem('pendingDeepLink');
+
+      try{
+        const url = new URL(pending, location.origin);
+        if(url.origin !== location.origin) return '';
+        if(url.pathname.includes('admin') || url.pathname.includes('sola-admin')) return '';
+        return url.href;
+      }catch(_){
+        return '';
+      }
+    }
+
+    function getPostLoginRedirectUrl(){
+      return consumePendingDeepLinkForLogin() || REDIRECT_AFTER_LOGIN;
+    }
+
+
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
@@ -964,7 +984,7 @@
               replaceWithLoader('./phone-verify.html');
               return;
             }
-            replaceWithLoader(REDIRECT_AFTER_LOGIN);
+            replaceWithLoader(getPostLoginRedirectUrl());
           });
         }
         return { allowed: true, reason: 'approved_active', userData };
@@ -1359,7 +1379,7 @@
             replaceWithLoader('./phone-verify.html');
             return;
           }
-          replaceWithLoader(REDIRECT_AFTER_LOGIN);
+          replaceWithLoader(getPostLoginRedirectUrl());
         }, 80);
       } catch (error) {
         const code = error?.code || '';
