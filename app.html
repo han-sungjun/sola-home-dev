@@ -2887,59 +2887,6 @@ async function refreshPushStatus(){
         console.warn('카카오 공유 실패', error);
         await copyShareUrl(type, item);
       }
-    }){
-      const shareUrl = getShareUrl(type, item.id);
-      const title = buildKakaoShareTitle(type, item);
-      const description = buildKakaoShareDescription(type, item);
-      const imageUrl = getItemShareImage(item);
-
-      if(!ensureKakaoReady()){
-        await copyShareUrl(type, item);
-        return;
-      }
-
-      const kakaoLink = {
-        mobileWebUrl: shareUrl,
-        webUrl: shareUrl
-      };
-
-      try{
-        window.Kakao.Share.sendDefault({
-          objectType: 'feed',
-          content: {
-            title,
-            description,
-            imageUrl,
-            link: kakaoLink
-          },
-          itemContent: {
-            profileText: '더운정 마이힐스',
-            titleImageUrl: imageUrl,
-            titleImageText: type === 'notice' ? '공지사항' : '입주민 혜택',
-            titleImageCategory: type === 'notice' ? 'NOTICE' : 'BENEFIT',
-            items: [
-              {
-                item: type === 'notice' ? '구분' : '혜택',
-                itemOp: type === 'notice' ? '공지사항' : compactShareText(item.category || item.condition || '입주민 전용', 18)
-              },
-              {
-                item: '바로가기',
-                itemOp: '앱에서 확인'
-              }
-            ]
-          },
-          buttonTitle: '앱에서 바로 보기',
-          buttons: [
-            {
-              title: '앱에서 바로 보기',
-              link: kakaoLink
-            }
-          ]
-        });
-      }catch(error){
-        console.warn('카카오 공유 실패', error);
-        await copyShareUrl(type, item);
-      }
     }
 
     async function showQrCode(type, item = {}){
