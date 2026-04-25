@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
-  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
   <meta name="robots" content="index,follow">
   <title>더운정 마이힐스</title>
@@ -1026,7 +1026,7 @@ body.gnb-open .bottom-nav{
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { ENV, FIREBASE_CONFIG } from './env-config.js';
+    import { ENV, FIREBASE_CONFIG } from '/env-config.js';
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -3537,10 +3537,10 @@ async function refreshPushStatus(){
     </div>
   </div>
 
-<script type="module">import { saveVisit } from "./tracking.js"; saveVisit("app_main");</script>
+<script type="module">import { saveVisit } from "/tracking.js"; saveVisit("app_main");</script>
 
 <script type="module">
-  import { saveActivity } from './tracking.js';
+  import { saveActivity } from '/tracking.js';
 
   function detectView(target) {
     return target?.dataset?.viewLink
@@ -3572,7 +3572,7 @@ async function refreshPushStatus(){
 </script>
 
 <script type="module">
-  import { mountIdleTimer } from "./tracking.js";
+  import { mountIdleTimer } from "/tracking.js";
 
   window.addEventListener("load", () => {
     mountIdleTimer({
