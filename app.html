@@ -2631,8 +2631,19 @@ async function refreshPushStatus(){
       try{ return new URL(value, location.origin).href; }catch(_){ return ''; }
     }
 
+    function getShareBaseOrigin(){
+      const host = String(location.hostname || '').toLowerCase();
+
+      // 카카오 Developers 도메인 등록값과 공유 링크 origin을 일치시키기 위해
+      // 운영/개발 모두 www 기준으로 고정합니다.
+      if(host.includes('sola-home-dev.kr')) return 'https://www.sola-home-dev.kr';
+      if(host.includes('sola-home.kr')) return 'https://www.sola-home.kr';
+
+      return location.origin;
+    }
+
     function getShareUrl(type, id){
-      return `${location.origin}/${type}/${encodeURIComponent(String(id || ''))}`;
+      return `${getShareBaseOrigin()}/${type}/${encodeURIComponent(String(id || ''))}`;
     }
 
     function getItemShareImage(item = {}){
@@ -2669,12 +2680,67 @@ async function refreshPushStatus(){
       }
     }
 
+    function compactShareText(value = '', max = 80){
+      const text = String(value || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if(!text) return '';
+      return text.length > max ? `${text.slice(0, max).trim()}…` : text;
+    }
+
+    function buildKakaoShareTitle(type, item = {}){
+      if(type === 'notice'){
+        return `[공지 안내] ${compactShareText(item.title || '더운정 마이힐스 공지', 34)}`;
+      }
+
+      return `[입주민 혜택] ${compactShareText(item.name || item.title || '더운정 마이힐스 혜택', 34)}`;
+    }
+
+    function buildKakaoShareDescription(type, item = {}){
+      if(type === 'notice'){
+        const body =
+          compactShareText(item.summary || item.content || item.description || item.body || '', 76) ||
+          '입주민 전용 공지사항을 확인해 주세요.';
+
+        return [
+          body,
+          '더운정 마이힐스에서 자세히 보기'
+        ].join('\n');
+      }
+
+      const benefitLine =
+        compactShareText(
+          item.benefit ||
+          item.discount ||
+          item.condition ||
+          item.description ||
+          item.summary ||
+          item.content ||
+          '',
+          54
+        );
+
+      const categoryLine = compactShareText(item.category || item.type || '', 20);
+      const locationLine = compactShareText(item.address || item.location || item.place || '', 36);
+
+      const lines = [];
+
+      if(benefitLine) lines.push(`✅ ${benefitLine}`);
+      if(categoryLine) lines.push(`🏷️ ${categoryLine}`);
+      if(locationLine) lines.push(`📍 ${locationLine}`);
+
+      lines.push('더운정 마이힐스 입주민 전용 혜택');
+
+      return lines.join('\n');
+    }
+
     async function shareKakaoItem(type, item = {}){
       const shareUrl = getShareUrl(type, item.id);
-      const title = type === 'notice'
-        ? (item.title || '더운정 마이힐스 공지')
-        : (item.name || '더운정 마이힐스 혜택');
-      const description = getShareDescription(type, item);
+      const title = buildKakaoShareTitle(type, item);
+      const description = buildKakaoShareDescription(type, item);
+      const imageUrl = getItemShareImage(item);
 
       if(!ensureKakaoReady()){
         await copyShareUrl(type, item);
@@ -2687,17 +2753,83 @@ async function refreshPushStatus(){
       };
 
       try{
-        /*
-          카카오톡 일부 환경에서 feed 카드 본문/버튼 클릭이 약하게 동작하는 경우가 있어
-          URL이 메시지 본문에 직접 노출되는 text 템플릿으로 전환합니다.
-          - 클릭 가능 URL이 카톡 말풍선에 직접 표시됨
-          - link도 함께 전달되어 버튼/본문 링크가 모두 동일 URL로 이동
-        */
         window.Kakao.Share.sendDefault({
-          objectType: 'text',
-          text: `${title}\n${description}\n\n${shareUrl}`,
-          link: kakaoLink,
-          buttonTitle: '앱에서 바로 보기'
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: kakaoLink
+          },
+          itemContent: {
+            profileText: '더운정 마이힐스',
+            titleImageUrl: imageUrl,
+            titleImageText: type === 'notice' ? '공지사항' : '입주민 혜택',
+            titleImageCategory: type === 'notice' ? 'NOTICE' : 'BENEFIT',
+            items: [
+              {
+                item: type === 'notice' ? '구분' : '혜택',
+                itemOp: type === 'notice' ? '공지사항' : compactShareText(item.category || item.condition || '입주민 전용', 18)
+              },
+              {
+                item: '바로가기',
+                itemOp: '앱에서 확인'
+              }
+            ]
+          },
+          buttonTitle: '앱에서 바로 보기',
+          buttons: [
+            {
+              title: '앱에서 바로 보기',
+              link: kakaoLink
+            }
+          ]
+        });
+      }catch(error){
+        console.warn('카카오 공유 실패', error);
+        await copyShareUrl(type, item);
+      }
+    }){
+      const shareUrl = getShareUrl(type, item.id);
+      const title = type === 'notice'
+        ? (item.title || '더운정 마이힐스 공지')
+        : (item.name || '더운정 마이힐스 혜택');
+      const description = getShareDescription(type, item);
+      const imageUrl = getItemShareImage(item);
+
+      if(!ensureKakaoReady()){
+        await copyShareUrl(type, item);
+        return;
+      }
+
+      const kakaoLink = {
+        mobileWebUrl: shareUrl,
+        webUrl: shareUrl
+      };
+
+      try{
+        window.Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title,
+            description,
+            imageUrl,
+            link: kakaoLink
+          },
+
+          // 일부 카카오톡 환경에서 카드 본문 클릭이 약하게 동작할 수 있어
+          // 기본 버튼명과 명시적 버튼 링크를 함께 넣어 클릭 영역을 확실히 확보합니다.
+          buttonTitle: '바로 열기',
+          buttons: [
+            {
+              title: '바로 열기',
+              link: kakaoLink
+            },
+            {
+              title: '링크 복사',
+              link: kakaoLink
+            }
+          ]
         });
       }catch(error){
         console.warn('카카오 공유 실패', error);
