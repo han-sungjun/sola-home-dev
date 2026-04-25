@@ -3174,8 +3174,8 @@ function getShareTrackingParams(){
       if(window.QRCode && typeof window.QRCode.toCanvas === 'function') return Promise.resolve(window.QRCode);
 
       const sources = [
-        'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
-        'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js'
+        'https://unpkg.com/qrcode@1.5.1/build/qrcode.min.js',
+        'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js'
       ];
 
       return new Promise((resolve, reject) => {
