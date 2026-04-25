@@ -1137,6 +1137,59 @@ body.gnb-open .bottom-nav{
 .popular-score strong{font-size:20px;font-weight:1000;}
 .popular-score span{font-size:11px;}
 
+  
+/* ===== TOP 5 문단형 가독성 개선 ===== */
+.popular-item{
+  position:relative;
+}
+.popular-copy-block{
+  display:grid;
+  gap:6px;
+  margin-top:2px;
+}
+.popular-category-line,
+.popular-benefit-line,
+.popular-date-line{
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+  min-width:0;
+  font-size:12px;
+  line-height:1.5;
+  color:#475569;
+}
+.popular-category-line::before{content:"🏷️"; flex:0 0 auto;}
+.popular-benefit-line::before{content:"🎁"; flex:0 0 auto;}
+.popular-date-line::before{content:"🗓️"; flex:0 0 auto;}
+.popular-copy-block .label{
+  flex:0 0 auto;
+  font-weight:900;
+  color:#334155;
+}
+.popular-copy-block .value{
+  min-width:0;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.popular-sub{
+  display:block;
+  -webkit-line-clamp:unset;
+  overflow:visible;
+}
+@media (max-width:390px){
+  .popular-item{
+    gap:10px;
+  }
+  .popular-score{
+    min-width:40px;
+  }
+  .popular-category-line,
+  .popular-benefit-line,
+  .popular-date-line{
+    font-size:11px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -3792,6 +3845,31 @@ function getShareTrackingParams(){
         qs('#shareInsightUpdatedText') && (qs('#shareInsightUpdatedText').textContent = '집계 실패');
       }
     }
+
+    function parsePopularTextParts(item = {}){
+      const category = item.category || item.type || item.group || '기타';
+      const rawBenefit = String(item.condition || item.description || item.desc || item.benefit || item.subtitle || '').trim();
+      const registeredAt = item.createdAtText || item.createdDate || item.registeredAtText || item.dateText || '';
+
+      return {
+        category: category || '기타',
+        benefit: rawBenefit || '혜택 조건은 상세보기에서 확인해 주세요.',
+        date: registeredAt || '등록일 정보 없음'
+      };
+    }
+
+    function popularCopyBlockHtml(item = {}){
+      const parts = parsePopularTextParts(item);
+      return `
+        <div class="popular-copy-block">
+          <div class="popular-category-line"><span class="label">분류</span><span class="value">${escapeHtml(parts.category)}</span></div>
+          <div class="popular-benefit-line"><span class="label">혜택</span><span class="value">${escapeHtml(parts.benefit)}</span></div>
+          <div class="popular-date-line"><span class="label">등록일</span><span class="value">${escapeHtml(parts.date)}</span></div>
+        </div>
+      `;
+    }
+
+
 
 
     function renderPopularTop5(){
