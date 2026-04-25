@@ -2882,6 +2882,48 @@ function getShareTrackingParams(){
       return lines.join('\n');
     }
 
+    // 카카오 공식 demo(message/kakaolink?method=send) 방식:
+    // 이미 화면에 있는 버튼을 클릭하면 shareMessage()에서 Kakao.Share.sendDefault()를 직접 호출합니다.
+    function shareMessage({ title, description, imageUrl, cardShareUrl, webShareUrl, appShareUrl, sharedCount = 0 }){
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: title,
+          description: description,
+          imageUrl: imageUrl,
+          link: {
+            // [내 애플리케이션] > [플랫폼] 에서 등록한 사이트 도메인과 일치해야 함
+            mobileWebUrl: cardShareUrl,
+            webUrl: cardShareUrl,
+          },
+        },
+        social: {
+          likeCount: Number(sharedCount || 0),
+          commentCount: Number(sharedCount || 0),
+          sharedCount: Number(sharedCount || 0),
+        },
+        buttons: [
+          {
+            title: '웹으로 보기',
+            link: {
+              mobileWebUrl: webShareUrl,
+              webUrl: webShareUrl,
+            },
+          },
+          {
+            title: '앱으로 보기',
+            link: {
+              mobileWebUrl: appShareUrl,
+              webUrl: appShareUrl,
+            },
+          },
+        ],
+      });
+    }
+
+    // 디버깅용: 콘솔에서 window.shareMessage({...})로도 호출 가능하게 둡니다.
+    window.shareMessage = shareMessage;
+
     async function shareKakaoItem(type, item = {}){
       const shareId = createShareId();
       const cardShareUrl = getShareButtonUrl(type, item.id, 'card', shareId);
@@ -2899,48 +2941,24 @@ function getShareTrackingParams(){
       }
 
       try{
-        await writeShareActionLog('kakao_share_open', type, item, {
+        await writeShareActionLog('kakao_share_button_click', type, item, {
           shareId,
           channel: 'kakao',
+          method: 'sendDefault',
           cardShareUrl,
           webShareUrl,
           appShareUrl
         });
 
-        Kakao.Share.sendDefault({
-		  objectType: 'feed',
-		  content: {
-			title: title,
-			description: description,
-			imageUrl: imageUrl,
-			link: {
-			  // [내 애플리케이션] > [플랫폼] 에서 등록한 사이트 도메인과 일치해야 함
-			  mobileWebUrl: cardShareUrl,
-			  webUrl: cardShareUrl,
-			},
-		  },
-		  social: {
-			likeCount: sharedCount,
-			commentCount: sharedCount,
-			sharedCount: sharedCount,
-		  },
-		  buttons: [
-			{
-			  title: '웹으로 보기',
-			  link: {
-				mobileWebUrl: webShareUrl,
-				webUrl: webShareUrl,
-			  },
-			},
-			{
-			  title: '앱으로 보기',
-			  link: {
-				mobileWebUrl: appShareUrl,
-				webUrl: appShareUrl,
-			  },
-			},
-		  ],
-		});
+        shareMessage({
+          title,
+          description,
+          imageUrl,
+          cardShareUrl,
+          webShareUrl,
+          appShareUrl,
+          sharedCount
+        });
       }catch(error){
         console.warn('카카오 공유 실패', error);
         await copyShareUrl(type, item);
