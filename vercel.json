@@ -29,7 +29,7 @@
       "dest": "/app.html"
     },
 	    {
-      "src": "/notice.html",
+      "src": "/share/notice.html",
       "dest": "/notice.html"
     },
     {
