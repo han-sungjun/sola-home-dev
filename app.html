@@ -1060,6 +1060,120 @@ body.gnb-open .bottom-nav{
         return null;
       }
     }
+
+    /* =========================
+       Clean URL Deep Link Router
+       - /notice/{id}  -> 공지 상세
+       - /benefit/{id} -> 혜택 상세
+       - app.html 하나로 처리하는 SPA 라우팅
+    ========================= */
+    let lastHandledCleanDeepLinkKey = '';
+
+    function parseCleanDeepLink(){
+      const parts = String(location.pathname || '').split('/').filter(Boolean);
+      if(parts.length >= 2 && parts[0] === 'notice'){
+        return { type:'notice', id:decodeURIComponent(parts[1] || '') };
+      }
+      if(parts.length >= 2 && parts[0] === 'benefit'){
+        return { type:'benefit', id:decodeURIComponent(parts[1] || '') };
+      }
+      return null;
+    }
+
+    function getCleanAppPath(){
+      return '/app';
+    }
+
+    function setCleanUrl(path, { replace=false } = {}){
+      try{
+        const nextPath = String(path || getCleanAppPath());
+        const current = `${location.pathname}${location.search}${location.hash}`;
+        if(current === nextPath) return;
+        const method = replace ? 'replaceState' : 'pushState';
+        history[method]({}, '', nextPath);
+      }catch(error){
+        console.warn('URL 상태 변경 실패', error);
+      }
+    }
+
+    function updateCleanDeepLinkUrl(type, id, { replace=false } = {}){
+      const cleanId = String(id || '').trim();
+      if(!type || !cleanId) return;
+      setCleanUrl(`/${type}/${encodeURIComponent(cleanId)}`, { replace });
+    }
+
+    function clearCleanDeepLinkUrl({ replace=true } = {}){
+      const deepLink = parseCleanDeepLink();
+      if(!deepLink) return;
+      setCleanUrl(getCleanAppPath(), { replace });
+    }
+
+    function closeContentModals(){
+      try{ if(qs('#detailModal')?.open) qs('#detailModal').close(); }catch(_){}
+      try{ if(qs('#noticeModal')?.open) qs('#noticeModal').close(); }catch(_){}
+    }
+
+    function handleCleanDeepLink({ force=false } = {}){
+      const deepLink = parseCleanDeepLink();
+      if(!deepLink){
+        if(force) closeContentModals();
+        return false;
+      }
+
+      const key = `${deepLink.type}:${deepLink.id}`;
+      if(!force && lastHandledCleanDeepLinkKey === key) return true;
+
+      if(!canOpenNoticeDeepLink()){
+        sessionStorage.setItem('pendingDeepLink', location.href);
+        redirectToLogin();
+        return false;
+      }
+
+      if(deepLink.type === 'notice'){
+        if(!state.notices || !state.notices.length) return false;
+        const item = state.notices.find((notice) => notice.id === deepLink.id);
+        if(!item){
+          lastHandledCleanDeepLinkKey = key;
+          changeView('notices');
+          setTimeout(() => openModalAlert('존재하지 않는 공지입니다.'), 120);
+          return false;
+        }
+        lastHandledCleanDeepLinkKey = key;
+        changeView('notices');
+        setTimeout(() => {
+          scrollToNoticeCard(item.id);
+          openNotice(item, { skipUrlUpdate:true });
+        }, 160);
+        return true;
+      }
+
+      if(deepLink.type === 'benefit'){
+        if(!state.benefits || !state.benefits.length) return false;
+        const item = state.benefits.find((benefit) => benefit.id === deepLink.id);
+        if(!item){
+          lastHandledCleanDeepLinkKey = key;
+          changeView('benefits');
+          setTimeout(() => openModalAlert('존재하지 않는 혜택입니다.'), 120);
+          return false;
+        }
+        lastHandledCleanDeepLinkKey = key;
+        changeView('benefits');
+        setTimeout(() => openDetail(item, { skipUrlUpdate:true }), 160);
+        return true;
+      }
+
+      return false;
+    }
+
+    window.addEventListener('popstate', () => {
+      lastHandledCleanDeepLinkKey = '';
+      if(!parseCleanDeepLink()){
+        closeContentModals();
+        return;
+      }
+      handleCleanDeepLink({ force:true });
+    });
+
     // 네이버 지도 JavaScript SDK Client ID를 입력하세요. (Dynamic Map / 지도 모드)
     const NAVER_MAP_CLIENT_ID = 'ouflkgfkts';
     let naverMapsLoadPromise = null;
@@ -2389,6 +2503,7 @@ async function refreshPushStatus(){
         if(state.userLocation) recalculateBenefitDistances();
         state.loading = false;
         renderAll();
+        handleCleanDeepLink();
         markInitialDataLoaded('benefits');
       }, () => {
         state.loading = false;
@@ -2430,6 +2545,7 @@ async function refreshPushStatus(){
           });
         renderNotices();
         handlePendingNoticeDeepLink();
+        handleCleanDeepLink();
         markInitialDataLoaded('notices');
       }, (error) => {
         console.error('공지 로드 실패', error);
@@ -2450,7 +2566,9 @@ async function refreshPushStatus(){
       `;
     }
 
-    function openNotice(item){
+    function openNotice(item, options = {}){
+      const { skipUrlUpdate = false } = options;
+      if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('notice', item.id);
       const modal = qs('#noticeModal');
       const dateText = formatDateTime(item.updatedAt || item.createdAt);
       qs('#noticeModalBody').innerHTML = `
@@ -2744,7 +2862,9 @@ async function refreshPushStatus(){
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
-    function openDetail(item){
+    function openDetail(item, options = {}){
+      const { skipUrlUpdate = false } = options;
+      if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('benefit', item.id);
       increaseStat(item.id, item.name, 'detailViewCount');
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
@@ -2764,7 +2884,7 @@ async function refreshPushStatus(){
       qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
     }
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);};
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
@@ -2961,8 +3081,14 @@ async function refreshPushStatus(){
       });
     });
 
-    qs('#closeModal').onclick=()=>qs('#detailModal').close();
-    qs('#closeNoticeModal').onclick=()=>qs('#noticeModal').close();
+    qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
+    qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal').close(); clearCleanDeepLinkUrl({ replace:true });};
+    qs('#detailModal')?.addEventListener('close', () => {
+      if(parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
+    });
+    qs('#noticeModal')?.addEventListener('close', () => {
+      if(parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
+    });
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
     qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
     const chipsEl = qs('#chips');
