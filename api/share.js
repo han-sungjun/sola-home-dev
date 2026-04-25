@@ -1,136 +1,88 @@
-const admin = require("firebase-admin");
+import admin from "firebase-admin";
 
-function initFirebaseAdmin() {
-  if (admin.apps.length) return admin.app();
-
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
-
-  return admin.initializeApp({
+if (!admin.apps.length) {
+  admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey
-    })
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    }),
   });
 }
 
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+const db = admin.firestore();
 
-function normalizeType(type) {
-  if (type === "benefit" || type === "benefits") return "benefit";
-  if (type === "notice" || type === "notices") return "notice";
-  return "";
-}
-
-function getCollectionName(type) {
-  if (type === "benefit") return "benefits";
-  if (type === "notice") return "notices";
-  return "";
-}
-
-function pickImage(data, defaultImage) {
-  return (
-    data.thumbnailUrl ||
-    data.ogImage ||
-    data.imageUrl ||
-    data.mainImageUrl ||
-    data.mapImageUrl ||
-    defaultImage
-  );
-}
-
-function pickTitle(type, data) {
-  return (
-    data.ogTitle ||
-    data.title ||
-    data.name ||
-    data.storeName ||
-    (type === "notice" ? "더운정 마이힐스 공지" : "더운정 마이힐스 입주민 혜택")
-  );
-}
-
-function pickDescription(type, data) {
-  return (
-    data.ogDescription ||
-    data.summary ||
-    data.description ||
-    data.content ||
-    (type === "notice"
-      ? "힐스테이트 더 운정 입주민 공지입니다."
-      : "힐스테이트 더 운정 입주민 전용 혜택입니다.")
-  );
-}
-
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   try {
-    initFirebaseAdmin();
+    const { id } = req.query;
 
-    const type = normalizeType(req.query.type);
-    const id = req.query.id;
-
-    const appUrl = process.env.PUBLIC_APP_URL || "https://www.sola-home.kr";
-    const defaultImage = process.env.DEFAULT_OG_IMAGE || `${appUrl}/icons/icon-512.png`;
-
-    if (!type || !id) {
-      res.status(400).send("Invalid share link");
-      return;
+    if (!id) {
+      return res.status(400).send("Invalid request");
     }
 
-    const collectionName = getCollectionName(type);
-    const snap = await admin.firestore().collection(collectionName).doc(id).get();
+    // 1️⃣ Firestore 데이터 조회
+    const docRef = db.collection("benefits").doc(id);
+    const snap = await docRef.get();
 
     if (!snap.exists) {
-      res.status(404).send("Not found");
-      return;
+      return res.status(404).send("Not found");
     }
 
-    const data = snap.data() || {};
+    const data = snap.data();
 
-    const title = escapeHtml(pickTitle(type, data));
-    const description = escapeHtml(pickDescription(type, data).slice(0, 120));
-    const imageUrl = escapeHtml(pickImage(data, defaultImage));
+    // 2️⃣ 공유 클릭 로그 저장 (핵심)
+    await db.collection("share_logs").add({
+      benefitId: id,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      ua: req.headers["user-agent"] || "",
+      referer: req.headers["referer"] || "",
+    });
 
-    const shareUrl = `${appUrl}/share/${type}/${encodeURIComponent(id)}`;
-    const deepLinkUrl = `${appUrl}/app?open=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}&from=share`;
+    // 3️⃣ OG 이미지 구성
+    const title = data.name || "입주민 혜택";
+    const desc = data.condition || "입주민 전용 혜택을 확인하세요";
+    const image =
+      data.image ||
+      process.env.DEFAULT_OG_IMAGE ||
+      "https://www.sola-home-dev.kr/icons/icon-512.png";
 
-    const html = `<!doctype html>
+    const appUrl = process.env.PUBLIC_APP_URL;
+
+    // 핵심: .html 제거한 딥링크
+    const deepLink = `${appUrl}/app?open=benefit&id=${id}&from=share`;
+
+    // HTML 반환 (OG 전용)
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    return res.status(200).send(`
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <title>${title}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="더운정 마이힐스" />
-  <meta property="og:title" content="${title}" />
-  <meta property="og:description" content="${description}" />
-  <meta property="og:image" content="${imageUrl}" />
-  <meta property="og:url" content="${shareUrl}" />
+<title>${title}</title>
 
-  <meta name="twitter:card" content="summary_large_image" />
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="${title}"/>
+<meta property="og:description" content="${desc}"/>
+<meta property="og:image" content="${image}"/>
+<meta property="og:url" content="${appUrl}/share/benefit/${id}"/>
 
-  <script>
-    location.replace(${JSON.stringify(deepLinkUrl)});
-  </script>
+<meta name="twitter:card" content="summary_large_image"/>
+
+<script>
+  // 카카오/브라우저 자동 리디렉션
+  window.location.href = "${deepLink}";
+</script>
+
 </head>
 <body>
-  <p>더운정 마이힐스로 이동 중입니다.</p>
-  <p><a href="${deepLinkUrl}">바로 열기</a></p>
+Redirecting...
 </body>
-</html>`;
-
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=86400");
-    res.status(200).send(html);
-  } catch (error) {
-    console.error("[share-og-error]", error);
-    res.status(500).send("Share page error");
+</html>
+    `);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Share page error");
   }
-};
+}
