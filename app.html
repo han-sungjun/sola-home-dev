@@ -2855,19 +2855,39 @@ function getShareTrackingParams(){
       };
 
       try{
-        window.Kakao.Share.sendDefault({
-          objectType: 'feed',
-          content: {
-            title,
-            description,
-            imageUrl,
-            link: kakaoLink
-          },
-
-          // 카카오톡 클라이언트별 버튼 노출 안정성을 위해
-          // buttons 배열 대신 기본 buttonTitle 단일 버튼 구조를 사용합니다.
-          buttonTitle: '앱에서 바로 보기'
-        });
+        Kakao.Share.sendDefault({
+		  objectType: 'feed',
+		  content: {
+			title: shareTitle,
+			description: shareDesc,
+			imageUrl: shareImageUrl,
+			link: {
+			  mobileWebUrl: shareUrl,
+			  webUrl: shareUrl
+			}
+		  },
+		  social: {
+			likeCount: 0,
+			commentCount: 0,
+			sharedCount: 0
+		  },
+		  buttons: [
+			{
+			  title: '웹으로 보기',
+			  link: {
+				mobileWebUrl: shareUrl,
+				webUrl: shareUrl
+			  }
+			},
+			{
+			  title: '앱으로 보기',
+			  link: {
+				mobileWebUrl: shareUrl,
+				webUrl: shareUrl
+			  }
+			}
+		  ]
+		});
       }catch(error){
         console.warn('카카오 공유 실패', error);
         await copyShareUrl(type, item);
