@@ -2884,18 +2884,21 @@ function getShareTrackingParams(){
         });
 
         window.Kakao.Share.createDefaultButton({
+		  container: '#kakaotalk-sharing-btn',
           objectType: 'feed',
           content: {
-            title,
-            description,
-            imageUrl,
+            title: title,
+            description: description,
+            imageUrl: imageUrl,
             link: {
               mobileWebUrl: cardShareUrl,
               webUrl: cardShareUrl
             }
           },
           social: {
-            sharedCount
+            likeCount: sharedCount,
+		    commentCount: sharedCount,
+		    sharedCount: sharedCount,
           },
           buttons: [
             {
