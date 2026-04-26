@@ -804,7 +804,7 @@ body.gnb-open .admin-bottom-nav{
 .member-proof-copy span{color:#64748b;font-size:12px;line-height:1.35}
 .member-reject-box{display:grid;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed #e2e8f0}
 .member-reject-box label{font-size:13px;color:#334155;font-weight:800}
-/* 승인/반려 버튼이 반려 사유 입력창 위로 겹치지 않도록 sticky 해제 */
+/* 회원 처리 버튼이 입력 영역과 겹치지 않도록 sticky 해제 */
 .member-action-sticky{
   position:static;
   display:flex;
@@ -1156,7 +1156,7 @@ body.gnb-open .admin-bottom-nav{
         <div id="adminIdleTimerHost" class="hidden"></div>
       </div>
     </header>
-    <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 관리를 이 화면에서 편리하게 처리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
+    <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 현황을 이 화면에서 편리하게 관리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
     <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
     
     <div class="admin-view active" id="view-dashboard">
@@ -1232,35 +1232,16 @@ body.gnb-open .admin-bottom-nav{
     <div class="admin-view" id="view-members">
       <div class="admin-groups">
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">회원 상태 관리</h3><small id="memberTotalCount">0명</small></div>
-          <div class="notice" style="margin-bottom:12px;">이름, 연락처, 메일, 세대 정보 없이 회원 상태만 관리합니다.</div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">회원 현황</h3><small id="memberTotalCount">0명</small></div>
           <div class="summary-list" id="memberStatusSummary">
-            <div class="summary-row"><div><strong>승인 대기</strong><span>신규 가입 신청</span></div><strong id="countPending">0</strong></div>
-            <div class="summary-row"><div><strong>재신청</strong><span>반려 후 수정 재접수</span></div><strong id="countResubmitted">0</strong></div>
-            <div class="summary-row"><div><strong>승인 완료</strong><span>정상 이용 가능</span></div><strong id="countApproved">0</strong></div>
-            <div class="summary-row"><div><strong>반려</strong><span>수정 요청 필요</span></div><strong id="countRejected">0</strong></div>
+            <div class="summary-row"><div><strong>이용 중</strong><span>정상 이용 가능한 회원</span></div><strong id="countActiveMembers">0</strong></div>
             <div class="summary-row"><div><strong>탈퇴</strong><span>복구 가능 상태</span></div><strong id="countWithdrawn">0</strong></div>
           </div>
         </div>
 
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">승인 대기</h3><small id="pendingListCount">0명</small></div>
-          <div class="mini-list" id="memberPendingList"></div>
-        </div>
-
-        <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">재신청</h3><small id="resubmittedListCount">0명</small></div>
-          <div class="mini-list" id="memberResubmittedList"></div>
-        </div>
-
-        <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">승인 완료</h3><small id="approvedListCount">0명</small></div>
-          <div class="mini-list" id="memberApprovedList"></div>
-        </div>
-
-        <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">반려</h3><small id="rejectedListCount">0명</small></div>
-          <div class="mini-list" id="memberRejectedList"></div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">이용 중인 회원</h3><small id="activeListCount">0명</small></div>
+          <div class="mini-list" id="memberActiveList"></div>
         </div>
 
         <div class="admin-card">
@@ -1923,24 +1904,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       return {
         id,
         uid:item.uid||id,
-        email:item.email||'',
-        name:item.name||'',
         nickname:item.nickname||'',
-        building:item.building||'',
-        unit:item.unit||'',
-        intro:item.intro||'',
         role:item.role||'resident',
-        approvalStatus:item.approvalStatus||'pending',
         accountStatus:item.accountStatus||'active',
-        rejectReason:item.rejectReason||'',
-        residentProofUrl:item.residentProofUrl||'',
         createdAt:item.createdAt||null,
         updatedAt:item.updatedAt||null,
-        approvedAt:item.approvedAt||null,
-        approvedBy:item.approvedBy||'',
-        rejectedAt:item.rejectedAt||null,
-        rejectedBy:item.rejectedBy||'',
-        resubmittedAt:item.resubmittedAt||null,
         withdrawnAt:item.withdrawnAt||null,
         withdrawnBy:item.withdrawnBy||'',
         withdrawReason:item.withdrawReason||'',
@@ -1948,32 +1916,19 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         restoredBy:item.restoredBy||'',
         restoreReason:item.restoreReason||'',
         loginId:item.loginId||'',
-        memberType:item.memberType||'',
-        phoneNumber:item.phoneNumber||'',
-        phoneVerified:item.phoneVerified===true,
-        phoneVerifiedAt:item.phoneVerifiedAt||null,
-        phoneVerificationRequired:item.phoneVerificationRequired!==false
+        memberType:item.memberType||''
       };
     }
-    function getPhoneVerificationTag(member){
-      if(member.phoneVerificationRequired===false){
-        return '<span class="tag phone-exempt">간단 확인</span>';
-      }
-      return member.phoneVerified
-        ? '<span class="tag phone-ok">확인 완료</span>'
-        : '<span class="tag phone-wait">확인 대기</span>';
-    }
+
     function getMemberBuckets(){
-      const buckets={pending:[],resubmitted:[],approved:[],rejected:[],withdrawn:[]};
+      const buckets={active:[],withdrawn:[]};
       state.members.forEach(member=>{
         if(member.accountStatus==='withdrawn'){ buckets.withdrawn.push(member); return; }
-        if(member.approvalStatus==='approved'){ buckets.approved.push(member); return; }
-        if(member.approvalStatus==='rejected'){ buckets.rejected.push(member); return; }
-        if(member.approvalStatus==='resubmitted'){ buckets.resubmitted.push(member); return; }
-        buckets.pending.push(member);
+        buckets.active.push(member);
       });
       return buckets;
     }
+
     function renderMemberGroup(listEl, members, emptyText){
       if(!listEl) return;
       listEl.innerHTML='';
@@ -1984,32 +1939,19 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       members.forEach(member=>{
         const card=document.createElement('div');
         card.className='mini-item member-card';
-        const canReject = member.accountStatus !== 'withdrawn' && member.approvalStatus !== 'rejected';
-        const shouldOpen = member.approvalStatus === 'pending' || member.approvalStatus === 'resubmitted';
+        const isWithdrawn = member.accountStatus === 'withdrawn';
         const statusTags = [];
-        if(member.accountStatus==='withdrawn') statusTags.push('<span class="tag hidden-tag">탈퇴</span>');
-        if(member.approvalStatus==='pending') statusTags.push('<span class="tag">승인 대기</span>');
-        if(member.approvalStatus==='resubmitted') statusTags.push('<span class="tag rec">재신청</span>');
-        if(member.approvalStatus==='approved') statusTags.push('<span class="tag live-tag">승인 완료</span>');
-        if(member.approvalStatus==='rejected') statusTags.push('<span class="tag hidden-tag">반려</span>');
+        statusTags.push(isWithdrawn ? '<span class="tag hidden-tag">탈퇴</span>' : '<span class="tag live-tag">이용 중</span>');
         const displayId = member.loginId || member.nickname || (member.uid ? `회원 ${String(member.uid).slice(0, 6)}` : '회원');
-        const summaryStatus = member.accountStatus === 'withdrawn'
-          ? '탈퇴'
-          : member.approvalStatus === 'approved'
-            ? '승인 완료'
-            : member.approvalStatus === 'rejected'
-              ? '반려'
-              : member.approvalStatus === 'resubmitted'
-                ? '재신청'
-                : '승인 대기';
+        const summaryStatus = isWithdrawn ? '탈퇴' : '이용 중';
 
         card.innerHTML = `
-          <details class="member-accordion" ${shouldOpen ? 'open' : ''}>
+          <details class="member-accordion">
             <summary class="member-summary">
               <div class="member-summary-main">
                 <strong>${displayId}</strong>
                 <span>${summaryStatus}${member.memberType ? ` · ${member.memberType}` : ''}</span>
-                <span>입력 정보 최소화 계정</span>
+                <span>간단 가입 계정</span>
               </div>
               <div class="member-summary-side">
                 <div class="tags">${statusTags.join('')}</div>
@@ -2021,25 +1963,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
               <div class="member-meta">
                 <div class="meta-group">
                   <div class="meta-item"><strong>아이디</strong><span>${member.loginId || '-'}</span></div>
+                  <div class="meta-item"><strong>닉네임</strong><span>${member.nickname || '-'}</span></div>
                   <div class="meta-item"><strong>회원 구분</strong><span>${member.memberType || '-'}</span></div>
-                  <div class="meta-item"><strong>처리 상태</strong><span>${summaryStatus}</span></div>
-                  <div class="meta-item"><strong>신청일</strong><span>${formatTs(member.createdAt)}</span></div>
+                  <div class="meta-item"><strong>이용 상태</strong><span>${summaryStatus}</span></div>
+                  <div class="meta-item"><strong>가입일</strong><span>${formatTs(member.createdAt)}</span></div>
                   <div class="meta-item"><strong>최종 수정</strong><span>${formatTs(member.updatedAt)}</span></div>
                 </div>
-
-                ${member.intro ? `
-                  <div class="meta-section">
-                    <div class="meta-title">소개</div>
-                    <div class="meta-content">${member.intro}</div>
-                  </div>
-                ` : ''}
-
-                ${member.rejectReason ? `
-                  <div class="meta-section">
-                    <div class="meta-title">반려 사유</div>
-                    <div class="meta-content">${member.rejectReason}</div>
-                  </div>
-                ` : ''}
 
                 ${member.withdrawReason ? `
                   <div class="meta-section">
@@ -2049,18 +1978,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
                 ` : ''}
               </div>
 
-              ${canReject ? `
-                <div class="member-reject-box">
-                  <label for="rejectReason-${member.id}">반려 사유</label>
-                  <textarea id="rejectReason-${member.id}" placeholder="반려 처리 시 사유를 입력하세요." data-reject-reason="${member.id}">${member.rejectReason || ''}</textarea>
-                </div>
-              ` : ''}
-
               <div class="member-action-sticky">
-                ${member.accountStatus==='withdrawn' ? `<button class="btn btn-blue" type="button" data-member-action="restore" data-member-id="${member.id}">복구</button>` : ''}
-                ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='approved' ? `<button class="btn btn-blue" type="button" data-member-action="approve" data-member-id="${member.id}">승인</button>` : ''}
-                ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='rejected' ? `<button class="btn btn-danger" type="button" data-member-action="reject" data-member-id="${member.id}">반려</button>` : ''}
-                ${member.accountStatus!=='withdrawn' && member.approvalStatus==='approved' ? `<button class="btn btn-soft" type="button" data-member-action="withdraw" data-member-id="${member.id}">탈퇴 처리</button>` : ''}
+                ${isWithdrawn ? `<button class="btn btn-blue" type="button" data-member-action="restore" data-member-id="${member.id}">복구</button>` : `<button class="btn btn-soft" type="button" data-member-action="withdraw" data-member-id="${member.id}">탈퇴 처리</button>`}
               </div>
             </div>
           </details>
@@ -2068,25 +1987,20 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         listEl.appendChild(card);
       });
     }
+
     function renderMemberLists(){
       const buckets = getMemberBuckets();
+      const activeCount = buckets.active.length;
       qs('#memberTotalCount').textContent = `${state.members.length}명`;
-      qs('#countPending').textContent = String(buckets.pending.length);
-      qs('#countResubmitted').textContent = String(buckets.resubmitted.length);
-      qs('#countApproved').textContent = String(buckets.approved.length);
-      qs('#countRejected').textContent = String(buckets.rejected.length);
-      qs('#countWithdrawn').textContent = String(buckets.withdrawn.length);
-      qs('#pendingListCount').textContent = `${buckets.pending.length}명`;
-      qs('#resubmittedListCount').textContent = `${buckets.resubmitted.length}명`;
-      qs('#approvedListCount').textContent = `${buckets.approved.length}명`;
-      qs('#rejectedListCount').textContent = `${buckets.rejected.length}명`;
-      qs('#withdrawnListCount').textContent = `${buckets.withdrawn.length}명`;
-      renderMemberGroup(qs('#memberPendingList'), buckets.pending, '승인 대기 중인 회원이 없습니다.');
-      renderMemberGroup(qs('#memberResubmittedList'), buckets.resubmitted, '재신청한 회원이 없습니다.');
-      renderMemberGroup(qs('#memberApprovedList'), buckets.approved, '승인 완료된 회원이 없습니다.');
-      renderMemberGroup(qs('#memberRejectedList'), buckets.rejected, '반려된 회원이 없습니다.');
+      const activeCountEl = qs('#countActiveMembers');
+      if(activeCountEl) activeCountEl.textContent = String(activeCount);
+      if(qs('#countWithdrawn')) qs('#countWithdrawn').textContent = String(buckets.withdrawn.length);
+      if(qs('#activeListCount')) qs('#activeListCount').textContent = `${activeCount}명`;
+      if(qs('#withdrawnListCount')) qs('#withdrawnListCount').textContent = `${buckets.withdrawn.length}명`;
+      renderMemberGroup(qs('#memberActiveList'), buckets.active, '이용 중인 회원이 없습니다.');
       renderMemberGroup(qs('#memberWithdrawnList'), buckets.withdrawn, '탈퇴 상태 회원이 없습니다.');
     }
+
     async function updateMemberStatus(memberId, action){
       if(!state.isAdmin || !db){
         await openModalAlert('관리자 로그인 후 처리할 수 있습니다.', qs('#adminLoginId'));
@@ -2095,66 +2009,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
       const member = state.members.find(item => item.id === memberId);
       if(!member) return;
-
       const adminEmail = auth?.currentUser?.email || 'admin';
       const payload = { updatedAt: serverTimestamp() };
       let message = '처리가 완료되었습니다.';
-      let rejectReason = '';
 
-      if(action === 'approve'){
-        const confirmed = await openModalConfirm(
-          `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 승인할까요?`,
-          qs('#view-members'),
-          '회원 승인',
-          '승인',
-          '취소'
-        );
-        if(!confirmed) return;
-
-        Object.assign(payload, {
-          approvalStatus:'approved',
-          accountStatus:'active',
-          approvedAt:serverTimestamp(),
-          approvedBy:adminEmail,
-          rejectReason:'',
-          rejectedAt:null,
-          rejectedBy:'',
-          restoredAt:null,
-          restoredBy:'',
-          restoreReason:''
-        });
-
-        message = '회원 승인이 완료되었습니다. 알림은 서버 트리거에서 자동 발송됩니다.';
-
-      } else if(action === 'reject'){
-        const reasonEl = document.querySelector(`[data-reject-reason="${memberId}"]`);
-        rejectReason = String(reasonEl?.value || '').trim();
-
-        if(!rejectReason){
-          await openModalAlert('반려 사유를 입력해 주세요.', reasonEl || qs('#view-members'));
-          return;
-        }
-
-        const confirmed = await openModalConfirm(
-          `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 반려할까요?`,
-          reasonEl || qs('#view-members'),
-          '회원 반려',
-          '반려',
-          '취소'
-        );
-        if(!confirmed) return;
-
-        Object.assign(payload, {
-          approvalStatus:'rejected',
-          accountStatus:'active',
-          rejectReason,
-          rejectedAt:serverTimestamp(),
-          rejectedBy:adminEmail
-        });
-
-        message = '회원 반려 처리가 완료되었습니다. 알림은 서버 트리거에서 자동 발송됩니다.';
-
-      } else if(action === 'restore'){
+      if(action === 'restore'){
         const confirmed = await openModalConfirm(
           `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 복구할까요?`,
           qs('#view-members'),
@@ -2174,12 +2033,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           withdrawnAt:null,
           withdrawnBy:''
         });
-
-        message = '회원 복구가 완료되었습니다. 알림은 서버 트리거에서 자동 발송됩니다.';
+        message = '회원 복구가 완료되었습니다.';
 
       } else if(action === 'withdraw'){
         const confirmed = await openModalConfirm(
-          `${member.name || member.email} 회원을 탈퇴 상태로 변경할까요?`,
+          `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 탈퇴 상태로 변경할까요?`,
           qs('#view-members'),
           '탈퇴 처리',
           '처리',
@@ -2193,8 +2051,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           withdrawnBy:adminEmail,
           withdrawReason:'관리자 처리'
         });
-
-        message = '회원이 탈퇴 상태로 변경되었습니다. 알림은 서버 트리거에서 자동 발송됩니다.';
+        message = '회원이 탈퇴 상태로 변경되었습니다.';
 
       } else {
         return;
@@ -2574,7 +2431,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
           const role = userData.role || userData.userRole || '';
           const isAdminRole = role === 'admin' || role === 'root' || role === 'superAdmin';
-          const isApproved = userData.approvalStatus === 'approved';
           const isActive = userData.accountStatus === 'active';
 
           if(userData.accountStatus === 'withdrawn'){
@@ -2604,10 +2460,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             return;
           }
 
-          if(!isAdminRole || !isApproved || !isActive){
+          if(!isAdminRole || !isActive){
             await writeSecurityLog('ADMIN_ACCESS_DENIED', {
               role,
-              approvalStatus:userData.approvalStatus || '',
               accountStatus:userData.accountStatus || ''
             });
             qs('#authStatusText').textContent='관리자 권한 없음';
@@ -2795,7 +2650,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
                 <span class="gnb-card-icon members">👥</span>
                 <span class="gnb-card-copy">
                   <strong>회원 관리</strong>
-                  <span>입주민 승인과 계정 확인</span>
+                  <span>입주민 계정 확인</span>
                 </span>
                 <span class="gnb-card-arrow">›</span>
               </span>
@@ -2857,7 +2712,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
               <span class="gnb-card-icon members">👥</span>
               <span class="gnb-card-copy">
                 <strong>회원</strong>
-                <span>가입 승인과 운영 준비 영역</span>
+                <span>간단 가입과 운영 준비 영역</span>
               </span>
               <span class="gnb-card-arrow">›</span>
             </span>

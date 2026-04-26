@@ -364,7 +364,7 @@
 }
 
 
-    .find-links{
+    .find-links{display:none!important;
       display:flex;
       justify-content:flex-end;
       gap:12px;
@@ -497,7 +497,7 @@
       <div class="eyebrow">🏠 입주민 전용 로그인</div>
       <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
       <h1>더운정 마이힐스<br>로그인</h1>
-      <p>입주민 전용 서비스 이용을 위해 로그인해 주세요.</p>
+      <p>아이디와 비밀번호로 간단하게 이용해 주세요.</p>
     </section>
 
     <section class="panel">
@@ -505,7 +505,7 @@
         <div class="logo">🔐</div>
         <div>
           <h2>계정 로그인</h2>
-          <p>입주민 전용 서비스 로그인</p>
+          <p>간단 로그인</p>
         </div>
       </div>
       <form id="loginForm">
@@ -519,7 +519,7 @@
           <input id="password" class="input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" />
         </div>
 <div class="helper">
-          관리자 승인 완료 후 로그인할 수 있습니다.
+          아이디와 비밀번호로 바로 이용할 수 있습니다.
         </div>
 
         <div class="btn-row">
@@ -912,39 +912,23 @@
         console.warn('login_history 저장 실패', error);
       }
     }
-
-
     function formatStatusMessage(userData = {}){
-      const approvalStatus = String(userData.approvalStatus || 'pending');
       const accountStatus = String(userData.accountStatus || 'active');
-      const rejectReason = String(userData.rejectReason || '').trim();
       const withdrawReason = String(userData.withdrawReason || '').trim();
 
       if (accountStatus === 'withdrawn') {
         return withdrawReason
-          ? `탈퇴 처리된 계정입니다.\n사유: ${withdrawReason}\n실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.`
+          ? `탈퇴 처리된 계정입니다.
+사유: ${withdrawReason}
+실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.`
           : '탈퇴 처리된 계정입니다. 실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.';
       }
 
-      if (accountStatus === 'suspended') {
+      if (accountStatus === 'suspended' || accountStatus === 'blocked') {
         return '이용이 제한된 계정입니다. 운영자에게 문의해 주세요.';
       }
 
-      if (approvalStatus === 'pending') {
-        return '회원가입 신청이 접수되었습니다. 관리자가 승인 후 로그인이 가능합니다.';
-      }
-
-      if (approvalStatus === 'resubmitted') {
-        return '수정 후 재신청이 접수되었습니다. 관리자 재검토 후 로그인이 가능합니다.';
-      }
-
-      if (approvalStatus === 'rejected') {
-        return rejectReason
-          ? `가입 신청이 반려되었습니다.\n사유: ${rejectReason}\n내용을 수정한 뒤 다시 신청해 주세요.`
-          : '가입 신청이 반려되었습니다. 내용을 수정한 뒤 다시 신청해 주세요.';
-      }
-
-      return '승인되지 않은 계정입니다. 운영자에게 문의해 주세요.';
+      return '이용 가능한 계정입니다.';
     }
 
     async function getUserProfile(uid=''){
@@ -994,22 +978,18 @@
         }
         return { allowed: false, reason: 'user_profile_not_found', userData: null };
       }
-
-      const approvalStatus = String(userData.approvalStatus || 'pending');
       const accountStatus = String(userData.accountStatus || 'active');
-      const phoneVerificationRequired = false;
-      const phoneVerified = true;
 
-      if (approvalStatus === 'approved' && accountStatus === 'active') {
+      if (accountStatus === 'active') {
         if (shouldRedirectOnApproved) {
           finishLoading(() => {
             replaceWithLoader(getPostLoginRedirectUrl());
           });
         }
-        return { allowed: true, reason: 'approved_active', userData };
+        return { allowed: true, reason: 'active', userData };
       }
 
-      const reason = `approval_${approvalStatus}__account_${accountStatus}`;
+      const reason = `account_${accountStatus}`;
       const message = formatStatusMessage(userData);
 
       await saveLogin({
@@ -1027,7 +1007,7 @@
       await signOut(auth).catch(() => {});
 
       if (showBlockedMessage) {
-        const type = accountStatus === 'withdrawn' || accountStatus === 'suspended' ? 'error' : 'info';
+        const type = accountStatus === 'withdrawn' || accountStatus === 'suspended' || accountStatus === 'blocked' ? 'error' : 'info';
         showNotice(message, type);
         await new Promise(resolve => setTimeout(resolve, 60));
         await openModalAlert(message, loginIdEl);
@@ -1195,60 +1175,12 @@
         phoneNumber: String(data.phoneNumber || '')
       };
     }
-
     async function sendResetEmailByLoginId(loginId=''){
-      const userData = await findUserByLoginId(loginId);
-
-      if (!userData) {
-        return {
-          ok: false,
-          type: 'not_found',
-          message: '입력한 아이디의 회원 정보를 찾을 수 없습니다.\n아이디를 다시 확인해 주세요.'
-        };
-      }
-
-      const email = String(userData.email || '').trim().toLowerCase();
-      const phoneNumber = String(userData.phoneNumber || userData.phone || '').replace(/\D/g, '');
-
-      if (email && isEmailFormat(email)) {
-        await sendPasswordResetEmail(auth, email, {
-          url: `${window.location.origin}/`,
-          handleCodeInApp: false
-        });
-
-        return {
-          ok: true,
-          type: 'email',
-          message: `가입 시 등록한 이메일(${maskEmail(email)})로 비밀번호 재설정 메일을 발송했습니다.\n메일함과 스팸함을 함께 확인해 주세요.`
-        };
-      }
-
-      if (phoneNumber) {
-        const goPhoneReset = await openModalConfirm(
-          `이 계정은 이메일이 등록되어 있지 않습니다.\n등록된 휴대폰(${maskPhone(phoneNumber)}) 인증 후 비밀번호 재설정을 진행하시겠습니까?`,
-          resetPwLoginIdEl,
-          '휴대폰 인증 재설정',
-          '인증 진행',
-          '취소'
-        );
-
-        if (goPhoneReset) {
-          const url = `/phone-verify?mode=reset&loginId=${encodeURIComponent(loginId)}`;
-          startLoading();
-          setTimeout(() => replaceWithLoader(url), 80);
-        }
-
-        return {
-          ok: true,
-          type: 'phone',
-          message: `이메일이 없어 휴대폰 인증 방식으로 안내했습니다.\n등록 휴대폰: ${maskPhone(phoneNumber)}`
-        };
-      }
-
       return {
         ok: false,
-        type: 'no_contact',
-        message: '이 계정에는 이메일과 휴대폰 번호가 등록되어 있지 않습니다.\n관리자에게 본인 확인 후 비밀번호 재설정을 요청해 주세요.'
+        type: 'operator_reset',
+        message: '현재는 이름·연락처 입력 없이 이용하는 구조입니다.
+비밀번호 재설정이 필요한 경우 운영자에게 문의해 주세요.'
       };
     }
 
