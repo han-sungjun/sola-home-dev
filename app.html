@@ -6351,8 +6351,69 @@ function getShareTrackingParams(){
     async function recordCommunityView(kind, postId, commentId=''){ const user=auth.currentUser; if(!user || !postId) return; const day=communityTodayKey(); const id = kind === 'comment' ? 'comment_'+postId+'_'+commentId+'_'+user.uid+'_'+day : 'post_'+postId+'_'+user.uid+'_'+day; try{ await setDoc(doc(db,'community_view_events',id), { kind, postId, commentId:commentId||null, uid:user.uid, day, createdAt:serverTimestamp() }, { merge:false }); }catch(_){ } }
     function commentLikeDocId(postId, commentId, uid){ return uid; }
     async function isCommentLiked(postId, commentId){ const user = auth.currentUser; if(!user) return false; try{ const likeId = commentLikeDocId(postId, commentId, user.uid); const likeSnap = await getDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId, 'likes', likeId)); return likeSnap.exists(); }catch(_){ return false; } }
-    function commentMetaHtml(c={}, liked=false){ const likeCount = Number(c.likeCount || 0); const viewCount = Number(c.viewCount || 0); return `<div class="comment-meta-line"><button class="comment-like-btn ${liked?'liked':''}" type="button" data-community-action="like-comment" data-post-id="${escapeHtml(communityState.currentPostId || '')}" data-comment-id="${escapeHtml(c.id || '')}" aria-label="댓글 좋아요">♥ ${likeCount}</button><span>조회 ${viewCount}</span><span>${formatCommunityDate(c.createdAt)}</span></div>`; }
-    async function toggleCommunityCommentLike(postId, commentId){ const user = auth.currentUser; if(!user) return openModalAlert('로그인이 필요합니다.'); if(!postId || !commentId) return; const likeId = commentLikeDocId(postId, commentId, user.uid); const likeRef = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId, 'likes', likeId); try{ const snap = await getDoc(likeRef); if(snap.exists()){ await deleteDoc(likeRef); }else{ await setDoc(likeRef, { uid:user.uid, postId, commentId, createdAt:serverTimestamp() }); } await loadCommunityComments(postId); }catch(error){ console.error(error); openModalAlert('댓글 좋아요 처리 중 오류가 발생했습니다.'); } }
+    function commentMetaHtml(c={}, liked=false){
+      const rawLikeCount = Number(c.likeCount || 0);
+      // Cloud Function이 likeCount를 갱신하기 전이어도, 내가 이미 누른 좋아요는 즉시 1 이상으로 표시합니다.
+      const likeCount = liked && rawLikeCount < 1 ? 1 : rawLikeCount;
+      const viewCount = Number(c.viewCount || 0);
+      return `<div class="comment-meta-line"><button class="comment-like-btn ${liked?'liked':''}" type="button" data-community-action="like-comment" data-post-id="${escapeHtml(communityState.currentPostId || '')}" data-comment-id="${escapeHtml(c.id || '')}" data-liked="${liked ? 'true' : 'false'}" data-like-count="${likeCount}" aria-label="댓글 좋아요">♥ ${likeCount}</button><span>조회 ${viewCount}</span><span>${formatCommunityDate(c.createdAt)}</span></div>`;
+    }
+    function applyCommentLikeOptimistic(postId, commentId, liked){
+      const btn = document.querySelector(`.comment-like-btn[data-post-id="${CSS.escape(postId)}"][data-comment-id="${CSS.escape(commentId)}"]`);
+      if(!btn) return null;
+      const before = { liked: btn.dataset.liked === 'true', count: Number(btn.dataset.likeCount || 0) };
+      const nextCount = Math.max(0, before.count + (liked ? 1 : -1));
+      btn.dataset.liked = liked ? 'true' : 'false';
+      btn.dataset.likeCount = String(nextCount);
+      btn.classList.toggle('liked', liked);
+      btn.textContent = `♥ ${nextCount}`;
+      btn.disabled = true;
+      btn.style.opacity = '.78';
+      return { btn, before };
+    }
+    function rollbackCommentLikeOptimistic(target){
+      if(!target?.btn || !target.before) return;
+      const { btn, before } = target;
+      btn.dataset.liked = before.liked ? 'true' : 'false';
+      btn.dataset.likeCount = String(before.count);
+      btn.classList.toggle('liked', before.liked);
+      btn.textContent = `♥ ${before.count}`;
+      btn.disabled = false;
+      btn.style.opacity = '';
+    }
+    function releaseCommentLikeButton(target){
+      if(!target?.btn) return;
+      target.btn.disabled = false;
+      target.btn.style.opacity = '';
+    }
+    async function toggleCommunityCommentLike(postId, commentId){
+      const user = auth.currentUser;
+      if(!user) return openModalAlert('로그인이 필요합니다.');
+      if(!postId || !commentId) return;
+      const likeId = commentLikeDocId(postId, commentId, user.uid);
+      const likeRef = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId, 'likes', likeId);
+      let optimisticTarget = null;
+      try{
+        const snap = await getDoc(likeRef);
+        const willLike = !snap.exists();
+        optimisticTarget = applyCommentLikeOptimistic(postId, commentId, willLike);
+        if(snap.exists()){
+          await deleteDoc(likeRef);
+        }else{
+          await setDoc(likeRef, { uid:user.uid, postId, commentId, createdAt:serverTimestamp() });
+        }
+        releaseCommentLikeButton(optimisticTarget);
+        // likeCount는 Cloud Function에서 안전하게 확정되므로 약간 뒤에 조용히 동기화합니다.
+        window.clearTimeout(communityState.commentLikeSyncTimer);
+        communityState.commentLikeSyncTimer = window.setTimeout(() => {
+          if(communityState.currentPostId === postId) loadCommunityComments(postId);
+        }, 1200);
+      }catch(error){
+        console.error(error);
+        rollbackCommentLikeOptimistic(optimisticTarget);
+        openModalAlert('댓글 좋아요 처리 중 오류가 발생했습니다.');
+      }
+    }
     function getCurrentNickname(){ return state.currentUserProfile?.nickname || state.userProfile?.nickname || state.profile?.nickname || getStoredLoginUser()?.loginId || '입주민'; }
     function openDialogSafe(el){ if(!el) return; if(typeof el.showModal === 'function' && !el.open) el.showModal(); else el.setAttribute('open',''); }
     function closeDialogSafe(el){ if(!el) return; if(typeof el.close === 'function' && el.open) el.close(); else el.removeAttribute('open'); }
