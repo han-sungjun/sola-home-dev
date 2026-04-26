@@ -279,10 +279,10 @@ function startAutoLogoutTimer() {
     const now = Date.now();
     const diff = now - lastActivityTime;
 
-    if (diff > WARNING_TIME && !warningShown) {
+    //if (diff > WARNING_TIME && !warningShown) {
       warningShown = true;
       await showAppModalAlert("1분 후 자동 로그아웃 됩니다.", "자동 로그아웃 안내");
-    }
+    //}
 
     if (diff > AUTO_LOGOUT_TIME) {
       try {
