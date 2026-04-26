@@ -216,6 +216,20 @@ export function clearLoginFailureLocal() {
 // 자동 로그아웃 (로그인 후에만 시작)
 // =========================
 
+
+async function showAppModalAlert(message, title = "안내") {
+  try {
+    if (typeof window !== "undefined" && typeof window.openModalAlert === "function") {
+      await window.openModalAlert(message, null, title);
+      return;
+    }
+  } catch (e) {
+    console.log("app modal alert error", e);
+  }
+
+  alert(message);
+}
+
 const AUTO_LOGOUT_TIME = 30 * 60 * 1000;
 const WARNING_TIME = 29 * 60 * 1000;
 
@@ -267,14 +281,14 @@ function startAutoLogoutTimer() {
 
     if (diff > WARNING_TIME && !warningShown) {
       warningShown = true;
-      alert("1분 후 자동 로그아웃 됩니다.");
+      await showAppModalAlert("1분 후 자동 로그아웃 됩니다.", "자동 로그아웃 안내");
     }
 
     if (diff > AUTO_LOGOUT_TIME) {
       try {
         stopAutoLogoutTimer();
         await signOut(auth);
-        alert("장시간 미사용으로 자동 로그아웃되었습니다.");
+        await showAppModalAlert("장시간 미사용으로 자동 로그아웃되었습니다.", "자동 로그아웃");
         location.href = "/";
       } catch (e) {
         console.log("auto logout error", e);
