@@ -1699,41 +1699,133 @@ body.gnb-open .bottom-nav{
 .profile-preview-copy{min-width:0;color:#64748b;font-size:12px;line-height:1.55}
 .profile-preview-copy strong{display:block;color:#0f172a;font-size:13px;margin-bottom:2px}
 
-/* ===== Topbar width alignment with dashboard cards ===== */
-.topbar,
-.topbar-row,
-.topbar-right,
-.topbar-left{
+  
+
+/* ===== 프리미엄 헤더 정렬 패치: 상단/자동 로그아웃/브랜드 균형 ===== */
+.topbar{
   width:100%;
-  max-width:100%;
-}
-.topbar-row{
   align-items:stretch;
 }
+.topbar-row{
+  width:100%;
+  display:grid;
+  gap:12px;
+}
 .topbar-right{
-  justify-content:space-between!important;
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
   gap:10px;
 }
-.topbar-right .user-chip{
-  flex:1 1 auto;
+.user-chip{
+  width:100%;
   max-width:none!important;
-  min-width:0;
+  min-height:58px;
+  border-radius:22px;
 }
 .topbar-quick-actions,
 .gnb-wrap{
-  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.topbar-quick-actions .icon-btn,
+.gnb-wrap .icon-btn{
+  width:52px;
+  height:52px;
+  border-radius:19px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:0 14px 28px rgba(15,23,42,.08);
 }
 .topbar-left-titleline{
   width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
+  gap:14px;
+  padding:0 0 2px;
 }
 .topbar-left-titleline .brand{
-  flex:1 1 auto;
   min-width:0;
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.topbar-left-titleline .brand .logo{
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  box-shadow:0 16px 28px rgba(15,23,42,.08);
+}
+.brand h1{
+  white-space:nowrap!important;
+  font-size:27px;
+  line-height:1.12!important;
+  letter-spacing:-.055em;
+}
+.brand p{
+  margin-top:5px;
+  white-space:nowrap;
+}
+/* tracking.js가 삽입하는 자동 로그아웃 박스를 브랜드 우측 끝에 정렬 */
+.topbar-left-titleline > :not(.brand){
+  justify-self:end;
+  align-self:center;
+}
+.topbar-left-titleline [class*="timer"],
+.topbar-left-titleline [id*="timer"],
+.topbar-left-titleline [class*="idle"],
+.topbar-left-titleline [id*="idle"],
+.topbar-left-titleline [class*="logout"]{
+  margin:0!important;
+  min-width:96px;
+  border-radius:20px!important;
+  box-shadow:0 14px 28px rgba(22,163,74,.12)!important;
+}
+/* 상단 영역 전체가 아래 히어로 카드와 같은 폭을 쓰도록 보정 */
+.shell > .topbar,
+.shell > #view-home > .hero{
+  width:100%;
 }
 @media (max-width:420px){
-  .topbar-right .user-chip{
-    max-width:none!important;
+  .topbar-right{
+    grid-template-columns:minmax(0,1fr) 48px 48px;
+    gap:8px;
+  }
+  .topbar-quick-actions .icon-btn,
+  .gnb-wrap .icon-btn{
+    width:48px;
+    height:48px;
+    border-radius:17px;
+  }
+  .user-chip{
+    min-height:56px;
+    padding:10px 12px;
+  }
+  .topbar-left-titleline{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px;
+  }
+  .brand h1{
+    font-size:25px;
+  }
+  .brand p{
+    font-size:12px;
+  }
+  .topbar-left-titleline .brand .logo{
+    width:50px;
+    height:50px;
+  }
+}
+@media (max-width:360px){
+  .brand h1{
+    font-size:22px;
+    letter-spacing:-.05em;
+  }
+  .topbar-left-titleline{
+    gap:8px;
   }
 }
 
@@ -1771,7 +1863,7 @@ body.gnb-open .bottom-nav{
           <div class="brand">
             <div class="logo">🏠</div>
             <div>
-              <h1>더운정<br>마이힐스</h1>
+              <h1>더운정 마이힐스</h1>
               <p>입주민 전용 혜택 웹앱</p>
             </div>
           </div>
