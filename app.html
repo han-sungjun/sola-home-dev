@@ -2136,7 +2136,27 @@ body.app-role-resident [data-view="shareinsights"]{
 .profile-upload-status{display:block;margin-top:8px;font-size:11px;font-weight:800;color:#64748b;line-height:1.5;}
 .profile-upload-status.success{color:#1d4ed8;}
 .profile-upload-status.error{color:#b91c1c;}
-.account-profile-url-input{margin-top:8px;}
+.account-profile-url-input{display:none!important;}
+.profile-preview-avatar.has-photo img,
+.user-avatar.has-photo img,
+.gnb-account-avatar.has-photo img{
+  width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;
+}
+.profile-preview-avatar.profile-uploading::after{
+  content:"";position:absolute;inset:-4px;border-radius:22px;border:2px solid rgba(37,99,235,.22);border-top-color:#2563eb;animation:profileSpin .75s linear infinite;
+}
+.profile-preview-avatar.profile-saved,
+.user-avatar.profile-saved,
+.gnb-account-avatar.profile-saved{
+  animation:profileSavedPop .48s ease both;
+}
+@keyframes profileSpin{to{transform:rotate(360deg)}}
+@keyframes profileSavedPop{
+  0%{transform:scale(.94);box-shadow:0 0 0 0 rgba(37,99,235,.0)}
+  45%{transform:scale(1.06);box-shadow:0 0 0 7px rgba(37,99,235,.14)}
+  100%{transform:scale(1);box-shadow:inherit}
+}
+
 
 
 /* ===== 설정 계정 요약 프사 glow 여백 보정 ===== */
@@ -2286,7 +2306,7 @@ body.app-role-resident [data-view="shareinsights"]{
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
@@ -3153,7 +3173,15 @@ function setPushStatusUi(enabled){
 
     function getProfileImageUrl(){
       const profile = state.currentUserProfile || {};
-      return String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+      const rawUrl = String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+      if(!rawUrl) return '';
+      const cacheKey = profile.profileImageCacheKey
+        || profile.profileImageUpdatedAt?.seconds
+        || profile.updatedAt?.seconds
+        || '';
+      if(!cacheKey) return rawUrl;
+      const separator = rawUrl.includes('?') ? '&' : '?';
+      return rawUrl.includes('profileCache=') ? rawUrl : `${rawUrl}${separator}profileCache=${encodeURIComponent(cacheKey)}`;
     }
 
     function renderProfileAvatar(target, roleMeta, profileImageUrl){
@@ -3213,11 +3241,9 @@ function setPushStatusUi(enabled){
     function fillAccountEditForm(){
       const profile = state.currentUserProfile || {};
       const nicknameInput = qs('#accountNicknameInput');
-      const profileImageInput = qs('#accountProfileImageInput');
       const buildingInput = qs('#accountBuildingInput');
       const unitInput = qs('#accountUnitInput');
       if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
-      if(profileImageInput) profileImageInput.value = normalizeProfileInput(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '');
       if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
       if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
       updateProfileImagePreview();
@@ -3226,15 +3252,38 @@ function setPushStatusUi(enabled){
 
     function updateProfileImagePreview(){
       const preview = qs('#accountProfilePreview');
-      const profileImageInput = qs('#accountProfileImageInput');
       if(!preview) return;
-      const url = normalizeProfileInput(profileImageInput?.value || '');
+      const url = getProfileImageUrl();
       const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
       const plusBtn = `<button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>`;
+      preview.classList.toggle('has-photo', !!url);
       preview.innerHTML = url
         ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">${plusBtn}`
         : `${escapeHtml(roleMeta.avatar || '👤')}${plusBtn}`;
       bindProfileUploadButton();
+    }
+
+    function animateProfileImageApplied(){
+      ['#accountProfilePreview', '#userChip .user-avatar', '#gnbSettingsAccountSummary .gnb-account-avatar'].forEach((selector) => {
+        const el = qs(selector);
+        if(!el) return;
+        el.classList.remove('profile-saved');
+        void el.offsetWidth;
+        el.classList.add('profile-saved');
+        setTimeout(() => el.classList.remove('profile-saved'), 650);
+      });
+    }
+
+    async function deletePreviousProfileImageIfNeeded(previousPath='', nextPath=''){
+      const oldPath = normalizeProfileInput(previousPath);
+      const newPath = normalizeProfileInput(nextPath);
+      if(!oldPath || oldPath === newPath) return;
+      if(!oldPath.startsWith(`profile-images/${state.currentUser.uid}/`)) return;
+      try{
+        await deleteObject(storageRef(storage, oldPath));
+      }catch(error){
+        console.warn('이전 프로필 이미지 삭제 실패 또는 이미 삭제됨', error);
+      }
     }
 
     function setProfileUploadStatus(message, type=''){
@@ -3257,6 +3306,14 @@ function setPushStatusUi(enabled){
       return String(name || 'profile').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'profile.png';
     }
 
+    function getProfileFileExtension(file){
+      const byType = String(file?.type || '').split('/')[1] || '';
+      const normalized = byType.replace('jpeg','jpg').replace(/[^a-z0-9]/gi,'').toLowerCase();
+      if(normalized) return normalized;
+      const fromName = String(file?.name || '').split('.').pop() || 'png';
+      return fromName.replace(/[^a-z0-9]/gi,'').toLowerCase() || 'png';
+    }
+
     async function handleProfileImageFileChange(event){
       const file = event?.target?.files?.[0];
       if(!file) return;
@@ -3273,23 +3330,47 @@ function setPushStatusUi(enabled){
           await openModalAlert('프로필 이미지는 3MB 이하 파일로 올려 주세요.', qs('#accountProfileUploadBtn'));
           return;
         }
+
         const preview = qs('#accountProfilePreview');
         const uploadBtn = qs('#accountProfileUploadBtn');
+        const previousPath = state.currentUserProfile?.profileImagePath || '';
         preview?.classList.add('profile-uploading');
         if(uploadBtn) uploadBtn.disabled = true;
         setProfileUploadStatus('프로필 이미지를 업로드하는 중입니다...', '');
-        const safeName = sanitizeProfileFileName(file.name);
-        const path = `profile-images/${state.currentUser.uid}/${Date.now()}_${safeName}`;
+
+        const ext = getProfileFileExtension(file);
+        const cacheKey = Date.now();
+        const path = `profile-images/${state.currentUser.uid}/profile_${cacheKey}.${ext}`;
         const fileRef = storageRef(storage, path);
-        await uploadBytes(fileRef, file, { contentType:file.type });
+        await uploadBytes(fileRef, file, {
+          contentType:file.type,
+          customMetadata:{ ownerUid:state.currentUser.uid, purpose:'profile-image' }
+        });
         const downloadUrl = await getDownloadURL(fileRef);
-        const profileImageInput = qs('#accountProfileImageInput');
-        if(profileImageInput) profileImageInput.value = downloadUrl;
+
+        await setDoc(doc(db, 'users', state.currentUser.uid), {
+          profileImageUrl:downloadUrl,
+          profileImagePath:path,
+          profileImageCacheKey:String(cacheKey),
+          profileImageUpdatedAt:serverTimestamp(),
+          updatedAt:serverTimestamp()
+        }, { merge:true });
+
+        state.currentUserProfile = {
+          ...(state.currentUserProfile || {}),
+          profileImageUrl:downloadUrl,
+          profileImagePath:path,
+          profileImageCacheKey:String(cacheKey)
+        };
+
+        updateUserChip();
         updateProfileImagePreview();
-        setProfileUploadStatus('업로드 완료! 저장 버튼을 누르면 계정에 반영됩니다.', 'success');
+        animateProfileImageApplied();
+        setProfileUploadStatus('프로필 이미지가 바로 반영되었습니다.', 'success');
+        deletePreviousProfileImageIfNeeded(previousPath, path);
       }catch(error){
         console.error('프로필 이미지 업로드 실패', error);
-        setProfileUploadStatus('업로드 중 오류가 발생했습니다. Storage 규칙을 확인해 주세요.', 'error');
+        setProfileUploadStatus('업로드 중 오류가 발생했습니다. Storage/Firestore 규칙을 확인해 주세요.', 'error');
         await openModalAlert('프로필 이미지 업로드 중 오류가 발생했습니다.', qs('#accountProfileUploadBtn'));
       }finally{
         const preview = qs('#accountProfilePreview');
@@ -3323,7 +3404,6 @@ function setPushStatusUi(enabled){
         }
 
         const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
-        const profileImageUrl = normalizeProfileInput(qs('#accountProfileImageInput')?.value || '');
         const building = normalizeProfileInput(qs('#accountBuildingInput')?.value || '');
         const unit = normalizeProfileInput(qs('#accountUnitInput')?.value || '');
 
@@ -3335,7 +3415,6 @@ function setPushStatusUi(enabled){
         showGlobalLoading();
         await setDoc(doc(db, 'users', state.currentUser.uid), {
           nickname,
-          profileImageUrl,
           building,
           unit,
           updatedAt: serverTimestamp()
@@ -3344,7 +3423,6 @@ function setPushStatusUi(enabled){
         state.currentUserProfile = {
           ...(state.currentUserProfile || {}),
           nickname,
-          profileImageUrl,
           building,
           unit
         };
@@ -6220,7 +6298,6 @@ function getShareTrackingParams(){
     qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
     qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
     qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
-    qs('#accountProfileImageInput')?.addEventListener('input', updateProfileImagePreview);
     qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
     bindProfileUploadButton();
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
@@ -6468,7 +6545,7 @@ function getShareTrackingParams(){
           <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
         </div>
         <div class="account-edit-field">
-          <label for="accountProfileImageInput">프로필 이미지 URL <small style="color:#94a3b8">선택</small></label>
+          <label>프로필 이미지 <small style="color:#94a3b8">선택</small></label>
           <div class="profile-preview-row">
             <div class="profile-preview-avatar" id="accountProfilePreview">👤
               <button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>
@@ -6480,7 +6557,6 @@ function getShareTrackingParams(){
             </div>
           </div>
           <input class="profile-file-input" id="accountProfileFileInput" type="file" accept="image/*">
-          <input class="account-profile-url-input" id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="이미지 업로드 후 URL이 자동 입력됩니다.">
         </div>
         <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
