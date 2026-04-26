@@ -6508,8 +6508,35 @@ function getShareTrackingParams(){
     qs('#communityWriteBtn')?.addEventListener('click', openCommunityEditor); qs('#closeCommunityEditor')?.addEventListener('click', () => { communityState.editingPostId = null; closeDialogSafe(qs('#communityEditorModal')); }); qs('#submitCommunityPostBtn')?.addEventListener('click', submitCommunityPost); qs('#closeCommunityDetail')?.addEventListener('click', () => closeDialogSafe(qs('#communityDetailModal'))); qs('#submitCommunityCommentBtn')?.addEventListener('click', submitCommunityComment); qs('#communityMoreBtn')?.addEventListener('click', () => loadCommunityPosts(communityState.category, false)); renderCommunityCategoryFilter();
 
 
+    function aiValueToText(value){
+      if(value == null) return '';
+      if(typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
+      if(Array.isArray(value)) return value.map(aiValueToText).filter(Boolean).join(' ');
+      if(value && typeof value.toDate === 'function') return formatDateTime(value);
+      if(typeof value === 'object'){
+        const preferredKeys = [
+          'text','title','name','label','value','answer','content','description','desc',
+          'benefit','condition','summary','address','phone','category','storeName'
+        ];
+        const parts = [];
+        preferredKeys.forEach((key) => {
+          if(Object.prototype.hasOwnProperty.call(value, key)){
+            const text = aiValueToText(value[key]);
+            if(text) parts.push(text);
+          }
+        });
+        if(parts.length) return parts.join(' ');
+        return Object.entries(value)
+          .filter(([key]) => !/^_/.test(key))
+          .map(([key, val]) => aiValueToText(val))
+          .filter(Boolean)
+          .join(' ');
+      }
+      return String(value || '');
+    }
+
     function normalizeAiText(value=''){
-      return String(value || '')
+      return aiValueToText(value)
         .toLowerCase()
         .replace(/<[^>]*>/g, ' ')
         .replace(/[^가-힣a-z0-9\s]/gi,' ')
@@ -6562,7 +6589,7 @@ function getShareTrackingParams(){
         item.summary,
         item.storeName,
         ...(Array.isArray(item.keywords) ? item.keywords : [])
-      ].join(' '));
+      ]);
       if(!tokens.length || !hay) return 0;
       let score = 0;
       tokens.forEach(token => {
@@ -6586,8 +6613,8 @@ function getShareTrackingParams(){
 
     function normalizeAiItem(raw={}, type='정보', id=''){
       const item = raw || {};
-      const title = item.title || item.name || item.storeName || item.question || '제목 없음';
-      const answer = item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.summary || '';
+      const title = aiValueToText(item.title || item.name || item.storeName || item.question || item.category || '제목 없음').trim() || '제목 없음';
+      const answer = aiValueToText(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.summary || item.address || '').trim();
       return { id, type, ...item, title, answer };
     }
 
@@ -6692,14 +6719,14 @@ function getShareTrackingParams(){
       const top = matches[0];
       const intent = getAiIntent(question);
       let headline = '';
-      if(top.type === 'FAQ') headline = String(top.answer || top.content || 'FAQ에서 관련 답변을 찾았습니다.');
+      if(top.type === 'FAQ') headline = aiValueToText(top.answer || top.content || 'FAQ에서 관련 답변을 찾았습니다.');
       else if(intent === 'notice') headline = '최근 공지에서 관련 내용을 찾았습니다.';
       else if(intent === 'popular') headline = '인기 혜택 기준으로 관련 매장을 찾았습니다.';
       else if(intent === 'map') headline = '지도/위치 정보가 있는 혜택을 확인해 보세요.';
-      else headline = String(top.answer || top.content || top.description || top.desc || top.benefit || top.condition || '관련 항목을 찾았습니다.');
+      else headline = aiValueToText(top.answer || top.content || top.description || top.desc || top.benefit || top.condition || '관련 항목을 찾았습니다.');
 
       const sources = matches.slice(0, 5).map(item => {
-        const body = String(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.address || '').trim();
+        const body = aiValueToText(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.address || '').trim();
         return `<div class="ai-source-item"><b>${escapeHtml(item.type || '정보')} · ${escapeHtml(item.title || item.name || '제목 없음')}</b>${escapeHtml(body.slice(0, 140) || '상세 내용은 해당 메뉴에서 확인해 주세요.')}</div>`;
       }).join('');
 
