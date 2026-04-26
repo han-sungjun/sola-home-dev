@@ -1991,53 +1991,101 @@ body.gnb-open .bottom-nav{
         window.firebaseMessaging = messaging;
         window.getToken = getToken;
 
-        onMessage(messaging, async (payload) => {
-		  try {
-			const title =
-			  payload?.data?.title ||
-			  payload?.notification?.title ||
-			  '새 알림';
+        function normalizeForegroundPushPayload(payload = {}) {
+          const data = payload?.data || {};
+          return {
+            title: String(data.title || payload?.notification?.title || '새 알림'),
+            body: String(data.body || payload?.notification?.body || ''),
+            url: String(data.url || data.click_action || data.clickUrl || data.link || '/'),
+            noticeId: String(data.noticeId || ''),
+            important: String(data.important || '') === 'true'
+          };
+        }
 
-			const body =
-			  payload?.data?.body ||
-			  payload?.notification?.body ||
-			  '';
+        function openForegroundPushUrl(url = '/') {
+          try {
+            const absoluteUrl = new URL(String(url || '/'), window.location.origin);
+            if (absoluteUrl.origin !== window.location.origin) {
+              window.location.href = '/';
+              return;
+            }
+            window.location.href = absoluteUrl.href;
+          } catch (_) {
+            window.location.href = '/';
+          }
+        }
 
-			const targetUrl =
-			  payload?.data?.url ||
-			  payload?.data?.click_action ||
-			  '/';
+        function ensureForegroundPushToastStyle() {
+          if (document.getElementById('foregroundPushToastStyle')) return;
+          const style = document.createElement('style');
+          style.id = 'foregroundPushToastStyle';
+          style.textContent = [
+            '.foreground-push-toast{',
+            'position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:100002;display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(-18px) scale(.985);transition:opacity .24s ease, transform .24s ease;',
+            '}',
+            '.foreground-push-toast.show{opacity:1;transform:translateY(0) scale(1);}',
+            '.foreground-push-card{width:min(100%,448px);display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border-radius:22px;background:rgba(15,23,42,.94);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 42px rgba(15,23,42,.26);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);pointer-events:auto;cursor:pointer;}',
+            '.foreground-push-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:0 0 auto;font-size:18px;}',
+            '.foreground-push-copy{min-width:0;flex:1;}',
+            '.foreground-push-title{font-size:14px;font-weight:900;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+            '.foreground-push-body{margin-top:4px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.78);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}',
+            '.foreground-push-close{border:none;background:rgba(255,255,255,.10);color:#fff;width:32px;height:32px;border-radius:12px;cursor:pointer;flex:0 0 auto;font-size:18px;line-height:1;}'
+          ].join('');
+          document.head.appendChild(style);
+        }
 
-			console.log('포그라운드 푸시 수신', payload);
+        function showForegroundPushToast({ title = '새 알림', body = '', url = '/' } = {}) {
+          ensureForegroundPushToastStyle();
+          let host = document.getElementById('foregroundPushToast');
+          if (!host) {
+            host = document.createElement('div');
+            host.id = 'foregroundPushToast';
+            host.className = 'foreground-push-toast';
+            host.innerHTML = '<div class="foreground-push-card" id="foregroundPushCard" role="button" tabindex="0"><div class="foreground-push-icon">🔔</div><div class="foreground-push-copy"><div class="foreground-push-title" id="foregroundPushTitle"></div><div class="foreground-push-body" id="foregroundPushBody"></div></div><button type="button" class="foreground-push-close" id="foregroundPushClose" aria-label="알림 닫기">×</button></div>';
+            document.body.appendChild(host);
+            host.querySelector('#foregroundPushCard')?.addEventListener('click', () => {
+              const targetUrl = host.dataset.url || '/';
+              host.classList.remove('show');
+              openForegroundPushUrl(targetUrl);
+            });
+            host.querySelector('#foregroundPushCard')?.addEventListener('keydown', (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              const targetUrl = host.dataset.url || '/';
+              host.classList.remove('show');
+              openForegroundPushUrl(targetUrl);
+            });
+            host.querySelector('#foregroundPushClose')?.addEventListener('click', (event) => {
+              event.stopPropagation();
+              host.classList.remove('show');
+            });
+          }
+          host.dataset.url = url || '/';
+          host.querySelector('#foregroundPushTitle').textContent = title || '새 알림';
+          host.querySelector('#foregroundPushBody').textContent = body || '새로운 알림이 도착했습니다.';
+          host.classList.remove('show');
+          requestAnimationFrame(() => host.classList.add('show'));
+          clearTimeout(showForegroundPushToast._timer);
+          showForegroundPushToast._timer = setTimeout(() => host.classList.remove('show'), 4200);
+        }
 
-			if (window.pushSwRegistration) {
-			  await window.pushSwRegistration.showNotification(title, {
-				body,
-				icon: '/icons/icon-192.png',
-				badge: '/icons/icon-192.png',
-				data: {
-				  url: targetUrl,
-				  noticeId: payload?.data?.noticeId || '',
-				  important: payload?.data?.important || ''
-				},
-                tag: payload?.data?.noticeId ? `notice-${payload.data.noticeId}` : undefined,
-                renotify: payload?.data?.important === 'true',
-                vibrate: payload?.data?.important === 'true' ? [200, 100, 200] : undefined
-			  });
-			  return;
-			}
-
-			if (Notification.permission === 'granted') {
-			  new Notification(title, {
-				body,
-				icon: '/icons/icon-192.png'
-			  });
-			}
-		  } catch (error) {
-			console.error('포그라운드 푸시 처리 실패', error);
-		  }
-		});
-
+        if (!window.__myhillsForegroundPushBound) {
+          window.__myhillsForegroundPushBound = true;
+          onMessage(messaging, (payload) => {
+            try {
+              const item = normalizeForegroundPushPayload(payload);
+              console.log('포그라운드 푸시 수신', payload);
+              // 앱이 열려 있을 때는 app.html에서 추가 알림을 띄우지 않습니다.
+              // 시스템 알림은 firebase-messaging-sw.js 한 곳에서만 처리합니다.
+              // 이중 표시 방지를 위해 showNotification/new Notification/인앱 토스트 호출을 하지 않습니다.
+              if (item.important && navigator.vibrate) {
+                navigator.vibrate([160, 80, 160]);
+              }
+            } catch (error) {
+              console.error('포그라운드 푸시 처리 실패', error);
+            }
+          });
+        }
         return true;
       }catch(error){
         console.error('푸시 초기화 실패', error);
