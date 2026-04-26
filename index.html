@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="description" content="더운정 마이힐스 로그인" />
   <title>더운정 마이힐스 - 로그인</title>
+  <!-- 간단 입장 구조: 승인 대기/휴대폰 인증/이메일 재설정 안내 문구 정리 -->
   <style>
     :root{
       --bg:#f5f7fb;
@@ -364,7 +365,7 @@
 }
 
 
-    .find-links{display:none!important;
+    .find-links{
       display:flex;
       justify-content:flex-end;
       gap:12px;
@@ -497,7 +498,7 @@
       <div class="eyebrow">🏠 입주민 전용 로그인</div>
       <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
       <h1>더운정 마이힐스<br>로그인</h1>
-      <p>아이디와 비밀번호로 간단하게 이용해 주세요.</p>
+      <p>입주민 전용 서비스에 바로 로그인해 주세요.</p>
     </section>
 
     <section class="panel">
@@ -505,7 +506,7 @@
         <div class="logo">🔐</div>
         <div>
           <h2>계정 로그인</h2>
-          <p>간단 로그인</p>
+          <p>간단 입장 계정 로그인</p>
         </div>
       </div>
       <form id="loginForm">
@@ -518,8 +519,14 @@
           <label for="password">비밀번호</label>
           <input id="password" class="input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" />
         </div>
-<div class="helper">
-          아이디와 비밀번호로 바로 이용할 수 있습니다.
+
+        <div class="find-links">
+          <button id="openFindIdBtn" class="find-link" type="button">아이디 안내</button>
+          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 안내</button>
+        </div>
+
+        <div class="helper">
+          가입한 아이디로 바로 로그인할 수 있습니다.
         </div>
 
         <div class="btn-row">
@@ -536,7 +543,7 @@
     </section>
 
     <div class="footer">
-      로그인 후 입주민 전용 서비스로 이동합니다.
+      로그인 후 바로 입주민 전용 서비스로 이동합니다.
     </div>
   </div>
 
@@ -799,7 +806,6 @@
 
     function setActiveHelpTab(tab='findId'){
       const isFindId = tab === 'findId';
-      if (!tabFindId || !tabResetPw || !findIdSection || !resetPwSection) return;
       tabFindId.classList.toggle('active', isFindId);
       tabResetPw.classList.toggle('active', !isFindId);
       findIdSection.classList.toggle('active', isFindId);
@@ -812,14 +818,12 @@
     }
 
     function openAccountHelp(tab='findEmail'){
-      if (!accountHelpModal) return;
       accountHelpModal.classList.add('show');
       accountHelpModal.setAttribute('aria-hidden', 'false');
       setActiveHelpTab(tab);
     }
 
     function closeAccountHelp(){
-      if (!accountHelpModal) return;
       accountHelpModal.classList.remove('show');
       accountHelpModal.setAttribute('aria-hidden', 'true');
       hideSheetResult(findIdResultEl);
@@ -912,23 +916,39 @@
         console.warn('login_history 저장 실패', error);
       }
     }
+
+
     function formatStatusMessage(userData = {}){
+      const approvalStatus = String(userData.approvalStatus || 'approved');
       const accountStatus = String(userData.accountStatus || 'active');
+      const rejectReason = String(userData.rejectReason || '').trim();
       const withdrawReason = String(userData.withdrawReason || '').trim();
 
       if (accountStatus === 'withdrawn') {
         return withdrawReason
-          ? `탈퇴 처리된 계정입니다.
-사유: ${withdrawReason}
-실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.`
+          ? `탈퇴 처리된 계정입니다.\n사유: ${withdrawReason}\n실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.`
           : '탈퇴 처리된 계정입니다. 실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.';
       }
 
-      if (accountStatus === 'suspended' || accountStatus === 'blocked') {
+      if (accountStatus === 'suspended') {
         return '이용이 제한된 계정입니다. 운영자에게 문의해 주세요.';
       }
 
-      return '이용 가능한 계정입니다.';
+      if (approvalStatus === 'pending') {
+        return '계정 상태 확인이 필요합니다. 잠시 후 다시 시도해 주세요.';
+      }
+
+      if (approvalStatus === 'resubmitted') {
+        return '계정 상태 확인이 필요합니다. 잠시 후 다시 시도해 주세요.';
+      }
+
+      if (approvalStatus === 'rejected') {
+        return rejectReason
+          ? `가입 신청이 반려되었습니다.\n사유: ${rejectReason}\n내용을 수정한 뒤 다시 신청해 주세요.`
+          : '계정 상태 확인이 필요합니다.';
+      }
+
+      return '계정 이용 상태를 확인할 수 없습니다. 운영자에게 문의해 주세요.';
     }
 
     async function getUserProfile(uid=''){
@@ -978,18 +998,26 @@
         }
         return { allowed: false, reason: 'user_profile_not_found', userData: null };
       }
-      const accountStatus = String(userData.accountStatus || 'active');
 
-      if (accountStatus === 'active') {
+      const approvalStatus = String(userData.approvalStatus || 'approved');
+      const accountStatus = String(userData.accountStatus || 'active');
+      const phoneVerificationRequired = userData.phoneVerificationRequired === true;
+      const phoneVerified = !!userData.phoneVerified;
+
+      if (approvalStatus === 'approved' && accountStatus === 'active') {
         if (shouldRedirectOnApproved) {
           finishLoading(() => {
+            if (phoneVerificationRequired && !phoneVerified) {
+              replaceWithLoader('/phone-verify');
+              return;
+            }
             replaceWithLoader(getPostLoginRedirectUrl());
           });
         }
-        return { allowed: true, reason: 'active', userData };
+        return { allowed: true, reason: 'approved_active', userData };
       }
 
-      const reason = `account_${accountStatus}`;
+      const reason = `approval_${approvalStatus}__account_${accountStatus}`;
       const message = formatStatusMessage(userData);
 
       await saveLogin({
@@ -1007,7 +1035,7 @@
       await signOut(auth).catch(() => {});
 
       if (showBlockedMessage) {
-        const type = accountStatus === 'withdrawn' || accountStatus === 'suspended' || accountStatus === 'blocked' ? 'error' : 'info';
+        const type = accountStatus === 'withdrawn' || accountStatus === 'suspended' ? 'error' : 'info';
         showNotice(message, type);
         await new Promise(resolve => setTimeout(resolve, 60));
         await openModalAlert(message, loginIdEl);
@@ -1077,7 +1105,7 @@
     });
     window.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;
-      if (accountHelpModal && accountHelpModal.classList.contains('show')) {
+      if (accountHelpModal.classList.contains('show')) {
         closeAccountHelp();
         return;
       }
@@ -1085,45 +1113,39 @@
       closeModal(false);
     });
 
-    if (openFindIdBtn) {
-      openFindIdBtn.addEventListener('click', () => {
-        openModalAlert('아이디 확인이 필요한 경우 운영자에게 문의해 주세요.', loginIdEl);
-      });
-    }
+    openFindIdBtn.addEventListener('click', () => {
+      findIdLoginIdEl.value = normalizeLoginId(loginIdEl.value);
+      openAccountHelp('findId');
+    });
 
-    if (openResetPwBtn) {
-      openResetPwBtn.addEventListener('click', () => {
-        openModalAlert('비밀번호 재설정이 필요한 경우 운영자에게 문의해 주세요.', loginIdEl);
-      });
-    }
+    openResetPwBtn.addEventListener('click', () => {
+      resetPwLoginIdEl.value = normalizeLoginId(loginIdEl.value);
+      openAccountHelp('resetPw');
+    });
 
-    if (tabFindId) tabFindId.addEventListener('click', () => setActiveHelpTab('findId'));
-    if (tabResetPw) tabResetPw.addEventListener('click', () => setActiveHelpTab('resetPw'));
-    if (accountHelpCloseBtn) accountHelpCloseBtn.addEventListener('click', closeAccountHelp);
-    if (accountHelpModal) {
-      accountHelpModal.addEventListener('click', (event) => {
-        if (event.target === accountHelpModal) closeAccountHelp();
-      });
-    }
+    tabFindId.addEventListener('click', () => setActiveHelpTab('findId'));
+    tabResetPw.addEventListener('click', () => setActiveHelpTab('resetPw'));
+    accountHelpCloseBtn.addEventListener('click', closeAccountHelp);
+    accountHelpModal.addEventListener('click', (event) => {
+      if (event.target === accountHelpModal) closeAccountHelp();
+    });
 
-    if (applyFindIdBtn) {
-      applyFindIdBtn.addEventListener('click', () => {
-        const foundLoginId = normalizeLoginId(findIdLoginIdEl?.value || '');
+    applyFindIdBtn.addEventListener('click', () => {
+      const foundLoginId = normalizeLoginId(findIdLoginIdEl.value);
 
-        if (!foundLoginId) {
-          setSheetResult(findIdResultEl, '아이디를 입력해 주세요.', 'error');
-          findIdLoginIdEl?.focus();
-          return;
-        }
+      if (!foundLoginId) {
+        setSheetResult(findIdResultEl, '가입 시 사용한 아이디를 입력해 주세요.', 'error');
+        findIdLoginIdEl.focus();
+        return;
+      }
 
-        loginIdEl.value = foundLoginId;
-        setSheetResult(findIdResultEl, '입력한 값을 로그인 칸에 넣었습니다.', 'success');
-        setTimeout(() => {
-          closeAccountHelp();
-          loginIdEl.focus();
-        }, 500);
-      });
-    }
+      loginIdEl.value = foundLoginId;
+      setSheetResult(findIdResultEl, '입력한 아이디를 로그인 칸에 넣었습니다.\n현재 서비스에서는 아이디로 로그인합니다.', 'success');
+      setTimeout(() => {
+        closeAccountHelp();
+        loginIdEl.focus();
+      }, 500);
+    });
 
 
     function maskEmail(email=''){
@@ -1175,20 +1197,79 @@
         phoneNumber: String(data.phoneNumber || '')
       };
     }
+
     async function sendResetEmailByLoginId(loginId=''){
+      const userData = await findUserByLoginId(loginId);
+
+      if (!userData) {
+        return {
+          ok: false,
+          type: 'not_found',
+          message: '입력한 아이디의 회원 정보를 찾을 수 없습니다.\n아이디를 다시 확인해 주세요.'
+        };
+      }
+
+      const email = String(userData.email || '').trim().toLowerCase();
+      const phoneNumber = String(userData.phoneNumber || userData.phone || '').replace(/\D/g, '');
+
+      if (email && isEmailFormat(email)) {
+        await sendPasswordResetEmail(auth, email, {
+          url: `${window.location.origin}/`,
+          handleCodeInApp: false
+        });
+
+        return {
+          ok: true,
+          type: 'email',
+          message: `가입 시 등록한 이메일(${maskEmail(email)})로 비밀번호 안내 메일을 발송했습니다.\n메일함과 스팸함을 함께 확인해 주세요.`
+        };
+      }
+
+      if (phoneNumber) {
+        const goPhoneReset = await openModalConfirm(
+          `이 계정은 이메일이 등록되어 있지 않습니다.\n등록된 휴대폰(${maskPhone(phoneNumber)}) 인증 후 비밀번호 안내을 진행하시겠습니까?`,
+          resetPwLoginIdEl,
+          '휴대폰 인증 재설정',
+          '인증 진행',
+          '취소'
+        );
+
+        if (goPhoneReset) {
+          const url = `/phone-verify?mode=reset&loginId=${encodeURIComponent(loginId)}`;
+          startLoading();
+          setTimeout(() => replaceWithLoader(url), 80);
+        }
+
+        return {
+          ok: true,
+          type: 'phone',
+          message: `이메일이 없어 휴대폰 인증 방식으로 안내했습니다.\n등록 휴대폰: ${maskPhone(phoneNumber)}`
+        };
+      }
+
       return {
         ok: false,
-        type: 'operator_reset',
-        message: `현재는 이름·연락처 입력 없이 이용하는 구조입니다.
-비밀번호 재설정이 필요한 경우 운영자에게 문의해 주세요.`
+        type: 'no_contact',
+        message: '이 계정에는 이메일과 휴대폰 번호가 등록되어 있지 않습니다.\n관리자에게 본인 확인 후 비밀번호 안내을 요청해 주세요.'
       };
     }
 
-    if (sendResetPwBtn) {
-      sendResetPwBtn.addEventListener('click', async () => {
-        await openModalAlert('비밀번호 재설정이 필요한 경우 운영자에게 문의해 주세요.', loginIdEl);
-      });
-    }
+    sendResetPwBtn.addEventListener('click', async () => {
+      const resetLoginId = normalizeLoginId(resetPwLoginIdEl.value);
+
+      if (!resetLoginId) {
+        setSheetResult(resetPwResultEl, '아이디를 입력해 주세요.', 'error');
+        resetPwLoginIdEl.focus();
+        return;
+      }
+
+      setSheetResult(
+        resetPwResultEl,
+        '비밀번호 재설정은 운영자 확인 후 진행됩니다.
+운영자에게 아이디를 알려주시면 계정 상태 확인 후 안내받을 수 있습니다.',
+        'info'
+      );
+    });
 
 
 
@@ -1295,6 +1376,12 @@
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
 
         setTimeout(() => {
+          const phoneVerificationRequired = result.user?.phoneVerificationRequired === true;
+          const phoneVerified = !!result.user?.phoneVerified;
+          if (phoneVerificationRequired && !phoneVerified) {
+            replaceWithLoader('/phone-verify');
+            return;
+          }
           replaceWithLoader(getPostLoginRedirectUrl());
         }, 80);
       } catch (error) {
@@ -1365,7 +1452,56 @@
       </div>
     </div>
   </div>
-<div id="pageLoader" class="page-loader" aria-hidden="true">
+
+
+  <div class="sheet-modal" id="accountHelpModal" aria-hidden="true">
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="accountHelpTitle">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <h3 class="sheet-title" id="accountHelpTitle">로그인 안내</h3>
+          <p class="sheet-desc" id="accountHelpDesc">아이디 안내 및 비밀번호 안내을 진행합니다.</p>
+        </div>
+        <button class="sheet-close" id="accountHelpCloseBtn" type="button" aria-label="닫기">✕</button>
+      </div>
+
+      <div class="sheet-tabs">
+        <button class="sheet-tab active" id="tabFindId" type="button">아이디 안내</button>
+        <button class="sheet-tab" id="tabResetPw" type="button">비밀번호 안내</button>
+      </div>
+
+      <div class="sheet-body">
+        <section class="sheet-section active" id="findIdSection">
+          <p class="sheet-note">현재 로그인 방식은 가입 시 만든 아이디를 사용합니다.
+아이디가 기억나지 않으면 운영자에게 확인을 요청해 주세요.</p>
+          <div class="field">
+            <label for="findIdEmail">로그인 아이디 안내</label>
+            <input id="findIdEmail" class="input" type="text" inputmode="text" autocomplete="username" placeholder="아이디 입력" />
+          </div>
+          <div class="sheet-inline-actions">
+            <button id="applyFindIdBtn" class="btn btn-primary" type="button">입력한 값을 아이디 칸에 넣기</button>
+          </div>
+          <div id="findIdResult" class="sheet-result info"></div>
+        </section>
+
+        <section class="sheet-section" id="resetPwSection">
+          <p class="sheet-note">가입 시 등록한 이메일이 있으면 Firebase 비밀번호 안내 메일을 발송합니다.
+이메일이 없고 휴대폰 번호가 등록되어 있으면 휴대폰 인증 후 재설정 단계로 이동합니다.</p>
+          <div class="field">
+            <label for="resetPwLoginId">아이디</label>
+            <input id="resetPwLoginId" class="input" type="text" inputmode="text" autocomplete="username" placeholder="아이디 입력" />
+          </div>
+          <div class="sheet-inline-actions">
+            <button id="sendResetPwBtn" class="btn btn-primary" type="button">재설정 안내 보기</button>
+          </div>
+          <div id="resetPwResult" class="sheet-result info"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
     <div class="loader-mark" aria-label="로딩 중" role="status">
       <span class="arm top"></span>
       <span class="arm left"></span>
