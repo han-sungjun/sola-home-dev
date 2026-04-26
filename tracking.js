@@ -287,8 +287,8 @@ function startAutoLogoutTimer() {
       warningModalOpen = true;
 
       // 안내 모달의 [확인]을 누르면 사용 의사가 있는 것으로 보고 세션 시간을 다시 30분으로 연장합니다.
-      showAppModalAlert("1분 후 자동 로그아웃 됩니다.
-계속 이용하시려면 확인을 눌러 주세요.", "자동 로그아웃 안내")
+      showAppModalAlert(`1분 후 자동 로그아웃 됩니다.
+계속 이용하시려면 확인을 눌러 주세요.`, "자동 로그아웃 안내")
         .then(() => {
           warningModalOpen = false;
           if (auth.currentUser) {
