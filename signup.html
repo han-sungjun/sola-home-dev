@@ -72,8 +72,34 @@
   import { ENV, CURRENT_API, CURRENT_ROUTE } from './env-config.js';
   import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
   const app = getApp();
+  const auth = getAuth(app);
+  const APP_PAGE_URL = '/app';
+  let signupAuthRedirectStarted = false;
+
+  function redirectLoggedInUserToApp() {
+    if (signupAuthRedirectStarted) return;
+    signupAuthRedirectStarted = true;
+    try {
+      const pageLoader = document.getElementById('pageLoader');
+      if (pageLoader) {
+        pageLoader.classList.add('show');
+        pageLoader.setAttribute('aria-hidden', 'false');
+      }
+    } catch (_) {}
+    window.location.replace(APP_PAGE_URL);
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) redirectLoggedInUserToApp();
+  });
+
+  window.addEventListener('pageshow', () => {
+    if (auth.currentUser) redirectLoggedInUserToApp();
+  });
+
   let messaging = null;
   try { messaging = getMessaging(app); } catch (_) { messaging = null; }
 
