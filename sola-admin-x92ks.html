@@ -966,6 +966,26 @@ body.gnb-open .admin-bottom-nav{
 /* ===== Admin Community v1 ===== */
 .admin-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
 
+
+/* ===== Admin All Menu v1 ===== */
+.admin-all-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.admin-all-card{min-width:0;border:none;border-radius:24px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);box-shadow:var(--shadow), inset 0 0 0 1px rgba(15,23,42,.06);padding:16px;text-align:left;cursor:pointer;display:grid;gap:8px;transition:transform .18s ease, box-shadow .18s ease}
+.admin-all-card:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(15,23,42,.10), inset 0 0 0 1px rgba(15,23,42,.06)}
+.admin-all-card:active{transform:scale(.985)}
+.admin-all-icon{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;font-size:23px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+.admin-all-card strong{font-size:15px;letter-spacing:-.03em;color:#0f172a}
+.admin-all-card small{font-size:12px;line-height:1.45;color:#64748b}
+.admin-all-icon.dashboard{background:linear-gradient(135deg,#bfdbfe 0%,#e0f2fe 100%)}
+.admin-all-icon.benefits{background:linear-gradient(135deg,#fed7aa 0%,#ffedd5 100%)}
+.admin-all-icon.notices{background:linear-gradient(135deg,#fecdd3 0%,#ffe4e6 100%)}
+.admin-all-icon.members{background:linear-gradient(135deg,#bbf7d0 0%,#dcfce7 100%)}
+.admin-all-icon.community{background:linear-gradient(135deg,#ddd6fe 0%,#f5f3ff 100%)}
+.admin-all-icon.data{background:linear-gradient(135deg,#c7d2fe 0%,#e0e7ff 100%)}
+.admin-all-icon.resident{background:linear-gradient(135deg,#a5f3fc 0%,#cffafe 100%)}
+.gnb-chip.gnb-tone-all,.gnb-menu-item.gnb-tone-all,.gnb-menu-subitem.gnb-tone-all{--card-bg1:#f5f3ff;--card-bg2:#fbfaff;--card-ring:rgba(139,92,246,.12);--card-shadow:rgba(139,92,246,.11);--card-arrow:#a78bfa;--tone-bar:linear-gradient(90deg,#8b5cf6,#c4b5fd)}
+.gnb-card-icon.all{background:linear-gradient(135deg,#ddd6fe 0%,#f5f3ff 100%)}
+@media (max-width:420px){.admin-all-grid{grid-template-columns:1fr}}
+
   </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -1275,6 +1295,24 @@ body.gnb-open .admin-bottom-nav{
       </div>
     </div>
 
+    <div class="admin-view" id="view-all">
+      <div class="admin-groups">
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">전체 기능</h3><small>관리자 메뉴 모아보기</small></div>
+          <div class="notice">하단 네비바가 복잡해지지 않도록 자주 쓰는 핵심 메뉴만 고정하고, 추가 기능은 이 전체 탭에서 이동합니다.</div>
+        </div>
+        <div class="admin-all-grid">
+          <button class="admin-all-card" type="button" data-admin-view="dashboard"><span class="admin-all-icon dashboard">📊</span><strong>대시보드</strong><small>운영 현황과 통계</small></button>
+          <button class="admin-all-card" type="button" data-admin-view="benefits"><span class="admin-all-icon benefits">🎁</span><strong>혜택 관리</strong><small>제휴 혜택 등록/수정</small></button>
+          <button class="admin-all-card" type="button" data-admin-view="notices"><span class="admin-all-icon notices">📢</span><strong>공지 관리</strong><small>공지 작성과 푸시 연결</small></button>
+          <button class="admin-all-card" type="button" data-admin-view="members"><span class="admin-all-icon members">👥</span><strong>회원 관리</strong><small>입주민 계정 확인</small></button>
+          <button class="admin-all-card" type="button" data-admin-view="community"><span class="admin-all-icon community">💬</span><strong>커뮤니티 관리</strong><small>게시글·댓글·신고</small></button>
+          <button class="admin-all-card" type="button" data-admin-view="dashboard-data"><span class="admin-all-icon data">🗂️</span><strong>데이터 관리</strong><small>내보내기와 푸시 작업</small></button>
+          <button class="admin-all-card" type="button" onclick="location.href='/'"><span class="admin-all-icon resident">🏠</span><strong>입주민 앱</strong><small>공개 앱 바로가기</small></button>
+        </div>
+      </div>
+    </div>
+
     <div class="admin-view" id="view-dashboard-data">
       <div class="admin-groups">
         <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">데이터 관리</h3><small>전체 데이터 관리</small></div><div class="grid-2"><button class="btn btn-soft" id="exportBtn" type="button">JSON 내보내기</button><button class="btn btn-soft" id="seedBtn" type="button">기본 데이터 업로드</button></div></div><div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">푸시 작업</h3><small id="pushJobCount">0건</small></div><div class="mini-list" id="pushJobList"></div></div>
@@ -1288,8 +1326,8 @@ body.gnb-open .admin-bottom-nav{
     <button class="admin-nav-btn active" data-admin-view="dashboard"><span class="nav-icon">📊</span><span class="nav-label">대시보드</span></button>
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
-    <button class="admin-nav-btn" data-admin-view="community"><span class="nav-icon">💬</span><span class="nav-label">커뮤니티</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
+    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">☰</span><span class="nav-label">전체</span></button>
   </nav>
 
   <script type="module">
@@ -2727,6 +2765,16 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
                 <span class="gnb-card-arrow">›</span>
               </span>
             </button>
+            <button class="gnb-menu-item gnb-tone-all" type="button" data-admin-view="all"><span class="gnb-active-badge" hidden>ACTIVE</span>
+              <span class="gnb-card">
+                <span class="gnb-card-icon all">☰</span>
+                <span class="gnb-card-copy">
+                  <strong>전체 기능</strong>
+                  <span>커뮤니티와 추가 운영 메뉴 모아보기</span>
+                </span>
+                <span class="gnb-card-arrow">›</span>
+              </span>
+            </button>
             <button class="gnb-menu-item gnb-tone-data" type="button" data-admin-view="dashboard-data"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
                 <span class="gnb-card-icon data">🗂️</span>
@@ -2796,6 +2844,16 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
               <span class="gnb-card-copy">
                 <strong>데이터</strong>
                 <span>JSON 내보내기와 푸시 작업 확인</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
+          <button class="gnb-menu-subitem gnb-tone-all" type="button" data-admin-view="all"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon all">☰</span>
+              <span class="gnb-card-copy">
+                <strong>전체</strong>
+                <span>숨겨진 운영 기능과 확장 메뉴</span>
               </span>
               <span class="gnb-card-arrow">›</span>
             </span>
