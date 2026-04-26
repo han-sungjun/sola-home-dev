@@ -1601,103 +1601,157 @@ body.gnb-open .bottom-nav{
 /* ===== 간단 확인 신뢰 UX 패치 ===== */
 .trust-hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.trust-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;backdrop-filter:blur(8px)}.trust-panel{margin-top:14px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.06)}.trust-panel-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.trust-panel-icon{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:22px;flex:0 0 auto}.trust-panel-title{margin:0;font-size:17px;letter-spacing:-.04em}.trust-panel-desc{margin:5px 0 0;color:#475569;font-size:13px;line-height:1.65}.trust-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.trust-item{padding:13px;border-radius:18px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 10px 22px rgba(15,23,42,.04)}.trust-item strong{display:block;font-size:13px;color:#0f172a}.trust-item span{display:block;margin-top:4px;font-size:11px;line-height:1.45;color:#64748b}.trust-notice-line{margin-top:12px;padding:11px 12px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-size:12px;font-weight:900;line-height:1.55}.privacy-zero-section{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#ffffff 86%)}.privacy-zero-list{display:grid;gap:10px}.privacy-zero-item{display:flex;align-items:flex-start;gap:10px;padding:13px;border-radius:18px;background:#fff;border:1px solid rgba(37,99,235,.10)}.privacy-zero-icon{width:34px;height:34px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;flex:0 0 auto}.privacy-zero-copy strong{display:block;font-size:13px}.privacy-zero-copy p{margin:4px 0 0;color:#64748b;font-size:12px;line-height:1.55}.privacy-hidden-field{display:none!important}@media(max-width:370px){.trust-grid{grid-template-columns:1fr}.trust-hero-badges{padding-right:58px}}
 
-
-/* ===== 관리자 권한 배지 + 프사 이미지 설정 ===== */
-.user-chip.role-root,
-.gnb-account-card.role-root{
-  border-color:rgba(245,158,11,.42)!important;
-  background:radial-gradient(circle at top right,rgba(251,191,36,.24),transparent 34%),linear-gradient(180deg,#fff7ed 0%,#ffffff 82%)!important;
-  box-shadow:0 18px 38px rgba(245,158,11,.20), inset 0 0 0 1px rgba(251,191,36,.24)!important;
-}
-.user-chip.role-admin,
-.gnb-account-card.role-admin{
-  border-color:rgba(99,102,241,.32)!important;
-  background:radial-gradient(circle at top right,rgba(129,140,248,.18),transparent 34%),linear-gradient(180deg,#eef2ff 0%,#ffffff 86%)!important;
-  box-shadow:0 16px 34px rgba(99,102,241,.14), inset 0 0 0 1px rgba(99,102,241,.16)!important;
-}
-.user-chip.role-root .user-sub,
-.gnb-account-card.role-root .gnb-account-sub{
-  color:#92400e;
-  font-weight:1000;
-}
-.user-chip.role-admin .user-sub,
-.gnb-account-card.role-admin .gnb-account-sub{
-  color:#4338ca;
-  font-weight:1000;
-}
-.user-chip.role-root .user-avatar,
-.gnb-account-card.role-root .gnb-account-avatar{
-  background:linear-gradient(135deg,#fef3c7,#f59e0b);
-  color:#78350f;
-  box-shadow:0 0 0 3px rgba(251,191,36,.18),0 10px 22px rgba(245,158,11,.28), inset 0 0 0 1px rgba(255,255,255,.72);
-}
-.user-chip.role-admin .user-avatar,
-.gnb-account-card.role-admin .gnb-account-avatar{
-  background:linear-gradient(135deg,#e0e7ff,#818cf8);
-  color:#312e81;
-  box-shadow:0 0 0 3px rgba(129,140,248,.14),0 10px 22px rgba(99,102,241,.18), inset 0 0 0 1px rgba(255,255,255,.70);
-}
-.user-avatar.has-photo,
-.gnb-account-avatar.has-photo{
-  padding:0;
-  overflow:hidden;
-  background:#fff!important;
-}
-.user-avatar.has-photo img,
-.gnb-account-avatar.has-photo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-.role-badge-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  min-height:19px;
-  padding:3px 8px;
-  border-radius:999px;
-  font-size:10px;
-  line-height:1;
-  font-weight:1000;
-  white-space:nowrap;
-}
-.role-badge-chip.root{
-  color:#92400e;
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  box-shadow:0 8px 18px rgba(245,158,11,.15);
-}
-.role-badge-chip.admin{
-  color:#4338ca;
-  background:#eef2ff;
-  border:1px solid #c7d2fe;
-  box-shadow:0 8px 18px rgba(99,102,241,.10);
-}
-.profile-preview-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:12px;
-  border-radius:18px;
-  border:1px solid #e2e8f0;
-  background:#f8fafc;
-}
-.profile-preview-avatar{
-  width:54px;
-  height:54px;
-  border-radius:18px;
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-  background:#eef2ff;
-  color:#334155;
-  font-size:22px;
-  flex:0 0 auto;
-}
-.profile-preview-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.profile-preview-copy{min-width:0;color:#64748b;font-size:12px;line-height:1.55}
-.profile-preview-copy strong{display:block;color:#0f172a;font-size:13px;margin-bottom:2px}
+  
+    /* ===== Role badge + profile image upload ===== */
+    .user-chip.role-root{
+      border-color:rgba(245,158,11,.38);
+      background:linear-gradient(180deg,#fff7ed 0%,rgba(255,255,255,.94) 76%);
+      box-shadow:0 18px 38px rgba(245,158,11,.18), inset 0 0 0 1px rgba(251,191,36,.18);
+    }
+    .user-chip.role-admin{
+      border-color:rgba(37,99,235,.24);
+      background:linear-gradient(180deg,#eff6ff 0%,rgba(255,255,255,.94) 76%);
+      box-shadow:0 16px 34px rgba(37,99,235,.13), inset 0 0 0 1px rgba(147,197,253,.18);
+    }
+    .role-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      width:max-content;
+      margin-top:3px;
+      padding:3px 7px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:1000;
+      line-height:1.1;
+      border:1px solid transparent;
+      box-shadow:0 7px 14px rgba(15,23,42,.06);
+    }
+    .role-badge.root{
+      color:#92400e;
+      background:linear-gradient(135deg,#fef3c7,#fff7ed);
+      border-color:#fbbf24;
+      text-shadow:0 1px 0 rgba(255,255,255,.7);
+    }
+    .role-badge.admin{
+      color:#1d4ed8;
+      background:linear-gradient(135deg,#dbeafe,#eff6ff);
+      border-color:#93c5fd;
+    }
+    .role-badge.resident{
+      display:none;
+    }
+    .profile-avatar{
+      position:relative;
+      overflow:hidden;
+      background:#eef2ff;
+      color:#334155;
+    }
+    .profile-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      border-radius:inherit;
+    }
+    .profile-avatar .avatar-fallback{
+      width:100%;
+      height:100%;
+      display:grid;
+      place-items:center;
+    }
+    .profile-avatar.role-root{
+      background:linear-gradient(135deg,#fef3c7,#fff7ed);
+      color:#92400e;
+      box-shadow:0 0 0 2px rgba(251,191,36,.28), 0 12px 24px rgba(245,158,11,.18);
+    }
+    .profile-avatar.role-admin{
+      background:linear-gradient(135deg,#dbeafe,#eff6ff);
+      color:#1d4ed8;
+      box-shadow:0 0 0 2px rgba(147,197,253,.22), 0 12px 24px rgba(37,99,235,.12);
+    }
+    .profile-upload-card{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:14px;
+      border-radius:22px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+    }
+    .profile-upload-avatar{
+      position:relative;
+      width:72px;
+      height:72px;
+      border-radius:24px;
+      display:grid;
+      place-items:center;
+      background:#eef2ff;
+      color:#334155;
+      border:1px solid #e2e8f0;
+      overflow:visible;
+      flex:0 0 auto;
+      cursor:pointer;
+      transition:transform .16s ease, box-shadow .16s ease;
+    }
+    .profile-upload-avatar:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(15,23,42,.10);
+    }
+    .profile-upload-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      border-radius:24px;
+      display:block;
+    }
+    .profile-upload-avatar .avatar-fallback{
+      font-size:28px;
+    }
+    .profile-upload-plus{
+      position:absolute;
+      right:-4px;
+      bottom:-4px;
+      width:26px;
+      height:26px;
+      border:none;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:#0f172a;
+      color:#fff;
+      font-size:17px;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(15,23,42,.22), 0 0 0 3px #fff;
+      z-index:2;
+    }
+    .profile-upload-copy{
+      min-width:0;
+      flex:1;
+    }
+    .profile-upload-copy strong{
+      display:block;
+      font-size:14px;
+      line-height:1.3;
+      color:#0f172a;
+    }
+    .profile-upload-copy span{
+      display:block;
+      margin-top:5px;
+      font-size:12px;
+      line-height:1.55;
+      color:#64748b;
+    }
+    .profile-upload-status{
+      margin-top:8px;
+      font-size:12px;
+      font-weight:800;
+      color:#64748b;
+      min-height:18px;
+    }
+    .profile-upload-status.ok{color:#15803d}
+    .profile-upload-status.err{color:#b91c1c}
 
   </style>
 </head>
@@ -1716,7 +1770,7 @@ body.gnb-open .bottom-nav{
       <div class="topbar-row">
         <div class="topbar-right">
           <div class="user-chip" id="userChip" title="계정 정보" role="button" tabindex="0" aria-label="설정 열기">
-            <div class="user-avatar">👤</div>
+            <div class="user-avatar profile-avatar" id="topProfileAvatar"><span class="avatar-fallback">👤</span></div>
             <div class="user-meta">
               <strong class="user-name" id="userNickname" title="로그인 확인 중">로그인 확인 중</strong>
               <span class="user-sub" id="userUnitInfo">입주민 계정</span>
@@ -1826,6 +1880,7 @@ body.gnb-open .bottom-nav{
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
@@ -1840,6 +1895,7 @@ body.gnb-open .bottom-nav{
     const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
+    const storage=getStorage(app);
 
     /* =========================
        Security Guard / Session Check
@@ -1868,7 +1924,8 @@ body.gnb-open .bottom-nav{
           role: profile.role || profile.userRole || 'resident',
           approvalStatus: profile.approvalStatus || '',
           phoneVerified: !!profile.phoneVerified,
-          accountStatus: profile.accountStatus || ''
+          accountStatus: profile.accountStatus || '',
+          profileImageUrl: profile.profileImageUrl || ''
         }));
       }catch(error){
         console.warn('loginUser 저장 실패', error);
@@ -2608,109 +2665,156 @@ function setPushStatusUi(enabled){
     function getDisplayNickname(){
       return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
     }
-    function escapeAttr(value=''){
-      return String(value ?? '')
-        .replaceAll('&','&amp;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#39;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;');
-    }
-
-    function getAccountRoleMeta(profile = {}){
-      const role = String(profile.role || profile.userRole || '').toLowerCase();
-
-      if(role === 'root'){
-        return {
-          role,
-          label: '👑 최고 관리자',
-          chip: '최고 관리자 계정',
-          className: 'role-root',
-          avatar: '👑'
-        };
-      }
-
-      if(role === 'admin'){
-        return {
-          role,
-          label: '🛡️ 일반 관리자',
-          chip: '일반 관리자 계정',
-          className: 'role-admin',
-          avatar: '🛡️'
-        };
-      }
-
-      return {
-        role: 'resident',
-        label: '입주민 계정',
-        chip: '입주민 계정',
-        className: 'role-resident',
-        avatar: '👤'
-      };
-    }
-
     function getDisplayUnitInfo(){
-      const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
-      if(roleMeta.role === 'root' || roleMeta.role === 'admin') return roleMeta.label;
-
       const building = state.currentUserProfile?.building;
       const unit = state.currentUserProfile?.unit;
       if(building && unit) return `${building}동 ${unit}호`;
-      return roleMeta.label;
+      return '입주민 계정';
     }
 
-    function getProfileImageUrl(){
-      const profile = state.currentUserProfile || {};
-      return String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+    function getUserRole(profile = state.currentUserProfile || {}){
+      return String(profile.role || profile.userRole || 'resident').trim().toLowerCase();
     }
 
-    function renderProfileAvatar(target, roleMeta, profileImageUrl){
-      if(!target) return;
-      target.classList.remove('has-photo');
+    function getUserRoleLabel(profile = state.currentUserProfile || {}){
+      const role = getUserRole(profile);
+      if(role === 'root') return '최고 관리자';
+      if(role === 'admin') return '일반 관리자';
+      return '입주민 계정';
+    }
 
-      if(profileImageUrl){
-        target.classList.add('has-photo');
-        target.innerHTML = `<img src="${escapeAttr(profileImageUrl)}" alt="프로필 이미지" loading="lazy">`;
+    function getUserRoleIcon(profile = state.currentUserProfile || {}){
+      const role = getUserRole(profile);
+      if(role === 'root') return '👑';
+      if(role === 'admin') return '🛡️';
+      return '';
+    }
+
+    function getProfileImageUrl(profile = state.currentUserProfile || {}){
+      return String(profile.profileImageUrl || profile.photoURL || profile.photoUrl || '').trim();
+    }
+
+    function renderAvatar(target, profile = state.currentUserProfile || {}){
+      const el = typeof target === 'string' ? qs(target) : target;
+      if(!el) return;
+      const imageUrl = getProfileImageUrl(profile);
+      const role = getUserRole(profile);
+      el.classList.remove('role-root','role-admin','role-resident');
+      el.classList.add(`role-${role === 'root' || role === 'admin' ? role : 'resident'}`);
+      if(imageUrl){
+        el.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="프로필 이미지" loading="lazy">`;
+      }else{
+        const icon = role === 'root' ? '👑' : role === 'admin' ? '🛡️' : '👤';
+        el.innerHTML = `<span class="avatar-fallback">${icon}</span>`;
+      }
+    }
+
+    function updateRoleVisuals(profile = state.currentUserProfile || {}){
+      const role = getUserRole(profile);
+      const userChip = qs('#userChip');
+      userChip?.classList.remove('role-root','role-admin','role-resident');
+      userChip?.classList.add(`role-${role === 'root' || role === 'admin' ? role : 'resident'}`);
+      renderAvatar('#topProfileAvatar', profile);
+      renderAvatar('#gnbProfileAvatar', profile);
+      renderAvatar('#profileImagePickBtn', profile);
+    }
+
+    function renderRoleBadge(container, profile = state.currentUserProfile || {}){
+      if(!container) return;
+      const role = getUserRole(profile);
+      const oldBadge = container.querySelector('.role-badge');
+      oldBadge?.remove();
+      const badge = document.createElement('span');
+      badge.className = `role-badge ${role === 'root' || role === 'admin' ? role : 'resident'}`;
+      const icon = getUserRoleIcon(profile);
+      badge.textContent = role === 'root' || role === 'admin' ? `${icon} ${getUserRoleLabel(profile)}` : '';
+      if(role === 'root' || role === 'admin') container.appendChild(badge);
+    }
+
+    async function uploadProfileImageFile(file){
+      if(!state.currentUser?.uid){
+        await openModalAlert('로그인 후 이용해 주세요.');
+        return;
+      }
+      if(!file) return;
+      if(!String(file.type || '').startsWith('image/')){
+        await openModalAlert('이미지 파일만 업로드할 수 있습니다.', qs('#profileImagePickBtn'));
+        return;
+      }
+      if(file.size > 5 * 1024 * 1024){
+        await openModalAlert('이미지는 5MB 이하 파일만 업로드해 주세요.', qs('#profileImagePickBtn'));
         return;
       }
 
-      target.textContent = roleMeta.avatar || '👤';
-    }
+      const statusEl = qs('#profileUploadStatus');
+      try{
+        if(statusEl){
+          statusEl.className = 'profile-upload-status';
+          statusEl.textContent = '이미지를 업로드하고 있습니다...';
+        }
+        showGlobalLoading();
 
-    function applyRoleClass(target, className){
-      if(!target) return;
-      target.classList.remove('role-root','role-admin','role-resident');
-      target.classList.add(className || 'role-resident');
+        const safeExt = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8) || 'png';
+        const path = `profile-images/${state.currentUser.uid}/profile-${Date.now()}.${safeExt}`;
+        const fileRef = storageRef(storage, path);
+        await uploadBytes(fileRef, file, {
+          contentType: file.type || 'image/png',
+          customMetadata: { uid: state.currentUser.uid }
+        });
+        const profileImageUrl = await getDownloadURL(fileRef);
+
+        await setDoc(doc(db, 'users', state.currentUser.uid), {
+          profileImageUrl,
+          profileImagePath: path,
+          updatedAt: serverTimestamp()
+        }, { merge:true });
+
+        state.currentUserProfile = {
+          ...(state.currentUserProfile || {}),
+          profileImageUrl,
+          profileImagePath: path
+        };
+
+        const urlInput = qs('#profileImageUrlInput');
+        if(urlInput) urlInput.value = profileImageUrl;
+        updateUserChip();
+
+        if(statusEl){
+          statusEl.className = 'profile-upload-status ok';
+          statusEl.textContent = '업로드 완료! 앱 화면에 반영되었습니다.';
+        }
+        hideGlobalLoading(80);
+      }catch(error){
+        console.error('프로필 이미지 업로드 실패', error);
+        hideGlobalLoading(80);
+        if(statusEl){
+          statusEl.className = 'profile-upload-status err';
+          statusEl.textContent = '업로드 중 오류가 발생했습니다.';
+        }
+        await openModalAlert('프로필 이미지 업로드 중 오류가 발생했습니다. Storage 규칙과 네트워크 상태를 확인해 주세요.', qs('#profileImagePickBtn'));
+      }finally{
+        const input = qs('#profileImageFileInput');
+        if(input) input.value = '';
+      }
     }
 
     function updateUserChip(){
       const nickname = getDisplayNickname();
-      const unitInfo = getDisplayUnitInfo();
-      const profileImageUrl = getProfileImageUrl();
-      const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
-
+      const roleLabel = getUserRoleLabel();
+      const profile = state.currentUserProfile || {};
       const nicknameEl = qs('#userNickname');
       const unitInfoEl = qs('#userUnitInfo');
       const gnbAccountNameEl = qs('#gnbAccountName');
       const gnbAccountUnitEl = qs('#gnbAccountUnit');
-      const userChipEl = qs('#userChip');
-      const gnbAccountCardEl = qs('#gnbSettingsAccountSummary .gnb-account-card');
-      const userAvatarEl = qs('#userChip .user-avatar');
-      const gnbAvatarEl = qs('#gnbSettingsAccountSummary .gnb-account-avatar');
 
       if(nicknameEl) nicknameEl.textContent = nickname;
-      if(unitInfoEl) unitInfoEl.innerHTML = roleMeta.role === 'root' || roleMeta.role === 'admin'
-        ? `<span class="role-badge-chip ${roleMeta.role}">${escapeHtml(roleMeta.label)}</span>`
-        : unitInfo;
+      if(unitInfoEl) unitInfoEl.textContent = roleLabel;
       if(gnbAccountNameEl) gnbAccountNameEl.textContent = nickname;
-      if(gnbAccountUnitEl) gnbAccountUnitEl.innerHTML = roleMeta.role === 'root' || roleMeta.role === 'admin'
-        ? `<span class="role-badge-chip ${roleMeta.role}">${escapeHtml(roleMeta.chip)}</span>`
-        : unitInfo;
+      if(gnbAccountUnitEl) gnbAccountUnitEl.textContent = roleLabel;
 
-      applyRoleClass(userChipEl, roleMeta.className);
-      applyRoleClass(gnbAccountCardEl, roleMeta.className);
-      renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
-      renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
+      renderRoleBadge(qs('#userChip .user-meta'), profile);
+      renderRoleBadge(qs('.gnb-account-meta'), profile);
+      updateRoleVisuals(profile);
     }
 
     function normalizeProfileInput(value=''){
@@ -2720,25 +2824,19 @@ function setPushStatusUi(enabled){
     function fillAccountEditForm(){
       const profile = state.currentUserProfile || {};
       const nicknameInput = qs('#accountNicknameInput');
-      const profileImageInput = qs('#accountProfileImageInput');
       const buildingInput = qs('#accountBuildingInput');
       const unitInput = qs('#accountUnitInput');
+      const profileImageUrlInput = qs('#profileImageUrlInput');
+      const statusEl = qs('#profileUploadStatus');
       if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
-      if(profileImageInput) profileImageInput.value = normalizeProfileInput(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '');
       if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
       if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
-      updateProfileImagePreview();
-    }
-
-    function updateProfileImagePreview(){
-      const preview = qs('#accountProfilePreview');
-      const profileImageInput = qs('#accountProfileImageInput');
-      if(!preview) return;
-      const url = normalizeProfileInput(profileImageInput?.value || '');
-      const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
-      preview.innerHTML = url
-        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">`
-        : roleMeta.avatar || '👤';
+      if(profileImageUrlInput) profileImageUrlInput.value = getProfileImageUrl(profile);
+      if(statusEl){
+        statusEl.className = 'profile-upload-status';
+        statusEl.textContent = getProfileImageUrl(profile) ? '등록된 이미지가 앱 화면에 표시됩니다.' : '아직 등록된 이미지가 없습니다.';
+      }
+      renderAvatar('#profileImagePickBtn', profile);
     }
 
     function openAccountEditModal(){
@@ -2764,9 +2862,9 @@ function setPushStatusUi(enabled){
         }
 
         const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
-        const profileImageUrl = normalizeProfileInput(qs('#accountProfileImageInput')?.value || '');
         const building = normalizeProfileInput(qs('#accountBuildingInput')?.value || '');
         const unit = normalizeProfileInput(qs('#accountUnitInput')?.value || '');
+        const profileImageUrl = normalizeProfileInput(qs('#profileImageUrlInput')?.value || '');
 
         if(!nickname){
           await openModalAlert('닉네임을 입력해 주세요.', qs('#accountNicknameInput'));
@@ -2776,18 +2874,18 @@ function setPushStatusUi(enabled){
         showGlobalLoading();
         await setDoc(doc(db, 'users', state.currentUser.uid), {
           nickname,
-          profileImageUrl,
           building,
           unit,
+          profileImageUrl,
           updatedAt: serverTimestamp()
         }, { merge:true });
 
         state.currentUserProfile = {
           ...(state.currentUserProfile || {}),
           nickname,
-          profileImageUrl,
           building,
-          unit
+          unit,
+          profileImageUrl
         };
         updateUserChip();
         closeAccountEditModal();
@@ -5642,8 +5740,12 @@ function getShareTrackingParams(){
     qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
     qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
     qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
-    qs('#accountProfileImageInput')?.addEventListener('input', updateProfileImagePreview);
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
+    qs('#profileImagePickBtn')?.addEventListener('click', () => qs('#profileImageFileInput')?.click());
+    qs('#profileImageFileInput')?.addEventListener('change', async (event) => {
+      const file = event.target?.files?.[0];
+      if(file) await uploadProfileImageFile(file);
+    });
 
     qs('#accountEditModal')?.addEventListener('click', (event) => {
       const modal = qs('#accountEditModal');
@@ -5750,7 +5852,7 @@ function getShareTrackingParams(){
             </div>
             <div class="gnb-account-card">
               <div class="gnb-account">
-                <div class="gnb-account-avatar">👤</div>
+                <div class="gnb-account-avatar profile-avatar" id="gnbProfileAvatar"><span class="avatar-fallback">👤</span></div>
                 <div class="gnb-account-meta">
                   <span class="gnb-account-label">계정</span>
                   <strong class="gnb-account-name" id="gnbAccountName">로그인 확인 중</strong>
@@ -5853,20 +5955,22 @@ function getShareTrackingParams(){
     <div class="modal-body">
       <div class="account-edit-help">로그인한 계정의 표시 정보를 수정합니다. 이름·연락처 대신 닉네임 중심으로만 관리합니다.</div>
       <form class="account-edit-form" id="accountEditForm">
+        <div class="profile-upload-card">
+          <button class="profile-upload-avatar" id="profileImagePickBtn" type="button" title="프로필 이미지 업로드">
+            <span class="avatar-fallback">👤</span>
+            <span class="profile-upload-plus">+</span>
+          </button>
+          <div class="profile-upload-copy">
+            <strong>프사 이미지 설정</strong>
+            <span>+ 버튼을 누르면 이미지 파일을 선택하고, 업로드 완료 후 계정에 바로 표시됩니다.</span>
+            <div class="profile-upload-status" id="profileUploadStatus"></div>
+          </div>
+          <input id="profileImageFileInput" type="file" accept="image/*" hidden>
+          <input id="profileImageUrlInput" name="profileImageUrl" type="hidden">
+        </div>
         <div class="account-edit-field">
           <label for="accountNicknameInput">닉네임</label>
           <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
-        </div>
-        <div class="account-edit-field">
-          <label for="accountProfileImageInput">프로필 이미지 URL <small style="color:#94a3b8">선택</small></label>
-          <div class="profile-preview-row">
-            <div class="profile-preview-avatar" id="accountProfilePreview">👤</div>
-            <div class="profile-preview-copy">
-              <strong>프사 이미지 설정</strong>
-              <span>이미지 주소를 입력하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
-            </div>
-          </div>
-          <input id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="https://.../profile.png">
         </div>
         <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
