@@ -1829,142 +1829,159 @@ body.gnb-open .bottom-nav{
   }
 }
 
-  
 
-/* ===== GNB 관리자 전용 프리미엄 영역 / Root 전용 숨김 패널 ===== */
-.admin-only-menu,
-.root-only-panel{
-  display:none;
+/* ===== 자동 로그아웃 iPhone 위젯 스타일 + 시간 애니메이션 ===== */
+.topbar-left-titleline .myhills-idle-widget,
+.topbar-left-titleline [data-myhills-idle-widget="true"]{
+  position:relative!important;
+  min-width:106px!important;
+  min-height:62px!important;
+  padding:10px 12px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:2px!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  border:1px solid rgba(187,247,208,.95)!important;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,.96), rgba(255,255,255,.42) 26%, transparent 46%),
+    linear-gradient(180deg, rgba(240,253,244,.96) 0%, rgba(220,252,231,.94) 100%)!important;
+  color:#065f46!important;
+  box-shadow:
+    0 16px 34px rgba(22,163,74,.16),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(21,128,61,.10)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  transform:translateZ(0);
 }
-body.app-role-root .admin-only-menu,
-body.app-role-admin .admin-only-menu{
-  display:block;
-}
-body.app-role-root .root-only-panel{
-  display:block;
-}
-body.app-role-resident [data-view-link="shareinsights"],
-body.app-role-resident [data-view="shareinsights"]{
-  display:none!important;
-}
-.gnb-admin-premium{
-  position:relative;
-  overflow:hidden;
-  border-radius:26px;
-  padding:16px;
-  border:1px solid rgba(251,191,36,.34);
-  background:linear-gradient(135deg,#fff7ed 0%,#ffffff 58%,#f8fafc 100%);
-  box-shadow:0 18px 38px rgba(245,158,11,.14), inset 0 0 0 1px rgba(255,255,255,.72);
-}
-.gnb-admin-premium::before{
+.topbar-left-titleline .myhills-idle-widget::before,
+.topbar-left-titleline [data-myhills-idle-widget="true"]::before{
   content:"";
   position:absolute;
   inset:0;
-  background:radial-gradient(circle at top right,rgba(251,191,36,.24),transparent 36%);
+  border-radius:inherit;
   pointer-events:none;
+  background:linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,0) 42%);
 }
-.gnb-admin-premium > *{
-  position:relative;
-  z-index:1;
-}
-.gnb-admin-head{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:12px;
-}
-.gnb-admin-kicker{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:6px 9px;
+.topbar-left-titleline .myhills-idle-widget::after,
+.topbar-left-titleline [data-myhills-idle-widget="true"]::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:8px;
+  height:4px;
   border-radius:999px;
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#92400e;
-  font-size:11px;
-  font-weight:1000;
-  line-height:1;
+  background:linear-gradient(90deg,#16a34a,#065f46);
+  transform-origin:left center;
+  transform:scaleX(var(--idle-progress,1));
+  transition:transform .55s cubic-bezier(.2,.8,.2,1), background .22s ease;
+  box-shadow:0 0 0 1px rgba(255,255,255,.42), 0 5px 12px rgba(22,163,74,.20);
 }
-.gnb-admin-title{
-  margin:8px 0 4px;
-  font-size:18px;
-  letter-spacing:-.04em;
-  color:#0f172a;
+.topbar-left-titleline .myhills-idle-widget *,
+.topbar-left-titleline [data-myhills-idle-widget="true"] *{
+  text-align:center!important;
 }
-.gnb-admin-desc{
-  margin:0;
-  color:#64748b;
-  font-size:12px;
-  line-height:1.55;
+.topbar-left-titleline .myhills-idle-widget span,
+.topbar-left-titleline [data-myhills-idle-widget="true"] span{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  line-height:1.1!important;
 }
-.gnb-admin-crown{
-  width:44px;
-  height:44px;
-  border-radius:17px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#fef3c7,#f59e0b);
-  box-shadow:0 12px 24px rgba(245,158,11,.22), inset 0 0 0 1px rgba(255,255,255,.75);
-  flex:0 0 auto;
+.topbar-left-titleline .myhills-idle-widget strong,
+.topbar-left-titleline [data-myhills-idle-widget="true"] strong{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  line-height:1.05!important;
+  letter-spacing:-.035em!important;
 }
-.gnb-admin-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:12px;
+.topbar-left-titleline .myhills-idle-widget .idle-time,
+.topbar-left-titleline [data-myhills-idle-widget="true"] .idle-time,
+.topbar-left-titleline .myhills-idle-widget strong:last-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"] strong:last-child{
+  font-size:18px!important;
+  font-weight:1000!important;
+  color:#065f46!important;
+  font-variant-numeric:tabular-nums;
+  transform-origin:center;
+  transition:transform .22s ease, color .22s ease, text-shadow .22s ease;
 }
-.gnb-admin-actions .gnb-menu-item,
-.gnb-root-actions .gnb-action-btn{
-  margin:0;
-  justify-content:center;
-  text-align:center;
+.topbar-left-titleline .myhills-idle-widget .idle-label,
+.topbar-left-titleline [data-myhills-idle-widget="true"] .idle-label,
+.topbar-left-titleline .myhills-idle-widget span:first-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"] span:first-child{
+  font-size:11px!important;
+  font-weight:900!important;
+  color:#047857!important;
+  letter-spacing:-.03em!important;
+  white-space:nowrap!important;
 }
-.gnb-root-panel{
-  margin-top:12px;
-  padding:14px;
-  border-radius:22px;
-  border:1px solid rgba(245,158,11,.32);
-  background:rgba(255,251,235,.72);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.72);
+.topbar-left-titleline .myhills-idle-widget.is-ticking,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-ticking{
+  animation:idleWidgetTick .42s ease both;
 }
-.gnb-root-panel h4{
-  margin:0 0 6px;
-  font-size:15px;
-  letter-spacing:-.03em;
-  color:#78350f;
+.topbar-left-titleline .myhills-idle-widget.is-ticking .idle-time,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-ticking .idle-time,
+.topbar-left-titleline .myhills-idle-widget.is-ticking strong:last-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-ticking strong:last-child{
+  animation:idleNumberTick .42s ease both;
 }
-.gnb-root-panel p{
-  margin:0 0 12px;
-  color:#92400e;
-  font-size:12px;
-  line-height:1.55;
+.topbar-left-titleline .myhills-idle-widget.is-warning,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning{
+  border-color:#fecaca!important;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,.98), rgba(255,255,255,.45) 26%, transparent 46%),
+    linear-gradient(180deg, rgba(255,241,242,.98) 0%, rgba(254,226,226,.96) 100%)!important;
+  color:#be123c!important;
+  box-shadow:0 16px 34px rgba(225,29,72,.16), inset 0 1px 0 rgba(255,255,255,.95)!important;
 }
-.gnb-root-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+.topbar-left-titleline .myhills-idle-widget.is-warning::after,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning::after{
+  background:linear-gradient(90deg,#fb7185,#be123c);
+  box-shadow:0 0 0 1px rgba(255,255,255,.42), 0 5px 12px rgba(225,29,72,.20);
 }
-@media(max-width:370px){
-  .gnb-admin-actions,
-  .gnb-root-actions{grid-template-columns:1fr;}
+.topbar-left-titleline .myhills-idle-widget.is-warning .idle-label,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning .idle-label,
+.topbar-left-titleline .myhills-idle-widget.is-warning span:first-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning span:first-child{
+  color:#be123c!important;
 }
-
-/* GNB 계정 glow를 둥근 직사각형 카드 안쪽으로 정리 */
-.gnb-account-card{
-  border-radius:22px;
-  overflow:hidden;
+.topbar-left-titleline .myhills-idle-widget.is-warning .idle-time,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning .idle-time,
+.topbar-left-titleline .myhills-idle-widget.is-warning strong:last-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning strong:last-child{
+  color:#be123c!important;
+  text-shadow:0 6px 18px rgba(225,29,72,.20);
 }
-.gnb-account-card.role-root{
-  border:1px solid rgba(251,191,36,.46)!important;
-  background:linear-gradient(90deg,#fff7ed 0%,#ffffff 64%,#fff7ed 100%)!important;
-  box-shadow:0 12px 26px rgba(245,158,11,.14), inset 0 0 0 1px rgba(251,191,36,.18)!important;
+@keyframes idleWidgetTick{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-1px) scale(1.018)}
 }
-.gnb-account-card.role-admin{
-  border:1px solid rgba(99,102,241,.36)!important;
-  background:linear-gradient(90deg,#eef2ff 0%,#ffffff 68%,#eef2ff 100%)!important;
-  box-shadow:0 10px 24px rgba(99,102,241,.11), inset 0 0 0 1px rgba(99,102,241,.14)!important;
+@keyframes idleNumberTick{
+  0%{transform:translateY(0) scale(1); opacity:1}
+  35%{transform:translateY(-1px) scale(1.08); opacity:.86}
+  100%{transform:translateY(0) scale(1); opacity:1}
+}
+@media (max-width:420px){
+  .topbar-left-titleline .myhills-idle-widget,
+  .topbar-left-titleline [data-myhills-idle-widget="true"]{
+    min-width:96px!important;
+    min-height:58px!important;
+    padding:9px 10px 12px!important;
+    border-radius:22px!important;
+  }
+  .topbar-left-titleline .myhills-idle-widget .idle-time,
+  .topbar-left-titleline [data-myhills-idle-widget="true"] .idle-time,
+  .topbar-left-titleline .myhills-idle-widget strong:last-child,
+  .topbar-left-titleline [data-myhills-idle-widget="true"] strong:last-child{
+    font-size:17px!important;
+  }
 }
 
   </style>
@@ -2769,38 +2786,8 @@ function setPushStatusUi(enabled){
       });
     }
 
-    function getCurrentRoleMeta(){
-      return getAccountRoleMeta(state.currentUserProfile || {});
-    }
-
-    function isAdminRole(){
-      const role = getCurrentRoleMeta().role;
-      return role === 'root' || role === 'admin';
-    }
-
-    function isRootRole(){
-      return getCurrentRoleMeta().role === 'root';
-    }
-
-    function applyBodyRoleClass(roleMeta = getCurrentRoleMeta()){
-      document.body.classList.remove('app-role-root','app-role-admin','app-role-resident');
-      document.body.classList.add(`app-role-${roleMeta.role || 'resident'}`);
-    }
-
-    function enforceShareInsightAccess(){
-      if(state.view === 'shareinsights' && !isAdminRole()){
-        state.view = 'home';
-        return false;
-      }
-      return true;
-    }
-
     function changeView(nextView){
       if(!nextView) return;
-      if(nextView === 'shareinsights' && !isAdminRole()){
-        openModalAlert('공유 인사이트는 관리자 계정에서만 확인할 수 있습니다.');
-        return;
-      }
       saveCurrentViewScroll();
       state.view = nextView;
       if(nextView === 'favorite' || nextView === 'top5' || nextView === 'map' || nextView === 'shareinsights') state.filter = 'all';
@@ -3007,7 +2994,6 @@ function setPushStatusUi(enabled){
 
       applyRoleClass(userChipEl, roleMeta.className);
       applyRoleClass(gnbAccountCardEl, roleMeta.className);
-      applyBodyRoleClass(roleMeta);
       renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
       renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
     }
@@ -5705,8 +5691,8 @@ function getShareTrackingParams(){
       }catch(error){ console.warn('입주민 활동 랭킹 초기화 실패', error); }
     }
 
-    function updateView(){enforceShareInsightAccess();qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='shareinsights') setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
@@ -5822,25 +5808,6 @@ function getShareTrackingParams(){
       }, { threshold: 0.35 });
       targets.forEach((el) => observer.observe(el));
     }
-
-    function openAdminConsole(){
-      if(!isAdminRole()){
-        openModalAlert('관리자 페이지는 관리자 계정에서만 열 수 있습니다.');
-        return;
-      }
-      window.location.href = '/sola-admin-x92ks';
-    }
-
-    qs('#openAdminPageFromGnbBtn')?.addEventListener('click', openAdminConsole);
-    qs('#rootOpenAdminBtn')?.addEventListener('click', openAdminConsole);
-    qs('#rootRefreshStateBtn')?.addEventListener('click', () => {
-      if(!isRootRole()){
-        openModalAlert('Root 전용 기능입니다.');
-        return;
-      }
-      renderAll();
-      openModalAlert('Root 화면 상태를 새로고침했습니다.');
-    });
 
     gnbCloseBtn?.addEventListener('click', closeGnb);
     gnbOverlay?.addEventListener('click', closeGnb);
@@ -6037,6 +6004,7 @@ function getShareTrackingParams(){
             <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
+            <button class="gnb-menu-item" type="button" data-view-link="shareinsights">공유 인사이트</button>
             <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
           </div>
         </div>
@@ -6049,38 +6017,7 @@ function getShareTrackingParams(){
             <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
-          </div>
-        </div>
-      </section>
-
-
-      <section class="gnb-section admin-only-menu" aria-label="관리자 전용 메뉴">
-        <div class="gnb-admin-premium">
-          <div class="gnb-admin-head">
-            <div>
-              <span class="gnb-admin-kicker">💎 관리자 전용</span>
-              <h3 class="gnb-admin-title">운영 메뉴</h3>
-              <p class="gnb-admin-desc">공유 흐름과 운영 지표는 관리자 계정에서만 확인할 수 있습니다.</p>
-            </div>
-            <div class="gnb-admin-crown">👑</div>
-          </div>
-          <div class="gnb-admin-actions">
-            <button class="gnb-menu-item" type="button" data-view-link="shareinsights">공유 인사이트</button>
-            <button class="gnb-menu-item" type="button" id="openAdminPageFromGnbBtn">관리자 페이지</button>
-          </div>
-          <div class="gnb-root-panel root-only-panel" aria-label="Root 전용 숨겨진 기능 패널">
-            <h4>👑 Root 전용 숨겨진 기능 패널</h4>
-            <p>최고 관리자 계정에서만 보이는 운영 보조 영역입니다.</p>
-            <div class="gnb-root-actions">
-              <button class="gnb-action-btn primary" type="button" id="rootOpenAdminBtn">
-                <span>관리자 열기</span>
-                <span class="desc">Root</span>
-              </button>
-              <button class="gnb-action-btn outline" type="button" id="rootRefreshStateBtn">
-                <span>화면 새로고침</span>
-                <span class="desc">상태 갱신</span>
-              </button>
-            </div>
+            <button class="gnb-menu-subitem" type="button" data-view-link="shareinsights">공유 인사이트</button>
           </div>
         </div>
       </section>
@@ -6308,5 +6245,51 @@ function handlePushDeepLink() {
 
 window.addEventListener("load", handlePushDeepLink);
 </script>
+
+
+  <script id="myhills-idle-widget-enhancer">
+    (function(){
+      const TOTAL_SECONDS = 30 * 60;
+
+      function parseSeconds(text){
+        const match = String(text || '').match(/(\d{1,2})\s*:\s*(\d{2})/);
+        if(!match) return null;
+        return (Number(match[1]) || 0) * 60 + (Number(match[2]) || 0);
+      }
+
+      function decorateIdleWidget(){
+        const header = document.querySelector('.topbar-left-titleline');
+        if(!header) return;
+
+        Array.from(header.children || []).forEach((el) => {
+          if(!el || el.classList.contains('brand')) return;
+          const text = (el.textContent || '').trim();
+          if(!text.includes('자동 로그아웃') && !/\d{1,2}\s*:\s*\d{2}/.test(text)) return;
+
+          el.classList.add('myhills-idle-widget');
+          el.dataset.myhillsIdleWidget = 'true';
+
+          const seconds = parseSeconds(text);
+          if(seconds !== null){
+            const progress = Math.max(0, Math.min(1, seconds / TOTAL_SECONDS));
+            el.style.setProperty('--idle-progress', String(progress));
+            el.classList.toggle('is-warning', seconds <= 60);
+          }
+
+          if(el.dataset.lastIdleText && el.dataset.lastIdleText !== text){
+            el.classList.remove('is-ticking');
+            void el.offsetWidth;
+            el.classList.add('is-ticking');
+          }
+          el.dataset.lastIdleText = text;
+        });
+      }
+
+      decorateIdleWidget();
+      const observer = new MutationObserver(decorateIdleWidget);
+      observer.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
+      window.addEventListener('pageshow', decorateIdleWidget);
+    })();
+  </script>
 
 </body></html>
