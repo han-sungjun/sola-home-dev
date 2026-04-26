@@ -281,10 +281,10 @@ function startAutoLogoutTimer() {
 
     //if (diff > WARNING_TIME && !warningShown) {
       warningShown = true;
-      await showAppModalAlert("1분 후 자동 로그아웃 됩니다.", "자동 로그아웃 안내");
+    //  await showAppModalAlert("1분 후 자동 로그아웃 됩니다.", "자동 로그아웃 안내");
     //}
 
-    if (diff > AUTO_LOGOUT_TIME) {
+   // if (diff > AUTO_LOGOUT_TIME) {
       try {
         stopAutoLogoutTimer();
         await signOut(auth);
@@ -293,7 +293,7 @@ function startAutoLogoutTimer() {
       } catch (e) {
         console.log("auto logout error", e);
       }
-    }
+    //}
 
     syncIdleTimerStateFromAutoLogout();
   }, 1000);
