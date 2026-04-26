@@ -2120,6 +2120,24 @@ body.app-role-resident [data-view="shareinsights"]{
   background:linear-gradient(90deg,#eef2ff 0%,#ffffff 68%,#eef2ff 100%)!important;
   box-shadow:0 10px 24px rgba(99,102,241,.11), inset 0 0 0 1px rgba(99,102,241,.14)!important;
 }
+/* ===== 프사 이미지 직접 업로드 + 플러스 버튼 ===== */
+.profile-preview-avatar{position:relative;}
+.profile-preview-avatar.profile-uploading{opacity:.72;}
+.profile-upload-plus{
+  position:absolute;right:-6px;bottom:-6px;width:28px;height:28px;border:none;border-radius:999px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#0f172a,#2563eb);color:#fff;font-size:18px;font-weight:1000;line-height:1;cursor:pointer;
+  box-shadow:0 10px 22px rgba(15,23,42,.22), inset 0 0 0 1px rgba(255,255,255,.25);z-index:2;
+  transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+.profile-upload-plus:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 14px 28px rgba(15,23,42,.26)}
+.profile-upload-plus:active{transform:scale(.94)}
+.profile-upload-plus[disabled]{opacity:.55;cursor:wait;transform:none;}
+.profile-file-input{display:none!important;}
+.profile-upload-status{display:block;margin-top:8px;font-size:11px;font-weight:800;color:#64748b;line-height:1.5;}
+.profile-upload-status.success{color:#1d4ed8;}
+.profile-upload-status.error{color:#b91c1c;}
+.account-profile-url-input{margin-top:8px;}
+
   </style>
 </head>
 <body>
@@ -2247,6 +2265,7 @@ body.app-role-resident [data-view="shareinsights"]{
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
@@ -2261,6 +2280,7 @@ body.app-role-resident [data-view="shareinsights"]{
     const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
+    const storage=getStorage(app);
 
     /* =========================
        Security Guard / Session Check
@@ -3180,6 +3200,7 @@ function setPushStatusUi(enabled){
       if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
       if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
       updateProfileImagePreview();
+      setProfileUploadStatus('이미지 파일은 3MB 이하를 권장합니다.');
     }
 
     function updateProfileImagePreview(){
@@ -3188,9 +3209,74 @@ function setPushStatusUi(enabled){
       if(!preview) return;
       const url = normalizeProfileInput(profileImageInput?.value || '');
       const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+      const plusBtn = `<button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>`;
       preview.innerHTML = url
-        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">`
-        : roleMeta.avatar || '👤';
+        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">${plusBtn}`
+        : `${escapeHtml(roleMeta.avatar || '👤')}${plusBtn}`;
+      bindProfileUploadButton();
+    }
+
+    function setProfileUploadStatus(message, type=''){
+      const statusEl = qs('#accountProfileUploadStatus');
+      if(!statusEl) return;
+      statusEl.textContent = message || '';
+      statusEl.classList.remove('success','error');
+      if(type) statusEl.classList.add(type);
+    }
+
+    function bindProfileUploadButton(){
+      const uploadBtn = qs('#accountProfileUploadBtn');
+      const fileInput = qs('#accountProfileFileInput');
+      if(!uploadBtn || !fileInput || uploadBtn.dataset.bound === '1') return;
+      uploadBtn.dataset.bound = '1';
+      uploadBtn.addEventListener('click', () => fileInput.click());
+    }
+
+    function sanitizeProfileFileName(name='profile'){
+      return String(name || 'profile').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'profile.png';
+    }
+
+    async function handleProfileImageFileChange(event){
+      const file = event?.target?.files?.[0];
+      if(!file) return;
+      try{
+        if(!state.currentUser?.uid){
+          await openModalAlert('로그인 후 이용해 주세요.');
+          return;
+        }
+        if(!file.type || !file.type.startsWith('image/')){
+          await openModalAlert('이미지 파일만 업로드할 수 있습니다.', qs('#accountProfileUploadBtn'));
+          return;
+        }
+        if(file.size > 3 * 1024 * 1024){
+          await openModalAlert('프로필 이미지는 3MB 이하 파일로 올려 주세요.', qs('#accountProfileUploadBtn'));
+          return;
+        }
+        const preview = qs('#accountProfilePreview');
+        const uploadBtn = qs('#accountProfileUploadBtn');
+        preview?.classList.add('profile-uploading');
+        if(uploadBtn) uploadBtn.disabled = true;
+        setProfileUploadStatus('프로필 이미지를 업로드하는 중입니다...', '');
+        const safeName = sanitizeProfileFileName(file.name);
+        const path = `profile-images/${state.currentUser.uid}/${Date.now()}_${safeName}`;
+        const fileRef = storageRef(storage, path);
+        await uploadBytes(fileRef, file, { contentType:file.type });
+        const downloadUrl = await getDownloadURL(fileRef);
+        const profileImageInput = qs('#accountProfileImageInput');
+        if(profileImageInput) profileImageInput.value = downloadUrl;
+        updateProfileImagePreview();
+        setProfileUploadStatus('업로드 완료! 저장 버튼을 누르면 계정에 반영됩니다.', 'success');
+      }catch(error){
+        console.error('프로필 이미지 업로드 실패', error);
+        setProfileUploadStatus('업로드 중 오류가 발생했습니다. Storage 규칙을 확인해 주세요.', 'error');
+        await openModalAlert('프로필 이미지 업로드 중 오류가 발생했습니다.', qs('#accountProfileUploadBtn'));
+      }finally{
+        const preview = qs('#accountProfilePreview');
+        const uploadBtn = qs('#accountProfileUploadBtn');
+        preview?.classList.remove('profile-uploading');
+        if(uploadBtn) uploadBtn.disabled = false;
+        if(event?.target) event.target.value = '';
+      }
     }
 
     function openAccountEditModal(){
@@ -6114,6 +6200,8 @@ function getShareTrackingParams(){
     qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
     qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
     qs('#accountProfileImageInput')?.addEventListener('input', updateProfileImagePreview);
+    qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
+    bindProfileUploadButton();
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
 
     qs('#accountEditModal')?.addEventListener('click', (event) => {
@@ -6361,13 +6449,17 @@ function getShareTrackingParams(){
         <div class="account-edit-field">
           <label for="accountProfileImageInput">프로필 이미지 URL <small style="color:#94a3b8">선택</small></label>
           <div class="profile-preview-row">
-            <div class="profile-preview-avatar" id="accountProfilePreview">👤</div>
+            <div class="profile-preview-avatar" id="accountProfilePreview">👤
+              <button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>
+            </div>
             <div class="profile-preview-copy">
               <strong>프사 이미지 설정</strong>
-              <span>이미지 주소를 입력하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
+              <span>+ 버튼을 눌러 이미지를 업로드하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
+              <span class="profile-upload-status" id="accountProfileUploadStatus">이미지 파일은 3MB 이하를 권장합니다.</span>
             </div>
           </div>
-          <input id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="https://.../profile.png">
+          <input class="profile-file-input" id="accountProfileFileInput" type="file" accept="image/*">
+          <input class="account-profile-url-input" id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="이미지 업로드 후 URL이 자동 입력됩니다.">
         </div>
         <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
