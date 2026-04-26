@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="description" content="더운정 마이힐스 로그인" />
   <title>더운정 마이힐스 - 로그인</title>
-  <!-- 간단 입장 구조: 승인 대기/휴대폰 인증/이메일 재설정 안내 문구 정리 -->
   <style>
     :root{
       --bg:#f5f7fb;
@@ -498,7 +497,7 @@
       <div class="eyebrow">🏠 입주민 전용 로그인</div>
       <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
       <h1>더운정 마이힐스<br>로그인</h1>
-      <p>입주민 전용 서비스에 바로 로그인해 주세요.</p>
+      <p>입주민 전용 서비스 이용을 위해 로그인해 주세요.</p>
     </section>
 
     <section class="panel">
@@ -506,7 +505,7 @@
         <div class="logo">🔐</div>
         <div>
           <h2>계정 로그인</h2>
-          <p>간단 입장 계정 로그인</p>
+          <p>입주민 전용 서비스 로그인</p>
         </div>
       </div>
       <form id="loginForm">
@@ -521,12 +520,12 @@
         </div>
 
         <div class="find-links">
-          <button id="openFindIdBtn" class="find-link" type="button">아이디 안내</button>
-          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 안내</button>
+          <button id="openFindIdBtn" class="find-link" type="button">아이디 찾기</button>
+          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 재설정</button>
         </div>
 
         <div class="helper">
-          가입한 아이디로 바로 로그인할 수 있습니다.
+          승인 완료된 아이디만 로그인할 수 있습니다.
         </div>
 
         <div class="btn-row">
@@ -543,7 +542,7 @@
     </section>
 
     <div class="footer">
-      로그인 후 바로 입주민 전용 서비스로 이동합니다.
+      로그인 후 입주민 전용 서비스로 이동합니다.
     </div>
   </div>
 
@@ -919,7 +918,7 @@
 
 
     function formatStatusMessage(userData = {}){
-      const approvalStatus = String(userData.approvalStatus || 'approved');
+      const approvalStatus = String(userData.approvalStatus || 'pending');
       const accountStatus = String(userData.accountStatus || 'active');
       const rejectReason = String(userData.rejectReason || '').trim();
       const withdrawReason = String(userData.withdrawReason || '').trim();
@@ -935,20 +934,20 @@
       }
 
       if (approvalStatus === 'pending') {
-        return '계정 상태 확인이 필요합니다. 잠시 후 다시 시도해 주세요.';
+        return '회원가입 신청이 접수되었습니다. 관리자가 승인 후 로그인이 가능합니다.';
       }
 
       if (approvalStatus === 'resubmitted') {
-        return '계정 상태 확인이 필요합니다. 잠시 후 다시 시도해 주세요.';
+        return '수정 후 재신청이 접수되었습니다. 관리자 재검토 후 로그인이 가능합니다.';
       }
 
       if (approvalStatus === 'rejected') {
         return rejectReason
           ? `가입 신청이 반려되었습니다.\n사유: ${rejectReason}\n내용을 수정한 뒤 다시 신청해 주세요.`
-          : '계정 상태 확인이 필요합니다.';
+          : '가입 신청이 반려되었습니다. 내용을 수정한 뒤 다시 신청해 주세요.';
       }
 
-      return '계정 이용 상태를 확인할 수 없습니다. 운영자에게 문의해 주세요.';
+      return '승인되지 않은 계정입니다. 운영자에게 문의해 주세요.';
     }
 
     async function getUserProfile(uid=''){
@@ -999,9 +998,9 @@
         return { allowed: false, reason: 'user_profile_not_found', userData: null };
       }
 
-      const approvalStatus = String(userData.approvalStatus || 'approved');
+      const approvalStatus = String(userData.approvalStatus || 'pending');
       const accountStatus = String(userData.accountStatus || 'active');
-      const phoneVerificationRequired = userData.phoneVerificationRequired === true;
+      const phoneVerificationRequired = userData.phoneVerificationRequired !== false;
       const phoneVerified = !!userData.phoneVerified;
 
       if (approvalStatus === 'approved' && accountStatus === 'active') {
@@ -1221,13 +1220,13 @@
         return {
           ok: true,
           type: 'email',
-          message: `가입 시 등록한 이메일(${maskEmail(email)})로 비밀번호 안내 메일을 발송했습니다.\n메일함과 스팸함을 함께 확인해 주세요.`
+          message: `가입 시 등록한 이메일(${maskEmail(email)})로 비밀번호 재설정 메일을 발송했습니다.\n메일함과 스팸함을 함께 확인해 주세요.`
         };
       }
 
       if (phoneNumber) {
         const goPhoneReset = await openModalConfirm(
-          `이 계정은 이메일이 등록되어 있지 않습니다.\n등록된 휴대폰(${maskPhone(phoneNumber)}) 인증 후 비밀번호 안내을 진행하시겠습니까?`,
+          `이 계정은 이메일이 등록되어 있지 않습니다.\n등록된 휴대폰(${maskPhone(phoneNumber)}) 인증 후 비밀번호 재설정을 진행하시겠습니까?`,
           resetPwLoginIdEl,
           '휴대폰 인증 재설정',
           '인증 진행',
@@ -1250,7 +1249,7 @@
       return {
         ok: false,
         type: 'no_contact',
-        message: '이 계정에는 이메일과 휴대폰 번호가 등록되어 있지 않습니다.\n관리자에게 본인 확인 후 비밀번호 안내을 요청해 주세요.'
+        message: '이 계정에는 이메일과 휴대폰 번호가 등록되어 있지 않습니다.\n관리자에게 본인 확인 후 비밀번호 재설정을 요청해 주세요.'
       };
     }
 
@@ -1258,17 +1257,41 @@
       const resetLoginId = normalizeLoginId(resetPwLoginIdEl.value);
 
       if (!resetLoginId) {
-        setSheetResult(resetPwResultEl, '아이디를 입력해 주세요.', 'error');
+        setSheetResult(resetPwResultEl, '비밀번호를 재설정할 아이디를 입력해 주세요.', 'error');
         resetPwLoginIdEl.focus();
         return;
       }
 
-      setSheetResult(
-        resetPwResultEl,
-        `비밀번호 재설정은 운영자 확인 후 진행됩니다.
-운영자에게 아이디를 알려주시면 계정 상태 확인 후 안내받을 수 있습니다.`,
-        'info'
-      );
+      sendResetPwBtn.disabled = true;
+      sendResetPwBtn.textContent = '확인 중...';
+      setSheetResult(resetPwResultEl, '회원 정보를 확인하고 있습니다.', 'info');
+
+      try {
+        const result = await sendResetEmailByLoginId(resetLoginId);
+        setSheetResult(resetPwResultEl, result.message, result.ok ? 'success' : 'error');
+      } catch (error) {
+        console.error('비밀번호 재설정 처리 실패', error);
+
+        let message = '비밀번호 재설정 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+        const code = String(error?.code || '');
+
+        if (code === 'auth/user-not-found') {
+          message = 'Firebase Auth에 해당 이메일 계정이 없습니다. 관리자에게 계정 확인을 요청해 주세요.';
+        } else if (code === 'auth/invalid-email') {
+          message = '저장된 이메일 형식이 올바르지 않습니다. 관리자에게 이메일 확인을 요청해 주세요.';
+        } else if (code === 'auth/too-many-requests') {
+          message = '재설정 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+        } else if (String(error?.message || '').includes('getUserForPasswordReset URL is not configured')) {
+          message = '비밀번호 재설정 조회 API 주소가 설정되지 않았습니다. env-config.js의 getUserForPasswordReset 값을 확인해 주세요.';
+        } else if (String(error?.message || '').includes('Missing or insufficient permissions')) {
+          message = '회원 정보 조회 권한이 없어 재설정을 진행할 수 없습니다. Cloud Functions 연결 상태를 확인해 주세요.';
+        }
+
+        setSheetResult(resetPwResultEl, message, 'error');
+      } finally {
+        sendResetPwBtn.disabled = false;
+        sendResetPwBtn.textContent = '재설정 메일 보내기';
+      }
     });
 
 
@@ -1376,7 +1399,7 @@
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
 
         setTimeout(() => {
-          const phoneVerificationRequired = result.user?.phoneVerificationRequired === true;
+          const phoneVerificationRequired = result.user?.phoneVerificationRequired !== false;
           const phoneVerified = !!result.user?.phoneVerified;
           if (phoneVerificationRequired && !phoneVerified) {
             replaceWithLoader('/phone-verify');
@@ -1460,23 +1483,23 @@
       <div class="sheet-head">
         <div>
           <h3 class="sheet-title" id="accountHelpTitle">로그인 안내</h3>
-          <p class="sheet-desc" id="accountHelpDesc">아이디 안내 및 비밀번호 안내을 진행합니다.</p>
+          <p class="sheet-desc" id="accountHelpDesc">아이디 찾기 및 비밀번호 재설정을 진행합니다.</p>
         </div>
         <button class="sheet-close" id="accountHelpCloseBtn" type="button" aria-label="닫기">✕</button>
       </div>
 
       <div class="sheet-tabs">
-        <button class="sheet-tab active" id="tabFindId" type="button">아이디 안내</button>
-        <button class="sheet-tab" id="tabResetPw" type="button">비밀번호 안내</button>
+        <button class="sheet-tab active" id="tabFindId" type="button">아이디 찾기</button>
+        <button class="sheet-tab" id="tabResetPw" type="button">비밀번호 재설정</button>
       </div>
 
       <div class="sheet-body">
         <section class="sheet-section active" id="findIdSection">
-          <p class="sheet-note">현재 로그인 방식은 가입 시 만든 아이디를 사용합니다.
+          <p class="sheet-note">현재 로그인 방식은 이메일이 아니라 가입 시 등록한 아이디입니다.
 아이디가 기억나지 않으면 운영자에게 확인을 요청해 주세요.</p>
           <div class="field">
             <label for="findIdEmail">로그인 아이디 안내</label>
-            <input id="findIdEmail" class="input" type="text" inputmode="text" autocomplete="username" placeholder="아이디 입력" />
+            <input id="findIdEmail" class="input" type="text" inputmode="text" autocomplete="username" placeholder="가입 시 사용한 아이디 입력" />
           </div>
           <div class="sheet-inline-actions">
             <button id="applyFindIdBtn" class="btn btn-primary" type="button">입력한 값을 아이디 칸에 넣기</button>
@@ -1485,14 +1508,14 @@
         </section>
 
         <section class="sheet-section" id="resetPwSection">
-          <p class="sheet-note">가입 시 등록한 이메일이 있으면 Firebase 비밀번호 안내 메일을 발송합니다.
+          <p class="sheet-note">가입 시 등록한 이메일이 있으면 Firebase 비밀번호 재설정 메일을 발송합니다.
 이메일이 없고 휴대폰 번호가 등록되어 있으면 휴대폰 인증 후 재설정 단계로 이동합니다.</p>
           <div class="field">
             <label for="resetPwLoginId">아이디</label>
             <input id="resetPwLoginId" class="input" type="text" inputmode="text" autocomplete="username" placeholder="아이디 입력" />
           </div>
           <div class="sheet-inline-actions">
-            <button id="sendResetPwBtn" class="btn btn-primary" type="button">재설정 안내 보기</button>
+            <button id="sendResetPwBtn" class="btn btn-primary" type="button">재설정 메일 보내기</button>
           </div>
           <div id="resetPwResult" class="sheet-result info"></div>
         </section>
