@@ -1222,7 +1222,7 @@ body.gnb-open .admin-bottom-nav{
     
     <div class="admin-view" id="view-notices">
       <div class="admin-groups">
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">공지 등록 / 수정</h3><small id="noticeFormModeLabel">새 공지</small></div><form id="noticeForm" class="form-grid" novalidate><input type="hidden" id="noticeEditId" value="" /><div class="field"><label for="noticeTitle">공지 제목</label><input id="noticeTitle" /></div><div class="grid-2"><div class="field"><label for="noticeCategory">공지 구분</label><input id="noticeCategory" placeholder="예: 일반, 점검, 이벤트" /></div><div class="field"><label>공지 옵션</label><div class="check-row"><label><input type="checkbox" id="noticeVisible" checked> 노출</label><label><input type="checkbox" id="noticePinned"> 중요 공지</label></div></div></div><div class="field"><label for="noticeContent">공지 내용</label><textarea id="noticeContent"></textarea></div><div class="field"><label>푸시 발송 옵션</label><div class="check-row"><label><input type="checkbox" id="sendPushWithNotice"> 저장 후 푸시 작업 생성</label><label><input type="checkbox" id="pushImportantOnly"> 중요 공지로 표시</label></div></div><div class="grid-2"><div class="field"><label for="pushTitle">푸시 제목</label><input id="pushTitle" placeholder="비워두면 공지 제목 사용" /></div><div class="field"><label for="pushBody">푸시 내용</label><input id="pushBody" placeholder="비워두면 공지 내용 앞부분 사용" /></div></div><div class="field"><label for="pushTargetType">푸시 대상</label><select id="pushTargetType"><option value="all" selected>전체 입주민</option><option value="user">특정 회원 UID</option><option value="building">동 전체</option><option value="unit">특정 동/호수</option></select></div><div class="grid-2"><div class="field"><label for="pushTargetUid">회원 UID</label><input id="pushTargetUid" placeholder="특정 회원 발송 시 입력" /></div><div class="field"><label for="pushTargetBuilding">동</label><input id="pushTargetBuilding" inputmode="numeric" placeholder="예: 101" /></div></div><div class="field"><label for="pushTargetUnit">호수</label><input id="pushTargetUnit" inputmode="numeric" placeholder="예: 1203" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">공지 저장</button><button type="button" class="btn btn-soft" id="cancelNoticeEditBtn">입력 초기화</button></div></form></div>
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">공지 등록 / 수정</h3><small id="noticeFormModeLabel">새 공지</small></div><form id="noticeForm" class="form-grid" novalidate><input type="hidden" id="noticeEditId" value="" /><div class="field"><label for="noticeTitle">공지 제목</label><input id="noticeTitle" /></div><div class="grid-2"><div class="field"><label for="noticeCategory">공지 구분</label><input id="noticeCategory" placeholder="예: 일반, 점검, 이벤트" /></div><div class="field"><label>공지 옵션</label><div class="check-row"><label><input type="checkbox" id="noticeVisible" checked> 노출</label><label><input type="checkbox" id="noticePinned"> 중요 공지</label></div></div></div><div class="field"><label for="noticeContent">공지 내용</label><textarea id="noticeContent"></textarea></div><div class="field"><label>푸시 발송 옵션</label><div class="check-row"><label><input type="checkbox" id="sendPushWithNotice"> 저장 후 푸시 작업 생성</label><label><input type="checkbox" id="pushImportantOnly"> 중요 공지로 표시</label></div></div><div class="grid-2"><div class="field"><label for="pushTitle">푸시 제목</label><input id="pushTitle" placeholder="비워두면 공지 제목 사용" /></div><div class="field"><label for="pushBody">푸시 내용</label><input id="pushBody" placeholder="비워두면 공지 내용 앞부분 사용" /></div></div><div class="field"><label for="pushTargetType">푸시 대상</label><select id="pushTargetType"><option value="all" selected>전체 이용자</option><option value="user">특정 회원 UID</option></select></div><div class="field"><label for="pushTargetUid">회원 UID</label><input id="pushTargetUid" placeholder="특정 회원 발송 시 입력" /></div><input id="pushTargetBuilding" type="hidden" value="" /><input id="pushTargetUnit" type="hidden" value="" /><div class="grid-2"><button type="submit" class="btn btn-primary">공지 저장</button><button type="button" class="btn btn-soft" id="cancelNoticeEditBtn">입력 초기화</button></div></form></div>
 
         <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 공지 목록</h3><small id="noticeListCount">0건</small></div><div class="mini-list" id="noticeAdminList"></div></div>
       </div>
@@ -1233,6 +1233,7 @@ body.gnb-open .admin-bottom-nav{
       <div class="admin-groups">
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">회원 상태 관리</h3><small id="memberTotalCount">0명</small></div>
+          <div class="notice" style="margin-bottom:12px;">이름, 연락처, 메일, 세대 정보 없이 회원 상태만 관리합니다.</div>
           <div class="summary-list" id="memberStatusSummary">
             <div class="summary-row"><div><strong>승인 대기</strong><span>신규 가입 신청</span></div><strong id="countPending">0</strong></div>
             <div class="summary-row"><div><strong>재신청</strong><span>반려 후 수정 재접수</span></div><strong id="countResubmitted">0</strong></div>
@@ -1956,11 +1957,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     function getPhoneVerificationTag(member){
       if(member.phoneVerificationRequired===false){
-        return '<span class="tag phone-exempt">휴대폰 예외</span>';
+        return '<span class="tag phone-exempt">간단 확인</span>';
       }
       return member.phoneVerified
-        ? '<span class="tag phone-ok">휴대폰 인증 완료</span>'
-        : '<span class="tag phone-wait">휴대폰 미인증</span>';
+        ? '<span class="tag phone-ok">확인 완료</span>'
+        : '<span class="tag phone-wait">확인 대기</span>';
     }
     function getMemberBuckets(){
       const buckets={pending:[],resubmitted:[],approved:[],rejected:[],withdrawn:[]};
@@ -1991,9 +1992,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         if(member.approvalStatus==='resubmitted') statusTags.push('<span class="tag rec">재신청</span>');
         if(member.approvalStatus==='approved') statusTags.push('<span class="tag live-tag">승인 완료</span>');
         if(member.approvalStatus==='rejected') statusTags.push('<span class="tag hidden-tag">반려</span>');
-        statusTags.push(getPhoneVerificationTag(member));
-
-        const buildingUnit = `${member.building || '-'}동 ${member.unit || '-'}호`;
+        const displayId = member.loginId || member.nickname || (member.uid ? `회원 ${String(member.uid).slice(0, 6)}` : '회원');
         const summaryStatus = member.accountStatus === 'withdrawn'
           ? '탈퇴'
           : member.approvalStatus === 'approved'
@@ -2008,9 +2007,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           <details class="member-accordion" ${shouldOpen ? 'open' : ''}>
             <summary class="member-summary">
               <div class="member-summary-main">
-                <strong>${member.name || member.nickname || '이름 미입력'}</strong>
-                <span>${buildingUnit} · ${summaryStatus}${member.nickname ? ` · 닉네임 ${member.nickname}` : ''}</span>
-                <span>${member.email || '-'}</span>
+                <strong>${displayId}</strong>
+                <span>${summaryStatus}${member.memberType ? ` · ${member.memberType}` : ''}</span>
+                <span>입력 정보 최소화 계정</span>
               </div>
               <div class="member-summary-side">
                 <div class="tags">${statusTags.join('')}</div>
@@ -2022,10 +2021,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
               <div class="member-meta">
                 <div class="meta-group">
                   <div class="meta-item"><strong>아이디</strong><span>${member.loginId || '-'}</span></div>
-                  <div class="meta-item"><strong>동·호수</strong><span>${buildingUnit}</span></div>
-                  <div class="meta-item"><strong>구성원 구분</strong><span>${member.memberType || '-'}</span></div>
-                  <div class="meta-item"><strong>휴대폰 번호</strong><span>${member.phoneNumber || '-'}</span></div>
-                  <div class="meta-item"><strong>휴대폰 인증 시각</strong><span>${formatTs(member.phoneVerifiedAt)}</span></div>
+                  <div class="meta-item"><strong>회원 구분</strong><span>${member.memberType || '-'}</span></div>
+                  <div class="meta-item"><strong>처리 상태</strong><span>${summaryStatus}</span></div>
                   <div class="meta-item"><strong>신청일</strong><span>${formatTs(member.createdAt)}</span></div>
                   <div class="meta-item"><strong>최종 수정</strong><span>${formatTs(member.updatedAt)}</span></div>
                 </div>
@@ -2048,21 +2045,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
                   <div class="meta-section">
                     <div class="meta-title">탈퇴 사유</div>
                     <div class="meta-content">${member.withdrawReason}</div>
-                  </div>
-                ` : ''}
-
-                ${member.residentProofUrl ? `
-                  <div class="meta-section">
-                    <div class="meta-title">인증 자료</div>
-                    <div class="member-proof-wrap">
-                      <a class="member-proof-card" href="${member.residentProofUrl}" target="_blank" rel="noopener noreferrer">
-                        <img class="member-proof-thumb" src="${member.residentProofUrl}" alt="인증 자료 썸네일" loading="lazy" />
-                        <span class="member-proof-copy">
-                          <strong>인증 자료 보기</strong>
-                          <span>썸네일을 누르면 크게 볼 수 있습니다.</span>
-                        </span>
-                      </a>
-                    </div>
                   </div>
                 ` : ''}
               </div>
@@ -2121,7 +2103,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
       if(action === 'approve'){
         const confirmed = await openModalConfirm(
-          `${member.name || member.email} 회원을 승인할까요?`,
+          `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 승인할까요?`,
           qs('#view-members'),
           '회원 승인',
           '승인',
@@ -2154,7 +2136,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         }
 
         const confirmed = await openModalConfirm(
-          `${member.name || member.email} 회원을 반려할까요?`,
+          `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 반려할까요?`,
           reasonEl || qs('#view-members'),
           '회원 반려',
           '반려',
@@ -2174,7 +2156,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
       } else if(action === 'restore'){
         const confirmed = await openModalConfirm(
-          `${member.name || member.email} 회원을 복구할까요?`,
+          `${member.loginId || member.nickname || member.uid || '선택한 회원'} 계정을 복구할까요?`,
           qs('#view-members'),
           '회원 복구',
           '복구',
