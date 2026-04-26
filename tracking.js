@@ -221,13 +221,14 @@ async function showAppModalAlert(message, title = "안내") {
   try {
     if (typeof window !== "undefined" && typeof window.openModalAlert === "function") {
       await window.openModalAlert(message, null, title);
-      return;
+      return true;
     }
   } catch (e) {
     console.log("app modal alert error", e);
   }
 
   alert(message);
+  return true;
 }
 
 const AUTO_LOGOUT_TIME = 30 * 60 * 1000;
@@ -237,6 +238,7 @@ let lastActivityTime = Date.now();
 let warningShown = false;
 let autoLogoutInterval = null;
 let authWatchInitialized = false;
+let warningModalOpen = false;
 
 function resetTimer() {
   if (!auth.currentUser) return;
@@ -260,6 +262,7 @@ function stopAutoLogoutTimer() {
     autoLogoutInterval = null;
   }
   warningShown = false;
+  warningModalOpen = false;
 }
 
 function startAutoLogoutTimer() {
@@ -279,12 +282,22 @@ function startAutoLogoutTimer() {
     const now = Date.now();
     const diff = now - lastActivityTime;
 
-    //if (diff > WARNING_TIME && !warningShown) {
+    if (diff > WARNING_TIME && !warningShown && !warningModalOpen) {
       warningShown = true;
-    //  await showAppModalAlert("1분 후 자동 로그아웃 됩니다.", "자동 로그아웃 안내");
-    //}
+      warningModalOpen = true;
 
-   // if (diff > AUTO_LOGOUT_TIME) {
+      // 안내 모달의 [확인]을 누르면 사용 의사가 있는 것으로 보고 세션 시간을 다시 30분으로 연장합니다.
+      showAppModalAlert("1분 후 자동 로그아웃 됩니다.
+계속 이용하시려면 확인을 눌러 주세요.", "자동 로그아웃 안내")
+        .then(() => {
+          warningModalOpen = false;
+          if (auth.currentUser) {
+            resetTimer();
+          }
+        });
+    }
+
+    if (diff > AUTO_LOGOUT_TIME) {
       try {
         stopAutoLogoutTimer();
         await signOut(auth);
@@ -293,7 +306,7 @@ function startAutoLogoutTimer() {
       } catch (e) {
         console.log("auto logout error", e);
       }
-    //}
+    }
 
     syncIdleTimerStateFromAutoLogout();
   }, 1000);

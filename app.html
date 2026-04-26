@@ -2401,7 +2401,7 @@ function setPushStatusUi(enabled){
       return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❔' });
     }
 
-    // tracking.js 같은 외부 모듈에서도 앱 내부 모달을 사용할 수 있도록 전역 연결
+    // tracking.js 등 외부 모듈에서도 앱 내부 모달을 사용할 수 있도록 전역 연결
     window.openModalAlert = openModalAlert;
     window.openModalConfirm = openModalConfirm;
 
