@@ -1695,16 +1695,47 @@ body.gnb-open .bottom-nav{
   font-size:22px;
   flex:0 0 auto;
 }
-.profile-preview-avatar{position:relative;border:none;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(15,23,42,.06);transition:transform .16s ease, box-shadow .16s ease}
-.profile-preview-avatar:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(15,23,42,.08), inset 0 0 0 1px rgba(37,99,235,.16)}
 .profile-preview-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.profile-upload-plus{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border:none;border-radius:999px;background:#0f172a;color:#fff;font-size:15px;font-weight:1000;line-height:1;display:grid;place-items:center;box-shadow:0 8px 16px rgba(15,23,42,.22),0 0 0 3px #fff;cursor:pointer;padding:0}
-.profile-upload-plus:active{transform:scale(.94)}
-.profile-upload-hidden{display:none!important}
-.profile-preview-row.uploading{opacity:.72;pointer-events:none}
-.profile-preview-row.uploading .profile-upload-plus{background:#64748b}
 .profile-preview-copy{min-width:0;color:#64748b;font-size:12px;line-height:1.55}
 .profile-preview-copy strong{display:block;color:#0f172a;font-size:13px;margin-bottom:2px}
+
+/* ===== Topbar width alignment with dashboard cards ===== */
+.topbar,
+.topbar-row,
+.topbar-right,
+.topbar-left{
+  width:100%;
+  max-width:100%;
+}
+.topbar-row{
+  align-items:stretch;
+}
+.topbar-right{
+  justify-content:space-between!important;
+  gap:10px;
+}
+.topbar-right .user-chip{
+  flex:1 1 auto;
+  max-width:none!important;
+  min-width:0;
+}
+.topbar-quick-actions,
+.gnb-wrap{
+  flex:0 0 auto;
+}
+.topbar-left-titleline{
+  width:100%;
+  align-items:center;
+}
+.topbar-left-titleline .brand{
+  flex:1 1 auto;
+  min-width:0;
+}
+@media (max-width:420px){
+  .topbar-right .user-chip{
+    max-width:none!important;
+  }
+}
 
   </style>
 </head>
@@ -1833,7 +1864,6 @@ body.gnb-open .bottom-nav{
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
@@ -1848,7 +1878,6 @@ body.gnb-open .bottom-nav{
     const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
-    const storage=getStorage(app);
 
     /* =========================
        Security Guard / Session Check
@@ -2746,8 +2775,8 @@ function setPushStatusUi(enabled){
       const url = normalizeProfileInput(profileImageInput?.value || '');
       const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
       preview.innerHTML = url
-        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기"><span class="profile-upload-plus">+</span>`
-        : `${escapeHtml(roleMeta.avatar || '👤')}<span class="profile-upload-plus">+</span>`;
+        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">`
+        : roleMeta.avatar || '👤';
     }
 
     function openAccountEditModal(){
@@ -2762,80 +2791,6 @@ function setPushStatusUi(enabled){
     function closeAccountEditModal(){
       const modal = qs('#accountEditModal');
       if(modal?.open) modal.close();
-    }
-
-    async function uploadAccountProfileImage(file){
-      if(!state.currentUser?.uid){
-        await openModalAlert('로그인 후 이용해 주세요.');
-        return '';
-      }
-      if(!file) return '';
-      const fileType = String(file.type || '').toLowerCase();
-      const rawExt = String(file.name || '').split('.').pop()?.toLowerCase()?.replace(/[^a-z0-9]/g,'') || '';
-      const allowedTypes = ['image/jpeg','image/png','image/webp','image/gif','image/avif','image/heic','image/heif'];
-      const allowedExts = ['jpg','jpeg','png','webp','gif','avif','heic','heif'];
-      const isImageMime = fileType.startsWith('image/') && allowedTypes.includes(fileType);
-      const isImageExt = allowedExts.includes(rawExt);
-
-      if(!isImageMime && !isImageExt){
-        await openModalAlert('ì´ë¯¸ì§ íì¼ë§ ìë¡ëí  ì ììµëë¤. JPG, PNG, WebP íìì¼ë¡ ì íí´ ì£¼ì¸ì.', qs('#accountProfilePreview'));
-        return '';
-      }
-      if(fileType === 'image/svg+xml' || rawExt === 'svg'){
-        await openModalAlert('SVG íì¼ì ë³´ìì ìë¡ëí  ì ììµëë¤. JPG, PNG, WebP ì´ë¯¸ì§ë¥¼ ì íí´ ì£¼ì¸ì.', qs('#accountProfilePreview'));
-        return '';
-      }
-      const maxSize = 5 * 1024 * 1024;
-      if(file.size > maxSize){
-        await openModalAlert('íë¡í ì´ë¯¸ì§ë 5MB ì´íë¡ ìë¡ëí´ ì£¼ì¸ì.', qs('#accountProfilePreview'));
-        return '';
-      }
-
-      const row = qs('#profileUploadRow');
-      const input = qs('#accountProfileImageInput');
-      const safeExt = isImageExt ? rawExt : 'jpg';
-      const path = `profile-images/${state.currentUser.uid}/profile_${Date.now()}.${safeExt}`;
-
-      try{
-        row?.classList.add('uploading');
-        showGlobalLoading();
-        const ref = storageRef(storage, path);
-        await uploadBytes(ref, file, {
-          contentType: file.type || 'image/jpeg',
-          customMetadata: {
-            uid: state.currentUser.uid,
-            source: 'myhills-profile'
-          }
-        });
-        const downloadUrl = await getDownloadURL(ref);
-        if(input) input.value = downloadUrl;
-
-        await setDoc(doc(db, 'users', state.currentUser.uid), {
-          profileImageUrl: downloadUrl,
-          profileImagePath: path,
-          updatedAt: serverTimestamp()
-        }, { merge:true });
-
-        state.currentUserProfile = {
-          ...(state.currentUserProfile || {}),
-          profileImageUrl: downloadUrl,
-          profileImagePath: path
-        };
-        updateProfileImagePreview();
-        updateUserChip();
-        hideGlobalLoading(80);
-        await openModalAlert('프로필 이미지가 저장되었습니다.', qs('#accountProfilePreview'));
-        return downloadUrl;
-      }catch(error){
-        console.error('프로필 이미지 업로드 실패', error);
-        hideGlobalLoading(80);
-        await openModalAlert('프로필 이미지 업로드 중 오류가 발생했습니다. Storage 권한을 확인해 주세요.', qs('#accountProfilePreview'));
-        return '';
-      }finally{
-        row?.classList.remove('uploading');
-        const fileInput = qs('#accountProfileImageFile');
-        if(fileInput) fileInput.value = '';
-      }
     }
 
     async function saveAccountProfile(event){
@@ -5725,11 +5680,7 @@ function getShareTrackingParams(){
     qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
     qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
     qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
-    qs('#accountProfilePreview')?.addEventListener('click', () => qs('#accountProfileImageFile')?.click());
-    qs('#accountProfileImageFile')?.addEventListener('change', async (event) => {
-      const file = event.target?.files?.[0];
-      if(file) await uploadAccountProfileImage(file);
-    });
+    qs('#accountProfileImageInput')?.addEventListener('input', updateProfileImagePreview);
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
 
     qs('#accountEditModal')?.addEventListener('click', (event) => {
@@ -5945,16 +5896,15 @@ function getShareTrackingParams(){
           <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
         </div>
         <div class="account-edit-field">
-          <label for="accountProfileImageFile">프로필 이미지 <small style="color:#94a3b8">선택</small></label>
-          <div class="profile-preview-row" id="profileUploadRow">
-            <button class="profile-preview-avatar" id="accountProfilePreview" type="button" aria-label="프로필 이미지 업로드">👤<span class="profile-upload-plus">+</span></button>
+          <label for="accountProfileImageInput">프로필 이미지 URL <small style="color:#94a3b8">선택</small></label>
+          <div class="profile-preview-row">
+            <div class="profile-preview-avatar" id="accountProfilePreview">👤</div>
             <div class="profile-preview-copy">
               <strong>프사 이미지 설정</strong>
-              <span>우하단 + 버튼을 눌러 이미지를 업로드하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
+              <span>이미지 주소를 입력하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
             </div>
           </div>
-          <input class="profile-upload-hidden" id="accountProfileImageFile" name="profileImageFile" type="file" accept="image/*">
-          <input id="accountProfileImageInput" name="profileImageUrl" type="hidden" maxlength="500">
+          <input id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="https://.../profile.png">
         </div>
         <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
