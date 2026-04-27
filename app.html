@@ -6849,33 +6849,150 @@ function getShareTrackingParams(){
         aiConversationTitle = data.title || '이전 대화';
         localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId);
         renderAiConversationMessages(data.messages || []);
-    
+        updateAiConversationStatus(aiConversationTitle);
+        qs('#aiConversationPanel')?.classList.remove('show');
+      }catch(error){
+        console.error('AI conversation load failed', error);
+        await openModalAlert('이전 대화를 불러오지 못했습니다.');
+      }finally{
+        win?.classList.remove('memory-loading');
+      }
+    }
 
     /* ===== AI 음성 질문 UX ===== */
     let aiRecognition = null;
     let aiVoiceListening = false;
-    function getSpeechRecognition(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
-    function setAiVoiceStatus(message, active=false){ const status = qs('#aiVoiceStatus'); const btn = qs('#aiVoiceBtn'); if(status) status.textContent = message || ''; btn?.classList.toggle('listening', !!active); if(btn) btn.textContent = active ? '■ 듣는 중' : '🎙 말로 질문'; }
-    function initAiVoiceInput(){
-      const VoiceAPI = getSpeechRecognition(); const btn = qs('#aiVoiceBtn'); if(!btn) return;
-      if(!VoiceAPI){ btn.disabled = true; btn.style.opacity = '.55'; setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.'); return; }
-      aiRecognition = new VoiceAPI(); aiRecognition.lang = 'ko-KR'; aiRecognition.continuous = false; aiRecognition.interimResults = true; aiRecognition.maxAlternatives = 1;
-      aiRecognition.onstart = () => { aiVoiceListening = true; setAiVoiceStatus('듣고 있습니다. 질문을 말씀해 주세요.', true); };
-      aiRecognition.onresult = (event) => {
-        let transcript = ''; for(let i=event.resultIndex; i<event.results.length; i+=1){ transcript += event.results[i][0]?.transcript || ''; } transcript = transcript.trim();
-        if(transcript){ const input = qs('#aiQuestionInput'); if(input) input.value = transcript; setAiVoiceStatus('인식 중: ' + transcript, true); const last = event.results[event.results.length - 1]; if(last?.isFinal){ window.__AI_LAST_INPUT_MODE = 'voice'; setAiVoiceStatus('음성 인식 완료. 질문을 전송합니다.', false); setTimeout(() => askAiAssistant(transcript), 180); } }
-      };
-      aiRecognition.onerror = (event) => { aiVoiceListening = false; const msg = event.error === 'not-allowed' ? '마이크 권한이 차단되었습니다.' : '음성 인식 중 오류가 발생했습니다.'; setAiVoiceStatus(msg, false); };
-      aiRecognition.onend = () => { if(aiVoiceListening){ aiVoiceListening = false; setAiVoiceStatus('음성 인식이 종료되었습니다.', false); } };
-      btn.addEventListener('click', () => { try{ if(aiVoiceListening){ aiRecognition.stop(); aiVoiceListening = false; setAiVoiceStatus('음성 인식을 중지했습니다.', false); return; } window.__AI_LAST_INPUT_MODE = 'voice'; aiRecognition.start(); }catch(error){ console.warn('Voice recognition start failed', error); setAiVoiceStatus('음성 인식을 시작하지 못했습니다.', false); } });
+    let aiVoiceInitialized = false;
+
+    function getSpeechRecognition(){
+      return window.SpeechRecognition || window.webkitSpeechRecognition || null;
     }
 
-    updateAiConversationStatus(aiConversationTitle);
-    initAiVoiceInput();
-        qs('#aiConversationPanel')?.classList.remove('show');
-      }catch(error){ console.error('AI conversation load failed', error); await openModalAlert('이전 대화를 불러오지 못했습니다.'); }
-      finally{ win?.classList.remove('memory-loading'); }
+    function setAiVoiceStatus(message, active=false){
+      const status = qs('#aiVoiceStatus');
+      const btn = qs('#aiVoiceBtn');
+      if(status) status.textContent = message || '';
+      btn?.classList.toggle('listening', !!active);
+      if(btn) btn.textContent = active ? '■ 듣는 중' : '🎙 말로 질문';
     }
+
+    function stopAiMicTracks(stream){
+      try{ (stream?.getTracks?.() || []).forEach(track => track.stop()); }catch(_error){}
+    }
+
+    async function requestAiMicPermission(){
+      if(!window.isSecureContext){
+        throw new Error('insecure-context');
+      }
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        throw new Error('media-devices-unsupported');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stopAiMicTracks(stream);
+      return true;
+    }
+
+    function createAiRecognition(){
+      const VoiceAPI = getSpeechRecognition();
+      if(!VoiceAPI) return null;
+      const recognition = new VoiceAPI();
+      recognition.lang = 'ko-KR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = () => {
+        aiVoiceListening = true;
+        setAiVoiceStatus('듣고 있습니다. 질문을 말씀해 주세요.', true);
+      };
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for(let i = event.resultIndex; i < event.results.length; i += 1){
+          transcript += event.results[i][0]?.transcript || '';
+        }
+        transcript = transcript.trim();
+        if(!transcript) return;
+        const input = qs('#aiQuestionInput');
+        if(input) input.value = transcript;
+        setAiVoiceStatus('인식 중: ' + transcript, true);
+        const last = event.results[event.results.length - 1];
+        if(last?.isFinal){
+          window.__AI_LAST_INPUT_MODE = 'voice';
+          aiVoiceListening = false;
+          setAiVoiceStatus('음성 인식 완료. 질문을 전송합니다.', false);
+          setTimeout(() => askAiAssistant(transcript), 180);
+        }
+      };
+      recognition.onerror = (event) => {
+        aiVoiceListening = false;
+        const errorCode = event?.error || '';
+        let msg = '음성 인식 중 오류가 발생했습니다.';
+        if(errorCode === 'not-allowed' || errorCode === 'permission-denied') msg = '마이크 권한이 차단되었습니다. 브라우저 주소창의 권한 설정에서 마이크를 허용해 주세요.';
+        else if(errorCode === 'no-speech') msg = '음성이 인식되지 않았습니다. 다시 눌러 말씀해 주세요.';
+        else if(errorCode === 'audio-capture') msg = '마이크를 찾지 못했습니다. 기기의 마이크 연결을 확인해 주세요.';
+        else if(errorCode === 'network') msg = '음성 인식 네트워크 오류가 발생했습니다.';
+        setAiVoiceStatus(msg, false);
+      };
+      recognition.onend = () => {
+        if(aiVoiceListening){
+          aiVoiceListening = false;
+          setAiVoiceStatus('음성 인식이 종료되었습니다.', false);
+        }
+      };
+      return recognition;
+    }
+
+    async function startAiVoiceRecognition(){
+      const VoiceAPI = getSpeechRecognition();
+      if(!VoiceAPI){
+        setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.', false);
+        return;
+      }
+      if(aiVoiceListening && aiRecognition){
+        try{ aiRecognition.stop(); }catch(_error){}
+        aiVoiceListening = false;
+        setAiVoiceStatus('음성 인식을 중지했습니다.', false);
+        return;
+      }
+      try{
+        setAiVoiceStatus('마이크 권한을 확인하는 중입니다...', false);
+        await requestAiMicPermission();
+        aiRecognition = createAiRecognition();
+        if(!aiRecognition) throw new Error('speech-unsupported');
+        window.__AI_LAST_INPUT_MODE = 'voice';
+        aiRecognition.start();
+      }catch(error){
+        console.warn('Voice recognition start failed', error);
+        const message = String(error?.message || error?.name || '');
+        if(message.includes('insecure-context')) setAiVoiceStatus('HTTPS 환경에서만 마이크 권한 요청이 가능합니다.', false);
+        else if(message.includes('media-devices-unsupported')) setAiVoiceStatus('이 브라우저에서는 마이크 권한 요청을 지원하지 않습니다.', false);
+        else if(error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') setAiVoiceStatus('마이크 권한이 거부되었습니다. 브라우저 권한 설정에서 마이크를 허용해 주세요.', false);
+        else if(error?.name === 'NotFoundError') setAiVoiceStatus('사용 가능한 마이크를 찾지 못했습니다.', false);
+        else setAiVoiceStatus('음성 인식을 시작하지 못했습니다. 브라우저 마이크 권한을 확인해 주세요.', false);
+      }
+    }
+
+    function initAiVoiceInput(){
+      const btn = qs('#aiVoiceBtn');
+      if(!btn || aiVoiceInitialized) return;
+      aiVoiceInitialized = true;
+      const VoiceAPI = getSpeechRecognition();
+      if(!VoiceAPI){
+        btn.disabled = true;
+        btn.style.opacity = '.55';
+        setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다. Chrome 계열 브라우저에서 이용해 주세요.');
+        return;
+      }
+      if(!window.isSecureContext){
+        btn.disabled = true;
+        btn.style.opacity = '.55';
+        setAiVoiceStatus('음성 질문은 HTTPS 환경에서만 사용할 수 있습니다.');
+        return;
+      }
+      setAiVoiceStatus('버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.');
+      btn.addEventListener('click', startAiVoiceRecognition);
+    }
+
+    initAiVoiceInput();
 
     function startNewAiConversation(){
       aiConversationId = '';
