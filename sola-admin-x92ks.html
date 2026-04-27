@@ -3060,7 +3060,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       return Array.isArray(value) ? value.join(', ') : valueToText(value || '');
     }
 
-    function formatAdminDate(value){
+    function formatAiAdminDate(value){
       try{
         const d = value?.toDate ? value.toDate() : (value ? new Date(value) : null);
         if(!d || Number.isNaN(d.getTime())) return '-';
@@ -3400,7 +3400,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             <div class="ai-log-question">Q. ${escapeHtml(d.question || '-')}</div>
             ${answer ? `<div class="ai-log-answer">A. ${escapeHtml(answer.slice(0, 500))}</div>` : ''}
             <div style="margin-top:10px;">
-              <span class="ai-code-pill">${escapeHtml(formatAdminDate(d.createdAt))}</span>
+              <span class="ai-code-pill">${escapeHtml(formatAiAdminDate(d.createdAt))}</span>
               <span class="ai-code-pill">${escapeHtml((d.matchedTypes || []).join(', ') || d.source || 'AI')}</span>
               <span class="ai-code-pill">매칭 ${escapeHtml(d.matchedCount ?? '-')}</span>
             </div>
@@ -3429,8 +3429,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             <h5>${escapeHtml(d.title || '새 대화')}</h5>
             <p>UID: ${escapeHtml(d.uid || '-')}</p>
             <div style="margin-top:10px;">
-              <span class="ai-code-pill">생성 ${escapeHtml(formatAdminDate(d.createdAt))}</span>
-              <span class="ai-code-pill">수정 ${escapeHtml(formatAdminDate(d.updatedAt))}</span>
+              <span class="ai-code-pill">생성 ${escapeHtml(formatAiAdminDate(d.createdAt))}</span>
+              <span class="ai-code-pill">수정 ${escapeHtml(formatAiAdminDate(d.updatedAt))}</span>
               <span class="ai-code-pill">${escapeHtml(docSnap.id)}</span>
             </div>
           </div>`;
