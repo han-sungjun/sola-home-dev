@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <!-- PWA / App Icon -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0F172A" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+
+  <!-- iOS Splash Images -->
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="더운정 마이힐스 휴대폰 인증" />
+  <title>더운정 마이힐스 - 휴대폰 인증</title>
+  <style>
+    :root{
+      --surface:rgba(255,255,255,.92);
+      --line:#e5e7eb;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#0f172a;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --info:#1d4ed8;
+      --shadow:0 20px 40px rgba(15,23,42,.10);
+      --radius-xl:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
+      color:var(--text);
+    }
+    body{
+      min-height:100dvh;
+      display:flex;
+      justify-content:center;
+      padding:20px;
+    }
+    .wrap{
+      width:min(100%,520px);
+      padding-bottom:30px;
+    }
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:24px;
+      border-radius:30px;
+      color:#fff;
+      background:
+        radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),
+        linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      right:-26px;
+      top:-12px;
+      width:118px;
+      height:118px;
+      border-radius:34px;
+      background:rgba(255,255,255,.14);
+      transform:rotate(18deg);
+    }
+    .hero > *{position:relative;z-index:2}
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.14);
+      font-size:12px;
+    }
+    .hero h1{
+      margin:14px 0 8px;
+      font-size:28px;
+      line-height:1.2;
+      letter-spacing:-.05em;
+    }
+    .hero p{
+      margin:0;
+      line-height:1.7;
+      color:rgba(255,255,255,.92);
+      font-size:14px;
+    }
+    .panel{
+      background:var(--surface);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      border-radius:var(--radius-xl);
+      padding:20px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:52px;
+      height:52px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      box-shadow:var(--shadow);
+      font-size:24px;
+      flex:0 0 auto;
+    }
+    .brand h2{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.04em;
+    }
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .stage-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#334155;
+      border:1px solid #c7d2fe;
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:14px;
+    }
+    .field{
+      display:grid;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .field label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .input{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:15px 16px;
+      outline:none;
+      font-size:15px;
+      color:var(--text);
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .input:focus{
+      border-color:#94a3b8;
+      box-shadow:0 0 0 4px rgba(148,163,184,.16);
+    }
+    .helper{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.55;
+      margin-top:4px;
+    }
+    .btn-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:18px;
+    }
+    .btn-row.single{grid-template-columns:1fr}
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:18px;
+      padding:15px 16px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:15px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+      transition:transform .15s ease, opacity .15s ease;
+    }
+    .btn:active{transform:scale(.985)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
+    .btn[disabled]{opacity:.65;cursor:not-allowed}
+    .notice{
+      display:none;
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:18px;
+      font-size:13px;
+      line-height:1.55;
+      border:1px solid transparent;
+      white-space:pre-line;
+    }
+    .notice.show{display:block}
+    .notice.info{background:#eff6ff;border-color:#bfdbfe;color:var(--info)}
+    .notice.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+    .notice.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+    .verify-card,.reset-card{
+      margin-top:14px;
+      padding:14px;
+      border-radius:22px;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
+    }
+    .verify-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .verify-badge{
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:#eef2ff;
+      font-size:18px;
+      flex:0 0 auto;
+    }
+    .verify-head strong{
+      display:block;
+      font-size:16px;
+      letter-spacing:-.03em;
+    }
+    .verify-head span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .footer{
+      text-align:center;
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .hidden{display:none!important}
+    .env-badge{
+      display:none;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      margin-top:12px;
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.38);
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+    .env-badge.show{display:inline-flex}
+    .env-badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#a5b4fc;
+      box-shadow:0 0 0 4px rgba(255,255,255,.16);
+      flex:0 0 auto;
+    }
+    .page-loader{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(15,23,42,.52);
+      backdrop-filter:blur(2px);
+      -webkit-backdrop-filter:blur(2px);
+      z-index:10000;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .22s ease, visibility .22s ease;
+    }
+    .page-loader.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+    .loader-mark{
+      width:74px;
+      height:74px;
+      border-radius:24px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.92);
+      box-shadow:0 20px 40px rgba(15,23,42,.16);
+      font-size:28px;
+      animation:loaderFloat .95s ease-in-out infinite;
+    }
+    .loader-mark::before{content:"⌛"}
+    @keyframes loaderFloat{
+      0%,100%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-3px) scale(1.03)}
+    }
+
+    .strength-wrap{margin-top:6px}
+    .strength-bars{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:6px;
+      margin-bottom:6px;
+    }
+    .strength-bar{
+      height:8px;
+      border-radius:999px;
+      background:#e5e7eb;
+      transition:background-color .15s ease, opacity .15s ease;
+    }
+    .strength-text{
+      font-size:12px;
+      line-height:1.5;
+      color:var(--muted);
+    }
+    .strength-text.weak{color:#dc2626}
+    .strength-text.medium{color:#b45309}
+    .strength-text.strong{color:#16a34a}
+    .inline-check{
+      margin-top:6px;
+      font-size:12px;
+      line-height:1.5;
+      display:none;
+    }
+    .inline-check.show{display:block}
+    .inline-check.success{color:#16a34a}
+    .inline-check.error{color:#dc2626}
+    @media (max-width:480px){
+      .btn-row{grid-template-columns:1fr}
+    }
+  </style>
+
+  <!-- Add to Home + First Launch UX -->
+  <style id="myhills-install-ux-style">
+    .myhills-install-banner{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:calc(18px + env(safe-area-inset-bottom,0px));
+      z-index:100000;
+      display:none;
+      pointer-events:none;
+    }
+    .myhills-install-banner.show{
+      display:block;
+      animation:myhillsInstallUp .28s ease both;
+      pointer-events:auto;
+    }
+    .myhills-install-card{
+      width:min(100%,480px);
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 14px;
+      border-radius:24px;
+      color:#fff;
+      background:rgba(15,23,42,.94);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 22px 48px rgba(15,23,42,.28);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    .myhills-install-icon{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
+      border:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .myhills-install-copy{
+      flex:1;
+      min-width:0;
+      line-height:1.35;
+    }
+    .myhills-install-copy strong{
+      display:block;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      color:#fff;
+    }
+    .myhills-install-copy span{
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,.72);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .myhills-install-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .myhills-install-btn,
+    .myhills-install-close{
+      border:none;
+      cursor:pointer;
+      font:inherit;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .myhills-install-btn{
+      min-width:62px;
+      padding:11px 13px;
+      border-radius:15px;
+      color:#fff;
+      background:linear-gradient(135deg,#ef4444,#b91c1c);
+      font-size:13px;
+      font-weight:900;
+      box-shadow:0 10px 22px rgba(239,68,68,.25);
+    }
+    .myhills-install-close{
+      width:34px;
+      height:34px;
+      border-radius:13px;
+      color:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.08);
+      font-size:18px;
+      line-height:1;
+    }
+    .myhills-install-btn:active,
+    .myhills-install-close:active{
+      transform:scale(.96);
+    }
+    .myhills-first-launch{
+      position:fixed;
+      inset:0;
+      z-index:100001;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 65% 30%,rgba(239,68,68,.22),transparent 34%),
+        linear-gradient(180deg,#0F172A 0%,#111827 100%);
+      opacity:1;
+      transition:opacity .48s ease, visibility .48s ease;
+    }
+    .myhills-first-launch.show{
+      display:flex;
+    }
+    .myhills-first-launch.hide{
+      opacity:0;
+      visibility:hidden;
+    }
+    .myhills-first-launch-inner{
+      display:grid;
+      place-items:center;
+      gap:16px;
+      transform:translateY(4px);
+      animation:myhillsSplashIn .58s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .myhills-first-launch-icon{
+      width:96px;
+      height:96px;
+      border-radius:28px;
+      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
+      box-shadow:0 24px 50px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .myhills-first-launch-title{
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:-.04em;
+    }
+    .myhills-first-launch-sub{
+      margin-top:-8px;
+      color:rgba(255,255,255,.68);
+      font-size:12px;
+      font-weight:700;
+    }
+    @keyframes myhillsInstallUp{
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes myhillsSplashIn{
+      from{opacity:0;transform:translateY(10px) scale(.92)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    @media (max-width:380px){
+      .myhills-install-card{padding:12px}
+      .myhills-install-copy span{display:none}
+      .myhills-install-icon{width:42px;height:42px}
+      .myhills-install-btn{min-width:58px;padding:10px 12px}
+    }
+  </style>
+
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow" id="heroEyebrow">📱 휴대폰 인증</div>
+      <div class="env-badge" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
+      <h1 id="heroTitle">더운정 마이힐스<br>휴대폰 인증</h1>
+      <p id="heroDesc">휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.</p>
+    </section>
+
+    <section class="panel">
+      <div class="brand">
+        <div class="logo" id="brandLogo">🔐</div>
+        <div>
+          <h2 id="panelTitle">SMS 인증</h2>
+          <p id="panelDesc">인증이 완료되면 앱으로 이동합니다</p>
+        </div>
+      </div>
+
+      <div class="stage-chip" id="stageChip">1단계 · 휴대폰 확인</div>
+
+      <div class="field">
+        <label for="phoneNumber">휴대폰 번호</label>
+        <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="13" />
+        <div class="helper" id="phoneHelper">숫자만 입력하면 자동으로 정리됩니다.</div>
+      </div>
+
+      <div class="btn-row" id="sendRow">
+        <button id="sendCodeBtn" class="btn btn-primary" type="button">문자 인증 시작</button>
+        <button id="signOutBtn" class="btn btn-soft" type="button">로그아웃</button>
+      </div>
+
+      <div id="verifySection" class="verify-card hidden">
+        <div class="verify-head">
+          <div class="verify-badge">💬</div>
+          <div>
+            <strong>인증 코드 입력</strong>
+            <span>문자로 받은 6자리 코드를 입력해 주세요</span>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:0;">
+          <label for="smsCode">인증 코드</label>
+          <input id="smsCode" class="input" type="text" inputmode="numeric" placeholder="문자로 받은 6자리 코드" maxlength="6" />
+          <div class="helper">인증 코드는 보통 수 초 내 도착합니다.</div>
+        </div>
+
+        <div class="btn-row">
+          <button id="verifyCodeBtn" class="btn btn-primary" type="button">인증 확인</button>
+          <button id="resendBtn" class="btn btn-soft" type="button">코드 다시 보내기</button>
+        </div>
+      </div>
+	
+		<div id="resetSection" class="verify-card hidden" style="margin-top:14px;">
+
+		  <div class="verify-head">
+			<div class="verify-badge">🔐</div>
+			<div>
+			  <strong>새 비밀번호 설정</strong>
+			  <span>새로운 비밀번호를 입력해 주세요</span>
+			</div>
+		  </div>
+
+		  <div class="field" style="margin-top:10px;">
+			<label for="newPassword">새 비밀번호</label>
+			<input id="newPassword" class="input" type="password" autocomplete="new-password" placeholder="6자 이상 입력" />
+		  </div>
+
+		  <div class="field">
+			<label for="newPasswordConfirm">새 비밀번호 확인</label>
+			<input id="newPasswordConfirm" class="input" type="password" autocomplete="new-password" placeholder="비밀번호 재입력" />
+		  </div>
+
+		  <div class="btn-row">
+			<button id="resetPasswordBtn" class="btn btn-primary" type="button" disabled>
+			  비밀번호 변경
+			</button>
+		  </div>
+
+		</div>
+		
+      <div id="notice" class="notice info"></div>
+      <div id="recaptcha-container"></div>
+    </section>
+
+    <div class="footer" id="footerText">
+      휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.
+    </div>
+  </div>
+
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="loader-mark" aria-label="로딩 중" role="status"></div>
+  </div>
+
+  <script type="module">
+    import { ENV } from './env-config.js';
+
+    const envBadgeEl = document.getElementById('envBadge');
+    if (envBadgeEl && ENV === 'dev') {
+      envBadgeEl.classList.add('show');
+    }
+
+    await import('./phone-verify.js');
+  </script>
+
+  <!-- Add to Home + First Launch UX -->
+  <div id="myhillsFirstLaunch" class="myhills-first-launch" aria-hidden="true">
+    <div class="myhills-first-launch-inner">
+      <div class="myhills-first-launch-icon" aria-hidden="true"></div>
+      <div class="myhills-first-launch-title">더운정 마이힐스</div>
+      <div class="myhills-first-launch-sub">입주민 전용 혜택 웹앱</div>
+    </div>
+  </div>
+
+  <div id="myhillsInstallBanner" class="myhills-install-banner" aria-hidden="true">
+    <div class="myhills-install-card">
+      <div class="myhills-install-icon" aria-hidden="true"></div>
+      <div class="myhills-install-copy">
+        <strong>마이힐스를 앱처럼 이용해보세요</strong>
+        <span>홈 화면에 추가하면 더 빠르게 열 수 있습니다.</span>
+      </div>
+      <div class="myhills-install-actions">
+        <button id="myhillsInstallBtn" class="myhills-install-btn" type="button">설치</button>
+        <button id="myhillsInstallClose" class="myhills-install-close" type="button" aria-label="설치 안내 닫기">×</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script id="myhills-install-ux-script">
+    (function(){
+      const INSTALL_HIDE_KEY = "myhills_install_banner_closed_v1";
+      const FIRST_LAUNCH_KEY = "myhills_first_launch_seen_v1";
+
+      function isStandaloneMode(){
+        return window.matchMedia("(display-mode: standalone)").matches ||
+          window.navigator.standalone === true ||
+          document.referrer.startsWith("android-app://");
+      }
+
+      function initFirstLaunch(){
+        const splash = document.getElementById("myhillsFirstLaunch");
+        if (!splash) return;
+
+        const shouldShow = isStandaloneMode() && !localStorage.getItem(FIRST_LAUNCH_KEY);
+        if (!shouldShow) {
+          splash.remove();
+          return;
+        }
+
+        splash.classList.add("show");
+        localStorage.setItem(FIRST_LAUNCH_KEY, "1");
+
+        window.setTimeout(function(){
+          splash.classList.add("hide");
+          window.setTimeout(function(){
+            if (splash && splash.parentNode) splash.remove();
+          }, 520);
+        }, 1250);
+      }
+
+      function initInstallBanner(){
+        let deferredPrompt = null;
+        const banner = document.getElementById("myhillsInstallBanner");
+        const installBtn = document.getElementById("myhillsInstallBtn");
+        const closeBtn = document.getElementById("myhillsInstallClose");
+
+        if (!banner || !installBtn || !closeBtn) return;
+
+        function hideBanner(saveClose){
+          banner.classList.remove("show");
+          banner.setAttribute("aria-hidden", "true");
+          if (saveClose) localStorage.setItem(INSTALL_HIDE_KEY, String(Date.now()));
+        }
+
+        function showBanner(){
+          if (isStandaloneMode()) return;
+          if (localStorage.getItem(INSTALL_HIDE_KEY)) return;
+          banner.classList.add("show");
+          banner.setAttribute("aria-hidden", "false");
+        }
+
+        window.addEventListener("beforeinstallprompt", function(event){
+          event.preventDefault();
+          deferredPrompt = event;
+          window.setTimeout(showBanner, 1200);
+        });
+
+        installBtn.addEventListener("click", async function(){
+          if (!deferredPrompt) {
+            hideBanner(false);
+            return;
+          }
+
+          deferredPrompt.prompt();
+
+          try {
+            const choice = await deferredPrompt.userChoice;
+            if (choice && choice.outcome === "accepted") {
+              hideBanner(true);
+            }
+          } catch (e) {
+            console.warn("설치 안내 처리 실패:", e);
+          }
+
+          deferredPrompt = null;
+        });
+
+        closeBtn.addEventListener("click", function(){
+          hideBanner(true);
+        });
+
+        window.addEventListener("appinstalled", function(){
+          hideBanner(true);
+        });
+
+        if (isStandaloneMode()) {
+          hideBanner(false);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function(){
+          initFirstLaunch();
+          initInstallBanner();
+        });
+      } else {
+        initFirstLaunch();
+        initInstallBanner();
+      }
+    })();
+  </script>
+
+</body>
+</html>
