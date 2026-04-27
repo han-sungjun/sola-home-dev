@@ -2377,6 +2377,11 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-mode-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 9px;border-radius:999px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:11px;font-weight:900}
 @keyframes aiMsgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@keyframes aiTypingDot{0%,80%,100%{opacity:.35;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}@media (max-width:370px){.ai-message.bot .ai-bubble,.ai-message.user .ai-bubble{max-width:86%}}
 
+
+
+/* ===== AI 대화 기억 / 채팅방 UX ===== */
+.ai-memory-toolbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:2px 0 0}.ai-memory-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 10px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease}.ai-memory-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-memory-btn:active{transform:scale(.98)}.ai-memory-btn.danger{border-color:#fecdd3;color:#be123c;background:#fff1f2}.ai-memory-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45}.ai-memory-status strong{color:#0f172a}.ai-conversation-panel{display:none;gap:10px;padding:12px;border-radius:22px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-conversation-panel.show{display:grid}.ai-conversation-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.ai-conversation-head strong{font-size:14px}.ai-conversation-list{display:grid;gap:8px;max-height:230px;overflow:auto;padding-right:2px}.ai-conversation-item{width:100%;border:1px solid #e2e8f0;background:#f8fafc;border-radius:16px;padding:12px;text-align:left;cursor:pointer;display:grid;gap:4px}.ai-conversation-item:hover{background:#eff6ff;border-color:#bfdbfe}.ai-conversation-item.active{background:#0f172a;color:#fff;border-color:#0f172a}.ai-conversation-title{font-weight:1000;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ai-conversation-meta{font-size:11px;color:#64748b}.ai-conversation-item.active .ai-conversation-meta{color:rgba(255,255,255,.72)}.ai-conversation-empty{padding:16px;border-radius:16px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;text-align:center;font-size:12px;font-weight:800;line-height:1.6}.ai-chat-window.memory-loading{opacity:.72;pointer-events:none}@media(max-width:370px){.ai-memory-toolbar{grid-template-columns:1fr}.ai-memory-status{align-items:flex-start;flex-direction:column}}
+
 /* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
 body.env-prod [data-view-link="ai"],
 body.env-prod #view-ai{
@@ -2530,11 +2535,29 @@ body.env-prod #view-ai{
 
     <section id="view-ai" class="hidden">
       <div class="ai-view-hero">
-        <span class="ai-ready-pill">🤖 DEV 오픈 · 검색형 챗봇</span>
+        <span class="ai-ready-pill">🤖 DEV 오픈 · Gemini + 대화 기억</span>
         <h3>AI 생활 도우미</h3>
-        <p>공지사항, 혜택, FAQ에 등록된 내용을 기준으로 먼저 찾아드리는 1단계 검색형 챗봇입니다.</p>
+        <p>공지, 혜택, FAQ, 커뮤니티 데이터를 기준으로 답변하고 이전 대화 맥락도 이어서 기억합니다.</p>
       </div>
       <div class="panel ai-chat-panel">
+        <div class="ai-memory-toolbar" aria-label="AI 대화 관리">
+          <button class="ai-memory-btn" type="button" id="aiNewConversationBtn">＋ 새 대화</button>
+          <button class="ai-memory-btn" type="button" id="aiOpenConversationListBtn">🕘 이전 대화</button>
+          <button class="ai-memory-btn danger" type="button" id="aiClearConversationBtn">초기화</button>
+        </div>
+        <div class="ai-memory-status" id="aiConversationStatus">
+          <span>현재 대화: <strong>새 대화</strong></span>
+          <span>최근 맥락 반영</span>
+        </div>
+        <div class="ai-conversation-panel" id="aiConversationPanel" aria-live="polite">
+          <div class="ai-conversation-head">
+            <strong>이전 대화</strong>
+            <button class="btn btn-soft" type="button" id="aiCloseConversationListBtn">닫기</button>
+          </div>
+          <div class="ai-conversation-list" id="aiConversationList">
+            <div class="ai-conversation-empty">이전 대화를 불러오는 중입니다.</div>
+          </div>
+        </div>
         <div class="ai-quick-row" id="aiQuickRow">
           <button class="ai-quick-btn" type="button" data-ai-question="최근 공지 알려줘">최근 공지 알려줘</button>
           <button class="ai-quick-btn" type="button" data-ai-question="혜택 매장 추천해줘">혜택 매장 추천해줘</button>
@@ -2543,10 +2566,10 @@ body.env-prod #view-ai{
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 먼저 찾아드릴게요.<small>현재는 개발계에서만 동작하는 1단계 검색형 버전입니다.</small></div></div>
+궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small></div></div>
         </div>
         <div class="ai-input-row">
-          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 치킨 혜택 있어요?" />
+          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 방금 말한 곳 중 가까운 곳은?" />
           <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
         </div>
       </div>
@@ -2596,6 +2619,9 @@ body.env-prod #view-ai{
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const AI_FUNCTION_REGION = 'asia-northeast3';
     const AI_FUNCTION_URL = `https://${AI_FUNCTION_REGION}-${firebaseConfig.projectId}.cloudfunctions.net/askAiAssistant`;
+    const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
+    let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
+    let aiConversationTitle = '새 대화';
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
       prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
@@ -6705,6 +6731,102 @@ function getShareTrackingParams(){
       });
     }
 
+    function getAiWelcomeHtml(){
+      return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
+궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small>`;
+    }
+
+    function resetAiChatWindow(){
+      const win = qs('#aiChatWindow');
+      if(!win) return;
+      win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${getAiWelcomeHtml()}</div></div>`;
+      win.scrollTop = win.scrollHeight;
+    }
+
+    function updateAiConversationStatus(title){
+      const el = qs('#aiConversationStatus');
+      if(!el) return;
+      const name = title || aiConversationTitle || (aiConversationId ? '이전 대화' : '새 대화');
+      el.innerHTML = `<span>현재 대화: <strong>${escapeHtml(name)}</strong></span><span>${aiConversationId ? '대화 기억 사용중' : '첫 질문 후 저장'}</span>`;
+    }
+
+    async function callAiFunction(payload = {}){
+      const idToken = await auth.currentUser?.getIdToken?.();
+      if(!idToken) throw new Error('로그인 정보가 없습니다.');
+      const response = await fetch(AI_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+        body: JSON.stringify({ env: ENV, ...payload })
+      });
+      const data = await response.json().catch(() => ({}));
+      if(!response.ok || data.ok === false) throw new Error(data.message || 'AI 함수 호출에 실패했습니다.');
+      return data;
+    }
+
+    function renderAiConversationMessages(messages = []){
+      resetAiChatWindow();
+      const win = qs('#aiChatWindow');
+      if(!win) return;
+      messages.forEach((msg) => {
+        if(!msg || !msg.content) return;
+        if(msg.role === 'user') appendAiMessage('user', escapeHtml(msg.content));
+        else appendAiMessage('bot', normalizeAiAnswerHtml(msg.answerHtml || escapeHtml(msg.content)));
+      });
+      win.scrollTop = win.scrollHeight;
+    }
+
+    function renderAiConversationList(conversations = []){
+      const list = qs('#aiConversationList');
+      if(!list) return;
+      if(!conversations.length){ list.innerHTML = '<div class="ai-conversation-empty">저장된 이전 대화가 없습니다.</div>'; return; }
+      list.innerHTML = conversations.map((c) => {
+        const active = c.id && c.id === aiConversationId ? ' active' : '';
+        return `<button class="ai-conversation-item${active}" type="button" data-conversation-id="${escapeHtml(c.id)}"><span class="ai-conversation-title">${escapeHtml(c.title || '제목 없는 대화')}</span><span class="ai-conversation-meta">${escapeHtml(c.updatedText || c.createdText || '')} · 메시지 ${Number(c.messageCount || 0)}개</span></button>`;
+      }).join('');
+      list.querySelectorAll('[data-conversation-id]').forEach(btn => btn.addEventListener('click', () => loadAiConversation(btn.dataset.conversationId)));
+    }
+
+    async function loadAiConversationList(){
+      if(ENV !== 'dev') return;
+      qs('#aiConversationPanel')?.classList.add('show');
+      const list = qs('#aiConversationList');
+      if(list) list.innerHTML = '<div class="ai-conversation-empty">이전 대화를 불러오는 중입니다.</div>';
+      try{ const data = await callAiFunction({ action: 'listConversations' }); renderAiConversationList(data.conversations || []); }
+      catch(error){ console.error('AI conversation list failed', error); if(list) list.innerHTML = '<div class="ai-conversation-empty">이전 대화를 불러오지 못했습니다.</div>'; }
+    }
+
+    async function loadAiConversation(conversationId){
+      if(!conversationId) return;
+      const win = qs('#aiChatWindow');
+      win?.classList.add('memory-loading');
+      try{
+        const data = await callAiFunction({ action: 'loadConversation', conversationId });
+        aiConversationId = data.conversationId || conversationId;
+        aiConversationTitle = data.title || '이전 대화';
+        localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId);
+        renderAiConversationMessages(data.messages || []);
+        updateAiConversationStatus(aiConversationTitle);
+        qs('#aiConversationPanel')?.classList.remove('show');
+      }catch(error){ console.error('AI conversation load failed', error); await openModalAlert('이전 대화를 불러오지 못했습니다.'); }
+      finally{ win?.classList.remove('memory-loading'); }
+    }
+
+    function startNewAiConversation(){
+      aiConversationId = '';
+      aiConversationTitle = '새 대화';
+      localStorage.removeItem(AI_CONVERSATION_KEY);
+      resetAiChatWindow();
+      updateAiConversationStatus(aiConversationTitle);
+      qs('#aiConversationPanel')?.classList.remove('show');
+    }
+
+    async function clearCurrentAiConversation(){
+      if(aiConversationId){
+        try{ await callAiFunction({ action: 'deleteConversation', conversationId: aiConversationId }); }catch(error){ console.warn('AI conversation delete failed', error); }
+      }
+      startNewAiConversation();
+    }
+
     async function askAiAssistant(rawQuestion=''){
       if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
       const input = qs('#aiQuestionInput');
@@ -6719,16 +6841,11 @@ function getShareTrackingParams(){
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
       try{
-        const idToken = await auth.currentUser?.getIdToken?.();
-        if(!idToken) throw new Error('로그인 정보가 없습니다.');
-        const response = await fetch(AI_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
-          body: JSON.stringify({ question, env: ENV })
-        });
-        const data = await response.json().catch(() => ({}));
-        if(!response.ok || data.ok === false) throw new Error(data.message || 'AI 검색 함수 호출에 실패했습니다.');
-        const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변</span>' : '<span class="ai-mode-pill">검색 기반 답변</span>';
+        const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '' });
+        if(data.conversationId){ aiConversationId = data.conversationId; localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId); }
+        aiConversationTitle = data.conversationTitle || aiConversationTitle || question.slice(0,24);
+        updateAiConversationStatus(aiConversationTitle);
+        const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 맥락 기억</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
         await typeAiHtml(pendingBubble, `${data.answerHtml || '관련 답변을 찾지 못했습니다.'}${modeLabel}`, 10);
         if(pendingRow) delete pendingRow.dataset.pending;
       }catch(error){
@@ -6961,7 +7078,12 @@ function getShareTrackingParams(){
     });
 
 
+    updateAiConversationStatus(aiConversationTitle);
     qs('#aiAskBtn')?.addEventListener('click', () => askAiAssistant());
+    qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
+    qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
+    qs('#aiCloseConversationListBtn')?.addEventListener('click', () => qs('#aiConversationPanel')?.classList.remove('show'));
+    qs('#aiClearConversationBtn')?.addEventListener('click', clearCurrentAiConversation);
     qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
       if(event.key === 'Enter'){
         event.preventDefault();
