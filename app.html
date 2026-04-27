@@ -2385,7 +2385,12 @@ body.app-role-resident [data-view="shareinsights"]{
 
 
 /* ===== AI 답변 액션: 혜택 딥링크 + 전자 책자 카드 ===== */
-.ai-action-links{display:grid;gap:8px;margin-top:12px}.ai-action-link{width:100%;border:none;border-radius:16px;padding:11px 12px;background:#0f172a;color:#fff;font-size:13px;font-weight:1000;text-align:left;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.14);transition:transform .16s ease, opacity .16s ease}.ai-action-link:hover{transform:translateY(-1px)}.ai-action-link:active{transform:scale(.985)}.ai-booklet-card{display:grid;gap:4px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid #dbe3ef;color:#334155}.ai-booklet-card b{font-size:13px;color:#0f172a}.ai-booklet-card small{font-size:11px;color:#64748b}.ai-booklet-card span{font-size:12px;line-height:1.55;color:#475569}
+.ai-action-links{display:grid;gap:8px;margin-top:12px}.ai-action-link{width:100%;border:none;border-radius:16px;padding:11px 12px;background:#0f172a;color:#fff;font-size:13px;font-weight:1000;text-align:left;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.14);transition:transform .16s ease, opacity .16s ease}.ai-action-link:hover{transform:translateY(-1px)}.ai-action-link:active{transform:scale(.985)}.ai-booklet-card,.ai-guide-card{display:grid;gap:4px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid #dbe3ef;color:#334155}.ai-guide-card{background:#f0fdf4;border-color:#bbf7d0}.ai-booklet-card b,.ai-guide-card b{font-size:13px;color:#0f172a}.ai-booklet-card small,.ai-guide-card small{font-size:11px;color:#64748b}.ai-booklet-card span,.ai-guide-card span{font-size:12px;line-height:1.55;color:#475569}
+
+
+
+/* ===== AI 음성 질문 UX ===== */
+.ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
 
 /* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
 body.env-prod [data-view-link="ai"],
@@ -2568,13 +2573,19 @@ body.env-prod #view-ai{
           <button class="ai-quick-btn" type="button" data-ai-question="혜택 매장 추천해줘">혜택 매장 추천해줘</button>
           <button class="ai-quick-btn" type="button" data-ai-question="지도에서 볼 수 있는 혜택 알려줘">지도 혜택 알려줘</button>
           <button class="ai-quick-btn" type="button" data-ai-question="인기 매장 TOP 5 알려줘">인기 매장 알려줘</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="커뮤니티 메뉴는 어떻게 들어가?">커뮤니티 메뉴는?</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
 궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small></div></div>
         </div>
+        <div class="ai-voice-row" id="aiVoiceRow">
+          <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
+          <div class="ai-voice-status" id="aiVoiceStatus">음성 질문은 지원 브라우저에서 사용할 수 있습니다.</div>
+        </div>
         <div class="ai-input-row">
-          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 방금 말한 곳 중 가까운 곳은?" />
+          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?" />
           <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
         </div>
       </div>
@@ -6838,7 +6849,29 @@ function getShareTrackingParams(){
         aiConversationTitle = data.title || '이전 대화';
         localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId);
         renderAiConversationMessages(data.messages || []);
-        updateAiConversationStatus(aiConversationTitle);
+    
+
+    /* ===== AI 음성 질문 UX ===== */
+    let aiRecognition = null;
+    let aiVoiceListening = false;
+    function getSpeechRecognition(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+    function setAiVoiceStatus(message, active=false){ const status = qs('#aiVoiceStatus'); const btn = qs('#aiVoiceBtn'); if(status) status.textContent = message || ''; btn?.classList.toggle('listening', !!active); if(btn) btn.textContent = active ? '■ 듣는 중' : '🎙 말로 질문'; }
+    function initAiVoiceInput(){
+      const VoiceAPI = getSpeechRecognition(); const btn = qs('#aiVoiceBtn'); if(!btn) return;
+      if(!VoiceAPI){ btn.disabled = true; btn.style.opacity = '.55'; setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.'); return; }
+      aiRecognition = new VoiceAPI(); aiRecognition.lang = 'ko-KR'; aiRecognition.continuous = false; aiRecognition.interimResults = true; aiRecognition.maxAlternatives = 1;
+      aiRecognition.onstart = () => { aiVoiceListening = true; setAiVoiceStatus('듣고 있습니다. 질문을 말씀해 주세요.', true); };
+      aiRecognition.onresult = (event) => {
+        let transcript = ''; for(let i=event.resultIndex; i<event.results.length; i+=1){ transcript += event.results[i][0]?.transcript || ''; } transcript = transcript.trim();
+        if(transcript){ const input = qs('#aiQuestionInput'); if(input) input.value = transcript; setAiVoiceStatus('인식 중: ' + transcript, true); const last = event.results[event.results.length - 1]; if(last?.isFinal){ window.__AI_LAST_INPUT_MODE = 'voice'; setAiVoiceStatus('음성 인식 완료. 질문을 전송합니다.', false); setTimeout(() => askAiAssistant(transcript), 180); } }
+      };
+      aiRecognition.onerror = (event) => { aiVoiceListening = false; const msg = event.error === 'not-allowed' ? '마이크 권한이 차단되었습니다.' : '음성 인식 중 오류가 발생했습니다.'; setAiVoiceStatus(msg, false); };
+      aiRecognition.onend = () => { if(aiVoiceListening){ aiVoiceListening = false; setAiVoiceStatus('음성 인식이 종료되었습니다.', false); } };
+      btn.addEventListener('click', () => { try{ if(aiVoiceListening){ aiRecognition.stop(); aiVoiceListening = false; setAiVoiceStatus('음성 인식을 중지했습니다.', false); return; } window.__AI_LAST_INPUT_MODE = 'voice'; aiRecognition.start(); }catch(error){ console.warn('Voice recognition start failed', error); setAiVoiceStatus('음성 인식을 시작하지 못했습니다.', false); } });
+    }
+
+    updateAiConversationStatus(aiConversationTitle);
+    initAiVoiceInput();
         qs('#aiConversationPanel')?.classList.remove('show');
       }catch(error){ console.error('AI conversation load failed', error); await openModalAlert('이전 대화를 불러오지 못했습니다.'); }
       finally{ win?.classList.remove('memory-loading'); }
@@ -6886,6 +6919,7 @@ function getShareTrackingParams(){
     }
 
     async function askAiAssistant(rawQuestion=''){
+      if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
       const input = qs('#aiQuestionInput');
       const btn = qs('#aiAskBtn');
@@ -6901,6 +6935,7 @@ function getShareTrackingParams(){
       try{
         const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '', context: buildAiSituationContext() });
         if(data.conversationId){ aiConversationId = data.conversationId; localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId); }
+        window.__AI_LAST_INPUT_MODE = 'text';
         aiConversationTitle = data.conversationTitle || aiConversationTitle || question.slice(0,24);
         updateAiConversationStatus(aiConversationTitle);
         const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 개인화/상황 인식</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
