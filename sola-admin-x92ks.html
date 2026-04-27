@@ -3048,14 +3048,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             await loadCommunityReportTopPosts();
           }
 
-          if (!window.__adminDashboardIntervalStarted) {
-            window.__adminDashboardIntervalStarted = true;
-            setInterval(() => {
-              window.refreshAdminStatsUIOnce?.();
-              window.render404Stats?.();
-              loadCommunityReportTopPosts?.();
-            }, 30000);
-          }
+          // READ OPTIMIZED: 관리자 대시보드 통계는 실시간/주기 갱신하지 않습니다.
+          // 운영 비용 절감을 위해 로그인 시 1회만 조회하고, 필요 시 페이지 새로고침 또는 메뉴 재진입으로 다시 조회합니다.
+          window.__adminDashboardIntervalStarted = false;
         }catch(error){
           console.error('관리자 권한 확인 실패', error);
           setAdminDashboardLocked(true);
