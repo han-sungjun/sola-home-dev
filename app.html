@@ -2580,7 +2580,7 @@ body.env-prod #view-ai{
     document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
