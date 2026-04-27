@@ -1093,6 +1093,78 @@ body.gnb-open .admin-bottom-nav{
   color:#fff;
   border-color:#0f172a;
 }
+
+
+/* ===== AI 로그 검색/페이징 ===== */
+.ai-log-toolbar{
+  display:grid;
+  gap:10px;
+  margin:12px 0 14px;
+}
+.ai-log-search-row{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+}
+.ai-log-search-row input,
+.ai-log-search-row select{
+  min-height:44px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  color:#0f172a;
+  font-size:13px;
+  font-weight:700;
+  padding:0 12px;
+  outline:none;
+}
+.ai-log-search-row input:focus,
+.ai-log-search-row select:focus{
+  border-color:#93c5fd;
+  box-shadow:0 0 0 4px rgba(59,130,246,.12);
+}
+.ai-log-pagebar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+}
+.ai-log-pagebar small{
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.45;
+}
+.ai-log-page-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.ai-log-page-actions .btn{
+  padding:9px 12px;
+  border-radius:14px;
+  font-size:12px;
+}
+.ai-log-page-actions .btn[disabled]{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.ai-log-hint{
+  color:#94a3b8;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.55;
+}
+@media(max-width:460px){
+  .ai-log-search-row{grid-template-columns:1fr;}
+  .ai-log-search-row .btn{width:100%;}
+}
 .ai-admin-summary{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -1582,9 +1654,6 @@ body.gnb-open .admin-bottom-nav{
             <button class="ai-manager-tab" type="button" data-ai-tab="guide">가이드</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="settings">설정</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="logs">질문 로그</button>
-            <button class="ai-manager-tab" type="button" data-ai-tab="failed">실패 질문</button>
-            <button class="ai-manager-tab" type="button" data-ai-tab="suggestions">FAQ 추천</button>
-            <button class="ai-manager-tab" type="button" data-ai-tab="bookletDrafts">전자책 초안</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="conversations">대화 기록</button>
           </div>
         </div>
@@ -1629,7 +1698,7 @@ body.gnb-open .admin-bottom-nav{
   <script type="module">
     import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { mountIdleTimer } from "./tracking.js";
     import { ENV, FIREBASE_CONFIG, API_URL } from './env-config.js';
@@ -3050,7 +3119,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     /* =========================
        AI 생활 도우미 관리자
     ========================= */
-    const aiAdminState = { tab:'faq', editing:null, tabReady:false };
+    const aiAdminState = { tab:'faq', editing:null, tabReady:false, logs:{pageSize:20, cursors:[], page:1, lastDoc:null, hasNext:false, search:'', mode:'latest'}, conversations:{pageSize:20, cursors:[], page:1, lastDoc:null, hasNext:false, search:'', mode:'latest'} };
 
     function splitKeywords(value=''){
       return String(value || '')
@@ -3104,9 +3173,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       if(tab === 'guide') return loadAiGuide();
       if(tab === 'settings') return loadAiSettings();
       if(tab === 'logs') return loadAiLogs();
-      if(tab === 'failed') return loadAiFailedQuestions();
-      if(tab === 'suggestions') return loadAiFaqSuggestions();
-      if(tab === 'bookletDrafts') return loadAiBookletDrafts();
       if(tab === 'conversations') return loadAiConversations();
     }
     window.openAIManager = openAIManager;
@@ -3391,15 +3457,138 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       await refreshAiMetrics();
     }
 
-    async function loadAiLogs(){
+    function normalizeAiSearchValue(value=''){
+      return String(value || '').trim();
+    }
+
+    function resetAiPaging(kind){
+      const target = aiAdminState[kind];
+      if(!target) return;
+      target.cursors = [];
+      target.page = 1;
+      target.lastDoc = null;
+      target.hasNext = false;
+    }
+
+    function renderAiLogToolbar(kind, title, desc){
+      const state = aiAdminState[kind];
+      const pageSize = state?.pageSize || 20;
+      const search = escapeHtml(state?.search || '');
+      const mode = state?.mode || 'latest';
+      const placeholder = kind === 'logs'
+        ? '질문 검색 또는 uid:사용자UID'
+        : '대화 제목 검색 또는 uid:사용자UID';
+      return renderAiFormHeader(title, desc) + `
+        <div class="ai-log-toolbar" data-ai-paging-kind="${escapeHtml(kind)}">
+          <div class="ai-log-search-row">
+            <input id="${kind}SearchInput" value="${search}" placeholder="${escapeHtml(placeholder)}" />
+            <select id="${kind}PageSize" aria-label="페이지 크기">
+              ${[10,20,30,50].map(n => `<option value="${n}" ${Number(pageSize) === n ? 'selected' : ''}>${n}개</option>`).join('')}
+            </select>
+            <button class="btn btn-primary" type="button" data-ai-action="${kind}-search">검색</button>
+          </div>
+          <div class="ai-log-pagebar">
+            <small id="${kind}PageInfo">${escapeHtml(mode === 'search' ? '검색 결과' : '최신순')} · ${Number(state?.page || 1)}페이지</small>
+            <div class="ai-log-page-actions">
+              <button class="btn btn-soft" type="button" data-ai-action="${kind}-refresh">새로고침</button>
+              <button class="btn btn-soft" type="button" data-ai-action="${kind}-prev" ${Number(state?.page || 1) <= 1 ? 'disabled' : ''}>이전</button>
+              <button class="btn btn-blue" type="button" data-ai-action="${kind}-next" ${state?.hasNext ? '' : 'disabled'}>다음</button>
+            </div>
+          </div>
+          <div class="ai-log-hint">검색은 대량 로그를 고려해 페이지 단위로 조회합니다. 질문/제목 검색은 앞부분 일치, UID 검색은 <b>uid:사용자UID</b> 형식입니다.</div>
+        </div>`;
+    }
+
+    function buildAiPagedQuery(kind){
+      const state = aiAdminState[kind];
+      const pageSize = Number(state?.pageSize || 20);
+      const raw = normalizeAiSearchValue(state?.search || '');
+      const isUidSearch = raw.toLowerCase().startsWith('uid:');
+      const uid = isUidSearch ? raw.slice(4).trim() : '';
+      const colName = kind === 'logs' ? 'ai_chat_logs' : 'ai_conversations';
+      const colRef = collection(db, colName);
+      const clauses = [];
+
+      if(kind === 'conversations'){
+        clauses.push(where('status', '==', 'active'));
+      }
+
+      if(uid){
+        state.mode = 'uid';
+        clauses.push(where('uid', '==', uid));
+        clauses.push(orderBy(kind === 'logs' ? 'createdAt' : 'updatedAt', 'desc'));
+      }else if(raw){
+        state.mode = 'search';
+        const field = kind === 'logs' ? 'question' : 'title';
+        clauses.push(orderBy(field));
+        clauses.push(startAt(raw));
+        clauses.push(endAt(raw + '\uf8ff'));
+      }else{
+        state.mode = 'latest';
+        clauses.push(orderBy(kind === 'logs' ? 'createdAt' : 'updatedAt', 'desc'));
+      }
+
+      const cursor = state.cursors[Math.max(0, Number(state.page || 1) - 2)];
+      if(cursor) clauses.push(startAfter(cursor));
+      clauses.push(limit(pageSize + 1));
+      return query(colRef, ...clauses);
+    }
+
+    async function fetchAiPagedDocs(kind){
+      const state = aiAdminState[kind];
+      const pageSize = Number(state?.pageSize || 20);
+      const snap = await getDocs(buildAiPagedQuery(kind));
+      const docs = snap.docs.slice(0, pageSize);
+      state.hasNext = snap.docs.length > pageSize;
+      state.lastDoc = docs.length ? docs[docs.length - 1] : null;
+      return docs;
+    }
+
+    function updateAiPageCursor(kind){
+      const state = aiAdminState[kind];
+      if(!state?.lastDoc) return;
+      state.cursors[state.page - 1] = state.lastDoc;
+    }
+
+    async function goAiPage(kind, direction){
+      const state = aiAdminState[kind];
+      if(!state) return;
+      if(direction === 'next' && state.hasNext){
+        updateAiPageCursor(kind);
+        state.page += 1;
+      }
+      if(direction === 'prev' && state.page > 1){
+        state.page -= 1;
+      }
+      if(kind === 'logs') await loadAiLogs(false);
+      else await loadAiConversations(false);
+    }
+
+    function applyAiSearch(kind){
+      const state = aiAdminState[kind];
+      if(!state) return;
+      const input = qs(`#${kind}SearchInput`);
+      const size = qs(`#${kind}PageSize`);
+      state.search = normalizeAiSearchValue(input?.value || '');
+      state.pageSize = Number(size?.value || state.pageSize || 20);
+      resetAiPaging(kind);
+      if(kind === 'logs') return loadAiLogs(false);
+      return loadAiConversations(false);
+    }
+
+    async function loadAiLogs(reset=true){
       const box = qs('#aiAdminContent');
       if(!box) return;
-      box.innerHTML = renderAiFormHeader('질문 로그', '입주민들이 실제로 질문한 내용을 확인하고 FAQ 보강에 활용합니다.') + '<div class="ai-admin-list" id="aiLogList"><div class="ai-empty">불러오는 중...</div></div>';
+      if(reset) resetAiPaging('logs');
+      box.innerHTML = renderAiLogToolbar('logs', '질문 로그', '입주민들이 실제로 질문한 내용을 검색하고 페이지 단위로 확인합니다.') + '<div class="ai-admin-list" id="aiLogList"><div class="ai-empty">불러오는 중...</div></div>';
       const list = qs('#aiLogList');
       try{
-        const snap = await getDocs(query(collection(db, 'ai_chat_logs'), orderBy('createdAt', 'desc'), limit(60)));
-        if(!snap.size){ list.innerHTML = '<div class="ai-empty">아직 질문 로그가 없습니다.</div>'; return; }
-        list.innerHTML = snap.docs.map(docSnap => {
+        const docs = await fetchAiPagedDocs('logs');
+        const state = aiAdminState.logs;
+        const pageInfo = qs('#logsPageInfo');
+        if(pageInfo) pageInfo.textContent = `${state.mode === 'latest' ? '최신순' : '검색 결과'} · ${state.page}페이지 · ${docs.length}건 표시${state.hasNext ? ' · 다음 있음' : ''}`;
+        if(!docs.length){ list.innerHTML = '<div class="ai-empty">표시할 질문 로그가 없습니다.</div>'; return; }
+        list.innerHTML = docs.map(docSnap => {
           const d = docSnap.data() || {};
           const answer = valueToText(d.answer || d.answerText || d.answerHtml || d.response || '');
           return `<div class="ai-admin-item">
@@ -3407,31 +3596,34 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             ${answer ? `<div class="ai-log-answer">A. ${escapeHtml(answer.slice(0, 500))}</div>` : ''}
             <div style="margin-top:10px;">
               <span class="ai-code-pill">${escapeHtml(formatAiAdminDate(d.createdAt))}</span>
+              <span class="ai-code-pill">UID ${escapeHtml(d.uid || '-')}</span>
               <span class="ai-code-pill">${escapeHtml((d.matchedTypes || []).join(', ') || d.source || 'AI')}</span>
               <span class="ai-code-pill">매칭 ${escapeHtml(d.matchedCount ?? '-')}</span>
             </div>
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="faq-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(answer || '')}">FAQ로 복사</button>
-              <button class="btn btn-primary" type="button" data-ai-action="quick-faq-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(answer || '')}" data-source="ai_chat_logs" data-id="${docSnap.id}">FAQ 즉시 등록</button>
-              <button class="btn btn-blue" type="button" data-ai-action="quick-booklet-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(answer || '')}" data-source="ai_chat_logs" data-id="${docSnap.id}">전자책으로 등록</button>
             </div>
           </div>`;
         }).join('');
       }catch(error){
         console.error(error);
-        list.innerHTML = '<div class="ai-empty">질문 로그를 불러오지 못했습니다. 인덱스 또는 권한을 확인해 주세요.</div>';
+        list.innerHTML = '<div class="ai-empty">질문 로그를 불러오지 못했습니다. 검색 조합에 필요한 Firestore 인덱스 또는 권한을 확인해 주세요.</div>';
       }
     }
 
-    async function loadAiConversations(){
+    async function loadAiConversations(reset=true){
       const box = qs('#aiAdminContent');
       if(!box) return;
-      box.innerHTML = renderAiFormHeader('대화 기록', '대화방 단위로 누적된 AI 사용 흐름을 확인합니다.') + '<div class="ai-admin-list" id="aiConversationList"><div class="ai-empty">불러오는 중...</div></div>';
+      if(reset) resetAiPaging('conversations');
+      box.innerHTML = renderAiLogToolbar('conversations', '대화 기록', '대화방 단위로 누적된 AI 사용 흐름을 검색하고 페이지 단위로 확인합니다.') + '<div class="ai-admin-list" id="aiConversationList"><div class="ai-empty">불러오는 중...</div></div>';
       const list = qs('#aiConversationList');
       try{
-        const snap = await getDocs(query(collection(db, 'ai_conversations'), orderBy('updatedAt', 'desc'), limit(50)));
-        if(!snap.size){ list.innerHTML = '<div class="ai-empty">아직 대화 기록이 없습니다.</div>'; return; }
-        list.innerHTML = snap.docs.map(docSnap => {
+        const docs = await fetchAiPagedDocs('conversations');
+        const state = aiAdminState.conversations;
+        const pageInfo = qs('#conversationsPageInfo');
+        if(pageInfo) pageInfo.textContent = `${state.mode === 'latest' ? '최신순' : '검색 결과'} · ${state.page}페이지 · ${docs.length}건 표시${state.hasNext ? ' · 다음 있음' : ''}`;
+        if(!docs.length){ list.innerHTML = '<div class="ai-empty">표시할 대화 기록이 없습니다.</div>'; return; }
+        list.innerHTML = docs.map(docSnap => {
           const d = docSnap.data() || {};
           return `<div class="ai-admin-item">
             <h5>${escapeHtml(d.title || '새 대화')}</h5>
@@ -3439,174 +3631,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             <div style="margin-top:10px;">
               <span class="ai-code-pill">생성 ${escapeHtml(formatAiAdminDate(d.createdAt))}</span>
               <span class="ai-code-pill">수정 ${escapeHtml(formatAiAdminDate(d.updatedAt))}</span>
+              <span class="ai-code-pill">메시지 ${escapeHtml(d.messageCount ?? 0)}</span>
               <span class="ai-code-pill">${escapeHtml(docSnap.id)}</span>
             </div>
           </div>`;
         }).join('');
       }catch(error){
         console.error(error);
-        list.innerHTML = '<div class="ai-empty">대화 기록을 불러오지 못했습니다.</div>';
-      }
-    }
-
-
-    function buildAiKeywordDraft(question=''){
-      return splitKeywords(question).slice(0, 8);
-    }
-
-    function buildAiFaqAnswerDraft(question='', answer=''){
-      const text = valueToText(answer || '').trim();
-      if(text) return text.slice(0, 1200);
-      return `현재 해당 질문에 대한 정식 답변이 등록되어 있지 않습니다.\n\n관리자가 확인 후 정확한 안내 문구로 수정해 주세요.`;
-    }
-
-    function buildBookletContentDraft(question='', answer=''){
-      const body = valueToText(answer || '').trim();
-      return [
-        `질문: ${question}`,
-        '',
-        body ? `안내 내용:\n${body}` : '안내 내용:\n관리자가 실제 생활 안내/규정/메뉴 경로를 확인하여 내용을 보강해 주세요.',
-        '',
-        '※ 이 페이지는 AI 질문 로그를 바탕으로 생성된 전자책 초안입니다.'
-      ].join('\n');
-    }
-
-    async function markAiImprovementSource(collectionName='', id='', extra={}){
-      if(!collectionName || !id) return;
-      try{
-        await updateDoc(doc(db, collectionName, id), {
-          ...extra,
-          status: extra.status || 'converted',
-          convertedAt: serverTimestamp()
-        });
-      }catch(error){
-        console.warn('AI 개선 소스 상태 업데이트 실패', error);
-      }
-    }
-
-    async function quickCreateFaqFromQuestion(question='', answer='', sourceCollection='', sourceId=''){
-      const q = valueToText(question).trim();
-      if(!q) return openModalAlert('질문 내용이 없습니다.', null, '등록 불가');
-      const a = buildAiFaqAnswerDraft(q, answer);
-      await addDoc(collection(db, 'ai_faq'), {
-        question: q,
-        answer: a,
-        keywords: buildAiKeywordDraft(q),
-        isActive: true,
-        source: 'admin-auto-faq',
-        sourceCollection: sourceCollection || '',
-        sourceId: sourceId || '',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-      await markAiImprovementSource(sourceCollection, sourceId, { convertedTo: 'ai_faq' });
-      openModalAlert('FAQ로 즉시 등록되었습니다.\n필요하면 FAQ 탭에서 문구를 다듬어 주세요.', null, '등록 완료');
-      await refreshAiMetrics();
-    }
-
-    async function quickCreateBookletFromQuestion(question='', answer='', sourceCollection='', sourceId=''){
-      const q = valueToText(question).trim();
-      if(!q) return openModalAlert('질문 내용이 없습니다.', null, '등록 불가');
-      await addDoc(collection(db, 'ai_booklet_pages'), {
-        title: q.length > 40 ? `${q.slice(0, 40)}...` : q,
-        section: 'AI 질문 보강',
-        content: buildBookletContentDraft(q, answer),
-        keywords: buildAiKeywordDraft(q),
-        isActive: true,
-        source: 'admin-auto-booklet',
-        sourceCollection: sourceCollection || '',
-        sourceId: sourceId || '',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-      await markAiImprovementSource(sourceCollection, sourceId, { convertedTo: 'ai_booklet_pages' });
-      openModalAlert('전자책 페이지로 등록되었습니다.\n전자책 탭에서 내용을 보강해 주세요.', null, '등록 완료');
-      await refreshAiMetrics();
-    }
-
-    async function loadAiFailedQuestions(){
-      const box = qs('#aiAdminContent');
-      if(!box) return;
-      box.innerHTML = renderAiFormHeader('실패/보강 필요 질문', 'AI가 답변을 찾지 못했거나 매칭 신뢰도가 낮은 질문을 모아 보여줍니다.') + '<div class="ai-admin-list" id="aiFailedList"><div class="ai-empty">불러오는 중...</div></div>';
-      const list = qs('#aiFailedList');
-      try{
-        const snap = await getDocs(query(collection(db, 'ai_failed_questions'), orderBy('updatedAt', 'desc'), limit(80)));
-        if(!snap.size){ list.innerHTML = '<div class="ai-empty">아직 보강 필요 질문이 없습니다.</div>'; return; }
-        list.innerHTML = snap.docs.map(docSnap => {
-          const d = docSnap.data() || {};
-          const answer = valueToText(d.answerPreview || d.answerDraft || '').slice(0, 700);
-          return `<div class="ai-admin-item">
-            <h5>Q. ${escapeHtml(d.question || '-')}</h5>
-            ${answer ? `<p>${escapeHtml(answer)}</p>` : '<p>등록된 답변 초안이 없습니다. 관리자 확인이 필요합니다.</p>'}
-            <div style="margin-top:10px;">
-              <span class="ai-code-pill">${escapeHtml(d.status || 'open')}</span>
-              <span class="ai-code-pill">매칭 ${escapeHtml(d.matchedCount ?? 0)}</span>
-              <span class="ai-code-pill">누적 ${escapeHtml(d.count ?? 1)}회</span>
-              <span class="ai-code-pill">${escapeHtml(formatAiAdminDate(d.updatedAt || d.createdAt))}</span>
-            </div>
-            <div class="ai-admin-item-actions">
-              <button class="btn btn-primary" type="button" data-ai-action="quick-faq-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(answer || '')}" data-source="ai_failed_questions" data-id="${docSnap.id}">FAQ 등록</button>
-              <button class="btn btn-blue" type="button" data-ai-action="quick-booklet-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(answer || '')}" data-source="ai_failed_questions" data-id="${docSnap.id}">전자책 등록</button>
-              <button class="btn btn-soft" type="button" data-ai-action="mark-ai-source" data-source="ai_failed_questions" data-id="${docSnap.id}" data-status="ignored">보류</button>
-            </div>
-          </div>`;
-        }).join('');
-      }catch(error){
-        console.error(error);
-        list.innerHTML = '<div class="ai-empty">실패 질문을 불러오지 못했습니다. 인덱스 또는 권한을 확인해 주세요.</div>';
-      }
-    }
-
-    async function loadAiFaqSuggestions(){
-      const box = qs('#aiAdminContent');
-      if(!box) return;
-      box.innerHTML = renderAiFormHeader('FAQ 자동 추천', '질문 로그를 바탕으로 FAQ 후보를 자동 생성합니다. 검토 후 버튼 한 번으로 등록할 수 있습니다.') + '<div class="ai-admin-list" id="aiSuggestionList"><div class="ai-empty">불러오는 중...</div></div>';
-      const list = qs('#aiSuggestionList');
-      try{
-        const snap = await getDocs(query(collection(db, 'ai_faq_suggestions'), orderBy('updatedAt', 'desc'), limit(80)));
-        if(!snap.size){ list.innerHTML = '<div class="ai-empty">아직 FAQ 추천 후보가 없습니다.</div>'; return; }
-        list.innerHTML = snap.docs.map(docSnap => {
-          const d = docSnap.data() || {};
-          return `<div class="ai-admin-item">
-            <h5>${escapeHtml(d.question || '-')}</h5>
-            <p>${escapeHtml(valueToText(d.answerDraft || d.answerPreview || '').slice(0, 800) || '관리자 답변 보강이 필요합니다.')}</p>
-            <div style="margin-top:10px;">${buildAiKeywordDraft(d.question || '').map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${escapeHtml(d.status || 'suggested')}</span></div>
-            <div class="ai-admin-item-actions">
-              <button class="btn btn-primary" type="button" data-ai-action="quick-faq-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(d.answerDraft || d.answerPreview || '')}" data-source="ai_faq_suggestions" data-id="${docSnap.id}">FAQ 등록</button>
-              <button class="btn btn-soft" type="button" data-ai-action="faq-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(d.answerDraft || d.answerPreview || '')}">FAQ 탭에서 수정</button>
-              <button class="btn btn-soft" type="button" data-ai-action="mark-ai-source" data-source="ai_faq_suggestions" data-id="${docSnap.id}" data-status="ignored">보류</button>
-            </div>
-          </div>`;
-        }).join('');
-      }catch(error){
-        console.error(error);
-        list.innerHTML = '<div class="ai-empty">FAQ 추천 후보를 불러오지 못했습니다.</div>';
-      }
-    }
-
-    async function loadAiBookletDrafts(){
-      const box = qs('#aiAdminContent');
-      if(!box) return;
-      box.innerHTML = renderAiFormHeader('전자책 자동 초안', '반복 질문을 전자책 페이지 초안으로 모아 관리합니다.') + '<div class="ai-admin-list" id="aiBookletDraftList"><div class="ai-empty">불러오는 중...</div></div>';
-      const list = qs('#aiBookletDraftList');
-      try{
-        const snap = await getDocs(query(collection(db, 'ai_booklet_drafts'), orderBy('updatedAt', 'desc'), limit(80)));
-        if(!snap.size){ list.innerHTML = '<div class="ai-empty">아직 전자책 초안이 없습니다.</div>'; return; }
-        list.innerHTML = snap.docs.map(docSnap => {
-          const d = docSnap.data() || {};
-          return `<div class="ai-admin-item">
-            <h5>${escapeHtml(d.title || d.question || '-')}</h5>
-            <p>${escapeHtml(valueToText(d.contentDraft || d.answerDraft || '').slice(0, 900) || '전자책 내용 보강이 필요합니다.')}</p>
-            <div style="margin-top:10px;"><span class="ai-code-pill">${escapeHtml(d.section || 'AI 질문 보강')}</span><span class="ai-code-pill">${escapeHtml(d.status || 'draft')}</span><span class="ai-code-pill">누적 ${escapeHtml(d.count ?? 1)}회</span></div>
-            <div class="ai-admin-item-actions">
-              <button class="btn btn-blue" type="button" data-ai-action="quick-booklet-from-log" data-question="${escapeHtml(d.question || d.title || '')}" data-answer="${escapeHtml(d.contentDraft || d.answerDraft || '')}" data-source="ai_booklet_drafts" data-id="${docSnap.id}">전자책 등록</button>
-              <button class="btn btn-soft" type="button" data-ai-action="mark-ai-source" data-source="ai_booklet_drafts" data-id="${docSnap.id}" data-status="ignored">보류</button>
-            </div>
-          </div>`;
-        }).join('');
-      }catch(error){
-        console.error(error);
-        list.innerHTML = '<div class="ai-empty">전자책 초안을 불러오지 못했습니다.</div>';
+        list.innerHTML = '<div class="ai-empty">대화 기록을 불러오지 못했습니다. 검색 조합에 필요한 Firestore 인덱스 또는 권한을 확인해 주세요.</div>';
       }
     }
 
@@ -3668,10 +3700,15 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       if(type === 'edit-booklet') return editAiBooklet(action.dataset.id);
       if(type === 'edit-guide') return editAiGuide(action.dataset.id);
       if(type === 'delete-doc') return deleteAiDoc(action.dataset.collection, action.dataset.id);
+      if(type === 'logs-search') return applyAiSearch('logs');
+      if(type === 'logs-refresh'){ resetAiPaging('logs'); return loadAiLogs(false); }
+      if(type === 'logs-prev') return goAiPage('logs', 'prev');
+      if(type === 'logs-next') return goAiPage('logs', 'next');
+      if(type === 'conversations-search') return applyAiSearch('conversations');
+      if(type === 'conversations-refresh'){ resetAiPaging('conversations'); return loadAiConversations(false); }
+      if(type === 'conversations-prev') return goAiPage('conversations', 'prev');
+      if(type === 'conversations-next') return goAiPage('conversations', 'next');
       if(type === 'faq-from-log') return seedFaqFromLog(action.dataset.question || '', action.dataset.answer || '');
-      if(type === 'quick-faq-from-log') return quickCreateFaqFromQuestion(action.dataset.question || '', action.dataset.answer || '', action.dataset.source || '', action.dataset.id || '');
-      if(type === 'quick-booklet-from-log') return quickCreateBookletFromQuestion(action.dataset.question || '', action.dataset.answer || '', action.dataset.source || '', action.dataset.id || '');
-      if(type === 'mark-ai-source') return markAiImprovementSource(action.dataset.source || '', action.dataset.id || '', { status: action.dataset.status || 'ignored' }).then(() => openAIManager(aiAdminState.tab));
     });
 
     setTimeout(initAiManagerSwipe, 500);
