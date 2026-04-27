@@ -6860,6 +6860,31 @@ function getShareTrackingParams(){
       startNewAiConversation();
     }
 
+
+    function buildAiSituationContext(){
+      const now = new Date();
+      const hour = now.getHours();
+      let timeBand = '일반 시간대';
+      if(hour >= 5 && hour < 11) timeBand = '아침';
+      else if(hour >= 11 && hour < 15) timeBand = '점심';
+      else if(hour >= 15 && hour < 18) timeBand = '오후';
+      else if(hour >= 18 && hour < 22) timeBand = '저녁';
+      else timeBand = '야간';
+      return {
+        currentView: state.view || '',
+        activeCategory: state.category || '',
+        benefitSortMode: state.benefitSortMode || '',
+        distanceRadius: state.distanceRadius || '',
+        platform: navigator.userAgentData?.platform || navigator.platform || '',
+        userAgent: navigator.userAgent || '',
+        clientTimeText: now.toLocaleString('ko-KR'),
+        hour,
+        timeBand,
+        locationFetchedAt: state.userLocationFetchedAt || 0,
+        location: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng } : null
+      };
+    }
+
     async function askAiAssistant(rawQuestion=''){
       if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
       const input = qs('#aiQuestionInput');
@@ -6874,11 +6899,11 @@ function getShareTrackingParams(){
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
       try{
-        const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '' });
+        const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '', context: buildAiSituationContext() });
         if(data.conversationId){ aiConversationId = data.conversationId; localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId); }
         aiConversationTitle = data.conversationTitle || aiConversationTitle || question.slice(0,24);
         updateAiConversationStatus(aiConversationTitle);
-        const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 맥락 기억</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
+        const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 개인화/상황 인식</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
         await typeAiHtml(pendingBubble, `${data.answerHtml || '관련 답변을 찾지 못했습니다.'}${modeLabel}`, 10);
         if(pendingRow) delete pendingRow.dataset.pending;
       }catch(error){
