@@ -2382,6 +2382,11 @@ body.app-role-resident [data-view="shareinsights"]{
 /* ===== AI 대화 기억 / 채팅방 UX ===== */
 .ai-memory-toolbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:2px 0 0}.ai-memory-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 10px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease}.ai-memory-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-memory-btn:active{transform:scale(.98)}.ai-memory-btn.danger{border-color:#fecdd3;color:#be123c;background:#fff1f2}.ai-memory-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45}.ai-memory-status strong{color:#0f172a}.ai-conversation-panel{display:none;gap:10px;padding:12px;border-radius:22px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-conversation-panel.show{display:grid}.ai-conversation-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.ai-conversation-head strong{font-size:14px}.ai-conversation-list{display:grid;gap:8px;max-height:230px;overflow:auto;padding-right:2px}.ai-conversation-item{width:100%;border:1px solid #e2e8f0;background:#f8fafc;border-radius:16px;padding:12px;text-align:left;cursor:pointer;display:grid;gap:4px}.ai-conversation-item:hover{background:#eff6ff;border-color:#bfdbfe}.ai-conversation-item.active{background:#0f172a;color:#fff;border-color:#0f172a}.ai-conversation-title{font-weight:1000;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ai-conversation-meta{font-size:11px;color:#64748b}.ai-conversation-item.active .ai-conversation-meta{color:rgba(255,255,255,.72)}.ai-conversation-empty{padding:16px;border-radius:16px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;text-align:center;font-size:12px;font-weight:800;line-height:1.6}.ai-chat-window.memory-loading{opacity:.72;pointer-events:none}@media(max-width:370px){.ai-memory-toolbar{grid-template-columns:1fr}.ai-memory-status{align-items:flex-start;flex-direction:column}}
 
+
+
+/* ===== AI 답변 액션: 혜택 딥링크 + 전자 책자 카드 ===== */
+.ai-action-links{display:grid;gap:8px;margin-top:12px}.ai-action-link{width:100%;border:none;border-radius:16px;padding:11px 12px;background:#0f172a;color:#fff;font-size:13px;font-weight:1000;text-align:left;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.14);transition:transform .16s ease, opacity .16s ease}.ai-action-link:hover{transform:translateY(-1px)}.ai-action-link:active{transform:scale(.985)}.ai-booklet-card{display:grid;gap:4px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid #dbe3ef;color:#334155}.ai-booklet-card b{font-size:13px;color:#0f172a}.ai-booklet-card small{font-size:11px;color:#64748b}.ai-booklet-card span{font-size:12px;line-height:1.55;color:#475569}
+
 /* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
 body.env-prod [data-view-link="ai"],
 body.env-prod #view-ai{
@@ -2566,7 +2571,7 @@ body.env-prod #view-ai{
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small></div></div>
+궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small></div></div>
         </div>
         <div class="ai-input-row">
           <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 방금 말한 곳 중 가까운 곳은?" />
@@ -6695,6 +6700,7 @@ function getShareTrackingParams(){
       if(options.pending) row.dataset.pending = 'true';
       row.innerHTML = `<div class="ai-bubble">${html}</div>`;
       win.appendChild(row);
+      bindAiAnswerActions(row);
       win.scrollTop = win.scrollHeight;
       return row;
     }
@@ -6725,7 +6731,7 @@ function getShareTrackingParams(){
           targetBubble.textContent = text.slice(0, i);
           if(win) win.scrollTop = win.scrollHeight;
           if(i < text.length){ setTimeout(tick, speed); }
-          else { targetBubble.innerHTML = safeHtml; if(win) win.scrollTop = win.scrollHeight; resolve(); }
+          else { targetBubble.innerHTML = safeHtml; bindAiAnswerActions(targetBubble); if(win) win.scrollTop = win.scrollHeight; resolve(); }
         };
         tick();
       });
@@ -6761,6 +6767,33 @@ function getShareTrackingParams(){
       const data = await response.json().catch(() => ({}));
       if(!response.ok || data.ok === false) throw new Error(data.message || 'AI 함수 호출에 실패했습니다.');
       return data;
+    }
+
+    function bindAiAnswerActions(scope){
+      const root = scope || qs('#aiChatWindow');
+      if(!root) return;
+      root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
+        if(btn.dataset.bound === 'true') return;
+        btn.dataset.bound = 'true';
+        btn.addEventListener('click', async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const benefitId = btn.dataset.aiOpenBenefitId || '';
+          const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
+          if(item){
+            openDetail(item);
+            return;
+          }
+          try{
+            const snap = await getDoc(doc(db, BENEFITS_COLLECTION, benefitId));
+            if(snap.exists()) openDetail(sanitizeBenefit(snap.data(), snap.id));
+            else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
+          }catch(error){
+            console.error('AI 혜택 딥링크 열기 실패', error);
+            openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
+          }
+        });
+      });
     }
 
     function renderAiConversationMessages(messages = []){
