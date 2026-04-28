@@ -6969,6 +6969,35 @@ function getShareTrackingParams(){
         flush(){ render(true); return this.full(); }
       };
     }
+	
+	function buildAiPageContext(){
+	  try {
+		const currentView =
+		  document.querySelector(".nav-btn.active")?.dataset?.view ||
+		  document.body?.dataset?.currentView ||
+		  "home";
+
+		const pageTitle =
+		  document.querySelector("h1")?.textContent?.trim() ||
+		  "더운정 마이힐스";
+
+		const activeCategory =
+		  document.querySelector(".chip.active")?.textContent?.trim() ||
+		  "";
+
+		return {
+		  appName: "더운정 마이힐스",
+		  currentView,
+		  pageTitle,
+		  activeCategory,
+		  url: location.href,
+		  timestamp: new Date().toISOString()
+		};
+	  } catch(e){
+		console.warn("buildAiPageContext 실패:", e);
+		return {};
+	  }
+	}
 
     async function callAiStreamServer(question='', { onChunk } = {}){
       const q = String(question || '').trim();
@@ -6985,7 +7014,9 @@ function getShareTrackingParams(){
           message: q,
           env: ENV,
           conversationId: aiConversationId || '',
-          pageContext: buildAiPageContext()
+          pageContext: typeof buildAiPageContext === "function"
+			  ? buildAiPageContext()
+			  : {}
         })
       });
       if(!response.ok){
