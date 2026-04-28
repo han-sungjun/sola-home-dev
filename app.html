@@ -2687,7 +2687,7 @@ body.env-prod #view-ai{
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Cloud Run 스트리밍 버전입니다.</small></div></div>
+궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small></div></div>
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
           <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
@@ -2755,9 +2755,10 @@ body.env-prod #view-ai{
     // Cloud Run Gemini 스트리밍 서버
     const AI_STREAM_SERVER_URL_BY_ENV = {
       dev: 'https://ai-stream-server-292137041544.asia-northeast3.run.app/stream',
+      // 운영계 Cloud Run 배포 후 아래 prod URL을 운영계 /stream 주소로 교체하세요.
       prod: ''
     };
-    const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || AI_STREAM_SERVER_URL_BY_ENV.dev;
+    const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
     const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
     let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
     let aiConversationTitle = '새 대화';
@@ -6897,7 +6898,7 @@ function getShareTrackingParams(){
 
     function getAiWelcomeHtml(){
       return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Cloud Run 스트리밍 버전입니다.</small>`;
+궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small>`;
     }
 
     function resetAiChatWindow(){
@@ -6927,15 +6928,65 @@ function getShareTrackingParams(){
       return data;
     }
 
+    function cleanAiChunkText(text=''){
+      return String(text || '')
+        .replace(/\*\*/g, '')
+        .replace(/#{1,6}\s?/g, '')
+        .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim())
+        .replace(/\n{3,}/g, '\n\n');
+    }
+
+    function formatAiStreamingText(text=''){
+      const raw = cleanAiChunkText(text);
+      const lines = raw.split('\n').map(line => {
+        let v = line.trim();
+        if(!v) return '';
+        v = v.replace(/^[-•]\s*/g, '• ');
+        v = v.replace(/^(\d+)\.\s*/g, '$1. ');
+        return v;
+      });
+      return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimStart();
+    }
+
+    function createAiStreamRenderer(targetBubble){
+      let rawText = '';
+      let lastRendered = '';
+      const render = (force=false) => {
+        if(!targetBubble) return;
+        const formatted = formatAiStreamingText(rawText);
+        if(!force && formatted === lastRendered) return;
+        lastRendered = formatted;
+        targetBubble.textContent = formatted || '답변을 작성 중입니다...';
+        const win = qs('#aiChatWindow');
+        if(win) win.scrollTop = win.scrollHeight;
+      };
+      return {
+        push(chunk=''){
+          rawText += String(chunk || '');
+          render(false);
+        },
+        full(){ return formatAiStreamingText(rawText).trim(); },
+        flush(){ render(true); return this.full(); }
+      };
+    }
+
     async function callAiStreamServer(question='', { onChunk } = {}){
       const q = String(question || '').trim();
       if(!q) throw new Error('질문이 비어 있습니다.');
       if(!AI_STREAM_SERVER_URL) throw new Error('AI 스트리밍 서버 URL이 설정되지 않았습니다.');
 
-      const url = `${AI_STREAM_SERVER_URL}?q=${encodeURIComponent(q)}`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Accept': 'text/plain;charset=utf-8' }
+      const response = await fetch(AI_STREAM_SERVER_URL, {
+        method: 'POST',
+        headers: {
+          'Accept': 'text/plain;charset=utf-8',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: q,
+          env: ENV,
+          conversationId: aiConversationId || '',
+          pageContext: buildAiPageContext()
+        })
       });
       if(!response.ok){
         const errorText = await response.text().catch(() => '');
@@ -7224,7 +7275,7 @@ function getShareTrackingParams(){
 
     async function askAiAssistant(rawQuestion=''){
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
-      if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
+      if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
       const input = qs('#aiQuestionInput');
       const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
@@ -7238,21 +7289,16 @@ function getShareTrackingParams(){
 
       try{
         if(pendingBubble) pendingBubble.textContent = '';
-        let streamedText = '';
+        const streamRenderer = createAiStreamRenderer(pendingBubble);
         await callAiStreamServer(question, {
-          onChunk: (_chunk, fullText) => {
-            streamedText = fullText || streamedText;
-            if(pendingBubble){
-              pendingBubble.textContent = streamedText || '답변을 작성 중입니다...';
-              const win = qs('#aiChatWindow');
-              if(win) win.scrollTop = win.scrollHeight;
-            }
+          onChunk: (chunk) => {
+            streamRenderer.push(chunk);
           }
         });
 
-        const finalText = (streamedText || '').trim() || '답변을 생성하지 못했습니다.';
+        const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
         if(pendingBubble){
-          pendingBubble.innerHTML = `${escapeHtml(finalText)}<span class="ai-mode-pill">Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span>`;
+          pendingBubble.innerHTML = `${escapeHtml(finalText)}<span class="ai-mode-pill">내부 데이터 기반 · Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span>`;
         }
         if(pendingRow) delete pendingRow.dataset.pending;
         window.__AI_LAST_INPUT_MODE = 'text';
