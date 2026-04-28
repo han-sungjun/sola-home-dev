@@ -2756,7 +2756,7 @@ body.env-prod #view-ai{
     const AI_STREAM_SERVER_URL_BY_ENV = {
       dev: 'https://ai-stream-server-292137041544.asia-northeast3.run.app/stream',
       // 운영계 Cloud Run 배포 후 아래 prod URL을 운영계 /stream 주소로 교체하세요.
-      prod: ''
+      prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
     };
     const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
     const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
