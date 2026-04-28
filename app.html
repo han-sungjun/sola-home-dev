@@ -6761,15 +6761,12 @@ function getShareTrackingParams(){
 
     function formatAiPartialText(text=''){
       return String(text || '')
-        .replace(//g, '')
-        .replace(/[ 	]+/g, ' ')
-        .replace(/
-{3,}/g, '
-
-')
-        .replace(/([.!?。！？])\s+/g, '$1
-')
+        .replace(/\r/g, '')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/([.!?。！？])\s+/g, '$1\n')
         .trim();
+    }
     }
 
     function createAiBufferedRenderer(targetBubble, options={}){
@@ -6809,15 +6806,13 @@ function getShareTrackingParams(){
         if(phaseTimer){ clearInterval(phaseTimer); phaseTimer = null; }
       }
       function shouldFlush(){
-        return rawBuffer.length >= flushSize || /[.!?。！？
-]$/.test(rawBuffer);
+        return rawBuffer.length >= flushSize || /[.!?。！？\n]$/.test(rawBuffer);
       }
       function flush(force=false){
         if(!rawBuffer && !force) return;
         const chunk = rawBuffer;
         rawBuffer = '';
-        displayBuffer = formatAiPartialText((displayBuffer ? displayBuffer + '
-' : '') + chunk);
+        displayBuffer = formatAiPartialText((displayBuffer ? displayBuffer + '\n' : '') + chunk);
         setText(displayBuffer);
       }
       function push(token=''){
