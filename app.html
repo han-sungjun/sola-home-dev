@@ -6741,13 +6741,7 @@ function getShareTrackingParams(){
     }
 
     function createAiTypingBubble(){
-      const row = appendAiMessage('bot', '', { pending:true });
-      const bubble = row?.querySelector('.ai-bubble');
-      if(bubble){
-        bubble.classList.add('is-ai-thinking');
-        bubble.innerHTML = renderAiThinkingStage('질문을 확인하고 있어요', '등록된 공지와 혜택 데이터를 함께 살펴보는 중입니다.');
-      }
-      return row;
+      return appendAiMessage('bot', '<span class="ai-typing-indicator" aria-label="AI가 답변을 작성 중입니다"><span></span><span></span><span></span></span>', { pending:true });
     }
 
     function normalizeAiAnswerHtml(html=''){
@@ -6757,176 +6751,26 @@ function getShareTrackingParams(){
       return wrap.innerHTML || '답변을 생성하지 못했습니다.';
     }
 
-    function renderAiThinkingStage(title='답변을 준비하고 있어요', desc='잠시만 기다려 주세요.'){
-      return `<div class="ai-thinking-stage"><div class="ai-thinking-title">${escapeHtml(title)}<span class="ai-thinking-dots"><span></span><span></span><span></span></span></div><div class="ai-thinking-desc">${escapeHtml(desc)}</div></div>`;
-    }
-
-    function startAiThinkingAnimation(targetBubble){
-      if(!targetBubble) return () => {};
-      const stages = [
-        ['질문을 확인하고 있어요', '입력하신 내용을 생활 도우미 기준으로 분류하고 있습니다.'],
-        ['관련 데이터를 찾는 중이에요', '공지, 혜택, 전자책 데이터에서 답변 재료를 확인하고 있습니다.'],
-        ['답변을 정리하고 있어요', '입주민이 바로 이해할 수 있도록 문장을 다듬고 있습니다.'],
-        ['화면에 보여줄 준비 중이에요', '목록과 중요한 항목을 보기 좋게 정리하고 있습니다.']
-      ];
-      let idx = 0;
-      targetBubble.classList.add('is-ai-thinking');
-      targetBubble.innerHTML = renderAiThinkingStage(stages[0][0], stages[0][1]);
-      const timer = setInterval(() => {
-        idx = (idx + 1) % stages.length;
-        targetBubble.innerHTML = renderAiThinkingStage(stages[idx][0], stages[idx][1]);
-        const win = qs('#aiChatWindow');
-        if(win) win.scrollTop = win.scrollHeight;
-      }, 1050);
-      return () => {
-        clearInterval(timer);
-        targetBubble.classList.remove('is-ai-thinking');
-      };
-    }
-
-    function aiTextFromHtml(html=''){
-      const tmp = document.createElement('div');
-      tmp.innerHTML = normalizeAiAnswerHtml(html);
-      tmp.querySelectorAll('.ai-mode-pill').forEach(el => el.remove());
-      return (tmp.textContent || tmp.innerText || '').replace(/\u00a0/g, ' ').trim();
-    }
-
-    function improveAiAnswerText(text=''){
-      return String(text || '')
-        .replace(/\r\n/g, '\n')
-        .replace(/[ \t]+\n/g, '\n')
-        .replace(/\n{3,}/g, '\n\n')
-        .replace(/^[ \t]*[-*ㆍ]\s+/gm, '* ')
-        .trim();
-    }
-
-    function splitAiLiveUnits(text=''){
-      const normalized = improveAiAnswerText(text);
-      if(!normalized) return [];
-      const lines = normalized.split('\n');
-      const units = [];
-      let buffer = '';
-      lines.forEach((line) => {
-        const trimmed = line.trim();
-        if(!trimmed){
-          if(buffer.trim()) units.push(buffer.trim());
-          buffer = '';
-          return;
-        }
-        const isList = /^([*•\-ㆍ]|\d+[.)])\s+/.test(trimmed);
-        if(isList){
-          if(buffer.trim()) units.push(buffer.trim());
-          units.push(trimmed);
-          buffer = '';
-          return;
-        }
-        buffer += (buffer ? '\n' : '') + trimmed;
-        if(/[.!?。！？]$/.test(trimmed) || buffer.length >= 56){
-          units.push(buffer.trim());
-          buffer = '';
-        }
-      });
-      if(buffer.trim()) units.push(buffer.trim());
-      return units.filter(Boolean);
-    }
-
-    function parseAiNoticeLine(line=''){
-      const raw = String(line || '').trim().replace(/^([*•\-ㆍ]|\d+[.)])\s+/, '').trim();
-      const match = raw.match(/^([^:\n]{1,42})\s*:\s*(.+)$/);
-      if(!match) return null;
-      const title = match[1].trim();
-      const body = match[2].trim();
-      if(!title || !body) return null;
-      return { title, body };
-    }
-
-    function highlightAiImportantEscaped(escaped=''){
-      return String(escaped || '').replace(/(중요|필수|확인|주의|공지|신청|승인|마감|오픈|정식|가오픈|변경|업데이트|오류|문의|관리자|입주민|혜택|할인|TOP\s*5|AI)/g, '<span class="ai-important-highlight">$1</span>');
-    }
-
-    function renderAiLiveHtmlFromText(text='', options={}){
-      const units = splitAiLiveUnits(text);
-      if(!units.length) return '<div class="ai-live-text"><div class="ai-live-line">답변을 정리하는 중입니다.</div></div>';
-      const html = [];
-      let noticeCards = [];
-      const flushNotices = () => {
-        if(!noticeCards.length) return;
-        html.push('<div class="ai-notice-card-list">' + noticeCards.map(card => `
-          <div class="ai-notice-card">
-            <div class="ai-notice-card-title">📌 ${highlightAiImportantEscaped(escapeHtml(card.title))}</div>
-            <div class="ai-notice-card-body">${highlightAiImportantEscaped(escapeHtml(card.body))}</div>
-          </div>`).join('') + '</div>');
-        noticeCards = [];
-      };
-      units.forEach((unit) => {
-        const notice = parseAiNoticeLine(unit);
-        if(notice){
-          noticeCards.push(notice);
-          return;
-        }
-        flushNotices();
-        const cleaned = unit.replace(/^([*•\-ㆍ]|\d+[.)])\s+/, '').trim();
-        if(!cleaned) return;
-        html.push(`<div class="ai-live-line">${highlightAiImportantEscaped(escapeHtml(cleaned))}</div>`);
-      });
-      flushNotices();
-      const cursor = options.cursor ? '<span class="ai-live-cursor">|</span>' : '';
-      const quality = options.final ? '<div class="ai-quality-note">답변을 보기 좋게 정리했습니다. 더 궁금한 점이 있으면 이어서 물어보세요.</div>' : '';
-      return `<div class="ai-live-text">${html.join('')}${cursor}${quality}</div>`;
-    }
-
-    function shouldUseAiGeneratedFinalHtml(html='', text=''){
-      const raw = String(html || '');
-      if(/data-ai-open-benefit-id|ai-source-list|ai-benefit-card|ai-action-card|button/i.test(raw)) return false;
-      return splitAiLiveUnits(text).some(unit => parseAiNoticeLine(unit));
-    }
-
     function typeAiHtml(targetBubble, html='', speed=12){
       return new Promise((resolve) => {
         if(!targetBubble){ resolve(); return; }
         const safeHtml = normalizeAiAnswerHtml(html);
-        const sourceText = improveAiAnswerText(aiTextFromHtml(safeHtml));
-        const units = splitAiLiveUnits(sourceText);
+        const tmp = document.createElement('div');
+        tmp.innerHTML = safeHtml;
+        const text = tmp.textContent || tmp.innerText || '';
         const win = qs('#aiChatWindow');
-        targetBubble.classList.remove('is-ai-thinking');
-        targetBubble.classList.add('is-ai-live');
-        targetBubble.innerHTML = renderAiLiveHtmlFromText('', { cursor:true });
-        if(!units.length){
-          targetBubble.innerHTML = safeHtml;
-          bindAiAnswerActions(targetBubble);
-          if(win) win.scrollTop = win.scrollHeight;
-          resolve();
-          return;
-        }
-        let idx = 0;
-        let displayed = '';
-        const stepMs = Math.max(24, Number(speed || 12) * 5);
+        targetBubble.innerHTML = '';
+        let i = 0;
         const tick = () => {
-          displayed += (displayed ? '\n' : '') + units[idx];
-          idx += 1;
-          targetBubble.innerHTML = renderAiLiveHtmlFromText(displayed, { cursor: idx < units.length });
+          i += Math.max(1, Math.ceil(text.length / 160));
+          targetBubble.textContent = text.slice(0, i);
           if(win) win.scrollTop = win.scrollHeight;
-          if(idx < units.length){
-            const extra = parseAiNoticeLine(units[idx - 1]) ? 45 : 0;
-            setTimeout(tick, stepMs + extra);
-          }else{
-            setTimeout(() => {
-              targetBubble.classList.remove('is-ai-live');
-              if(shouldUseAiGeneratedFinalHtml(safeHtml, sourceText)){
-                targetBubble.innerHTML = renderAiLiveHtmlFromText(sourceText, { final:true });
-              }else{
-                targetBubble.innerHTML = safeHtml;
-              }
-              bindAiAnswerActions(targetBubble);
-              if(win) win.scrollTop = win.scrollHeight;
-              resolve();
-            }, 180);
-          }
+          if(i < text.length){ setTimeout(tick, speed); }
+          else { targetBubble.innerHTML = safeHtml; bindAiAnswerActions(targetBubble); if(win) win.scrollTop = win.scrollHeight; resolve(); }
         };
-        setTimeout(tick, 120);
+        tick();
       });
     }
-
 
     function getAiWelcomeHtml(){
       return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
@@ -7228,11 +7072,9 @@ function getShareTrackingParams(){
       appendAiMessage('user', escapeHtml(question));
       const pendingRow = createAiTypingBubble();
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
-      const stopThinking = startAiThinkingAnimation(pendingBubble);
 
       try{
         const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '', context: buildAiSituationContext() });
-        stopThinking();
         if(data.conversationId){ aiConversationId = data.conversationId; localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId); }
         window.__AI_LAST_INPUT_MODE = 'text';
         aiConversationTitle = data.conversationTitle || aiConversationTitle || question.slice(0,24);
@@ -7241,7 +7083,6 @@ function getShareTrackingParams(){
         await typeAiHtml(pendingBubble, `${data.answerHtml || '관련 답변을 찾지 못했습니다.'}${modeLabel}`, 10);
         if(pendingRow) delete pendingRow.dataset.pending;
       }catch(error){
-        stopThinking();
         console.error('AI Cloud Function 검색 실패', error);
         if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Function 배포 상태, GEMINI_API_KEY, 권한을 확인해 주세요.</small>';
         else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
