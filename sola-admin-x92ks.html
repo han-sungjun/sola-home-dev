@@ -3600,6 +3600,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             </div>
           </div>`;
         }).join('');
+		
+		const nextBtn = qs('[data-ai-action="logs-next"]');
+		const prevBtn = qs('[data-ai-action="logs-prev"]');
+
+		if (nextBtn) nextBtn.disabled = !state.hasNext;
+		if (prevBtn) prevBtn.disabled = Number(state.page || 1) <= 1;
       }catch(error){
         console.error(error);
         list.innerHTML = '<div class="ai-empty">질문 로그를 불러오지 못했습니다. 검색 조합에 필요한 Firestore 인덱스 또는 권한을 확인해 주세요.</div>';
@@ -3631,6 +3637,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             </div>
           </div>`;
         }).join('');
+		
+		const nextBtn = qs('[data-ai-action="conversations-next"]');
+		const prevBtn = qs('[data-ai-action="conversations-prev"]');
+
+		if (nextBtn) nextBtn.disabled = !state.hasNext;
+		if (prevBtn) prevBtn.disabled = Number(state.page || 1) <= 1;
       }catch(error){
         console.error(error);
         list.innerHTML = '<div class="ai-empty">대화 기록을 불러오지 못했습니다. 검색 조합에 필요한 Firestore 인덱스 또는 권한을 확인해 주세요.</div>';
