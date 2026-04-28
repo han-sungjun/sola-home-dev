@@ -2344,6 +2344,18 @@ body.app-role-resident [data-view="shareinsights"]{
 
   
 
+
+/* ===== AI 자동 혜택 카드 변환 ===== */
+.ai-benefit-card-auto{display:grid;gap:6px;margin:10px 0;padding:12px;border-radius:18px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid #dbe3ef;box-shadow:0 10px 22px rgba(15,23,42,.06)}
+.ai-benefit-card-auto b{font-size:14px;color:#0f172a}
+.ai-benefit-card-auto span{font-size:12px;line-height:1.55;color:#475569}
+.ai-benefit-card-auto .ai-benefit-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.ai-benefit-card-auto .ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
+.ai-benefit-card-auto button{margin-top:4px;border:none;border-radius:14px;padding:10px 11px;background:#0f172a;color:#fff;font-size:12px;font-weight:1000;cursor:pointer;text-align:left}
+.ai-phone-card-auto{display:grid;gap:5px;margin:10px 0;padding:12px;border-radius:18px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.ai-phone-card-auto b{color:#14532d}
+.ai-phone-card-auto a{font-weight:1000;color:#15803d}
+
 /* ===== 커뮤니티 카테고리 탭: PC/모바일 드래그 스와이프 + 클릭 유지 ===== */
 .community-filter{
   overflow-x:auto;
@@ -6969,35 +6981,169 @@ function getShareTrackingParams(){
         flush(){ render(true); return this.full(); }
       };
     }
-	
-	function buildAiPageContext(){
-	  try {
-		const currentView =
-		  document.querySelector(".nav-btn.active")?.dataset?.view ||
-		  document.body?.dataset?.currentView ||
-		  "home";
 
-		const pageTitle =
-		  document.querySelector("h1")?.textContent?.trim() ||
-		  "더운정 마이힐스";
 
-		const activeCategory =
-		  document.querySelector(".chip.active")?.textContent?.trim() ||
-		  "";
 
-		return {
-		  appName: "더운정 마이힐스",
-		  currentView,
-		  pageTitle,
-		  activeCategory,
-		  url: location.href,
-		  timestamp: new Date().toISOString()
-		};
-	  } catch(e){
-		console.warn("buildAiPageContext 실패:", e);
-		return {};
-	  }
-	}
+    function normalizeAiSearchText(value=''){
+      return String(value || '')
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/[\[\]{}()<>"'`~!@#$%^&*_+=|\:;,.?/\-]/g, '');
+    }
+
+    function getAiSearchTokens(question=''){
+      const q = String(question || '').trim();
+      const base = q
+        .replace(/[\[\]{}()<>"'`~!@#$%^&*_+=|\:;,.?/\-]/g, ' ')
+        .split(/\s+/)
+        .map(v => v.trim())
+        .filter(v => v.length >= 2);
+      const joined = normalizeAiSearchText(q);
+      const synonyms = [];
+      if(joined.includes('관리사무소') || joined.includes('관리실') || joined.includes('전화') || joined.includes('연락처')){
+        synonyms.push('관리사무소','관리실','생활지원센터','전화번호','연락처','대표번호','민원','사무소');
+      }
+      if(joined.includes('혜택') || joined.includes('할인')) synonyms.push('혜택','할인','제휴','매장');
+      return [...new Set([...base, ...synonyms])];
+    }
+
+    function stringifyAiCandidateText(item={}, type=''){
+      const fields = [
+        type, item.id, item.name, item.storeName, item.title, item.category,
+        item.benefit, item.description, item.content, item.body,
+        item.address, item.phone, item.tel, item.contact, item.officePhone,
+        item.contactNumber, item.phoneNumber, item.department,
+        Array.isArray(item.keywords) ? item.keywords.join(' ') : item.keywords,
+        item.memo, item.note
+      ];
+      return fields.map(v => String(v || '')).join(' ');
+    }
+
+    function pickAiPhone(item={}){
+      return item.phone || item.tel || item.contact || item.officePhone || item.contactNumber || item.phoneNumber || '';
+    }
+
+    function collectAiLocalCandidates(question='', maxCount=12){
+      try{
+        const tokens = getAiSearchTokens(question);
+        const qNorm = normalizeAiSearchText(question);
+        const pool = [];
+        (state.benefits || []).forEach(item => pool.push({ type:'benefit', item }));
+        (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
+
+        const scored = pool.map(({type,item}) => {
+          const raw = stringifyAiCandidateText(item, type);
+          const norm = normalizeAiSearchText(raw);
+          let score = 0;
+          tokens.forEach(t => {
+            const nt = normalizeAiSearchText(t);
+            if(nt && norm.includes(nt)) score += nt.length >= 4 ? 4 : 2;
+          });
+          if(qNorm && norm.includes(qNorm)) score += 10;
+          const phone = pickAiPhone(item);
+          if(phone && /(전화|연락|번호|관리사무소|관리실)/.test(question)) score += 4;
+          if(type === 'benefit' && /(혜택|할인|매장|가게)/.test(question)) score += 2;
+          if(type === 'notice' && /(공지|안내|알림)/.test(question)) score += 2;
+          return { type, item, score };
+        }).filter(v => v.score > 0)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, maxCount);
+
+        return scored.map(({type,item,score}) => ({
+          type,
+          id: item.id || '',
+          title: item.name || item.storeName || item.title || item.department || '',
+          category: item.category || '',
+          benefit: item.benefit || item.description || '',
+          content: item.content || item.body || item.memo || item.note || '',
+          address: item.address || '',
+          phone: pickAiPhone(item),
+          keywords: item.keywords || [],
+          score
+        }));
+      }catch(e){
+        console.warn('collectAiLocalCandidates 실패:', e);
+        return [];
+      }
+    }
+
+    function buildAiPageContext(question=''){
+      try{
+        const now = new Date();
+        return {
+          appName: '더운정 마이힐스',
+          env: ENV,
+          currentView: state.view || document.querySelector('.nav-btn.active')?.dataset?.view || 'home',
+          activeCategory: state.category || document.querySelector('.chip.active')?.textContent?.trim() || '',
+          keyword: state.keyword || document.querySelector('#searchInput')?.value || '',
+          benefitSortMode: state.benefitSortMode || 'default',
+          distanceRadius: state.distanceRadius || 'all',
+          benefitCount: Array.isArray(state.benefits) ? state.benefits.length : 0,
+          noticeCount: Array.isArray(state.notices) ? state.notices.length : 0,
+          localCandidates: collectAiLocalCandidates(question, 12),
+          url: location.href,
+          clientTimeText: now.toLocaleString('ko-KR'),
+          timestamp: now.toISOString()
+        };
+      }catch(e){
+        console.warn('buildAiPageContext 실패:', e);
+        return { appName:'더운정 마이힐스', localCandidates:[] };
+      }
+    }
+
+    function escapeAttr(value=''){
+      return String(value || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function extractAiBenefitCards(finalText='', maxCount=3){
+      const text = normalizeAiSearchText(finalText);
+      if(!text) return [];
+      return (state.benefits || [])
+        .filter(item => item && item.visible !== false && item.id)
+        .map(item => {
+          const name = item.name || item.storeName || item.title || '';
+          const n = normalizeAiSearchText(name);
+          const category = normalizeAiSearchText(item.category || '');
+          let score = 0;
+          if(n && text.includes(n)) score += 10;
+          if(category && text.includes(category)) score += 2;
+          const benefit = normalizeAiSearchText(item.benefit || item.description || '');
+          if(benefit && benefit.length >= 4 && text.includes(benefit.slice(0, Math.min(8, benefit.length)))) score += 2;
+          return { item, score };
+        })
+        .filter(v => v.score > 0)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, maxCount)
+        .map(v => v.item);
+    }
+
+    function extractAiPhoneCards(finalText=''){
+      const phonePattern = /(0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}|\d{3,4}[-\s]?\d{4})/g;
+      const found = [...String(finalText || '').matchAll(phonePattern)].map(m => m[0]);
+      return [...new Set(found)].slice(0,2);
+    }
+
+    function buildAiEnhancedAnswerHtml(finalText=''){
+      const safe = escapeHtml(finalText || '답변을 생성하지 못했습니다.').replace(/
+/g, '<br>');
+      const phoneCards = extractAiPhoneCards(finalText).map(phone => `
+        <div class="ai-phone-card-auto">
+          <b>전화번호 바로 확인</b>
+          <a href="tel:${escapeAttr(phone.replace(/\s/g,''))}">${escapeHtml(phone)}</a>
+        </div>`).join('');
+      const benefitCards = extractAiBenefitCards(finalText).map(item => `
+        <div class="ai-benefit-card-auto">
+          <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+          <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
+          <div class="ai-benefit-meta">
+            ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
+            ${item.address ? `<em>위치 등록</em>` : ''}
+            ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+          </div>
+          <button type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기 ›</button>
+        </div>`).join('');
+      return `<div class="ai-answer">${safe}${phoneCards}${benefitCards}<span class="ai-mode-pill">내부 데이터 기반 · Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span></div>`;
+    }
 
     async function callAiStreamServer(question='', { onChunk } = {}){
       const q = String(question || '').trim();
@@ -7014,9 +7160,8 @@ function getShareTrackingParams(){
           message: q,
           env: ENV,
           conversationId: aiConversationId || '',
-          pageContext: typeof buildAiPageContext === "function"
-			  ? buildAiPageContext()
-			  : {}
+          pageContext: buildAiPageContext(q),
+          localCandidates: collectAiLocalCandidates(q, 12)
         })
       });
       if(!response.ok){
@@ -7329,7 +7474,8 @@ function getShareTrackingParams(){
 
         const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
         if(pendingBubble){
-          pendingBubble.innerHTML = `${escapeHtml(finalText)}<span class="ai-mode-pill">내부 데이터 기반 · Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span>`;
+          pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText);
+          bindAiAnswerActions(pendingBubble);
         }
         if(pendingRow) delete pendingRow.dataset.pending;
         window.__AI_LAST_INPUT_MODE = 'text';
