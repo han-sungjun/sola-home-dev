@@ -1698,7 +1698,7 @@ body.gnb-open .admin-bottom-nav{
   <script type="module">
     import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt, terminate, clearIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { mountIdleTimer } from "./tracking.js";
     import { ENV, FIREBASE_CONFIG, API_URL } from './env-config.js';
@@ -1712,7 +1712,104 @@ body.gnb-open .admin-bottom-nav{
     // 예: https://geocodeaddress-l6mntiaxgq-du.a.run.app
     const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
-    const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; let adminDataSubscribed=false; let adminAuthReady=false; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+    function canReadAdminData(){
+      return !!(auth?.currentUser && state.isAdmin && db);
+    }
+
+    function requireAdminDataAccess(renderLocked=true){
+      if(canReadAdminData()) return true;
+      if(renderLocked) setAdminDashboardLocked(true);
+      return false;
+    }
+
+    function closeAdminModals(){
+      document.querySelectorAll('dialog[open]').forEach((dialog)=>{
+        try{ dialog.close(); }catch(_){ dialog.removeAttribute('open'); }
+      });
+      document.querySelectorAll('.app-alert.show,.gnb-overlay.show,.gnb-sheet.show').forEach((el)=>el.classList.remove('show'));
+      document.body.classList.remove('gnb-open');
+    }
+
+    function resetAdminRuntimeState(){
+      state.benefits=[];
+      state.benefitStats={};
+      state.notices=[];
+      state.pushJobs=[];
+      state.members=[];
+      state.isAdmin=false;
+      state.adminProfile=null;
+      state.view='dashboard';
+      adminDataSubscribed=false;
+      benefitSortMode='latest';
+    }
+
+    function resetAdminSensitiveUI(){
+      closeAdminModals();
+      resetAdminRuntimeState();
+      localStorage.removeItem('loginUser');
+      sessionStorage.removeItem('loginUser');
+
+      const setText=(selector,text)=>{ const el=qs(selector); if(el) el.textContent=text; };
+      const setHtml=(selector,html)=>{ const el=qs(selector); if(el) el.innerHTML=html; };
+
+      setText('#authStatusText','로그인 필요');
+      setText('#adminTopUser','로그인 필요');
+      setText('#adminTopStatus','관리자 로그인 필요');
+      setText('.stat-max','0%');
+      setText('.stat-count','0');
+      setText('.stat-cat','0');
+
+      setHtml('#adminList','<div class="notice">관리자 로그인 후 혜택 목록을 볼 수 있습니다.</div>');
+      setHtml('#dashboardBenefitList','<div class="notice">관리자 로그인 후 혜택 목록을 볼 수 있습니다.</div>');
+      setHtml('#noticeAdminList','<div class="notice">관리자 로그인 후 공지 목록을 볼 수 있습니다.</div>');
+      setHtml('#dashboardNoticeList','<div class="notice">관리자 로그인 후 공지 목록을 볼 수 있습니다.</div>');
+      setHtml('#pushJobList','<div class="notice">관리자 로그인 후 푸시 작업을 볼 수 있습니다.</div>');
+      setHtml('#activeMemberList','<div class="member-empty">관리자 로그인 후 회원 목록을 볼 수 있습니다.</div>');
+      setHtml('#withdrawnMemberList','<div class="member-empty">관리자 로그인 후 탈퇴 회원 목록을 볼 수 있습니다.</div>');
+      setHtml('#adminCommunityList','<div class="member-empty">관리자 로그인 후 커뮤니티 관리 내역을 볼 수 있습니다.</div>');
+      setHtml('#communityReportTopList','<div class="notice">관리자 로그인 후 신고 누적 게시글을 볼 수 있습니다.</div>');
+      setHtml('#aiFaqList','<div class="ai-empty">관리자 로그인 후 AI FAQ를 볼 수 있습니다.</div>');
+      setHtml('#aiBookletList','<div class="ai-empty">관리자 로그인 후 전자책 데이터를 볼 수 있습니다.</div>');
+      setHtml('#aiGuideList','<div class="ai-empty">관리자 로그인 후 생활 가이드 데이터를 볼 수 있습니다.</div>');
+      setHtml('#aiLogList','<div class="ai-empty">관리자 로그인 후 AI 질문 로그를 볼 수 있습니다.</div>');
+      setHtml('#aiConversationList','<div class="ai-empty">관리자 로그인 후 대화 로그를 볼 수 있습니다.</div>');
+
+      qsa('.admin-view').forEach(v=>v.classList.remove('active'));
+      qs('#view-dashboard')?.classList.add('active');
+      qsa('[data-admin-view]').forEach(btn=>btn.classList.toggle('active', btn.dataset.adminView==='dashboard'));
+
+      const idleHost=document.getElementById('adminIdleTimerHost');
+      if(idleHost){ idleHost.innerHTML=''; idleHost.classList.add('hidden'); }
+      setAdminDashboardLocked(true);
+    }
+
+    async function clearAdminFirestoreCacheAndReload(){
+      // Firestore 오프라인 캐시가 켜져 있었던 경우를 대비한 완전 정리 루틴입니다.
+      // terminate 후 clearIndexedDbPersistence를 시도하고, 재사용 안전성을 위해 페이지를 새로 로드합니다.
+      try{
+        if(db) await terminate(db);
+      }catch(error){
+        console.warn('Firestore terminate skip', error);
+      }
+      try{
+        if(db) await clearIndexedDbPersistence(db);
+      }catch(error){
+        console.warn('Firestore IndexedDB cache clear skip', error);
+      }
+      location.replace('/admin');
+    }
+
+    async function secureAdminSignOut(){
+      resetAdminSensitiveUI();
+      try{
+        if(auth) await signOut(auth);
+      }catch(error){
+        console.warn('Firebase signOut skip', error);
+      }
+      await clearAdminFirestoreCacheAndReload();
+    }
 
     function escapeHtml(value){
       return String(value ?? '')
@@ -1887,11 +1984,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     const COMMUNITY_REPORTS_COLLECTION = 'community_reports';
     function fmtAdminCommunityDate(value){ try{ const d=value?.toDate?value.toDate():(value?new Date(value):null); return d?d.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):''; }catch(_){ return ''; } }
 
-    async function loadCommunityReportTopPosts(){ const list = qs('#communityReportTopList'); const count = qs('#communityReportTopCount'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 누적 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('reportCount','>=',1), orderBy('reportCount','desc'), limit(5))); if(count) count.textContent = `상위 ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 누적 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p=d.data(); const el=document.createElement('div'); el.className='community-report-top-item'; el.innerHTML = `<div class="community-report-top-left"><strong>${escapeHtml(p.title || '제목 없음')}</strong><span>${escapeHtml(p.authorNickname || '입주민')} · ${escapeHtml(p.category || '자유')} · ${escapeHtml(p.status || 'active')}</span><div class="community-report-top-actions"><button class="btn btn-danger" type="button" data-top-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-top-open-reports="${d.id}">신고 내역</button></div></div><div class="community-report-count">${Number(p.reportCount||0)}</div>`; list.appendChild(el); }); list.querySelectorAll('[data-top-hide-post]').forEach(btn => btn.addEventListener('click', async () => { await setCommunityPostStatus(btn.dataset.topHidePost, 'hidden'); await loadCommunityReportTopPosts(); })); list.querySelectorAll('[data-top-open-reports]').forEach(btn => btn.addEventListener('click', async () => { changeAdminView('community'); await loadAdminCommunityReports(btn.dataset.topOpenReports); })); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 누적 게시글을 불러오지 못했습니다. Firestore 인덱스를 확인해주세요.</div>'; } }
+    async function loadCommunityReportTopPosts(){
+      if(!requireAdminDataAccess()) return; const list = qs('#communityReportTopList'); const count = qs('#communityReportTopCount'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 누적 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('reportCount','>=',1), orderBy('reportCount','desc'), limit(5))); if(count) count.textContent = `상위 ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 누적 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p=d.data(); const el=document.createElement('div'); el.className='community-report-top-item'; el.innerHTML = `<div class="community-report-top-left"><strong>${escapeHtml(p.title || '제목 없음')}</strong><span>${escapeHtml(p.authorNickname || '입주민')} · ${escapeHtml(p.category || '자유')} · ${escapeHtml(p.status || 'active')}</span><div class="community-report-top-actions"><button class="btn btn-danger" type="button" data-top-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-top-open-reports="${d.id}">신고 내역</button></div></div><div class="community-report-count">${Number(p.reportCount||0)}</div>`; list.appendChild(el); }); list.querySelectorAll('[data-top-hide-post]').forEach(btn => btn.addEventListener('click', async () => { await setCommunityPostStatus(btn.dataset.topHidePost, 'hidden'); await loadCommunityReportTopPosts(); })); list.querySelectorAll('[data-top-open-reports]').forEach(btn => btn.addEventListener('click', async () => { changeAdminView('community'); await loadAdminCommunityReports(btn.dataset.topOpenReports); })); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 누적 게시글을 불러오지 못했습니다. Firestore 인덱스를 확인해주세요.</div>'; } }
 
-    async function loadAdminCommunityPosts(status='active'){ const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">커뮤니티 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('status','==',status), orderBy('createdAt','desc'), limit(50))); qs('#adminCommunityCount').textContent = `${status === 'active' ? '정상' : '숨김'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">표시할 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p = d.data(); const el = document.createElement('div'); el.className = 'mini-item community-admin-card'; el.innerHTML = `<div class="mini-item-head"><div><h4>${escapeHtml(p.title || '제목 없음')}</h4><div class="community-admin-meta"><span class="tag">${escapeHtml(p.category || '자유')}</span><span>${escapeHtml(p.authorNickname || '입주민')}</span><span>댓글 ${Number(p.commentCount||0)}</span><span>신고 ${Number(p.reportCount||0)}</span><span>${fmtAdminCommunityDate(p.createdAt)}</span></div></div><span class="tag ${status==='hidden'?'hidden-tag':'live-tag'}">${status==='hidden'?'숨김':'정상'}</span></div><p>${escapeHtml(String(p.content || '').slice(0,160))}${String(p.content || '').length>160?'...':''}</p><div class="community-admin-actions"><button class="btn btn-danger" type="button" data-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-restore-post="${d.id}">복구</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-hide-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hidePost, 'hidden'))); list.querySelectorAll('[data-restore-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.restorePost, 'active'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">커뮤니티 게시글을 불러오지 못했습니다. Firestore 인덱스/규칙을 확인해주세요.</div>'; } }
+    async function loadAdminCommunityPosts(status='active'){
+      if(!requireAdminDataAccess()) return; const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">커뮤니티 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('status','==',status), orderBy('createdAt','desc'), limit(50))); qs('#adminCommunityCount').textContent = `${status === 'active' ? '정상' : '숨김'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">표시할 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p = d.data(); const el = document.createElement('div'); el.className = 'mini-item community-admin-card'; el.innerHTML = `<div class="mini-item-head"><div><h4>${escapeHtml(p.title || '제목 없음')}</h4><div class="community-admin-meta"><span class="tag">${escapeHtml(p.category || '자유')}</span><span>${escapeHtml(p.authorNickname || '입주민')}</span><span>댓글 ${Number(p.commentCount||0)}</span><span>신고 ${Number(p.reportCount||0)}</span><span>${fmtAdminCommunityDate(p.createdAt)}</span></div></div><span class="tag ${status==='hidden'?'hidden-tag':'live-tag'}">${status==='hidden'?'숨김':'정상'}</span></div><p>${escapeHtml(String(p.content || '').slice(0,160))}${String(p.content || '').length>160?'...':''}</p><div class="community-admin-actions"><button class="btn btn-danger" type="button" data-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-restore-post="${d.id}">복구</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-hide-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hidePost, 'hidden'))); list.querySelectorAll('[data-restore-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.restorePost, 'active'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">커뮤니티 게시글을 불러오지 못했습니다. Firestore 인덱스/규칙을 확인해주세요.</div>'; } }
     async function setCommunityPostStatus(postId, status){ if(!postId || !db) return; await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status, updatedAt: serverTimestamp() }); await loadAdminCommunityPosts(status === 'hidden' ? 'active' : 'hidden'); }
-    async function loadAdminCommunityReports(filterPostId=null){ const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 내역을 불러오는 중입니다.</div>'; try{ let reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), orderBy('createdAt','desc'), limit(50)); if(filterPostId) reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), where('postId','==',filterPostId), orderBy('createdAt','desc'), limit(50)); const snap = await getDocs(reportQuery); qs('#adminCommunityCount').textContent = `${filterPostId ? '선택 글 신고' : '신고'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 내역이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const r=d.data(); const el=document.createElement('div'); el.className='mini-item community-admin-card'; el.innerHTML=`<div class="mini-item-head"><div><h4>${r.targetType === 'comment' ? '댓글 신고' : '게시글 신고'}</h4><div class="community-admin-meta"><span class="tag admin-tag-danger">${escapeHtml(r.status || 'pending')}</span><span>게시글 ${escapeHtml(r.postId || '')}</span>${r.commentId?`<span>댓글 ${escapeHtml(r.commentId)}</span>`:''}<span>${fmtAdminCommunityDate(r.createdAt)}</span></div></div></div><p>${escapeHtml(r.reason || '사용자 신고')}</p><div class="community-admin-actions"><button class="btn btn-soft" type="button" data-review-report="${d.id}">검토 완료</button><button class="btn btn-danger" type="button" data-hide-reported-post="${r.postId || ''}">게시글 숨김</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-review-report]').forEach(btn => btn.addEventListener('click', async () => { await updateDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, btn.dataset.reviewReport), { status:'reviewed', reviewedAt:serverTimestamp() }); loadAdminCommunityReports(); })); list.querySelectorAll('[data-hide-reported-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hideReportedPost, 'hidden'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 내역을 불러오지 못했습니다.</div>'; } }
+    async function loadAdminCommunityReports(filterPostId=null){
+      if(!requireAdminDataAccess()) return; const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 내역을 불러오는 중입니다.</div>'; try{ let reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), orderBy('createdAt','desc'), limit(50)); if(filterPostId) reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), where('postId','==',filterPostId), orderBy('createdAt','desc'), limit(50)); const snap = await getDocs(reportQuery); qs('#adminCommunityCount').textContent = `${filterPostId ? '선택 글 신고' : '신고'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 내역이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const r=d.data(); const el=document.createElement('div'); el.className='mini-item community-admin-card'; el.innerHTML=`<div class="mini-item-head"><div><h4>${r.targetType === 'comment' ? '댓글 신고' : '게시글 신고'}</h4><div class="community-admin-meta"><span class="tag admin-tag-danger">${escapeHtml(r.status || 'pending')}</span><span>게시글 ${escapeHtml(r.postId || '')}</span>${r.commentId?`<span>댓글 ${escapeHtml(r.commentId)}</span>`:''}<span>${fmtAdminCommunityDate(r.createdAt)}</span></div></div></div><p>${escapeHtml(r.reason || '사용자 신고')}</p><div class="community-admin-actions"><button class="btn btn-soft" type="button" data-review-report="${d.id}">검토 완료</button><button class="btn btn-danger" type="button" data-hide-reported-post="${r.postId || ''}">게시글 숨김</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-review-report]').forEach(btn => btn.addEventListener('click', async () => { await updateDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, btn.dataset.reviewReport), { status:'reviewed', reviewedAt:serverTimestamp() }); loadAdminCommunityReports(); })); list.querySelectorAll('[data-hide-reported-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hideReportedPost, 'hidden'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 내역을 불러오지 못했습니다.</div>'; } }
     qs('#loadCommunityActiveBtn')?.addEventListener('click', () => loadAdminCommunityPosts('active')); qs('#loadCommunityHiddenBtn')?.addEventListener('click', () => loadAdminCommunityPosts('hidden')); qs('#loadCommunityReportsBtn')?.addEventListener('click', () => loadAdminCommunityReports());
 
     function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),favoriteCount:Number(item.favoriteCount||0),shareCount:Number(item.shareCount||item.shareClickCount||0),likeCount:Number(item.likeCount||0),recommendCount:Number(item.recommendCount||0),hotCount:Number(item.hotCount||0),popularScore:Number(item.popularScore||item.score||0),createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
@@ -2363,12 +2463,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       if(!confirmed) return;
       try{
         showGlobalLoading();
-        await signOut(auth);
-        hideGlobalLoading();
+        await secureAdminSignOut();
       }catch(e){
         console.error(e);
         hideGlobalLoading();
-        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다.', qs('#logoutBtn'));
+        resetAdminSensitiveUI();
+        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다. 화면의 민감 데이터는 초기화했습니다.', qs('#logoutBtn'));
       }
     };
     const exportBenefits=async()=>{
@@ -2564,6 +2664,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function subscribeMembers(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 관리자 회원 목록은 실시간 구독 대신 1회 제한 조회로 처리합니다.
       // 전체 회원을 계속 감시하면 관리자 탭을 켜둔 것만으로 Read가 누적됩니다.
       try{
@@ -2613,6 +2714,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     }
     async function subscribeBenefits(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 혜택 목록은 관리자 진입 시 1회 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2632,6 +2734,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function subscribeBenefitStats(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 통계도 실시간 구독하지 않고 필요한 수량만 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2652,6 +2755,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function subscribeNotices(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 공지는 최근 항목만 1회 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2669,6 +2773,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     }
     async function subscribePushJobs(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 푸시 작업 목록은 최근 작업만 제한 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2925,21 +3030,13 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
       setupForegroundSystemPush(messaging);
 
-      let adminDataSubscribed = false;
-
       onAuthStateChanged(auth, async (user) => {
         state.adminProfile = null;
         state.isAdmin = false;
 
         if(!user){
-          qs('#authStatusText').textContent='로그인 필요';
+          resetAdminSensitiveUI();
           updateAdminHeader(null);
-          setAdminDashboardLocked(true);
-          const idleHost = document.getElementById('adminIdleTimerHost');
-          if (idleHost) {
-            idleHost.innerHTML = '';
-            idleHost.classList.add('hidden');
-          }
           hideGlobalLoading(80);
           return;
         }
@@ -2960,8 +3057,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
@@ -2976,8 +3072,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('탈퇴된 계정입니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
@@ -2991,8 +3086,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('보안 정책에 따라 차단된 계정입니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
@@ -3006,14 +3100,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('관리자 권한이 있는 계정만 접근할 수 있습니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
           saveVerifiedLoginUser(user, userData, localSessionId || serverSessionId);
 
           state.isAdmin = true;
+          adminAuthReady = true;
           qs('#authStatusText').textContent=`로그인됨: ${userData.loginId || user.email || user.uid}`;
           updateAdminHeader(user);
 
@@ -3032,11 +3126,13 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           if (!adminDataSubscribed) {
             adminDataSubscribed = true;
             showGlobalLoading();
-            subscribeBenefits();
-            subscribeBenefitStats();
-            subscribeNotices();
-            subscribePushJobs();
-            subscribeMembers();
+            await Promise.all([
+              subscribeBenefits(),
+              subscribeBenefitStats(),
+              subscribeNotices(),
+              subscribePushJobs(),
+              subscribeMembers()
+            ]);
           }
 
           if (typeof window.refreshAdminStatsUIOnce === 'function') {
@@ -3055,7 +3151,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           console.error('관리자 권한 확인 실패', error);
           setAdminDashboardLocked(true);
           hideGlobalLoading(80);
-          await signOut(auth).catch(()=>{});
+          resetAdminSensitiveUI();
           await openModalAlert('관리자 권한을 확인할 수 없습니다.', qs('#adminLoginId'));
         }
       });
@@ -3177,6 +3273,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function loadAiFaq(){
+      if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
       if(!box) return;
       box.innerHTML = renderAiFormHeader('FAQ 관리', 'AI가 바로 답변할 자주 묻는 질문을 등록합니다.') + `
@@ -3257,6 +3354,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function loadAiBooklet(){
+      if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
       if(!box) return;
       box.innerHTML = renderAiFormHeader('전자책 관리', '아파트 생활 안내, 규정, 안내문 내용을 AI 검색 데이터로 등록합니다.') + `
@@ -3336,6 +3434,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function loadAiGuide(){
+      if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
       if(!box) return;
       box.innerHTML = renderAiFormHeader('가이드 관리', '앱 사용법 질문에 답할 메뉴 이동 안내를 등록합니다.') + `
@@ -3413,6 +3512,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function loadAiSettings(){
+      if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
       if(!box) return;
       let d = {};
@@ -3572,6 +3672,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function loadAiLogs(reset=true){
+      if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
       if(!box) return;
       if(reset) resetAiPaging('logs');
@@ -3613,6 +3714,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function loadAiConversations(reset=true){
+      if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
       if(!box) return;
       if(reset) resetAiPaging('conversations');
