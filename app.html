@@ -2352,9 +2352,12 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-benefit-card-auto .ai-benefit-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
 .ai-benefit-card-auto .ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
 .ai-benefit-card-auto button{margin-top:4px;border:none;border-radius:14px;padding:10px 11px;background:#0f172a;color:#fff;font-size:12px;font-weight:1000;cursor:pointer;text-align:left}
-.ai-phone-card-auto{display:grid;gap:5px;margin:10px 0;padding:12px;border-radius:18px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
-.ai-phone-card-auto b{color:#14532d}
-.ai-phone-card-auto a{font-weight:1000;color:#15803d}
+.ai-phone-card-auto{display:flex;align-items:center;gap:12px;margin:12px 0 0;padding:13px 14px;border-radius:18px;background:#f8fafc;border:1px solid #dbeafe;box-shadow:0 10px 22px rgba(15,23,42,.06);color:#0f172a}
+.ai-phone-card-auto .ai-phone-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:#eff6ff;color:#1d4ed8;flex:0 0 auto}
+.ai-phone-card-auto .ai-phone-info{min-width:0;flex:1;display:grid;gap:3px}
+.ai-phone-card-auto .ai-phone-info b{font-size:13px;color:#0f172a;line-height:1.25}
+.ai-phone-card-auto .ai-phone-info span{font-size:14px;font-weight:1000;color:#1d4ed8;line-height:1.25;word-break:break-all}
+.ai-phone-card-auto .ai-phone-call{flex:0 0 auto;padding:9px 12px;border-radius:14px;background:#0f172a;color:#fff!important;font-size:12px;font-weight:1000;text-decoration:none}
 
 /* ===== 커뮤니티 카테고리 탭: PC/모바일 드래그 스와이프 + 클릭 유지 ===== */
 .community-filter{
@@ -2766,7 +2769,7 @@ body.env-prod #view-ai{
     const AI_FUNCTION_URL = `https://${AI_FUNCTION_REGION}-${firebaseConfig.projectId}.cloudfunctions.net/askAiAssistant`;
     // Cloud Run Gemini 스트리밍 서버
     const AI_STREAM_SERVER_URL_BY_ENV = {
-      dev: 'https://ai-stream-server-292137041544.asia-northeast3.run.app/stream',
+      dev: 'https://ai-stream-server-dev-292137041544.asia-northeast3.run.app/stream',
       // 운영계 Cloud Run 배포 후 아래 prod URL을 운영계 /stream 주소로 교체하세요.
       prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
     };
@@ -7114,19 +7117,38 @@ function getShareTrackingParams(){
     }
 
     function extractAiPhoneCards(finalText=''){
-      const phonePattern = /(0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}|\d{3,4}[-\s]?\d{4})/g;
-      const found = [...String(finalText || '').matchAll(phonePattern)].map(m => m[0]);
-      return [...new Set(found)].slice(0,2);
+      const source = String(finalText || '');
+      const phonePattern = /(?:0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
+      const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
+      const unique = [...new Set(found)].slice(0, 4);
+      return unique.map(phone => {
+        const clean = phone.replace(/[^\d]/g, '');
+        let label = '전화번호';
+        if(/관리사무소|관리실|생활지원센터|사무소|민원/.test(source)) label = '관리사무소';
+        else if(/업체|매장|가게|상가|혜택/.test(source)) label = '매장 전화번호';
+        return { label, phone, tel: clean };
+      });
+    }
+
+    function buildAiPhoneCardHtml(cards=[]){
+      if(!Array.isArray(cards) || !cards.length) return '';
+      return cards.map(card => `
+        <div class="ai-phone-card-auto">
+          <div class="ai-phone-icon">☎️</div>
+          <div class="ai-phone-info">
+            <b>${escapeHtml(card.label || '전화번호')}</b>
+            <span>${escapeHtml(card.phone || '')}</span>
+          </div>
+          <a class="ai-phone-call" href="tel:${escapeAttr(card.tel || '')}">전화</a>
+        </div>`).join('');
     }
 
     function buildAiEnhancedAnswerHtml(finalText=''){
-      const safe = escapeHtml(finalText || '답변을 생성하지 못했습니다.').replace(/\n/g, '<br>');
-      const phoneCards = extractAiPhoneCards(finalText).map(phone => `
-        <div class="ai-phone-card-auto">
-          <b>전화번호 바로 확인</b>
-          <a href="tel:${escapeAttr(phone.replace(/\s/g,''))}">${escapeHtml(phone)}</a>
-        </div>`).join('');
-      const benefitCards = extractAiBenefitCards(finalText).map(item => `
+      const text = String(finalText || '답변을 생성하지 못했습니다.');
+      const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
+      const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+      const phoneCards = buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
+      const benefitCards = extractAiBenefitCards(cleaned).map(item => `
         <div class="ai-benefit-card-auto">
           <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
           <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
@@ -7137,7 +7159,7 @@ function getShareTrackingParams(){
           </div>
           <button type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기 ›</button>
         </div>`).join('');
-      return `<div class="ai-answer">${safe}${phoneCards}${benefitCards}<span class="ai-mode-pill">내부 데이터 기반 · Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span></div>`;
+      return `<div class="ai-answer"><div class="ai-answer-text">${safe}</div>${phoneCards}${benefitCards}<span class="ai-mode-pill">내부 데이터 기반 · Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span></div>`;
     }
 
     async function callAiStreamServer(question='', { onChunk } = {}){
@@ -7145,18 +7167,30 @@ function getShareTrackingParams(){
       if(!q) throw new Error('질문이 비어 있습니다.');
       if(!AI_STREAM_SERVER_URL) throw new Error('AI 스트리밍 서버 URL이 설정되지 않았습니다.');
 
+      let idToken = '';
+      try{
+        idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+      }catch(error){
+        console.warn('AI 스트리밍 ID 토큰 생성 실패:', error);
+      }
+
+      const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext(q) : {};
+      const localCandidates = collectAiLocalCandidates(q, 12);
       const response = await fetch(AI_STREAM_SERVER_URL, {
         method: 'POST',
         headers: {
           'Accept': 'text/plain;charset=utf-8',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
         },
         body: JSON.stringify({
+          question: q,
           message: q,
           env: ENV,
           conversationId: aiConversationId || '',
-          pageContext: buildAiPageContext(q),
-          localCandidates: collectAiLocalCandidates(q, 12)
+          pageContext,
+          context: pageContext,
+          localCandidates
         })
       });
       if(!response.ok){
