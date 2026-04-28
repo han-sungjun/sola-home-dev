@@ -7120,8 +7120,7 @@ function getShareTrackingParams(){
     }
 
     function buildAiEnhancedAnswerHtml(finalText=''){
-      const safe = escapeHtml(finalText || '답변을 생성하지 못했습니다.').replace(/
-/g, '<br>');
+      const safe = escapeHtml(finalText || '답변을 생성하지 못했습니다.').replace(/\n/g, '<br>');
       const phoneCards = extractAiPhoneCards(finalText).map(phone => `
         <div class="ai-phone-card-auto">
           <b>전화번호 바로 확인</b>
