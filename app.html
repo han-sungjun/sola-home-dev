@@ -2398,129 +2398,6 @@ body.app-role-resident [data-view="shareinsights"]{
 
 
 
-
-/* ===== AI 생활 도우미: ChatGPT 스타일 스트리밍 고도화 ===== */
-.ai-chat-panel{gap:10px}
-.ai-chat-window{
-  position:relative;
-  min-height:430px;
-  max-height:58dvh;
-  padding:16px 12px 20px;
-  border-radius:28px;
-  background:
-    radial-gradient(circle at top left, rgba(219,234,254,.65), transparent 30%),
-    linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-  border:1px solid rgba(148,163,184,.20);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.92), 0 16px 34px rgba(15,23,42,.06);
-}
-.ai-message{position:relative;gap:9px;margin:12px 0;animation:aiMsgIn .2s ease both}
-.ai-message.bot .ai-bubble{
-  width:auto;
-  max-width:84%;
-  padding:14px 15px;
-  border-radius:22px 22px 22px 9px;
-  background:rgba(255,255,255,.96);
-  border:1px solid rgba(203,213,225,.85);
-  box-shadow:0 16px 34px rgba(15,23,42,.075);
-}
-.ai-message.user .ai-bubble{
-  max-width:78%;
-  padding:13px 15px;
-  border-radius:22px 22px 9px 22px;
-  background:linear-gradient(135deg,#0f172a 0%,#111f46 100%);
-  box-shadow:0 16px 30px rgba(15,23,42,.16);
-}
-.ai-message.bot[data-pending="true"] .ai-bubble{
-  border-color:#bfdbfe;
-  box-shadow:0 18px 38px rgba(37,99,235,.10);
-}
-.ai-stream-shell{display:grid;gap:10px;white-space:normal}
-.ai-stream-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px;border-bottom:1px solid #eef2f7}
-.ai-stream-title{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:1000;color:#1d4ed8;letter-spacing:-.02em}
-.ai-stream-live{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#2563eb;font-size:10px;font-weight:1000;white-space:nowrap}
-.ai-stream-live::before{content:"";width:6px;height:6px;border-radius:999px;background:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12);animation:aiLivePulse 1.2s ease-in-out infinite}
-.ai-stream-text{font-size:14px;line-height:1.75;color:#0f172a;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
-.ai-stream-text:empty::before{content:"질문을 이해하고 내부 데이터를 찾고 있습니다";color:#64748b}
-.ai-stream-cursor{display:inline-block;width:7px;height:1.05em;margin-left:2px;border-radius:999px;background:#2563eb;vertical-align:-2px;animation:aiCursorBlink .85s steps(2,end) infinite}
-.ai-stream-foot{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#64748b;font-size:11px;font-weight:800}
-.ai-stream-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569}
-.ai-answer{display:grid;gap:12px;white-space:normal}
-.ai-answer-text{font-size:14px;line-height:1.76;color:#0f172a;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
-.ai-answer-text p{margin:0 0 10px}
-.ai-answer-text p:last-child{margin-bottom:0}
-.ai-answer-text .ai-answer-bullet{display:flex;gap:7px;margin:6px 0;color:#1f2937}
-.ai-answer-text .ai-answer-bullet::before{content:"•";color:#2563eb;font-weight:1000;flex:0 0 auto}
-.ai-answer-section-title{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  margin:4px 0 -2px;
-  color:#334155;
-  font-size:12px;
-  font-weight:1000;
-  letter-spacing:-.02em;
-}
-.ai-benefit-card-auto{
-  margin:0;
-  padding:13px;
-  border-radius:19px;
-  background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);
-  border:1px solid #dbeafe;
-  box-shadow:0 12px 26px rgba(37,99,235,.07);
-  animation:aiCardRise .22s ease both;
-}
-.ai-benefit-card-auto b{font-size:14px;letter-spacing:-.02em}
-.ai-benefit-card-auto span{display:block;color:#475569;line-height:1.55}
-.ai-benefit-card-auto button{
-  width:100%;
-  min-height:42px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:5px;
-  border-radius:15px;
-  background:linear-gradient(135deg,#0f172a 0%,#111f46 100%);
-}
-.ai-phone-card-auto{margin:0;animation:aiCardRise .22s ease both}
-.ai-mode-pill{
-  width:max-content;
-  max-width:100%;
-  margin-top:0;
-  padding:7px 10px;
-  border-radius:999px;
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-  color:#1d4ed8;
-  font-size:11px;
-  font-weight:1000;
-}
-.ai-input-row{
-  position:sticky;
-  bottom:calc(88px + env(safe-area-inset-bottom,0px));
-  z-index:20;
-  padding:8px;
-  margin:0 -2px;
-  border-radius:24px;
-  background:rgba(255,255,255,.84);
-  border:1px solid rgba(203,213,225,.75);
-  box-shadow:0 18px 38px rgba(15,23,42,.09);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-}
-.ai-input-row input{height:50px;border-radius:18px;background:#fff}
-.ai-input-row button{height:50px;border-radius:18px;min-width:64px}
-.ai-quick-btn{transition:transform .15s ease, background-color .15s ease, box-shadow .15s ease}
-.ai-quick-btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(37,99,235,.09)}
-@keyframes aiLivePulse{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.12)}}
-@keyframes aiCursorBlink{0%,45%{opacity:1}46%,100%{opacity:0}}
-@keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media (max-width:370px){
-  .ai-message.bot .ai-bubble,.ai-message.user .ai-bubble{max-width:88%}
-  .ai-stream-head{align-items:flex-start;flex-direction:column}
-  .ai-input-row{bottom:calc(82px + env(safe-area-inset-bottom,0px))}
-}
-
-
 /* ===== AI 대화 기억 / 채팅방 UX ===== */
 .ai-memory-toolbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:2px 0 0}.ai-memory-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 10px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease}.ai-memory-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-memory-btn:active{transform:scale(.98)}.ai-memory-btn.danger{border-color:#fecdd3;color:#be123c;background:#fff1f2}.ai-memory-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45}.ai-memory-status strong{color:#0f172a}.ai-conversation-panel{display:none;gap:10px;padding:12px;border-radius:22px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-conversation-panel.show{display:grid}.ai-conversation-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.ai-conversation-head strong{font-size:14px}.ai-conversation-list{display:grid;gap:8px;max-height:230px;overflow:auto;padding-right:2px}.ai-conversation-item{width:100%;border:1px solid #e2e8f0;background:#f8fafc;border-radius:16px;padding:12px;text-align:left;cursor:pointer;display:grid;gap:4px}.ai-conversation-item:hover{background:#eff6ff;border-color:#bfdbfe}.ai-conversation-item.active{background:#0f172a;color:#fff;border-color:#0f172a}.ai-conversation-title{font-weight:1000;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ai-conversation-meta{font-size:11px;color:#64748b}.ai-conversation-item.active .ai-conversation-meta{color:rgba(255,255,255,.72)}.ai-conversation-empty{padding:16px;border-radius:16px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;text-align:center;font-size:12px;font-weight:800;line-height:1.6}.ai-chat-window.memory-loading{opacity:.72;pointer-events:none}@media(max-width:370px){.ai-memory-toolbar{grid-template-columns:1fr}.ai-memory-status{align-items:flex-start;flex-direction:column}}
 
@@ -2530,6 +2407,47 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-action-links{display:grid;gap:8px;margin-top:12px}.ai-action-link{width:100%;border:none;border-radius:16px;padding:11px 12px;background:#0f172a;color:#fff;font-size:13px;font-weight:1000;text-align:left;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.14);transition:transform .16s ease, opacity .16s ease}.ai-action-link:hover{transform:translateY(-1px)}.ai-action-link:active{transform:scale(.985)}.ai-booklet-card,.ai-guide-card{display:grid;gap:4px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid #dbe3ef;color:#334155}.ai-guide-card{background:#f0fdf4;border-color:#bbf7d0}.ai-booklet-card b,.ai-guide-card b{font-size:13px;color:#0f172a}.ai-booklet-card small,.ai-guide-card small{font-size:11px;color:#64748b}.ai-booklet-card span,.ai-guide-card span{font-size:12px;line-height:1.55;color:#475569}
 
 
+
+
+/* ===== AI 고도화: 스트리밍 + 카드 자동 생성 + 개인화 추천 ===== */
+.ai-stream-shell{display:grid;gap:12px}
+.ai-stream-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:18px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.06);color:#475569;font-size:12px;font-weight:900}
+.ai-stream-status-left{display:inline-flex;align-items:center;gap:8px;min-width:0}
+.ai-stream-dot{width:8px;height:8px;border-radius:999px;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.35);animation:aiStreamPulse 1s ease-in-out infinite;flex:0 0 auto}
+.ai-stream-text{white-space:pre-wrap;line-height:1.75;letter-spacing:-.02em}
+.ai-stream-cursor{display:inline-block;width:8px;height:17px;margin-left:2px;border-radius:999px;background:#1d4ed8;vertical-align:-3px;animation:aiCursorBlink .82s steps(2,end) infinite}
+.ai-live-card-dock{display:grid;gap:10px;margin-top:2px}
+.ai-live-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#475569;font-weight:900}
+.ai-live-card-grid{display:grid;gap:9px}
+.ai-live-card{position:relative;display:grid;gap:7px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid rgba(37,99,235,.12);box-shadow:0 12px 26px rgba(15,23,42,.07);animation:aiCardRise .22s ease both;overflow:hidden}
+.ai-live-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#2563eb,#7c3aed)}
+.ai-live-card b{font-size:14px;letter-spacing:-.03em;color:#0f172a}
+.ai-live-card span{font-size:12px;line-height:1.55;color:#475569}
+.ai-live-card .ai-live-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ai-live-card .ai-live-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
+.ai-answer-upgrade{display:grid;gap:12px}
+.ai-answer-summary{white-space:pre-wrap;line-height:1.78;letter-spacing:-.02em}
+.ai-answer-section{display:grid;gap:10px;margin-top:2px}
+.ai-answer-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:1000;color:#0f172a}
+.ai-answer-section-title small{font-size:11px;color:#64748b;font-weight:800}
+.ai-benefit-card-auto.enhanced{position:relative;display:grid;gap:8px;padding:15px 15px 14px 17px;border-radius:22px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);border:1px solid rgba(37,99,235,.14);box-shadow:0 14px 30px rgba(15,23,42,.08);overflow:hidden;animation:aiCardRise .26s ease both}
+.ai-benefit-card-auto.enhanced::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#2563eb,#06b6d4)}
+.ai-benefit-card-auto.enhanced .ai-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ai-benefit-card-auto.enhanced b{font-size:15px;line-height:1.35;color:#0f172a}
+.ai-match-score{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;font-size:10px;font-weight:1000}
+.ai-benefit-card-auto.enhanced span{font-size:12.5px;line-height:1.6;color:#475569}
+.ai-benefit-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:10.5px;font-weight:900}
+.ai-personal-reason{padding:9px 10px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px;font-weight:900;line-height:1.45}
+.ai-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.ai-card-actions button{border:none;border-radius:14px;padding:10px 10px;font-size:12px;font-weight:1000;cursor:pointer}
+.ai-card-actions .primary{background:#0f172a;color:#fff}
+.ai-card-actions .soft{background:#eef2ff;color:#1d4ed8;border:1px solid #dbeafe}
+.ai-mode-pill.upgraded{justify-self:start;background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+@keyframes aiStreamPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.35)}50%{box-shadow:0 0 0 7px rgba(34,197,94,0)}}
+@keyframes aiCursorBlink{0%,45%{opacity:1}46%,100%{opacity:.08}}
+@keyframes aiCardRise{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:370px){.ai-card-actions{grid-template-columns:1fr}.ai-stream-status{align-items:flex-start;flex-direction:column}}
 
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
@@ -7003,18 +6921,7 @@ function getShareTrackingParams(){
     }
 
     function createAiTypingBubble(){
-      return appendAiMessage('bot', `
-        <div class="ai-stream-shell" aria-live="polite">
-          <div class="ai-stream-head">
-            <span class="ai-stream-title">✨ AI 생활 도우미</span>
-            <span class="ai-stream-live">실시간 답변중</span>
-          </div>
-          <div class="ai-stream-text"></div>
-          <div class="ai-stream-foot">
-            <span class="ai-stream-chip">내부 데이터 검색</span>
-            <span class="ai-stream-chip">Cloud Run 스트리밍</span>
-          </div>
-        </div>`, { pending:true });
+      return appendAiMessage('bot', '<span class="ai-typing-indicator" aria-label="AI가 답변을 작성 중입니다"><span></span><span></span><span></span></span>', { pending:true });
     }
 
     function normalizeAiAnswerHtml(html=''){
@@ -7097,77 +7004,55 @@ function getShareTrackingParams(){
       return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimStart();
     }
 
-    function createAiStreamRenderer(targetBubble){
+    function createAiStreamRenderer(targetBubble, question=''){
       let rawText = '';
       let lastRendered = '';
-      let rafId = 0;
-      let streamTextEl = null;
-      let cursorEl = null;
-
-      const ensureShell = () => {
-        if(!targetBubble) return null;
-        targetBubble.classList.add('streaming');
-        streamTextEl = targetBubble.querySelector('.ai-stream-text');
-        cursorEl = targetBubble.querySelector('.ai-stream-cursor');
-        if(!streamTextEl){
-          targetBubble.innerHTML = `
-            <div class="ai-stream-shell" aria-live="polite">
-              <div class="ai-stream-head">
-                <span class="ai-stream-title">✨ AI 생활 도우미</span>
-                <span class="ai-stream-live">실시간 답변중</span>
-              </div>
-              <div class="ai-stream-text"></div>
-              <span class="ai-stream-cursor"></span>
-              <div class="ai-stream-foot">
-                <span class="ai-stream-chip">내부 데이터 기반</span>
-                <span class="ai-stream-chip">Gemini 2.5 Flash-Lite</span>
-              </div>
-            </div>`;
-          streamTextEl = targetBubble.querySelector('.ai-stream-text');
-          cursorEl = targetBubble.querySelector('.ai-stream-cursor');
-        }
-        if(!cursorEl && streamTextEl){
-          cursorEl = document.createElement('span');
-          cursorEl.className = 'ai-stream-cursor';
-          streamTextEl.after(cursorEl);
-        }
-        return streamTextEl;
-      };
-
+      let lastCardSignature = '';
       const render = (force=false) => {
-        const el = ensureShell();
-        if(!el) return;
+        if(!targetBubble) return;
         const formatted = formatAiStreamingText(rawText);
-        if(!force && formatted === lastRendered) return;
+        const cards = mapAiBenefitsForQuestion(question, formatted, 3);
+        const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
+        if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
         lastRendered = formatted;
-        el.textContent = formatted;
+        lastCardSignature = cardSignature;
+
+        const liveCards = cards.length ? `
+          <div class="ai-live-card-dock">
+            <div class="ai-live-card-head"><span>실시간 매칭 혜택</span><span>${cards.length}개 감지</span></div>
+            <div class="ai-live-card-grid">
+              ${cards.map(({item, reason}) => `
+                <div class="ai-live-card">
+                  <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+                  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
+                  <div class="ai-live-meta">
+                    ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
+                    ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+                    ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>` : '';
+
+        targetBubble.innerHTML = `
+          <div class="ai-stream-shell">
+            <div class="ai-stream-status">
+              <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>AI가 답변을 작성하면서 혜택을 매칭 중입니다</span>
+              <span>${cards.length ? '카드 자동 생성' : '스트리밍 수신중'}</span>
+            </div>
+            <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
+            ${liveCards}
+          </div>`;
         const win = qs('#aiChatWindow');
         if(win) win.scrollTop = win.scrollHeight;
       };
-
-      const schedule = () => {
-        if(rafId) return;
-        rafId = requestAnimationFrame(() => {
-          rafId = 0;
-          render(false);
-        });
-      };
-
-      ensureShell();
-
       return {
         push(chunk=''){
           rawText += String(chunk || '');
-          schedule();
+          render(false);
         },
         full(){ return formatAiStreamingText(rawText).trim(); },
-        flush(){
-          if(rafId) cancelAnimationFrame(rafId);
-          rafId = 0;
-          render(true);
-          if(targetBubble) targetBubble.classList.remove('streaming');
-          return this.full();
-        }
+        flush(){ render(true); return this.full(); }
       };
     }
 
@@ -7211,6 +7096,103 @@ function getShareTrackingParams(){
     function pickAiPhone(item={}){
       return item.phone || item.tel || item.contact || item.officePhone || item.contactNumber || item.phoneNumber || '';
     }
+
+    function getAiUserPersonalSignals(){
+      const favoriteSet = new Set((state.favoriteIds || []).map(String));
+      const activeCategory = state.category && state.category !== '전체' ? String(state.category) : '';
+      const keyword = String(state.keyword || qs('#searchInput')?.value || '').trim();
+      const recentCategory = localStorage.getItem(LAST_CATEGORY_KEY) || '';
+      const timeBand = buildAiSituationContext?.().timeBand || '';
+      const profile = state.currentUserProfile || {};
+      return {
+        favoriteSet,
+        activeCategory,
+        keyword,
+        recentCategory,
+        timeBand,
+        dong: profile.dong || profile.building || '',
+        ho: profile.ho || profile.unit || ''
+      };
+    }
+
+    function getAiBenefitText(item={}){
+      return stringifyAiCandidateText(item, 'benefit');
+    }
+
+    function scoreAiBenefitMatch(item={}, question='', answerText=''){
+      const signals = getAiUserPersonalSignals();
+      const raw = getAiBenefitText(item);
+      const norm = normalizeAiSearchText(raw);
+      const qNorm = normalizeAiSearchText(question);
+      const aNorm = normalizeAiSearchText(answerText);
+      const nameNorm = normalizeAiSearchText(item.name || item.storeName || item.title || '');
+      const categoryNorm = normalizeAiSearchText(item.category || '');
+      const benefitNorm = normalizeAiSearchText(item.benefit || item.description || item.content || '');
+      const tokens = getAiSearchTokens(`${question} ${answerText}`).map(normalizeAiSearchText).filter(Boolean);
+      let score = 0;
+      const reasons = [];
+
+      if(nameNorm && (aNorm.includes(nameNorm) || qNorm.includes(nameNorm))){
+        score += 18; reasons.push('매장명 일치');
+      }
+      if(categoryNorm && (qNorm.includes(categoryNorm) || aNorm.includes(categoryNorm))){
+        score += 8; reasons.push('카테고리 일치');
+      }
+      tokens.forEach(t => {
+        if(t && norm.includes(t)) score += t.length >= 4 ? 3 : 1.5;
+      });
+      if(benefitNorm && benefitNorm.length >= 4 && aNorm.includes(benefitNorm.slice(0, Math.min(10, benefitNorm.length)))){
+        score += 6; reasons.push('혜택 문구 일치');
+      }
+      if(signals.favoriteSet.has(String(item.id))){
+        score += 7; reasons.push('즐겨찾기 기반');
+      }
+      if(signals.activeCategory && normalizeAiSearchText(signals.activeCategory) === categoryNorm){
+        score += 4; reasons.push('현재 카테고리');
+      }
+      if(signals.recentCategory && signals.recentCategory !== '전체' && normalizeAiSearchText(signals.recentCategory) === categoryNorm){
+        score += 3; reasons.push('최근 관심 카테고리');
+      }
+      if(/가까|근처|주변|거리|위치/.test(question) && item.address){
+        score += 4; reasons.push('위치 정보 있음');
+      }
+      if(/전화|연락|예약|문의/.test(question) && pickAiPhone(item)){
+        score += 4; reasons.push('전화 가능');
+      }
+      if(/점심|식사|밥|저녁|아침/.test(question) && /식당|음식|카페|디저트|베이커리|분식|치킨|피자|한식|중식|일식|양식/i.test(raw)){
+        score += 3; reasons.push('생활 상황');
+      }
+      if(/아이|가족|키즈|자녀/.test(question) && /키즈|가족|아이|디저트|카페|학원|문구|놀이/i.test(raw)){
+        score += 3; reasons.push('가족 상황');
+      }
+
+      return { item, score, reason: reasons[0] || '질문 내용 매칭', reasons: [...new Set(reasons)].slice(0,3) };
+    }
+
+    function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
+      try{
+        return (state.benefits || [])
+          .filter(item => item && item.visible !== false && item.id)
+          .map(item => scoreAiBenefitMatch(item, question, answerText))
+          .filter(v => v.score >= 3)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, maxCount);
+      }catch(error){
+        console.warn('AI 혜택 매핑 실패:', error);
+        return [];
+      }
+    }
+
+    function getAiPersonalSummary(){
+      const signals = getAiUserPersonalSignals();
+      const bits = [];
+      if(signals.favoriteSet.size) bits.push(`즐겨찾기 ${signals.favoriteSet.size}개`);
+      if(signals.activeCategory) bits.push(`현재 ${signals.activeCategory} 탭`);
+      else if(signals.recentCategory && signals.recentCategory !== '전체') bits.push(`최근 ${signals.recentCategory} 관심`);
+      if(signals.timeBand) bits.push(signals.timeBand);
+      return bits.join(' · ') || '질문 내용 기반';
+    }
+
 
     function collectAiLocalCandidates(question='', maxCount=12){
       try{
@@ -7280,7 +7262,9 @@ function getShareTrackingParams(){
       }
     }
 
-    function extractAiBenefitCards(finalText='', maxCount=3){
+    function extractAiBenefitCards(finalText='', maxCount=3, question=''){
+      const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
+      if(mapped.length) return mapped;
       const text = normalizeAiSearchText(finalText);
       if(!text) return [];
       return (state.benefits || [])
@@ -7290,16 +7274,16 @@ function getShareTrackingParams(){
           const n = normalizeAiSearchText(name);
           const category = normalizeAiSearchText(item.category || '');
           let score = 0;
-          if(n && text.includes(n)) score += 10;
-          if(category && text.includes(category)) score += 2;
+          const reasons = [];
+          if(n && text.includes(n)){ score += 10; reasons.push('매장명 일치'); }
+          if(category && text.includes(category)){ score += 2; reasons.push('카테고리 일치'); }
           const benefit = normalizeAiSearchText(item.benefit || item.description || '');
-          if(benefit && benefit.length >= 4 && text.includes(benefit.slice(0, Math.min(8, benefit.length)))) score += 2;
-          return { item, score };
+          if(benefit && benefit.length >= 4 && text.includes(benefit.slice(0, Math.min(8, benefit.length)))){ score += 2; reasons.push('혜택 문구 일치'); }
+          return { item, score, reason: reasons[0] || '답변 내용 매칭', reasons };
         })
         .filter(v => v.score > 0)
         .sort((a,b) => b.score - a.score)
-        .slice(0, maxCount)
-        .map(v => v.item);
+        .slice(0, maxCount);
     }
 
     function extractAiPhoneCards(finalText=''){
@@ -7329,41 +7313,38 @@ function getShareTrackingParams(){
         </div>`).join('');
     }
 
-    function formatAiFinalAnswerTextHtml(text=''){
-      const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
-      const lines = cleaned.split('\n').map(v => v.trim()).filter(Boolean);
-      if(!lines.length) return '<p>답변을 생성하지 못했습니다.</p>';
-      return lines.map(line => {
-        const safeLine = escapeHtml(line.replace(/^[-•]\s*/,'').trim());
-        if(/^[-•]\s*/.test(line)) return `<div class="ai-answer-bullet"><span>${safeLine}</span></div>`;
-        if(/^\d+\.\s*/.test(line)) return `<div class="ai-answer-bullet"><span>${escapeHtml(line)}</span></div>`;
-        return `<p>${safeLine}</p>`;
-      }).join('');
-    }
-
-    function buildAiEnhancedAnswerHtml(finalText=''){
+    function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(finalText || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
-      const answerHtml = formatAiFinalAnswerTextHtml(cleaned);
+      const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
       const phoneCards = buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
-      const benefitCards = extractAiBenefitCards(cleaned).map(item => `
-        <div class="ai-benefit-card-auto">
-          <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+      const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+      const personalSummary = getAiPersonalSummary();
+      const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
+        <div class="ai-benefit-card-auto enhanced">
+          <div class="ai-card-top">
+            <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+            <span class="ai-match-score">매칭 ${Math.min(99, Math.round(Number(score || 0) * 7))}%</span>
+          </div>
           <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
           <div class="ai-benefit-meta">
             ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
             ${item.address ? `<em>위치 등록</em>` : ''}
             ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+            ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
           </div>
-          <button type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기 ›</button>
+          <div class="ai-personal-reason">추천 기준: ${escapeHtml((reasons || []).join(' · ') || personalSummary)}</div>
+          <div class="ai-card-actions">
+            <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
+            <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
+          </div>
         </div>`).join('');
-
       return `
-        <div class="ai-answer">
-          <div class="ai-answer-text">${answerHtml}</div>
-          ${phoneCards ? `<div class="ai-answer-section-title">☎️ 바로 전화 가능한 항목</div>${phoneCards}` : ''}
-          ${benefitCards ? `<div class="ai-answer-section-title">🏷️ 추천 혜택 카드</div>${benefitCards}` : ''}
-          <span class="ai-mode-pill">내부 데이터 기반 · Gemini 2.5 Flash-Lite · Cloud Run 스트리밍</span>
+        <div class="ai-answer ai-answer-upgrade">
+          <div class="ai-answer-summary">${safe}</div>
+          ${phoneCards}
+          ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
+          <span class="ai-mode-pill upgraded">스트리밍 · 혜택 자동 매핑 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
         </div>`;
     }
 
@@ -7451,6 +7432,16 @@ function getShareTrackingParams(){
             console.error('AI 혜택 딥링크 열기 실패', error);
             openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
           }
+        });
+      });
+      root.querySelectorAll('[data-view-link]').forEach(btn => {
+        if(btn.dataset.aiViewBound === 'true') return;
+        btn.dataset.aiViewBound = 'true';
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const view = btn.dataset.viewLink;
+          if(view) changeView(view);
         });
       });
     }
@@ -7699,7 +7690,7 @@ function getShareTrackingParams(){
 
       try{
         if(pendingBubble) pendingBubble.textContent = '';
-        const streamRenderer = createAiStreamRenderer(pendingBubble);
+        const streamRenderer = createAiStreamRenderer(pendingBubble, question);
         await callAiStreamServer(question, {
           onChunk: (chunk) => {
             streamRenderer.push(chunk);
@@ -7708,7 +7699,7 @@ function getShareTrackingParams(){
 
         const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
         if(pendingBubble){
-          pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText);
+          pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
           bindAiAnswerActions(pendingBubble);
         }
         if(pendingRow) delete pendingRow.dataset.pending;
