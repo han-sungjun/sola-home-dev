@@ -2769,7 +2769,7 @@ body.env-prod #view-ai{
     const AI_FUNCTION_URL = `https://${AI_FUNCTION_REGION}-${firebaseConfig.projectId}.cloudfunctions.net/askAiAssistant`;
     // Cloud Run Gemini 스트리밍 서버
     const AI_STREAM_SERVER_URL_BY_ENV = {
-      dev: 'https://ai-stream-server-dev-292137041544.asia-northeast3.run.app/stream',
+      dev: 'https://ai-stream-server-292137041544.asia-northeast3.run.app/stream',
       // 운영계 Cloud Run 배포 후 아래 prod URL을 운영계 /stream 주소로 교체하세요.
       prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
     };
