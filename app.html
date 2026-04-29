@@ -2351,6 +2351,7 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-benefit-card-auto span{font-size:12px;line-height:1.55;color:#475569}
 .ai-benefit-card-auto .ai-benefit-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
 .ai-benefit-card-auto .ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
+.ai-benefit-card-auto .ai-benefit-meta em.weather,.ai-live-meta em.weather{background:#ecfeff;border-color:#a5f3fc;color:#0e7490}.ai-weather-chip{display:inline-flex;align-items:center;gap:5px;width:max-content;padding:6px 9px;border-radius:999px;background:#ecfeff;border:1px solid #a5f3fc;color:#0e7490;font-size:10px;font-weight:1000;line-height:1}
 .ai-benefit-card-auto button{margin-top:4px;border:none;border-radius:14px;padding:10px 11px;background:#0f172a;color:#fff;font-size:12px;font-weight:1000;cursor:pointer;text-align:left}
 .ai-phone-card-auto{display:flex;align-items:center;gap:12px;margin:12px 0 0;padding:13px 14px;border-radius:18px;background:#f8fafc;border:1px solid #dbeafe;box-shadow:0 10px 22px rgba(15,23,42,.06);color:#0f172a}
 .ai-phone-card-auto .ai-phone-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:#eff6ff;color:#1d4ed8;flex:0 0 auto}
@@ -7028,6 +7029,7 @@ function getShareTrackingParams(){
                   <div class="ai-live-meta">
                     ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
                     ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+                    ${shouldAttachWeatherTagToItem(item, question, formatted) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, formatted))}</em>` : ''}
                     ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
                   </div>
                 </div>`).join('')}
@@ -7119,6 +7121,26 @@ function getShareTrackingParams(){
       return stringifyAiCandidateText(item, 'benefit');
     }
 
+    function inferAiWeatherTag(question='', answerText=''){
+      const source = `${question || ''} ${answerText || ''}`;
+      if(/비|우천|장마|소나기|빗방울|강수/.test(source)) return '☔ 비오는날 추천';
+      if(/눈|폭설|눈날림/.test(source)) return '❄️ 눈오는날 추천';
+      if(/더운|폭염|무더위|기온|여름|실내/.test(source)) return '🔥 더운날 실내 추천';
+      if(/맑|날씨 좋|산책|야외/.test(source)) return '☀️ 날씨 기반 추천';
+      return '';
+    }
+
+    function shouldAttachWeatherTagToItem(item={}, question='', answerText=''){
+      const tag = inferAiWeatherTag(question, answerText);
+      if(!tag) return '';
+      const raw = stringifyAiCandidateText(item, 'benefit');
+      if(tag.includes('비') && /카페|디저트|커피|떡|베이커리|미용|실내|음식|식당|분식/i.test(raw)) return tag;
+      if(tag.includes('눈') && /카페|디저트|커피|음식|식당|실내/i.test(raw)) return tag;
+      if(tag.includes('더운') && /카페|커피|음료|디저트|빙수|실내/i.test(raw)) return tag;
+      if(tag.includes('날씨')) return tag;
+      return '';
+    }
+
     function scoreAiBenefitMatch(item={}, question='', answerText=''){
       const signals = getAiUserPersonalSignals();
       const raw = getAiBenefitText(item);
@@ -7165,8 +7187,12 @@ function getShareTrackingParams(){
       if(/아이|가족|키즈|자녀/.test(question) && /키즈|가족|아이|디저트|카페|학원|문구|놀이/i.test(raw)){
         score += 3; reasons.push('가족 상황');
       }
+      const weatherTag = shouldAttachWeatherTagToItem(item, question, answerText);
+      if(weatherTag){
+        score += 3; reasons.push(weatherTag);
+      }
 
-      return { item, score, reason: reasons[0] || '질문 내용 매칭', reasons: [...new Set(reasons)].slice(0,3) };
+      return { item, score, reason: reasons[0] || '질문 내용 매칭', reasons: [...new Set(reasons)].slice(0,4), weatherTag };
     }
 
     function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
@@ -7252,6 +7278,8 @@ function getShareTrackingParams(){
           benefitCount: Array.isArray(state.benefits) ? state.benefits.length : 0,
           noticeCount: Array.isArray(state.notices) ? state.notices.length : 0,
           localCandidates: collectAiLocalCandidates(question, 12),
+          userLocation: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng, fetchedAt: state.userLocationFetchedAt || 0 } : null,
+          location: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng } : null,
           url: location.href,
           clientTimeText: now.toLocaleString('ko-KR'),
           timestamp: now.toISOString()
@@ -7332,6 +7360,7 @@ function getShareTrackingParams(){
             ${item.address ? `<em>위치 등록</em>` : ''}
             ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
             ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+            ${shouldAttachWeatherTagToItem(item, question, cleaned) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, cleaned))}</em>` : ''}
           </div>
           <div class="ai-personal-reason">추천 기준: ${escapeHtml((reasons || []).join(' · ') || personalSummary)}</div>
           <div class="ai-card-actions">
@@ -7342,6 +7371,7 @@ function getShareTrackingParams(){
       return `
         <div class="ai-answer ai-answer-upgrade">
           <div class="ai-answer-summary">${safe}</div>
+          ${inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
           ${phoneCards}
           ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
           <span class="ai-mode-pill upgraded">스트리밍 · 혜택 자동 매핑 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
