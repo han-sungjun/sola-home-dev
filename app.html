@@ -7866,6 +7866,10 @@ function getShareTrackingParams(){
         </div>`;
     }
 
+    function appendAiRecommendationCardsSafe(data){
+      if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
+    }
+
     function appendAiRecommendationCards(recommendations = []){
       const win = qs('#aiChatWindow');
       if(!win || !Array.isArray(recommendations) || !recommendations.length) return;
@@ -7906,7 +7910,6 @@ async function askAiAssistant(rawQuestion=''){
           pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
           bindAiAnswerActions(pendingBubble);
         }
-        if(Array.isArray(data?.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
         if(pendingRow) delete pendingRow.dataset.pending;
         window.__AI_LAST_INPUT_MODE = 'text';
         aiConversationTitle = question.slice(0,24) || '새 대화';
