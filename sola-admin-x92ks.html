@@ -2501,6 +2501,29 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }).filter(Boolean).join(', ');
     }
 
+
+    function normalizeOpeningHoursForForm(item){
+      const src = item?.openingHoursManual || item?.openingHours || item?.businessHours || null;
+      if(!src || typeof src !== 'object') return {};
+      const days=['mon','tue','wed','thu','fri','sat','sun'];
+      const result={};
+      days.forEach(day=>{
+        const raw = src?.[day];
+        if(!raw) return;
+        const row = Array.isArray(raw) ? (raw[0] || {}) : raw;
+        result[day]={
+          closed: !!(row.closed || row.isClosed),
+          open: row.open || row.start || row.from || '',
+          close: row.close || row.end || row.to || '',
+          breakStart: row.breakStart || row.break_start || row.breakFrom || '',
+          breakEnd: row.breakEnd || row.break_end || row.breakTo || '',
+          lastOrder: row.lastOrder || row.last_order || '',
+          note: row.note || row.memo || ''
+        };
+      });
+      return result;
+    }
+
     function setOpeningHoursToForm(openingHours){
       const map=[
         ['mon','Mon'], ['tue','Tue'], ['wed','Wed'], ['thu','Thu'], ['fri','Fri'], ['sat','Sat'], ['sun','Sun']
@@ -2537,6 +2560,10 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
     function clearOpeningHoursForm(){
       setOpeningHoursToForm({});
+      ['#dailyOpen','#dailyClose','#dailyBreakStart','#dailyBreakEnd','#dailyLastOrder'].forEach(sel=>{
+        if(qs(sel)) qs(sel).value='';
+      });
+      if(qs('#applyDailySameHours')) qs('#applyDailySameHours').checked=false;
     }
 
     function bindOpeningHoursButtons(){
