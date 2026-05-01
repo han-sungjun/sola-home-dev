@@ -1450,27 +1450,6 @@ body.gnb-open .admin-bottom-nav{
   }
 }
 
-
-/* ===== Admin Opening Hours Force Load + Clean UI ===== */
-.hours-quick-panel{display:block;padding:12px;border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;margin-bottom:12px}
-.hours-quick-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#0f172a;margin-bottom:10px}
-.hours-quick-fields{display:grid;grid-template-columns:repeat(5,minmax(96px,1fr));gap:8px}
-.hours-quick-fields label{display:grid;gap:5px;font-size:12px;font-weight:800;color:#334155}
-.hours-quick-fields input[type=time]{width:100%;min-width:0}
-.hours-grid-advanced .hours-row{display:grid;grid-template-columns:44px 44px repeat(5,minmax(92px,1fr)) minmax(120px,1.2fr);gap:8px;align-items:center}
-.hours-grid-advanced .hours-head{font-size:11px;color:#64748b;font-weight:900}
-.hours-grid-advanced input[type=checkbox]{justify-self:center}
-.hours-grid-advanced .hours-row strong{font-size:12px;color:#334155}
-@media(max-width:760px){
-  .hours-quick-fields{grid-template-columns:1fr 1fr}
-  .hours-grid-advanced .hours-row{grid-template-columns:44px 44px 1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid #eef2f7}
-  .hours-grid-advanced .hours-head{display:none}
-  .hours-grid-advanced .hours-row input[id$=BreakStart],
-  .hours-grid-advanced .hours-row input[id$=BreakEnd],
-  .hours-grid-advanced .hours-row input[id$=LastOrder],
-  .hours-grid-advanced .hours-row input[id$=Note]{grid-column:span 2}
-}
-
 </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -2292,8 +2271,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       if(!el) return;
       el.value = value || '';
       el.setAttribute('value', value || '');
-      el.dispatchEvent(new Event('input', { bubbles:true }));
-      el.dispatchEvent(new Event('change', { bubbles:true }));
     }
 
     function forceSetCheckValue(id, value){
@@ -2302,8 +2279,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       el.checked = !!value;
       if(value) el.setAttribute('checked','checked');
       else el.removeAttribute('checked');
-      el.dispatchEvent(new Event('input', { bubbles:true }));
-      el.dispatchEvent(new Event('change', { bubbles:true }));
     }
 
     function forceLoadOpeningHoursToForm(item){
@@ -2324,8 +2299,24 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       console.log('[admin] forceLoadOpeningHoursToForm', data);
     }
 
+    async function fillFormWithFreshDoc(item){
+      let freshItem = item || {};
+      try{
+        if(db && item?.id){
+          const snap = await getDoc(doc(db, BENEFITS_COLLECTION, item.id));
+          if(snap.exists()){
+            freshItem = { id:item.id, ...snap.data() };
+            console.log('[admin] fresh benefit loaded', freshItem.openingHoursManual || freshItem.openingHours || freshItem.businessHours || {});
+          }
+        }
+      }catch(e){
+        console.warn('[admin] fresh benefit load failed, fallback item used', e);
+      }
+      fillForm(freshItem);
+    }
 
-function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(normalizeOpeningHoursForForm(item));forceLoadOpeningHoursToForm(item);setTimeout(()=>forceLoadOpeningHoursToForm(item),80);setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
+
+function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(item.openingHoursManual || item.openingHours || item.businessHours || {});forceLoadOpeningHoursToForm(item);setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
@@ -2398,7 +2389,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           const el=document.createElement('div');
           el.className='mini-item';
           el.innerHTML=html;
-          el.querySelector('.edit-btn').onclick=()=>fillForm(item);
+          el.querySelector('.edit-btn').onclick=()=>fillFormWithFreshDoc(item);
           el.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);
           list.appendChild(el);
         }
@@ -2406,7 +2397,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           const el2=document.createElement('div');
           el2.className='mini-item';
           el2.innerHTML=html;
-          el2.querySelector('.edit-btn').onclick=()=>{fillForm(item);changeAdminView('benefits');};
+          el2.querySelector('.edit-btn').onclick=()=>{changeAdminView('benefits');fillFormWithFreshDoc(item);};
           el2.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);
           dashboardList.appendChild(el2);
         }
