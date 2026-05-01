@@ -7566,8 +7566,25 @@ function getShareTrackingParams(){
 
     
     function isAiLocationQuestion(question='', answer=''){
-      const q = normalizeAiSearchText(`${question} ${answer}`);
-      return /(주소|위치|어디|어딘|지도|길찾기|가는길|찾아가|방문|매장위치)/.test(q);
+      const qRaw = String(question || '').trim();
+      const aRaw = String(answer || '').trim();
+      const q = normalizeAiSearchText(qRaw);
+      const combined = normalizeAiSearchText(`${qRaw} ${aRaw}`);
+
+      // 지도 카드는 사용자가 명시적으로 지도/길찾기/미니지도 표시를 요청한 경우에만 표시합니다.
+      // 예: "아레볼 미니지도로 보여줘", "아레볼 지도 보여줘", "아레볼 길찾기 알려줘"
+      const explicitMapAsk =
+        /(미니지도|지도보여|지도로보여|지도띄워|지도표시|지도혜택|지도에서|길찾기|가는길|찾아가는길|네이버지도|위치지도)/.test(q);
+
+      if(explicitMapAsk) return true;
+
+      // 단순 주소 질문은 텍스트 주소만 답하고 지도 카드는 표시하지 않습니다.
+      // 예: "아레볼 주소가 뭐야?", "아레볼 위치가 어디야?"
+      if(/(주소|위치|어디|어딘)/.test(q) && !/(지도|길찾기|미니지도|보여|띄워|표시)/.test(q)){
+        return false;
+      }
+
+      return false;
     }
 
     function getAiMapUrl(item={}){
@@ -7621,13 +7638,26 @@ function getShareTrackingParams(){
     }
 
     
-    function waitForVisibleMapElement(el, timeout = 1800){
+    function waitFrames(count = 2){
+      return new Promise((resolve) => {
+        const step = () => {
+          count -= 1;
+          if(count <= 0){ resolve(); return; }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+
+    function waitForVisibleMapElement(el, timeout = 2500){
       return new Promise((resolve) => {
         const started = Date.now();
         const tick = () => {
           if(!el || !document.body.contains(el)){ resolve(false); return; }
           const rect = el.getBoundingClientRect();
-          if(rect.width > 40 && rect.height > 40){ resolve(true); return; }
+          const style = window.getComputedStyle(el);
+          const visible = rect.width >= 120 && rect.height >= 120 && style.display !== 'none' && style.visibility !== 'hidden';
+          if(visible){ resolve(true); return; }
           if(Date.now() - started > timeout){ resolve(false); return; }
           requestAnimationFrame(tick);
         };
@@ -7635,44 +7665,64 @@ function getShareTrackingParams(){
       });
     }
 
-    function stabilizeNaverMapAfterRender(map, center, bounds){
+    function forceNaverMapResize(map, center, bounds){
       const nm = window.naver?.maps;
       if(!map || !nm) return;
       const apply = () => {
         try{ nm.Event.trigger(map, 'resize'); }catch(_){}
         try{
-          if(bounds) map.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
+          if(bounds) map.fitBounds(bounds, { top:36, right:36, bottom:36, left:36 });
           else if(center) map.setCenter(center);
         }catch(_){
           try{ if(center) map.setCenter(center); }catch(__){}
         }
       };
-      requestAnimationFrame(() => {
-        apply();
-        setTimeout(apply, 120);
-        setTimeout(apply, 360);
-      });
+      apply();
+      requestAnimationFrame(apply);
+      setTimeout(apply, 80);
+      setTimeout(apply, 220);
+      setTimeout(apply, 520);
+      setTimeout(apply, 950);
     }
 
+    function clearMapElementForFreshRender(el){
+      if(!el) return;
+      el.innerHTML = '';
+      el.removeAttribute('style');
+      el.style.width = '100%';
+      el.style.height = '178px';
+      el.dataset.rendered = '';
+    }
 
-async function renderAiLocationMiniMaps(scope){
+    
+    async function renderAiLocationMiniMaps(scope){
       const root = scope || qs('#aiChatWindow') || document;
       const mapEls = root.querySelectorAll?.('.ai-location-map-canvas[data-ai-map-benefit-id]') || [];
       if(!mapEls.length) return;
 
+      await waitFrames(2);
+
       for(const mapEl of mapEls){
-        if(mapEl.dataset.rendered === 'true') continue;
-        const isVisible = await waitForVisibleMapElement(mapEl);
-        if(!isVisible){
-          mapEl.dataset.rendered = '';
-          continue;
-        }
         const benefitId = mapEl.dataset.aiMapBenefitId || '';
         const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
         const pos = item && typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
         if(!item || !pos) continue;
+
+        const visible = await waitForVisibleMapElement(mapEl);
+        if(!visible){
+          mapEl.dataset.rendered = '';
+          continue;
+        }
+
+        // 첫 렌더링 깨짐 방지를 위해 첫 시도에서는 항상 새로 초기화합니다.
+        // 이미 안정적으로 렌더링된 지도는 반복 생성하지 않습니다.
+        if(mapEl.dataset.rendered === 'stable') continue;
+        clearMapElementForFreshRender(mapEl);
+
         try{
           await loadNaverMapsSdk();
+          await waitFrames(2);
+
           const nm = window.naver.maps;
           const store = new nm.LatLng(pos.lat, pos.lng);
           const map = new nm.Map(mapEl, {
@@ -7682,7 +7732,7 @@ async function renderAiLocationMiniMaps(scope){
             scrollWheel: false,
             draggable: true
           });
-          mapEl.dataset.rendered = 'true';
+
           new nm.Marker({
             position: store,
             map,
@@ -7703,6 +7753,7 @@ async function renderAiLocationMiniMaps(scope){
             distanceEl.classList.remove('muted');
           };
 
+          let bounds = null;
           if(hasFreshUserLocation()){
             const me = new nm.LatLng(state.userLocation.lat, state.userLocation.lng);
             new nm.Marker({
@@ -7718,20 +7769,16 @@ async function renderAiLocationMiniMaps(scope){
               strokeWeight: 4,
               strokeOpacity: .82
             });
-            const bounds = new nm.LatLngBounds();
+            bounds = new nm.LatLngBounds();
             bounds.extend(me);
             bounds.extend(store);
-            try{ map.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 }); }catch(_){ map.fitBounds(bounds); }
-            stabilizeNaverMapAfterRender(map, store, bounds);
             updateDistance(state.userLocation, true);
-          }else{
-            stabilizeNaverMapAfterRender(map, store, null);
-          }
-          if(navigator.geolocation && !hasFreshUserLocation()){
+          }else if(navigator.geolocation){
             getReliableCurrentPosition({ forceRefresh:false })
               .then((currentLocation) => {
                 updateDistance(currentLocation, false);
-                renderAiLocationMiniMaps(root); setTimeout(()=>renderAiLocationMiniMaps(root), 220); setTimeout(()=>renderAiLocationMiniMaps(root), 700);
+                mapEl.dataset.rendered = '';
+                renderAiLocationMiniMaps(root);
               })
               .catch(() => {
                 if(distanceEl){
@@ -7740,6 +7787,19 @@ async function renderAiLocationMiniMaps(scope){
                 }
               });
           }
+
+          forceNaverMapResize(map, store, bounds);
+          mapEl.dataset.rendered = 'stable';
+
+          // 일부 모바일 WebView에서 첫 타일 계산이 틀어지는 경우가 있어 한 번 더 새로고침합니다.
+          setTimeout(() => {
+            try{
+              const rect = mapEl.getBoundingClientRect();
+              if(rect.width >= 120 && rect.height >= 120){
+                forceNaverMapResize(map, store, bounds);
+              }
+            }catch(_){}
+          }, 1200);
         }catch(error){
           console.warn('AI 위치 미니지도 렌더링 실패', error);
           mapEl.dataset.rendered = '';
@@ -7851,7 +7911,7 @@ async function renderAiLocationMiniMaps(scope){
     function bindAiAnswerActions(scope){
       const root = scope || qs('#aiChatWindow');
       if(!root) return;
-      renderAiLocationMiniMaps(root);
+      requestAnimationFrame(()=>renderAiLocationMiniMaps(root)); setTimeout(()=>renderAiLocationMiniMaps(root), 300); setTimeout(()=>renderAiLocationMiniMaps(root), 900);
       root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
         if(btn.dataset.bound === 'true') return;
         btn.dataset.bound = 'true';
