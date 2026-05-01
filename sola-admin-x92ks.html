@@ -2077,7 +2077,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
     function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#shareDescription')) qs('#shareDescription').value='';updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');clearOpeningHoursForm();}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
-    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(item.openingHours||{});setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
+    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(item.openingHoursManual || item.openingHours||{});setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
@@ -2332,6 +2332,17 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       return Object.keys(result).length ? result : null;
     }
 
+
+    function formatOpeningHoursManualText(openingHours){
+      if(!openingHours || typeof openingHours !== 'object') return '';
+      const labels={mon:'월',tue:'화',wed:'수',thu:'목',fri:'금',sat:'토',sun:'일'};
+      return ['mon','tue','wed','thu','fri','sat','sun'].map(day=>{
+        const first=Array.isArray(openingHours?.[day]) ? openingHours[day][0] : null;
+        if(!first?.open || !first?.close) return '';
+        return `${labels[day]} ${first.open} - ${first.close}`;
+      }).filter(Boolean).join(', ');
+    }
+
     function setOpeningHoursToForm(openingHours){
       const map=[
         ['mon','#ohMonOpen','#ohMonClose'],
@@ -2385,6 +2396,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         lng = geo.lng;
       }
 
+      const openingHoursManualValue = getOpeningHoursFromForm();
+      const businessHoursManualText = formatOpeningHoursManualText(openingHoursManualValue);
+
       const payload={
         name:qs('#name').value.trim(),
         category:qs('#category').value.trim(),
@@ -2403,8 +2417,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         rankBoost:Number(qs('#rankBoost')?.value || 0),
         thumbnailUrl:qs('#thumbnailUrl')?.value.trim() || '',
         shareDescription:qs('#shareDescription')?.value.trim() || '',
-        openingHours:getOpeningHoursFromForm(),
-        openingHoursSource:getOpeningHoursFromForm() ? 'admin' : '',
+        openingHours:openingHoursManualValue,
+        openingHoursManual:openingHoursManualValue,
+        businessHoursManual:businessHoursManualText,
+        openingHoursSource:openingHoursManualValue ? 'admin' : '',
+        businessHoursSource:openingHoursManualValue ? 'admin' : '',
         updatedAt:serverTimestamp()
       };
 
