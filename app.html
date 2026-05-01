@@ -7293,18 +7293,32 @@ function getShareTrackingParams(){
           .sort((a,b) => b.score - a.score)
           .slice(0, maxCount);
 
-        return scored.map(({type,item,score}) => ({
-          type,
-          id: item.id || '',
-          title: item.name || item.storeName || item.title || item.department || '',
-          category: item.category || '',
-          benefit: item.benefit || item.description || '',
-          content: item.content || item.body || item.memo || item.note || '',
-          address: item.address || '',
-          phone: pickAiPhone(item),
-          keywords: item.keywords || [],
-          score
-        }));
+        return scored.map(({type,item,score}) => {
+          const pos = getBenefitLatLng(item) || {};
+          return {
+            type,
+            id: item.id || '',
+            title: item.name || item.storeName || item.title || item.department || '',
+            name: item.name || item.storeName || item.title || item.department || '',
+            category: item.category || '',
+            benefit: item.benefit || item.description || '',
+            description: item.description || item.benefit || item.content || '',
+            content: item.content || item.body || item.memo || item.note || '',
+            address: item.address || item.roadAddress || '',
+            roadAddress: item.roadAddress || '',
+            phone: pickAiPhone(item),
+            link: item.link || item.url || item.naverUrl || '',
+            lat: pos.lat ?? item.lat ?? item.latitude ?? null,
+            lng: pos.lng ?? item.lng ?? item.lon ?? item.longitude ?? null,
+            isOpenNow: item.isOpenNow,
+            todayOpenText: item.todayOpenText || item.hoursText || item.openHoursText || '',
+            openStatusText: item.openStatusText || '',
+            openingHours: item.openingHours || null,
+            naverHome: item.naverHome || null,
+            keywords: item.keywords || [],
+            score
+          };
+        });
       }catch(e){
         console.warn('collectAiLocalCandidates 실패:', e);
         return [];
