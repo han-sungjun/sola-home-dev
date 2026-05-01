@@ -2597,6 +2597,131 @@ body.env-prod #view-ai{
 .ai-mini-map-fallback{padding:14px;text-align:center;color:#64748b;font-size:12px;font-weight:900}
 @keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
+
+/* ===== AI 위치 질문 미니지도 카드 ===== */
+.ai-location-map-card{
+  margin:12px 0 14px;
+  border:1px solid #dbeafe;
+  border-radius:22px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 12px 26px rgba(15,23,42,.08);
+}
+.ai-location-map-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 14px 10px;
+}
+.ai-location-map-head b{
+  display:block;
+  font-size:14px;
+  color:#0f172a;
+  line-height:1.3;
+}
+.ai-location-map-head span{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:#475569;
+  line-height:1.45;
+}
+.ai-location-map-badge{
+  flex:0 0 auto;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+  font-size:11px;
+  font-weight:1000;
+}
+.ai-location-map-visual{
+  position:relative;
+  height:148px;
+  margin:0 12px 12px;
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(59,130,246,.20), transparent 30%),
+    linear-gradient(135deg,#e0f2fe 0%,#f8fafc 50%,#dcfce7 100%);
+  border:1px solid #dbeafe;
+}
+.ai-location-map-visual::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(35deg, transparent 46%, rgba(37,99,235,.42) 47%, rgba(37,99,235,.42) 50%, transparent 51%),
+    linear-gradient(105deg, transparent 55%, rgba(249,115,22,.38) 56%, rgba(249,115,22,.38) 58%, transparent 59%);
+  opacity:.7;
+}
+.ai-location-map-pin{
+  position:absolute;
+  left:58%;
+  top:38%;
+  transform:translate(-50%,-50%);
+  display:grid;
+  place-items:center;
+  min-width:48px;
+  height:32px;
+  padding:0 10px;
+  border-radius:999px;
+  background:#0f172a;
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+  box-shadow:0 12px 24px rgba(15,23,42,.25);
+  z-index:2;
+}
+.ai-location-map-pin::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:100%;
+  transform:translateX(-50%);
+  border:8px solid transparent;
+  border-top-color:#0f172a;
+}
+.ai-location-map-dot{
+  position:absolute;
+  left:48%;
+  top:60%;
+  width:13px;
+  height:13px;
+  border-radius:999px;
+  background:#2563eb;
+  border:3px solid #fff;
+  box-shadow:0 0 0 5px rgba(37,99,235,.18);
+  z-index:2;
+}
+.ai-location-map-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  padding:0 12px 12px;
+}
+.ai-location-map-actions button,
+.ai-location-map-actions a{
+  min-height:40px;
+  border:none;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.ai-location-map-actions .primary{background:#0f172a;color:#fff}
+.ai-location-map-actions .soft{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.ai-location-map-actions .line{background:#fff;color:#334155;border:1px solid #e2e8f0}
+@media(max-width:380px){
+  .ai-location-map-actions{grid-template-columns:1fr}
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7405,13 +7530,72 @@ function getShareTrackingParams(){
         </div>`).join('');
     }
 
-    function buildAiEnhancedAnswerHtml(finalText='', question=''){
+    
+    function isAiLocationQuestion(question='', answer=''){
+      const q = normalizeAiSearchText(`${question} ${answer}`);
+      return /(주소|위치|어디|어딘|지도|길찾기|가는길|찾아가|방문|매장위치)/.test(q);
+    }
+
+    function getAiMapUrl(item={}){
+      const name = item.name || item.storeName || item.title || '';
+      const address = item.address || item.roadAddress || '';
+      const url = item.url || item.link || item.naverUrl || '';
+      if(url) return url;
+      return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
+    }
+
+    function getAiDirectionsUrl(item={}){
+      const name = item.name || item.storeName || item.title || '';
+      const address = item.address || item.roadAddress || '';
+      const lat = Number(item.lat ?? item.latitude);
+      const lng = Number(item.lng ?? item.lon ?? item.longitude);
+      if(Number.isFinite(lat) && Number.isFinite(lng)){
+        return `https://map.naver.com/p/directions/-/${lng},${lat},${encodeURIComponent(name || '목적지')}`;
+      }
+      return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
+    }
+
+    function buildAiLocationMapCardHtml(mappedCards=[], question='', answer=''){
+      if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
+      if(!isAiLocationQuestion(question, answer)) return '';
+      const found = mappedCards.find(({item}) => item && (item.address || item.roadAddress || item.lat || item.lng));
+      if(!found) return '';
+      const item = found.item || {};
+      const name = item.name || item.storeName || item.title || '매장';
+      const address = item.address || item.roadAddress || '등록된 주소 정보가 없습니다.';
+      const mapUrl = getAiMapUrl(item);
+      const dirUrl = getAiDirectionsUrl(item);
+      const hasCoord = Number.isFinite(Number(item.lat ?? item.latitude)) && Number.isFinite(Number(item.lng ?? item.lon ?? item.longitude));
+      return `
+        <div class="ai-location-map-card">
+          <div class="ai-location-map-head">
+            <div>
+              <b>📍 ${escapeHtml(name)}</b>
+              <span>${escapeHtml(address)}</span>
+            </div>
+            <em class="ai-location-map-badge">${hasCoord ? '위치 확인' : '주소 기반'}</em>
+          </div>
+          <div class="ai-location-map-visual" aria-label="${escapeAttr(name)} 미니지도">
+            <div class="ai-location-map-pin">매장</div>
+            <div class="ai-location-map-dot"></div>
+          </div>
+          <div class="ai-location-map-actions">
+            <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id || '')}">혜택 상세</button>
+            <a class="soft" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">길찾기</a>
+            <a class="line" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">네이버지도 열기</a>
+          </div>
+        </div>`;
+    }
+
+
+function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(finalText || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
       const phoneCards = buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
       const mappedCards = extractAiBenefitCards(cleaned, 4, question);
       const personalSummary = getAiPersonalSummary();
+      const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
       const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
         <div class="ai-benefit-card-auto enhanced">
           <div class="ai-card-top">
@@ -7437,6 +7621,7 @@ function getShareTrackingParams(){
           <div class="ai-answer-summary">${safe}</div>
           ${inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
           ${phoneCards}
+          ${locationMapCard}
           ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
           <span class="ai-mode-pill upgraded">스트리밍 · 혜택 자동 매핑 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
         </div>`;
