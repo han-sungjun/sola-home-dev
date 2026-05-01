@@ -7620,19 +7620,57 @@ function getShareTrackingParams(){
         </div>`;
     }
 
-    async function renderAiLocationMiniMaps(scope){
+    
+    function waitForVisibleMapElement(el, timeout = 1800){
+      return new Promise((resolve) => {
+        const started = Date.now();
+        const tick = () => {
+          if(!el || !document.body.contains(el)){ resolve(false); return; }
+          const rect = el.getBoundingClientRect();
+          if(rect.width > 40 && rect.height > 40){ resolve(true); return; }
+          if(Date.now() - started > timeout){ resolve(false); return; }
+          requestAnimationFrame(tick);
+        };
+        tick();
+      });
+    }
+
+    function stabilizeNaverMapAfterRender(map, center, bounds){
+      const nm = window.naver?.maps;
+      if(!map || !nm) return;
+      const apply = () => {
+        try{ nm.Event.trigger(map, 'resize'); }catch(_){}
+        try{
+          if(bounds) map.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
+          else if(center) map.setCenter(center);
+        }catch(_){
+          try{ if(center) map.setCenter(center); }catch(__){}
+        }
+      };
+      requestAnimationFrame(() => {
+        apply();
+        setTimeout(apply, 120);
+        setTimeout(apply, 360);
+      });
+    }
+
+
+async function renderAiLocationMiniMaps(scope){
       const root = scope || qs('#aiChatWindow') || document;
       const mapEls = root.querySelectorAll?.('.ai-location-map-canvas[data-ai-map-benefit-id]') || [];
       if(!mapEls.length) return;
 
       for(const mapEl of mapEls){
         if(mapEl.dataset.rendered === 'true') continue;
+        const isVisible = await waitForVisibleMapElement(mapEl);
+        if(!isVisible){
+          mapEl.dataset.rendered = '';
+          continue;
+        }
         const benefitId = mapEl.dataset.aiMapBenefitId || '';
         const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
         const pos = item && typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
         if(!item || !pos) continue;
-        mapEl.dataset.rendered = 'true';
-
         try{
           await loadNaverMapsSdk();
           const nm = window.naver.maps;
@@ -7644,6 +7682,7 @@ function getShareTrackingParams(){
             scrollWheel: false,
             draggable: true
           });
+          mapEl.dataset.rendered = 'true';
           new nm.Marker({
             position: store,
             map,
@@ -7683,12 +7722,16 @@ function getShareTrackingParams(){
             bounds.extend(me);
             bounds.extend(store);
             try{ map.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 }); }catch(_){ map.fitBounds(bounds); }
+            stabilizeNaverMapAfterRender(map, store, bounds);
             updateDistance(state.userLocation, true);
-          }else if(navigator.geolocation){
+          }else{
+            stabilizeNaverMapAfterRender(map, store, null);
+          }
+          if(navigator.geolocation && !hasFreshUserLocation()){
             getReliableCurrentPosition({ forceRefresh:false })
               .then((currentLocation) => {
                 updateDistance(currentLocation, false);
-                renderAiLocationMiniMaps(root);
+                renderAiLocationMiniMaps(root); setTimeout(()=>renderAiLocationMiniMaps(root), 220); setTimeout(()=>renderAiLocationMiniMaps(root), 700);
               })
               .catch(() => {
                 if(distanceEl){
@@ -7699,6 +7742,7 @@ function getShareTrackingParams(){
           }
         }catch(error){
           console.warn('AI 위치 미니지도 렌더링 실패', error);
+          mapEl.dataset.rendered = '';
           mapEl.innerHTML = '<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
         }
       }
