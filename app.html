@@ -2722,6 +2722,40 @@ body.env-prod #view-ai{
   .ai-location-map-actions{grid-template-columns:1fr}
 }
 
+
+/* ===== AI 위치 질문: 혜택 상세형 위치 안내 카드 ===== */
+.ai-location-detail-card{
+  margin:12px 0 14px;
+  padding:14px;
+  border-radius:22px;
+  background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
+  border:1px solid rgba(15,23,42,.07);
+  box-shadow:0 12px 26px rgba(15,23,42,.08);
+}
+.ai-location-detail-card .location-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.ai-location-detail-card .location-title strong{
+  font-size:13px;
+  color:var(--muted);
+}
+.ai-location-detail-card .detail-map-box{
+  margin-top:12px;
+}
+.ai-location-detail-card .location-actions{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.ai-location-detail-card .location-actions .btn{
+  text-decoration:none;
+}
+@media(max-width:420px){
+  .ai-location-detail-card .location-actions{grid-template-columns:1fr}
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7565,30 +7599,112 @@ function getShareTrackingParams(){
       const address = item.address || item.roadAddress || '등록된 주소 정보가 없습니다.';
       const mapUrl = getAiMapUrl(item);
       const dirUrl = getAiDirectionsUrl(item);
-      const hasCoord = Number.isFinite(Number(item.lat ?? item.latitude)) && Number.isFinite(Number(item.lng ?? item.lon ?? item.longitude));
+      const pos = typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
+      const distanceText = pos
+        ? '현재 위치 기준 거리를 준비 중입니다.'
+        : '📍 매장 좌표가 아직 등록되지 않아 주소 기준으로 안내합니다.';
       return `
-        <div class="ai-location-map-card">
-          <div class="ai-location-map-head">
-            <div>
-              <b>📍 ${escapeHtml(name)}</b>
-              <span>${escapeHtml(address)}</span>
-            </div>
-            <em class="ai-location-map-badge">${hasCoord ? '위치 확인' : '주소 기반'}</em>
+        <div class="ai-location-detail-card" data-ai-location-benefit-id="${escapeAttr(item.id || '')}">
+          <div class="location-title"><strong>위치 안내</strong></div>
+          <div class="location-address">${escapeHtml(address)}</div>
+          <div class="detail-map-box">
+            ${pos ? `<div class="detail-map-canvas ai-location-map-canvas" data-ai-map-benefit-id="${escapeAttr(item.id || '')}"></div>` : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}
           </div>
-          <div class="ai-location-map-visual" aria-label="${escapeAttr(name)} 미니지도">
-            <div class="ai-location-map-pin">매장</div>
-            <div class="ai-location-map-dot"></div>
+          <div class="location-distance muted" data-ai-distance-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(distanceText)}</div>
+          <div class="location-actions">
+            <button class="btn btn-soft block" type="button" data-ai-open-benefit-id="${escapeAttr(item.id || '')}">혜택 상세</button>
+            <a class="btn btn-soft block" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">📍 지도 보기</a>
+            <a class="btn btn-primary block" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">🧭 네이버 길찾기</a>
           </div>
-          <div class="ai-location-map-actions">
-            <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id || '')}">혜택 상세</button>
-            <a class="soft" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">길찾기</a>
-            <a class="line" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">네이버지도 열기</a>
-          </div>
+          <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
         </div>`;
     }
 
+    async function renderAiLocationMiniMaps(scope){
+      const root = scope || qs('#aiChatWindow') || document;
+      const mapEls = root.querySelectorAll?.('.ai-location-map-canvas[data-ai-map-benefit-id]') || [];
+      if(!mapEls.length) return;
 
-function buildAiEnhancedAnswerHtml(finalText='', question=''){
+      for(const mapEl of mapEls){
+        if(mapEl.dataset.rendered === 'true') continue;
+        const benefitId = mapEl.dataset.aiMapBenefitId || '';
+        const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
+        const pos = item && typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
+        if(!item || !pos) continue;
+        mapEl.dataset.rendered = 'true';
+
+        try{
+          await loadNaverMapsSdk();
+          const nm = window.naver.maps;
+          const store = new nm.LatLng(pos.lat, pos.lng);
+          const map = new nm.Map(mapEl, {
+            center: store,
+            zoom: 16,
+            zoomControl: false,
+            scrollWheel: false,
+            draggable: true
+          });
+          new nm.Marker({
+            position: store,
+            map,
+            icon: { content: '<div class="map-marker-store">매장</div>', anchor: new nm.Point(20,34) },
+            zIndex: 100
+          });
+
+          const distanceEl = root.querySelector?.(`[data-ai-distance-benefit-id="${CSS.escape(String(benefitId))}"]`);
+          const updateDistance = (currentLocation, cached=false) => {
+            if(!distanceEl || !currentLocation) return;
+            const distance = getDistanceMeters(currentLocation.lat, currentLocation.lng, pos.lat, pos.lng);
+            if(distance > 200000){
+              distanceEl.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+              distanceEl.classList.add('muted');
+              return;
+            }
+            distanceEl.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
+            distanceEl.classList.remove('muted');
+          };
+
+          if(hasFreshUserLocation()){
+            const me = new nm.LatLng(state.userLocation.lat, state.userLocation.lng);
+            new nm.Marker({
+              position: me,
+              map,
+              icon: { content: '<div class="map-marker-user" title="현재 위치"></div>', anchor: new nm.Point(9,9) },
+              zIndex: 120
+            });
+            new nm.Polyline({
+              map,
+              path: [me, store],
+              strokeColor: '#2563eb',
+              strokeWeight: 4,
+              strokeOpacity: .82
+            });
+            const bounds = new nm.LatLngBounds();
+            bounds.extend(me);
+            bounds.extend(store);
+            try{ map.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 }); }catch(_){ map.fitBounds(bounds); }
+            updateDistance(state.userLocation, true);
+          }else if(navigator.geolocation){
+            getReliableCurrentPosition({ forceRefresh:false })
+              .then((currentLocation) => {
+                updateDistance(currentLocation, false);
+                renderAiLocationMiniMaps(root);
+              })
+              .catch(() => {
+                if(distanceEl){
+                  distanceEl.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
+                  distanceEl.classList.add('muted');
+                }
+              });
+          }
+        }catch(error){
+          console.warn('AI 위치 미니지도 렌더링 실패', error);
+          mapEl.innerHTML = '<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
+        }
+      }
+    }
+
+    function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(finalText || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
@@ -7691,6 +7807,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     function bindAiAnswerActions(scope){
       const root = scope || qs('#aiChatWindow');
       if(!root) return;
+      renderAiLocationMiniMaps(root);
       root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
         if(btn.dataset.bound === 'true') return;
         btn.dataset.bound = 'true';
