@@ -7539,7 +7539,7 @@ function getShareTrackingParams(){
 
     function extractAiPhoneCards(finalText=''){
       const source = String(finalText || '');
-      const phonePattern = /(?:0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
+      const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
       const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
       const unique = [...new Set(found)].slice(0, 4);
       return unique.map(phone => {
@@ -7808,12 +7808,39 @@ function getShareTrackingParams(){
       }
     }
 
-    function buildAiEnhancedAnswerHtml(finalText='', question=''){
+    
+    function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[]){
+      if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
+      const found = mappedCards.find(({item}) => item && pickAiPhone(item));
+      if(!found) return '';
+      const item = found.item || {};
+      const phone = String(pickAiPhone(item) || '').trim();
+      const tel = phone.replace(/[^\d]/g, '');
+      if(!tel) return '';
+      return `
+        <div class="ai-phone-card-auto">
+          <div class="ai-phone-icon">☎️</div>
+          <div class="ai-phone-info">
+            <b>${escapeHtml(item.name || item.storeName || item.title || '매장')} 전화번호</b>
+            <span>${escapeHtml(phone)}</span>
+          </div>
+          <a class="ai-phone-call" href="tel:${escapeAttr(tel)}">전화</a>
+        </div>`;
+    }
+
+    function isAiPhoneQuestion(question=''){
+      const q = normalizeAiSearchText(question);
+      return /(전화번호|전화|연락처|번호|콜|통화)/.test(q);
+    }
+
+
+function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(finalText || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
-      const phoneCards = buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
       const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+      const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards) : '';
+      const phoneCards = matchedPhoneCard || buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
       const personalSummary = getAiPersonalSummary();
       const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
       const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
