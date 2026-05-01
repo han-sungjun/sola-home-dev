@@ -2564,6 +2564,39 @@ body.env-prod #view-ai{
 
 /* ===== AI Cloud Run 스트리밍 연결: 대화 기억 버튼 임시 비노출 ===== */
 .ai-memory-toolbar,.ai-conversation-panel{display:none!important}
+
+/* ===== AI 생활도우미 카드: 거리 + 영업시간 + 미니지도 통합 ===== */
+.ai-auto-card-list{display:grid;gap:12px;margin-top:14px}
+.ai-auto-card-list-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 8px;font-size:14px;font-weight:900;color:#0f172a}
+.ai-auto-card-list-title small{font-size:11px;color:#64748b;font-weight:900}
+.ai-auto-card{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border:1px solid #dbeafe;border-radius:22px;padding:16px;box-shadow:0 14px 30px rgba(15,23,42,.08);animation:aiCardRise .24s ease both}
+.ai-auto-card.external{border-color:#bfdbfe}
+.ai-auto-card.internal{border-color:#fed7aa;background:linear-gradient(180deg,#fff7ed 0%,#ffffff 78%)}
+.ai-auto-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ai-auto-card-title{font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;letter-spacing:-.03em}
+.ai-auto-card-sub{margin-top:4px;font-size:12px;font-weight:800;color:#64748b}
+.ai-match-pill{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:12px;font-weight:900}
+.ai-auto-card-desc{margin:12px 0 0;color:#334155;font-size:13px;line-height:1.65}
+.ai-auto-card-address{margin-top:10px;padding:9px 10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;line-height:1.45}
+.ai-auto-tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.ai-auto-tag{display:inline-flex;align-items:center;min-height:25px;padding:6px 9px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:11px;font-weight:900}
+.ai-auto-card-actions{display:flex;gap:8px;margin-top:13px}
+.ai-card-btn{flex:1;min-height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:15px;font-size:13px;font-weight:900;text-decoration:none}
+.ai-card-btn.primary{background:#0f172a;color:#fff}
+.ai-card-btn.soft{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
+.ai-auto-card-status-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.ai-status-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900;border:1px solid #e2e8f0;background:#fff;color:#475569}
+.ai-status-pill.open{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+.ai-status-pill.closed{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
+.ai-card-summary{margin-top:10px;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:800;line-height:1.6;white-space:pre-line}
+.ai-travel-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.ai-travel-chip{padding:8px 8px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;text-align:center;font-size:11px;font-weight:900;color:#334155}
+.ai-travel-chip strong{display:block;font-size:13px;color:#0f172a;margin-top:2px}
+.ai-mini-map{margin-top:12px;border-radius:18px;overflow:hidden;border:1px solid #dbeafe;background:#eff6ff}
+.ai-mini-map iframe{width:100%;height:148px;border:0;display:block}
+.ai-mini-map-fallback{padding:14px;text-align:center;color:#64748b;font-size:12px;font-weight:900}
+@keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7718,7 +7751,134 @@ function getShareTrackingParams(){
       };
     }
 
-    async function askAiAssistant(rawQuestion=''){
+    
+    function normalizeAiCardItem(item){
+      const distanceKm = Number(item.distanceKm);
+      const distanceText = item.distanceText || (
+        Number.isFinite(distanceKm)
+          ? (distanceKm < 1 ? `약 ${Math.round(distanceKm * 1000)}m` : `약 ${distanceKm.toFixed(distanceKm < 10 ? 1 : 0)}km`)
+          : ''
+      );
+
+      return {
+        id: item.id || item.docId || '',
+        name: item.name || item.title || '이름 없음',
+        category: item.category || '기타',
+        description: item.benefitText || item.description || item.summary || item.answer || '등록된 정보를 확인해보세요.',
+        address: item.address || item.roadAddress || '',
+        phone: item.phone || item.telephone || '',
+        link: item.link || item.url || '',
+        sourceType: item.sourceType || '',
+        source: item.source || '',
+        type: item.type || '',
+        tags: item.aiTags || item.tags || [],
+        matchRate: item.matchRate || 80,
+        distanceKm: Number.isFinite(distanceKm) ? distanceKm : null,
+        distanceText,
+        walkMinutes: item.walkMinutes || null,
+        bikeMinutes: item.bikeMinutes || null,
+        carMinutes: item.carMinutes || null,
+        lat: item.lat ?? null,
+        lng: item.lng ?? null,
+        isOpenNow: item.isOpenNow,
+        todayOpenText: item.todayOpenText || item.openingStatus?.todayOpenText || '',
+        openStatusText: item.openStatusText || item.openingStatus?.openStatusText || '',
+        lifeAssistantSummary: item.lifeAssistantSummary || ''
+      };
+    }
+
+    function buildAiMiniMap(item){
+      const lat = Number(item.lat);
+      const lng = Number(item.lng);
+      if(!Number.isFinite(lat) || !Number.isFinite(lng)){
+        return '<div class="ai-mini-map"><div class="ai-mini-map-fallback">좌표 정보가 없어 미니지도를 표시할 수 없습니다.</div></div>';
+      }
+      const q = encodeURIComponent(item.name || item.address || `${lat},${lng}`);
+      const src = `https://maps.google.com/maps?q=${lat},${lng}(${q})&z=16&output=embed`;
+      return `<div class="ai-mini-map"><iframe title="${escapeHtml(item.name)} 미니지도" loading="lazy" src="${src}"></iframe></div>`;
+    }
+
+    function buildNaverMapLink(item){
+      const lat = Number(item.lat);
+      const lng = Number(item.lng);
+      if(Number.isFinite(lat) && Number.isFinite(lng)){
+        return `https://map.naver.com/v5/search/${encodeURIComponent(item.name)}?c=${lng},${lat},16,0,0,0,dh`;
+      }
+      if(item.address || item.name){
+        return `https://map.naver.com/v5/search/${encodeURIComponent(`${item.name || ''} ${item.address || ''}`.trim())}`;
+      }
+      return item.link || '#';
+    }
+
+    function renderAiAutoCard(rawItem){
+      const item = normalizeAiCardItem(rawItem);
+      const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
+      const badges = [isExternal ? '외부 추천' : '입주민 혜택', ...item.tags].filter(Boolean).slice(0, 5);
+      const openKnown = typeof item.isOpenNow === 'boolean' || item.openStatusText || item.todayOpenText;
+      const openClass = item.isOpenNow === true ? 'open' : (item.isOpenNow === false ? 'closed' : '');
+      const openText = item.openStatusText || (item.isOpenNow === true ? '영업 중' : (item.isOpenNow === false ? '영업 전/종료' : '영업시간 확인'));
+
+      const summary = item.lifeAssistantSummary || [
+        item.distanceText ? `현재 위치에서 ${item.distanceText} 거리입니다.` : '',
+        item.walkMinutes ? `도보 약 ${item.walkMinutes}분, 자전거 약 ${item.bikeMinutes || '-'}분, 자동차 약 ${item.carMinutes || '-'}분 정도 소요됩니다.` : '',
+        item.todayOpenText ? `오늘 영업시간은 ${item.todayOpenText}입니다.` : ''
+      ].filter(Boolean).join('\n');
+
+      const mapLink = buildNaverMapLink(item);
+
+      return `
+        <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
+          <div class="ai-auto-card-head">
+            <div>
+              <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
+              <div class="ai-auto-card-sub">${escapeHtml(item.category)}</div>
+            </div>
+            <div class="ai-match-pill">매칭 ${Number(item.matchRate || 80)}%</div>
+          </div>
+
+          <p class="ai-auto-card-desc">${escapeHtml(item.description)}</p>
+
+          <div class="ai-auto-card-status-row">
+            ${openKnown ? `<span class="ai-status-pill ${openClass}">${item.isOpenNow === true ? '🟢' : (item.isOpenNow === false ? '🔴' : 'ℹ️')} ${escapeHtml(openText)}</span>` : ''}
+            ${item.todayOpenText ? `<span class="ai-status-pill">🕒 ${escapeHtml(item.todayOpenText)}</span>` : ''}
+            ${item.distanceText ? `<span class="ai-status-pill">📍 ${escapeHtml(item.distanceText)}</span>` : ''}
+          </div>
+
+          ${summary ? `<div class="ai-card-summary">${escapeHtml(summary)}</div>` : ''}
+
+          ${item.walkMinutes ? `<div class="ai-travel-row">
+            <div class="ai-travel-chip">자동차<strong>${Number(item.carMinutes || 1)}분</strong></div>
+            <div class="ai-travel-chip">자전거<strong>${Number(item.bikeMinutes || 1)}분</strong></div>
+            <div class="ai-travel-chip">도보<strong>${Number(item.walkMinutes || 1)}분</strong></div>
+          </div>` : ''}
+
+          ${item.address ? `<div class="ai-auto-card-address">📍 ${escapeHtml(item.address)}</div>` : ''}
+
+          ${buildAiMiniMap(item)}
+
+          <div class="ai-auto-tag-row">${badges.map(tag => `<span class="ai-auto-tag">${escapeHtml(tag)}</span>`).join('')}</div>
+
+          <div class="ai-auto-card-actions">
+            ${item.phone ? `<a class="ai-card-btn soft" href="tel:${escapeHtml(item.phone)}">전화</a>` : ''}
+            <a class="ai-card-btn soft" href="${escapeHtml(mapLink)}" target="_blank" rel="noopener">지도 열기</a>
+            ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function appendAiRecommendationCards(recommendations = []){
+      const win = qs('#aiChatWindow');
+      if(!win || !Array.isArray(recommendations) || !recommendations.length) return;
+      const row = document.createElement('div');
+      row.className = 'ai-message bot';
+      const count = recommendations.length;
+      row.innerHTML = `<div class="ai-bubble"><div class="ai-auto-card-list-title"><span>자동 매칭 추천 카드</span><small>${count}개 추천</small></div><div class="ai-auto-card-list">${recommendations.slice(0, 6).map(renderAiAutoCard).join('')}</div></div>`;
+      win.appendChild(row);
+      win.scrollTop = win.scrollHeight;
+    }
+
+
+async function askAiAssistant(rawQuestion=''){
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
       const input = qs('#aiQuestionInput');
@@ -7746,6 +7906,7 @@ function getShareTrackingParams(){
           pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
           bindAiAnswerActions(pendingBubble);
         }
+        if(Array.isArray(data?.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
         if(pendingRow) delete pendingRow.dataset.pending;
         window.__AI_LAST_INPUT_MODE = 'text';
         aiConversationTitle = question.slice(0,24) || '새 대화';
