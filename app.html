@@ -7809,7 +7809,16 @@ function getShareTrackingParams(){
     }
 
     
-    function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[]){
+    
+    function isApartmentOfficePhoneQuestion(question=''){
+      const q = normalizeAiSearchText(question);
+      return /(관리사무소|관리실|생활지원센터|사무소|입주지원센터|입주민센터|아파트관리|아파트사무소)/.test(q)
+        && /(전화번호|전화|연락처|번호|문의|콜|통화)/.test(q);
+    }
+
+
+function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
+      if(isApartmentOfficePhoneQuestion(question)) return '';
       if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
       const found = mappedCards.find(({item}) => item && pickAiPhone(item));
       if(!found) return '';
@@ -7838,8 +7847,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(finalText || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
-      const mappedCards = extractAiBenefitCards(cleaned, 4, question);
-      const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards) : '';
+      const mappedCards = isApartmentOfficePhoneQuestion(question) ? [] : extractAiBenefitCards(cleaned, 4, question);
+      const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
       const phoneCards = matchedPhoneCard || buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
       const personalSummary = getAiPersonalSummary();
       const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
