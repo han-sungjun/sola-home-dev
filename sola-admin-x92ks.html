@@ -2215,7 +2215,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
     function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#shareDescription')) qs('#shareDescription').value='';updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');clearOpeningHoursForm();}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
-    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(item.openingHoursManual || item.openingHours||{});setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
+    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(normalizeOpeningHoursForForm(item));setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
@@ -2530,14 +2530,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       ];
       map.forEach(([day,key])=>{
         const raw=openingHours?.[day];
-        const first=Array.isArray(raw) ? raw[0] : (raw || {});
-        if(qs(`#oh${key}Closed`)) qs(`#oh${key}Closed`).checked=!!first?.closed;
-        if(qs(`#oh${key}Open`)) qs(`#oh${key}Open`).value=first?.open || '';
-        if(qs(`#oh${key}Close`)) qs(`#oh${key}Close`).value=first?.close || '';
-        if(qs(`#oh${key}BreakStart`)) qs(`#oh${key}BreakStart`).value=first?.breakStart || '';
-        if(qs(`#oh${key}BreakEnd`)) qs(`#oh${key}BreakEnd`).value=first?.breakEnd || '';
-        if(qs(`#oh${key}LastOrder`)) qs(`#oh${key}LastOrder`).value=first?.lastOrder || '';
-        if(qs(`#oh${key}Note`)) qs(`#oh${key}Note`).value=first?.note || '';
+        const first=Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+        if(qs(`#oh${key}Closed`)) qs(`#oh${key}Closed`).checked=!!(first?.closed || first?.isClosed);
+        if(qs(`#oh${key}Open`)) qs(`#oh${key}Open`).value=first?.open || first?.start || first?.from || '';
+        if(qs(`#oh${key}Close`)) qs(`#oh${key}Close`).value=first?.close || first?.end || first?.to || '';
+        if(qs(`#oh${key}BreakStart`)) qs(`#oh${key}BreakStart`).value=first?.breakStart || first?.break_start || first?.breakFrom || '';
+        if(qs(`#oh${key}BreakEnd`)) qs(`#oh${key}BreakEnd`).value=first?.breakEnd || first?.break_end || first?.breakTo || '';
+        if(qs(`#oh${key}LastOrder`)) qs(`#oh${key}LastOrder`).value=first?.lastOrder || first?.last_order || '';
+        if(qs(`#oh${key}Note`)) qs(`#oh${key}Note`).value=first?.note || first?.memo || '';
       });
     }
 
