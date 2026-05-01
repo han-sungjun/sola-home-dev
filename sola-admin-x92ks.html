@@ -1450,6 +1450,27 @@ body.gnb-open .admin-bottom-nav{
   }
 }
 
+
+/* ===== Admin Opening Hours Force Load + Clean UI ===== */
+.hours-quick-panel{display:block;padding:12px;border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;margin-bottom:12px}
+.hours-quick-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#0f172a;margin-bottom:10px}
+.hours-quick-fields{display:grid;grid-template-columns:repeat(5,minmax(96px,1fr));gap:8px}
+.hours-quick-fields label{display:grid;gap:5px;font-size:12px;font-weight:800;color:#334155}
+.hours-quick-fields input[type=time]{width:100%;min-width:0}
+.hours-grid-advanced .hours-row{display:grid;grid-template-columns:44px 44px repeat(5,minmax(92px,1fr)) minmax(120px,1.2fr);gap:8px;align-items:center}
+.hours-grid-advanced .hours-head{font-size:11px;color:#64748b;font-weight:900}
+.hours-grid-advanced input[type=checkbox]{justify-self:center}
+.hours-grid-advanced .hours-row strong{font-size:12px;color:#334155}
+@media(max-width:760px){
+  .hours-quick-fields{grid-template-columns:1fr 1fr}
+  .hours-grid-advanced .hours-row{grid-template-columns:44px 44px 1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid #eef2f7}
+  .hours-grid-advanced .hours-head{display:none}
+  .hours-grid-advanced .hours-row input[id$=BreakStart],
+  .hours-grid-advanced .hours-row input[id$=BreakEnd],
+  .hours-grid-advanced .hours-row input[id$=LastOrder],
+  .hours-grid-advanced .hours-row input[id$=Note]{grid-column:span 2}
+}
+
 </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -2244,7 +2265,67 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
 
-function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(normalizeOpeningHoursForForm(item));setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
+
+    function readOpeningHoursForEdit(item){
+      const src = item?.openingHoursManual || item?.openingHours || item?.businessHours || {};
+      const days=['mon','tue','wed','thu','fri','sat','sun'];
+      const result={};
+      days.forEach(day=>{
+        const raw=src?.[day];
+        if(!raw) return;
+        const row=Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+        result[day]={
+          closed: !!(row.closed || row.isClosed),
+          open: row.open || row.start || row.from || '',
+          close: row.close || row.end || row.to || '',
+          breakStart: row.breakStart || row.break_start || row.breakFrom || '',
+          breakEnd: row.breakEnd || row.break_end || row.breakTo || '',
+          lastOrder: row.lastOrder || row.last_order || '',
+          note: row.note || row.memo || ''
+        };
+      });
+      return result;
+    }
+
+    function forceSetTimeValue(id, value){
+      const el=document.getElementById(id);
+      if(!el) return;
+      el.value = value || '';
+      el.setAttribute('value', value || '');
+      el.dispatchEvent(new Event('input', { bubbles:true }));
+      el.dispatchEvent(new Event('change', { bubbles:true }));
+    }
+
+    function forceSetCheckValue(id, value){
+      const el=document.getElementById(id);
+      if(!el) return;
+      el.checked = !!value;
+      if(value) el.setAttribute('checked','checked');
+      else el.removeAttribute('checked');
+      el.dispatchEvent(new Event('input', { bubbles:true }));
+      el.dispatchEvent(new Event('change', { bubbles:true }));
+    }
+
+    function forceLoadOpeningHoursToForm(item){
+      const data=readOpeningHoursForEdit(item);
+      const map=[
+        ['mon','Mon'], ['tue','Tue'], ['wed','Wed'], ['thu','Thu'], ['fri','Fri'], ['sat','Sat'], ['sun','Sun']
+      ];
+      map.forEach(([day,key])=>{
+        const row=data?.[day] || {};
+        forceSetCheckValue(`oh${key}Closed`, row.closed);
+        forceSetTimeValue(`oh${key}Open`, row.open);
+        forceSetTimeValue(`oh${key}Close`, row.close);
+        forceSetTimeValue(`oh${key}BreakStart`, row.breakStart);
+        forceSetTimeValue(`oh${key}BreakEnd`, row.breakEnd);
+        forceSetTimeValue(`oh${key}LastOrder`, row.lastOrder);
+        forceSetTimeValue(`oh${key}Note`, row.note);
+      });
+      console.log('[admin] forceLoadOpeningHoursToForm', data);
+    }
+
+
+function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(normalizeOpeningHoursForForm(item));forceLoadOpeningHoursToForm(item);setTimeout(()=>forceLoadOpeningHoursToForm(item),80);setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
