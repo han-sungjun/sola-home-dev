@@ -231,27 +231,32 @@ self.addEventListener("notificationclick", (event) => {
   const noticeId = data.noticeId || "";
   const benefitId = data.benefitId || "";
   const type = data.type || (benefitId ? "benefit" : "");
-  const targetUrl = buildTargetUrl({
+
+  const targetPath = buildTargetUrl({
     url: data.url || "",
     type,
     noticeId,
     benefitId
   });
 
+  const targetUrl = new URL(targetPath || "/app", self.location.origin).href;
+
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then(async (clientList) => {
         for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && "focus" in client) {
+          if (client.url.includes(self.location.origin)) {
             client.postMessage({
-              // app.html 기존 리스너와 맞추기 위해 OPEN_NOTICE 유지
-              // pushType/benefitId/url로 공지와 혜택을 분기합니다.
-              type: "OPEN_NOTICE",
+              type: "OPEN_PUSH_URL",
               pushType: type,
               noticeId,
               benefitId,
               url: targetUrl
             });
+
+            if ("navigate" in client) {
+              await client.navigate(targetUrl);
+            }
 
             return client.focus();
           }
