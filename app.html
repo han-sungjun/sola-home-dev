@@ -914,6 +914,15 @@ body.gnb-open .bottom-nav{
 .location-panel{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.07)}
 .location-panel .location-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .location-panel .location-title strong{font-size:13px;color:var(--muted)}
+
+/* ===== Benefit external links / service options ===== */
+.benefit-extra-panel{display:grid;gap:10px}
+.benefit-extra-links{display:flex;flex-wrap:wrap;gap:8px}
+.benefit-extra-links a{display:inline-flex;align-items:center;gap:6px;padding:9px 11px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:900;text-decoration:none}
+.benefit-extra-services{display:flex;flex-wrap:wrap;gap:8px}
+.benefit-extra-services span{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:#ecfdf5;border:1px solid #bbf7d0;color:#15803d;font-size:12px;font-weight:900}
+.benefit-extra-memo{font-size:13px;color:#475569;line-height:1.6;padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
+
 .location-address{color:#0f172a;line-height:1.65;word-break:keep-all}
 .location-distance{margin-top:10px;padding:10px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:800;line-height:1.45}
 .location-distance.muted{background:#f8fafc;border-color:#e2e8f0;color:#64748b}
@@ -5004,6 +5013,26 @@ async function refreshPushStatus(){
         });
     }
 
+
+    function benefitExtraInfoHtml(item = {}){
+      const links = [
+        ['홈페이지', item.homepageUrl || item.externalLinks?.homepage],
+        ['블로그', item.blogUrl || item.externalLinks?.blog],
+        ['인스타그램', item.instagramUrl || item.externalLinks?.instagram],
+        ['유튜브', item.youtubeUrl || item.externalLinks?.youtube],
+        ['페이스북', item.facebookUrl || item.externalLinks?.facebook]
+      ].filter(([,url]) => String(url || '').trim());
+      const services = [];
+      if(item.deliveryAvailable || item.serviceTags?.delivery) services.push('배달');
+      if(item.takeoutAvailable || item.serviceTags?.takeout) services.push('포장');
+      const memo = String(item.serviceMemo || item.serviceTags?.memo || '').trim();
+      if(!links.length && !services.length && !memo) return '';
+      const linkHtml = links.length ? `<div class="benefit-extra-links">${links.map(([label,url]) => `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">🔗 ${escapeHtml(label)}</a>`).join('')}</div>` : '';
+      const serviceHtml = services.length ? `<div class="benefit-extra-services">${services.map(v => `<span>${escapeHtml(v)}</span>`).join('')}</div>` : '';
+      const memoHtml = memo ? `<div class="benefit-extra-memo">${escapeHtml(memo)}</div>` : '';
+      return `<div class="panel benefit-extra-panel"><strong style="display:block;margin-bottom:2px;font-size:13px;color:var(--muted);">매장 링크 / 이용 옵션</strong>${serviceHtml}${linkHtml}${memoHtml}</div>`;
+    }
+
     function locationPanelHtml(item = {}){
       const address = String(item.address || '').trim();
       const mapLink = buildMapSearchLink(item);
@@ -6786,7 +6815,7 @@ function getShareTrackingParams(){
       increaseStat(item.id, item.name, 'detailViewCount');
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
-      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
       const modal=qs('#detailModal');
       if(modal.open)modal.close();
       modal.showModal();
