@@ -8307,7 +8307,7 @@ function getShareTrackingParams(){
 
     function extractAiPhoneCards(finalText=''){
       const source = String(finalText || '');
-      const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
+      const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|15\d{2}[-.\s]?\d{4}|16\d{2}[-.\s]?\d{4}|18\d{2}[-.\s]?\d{4})/g;
       const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
       const unique = [...new Set(found)].slice(0, 4);
       return unique.map(phone => {
@@ -8317,6 +8317,70 @@ function getShareTrackingParams(){
         else if(/업체|매장|가게|상가|혜택/.test(source)) label = '매장 전화번호';
         return { label, phone, tel: clean };
       });
+    }
+
+    function inferApartmentLifeContactLabel(question='', answer=''){
+      const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+      const groups = [
+        { label:'분양사무소', keys:['분양사무소','분양'] },
+        { label:'승강기 고장 신고', keys:['승강기고장신고','승강기','엘리베이터','고장신고','고장'] },
+        { label:'운정1동 행정복지센터', keys:['운정1동행정복지센터','행정복지센터','주민센터','전입신고','전입'] },
+        { label:'파주교육지원청', keys:['파주교육지원청','교육지원청','교육청','고등학교','중학교','입학'] },
+        { label:'인터넷 가입', keys:['전화인터넷','인터넷가입','인터넷','통신','kt','sk','lg','가입'] },
+        { label:'서울도시가스', keys:['서울도시가스','도시가스','가스'] },
+        { label:'키불출센터', keys:['키불출센터','키불출','키불출센타'] },
+        { label:'입주증센터', keys:['입주증센터','입주증','입주센터'] },
+        { label:'입주지원센터', keys:['입주지원센터','입주민센터','입주센터'] },
+        { label:'A/S센터', keys:['a/s센터','as센터','as','a/s','에이에스','하자','수리'] },
+        { label:'파주시청', keys:['파주시청','시청'] },
+        { label:'관리사무소', keys:['관리사무소','관리실','생활지원센터','아파트관리','아파트사무소','관리'] }
+      ];
+      const found = groups.find(group => group.keys.some(key => q.includes(normalizeAiSearchText(key))));
+      return found?.label || '전화번호';
+    }
+
+    function extractTrustedApartmentLifePhones(question='', answer=''){
+      const source = String(answer || '');
+      const q = normalizeAiSearchText(question);
+      const fullPhonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|15\d{2}[-.\s]?\d{4}|16\d{2}[-.\s]?\d{4}|18\d{2}[-.\s]?\d{4})/g;
+      let phones = [...source.matchAll(fullPhonePattern)].map(m => String(m[0] || '').replace(/[.\s]+/g, '-').trim()).filter(Boolean);
+
+      // 통신사 대표번호처럼 관리자 연락처 필드에 3자리로 등록되는 값만 질문 문맥이 명확할 때 허용합니다.
+      if(/인터넷|통신|kt|sk|lg|가입/.test(q)){
+        phones.push(...([...source.matchAll(/\b(?:100|101|106)\b/g)].map(m => m[0])));
+      }
+      if(/키불출|입주증/.test(q)){
+        phones.push(...([...source.matchAll(/\b109\b/g)].map(m => m[0])));
+      }
+
+      // 주소/동/지번에서 섞일 수 있는 숫자와 불완전 대표번호는 제거합니다.
+      const blockedByQuestion = new Set();
+      if(/관리사무소|관리실|생활지원센터|분양사무소|분양/.test(q)) ['102','109'].forEach(v => blockedByQuestion.add(v));
+      if(/행정복지센터|주민센터|전입/.test(q)) ['1358'].forEach(v => blockedByQuestion.add(v));
+      if(/승강기|엘리베이터|고장/.test(q)) ['128','1577'].forEach(v => blockedByQuestion.add(v));
+
+      phones = phones
+        .map(v => String(v || '').trim())
+        .filter(Boolean)
+        .filter(v => !blockedByQuestion.has(v.replace(/[^\d]/g, '')))
+        .filter(v => {
+          const digits = v.replace(/[^\d]/g, '');
+          if(/^(100|101|106|109)$/.test(digits)) return /인터넷|통신|kt|sk|lg|가입|키불출|입주증/.test(q);
+          return digits.length >= 8;
+        });
+
+      return [...new Set(phones)].slice(0, 4).map(phone => ({
+        label: inferApartmentLifeContactLabel(question, answer),
+        phone,
+        tel: phone.replace(/[^\d]/g, '')
+      }));
+    }
+
+    function buildAiApartmentLifePhoneCardHtml(question='', answer=''){
+      if(!isApartmentLifePhoneQuestion(question)) return '';
+      const cards = extractTrustedApartmentLifePhones(question, answer);
+      if(!cards.length) return '';
+      return buildAiPhoneCardHtml(cards.map(card => ({ ...card, label: `${card.label} 전화번호` })));
     }
 
     function buildAiPhoneCardHtml(cards=[]){
@@ -8621,8 +8685,9 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
       const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
       const mappedCards = isApartmentLifePhoneQuestion(question) ? [] : extractAiBenefitCards(cleaned, 4, question);
-      const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
-      const phoneCards = matchedPhoneCard || buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
+      const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
+      const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
+      const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
       const personalSummary = getAiPersonalSummary();
       const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
       const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
