@@ -1450,6 +1450,150 @@ body.gnb-open .admin-bottom-nav{
   }
 }
 
+
+
+/* ===== Opening Hours Compact Fit Patch 2026-05-02 =====
+   관리자 혜택 등록/수정 화면의 영업시간 표가 잘리지 않도록
+   8개 컬럼을 한 화면에 들어오게 압축합니다. */
+#dailyHoursPanel.hours-quick-panel{
+  padding:10px !important;
+  border-radius:16px !important;
+  overflow:hidden !important;
+}
+#dailyHoursPanel .hours-quick-check{
+  justify-content:center !important;
+  margin-bottom:9px !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+}
+#dailyHoursPanel .hours-quick-fields{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+#dailyHoursPanel .hours-quick-fields label{
+  min-width:0 !important;
+  gap:4px !important;
+  font-size:11px !important;
+  line-height:1.15 !important;
+  white-space:nowrap !important;
+}
+#dailyHoursPanel .hours-quick-fields input[type="time"]{
+  width:100% !important;
+  min-width:0 !important;
+  height:36px !important;
+  padding:0 5px !important;
+  border-radius:13px !important;
+  font-size:11px !important;
+  letter-spacing:-.05em !important;
+}
+#openingHoursGrid.hours-grid-advanced{
+  display:grid !important;
+  gap:7px !important;
+  width:100% !important;
+  max-width:100% !important;
+  overflow:visible !important;
+}
+#openingHoursGrid.hours-grid-advanced .hours-row{
+  display:grid !important;
+  grid-template-columns:24px 34px repeat(5,minmax(0,1fr)) minmax(58px,.9fr) !important;
+  gap:5px !important;
+  align-items:center !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+#openingHoursGrid.hours-grid-advanced .hours-head{
+  display:grid !important;
+  font-size:10px !important;
+  line-height:1.15 !important;
+  letter-spacing:-.05em !important;
+}
+#openingHoursGrid.hours-grid-advanced .hours-row strong,
+#openingHoursGrid.hours-grid-advanced .hours-row span{
+  min-width:0 !important;
+  font-size:10.5px !important;
+  line-height:1.15 !important;
+  letter-spacing:-.05em !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#openingHoursGrid.hours-grid-advanced input[type="checkbox"]{
+  width:14px !important;
+  height:14px !important;
+  margin:0 auto !important;
+  justify-self:center !important;
+}
+#openingHoursGrid.hours-grid-advanced input[type="time"],
+#openingHoursGrid.hours-grid-advanced input[id$="Note"]{
+  width:100% !important;
+  min-width:0 !important;
+  height:38px !important;
+  padding:0 4px !important;
+  border-radius:13px !important;
+  font-size:10.5px !important;
+  letter-spacing:-.06em !important;
+}
+#openingHoursGrid.hours-grid-advanced input[id$="Note"]{
+  padding:0 6px !important;
+  font-size:10px !important;
+}
+.hours-actions{
+  gap:8px !important;
+  margin-top:14px !important;
+}
+.hours-actions .btn{
+  flex:1 1 0 !important;
+  min-width:0 !important;
+  padding:11px 10px !important;
+  font-size:13px !important;
+  white-space:nowrap !important;
+}
+@media(max-width:420px){
+  #dailyHoursPanel .hours-quick-fields{
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:4px !important;
+  }
+  #dailyHoursPanel .hours-quick-fields label{
+    font-size:9.5px !important;
+  }
+  #dailyHoursPanel .hours-quick-fields input[type="time"]{
+    height:32px !important;
+    padding:0 2px !important;
+    font-size:9.5px !important;
+    border-radius:11px !important;
+  }
+  #openingHoursGrid.hours-grid-advanced .hours-row{
+    grid-template-columns:20px 26px repeat(5,minmax(0,1fr)) minmax(44px,.75fr) !important;
+    gap:3px !important;
+    padding:0 !important;
+    border-bottom:none !important;
+  }
+  #openingHoursGrid.hours-grid-advanced .hours-head{
+    display:grid !important;
+  }
+  #openingHoursGrid.hours-grid-advanced .hours-row strong,
+  #openingHoursGrid.hours-grid-advanced .hours-row span{
+    font-size:9px !important;
+  }
+  #openingHoursGrid.hours-grid-advanced input[type="time"],
+  #openingHoursGrid.hours-grid-advanced input[id$="Note"]{
+    height:34px !important;
+    padding:0 2px !important;
+    border-radius:11px !important;
+    font-size:9px !important;
+  }
+  #openingHoursGrid.hours-grid-advanced .hours-row input[id$="BreakStart"],
+  #openingHoursGrid.hours-grid-advanced .hours-row input[id$="BreakEnd"],
+  #openingHoursGrid.hours-grid-advanced .hours-row input[id$="LastOrder"],
+  #openingHoursGrid.hours-grid-advanced .hours-row input[id$="Note"]{
+    grid-column:auto !important;
+  }
+  .hours-actions .btn{
+    font-size:12px !important;
+    padding:10px 8px !important;
+  }
+}
 </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -2194,11 +2338,16 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
+    function getPublicVisibleBenefitsForStats(){
+      return (state.benefits || []).filter(item => item && item.visible !== false);
+    }
+
     function updateStats(){
-      const items=state.benefits;
+      // 관리자 통계는 공개앱에 실제 노출되는 혜택 기준으로 계산합니다.
+      const items=getPublicVisibleBenefitsForStats();
       setTextAll('.stat-count', String(items.length));
-      setTextAll('.stat-max', `${Math.max(0,...items.map(v=>v.discountValue))}%`);
-      setTextAll('.stat-cat', String(new Set(items.map(v=>v.category)).size));
+      setTextAll('.stat-max', `${Math.max(0,...items.map(v=>Number(v.discountValue||0)))}%`);
+      setTextAll('.stat-cat', String(new Set(items.map(v=>v.category||'기타')).size));
       const dashboardBenefitCountEl=qs('#dashboardBenefitCount'); if(dashboardBenefitCountEl) dashboardBenefitCountEl.textContent=`${items.length}건`;
       const benefitListCountEl=qs('#benefitListCount'); if(benefitListCountEl) benefitListCountEl.textContent=`${items.length}건`;
       const dashboardNoticeCountEl=qs('#dashboardNoticeCount'); if(dashboardNoticeCountEl) dashboardNoticeCountEl.textContent=`${state.notices.length}건`;
