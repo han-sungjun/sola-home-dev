@@ -2969,8 +2969,13 @@ body:not(.app-role-root) #view-ai{
           <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
-          <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small></div></div>
+          <div class="ai-message bot"><div class="ai-bubble">안녕하세요 😊
+지금 상황에 맞춰 먼저 도와드릴게요.
+
+👉 오늘 갈 만한 혜택 매장을 추천받아보시겠어요?
+👉 최근 공지나 커뮤니티 위치도 바로 안내해드릴 수 있어요.
+
+<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 검색 대기보다 먼저 선택지를 제안합니다.</small></div></div>
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
           <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
@@ -7299,15 +7304,37 @@ function getShareTrackingParams(){
       });
     }
 
+    function getAiTimePromptLabel(){
+      const hour = new Date().getHours();
+      if(hour >= 5 && hour < 11) return { title:'아침 시간', question:'아침에 가기 좋은 혜택 매장 추천해줘', label:'아침 추천' };
+      if(hour >= 11 && hour < 15) return { title:'점심 시간', question:'점심에 가기 좋은 혜택 매장 TOP3 추천해줘', label:'점심 추천' };
+      if(hour >= 15 && hour < 18) return { title:'오후 시간', question:'오후에 가기 좋은 카페나 혜택 매장 추천해줘', label:'오후 카페' };
+      if(hour >= 18 && hour < 22) return { title:'저녁 시간', question:'저녁에 가기 좋은 맛집 혜택 매장 TOP3 추천해줘', label:'저녁 맛집' };
+      return { title:'야간 시간', question:'지금 확인하면 좋은 공지와 내일 이용 가능한 혜택 알려줘', label:'내일 준비' };
+    }
+
     function getAiWelcomeHtml(){
-      return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small>`;
+      const timePrompt = getAiTimePromptLabel();
+      const topNames = (state.benefits || [])
+        .slice()
+        .sort((a,b) => Number(b.popularScore || b.score || b.detailViewCount || 0) - Number(a.popularScore || a.score || a.detailViewCount || 0))
+        .slice(0, 3)
+        .map(v => v.name)
+        .filter(Boolean);
+      const topHint = topNames.length ? `\n오늘 많이 보는 혜택은 ${topNames.map(escapeHtml).join(' · ')} 쪽이에요.` : '';
+      return `안녕하세요 😊
+현재는 ${escapeHtml(timePrompt.title)}이에요.${topHint}
+
+먼저 필요한 걸 골라보세요. 제가 바로 이어서 추천해드릴게요.
+
+<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(timePrompt.question)}">${escapeHtml(timePrompt.label)}</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">상황별 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 사용자가 묻기 전에 시간·인기·상황 기준으로 먼저 제안합니다.</small>`;
     }
 
     function resetAiChatWindow(){
       const win = qs('#aiChatWindow');
       if(!win) return;
       win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${getAiWelcomeHtml()}</div></div>`;
+      bindAiAnswerActions(win);
       win.scrollTop = win.scrollHeight;
     }
 
@@ -8808,6 +8835,7 @@ async function askAiAssistant(rawQuestion=''){
 
 
     updateAiConversationStatus(aiConversationTitle);
+    resetAiChatWindow();
     qs('#aiAskBtn')?.addEventListener('click', () => askAiAssistant());
     qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
     qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
