@@ -3343,25 +3343,140 @@ body:not(.app-role-root) #view-ai{
 
         function normalizeForegroundPushPayload(payload = {}) {
           const data = payload?.data || {};
+          const benefitId = String(
+            data.benefitId ||
+            data.benefitID ||
+            data.benefitsId ||
+            ((data.type === 'benefit' || data.type === 'proximity') ? data.id : '') ||
+            ''
+          );
+          const noticeId = String(data.noticeId || '');
+          const type = String(data.type || (benefitId ? 'benefit' : (noticeId ? 'notice' : '')) || 'notice');
+          const rawUrl = String(
+            data.url ||
+            data.click_action ||
+            data.clickUrl ||
+            data.link ||
+            payload?.fcmOptions?.link ||
+            payload?.webpush?.fcmOptions?.link ||
+            '/app'
+          );
+
           return {
             title: String(data.title || payload?.notification?.title || '새 알림'),
             body: String(data.body || payload?.notification?.body || ''),
-            url: String(data.url || data.click_action || data.clickUrl || data.link || '/'),
-            noticeId: String(data.noticeId || ''),
+            url: buildForegroundPushUrl({ url: rawUrl, type, noticeId, benefitId }),
+            noticeId,
+            benefitId,
+            type,
             important: String(data.important || '') === 'true'
           };
         }
 
+        function buildForegroundPushUrl({ url = '', type = '', noticeId = '', benefitId = '' } = {}) {
+          const rawUrl = String(url || '').trim();
+          const cleanType = String(type || '').trim().toLowerCase();
+          const cleanNoticeId = String(noticeId || '').trim();
+          const cleanBenefitId = String(benefitId || '').trim();
+
+          if (cleanType === 'ai_nudge' || rawUrl.includes('ai=open')) {
+            return '/app?ai=open';
+          }
+
+          if (cleanBenefitId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
+            return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+          }
+
+          if (cleanNoticeId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
+            return `/app?open=notice&id=${encodeURIComponent(cleanNoticeId)}&from=push`;
+          }
+
+          if (cleanType === 'benefit' && cleanBenefitId && !rawUrl.includes('open=benefit')) {
+            return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+          }
+
+          return rawUrl || '/app';
+        }
+
         function openForegroundPushUrl(url = '/') {
           try {
-            const absoluteUrl = new URL(String(url || '/'), window.location.origin);
+            const absoluteUrl = new URL(String(url || '/app'), window.location.origin);
             if (absoluteUrl.origin !== window.location.origin) {
-              window.location.href = '/';
+              window.location.href = '/app';
               return;
             }
             window.location.href = absoluteUrl.href;
           } catch (_) {
-            window.location.href = '/';
+            window.location.href = '/app';
+          }
+        }
+
+        function isPcBrowserForForegroundNotification() {
+          const ua = String(navigator.userAgent || '').toLowerCase();
+          return !(
+            ua.includes('android') ||
+            ua.includes('iphone') ||
+            ua.includes('ipad') ||
+            ua.includes('mobile') ||
+            ua.includes('samsungbrowser')
+          );
+        }
+
+        function getForegroundPushKey(item = {}) {
+          return [
+            String(item.type || ''),
+            String(item.noticeId || ''),
+            String(item.benefitId || ''),
+            String(item.title || ''),
+            String(item.body || ''),
+            String(item.url || '')
+          ].join('|');
+        }
+
+        function shouldSkipForegroundSystemNotification(item = {}) {
+          const key = getForegroundPushKey(item);
+          const now = Date.now();
+          if (!shouldSkipForegroundSystemNotification.cache) {
+            shouldSkipForegroundSystemNotification.cache = new Map();
+          }
+          const cache = shouldSkipForegroundSystemNotification.cache;
+          const last = cache.get(key) || 0;
+          cache.set(key, now);
+
+          for (const [k, t] of cache.entries()) {
+            if (now - t > 10000) cache.delete(k);
+          }
+
+          return !!(last && now - last < 4000);
+        }
+
+        async function showForegroundSystemNotification(item = {}) {
+          try {
+            if (!isPcBrowserForForegroundNotification()) return;
+            if (!('Notification' in window)) return;
+            if (Notification.permission !== 'granted') return;
+            if (!('serviceWorker' in navigator)) return;
+            if (shouldSkipForegroundSystemNotification(item)) return;
+
+            const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
+            if (!foregroundRegistration?.showNotification) return;
+
+            await foregroundRegistration.showNotification(item.title || '새 알림', {
+              body: item.body || '새로운 알림이 도착했습니다.',
+              icon: '/icons/push-icon.png',
+              badge: '/icons/badge-icon.png',
+              vibrate: item.important ? [160, 80, 160] : undefined,
+              tag: `foreground-${getForegroundPushKey(item)}`,
+              renotify: false,
+              data: {
+                url: item.url || '/app',
+                noticeId: item.noticeId || '',
+                benefitId: item.benefitId || '',
+                type: item.type || 'notice'
+              }
+            });
+          } catch (error) {
+            console.warn('포그라운드 시스템 알림 표시 실패', error);
           }
         }
 
@@ -3424,13 +3539,22 @@ body:not(.app-role-root) #view-ai{
           onMessage(messaging, (payload) => {
             try {
               const item = normalizeForegroundPushPayload(payload);
-              console.log('포그라운드 푸시 수신', payload);
-              // 앱이 열려 있을 때는 app.html에서 추가 알림을 띄우지 않습니다.
-              // 시스템 알림은 firebase-messaging-sw.js 한 곳에서만 처리합니다.
-              // 이중 표시 방지를 위해 showNotification/new Notification/인앱 토스트 호출을 하지 않습니다.
+              console.log('포그라운드 푸시 수신', { payload, item });
+
               if (item.important && navigator.vibrate) {
                 navigator.vibrate([160, 80, 160]);
               }
+
+              // 앱이 열려 있는 포그라운드 상태: 인앱 토스트는 항상 표시합니다.
+              showForegroundPushToast({
+                title: item.title || 'AI 생활도우미',
+                body: item.body || '오늘 추천을 준비했어요 🙂',
+                url: item.url || '/app?ai=open'
+              });
+
+              // PC 브라우저에서는 포그라운드 상태에서도 시스템 알림을 추가 표시합니다.
+              // 모바일은 OS/PWA 제약과 중복 UX를 피하기 위해 인앱 토스트만 사용합니다.
+              showForegroundSystemNotification(item);
             } catch (error) {
               console.error('포그라운드 푸시 처리 실패', error);
             }
