@@ -4543,7 +4543,11 @@ async function refreshPushStatus(){
 
           updateUserChip();
           await refreshPushStatus();
-          setTimeout(() => handleDailyAiNudge().catch(error => console.warn('일 1회 AI 유도 처리 실패:', error)), 900);
+          if(hasAiOpenDeepLink()){
+            setTimeout(() => handleAiOpenDeepLink().catch(error => console.warn('AI 푸시 딥링크 처리 실패:', error)), 500);
+          }else{
+            setTimeout(() => handleDailyAiNudge().catch(error => console.warn('일 1회 AI 유도 처리 실패:', error)), 900);
+          }
 
           const pendingDeepLink = consumePendingDeepLinkSafely();
           if(pendingDeepLink && pendingDeepLink !== location.href){
@@ -7433,6 +7437,56 @@ function getShareTrackingParams(){
       window.__aiDailyNudgeTimer = window.setTimeout(() => hideDailyAiNudgeToast(false), 11000);
     }
 
+    function hasAiOpenDeepLink(){
+      try{
+        const params = new URLSearchParams(location.search || '');
+        return params.get('ai') === 'open' || params.get('open') === 'ai' || params.get('view') === 'ai';
+      }catch(_){
+        return false;
+      }
+    }
+
+    function clearAiOpenDeepLink(){
+      try{
+        const url = new URL(location.href);
+        let changed = false;
+        ['ai','open','view'].forEach((key) => {
+          const value = url.searchParams.get(key);
+          if((key === 'ai' && value === 'open') || (key === 'open' && value === 'ai') || (key === 'view' && value === 'ai')){
+            url.searchParams.delete(key);
+            changed = true;
+          }
+        });
+        if(changed){
+          history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+        }
+      }catch(_){ }
+    }
+
+    async function openAiAssistantFromNudge(source='daily_nudge'){
+      if(!isRootRole()){
+        hideDailyAiNudgeToast(false);
+        await openModalAlert('AI 생활도우미는 현재 관리자 테스트 계정에서만 확인할 수 있습니다.');
+        clearAiOpenDeepLink();
+        return false;
+      }
+      hideDailyAiNudgeToast(false);
+      changeView('ai');
+      setTimeout(() => {
+        resetAiChatWindow({ loadProactive:true });
+        qs('#aiQuestionInput')?.focus?.();
+      }, 80);
+      logPersonalAssistantEvent({ action:'open_ai_assistant', source }).catch(()=>{});
+      clearAiOpenDeepLink();
+      return true;
+    }
+
+    async function handleAiOpenDeepLink(){
+      if(!hasAiOpenDeepLink()) return false;
+      await markDailyAiNudgeShown('push-opened');
+      return openAiAssistantFromNudge('push_deeplink');
+    }
+
     async function handleDailyAiNudge(){
       if(!state.currentUser?.uid) return;
       // 현재 AI 메뉴가 root 전용으로 잠겨 있으므로, 접근 가능한 계정에서만 일 1회 유도 표시
@@ -9015,13 +9069,8 @@ async function askAiAssistant(rawQuestion=''){
 
 
     qs('#aiDailyNudgeOpenBtn')?.addEventListener('click', async () => {
-      hideDailyAiNudgeToast(false);
       await markDailyAiNudgeShown('opened');
-      changeView('ai');
-      setTimeout(() => {
-        resetAiChatWindow();
-        qs('#aiQuestionInput')?.focus?.();
-      }, 80);
+      await openAiAssistantFromNudge('toast');
     });
     qs('#aiDailyNudgeCloseBtn')?.addEventListener('click', async () => {
       hideDailyAiNudgeToast(true);
