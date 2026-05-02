@@ -9266,6 +9266,116 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       return true;
     }
 
+    /* ===== AI 입력 방어: 무의미 문자열 / 특수문자 / 비속어 차단 ===== */
+    const AI_INPUT_GUARD_STORAGE_KEY = `myhills_ai_invalid_input_guard_${ENV || 'prod'}`;
+    const AI_BAD_WORD_PATTERNS = [
+      /시\s*발|씨\s*발|ㅅ\s*ㅂ|ㅆ\s*ㅂ/i,
+      /병\s*신|ㅂ\s*ㅅ/i,
+      /미친|존나|졸라|좆|ㅈ\s*같/i,
+      /개\s*새|개\s*색|꺼져|죽어/i
+    ];
+
+    function getAiInvalidInputGuard(){
+      try{
+        const raw = localStorage.getItem(AI_INPUT_GUARD_STORAGE_KEY);
+        const data = raw ? JSON.parse(raw) : {};
+        const now = Date.now();
+        if(data.lockUntil && Number(data.lockUntil) > now) return data;
+        if(data.lockUntil && Number(data.lockUntil) <= now){
+          localStorage.removeItem(AI_INPUT_GUARD_STORAGE_KEY);
+          return { count:0, lockUntil:0 };
+        }
+        return { count:Number(data.count || 0), lockUntil:0 };
+      }catch(_error){
+        return { count:0, lockUntil:0 };
+      }
+    }
+
+    function saveAiInvalidInputGuard(data={}){
+      try{ localStorage.setItem(AI_INPUT_GUARD_STORAGE_KEY, JSON.stringify(data)); }catch(_error){}
+    }
+
+    function resetAiInvalidInputGuard(){
+      try{ localStorage.removeItem(AI_INPUT_GUARD_STORAGE_KEY); }catch(_error){}
+    }
+
+    function registerAiInvalidInput(){
+      const guard = getAiInvalidInputGuard();
+      const count = Number(guard.count || 0) + 1;
+      const next = { count, lockUntil:0, updatedAt:Date.now() };
+      if(count >= 10){
+        next.lockUntil = Date.now() + (30 * 60 * 1000);
+      }
+      saveAiInvalidInputGuard(next);
+      return next;
+    }
+
+    function validateAiUserInput(text=''){
+      const value = String(text || '').trim();
+      if(!value) return { ok:false, message:'질문을 입력해주세요.' };
+
+      const guard = getAiInvalidInputGuard();
+      if(guard.lockUntil && Number(guard.lockUntil) > Date.now()){
+        const remainMin = Math.max(1, Math.ceil((Number(guard.lockUntil) - Date.now()) / 60000));
+        return { ok:false, locked:true, message:`부적절하거나 의미 없는 입력이 반복되어 AI 질문이 잠시 제한되었습니다. 약 ${remainMin}분 후 다시 이용해주세요.` };
+      }
+
+      if(value.length < 2) return { ok:false, message:'질문을 조금 더 자세히 입력해주세요 🙂' };
+
+      const compact = value.replace(/\s+/g, '');
+      const normalized = compact.toLowerCase()
+        .replace(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~·•]/g, '')
+        .replace(/[0-9]/g, '');
+
+      if(/^[ㄱ-ㅎㅏ-ㅣ]+$/.test(compact)){
+        return { ok:false, message:'자음/모음만 입력된 것 같아요. 정확한 질문으로 입력해주세요 🙂' };
+      }
+
+      if(/^[^가-힣a-zA-Z0-9]+$/.test(compact)){
+        return { ok:false, message:'의미 있는 질문을 입력해주세요 🙂' };
+      }
+
+      if(/(.)\1{4,}/.test(compact)){
+        return { ok:false, message:'반복 문자를 줄이고 질문 형태로 입력해주세요 🙂' };
+      }
+
+      const chars = Array.from(compact);
+      const specialCount = chars.filter(ch => /[^가-힣a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ]/.test(ch)).length;
+      if(chars.length >= 4 && specialCount / chars.length > 0.4){
+        return { ok:false, message:'특수문자가 너무 많습니다. 질문 형태로 입력해주세요 🙂' };
+      }
+
+      const meaningfulCount = chars.filter(ch => /[가-힣a-zA-Z0-9]/.test(ch)).length;
+      const jamoCount = chars.filter(ch => /[ㄱ-ㅎㅏ-ㅣ]/.test(ch)).length;
+      if(chars.length >= 5 && meaningfulCount / chars.length < 0.45 && jamoCount / chars.length > 0.3){
+        return { ok:false, message:'의미를 파악하기 어려운 입력입니다. 다시 질문해주세요 🙂' };
+      }
+
+      if(AI_BAD_WORD_PATTERNS.some(pattern => pattern.test(value) || pattern.test(normalized))){
+        return { ok:false, message:'부적절한 표현은 사용할 수 없습니다 🙏' };
+      }
+
+      return { ok:true, message:'' };
+    }
+
+    async function guardAiUserInputOrAlert(question=''){
+      const result = validateAiUserInput(question);
+      if(result.ok){
+        resetAiInvalidInputGuard();
+        return true;
+      }
+      const guard = result.locked ? getAiInvalidInputGuard() : registerAiInvalidInput();
+      let message = result.message || '정확한 질문을 입력해주세요 🙂';
+      if(!result.locked && guard.count >= 3 && guard.count < 10){
+        message += '\n\n의미 없는 입력이 반복되면 AI 이용이 일시 제한될 수 있습니다.';
+      }
+      if(!result.locked && guard.lockUntil){
+        message = '부적절하거나 의미 없는 입력이 반복되어 AI 질문이 30분 동안 제한되었습니다.';
+      }
+      try{ await openModalAlert(message); }catch(_error){ alert(message); }
+      return false;
+    }
+
 
 async function askAiAssistant(rawQuestion=''){
       if(guardAiAssistantBusy()) return;
@@ -9275,6 +9385,7 @@ async function askAiAssistant(rawQuestion=''){
       const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
       if(!question) return openModalAlert('질문을 입력해주세요.');
+      if(!(await guardAiUserInputOrAlert(question))) return;
       logPersonalAssistantEvent({ action:'ask', question, category: question, source: window.__AI_LAST_INPUT_MODE || 'text' });
 
       if(input) input.value = '';
