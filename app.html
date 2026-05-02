@@ -2767,7 +2767,16 @@ body:not(.app-role-root) #view-ai{
   .ai-location-detail-card .location-actions{grid-template-columns:1fr}
 }
 
-</style>
+
+/* ===== SNS 링크 아이콘 / 클릭 추적 버튼 ===== */
+.benefit-extra-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.benefit-extra-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:900;text-decoration:none;box-shadow:0 6px 14px rgba(15,23,42,.04)}
+.benefit-extra-links a:hover{transform:translateY(-1px);border-color:#bfdbfe;color:#1d4ed8}
+.ai-social-hint{margin-top:10px;padding:10px 11px;border-radius:16px;background:#f8fafc;border:1px solid #dbeafe;color:#334155;font-size:12px;font-weight:800;line-height:1.6}
+.ai-social-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.ai-social-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;color:#1d4ed8;font-size:11px;font-weight:1000;text-decoration:none}
+
+  </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
     @supports (padding-top: constant(safe-area-inset-top)){
@@ -4543,6 +4552,9 @@ async function refreshPushStatus(){
       if(key === 'cardClickCount') return 1;
       if(key === 'favoriteCount') return 3;
       if(key === 'shareClickCount') return 5;
+      if(key === 'smartstoreClickCount') return 4;
+      if(key === 'bandClickCount') return 3;
+      if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount','snsClickCount'].includes(key)) return 2;
       return 0;
     }
 
@@ -4590,6 +4602,8 @@ async function refreshPushStatus(){
     function residentActivityPoints(type = ''){
       const key = String(type || '');
       if(key.includes('share')) return 5;
+      if(key === 'smartstore_click') return 4;
+      if(key === 'band_click') return 3;
       if(key === 'favorite') return 3;
       if(key === 'recommend') return 4;
       if(key === 'hot') return 6;
@@ -5015,22 +5029,64 @@ async function refreshPushStatus(){
     }
 
 
+    const SOCIAL_LINK_DEFS = [
+      { key:'homepage', field:'homepageUrl', label:'홈페이지', icon:'🌐', statField:'homepageClickCount' },
+      { key:'blog', field:'blogUrl', label:'블로그', icon:'📝', statField:'blogClickCount' },
+      { key:'instagram', field:'instagramUrl', label:'인스타그램', icon:'📷', statField:'instagramClickCount' },
+      { key:'youtube', field:'youtubeUrl', label:'유튜브', icon:'▶️', statField:'youtubeClickCount' },
+      { key:'facebook', field:'facebookUrl', label:'페이스북', icon:'f', statField:'facebookClickCount' },
+      { key:'smartstore', field:'smartstoreUrl', label:'스마트스토어', icon:'🛒', statField:'smartstoreClickCount' },
+      { key:'band', field:'bandUrl', label:'밴드', icon:'📢', statField:'bandClickCount' }
+    ];
+
+    function getBenefitSocialLinks(item = {}){
+      const external = item.externalLinks || {};
+      return SOCIAL_LINK_DEFS.map((def) => {
+        const url = String(item[def.field] || external[def.key] || (def.key === 'smartstore' ? external.smartStore : '') || '').trim();
+        return url ? { ...def, url } : null;
+      }).filter(Boolean);
+    }
+
+    function benefitSocialLinksHtml(item = {}, { ai = false } = {}){
+      const links = getBenefitSocialLinks(item);
+      if(!links.length) return '';
+      const cls = ai ? 'ai-social-links' : 'benefit-extra-links';
+      return `<div class="${cls}">${links.map((link) => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener" data-social-link="${escapeAttr(link.key)}" data-social-stat="${escapeAttr(link.statField)}" data-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(link.icon)} ${escapeHtml(link.label)}</a>`).join('')}</div>`;
+    }
+
+    function buildAiSocialHintHtml(item = {}){
+      const links = getBenefitSocialLinks(item);
+      if(!links.length) return '';
+      const labels = links.map(v => v.label);
+      const lead = labels.length === 1
+        ? `${labels[0]} 링크가 등록되어 있습니다.`
+        : `${labels.slice(0, -1).join(', ')}${labels.length > 1 ? ', ' : ''}${labels.at(-1)} 링크가 등록되어 있습니다.`;
+      const bandNote = links.some(v => v.key === 'band') ? ' 밴드에서 공지나 이벤트 소식을 확인하기 좋습니다.' : '';
+      const storeNote = links.some(v => v.key === 'smartstore') ? ' 스마트스토어가 있어 상품 구매 연결도 가능합니다.' : '';
+      const instagramNote = links.some(v => v.key === 'instagram') ? ' 인스타그램에서 사진, 메뉴, 이벤트를 확인할 수 있습니다.' : '';
+      return `<div class="ai-social-hint">${escapeHtml(lead + instagramNote + storeNote + bandNote)}${benefitSocialLinksHtml(item, { ai:true })}</div>`;
+    }
+
+    function bindBenefitSocialLinks(item = {}){
+      qsa('#detailModal [data-social-link]').forEach((link) => {
+        link.addEventListener('click', () => {
+          const key = link.dataset.socialLink || 'sns';
+          const statField = link.dataset.socialStat || 'snsClickCount';
+          increaseStat(item.id, item.name, statField);
+          if(!['smartstoreClickCount','bandClickCount'].includes(statField)) increaseStat(item.id, item.name, 'snsClickCount');
+          logBenefitEvent(item.id, `${key}_click`);
+        });
+      });
+    }
+
     function benefitExtraInfoHtml(item = {}){
-      const links = [
-        ['홈페이지', item.homepageUrl || item.externalLinks?.homepage],
-        ['블로그', item.blogUrl || item.externalLinks?.blog],
-        ['인스타그램', item.instagramUrl || item.externalLinks?.instagram],
-        ['유튜브', item.youtubeUrl || item.externalLinks?.youtube],
-        ['페이스북', item.facebookUrl || item.externalLinks?.facebook],
-        ['스마트스토어', item.smartstoreUrl || item.externalLinks?.smartstore || item.externalLinks?.smartStore],
-        ['밴드', item.bandUrl || item.externalLinks?.band]
-      ].filter(([,url]) => String(url || '').trim());
+      const links = getBenefitSocialLinks(item);
       const services = [];
       if(item.deliveryAvailable || item.serviceTags?.delivery) services.push('배달');
       if(item.takeoutAvailable || item.serviceTags?.takeout) services.push('포장');
       const memo = String(item.serviceMemo || item.serviceTags?.memo || '').trim();
       if(!links.length && !services.length && !memo) return '';
-      const linkHtml = links.length ? `<div class="benefit-extra-links">${links.map(([label,url]) => `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">🔗 ${escapeHtml(label)}</a>`).join('')}</div>` : '';
+      const linkHtml = links.length ? benefitSocialLinksHtml(item) : '';
       const serviceHtml = services.length ? `<div class="benefit-extra-services">${services.map(v => `<span>${escapeHtml(v)}</span>`).join('')}</div>` : '';
       const memoHtml = memo ? `<div class="benefit-extra-memo">${escapeHtml(memo)}</div>` : '';
       return `<div class="panel benefit-extra-panel"><strong style="display:block;margin-bottom:2px;font-size:13px;color:var(--muted);">매장 링크 / 이용 옵션</strong>${serviceHtml}${linkHtml}${memoHtml}</div>`;
@@ -5148,7 +5204,39 @@ async function refreshPushStatus(){
       const lngRaw = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.location?.lng ?? item.location?.lon ?? item.location?.longitude ?? '';
       const lat = Number(latRaw);
       const lng = Number(lngRaw);
-      return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',lat:Number.isFinite(lat)?lat:null,lng:Number.isFinite(lng)?lng:null,service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};
+      return {
+        id,
+        name:item.name||'',
+        category:normalizeCategory(item.category||'기타'),
+        discountValue:Number(item.discountValue||0),
+        discountText:item.discountText||`${Number(item.discountValue||0)}%`,
+        condition:item.condition||'',
+        address:item.address||'',
+        phone:item.phone||'',
+        url:item.url||'',
+        imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',
+        thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.thumbnail||item.photoUrl||item.image||'',
+        homepageUrl:item.homepageUrl||item.externalLinks?.homepage||'',
+        blogUrl:item.blogUrl||item.externalLinks?.blog||'',
+        instagramUrl:item.instagramUrl||item.externalLinks?.instagram||'',
+        youtubeUrl:item.youtubeUrl||item.externalLinks?.youtube||'',
+        facebookUrl:item.facebookUrl||item.externalLinks?.facebook||'',
+        smartstoreUrl:item.smartstoreUrl||item.externalLinks?.smartstore||item.externalLinks?.smartStore||'',
+        bandUrl:item.bandUrl||item.externalLinks?.band||'',
+        deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
+        takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
+        serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
+        directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
+        externalLinks:item.externalLinks||{},
+        serviceTags:item.serviceTags||{},
+        lat:Number.isFinite(lat)?lat:null,
+        lng:Number.isFinite(lng)?lng:null,
+        service:!!item.service||String(item.discountText).trim()==='서비스',
+        visible:item.visible!==false,
+        recommended:!!item.recommended,
+        createdAt:item.createdAt||null,
+        updatedAt:item.updatedAt||null
+      };
     }
     const getFavorites=()=>state.favoriteIds || [];
 
@@ -6838,6 +6926,7 @@ function getShareTrackingParams(){
       qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
       qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
+      bindBenefitSocialLinks(item);
     }
 
     let residentProximityWatchId = null;
@@ -7677,6 +7766,7 @@ function getShareTrackingParams(){
           <div class="location-title"><strong>위치 안내</strong></div>
           <div class="location-address">${escapeHtml(address)}</div>
           ${directionText ? `<div class="location-guide">🧭 ${escapeHtml(directionText)}</div>` : ''}
+          ${buildAiSocialHintHtml(item)}
           <div class="detail-map-box">
             ${pos ? `<div class="detail-map-canvas ai-location-map-canvas" data-ai-map-benefit-id="${escapeAttr(item.id || '')}"></div>` : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}
           </div>
@@ -7916,10 +8006,12 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
             ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
             ${item.address ? `<em>위치 등록</em>` : ''}
             ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+            ${getBenefitSocialLinks(item).length ? `<em>SNS/링크 있음</em>` : ''}
             ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
             ${shouldAttachWeatherTagToItem(item, question, cleaned) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, cleaned))}</em>` : ''}
           </div>
           <div class="ai-personal-reason">추천 기준: ${escapeHtml((reasons || []).join(' · ') || personalSummary)}</div>
+          ${buildAiSocialHintHtml(item)}
           <div class="ai-card-actions">
             <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
             <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
@@ -8021,6 +8113,19 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
             console.error('AI 혜택 딥링크 열기 실패', error);
             openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
           }
+        });
+      });
+      root.querySelectorAll('[data-social-link][data-benefit-id]').forEach(link => {
+        if(link.dataset.aiSocialBound === 'true') return;
+        link.dataset.aiSocialBound = 'true';
+        link.addEventListener('click', () => {
+          const benefitId = link.dataset.benefitId || '';
+          const item = (state.benefits || []).find(v => String(v.id) === String(benefitId)) || { id: benefitId, name: '' };
+          const key = link.dataset.socialLink || 'sns';
+          const statField = link.dataset.socialStat || 'snsClickCount';
+          increaseStat(item.id, item.name, statField);
+          if(!['smartstoreClickCount','bandClickCount'].includes(statField)) increaseStat(item.id, item.name, 'snsClickCount');
+          logBenefitEvent(item.id, `${key}_click`);
         });
       });
       root.querySelectorAll('[data-view-link]').forEach(btn => {
