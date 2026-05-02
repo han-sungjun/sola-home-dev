@@ -2358,7 +2358,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
-    let auth=null,db=null;
+    let auth=null,db=null,storage=null;
     function getPublicVisibleBenefitsForStats(){
       return (state.benefits || []).filter(item => item && item.visible !== false);
     }
