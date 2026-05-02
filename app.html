@@ -2984,7 +2984,71 @@ html, body{overflow-x:hidden;}
   .ai-chat-window{max-height:calc(100dvh - 390px)!important;}
 }
 
-  </style>
+  
+
+/* ===== 모바일 상단 헤더 겹침 방지 패치: AI/설치/메뉴 버튼 3개 대응 ===== */
+@media (max-width:420px){
+  .topbar-right{
+    grid-template-columns:minmax(0,1fr) auto auto !important;
+    gap:7px !important;
+    align-items:center !important;
+    overflow:visible !important;
+  }
+  .topbar-quick-actions{
+    width:auto !important;
+    min-width:max-content !important;
+    flex:0 0 auto !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:7px !important;
+  }
+  .topbar-quick-actions .icon-btn,
+  .gnb-wrap .icon-btn{
+    width:44px !important;
+    height:44px !important;
+    flex:0 0 44px !important;
+    border-radius:17px !important;
+  }
+  .gnb-wrap{
+    width:auto !important;
+    min-width:max-content !important;
+    flex:0 0 auto !important;
+  }
+  .user-chip{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    min-height:52px !important;
+    padding:9px 10px !important;
+    overflow:hidden !important;
+  }
+  .user-avatar{
+    width:34px !important;
+    height:34px !important;
+    border-radius:12px !important;
+  }
+  .user-meta,
+  .user-name,
+  .user-sub{
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}
+@media (max-width:370px){
+  .topbar-right{gap:6px !important;}
+  .topbar-quick-actions{gap:6px !important;}
+  .topbar-quick-actions .icon-btn,
+  .gnb-wrap .icon-btn{
+    width:42px !important;
+    height:42px !important;
+    flex-basis:42px !important;
+  }
+  .user-chip{padding:8px 9px !important;}
+  .user-name{font-size:12px !important;}
+  .user-sub{font-size:10px !important;}
+}
+
+</style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
     @supports (padding-top: constant(safe-area-inset-top)){
