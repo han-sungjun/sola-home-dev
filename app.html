@@ -2453,9 +2453,9 @@ body.app-role-resident [data-view="shareinsights"]{
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
 
-/* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
-body.env-prod [data-view-link="ai"],
-body.env-prod #view-ai{
+/* AI 생활 도우미는 운영 테스트 기간 동안 최고 관리자(root)에게만 표시 */
+body:not(.app-role-root) [data-view-link="ai"],
+body:not(.app-role-root) #view-ai{
   display:none!important;
 }
 
@@ -3810,8 +3810,7 @@ function setPushStatusUi(enabled){
 
     function changeView(nextView){
       if(!nextView) return;
-      if(nextView === 'ai' && ENV !== 'dev'){
-        openModalAlert('기능 준비중 입니다.');
+      if(nextView === 'ai' && !isRootRole()){
         return;
       }
       if(nextView === 'shareinsights' && !isAdminRole()){
@@ -8382,7 +8381,7 @@ async function askAiAssistant(rawQuestion=''){
       }
     }
 
-    function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
+    function updateView(){enforceShareInsightAccess();if(state.view==='ai'&&!isRootRole()) state.view='home';if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
