@@ -2901,7 +2901,7 @@ body:not(.app-role-root) #view-ai{
             </div>
           </div>
           <div class="topbar-quick-actions">
-            <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기">🤖</button>
+            <button class="icon-btn ai-btn hidden" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기">🤖</button>
             <button class="icon-btn" id="installTopBtn" title="앱처럼 설치">📲</button>
           </div>
           <div class="gnb-wrap">
@@ -4012,9 +4012,50 @@ function setPushStatusUi(enabled){
       return getCurrentRoleMeta().role === 'root';
     }
 
+    // AI 생활 도우미는 운영 테스트 기간 동안 최고 관리자(root)에게만 노출합니다.
+    function updateRootOnlyAiAccess(roleMeta = getCurrentRoleMeta()){
+      const isRoot = roleMeta?.role === 'root';
+
+      qsa('[data-view-link="ai"]').forEach((el) => {
+        el.classList.toggle('hidden', !isRoot);
+        el.setAttribute('aria-hidden', isRoot ? 'false' : 'true');
+
+        if('disabled' in el){
+          el.disabled = !isRoot;
+        }
+
+        if(isRoot){
+          if(el.dataset.prevTabIndex !== undefined){
+            const prev = el.dataset.prevTabIndex;
+            if(prev === '') el.removeAttribute('tabindex');
+            else el.setAttribute('tabindex', prev);
+            delete el.dataset.prevTabIndex;
+          }else if(el.getAttribute('tabindex') === '-1'){
+            el.removeAttribute('tabindex');
+          }
+        }else{
+          if(el.dataset.prevTabIndex === undefined){
+            el.dataset.prevTabIndex = el.getAttribute('tabindex') || '';
+          }
+          el.setAttribute('tabindex', '-1');
+        }
+      });
+
+      const aiView = qs('#view-ai');
+      if(aiView){
+        aiView.classList.toggle('hidden', !isRoot);
+        aiView.setAttribute('aria-hidden', isRoot ? 'false' : 'true');
+      }
+
+      if(!isRoot && state.view === 'ai'){
+        state.view = 'home';
+      }
+    }
+
     function applyBodyRoleClass(roleMeta = getCurrentRoleMeta()){
       document.body.classList.remove('app-role-root','app-role-admin','app-role-resident');
       document.body.classList.add(`app-role-${roleMeta.role || 'resident'}`);
+      updateRootOnlyAiAccess(roleMeta);
     }
 
     function enforceShareInsightAccess(){
@@ -4028,6 +4069,7 @@ function setPushStatusUi(enabled){
     function changeView(nextView){
       if(!nextView) return;
       if(nextView === 'ai' && !isRootRole()){
+        openModalAlert('AI 생활 도우미는 현재 최고 관리자 계정에서만 테스트 중입니다.');
         return;
       }
       if(nextView === 'shareinsights' && !isAdminRole()){
@@ -9797,7 +9839,7 @@ window.addEventListener("load", handlePushDeepLink);
     (function initAiQuickButtonHint(){
       try{
         const aiBtn = document.getElementById('aiQuickBtn');
-        if(!aiBtn) return;
+        if(!aiBtn || aiBtn.classList.contains('hidden') || !document.body.classList.contains('app-role-root')) return;
         const todayKey = 'aiQuickHintShown:' + new Date().toISOString().slice(0,10);
         if(localStorage.getItem(todayKey)) return;
         aiBtn.style.animation = 'aiPulse 1.25s ease-in-out infinite';
