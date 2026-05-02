@@ -2466,6 +2466,50 @@ body.app-role-resident [data-view="shareinsights"]{
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
 
+
+
+/* ===== AI 응답 중 입력 경로 잠금 UX ===== */
+.ai-busy .ai-quick-btn,
+.ai-busy .ai-dialog-action-btn,
+.ai-busy .ai-voice-btn,
+.ai-busy #aiAskBtn,
+.ai-busy #aiQuestionInput,
+.ai-locked-control,
+.ai-quick-btn:disabled,
+.ai-dialog-action-btn:disabled,
+.ai-voice-btn:disabled,
+#aiAskBtn:disabled,
+#aiQuestionInput:disabled{
+  opacity:.48!important;
+  cursor:not-allowed!important;
+  filter:grayscale(.18);
+}
+.ai-busy .ai-quick-btn,
+.ai-busy .ai-dialog-action-btn,
+.ai-busy .ai-voice-btn{
+  pointer-events:none;
+}
+#aiQuestionInput:disabled{
+  background:#f8fafc!important;
+  color:#94a3b8!important;
+}
+.ai-busy-note{
+  display:none;
+  align-items:center;
+  gap:6px;
+  width:max-content;
+  max-width:100%;
+  padding:8px 11px;
+  border-radius:999px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+  font-size:11px;
+  font-weight:1000;
+  line-height:1;
+}
+.ai-busy .ai-busy-note{display:inline-flex;}
+
 /* AI 생활 도우미는 운영 테스트 기간 동안 최고 관리자(root)에게만 표시 */
 body:not(.app-role-root) [data-view-link="ai"],
 body:not(.app-role-root) #view-ai{
@@ -3010,6 +3054,7 @@ body:not(.app-role-root) #view-ai{
           <button class="ai-quick-btn" type="button" data-ai-question="커뮤니티 메뉴는 어떻게 들어가?">커뮤니티 메뉴는?</button>
           <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
         </div>
+        <div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요 😊
 지금 상황에 맞춰 먼저 도와드릴게요.
@@ -7410,22 +7455,22 @@ function getShareTrackingParams(){
     function getAiWaitingMessage(question=''){
       const q = String(question || '').replace(/\s+/g, ' ').trim();
       if(/영업시간|영업\s*중|열었|닫았|오픈|마감/.test(q)) return '매장 영업시간을 확인하고 있어요.';
-      if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '내부 혜택 데이터를 확인하고 있어요.';
-      if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '등록된 안내 정보를 확인하고 있어요.';
-      return '검색 중입니다.';
+      if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '혜택 정보를 확인하고 있어요.';
+      if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
+      return '답변을 준비하고 있어요.';
     }
 
-    function buildAiThinkingHtml(message='검색 중입니다.', subText='잠시만 기다려주세요.'){
+    function buildAiThinkingHtml(message='답변을 준비하고 있어요.', subText='잠시만 기다려주세요.'){
       return `<div class="ai-thinking" role="status" aria-live="polite"><span class="ai-typing-indicator" aria-label="AI가 답변을 준비 중입니다"><span></span><span></span><span></span></span><span class="ai-thinking-text">${escapeHtml(message)}${subText ? `<small>${escapeHtml(subText)}</small>` : ''}</span></div>`;
     }
 
-    function setAiThinkingMessage(pendingBubble, message='검색 중입니다.', subText='잠시만 기다려주세요.'){
+    function setAiThinkingMessage(pendingBubble, message='답변을 준비하고 있어요.', subText='잠시만 기다려주세요.'){
       if(!pendingBubble) return;
       pendingBubble.innerHTML = buildAiThinkingHtml(message, subText);
     }
 
     function createAiTypingBubble(question=''){
-      return appendAiMessage('bot', buildAiThinkingHtml(getAiWaitingMessage(question), '서버 응답을 기다리는 중입니다.'), { pending:true });
+      return appendAiMessage('bot', buildAiThinkingHtml(getAiWaitingMessage(question), '조금만 기다려주세요. 곧 답변드릴게요.'), { pending:true });
     }
 
     function normalizeAiAnswerHtml(html=''){
@@ -8509,7 +8554,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
               benefitId: btn.dataset.aiLogBenefitId || '',
               source: btn.dataset.aiLogSource || 'dialog_button'
             });
-            askAiAssistant(question);
+            if(!guardAiAssistantBusy()) askAiAssistant(question);
           }
         });
       });
@@ -8696,6 +8741,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     }
 
     async function startAiVoiceRecognition(){
+      if(guardAiAssistantBusy()) return;
       const VoiceAPI = getSpeechRecognition();
       if(!VoiceAPI){
         setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.', false);
@@ -8743,7 +8789,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
         return;
       }
       setAiVoiceStatus('버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.');
-      btn.addEventListener('click', startAiVoiceRecognition);
+      btn.addEventListener('click', () => { if(!guardAiAssistantBusy()) startAiVoiceRecognition(); });
     }
 
     initAiVoiceInput();
@@ -8920,7 +8966,57 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     }
 
 
+
+    /* ===== AI 응답 중 전체 입력 경로 잠금 ===== */
+    let aiAssistantBusy = false;
+    const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?';
+
+    function setAiControlDisabled(selector, disabled){
+      qsa(selector).forEach((el) => {
+        if(!el) return;
+        el.disabled = !!disabled;
+        el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+        el.classList.toggle('ai-locked-control', !!disabled);
+      });
+    }
+
+    function setAiAssistantBusy(isBusy){
+      aiAssistantBusy = !!isBusy;
+      const aiView = qs('#view-ai');
+      aiView?.classList.toggle('ai-busy', aiAssistantBusy);
+
+      setAiControlDisabled('#aiQuickRow .ai-quick-btn, [data-ai-dialog-question]', aiAssistantBusy);
+      setAiControlDisabled('#aiAskBtn', aiAssistantBusy);
+      setAiControlDisabled('#aiVoiceBtn', aiAssistantBusy);
+
+      const input = qs('#aiQuestionInput');
+      if(input){
+        input.disabled = aiAssistantBusy;
+        input.setAttribute('aria-disabled', aiAssistantBusy ? 'true' : 'false');
+        input.classList.toggle('ai-locked-control', aiAssistantBusy);
+        input.placeholder = aiAssistantBusy ? 'AI가 답변을 준비 중입니다...' : AI_QUESTION_PLACEHOLDER;
+      }
+
+      const askBtn = qs('#aiAskBtn');
+      if(askBtn) askBtn.textContent = aiAssistantBusy ? '작성중' : '질문';
+
+      const busyNote = qs('#aiBusyNote');
+      if(busyNote) busyNote.textContent = aiAssistantBusy ? '답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.' : '';
+    }
+
+    function isAiAssistantBusy(){
+      return !!aiAssistantBusy;
+    }
+
+    function guardAiAssistantBusy(){
+      if(!isAiAssistantBusy()) return false;
+      try{ openModalAlert('AI가 답변을 준비 중입니다. 잠시만 기다려주세요.'); }catch(_error){}
+      return true;
+    }
+
+
 async function askAiAssistant(rawQuestion=''){
+      if(guardAiAssistantBusy()) return;
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
       const input = qs('#aiQuestionInput');
@@ -8930,7 +9026,7 @@ async function askAiAssistant(rawQuestion=''){
       logPersonalAssistantEvent({ action:'ask', question, category: question, source: window.__AI_LAST_INPUT_MODE || 'text' });
 
       if(input) input.value = '';
-      if(btn){ btn.disabled = true; btn.textContent = '작성중'; }
+      setAiAssistantBusy(true);
       appendAiMessage('user', escapeHtml(question));
       const pendingRow = createAiTypingBubble(question);
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
@@ -8938,8 +9034,8 @@ async function askAiAssistant(rawQuestion=''){
       let aiWaitTimer1 = null;
       let aiWaitTimer2 = null;
       try{
-        aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '내부 DB와 추천 조건을 정리하는 중입니다.'), 4500);
-        aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '응답이 평소보다 오래 걸리고 있어요.', '크롤링/거리 계산이 포함되면 시간이 더 걸릴 수 있습니다.'), 10000);
+        aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '필요한 정보를 정리하는 중입니다.'), 4500);
+        aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '답변이 평소보다 조금 더 걸리고 있어요.', '정확한 안내를 위해 한 번 더 확인하고 있습니다.'), 10000);
         const streamRenderer = createAiStreamRenderer(pendingBubble, question);
         await callAiStreamServer(question, {
           onChunk: (chunk) => {
@@ -8965,7 +9061,7 @@ async function askAiAssistant(rawQuestion=''){
         if(pendingBubble) pendingBubble.innerHTML = '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
         else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = '질문'; }
+        setAiAssistantBusy(false);
       }
     }
 
@@ -9192,7 +9288,7 @@ async function askAiAssistant(rawQuestion=''){
 
     updateAiConversationStatus(aiConversationTitle);
     resetAiChatWindow();
-    qs('#aiAskBtn')?.addEventListener('click', () => askAiAssistant());
+    qs('#aiAskBtn')?.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(); });
     qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
     qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
     qs('#aiCloseConversationListBtn')?.addEventListener('click', () => qs('#aiConversationPanel')?.classList.remove('show'));
@@ -9200,11 +9296,11 @@ async function askAiAssistant(rawQuestion=''){
     qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
       if(event.key === 'Enter'){
         event.preventDefault();
-        askAiAssistant();
+        if(!guardAiAssistantBusy()) askAiAssistant();
       }
     });
     qsa('[data-ai-question]').forEach(btn => {
-      btn.addEventListener('click', () => askAiAssistant(btn.dataset.aiQuestion || btn.textContent || ''));
+      btn.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(btn.dataset.aiQuestion || btn.textContent || ''); });
     });
 
 
