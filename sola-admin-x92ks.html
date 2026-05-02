@@ -1881,7 +1881,7 @@ body.gnb-open .admin-bottom-nav{
     })();
     globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
-    const { mountIdleTimer } = await import(__solaNoCache("./tracking_activity_v1.js"));
+    const { mountIdleTimer } = await import(__solaNoCache("./tracking.js"));
     const { ENV, FIREBASE_CONFIG, API_URL } = await import(__solaNoCache("./env-config.js"));
 
     const envBadge = document.getElementById('envBadge');
@@ -4478,7 +4478,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     })();
     globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
-    const { renderAdminStatsUI } = await import(__solaNoCache("./tracking_activity_v1.js"));
+    const { renderAdminStatsUI } = await import(__solaNoCache("./tracking.js"));
 
     async function refreshAdminStatsUI(){
       await renderAdminStatsUI({
@@ -4500,7 +4500,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
   })();
   globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
   const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
-  const { saveVisit } = await import(__solaNoCache("./tracking_activity_v1.js"));
+  const { saveVisit } = await import(__solaNoCache("./tracking.js"));
   saveVisit("admin_page");
 </script>
 
