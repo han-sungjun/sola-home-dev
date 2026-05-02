@@ -7986,7 +7986,8 @@ function getShareTrackingParams(){
       const render = (force=false) => {
         if(!targetBubble) return;
         const formatted = formatAiStreamingText(rawText);
-        const cards = mapAiBenefitsForQuestion(question, formatted, 3);
+        const isApartmentPhone = isApartmentLifePhoneQuestion(question);
+        const cards = isApartmentPhone ? [] : mapAiBenefitsForQuestion(question, formatted, 3);
         const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
         if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
         lastRendered = formatted;
@@ -8013,8 +8014,8 @@ function getShareTrackingParams(){
         targetBubble.innerHTML = `
           <div class="ai-stream-shell">
             <div class="ai-stream-status">
-              <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>AI가 답변을 작성하면서 혜택을 매칭 중입니다</span>
-              <span>${cards.length ? '추천 카드 준비 완료' : '답변 준비 중'}</span>
+              <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>${isApartmentPhone ? '아파트 생활 연락처를 확인하고 있습니다' : 'AI가 답변을 작성하면서 혜택을 매칭 중입니다'}</span>
+              <span>${isApartmentPhone ? '생활정보 확인 중' : (cards.length ? '추천 카드 준비 완료' : '답변 준비 중')}</span>
             </div>
             <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
             ${liveCards}
@@ -8339,6 +8340,26 @@ function getShareTrackingParams(){
       return found?.label || '전화번호';
     }
 
+
+    const APARTMENT_LIFE_CONTACT_FALLBACKS = [
+      { label:'서울도시가스', keys:['서울도시가스','도시가스','가스'], phones:['1588-5788','031-946-7229'] },
+      { label:'파주시청', keys:['파주시청','시청'], phones:['031-940-4114'] },
+      { label:'입주증센터', keys:['입주증센터','입주증'], phones:['031-937-8671'] },
+      { label:'승강기 고장 신고', keys:['승강기고장신고','승강기','엘리베이터','고장신고','고장'], phones:['1577-0603'] },
+      { label:'A/S센터', keys:['a/s센터','as센터','as','a/s','에이에스','하자','수리'], phones:['031-937-8681'] },
+      { label:'관리사무소', keys:['관리사무소','관리실','생활지원센터','아파트관리','아파트사무소'], phones:['031-949-1212'] },
+      { label:'파주교육지원청', keys:['파주교육지원청','교육지원청','교육청','고등학교','중학교','입학'], phones:['031-940-7114'] },
+      { label:'인터넷 가입', keys:['전화인터넷','인터넷가입','인터넷','통신','kt','sk','lg','가입'], phones:['100','106','101'] },
+      { label:'키불출센터', keys:['키불출센터','키불출','키불출센타'], phones:['031-937-8670'] },
+      { label:'분양사무소', keys:['분양사무소','분양'], phones:['031-941-0331'] },
+      { label:'운정1동 행정복지센터', keys:['운정1동행정복지센터','운정1동','행정복지센터','주민센터','전입신고','전입'], phones:['031-820-7703'] }
+    ];
+
+    function getApartmentLifeFallbackContact(question='', answer=''){
+      const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+      return APARTMENT_LIFE_CONTACT_FALLBACKS.find(row => row.keys.some(key => q.includes(normalizeAiSearchText(key)))) || null;
+    }
+
     function extractTrustedApartmentLifePhones(question='', answer=''){
       const source = String(answer || '');
       const q = normalizeAiSearchText(question);
@@ -8378,7 +8399,12 @@ function getShareTrackingParams(){
 
     function buildAiApartmentLifePhoneCardHtml(question='', answer=''){
       if(!isApartmentLifePhoneQuestion(question)) return '';
-      const cards = extractTrustedApartmentLifePhones(question, answer);
+      let cards = extractTrustedApartmentLifePhones(question, answer);
+      const fallback = getApartmentLifeFallbackContact(question, answer);
+      // 답변 본문에서 전화번호를 못 잡았거나, 질문 명칭과 카드 라벨이 어긋나면 관리자 기준 fallback을 우선합니다.
+      if(fallback && (!cards.length || !cards.some(card => normalizeAiSearchText(card.label).includes(normalizeAiSearchText(fallback.label))))){
+        cards = fallback.phones.map(phone => ({ label: fallback.label, phone, tel: String(phone).replace(/[^\d]/g,'') }));
+      }
       if(!cards.length) return '';
       return buildAiPhoneCardHtml(cards.map(card => ({ ...card, label: `${card.label} 전화번호` })));
     }
@@ -8683,8 +8709,18 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+      const isApartmentPhone = isApartmentLifePhoneQuestion(question);
+      const apartmentOnlyPhoneCard = isApartmentPhone ? buildAiApartmentLifePhoneCardHtml(question, cleaned) : '';
+      if(isApartmentPhone){
+        return `
+        <div class="ai-answer ai-answer-upgrade apartment-life-answer">
+          <div class="ai-answer-summary">${safe}</div>
+          ${apartmentOnlyPhoneCard}
+          <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
+        </div>`;
+      }
       const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
-      const mappedCards = isApartmentLifePhoneQuestion(question) ? [] : extractAiBenefitCards(cleaned, 4, question);
+      const mappedCards = extractAiBenefitCards(cleaned, 4, question);
       const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
       const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
       const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
