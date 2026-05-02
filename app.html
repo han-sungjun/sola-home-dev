@@ -3047,6 +3047,9 @@ body:not(.app-role-root) #view-ai{
       prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
     };
     const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
+    const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
+    const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
+    const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
     const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
     let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
     let aiConversationTitle = '새 대화';
@@ -7313,6 +7316,68 @@ function getShareTrackingParams(){
       return { title:'야간 시간', question:'지금 확인하면 좋은 공지와 내일 이용 가능한 혜택 알려줘', label:'내일 준비' };
     }
 
+    async function getAiIdTokenSafe(){
+      try{
+        return state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+      }catch(error){
+        console.warn('AI ID 토큰 생성 실패:', error);
+        return '';
+      }
+    }
+
+    function buildProactiveAiHtml(data={}){
+      const message = String(data.message || '').trim() || getAiWelcomeHtml();
+      const buttons = Array.isArray(data.buttons) ? data.buttons : [];
+      const recs = Array.isArray(data.recommendations) ? data.recommendations : [];
+      const insight = data.insight || {};
+      const buttonHtml = buttons.length ? `<div class="ai-dialog-action-row" aria-label="개인형 AI 추천 버튼">${buttons.map(btn => {
+        const label = typeof btn === 'string' ? btn : (btn.label || btn.text || '추천');
+        const question = typeof btn === 'string' ? btn : (btn.question || btn.value || label);
+        const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
+        return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-server" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
+      }).join('')}</div>` : '';
+      const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>서버 맞춤 추천 후보</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
+      const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
+      return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">서버 판단형 개인 비서 AI${insightText ? ` · ${escapeHtml(insightText)}` : ''}</span></div>`;
+    }
+
+    async function logPersonalAssistantEvent(payload={}){
+      if(!AI_ASSISTANT_LOG_URL) return;
+      try{
+        const idToken = await getAiIdTokenSafe();
+        await fetch(AI_ASSISTANT_LOG_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          body: JSON.stringify({ env: ENV, ...payload })
+        });
+      }catch(error){
+        console.warn('개인형 AI 로그 저장 실패:', error);
+      }
+    }
+
+    async function loadServerProactiveWelcome(){
+      const win = qs('#aiChatWindow');
+      if(!win || !AI_PROACTIVE_URL) return false;
+      try{
+        const idToken = await getAiIdTokenSafe();
+        const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext('개인형 비서 선제 추천') : {};
+        const response = await fetch(AI_PROACTIVE_URL, {
+          method:'POST',
+          headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          body: JSON.stringify({ env: ENV, pageContext, context: pageContext })
+        });
+        const data = await response.json().catch(()=>({}));
+        if(!response.ok || data.ok === false) throw new Error(data.message || '선제 추천 호출 실패');
+        win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${buildProactiveAiHtml(data)}</div></div>`;
+        bindAiAnswerActions(win);
+        win.scrollTop = win.scrollHeight;
+        return true;
+      }catch(error){
+        console.warn('서버 판단형 개인 비서 AI 로드 실패:', error);
+        return false;
+      }
+    }
+
     function getAiWelcomeHtml(){
       const timePrompt = getAiTimePromptLabel();
       const topNames = (state.benefits || [])
@@ -7330,12 +7395,14 @@ function getShareTrackingParams(){
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(timePrompt.question)}">${escapeHtml(timePrompt.label)}</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">상황별 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 사용자가 묻기 전에 시간·인기·상황 기준으로 먼저 제안합니다.</small>`;
     }
 
-    function resetAiChatWindow(){
+    function resetAiChatWindow(options={}){
+      const loadProactive = options.loadProactive !== false;
       const win = qs('#aiChatWindow');
       if(!win) return;
       win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${getAiWelcomeHtml()}</div></div>`;
       bindAiAnswerActions(win);
       win.scrollTop = win.scrollHeight;
+      if(loadProactive) loadServerProactiveWelcome();
     }
 
     function updateAiConversationStatus(title){
@@ -8155,7 +8222,17 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
           event.preventDefault();
           event.stopPropagation();
           const question = btn.dataset.aiDialogQuestion || btn.textContent || '';
-          if(question) askAiAssistant(question);
+          if(question){
+            logPersonalAssistantEvent({
+              action:'proactive_button_click',
+              question,
+              buttonLabel: btn.textContent || '',
+              category: btn.dataset.aiLogCategory || btn.textContent || '',
+              benefitId: btn.dataset.aiLogBenefitId || '',
+              source: btn.dataset.aiLogSource || 'dialog_button'
+            });
+            askAiAssistant(question);
+          }
         });
       });
       requestAnimationFrame(()=>renderAiLocationMiniMaps(root)); setTimeout(()=>renderAiLocationMiniMaps(root), 300); setTimeout(()=>renderAiLocationMiniMaps(root), 900);
@@ -8207,7 +8284,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     }
 
     function renderAiConversationMessages(messages = []){
-      resetAiChatWindow();
+      resetAiChatWindow({ loadProactive:false });
       const win = qs('#aiChatWindow');
       if(!win) return;
       messages.forEach((msg) => {
@@ -8572,6 +8649,7 @@ async function askAiAssistant(rawQuestion=''){
       const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
       if(!question) return openModalAlert('질문을 입력해주세요.');
+      logPersonalAssistantEvent({ action:'ask', question, category: question, source: window.__AI_LAST_INPUT_MODE || 'text' });
 
       if(input) input.value = '';
       if(btn){ btn.disabled = true; btn.textContent = '작성중'; }
