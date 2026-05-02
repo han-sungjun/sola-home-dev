@@ -5022,7 +5022,8 @@ async function refreshPushStatus(){
         ['인스타그램', item.instagramUrl || item.externalLinks?.instagram],
         ['유튜브', item.youtubeUrl || item.externalLinks?.youtube],
         ['페이스북', item.facebookUrl || item.externalLinks?.facebook],
-        ['스마트스토어', item.smartstoreUrl || item.externalLinks?.smartstore || item.externalLinks?.smartStore]
+        ['스마트스토어', item.smartstoreUrl || item.externalLinks?.smartstore || item.externalLinks?.smartStore],
+        ['밴드', item.bandUrl || item.externalLinks?.band]
       ].filter(([,url]) => String(url || '').trim());
       const services = [];
       if(item.deliveryAvailable || item.serviceTags?.delivery) services.push('배달');
