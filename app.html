@@ -7986,7 +7986,7 @@ function getShareTrackingParams(){
       const render = (force=false) => {
         if(!targetBubble) return;
         const formatted = formatAiStreamingText(rawText);
-        const isApartmentPhone = isApartmentLifePhoneQuestion(question, cleaned);
+        const isApartmentPhone = isApartmentLifePhoneQuestion(question, formatted);
         const cards = isApartmentPhone ? [] : mapAiBenefitsForQuestion(question, formatted, 3);
         const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
         if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
