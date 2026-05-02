@@ -2778,6 +2778,47 @@ body:not(.app-role-root) #view-ai{
 .ai-social-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 .ai-social-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;color:#1d4ed8;font-size:11px;font-weight:1000;text-decoration:none}
 
+
+
+/* ===== AI 상단 바로가기 버튼: 홈은 깔끔하게, AI는 언제든 호출 ===== */
+.topbar-quick-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;
+}
+.ai-btn{
+  position:relative;
+  font-size:18px;
+  transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.ai-btn:hover{
+  transform:translateY(-2px);
+}
+.ai-btn:active{
+  transform:scale(.98);
+}
+.ai-btn::after{
+  content:"";
+  position:absolute;
+  top:5px;
+  right:7px;
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:#22c55e;
+  box-shadow:0 0 8px rgba(34,197,94,.62);
+}
+@keyframes aiPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+}
+@media (max-width:420px){
+  .topbar-quick-actions{gap:7px}
+  .topbar-quick-actions .icon-btn{width:44px;height:44px;flex:0 0 44px}
+  .user-chip{max-width:calc(100vw - 198px) !important;}
+}
+
   </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -2789,7 +2830,7 @@ body:not(.app-role-root) #view-ai{
     body > .wrap{padding-top:var(--myhills-safe-area-top)}
     body > .box{margin-top:var(--myhills-safe-area-top)}
     .topbar-userbar{min-width:0}
-    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
+    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 198px))}
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   </style>
 
@@ -2816,6 +2857,7 @@ body:not(.app-role-root) #view-ai{
             </div>
           </div>
           <div class="topbar-quick-actions">
+            <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기">🤖</button>
             <button class="icon-btn" id="installTopBtn" title="앱처럼 설치">📲</button>
           </div>
           <div class="gnb-wrap">
@@ -2859,9 +2901,7 @@ body:not(.app-role-root) #view-ai{
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
       </div>
-      <button class="panel ai-entry-card" type="button" data-view-link="ai" aria-label="AI 생활 도우미 열기">
-        <div class="ai-entry-head"><div class="ai-entry-icon">🤖</div><div class="ai-entry-copy"><h3>AI 생활 도우미</h3><p>Gemini가 실시간 스트리밍으로 답변합니다.</p><span class="ai-entry-badge">DEV 오픈 · Cloud Run 스트리밍</span></div></div>
-      </button>
+      <!-- 홈 탭에서는 AI 생활 도우미 카드를 노출하지 않습니다. 상단 🤖 아이콘 또는 전체 기능 메뉴에서 진입합니다. -->
     </section>
     <section id="view-benefits" class="hidden">
       <div class="panel" style="margin-bottom:14px;">
@@ -2926,7 +2966,7 @@ body:not(.app-role-root) #view-ai{
         <div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
       </div>
       <div class="all-menu-grid">
-        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>Gemini 스트리밍으로 답변합니다.</span></button>
+        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>궁금한 정보를 빠르게 찾아드려요.</span></button>
         <button class="all-menu-card" type="button" data-view-link="community"><span class="all-icon">💬</span><strong>커뮤니티</strong><span>게시글과 댓글로 입주민 정보를 나눕니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
@@ -2939,9 +2979,9 @@ body:not(.app-role-root) #view-ai{
 
     <section id="view-ai" class="hidden">
       <div class="ai-view-hero">
-        <span class="ai-ready-pill">🤖 DEV 오픈 · Gemini 2.5 Flash-Lite 스트리밍</span>
+        <span class="ai-ready-pill">🤖 지금 필요한 정보를 바로 도와드릴게요</span>
         <h3>AI 생활 도우미</h3>
-        <p>공지, 혜택, FAQ, 커뮤니티 데이터를 기준으로 답변하고 이전 대화 맥락도 이어서 기억합니다.</p>
+        <p>입주민 생활에 필요한 정보를 빠르게 찾아드려요.<br>생활 · 혜택 · 매장까지 편하게 물어보세요.</p>
       </div>
       <div class="panel ai-chat-panel">
         <div class="ai-memory-toolbar" aria-label="AI 대화 관리">
@@ -7447,7 +7487,7 @@ function getShareTrackingParams(){
       }).join('')}</div>` : '';
       const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>서버 맞춤 추천 후보</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
       const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
-      return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">서버 판단형 개인 비서 AI${insightText ? ` · ${escapeHtml(insightText)}` : ''}</span></div>`;
+      return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
     }
 
     async function logPersonalAssistantEvent(payload={}){
@@ -7482,7 +7522,7 @@ function getShareTrackingParams(){
         win.scrollTop = win.scrollHeight;
         return true;
       }catch(error){
-        console.warn('서버 판단형 개인 비서 AI 로드 실패:', error);
+        console.warn('개인형 AI 안내 로드 실패:', error);
         return false;
       }
     }
@@ -7744,7 +7784,7 @@ function getShareTrackingParams(){
           <div class="ai-stream-shell">
             <div class="ai-stream-status">
               <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>AI가 답변을 작성하면서 혜택을 매칭 중입니다</span>
-              <span>${cards.length ? '카드 자동 생성' : '스트리밍 수신중'}</span>
+              <span>${cards.length ? '추천 카드 준비 완료' : '답변 준비 중'}</span>
             </div>
             <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
             ${liveCards}
@@ -8385,7 +8425,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
           ${dialogButtons}
           ${locationMapCard}
           ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
-          <span class="ai-mode-pill upgraded">스트리밍 · 대화 기억 · 후보 버튼 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
+          <span class="ai-mode-pill upgraded">상황에 맞는 정보를 준비했어요.</span>
         </div>`;
     }
 
@@ -8917,12 +8957,12 @@ async function askAiAssistant(rawQuestion=''){
         if(pendingRow) delete pendingRow.dataset.pending;
         window.__AI_LAST_INPUT_MODE = 'text';
         aiConversationTitle = question.slice(0,24) || '새 대화';
-        updateAiConversationStatus('Cloud Run 스트리밍');
+        updateAiConversationStatus('AI 답변 완료');
       }catch(error){
         if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
         if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
         console.error('AI Cloud Run 스트리밍 실패', error);
-        if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Run URL, CORS 설정, GEMINI_API_KEY, 서버 배포 상태를 확인해 주세요.</small>';
+        if(pendingBubble) pendingBubble.innerHTML = '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
         else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
       }finally{
         if(btn){ btn.disabled = false; btn.textContent = '질문'; }
@@ -9655,7 +9695,25 @@ window.addEventListener("load", handlePushDeepLink);
       observer.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
       window.addEventListener('pageshow', decorateIdleWidget);
     })();
-  </script>
+  
+
+    // AI 상단 아이콘: 하루 1회 가볍게 강조해서 AI 진입을 유도합니다.
+    (function initAiQuickButtonHint(){
+      try{
+        const aiBtn = document.getElementById('aiQuickBtn');
+        if(!aiBtn) return;
+        const todayKey = 'aiQuickHintShown:' + new Date().toISOString().slice(0,10);
+        if(localStorage.getItem(todayKey)) return;
+        aiBtn.style.animation = 'aiPulse 1.25s ease-in-out infinite';
+        setTimeout(() => {
+          aiBtn.style.animation = '';
+          localStorage.setItem(todayKey, '1');
+        }, 4200);
+      }catch(error){
+        console.warn('AI 상단 아이콘 강조 처리 실패:', error);
+      }
+    })();
+</script>
 
 </body></html>
 </body></html>
