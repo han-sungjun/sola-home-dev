@@ -194,12 +194,12 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 /* =========================
-   모바일 fallback push 수신
-   - 모바일 data-only push 보강
-   - PC에서는 실행하지 않음
+   fallback push 수신
+   - PC/모바일 모두 data-only push 보강
+   - onBackgroundMessage가 놓치는 케이스를 보완
+   - showPushNotification 내부에서 중복 방지 처리
 ========================= */
 self.addEventListener("push", (event) => {
-  if (!isMobileBrowser()) return;
   if (!event.data) return;
 
   event.waitUntil(
@@ -212,7 +212,7 @@ self.addEventListener("push", (event) => {
         payload = {
           title: "알림",
           body: event.data.text() || "",
-          url: "/"
+          url: "/app"
         };
       }
 
