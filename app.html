@@ -8366,7 +8366,8 @@ nav.bottom-nav{
             ''
           );
           const noticeId = String(data.noticeId || '');
-          const type = String(data.type || (benefitId ? 'benefit' : (noticeId ? 'notice' : '')) || 'notice');
+          const reservationId = String(data.reservationId || data.calendarReservationId || '');
+          const type = String(data.type || (reservationId ? 'calendar' : (benefitId ? 'benefit' : (noticeId ? 'notice' : ''))) || 'notice');
           const rawUrl = String(
             data.url ||
             data.click_action ||
@@ -8380,22 +8381,30 @@ nav.bottom-nav{
           return {
             title: String(data.title || payload?.notification?.title || '새 알림'),
             body: String(data.body || payload?.notification?.body || ''),
-            url: buildForegroundPushUrl({ url: rawUrl, type, noticeId, benefitId }),
+            url: buildForegroundPushUrl({ url: rawUrl, type, noticeId, benefitId, reservationId }),
             noticeId,
             benefitId,
+            reservationId,
             type,
             important: String(data.important || '') === 'true'
           };
         }
 
-        function buildForegroundPushUrl({ url = '', type = '', noticeId = '', benefitId = '' } = {}) {
+        function buildForegroundPushUrl({ url = '', type = '', noticeId = '', benefitId = '', reservationId = '' } = {}) {
           const rawUrl = String(url || '').trim();
           const cleanType = String(type || '').trim().toLowerCase();
           const cleanNoticeId = String(noticeId || '').trim();
           const cleanBenefitId = String(benefitId || '').trim();
+          const cleanReservationId = String(reservationId || '').trim();
 
           if (cleanType === 'ai_nudge' || rawUrl.includes('ai=open')) {
             return '/app?ai=open';
+          }
+
+          if (cleanType === 'calendar' || cleanReservationId || rawUrl.includes('open=calendar')) {
+            return cleanReservationId
+              ? `/app?view=calendar&calendarId=${encodeURIComponent(cleanReservationId)}&from=push`
+              : (rawUrl || '/app?view=calendar&from=push');
           }
 
           if (cleanBenefitId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
@@ -8442,6 +8451,7 @@ nav.bottom-nav{
             String(item.type || ''),
             String(item.noticeId || ''),
             String(item.benefitId || ''),
+            String(item.reservationId || ''),
             String(item.title || ''),
             String(item.body || ''),
             String(item.url || '')
@@ -8487,6 +8497,7 @@ nav.bottom-nav{
                 url: item.url || '/app',
                 noticeId: item.noticeId || '',
                 benefitId: item.benefitId || '',
+                reservationId: item.reservationId || '',
                 type: item.type || 'notice'
               }
             });
@@ -8549,8 +8560,32 @@ nav.bottom-nav{
           showForegroundPushToast._timer = setTimeout(() => host.classList.remove('show'), 4200);
         }
 
-        // 포그라운드 푸시 표시는 app.html에서 처리하지 않습니다.
-        // 시스템 알림은 firebase-messaging-sw.js 서비스워커 한 곳에서만 처리하여 중복 알림을 방지합니다.
+        // Data-only FCM은 앱이 열려 있을 때 서비스워커 onBackgroundMessage를 타지 않습니다.
+        // 따라서 포그라운드에서는 공개앱 토스트만 1회 표시하고, 시스템 알림은 서비스워커/서버 푸시 경로에 맡깁니다.
+        onMessage(messaging, (payload) => {
+          try {
+            const item = normalizeForegroundPushPayload(payload);
+            if (!item || shouldSkipForegroundSystemNotification(item)) return;
+
+            if (item.type === 'calendar') {
+              showForegroundPushToast({
+                title: item.title || '예약 알림 시간이 되었습니다',
+                body: item.body || '등록한 혜택 매장 방문 알림입니다.',
+                url: item.url || '/app?view=calendar'
+              });
+              return;
+            }
+
+            showForegroundPushToast({
+              title: item.title || '새 알림',
+              body: item.body || '새로운 알림이 도착했습니다.',
+              url: item.url || '/app'
+            });
+          } catch (error) {
+            console.warn('포그라운드 푸시 토스트 처리 실패', error);
+          }
+        });
+
         return true;
       }catch(error){
         console.error('푸시 초기화 실패', error);
