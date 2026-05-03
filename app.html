@@ -12733,7 +12733,32 @@ function getShareTrackingParams(){
       calendarUiState.focusAfterModalDateKey = calendarUiState.dayModalDateKey;
       renderCalendarDayModal();
     }
-    function renderCalendarDayModal(){
+    
+/* ===== 캘린더 공통 팝업 날짜 제목: 연도 포함 ===== */
+function formatCalendarDayModalTitle(dateKey){
+  const d = parseDateKey ? parseDateKey(dateKey) : new Date(String(dateKey || "") + "T00:00:00");
+  if (!d || Number.isNaN(d.getTime())) return String(dateKey || "");
+  const days = ["일","월","화","수","목","금","토"];
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}. ${mm}. ${dd}. (${days[d.getDay()]})`;
+}
+
+
+function enforceCalendarDayModalTitleYear(){
+  const titleEl =
+    document.getElementById("calendarDayModalTitle") ||
+    document.querySelector("#calendarDayModal .calendar-day-modal-title") ||
+    document.querySelector("#calendarDayModal [data-calendar-day-modal-title]");
+  const dateKey =
+    window.calendarDayModalDateKey ||
+    (typeof calendarDayModalDateKey !== "undefined" ? calendarDayModalDateKey : "") ||
+    (typeof selectedCalendarDateKey !== "undefined" ? selectedCalendarDateKey : "");
+  if (titleEl && dateKey) titleEl.textContent = formatCalendarDayModalTitle(dateKey);
+}
+
+function renderCalendarDayModal(){
       const key = calendarUiState.dayModalDateKey || dateKeyFromDate(new Date());
       const items = getReservationsByDateKey(key);
       const title = qs('#calendarDayDateBtn');
@@ -12745,7 +12770,9 @@ function getShareTrackingParams(){
       list.innerHTML = items.length ? items.map(item => calendarItemHtml(item)).join('') : '<div class="calendar-empty">해당 날짜에 등록된 예약이 없습니다.</div>';
       list.scrollTop = 0;
       bindCalendarReservationActions(list);
-    }
+    
+  enforceCalendarDayModalTitleYear();
+}
     function closeCalendarDayModal(){
       const modal = qs('#calendarDayModal');
       if(modal?.open) modal.close();
