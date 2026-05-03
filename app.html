@@ -4195,6 +4195,182 @@ nav.bottom-nav{
   display:none !important;
 }
 
+
+/* ===== 모바일 카드형 TOP/즐겨찾기 별 세로 배치 + 즐겨찾기 목록 깨짐 보정 ===== */
+
+/* 카드형/즐겨찾기 공통: 카드 내부 우측 상단 별 */
+#cardList.view-card .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  position:absolute !important;
+  right:16px !important;
+  top:16px !important;
+  width:36px !important;
+  height:36px !important;
+  border-radius:13px !important;
+  z-index:4 !important;
+  display:grid !important;
+  place-items:center !important;
+  border:1px solid #e2e8f0 !important;
+  background:#fff !important;
+  color:#f59e0b !important;
+  font-size:21px !important;
+  line-height:1 !important;
+  padding:0 !important;
+}
+#cardList.view-card .fav-icon-btn.is-favorite,
+#favoriteList .fav-icon-btn.is-favorite{
+  background:#fffbeb !important;
+  border-color:#fcd34d !important;
+}
+
+/* 카드형 우측 상단 TOP 배지 */
+#cardList.view-card .top-badge,
+#cardList.view-card [class*="top-badge"],
+#cardList.view-card .benefit-top-badge,
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  position:absolute !important;
+  right:60px !important;
+  top:17px !important;
+  z-index:3 !important;
+}
+
+/* 즐겨찾기 화면은 카드형으로 고정 표시 */
+#favoriteList .card{
+  position:relative !important;
+  display:block !important;
+  min-height:auto !important;
+  padding:18px !important;
+  border-radius:24px !important;
+  overflow:visible !important;
+}
+#favoriteList .card-top{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:flex-start !important;
+  gap:12px !important;
+}
+#favoriteList .badge{
+  flex:0 0 72px !important;
+  min-width:72px !important;
+  width:72px !important;
+  height:auto !important;
+  padding:12px 10px !important;
+  border-radius:18px !important;
+  display:block !important;
+  text-align:center !important;
+  font-size:16px !important;
+  line-height:1.2 !important;
+  writing-mode:horizontal-tb !important;
+  white-space:nowrap !important;
+}
+#favoriteList .card-info{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  padding-right:92px !important;
+}
+#favoriteList .card-info h4{
+  margin:0 0 6px !important;
+  font-size:18px !important;
+  line-height:1.28 !important;
+  letter-spacing:-.03em !important;
+  white-space:normal !important;
+  word-break:keep-all !important;
+}
+#favoriteList .card-info .meta{
+  font-size:13px !important;
+  line-height:1.45 !important;
+  color:var(--muted) !important;
+  white-space:normal !important;
+}
+#favoriteList .list-meta{
+  display:none !important;
+}
+#favoriteList .card-tags{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:8px !important;
+  margin-top:12px !important;
+  margin-left:84px !important;
+}
+#favoriteList .card-tags .tag{
+  display:inline-flex !important;
+  align-items:center !important;
+  max-width:210px !important;
+  padding:7px 10px !important;
+  border-radius:999px !important;
+  background:#f8fafc !important;
+  border:1px solid var(--line) !important;
+  color:#475569 !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#favoriteList .card-tags .distance-tag{
+  background:#eff6ff !important;
+  border-color:#bfdbfe !important;
+  color:#1d4ed8 !important;
+  font-weight:900 !important;
+}
+#favoriteList .actions{
+  display:none !important;
+}
+
+/* 카드형에서는 등록일/주소 숨김 */
+#cardList.view-card .address-tag,
+#cardList.view-card .date-tag,
+#favoriteList .address-tag,
+#favoriteList .date-tag{
+  display:none !important;
+}
+
+/* 모바일: TOP 배지와 별을 세로로 [TOP][★] 배치 */
+@media(max-width:480px){
+  #cardList.view-card .card,
+  #favoriteList .card{
+    padding:16px !important;
+  }
+  #cardList.view-card .card-info,
+  #favoriteList .card-info{
+    padding-right:76px !important;
+  }
+  #cardList.view-card .top-badge,
+  #cardList.view-card [class*="top-badge"],
+  #cardList.view-card .benefit-top-badge,
+  #favoriteList .top-badge,
+  #favoriteList [class*="top-badge"],
+  #favoriteList .benefit-top-badge{
+    right:16px !important;
+    top:16px !important;
+    z-index:4 !important;
+  }
+  #cardList.view-card .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    right:16px !important;
+    top:52px !important;
+    width:34px !important;
+    height:34px !important;
+    border-radius:13px !important;
+    z-index:4 !important;
+    font-size:20px !important;
+  }
+  #cardList.view-card .card-tags,
+  #favoriteList .card-tags{
+    margin-left:84px !important;
+    padding-right:0 !important;
+  }
+}
+
+/* 하단 네비는 항상 별보다 위 */
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  z-index:9999 !important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -5265,6 +5441,182 @@ nav.bottom-nav{
 #cardList.view-card .card-tags .date-tag,
 #cardList.view-list .date-tag{
   display:none !important;
+}
+
+
+/* ===== 모바일 카드형 TOP/즐겨찾기 별 세로 배치 + 즐겨찾기 목록 깨짐 보정 ===== */
+
+/* 카드형/즐겨찾기 공통: 카드 내부 우측 상단 별 */
+#cardList.view-card .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  position:absolute !important;
+  right:16px !important;
+  top:16px !important;
+  width:36px !important;
+  height:36px !important;
+  border-radius:13px !important;
+  z-index:4 !important;
+  display:grid !important;
+  place-items:center !important;
+  border:1px solid #e2e8f0 !important;
+  background:#fff !important;
+  color:#f59e0b !important;
+  font-size:21px !important;
+  line-height:1 !important;
+  padding:0 !important;
+}
+#cardList.view-card .fav-icon-btn.is-favorite,
+#favoriteList .fav-icon-btn.is-favorite{
+  background:#fffbeb !important;
+  border-color:#fcd34d !important;
+}
+
+/* 카드형 우측 상단 TOP 배지 */
+#cardList.view-card .top-badge,
+#cardList.view-card [class*="top-badge"],
+#cardList.view-card .benefit-top-badge,
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  position:absolute !important;
+  right:60px !important;
+  top:17px !important;
+  z-index:3 !important;
+}
+
+/* 즐겨찾기 화면은 카드형으로 고정 표시 */
+#favoriteList .card{
+  position:relative !important;
+  display:block !important;
+  min-height:auto !important;
+  padding:18px !important;
+  border-radius:24px !important;
+  overflow:visible !important;
+}
+#favoriteList .card-top{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:flex-start !important;
+  gap:12px !important;
+}
+#favoriteList .badge{
+  flex:0 0 72px !important;
+  min-width:72px !important;
+  width:72px !important;
+  height:auto !important;
+  padding:12px 10px !important;
+  border-radius:18px !important;
+  display:block !important;
+  text-align:center !important;
+  font-size:16px !important;
+  line-height:1.2 !important;
+  writing-mode:horizontal-tb !important;
+  white-space:nowrap !important;
+}
+#favoriteList .card-info{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  padding-right:92px !important;
+}
+#favoriteList .card-info h4{
+  margin:0 0 6px !important;
+  font-size:18px !important;
+  line-height:1.28 !important;
+  letter-spacing:-.03em !important;
+  white-space:normal !important;
+  word-break:keep-all !important;
+}
+#favoriteList .card-info .meta{
+  font-size:13px !important;
+  line-height:1.45 !important;
+  color:var(--muted) !important;
+  white-space:normal !important;
+}
+#favoriteList .list-meta{
+  display:none !important;
+}
+#favoriteList .card-tags{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:8px !important;
+  margin-top:12px !important;
+  margin-left:84px !important;
+}
+#favoriteList .card-tags .tag{
+  display:inline-flex !important;
+  align-items:center !important;
+  max-width:210px !important;
+  padding:7px 10px !important;
+  border-radius:999px !important;
+  background:#f8fafc !important;
+  border:1px solid var(--line) !important;
+  color:#475569 !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#favoriteList .card-tags .distance-tag{
+  background:#eff6ff !important;
+  border-color:#bfdbfe !important;
+  color:#1d4ed8 !important;
+  font-weight:900 !important;
+}
+#favoriteList .actions{
+  display:none !important;
+}
+
+/* 카드형에서는 등록일/주소 숨김 */
+#cardList.view-card .address-tag,
+#cardList.view-card .date-tag,
+#favoriteList .address-tag,
+#favoriteList .date-tag{
+  display:none !important;
+}
+
+/* 모바일: TOP 배지와 별을 세로로 [TOP][★] 배치 */
+@media(max-width:480px){
+  #cardList.view-card .card,
+  #favoriteList .card{
+    padding:16px !important;
+  }
+  #cardList.view-card .card-info,
+  #favoriteList .card-info{
+    padding-right:76px !important;
+  }
+  #cardList.view-card .top-badge,
+  #cardList.view-card [class*="top-badge"],
+  #cardList.view-card .benefit-top-badge,
+  #favoriteList .top-badge,
+  #favoriteList [class*="top-badge"],
+  #favoriteList .benefit-top-badge{
+    right:16px !important;
+    top:16px !important;
+    z-index:4 !important;
+  }
+  #cardList.view-card .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    right:16px !important;
+    top:52px !important;
+    width:34px !important;
+    height:34px !important;
+    border-radius:13px !important;
+    z-index:4 !important;
+    font-size:20px !important;
+  }
+  #cardList.view-card .card-tags,
+  #favoriteList .card-tags{
+    margin-left:84px !important;
+    padding-right:0 !important;
+  }
+}
+
+/* 하단 네비는 항상 별보다 위 */
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  z-index:9999 !important;
 }
 
 </style>
