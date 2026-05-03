@@ -5333,6 +5333,13 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 필터 팝오버 즉시 닫힘 보정 ===== */
+.filter-popover.hidden,
+.filter-popover:not(.show){
+  display:none !important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7541,6 +7548,13 @@ nav.bottom-nav{
     padding:7px 9px !important;
     font-size:11px !important;
   }
+}
+
+
+/* ===== 필터 팝오버 즉시 닫힘 보정 ===== */
+.filter-popover.hidden,
+.filter-popover:not(.show){
+  display:none !important;
 }
 
 </style>
@@ -11906,18 +11920,24 @@ function getShareTrackingParams(){
     async function applySortPopoverValue(value){
       state.benefitSortMode = value || 'default';
       if(qs('#benefitSortSelect')) qs('#benefitSortSelect').value = state.benefitSortMode;
-      await ensureBenefitDistances();
       updateFilterIconLabels();
       closeFilterPopovers();
+      renderAll();
+      setTimeout(setupBenefitFilterFixed, 80);
+      await ensureBenefitDistances();
+      updateFilterIconLabels();
       renderAll();
       setTimeout(setupBenefitFilterFixed, 80);
     }
     async function applyRadiusPopoverValue(value){
       state.distanceRadius = value || 'all';
       if(qs('#distanceRadiusSelect')) qs('#distanceRadiusSelect').value = state.distanceRadius;
-      await ensureBenefitDistances();
       updateFilterIconLabels();
       closeFilterPopovers();
+      renderAll();
+      setTimeout(setupBenefitFilterFixed, 80);
+      await ensureBenefitDistances();
+      updateFilterIconLabels();
       renderAll();
       setTimeout(setupBenefitFilterFixed, 80);
     }
