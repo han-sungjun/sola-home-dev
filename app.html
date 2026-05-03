@@ -7931,7 +7931,7 @@ nav.bottom-nav{
           <div><strong>내 예약 알림</strong><div class="helper">혜택 상세 화면에서 “방문 알림 추가”를 누르면 이곳에 모입니다.</div></div>
           <button class="btn btn-soft" type="button" id="calendarRefreshBtn">새로고침</button>
         </div>
-        <div class="calendar-note">브라우저가 닫혀 있어도 푸시를 보내려면 Cloud Scheduler + Cloud Functions 발송 로직이 필요합니다. 현재 파일에는 예약 저장, 목록 표시, 앱 실행 중 알림 확인 구조를 우선 적용했습니다.</div>
+        <div class="calendar-note">예약 시스템 알림은 Cloud Scheduler + Cloud Functions 서버 푸시가 담당합니다. 앱 실행 중에는 중복 방지를 위해 화면 내 토스트만 표시됩니다.</div>
       </div>
       <div class="calendar-list" id="calendarReservationList"><div class="calendar-empty">등록된 예약 알림이 없습니다.<br>혜택 매장 상세에서 방문 알림을 추가해 보세요.</div></div>
     </section>
@@ -12433,58 +12433,28 @@ function getShareTrackingParams(){
       checkDueCalendarReservations();
       calendarCheckTimer = setInterval(checkDueCalendarReservations, 30000);
     }
-    async function markCalendarReservationSent(item){
+    const CALENDAR_LOCAL_TOAST_KEY_PREFIX = 'myhills_calendar_toast_shown_';
+    function isCalendarLocalToastShown(id){
+      if(!id) return false;
+      try{return sessionStorage.getItem(CALENDAR_LOCAL_TOAST_KEY_PREFIX + id) === '1';}catch(e){return false;}
+    }
+    function markCalendarReservationLocalToastShown(item){
       if(!item?.id) return;
-      await setDoc(doc(db, CALENDAR_RESERVATIONS_COLLECTION, item.id), {
-        status: 'sent',
-        notifiedAt: serverTimestamp(),
-        localNotifiedAt: serverTimestamp(),
-        sentAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }, { merge:true });
+      try{sessionStorage.setItem(CALENDAR_LOCAL_TOAST_KEY_PREFIX + item.id, '1');}catch(e){}
       const target = state.calendarReservations.find(v => v.id === item.id);
       if(target){
-        target.status = 'sent';
-        target.notifiedAt = new Date();
-        target.localNotifiedAt = new Date();
-        target.sentAt = new Date();
+        target.localToastShownAt = new Date();
       }
       renderCalendarReservations();
     }
     async function showCalendarReservationNotification(item){
       const title = '혜택 방문 알림';
       const body = `${item.storeName} 방문 예정 시간: ${formatDateTimeKo(toDateFromTimestamp(item.visitAt))}`;
-      const url = item.benefitId ? `/app?open=benefit&id=${encodeURIComponent(item.benefitId)}&from=calendar` : '/app?view=calendar';
-      const options = {
-        body,
-        icon:'/icons/icon-192.png',
-        badge:'/icons/icon-192.png',
-        tag:`calendar-reservation-${item.id}`,
-        renotify:false,
-        data:{ url, reservationId:item.id, benefitId:item.benefitId || '', type:'calendar_reservation' }
-      };
 
-      // 모바일 앱 실행 중에도 체감되도록 앱 내부 토스트는 항상 먼저 표시합니다.
+      // 서버 푸시 운영 이후 프론트 로컬 시스템 알림은 사용하지 않습니다.
+      // Cloud Scheduler + Functions + FCM + Service Worker 경로만 시스템 알림을 담당합니다.
+      // 앱이 열려 있을 때는 중복 방지를 위해 내부 토스트만 보여줍니다.
       showProximityToast({ title, message: body });
-      if(navigator.vibrate) navigator.vibrate([180, 70, 180]);
-
-      // 근처 알림과 동일하게 서비스워커 showNotification을 우선 사용합니다.
-      // 모바일 PWA/브라우저에서는 new Notification()보다 이 경로가 더 안정적입니다.
-      if(!('Notification' in window)) return false;
-      if(Notification.permission === 'default'){
-        await Notification.requestPermission().catch(()=>{});
-      }
-      if(Notification.permission !== 'granted') return false;
-
-      if(window.pushSwRegistration?.showNotification){
-        await window.pushSwRegistration.showNotification(title, options);
-      }else if(navigator.serviceWorker?.ready){
-        const reg = await navigator.serviceWorker.ready;
-        if(reg?.showNotification) await reg.showNotification(title, options);
-        else new Notification(title, options);
-      }else{
-        new Notification(title, options);
-      }
       return true;
     }
     async function checkDueCalendarReservations(){
@@ -12492,7 +12462,7 @@ function getShareTrackingParams(){
       const due = state.calendarReservations.filter(item => {
         if(!item?.id) return false;
         if(calendarNotificationInFlight.has(item.id)) return false;
-        if(item.status !== 'scheduled' || item.localNotifiedAt || item.notifiedAt || item.sentAt) return false;
+        if(item.status !== 'scheduled' || item.localNotifiedAt || item.localToastShownAt || isCalendarLocalToastShown(item.id)) return false;
         const notifyAt = toDateFromTimestamp(item.notifyAt);
         return notifyAt && notifyAt.getTime() <= now;
       });
@@ -12500,10 +12470,11 @@ function getShareTrackingParams(){
         calendarNotificationInFlight.add(item.id);
         try{
           await showCalendarReservationNotification(item);
-          // 앱 내부 토스트 또는 시스템 알림 시도 후 즉시 sent 처리하여 중복 발송을 막습니다.
-          await markCalendarReservationSent(item);
+          // 프론트는 로컬 토스트 표시 여부만 기록합니다.
+          // status=sent / sentAt 처리는 서버 Functions가 담당하여 시스템 푸시 중복을 방지합니다.
+          await markCalendarReservationLocalToastShown(item);
         }catch(error){
-          console.warn('앱 실행 중 캘린더 알림 처리 실패', error);
+          console.warn('앱 실행 중 캘린더 토스트 처리 실패', error);
         }finally{
           setTimeout(() => calendarNotificationInFlight.delete(item.id), 120000);
         }
