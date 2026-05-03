@@ -8058,7 +8058,6 @@ nav.bottom-nav{
  </div>
  <div class="all-menu-grid">
  <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>궁금한 정보를 빠르게 찾아드려요.</span></button>
- <button class="all-menu-card" type="button" data-view-link="community"><span class="all-icon">💬</span><strong>커뮤니티</strong><span>게시글과 댓글로 입주민 정보를 나눕니다.</span></button>
  <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
  <button class="all-menu-card" type="button" data-view-link="calendar"><span class="all-icon">📅</span><strong>캘린더 예약</strong><span>가고 싶은 혜택 매장을 예약하고 알림으로 편하게 이용하세요.</span></button>
  <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
@@ -8098,7 +8097,6 @@ nav.bottom-nav{
  <button class="ai-quick-btn" type="button" data-ai-question="혜택 매장 추천해줘">혜택 매장 추천해줘</button>
  <button class="ai-quick-btn" type="button" data-ai-question="지도에서 볼 수 있는 혜택 알려줘">지도 혜택 알려줘</button>
  <button class="ai-quick-btn" type="button" data-ai-question="인기 매장 TOP 5 알려줘">인기 매장 알려줘</button>
- <button class="ai-quick-btn" type="button" data-ai-question="커뮤니티 메뉴는 어떻게 들어가?">커뮤니티 메뉴는?</button>
  <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
  </div>
  <div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
@@ -8106,7 +8104,7 @@ nav.bottom-nav{
  <div class="ai-message bot"><div class="ai-bubble"> 지금 상황에 맞춰 먼저 도와드릴게요 😊
 
 👉 시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
-👉 최근 공지나 커뮤니티 위치도 바로 안내해드릴 수 있어요.
+👉 최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
 
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
  </div>
@@ -8115,7 +8113,7 @@ nav.bottom-nav{
  <div class="ai-voice-status" id="aiVoiceStatus">버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.</div>
  </div>
  <div class="ai-input-row">
- <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?" />
+ <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 혜택 매장 추천해줘" />
  <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
  </div>
  </div>
@@ -13296,8 +13294,7 @@ function renderCalendarDayModal(){
  '관리사무소':['관리사무소','관리실','사무소','전화','문의'],
  '쓰레기':['쓰레기','분리수거','음식물','재활용','배출'],
  '음식물':['음식물','쓰레기','배출','분리수거'],
- '주차':['주차','방문차량','차량','등록'],
- '커뮤니티':['커뮤니티','게시판','글','댓글','문의']
+ '주차':['주차','방문차량','차량','등록']
  };
  const expanded = new Set(tokens);
  tokens.forEach(token => {
@@ -13356,7 +13353,7 @@ function renderCalendarDayModal(){
  const q = String(question || '').replace(/\s+/g, ' ').trim();
  if(/영업시간|영업\s*중|열었|닫았|오픈|마감/.test(q)) return '매장 영업시간을 확인하고 있어요.';
  if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '혜택 정보를 확인하고 있어요.';
- if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
+ if(/공지|공지사항|안내|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
  return '답변을 준비하고 있어요.';
  }
 
@@ -14953,7 +14950,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
 
  /* ===== AI 응답 중 전체 입력 경로 잠금 ===== */
  let aiAssistantBusy = false;
- const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?';
+ const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 혜택 매장 추천해줘';
 
  function setAiControlDisabled(selector, disabled){
  qsa(selector).forEach((el) => {
@@ -15584,7 +15581,6 @@ async function askAiAssistant(rawQuestion=''){
  <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
  <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
  <button class="gnb-menu-item" type="button" data-view-link="calendar">캘린더 예약</button>
- <button class="gnb-menu-item" type="button" data-view-link="community">커뮤니티</button>
  <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
  <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
  </div>
@@ -15599,7 +15595,6 @@ async function askAiAssistant(rawQuestion=''){
  <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="calendar">캘린더</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="community">커뮤니티</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="map">지도</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
  </div>
