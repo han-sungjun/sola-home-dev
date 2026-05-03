@@ -4584,6 +4584,60 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 즐겨찾기 리스트형: TOP 뱃지 위치 보정 ===== */
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  display:inline-flex !important;
+  position:absolute !important;
+  right:52px !important;
+  top:13px !important;
+  z-index:2 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  height:24px !important;
+  padding:0 9px !important;
+  border-radius:999px !important;
+  font-size:11px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+
+#favoriteList .fav-icon-btn{
+  position:absolute !important;
+  right:14px !important;
+  top:10px !important;
+  z-index:3 !important;
+}
+
+#favoriteList .card-info{
+  padding-right:96px !important;
+}
+
+@media(max-width:480px){
+  #favoriteList .top-badge,
+  #favoriteList [class*="top-badge"],
+  #favoriteList .benefit-top-badge{
+    right:50px !important;
+    top:12px !important;
+    height:23px !important;
+    padding:0 8px !important;
+    font-size:10.5px !important;
+  }
+
+  #favoriteList .fav-icon-btn{
+    right:12px !important;
+    top:9px !important;
+  }
+
+  #favoriteList .card-info{
+    padding-right:92px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -6042,6 +6096,60 @@ nav.bottom-nav{
     height:30px !important;
     border-radius:11px !important;
     font-size:18px !important;
+  }
+}
+
+
+/* ===== 즐겨찾기 리스트형: TOP 뱃지 위치 보정 ===== */
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  display:inline-flex !important;
+  position:absolute !important;
+  right:52px !important;
+  top:13px !important;
+  z-index:2 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  height:24px !important;
+  padding:0 9px !important;
+  border-radius:999px !important;
+  font-size:11px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+
+#favoriteList .fav-icon-btn{
+  position:absolute !important;
+  right:14px !important;
+  top:10px !important;
+  z-index:3 !important;
+}
+
+#favoriteList .card-info{
+  padding-right:96px !important;
+}
+
+@media(max-width:480px){
+  #favoriteList .top-badge,
+  #favoriteList [class*="top-badge"],
+  #favoriteList .benefit-top-badge{
+    right:50px !important;
+    top:12px !important;
+    height:23px !important;
+    padding:0 8px !important;
+    font-size:10.5px !important;
+  }
+
+  #favoriteList .fav-icon-btn{
+    right:12px !important;
+    top:9px !important;
+  }
+
+  #favoriteList .card-info{
+    padding-right:92px !important;
   }
 }
 
