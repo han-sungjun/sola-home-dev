@@ -3136,6 +3136,182 @@ html, body{overflow-x:hidden;}
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
+
+/* ===== 혜택 목록: 상단 고정 복구 + 리스트형 보기 ===== */
+#view-benefits .filter-sticky{
+  position:sticky;
+  top:0;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:10px 0 12px;
+  margin-bottom:10px;
+  background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,.98) 86%,rgba(248,250,252,.92) 100%);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(226,232,240,.72);
+}
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav{
+  z-index:80;
+}
+.benefit-view-switch{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+  margin:0 2px -2px;
+}
+.view-mode-btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:#64748b;
+  border-radius:14px;
+  padding:8px 11px;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(15,23,42,.04);
+}
+.view-mode-btn.active{
+  color:#1d4ed8;
+  border-color:#93c5fd;
+  background:#eff6ff;
+}
+#cardList.view-list{
+  gap:8px;
+}
+#cardList.view-list .card{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  min-height:74px;
+  padding:11px 12px;
+  border-radius:18px;
+  box-shadow:0 8px 18px rgba(15,23,42,.055);
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  min-width:50px;
+  width:50px;
+  height:50px;
+  padding:0;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  line-height:1.1;
+}
+#cardList.view-list .card h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .meta{
+  margin-top:3px;
+  font-size:12px;
+  line-height:1.35;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .tags{
+  margin-top:5px;
+  gap:5px;
+  flex-wrap:nowrap;
+  overflow:hidden;
+}
+#cardList.view-list .tag{
+  padding:5px 7px;
+  font-size:11px;
+  white-space:nowrap;
+}
+#cardList.view-list .tag.rec,
+#cardList.view-list .tag:nth-of-type(n+4){
+  display:none;
+}
+#cardList.view-list .actions{
+  margin:0;
+  display:flex;
+  gap:4px;
+  align-items:center;
+}
+#cardList.view-list .actions .detail-btn{
+  min-width:0;
+  width:34px;
+  height:34px;
+  padding:0;
+  border-radius:12px;
+  font-size:0;
+}
+#cardList.view-list .actions .detail-btn::before{
+  content:"보기";
+  font-size:11px;
+}
+#cardList.view-list .actions .fav-btn{
+  min-width:0;
+  width:34px;
+  height:34px;
+  padding:0;
+  border-radius:12px;
+  font-size:0;
+  background:#fff;
+}
+#cardList.view-list .actions .fav-btn::before{
+  content:"☆";
+  font-size:18px;
+  color:#f59e0b;
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  content:"TOP";
+  position:absolute;
+  right:54px;
+  top:10px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#fffbeb;
+  border:1px solid #fde68a;
+  color:#b45309;
+  font-size:10px;
+  font-weight:1000;
+}
+@media(max-width:480px){
+  #view-benefits .filter-sticky{
+    top:0;
+    padding-top:8px;
+  }
+  .benefit-view-switch{
+    justify-content:flex-end;
+  }
+  .view-mode-btn{
+    padding:7px 10px;
+    font-size:11px;
+  }
+  #cardList.view-list .card{
+    grid-template-columns:auto minmax(0,1fr) auto;
+    gap:9px;
+    padding:10px;
+  }
+  #cardList.view-list .badge{
+    width:46px;
+    height:46px;
+    min-width:46px;
+    font-size:13px;
+  }
+  #cardList.view-list .actions .detail-btn,
+  #cardList.view-list .actions .fav-btn{
+    width:32px;
+    height:32px;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -3149,7 +3325,183 @@ html, body{overflow-x:hidden;}
     .topbar-userbar{min-width:0}
     .user-chip{min-width:0;max-width:min(260px,calc(100vw - 198px))}
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  </style>
+  
+/* ===== 혜택 목록: 상단 고정 복구 + 리스트형 보기 ===== */
+#view-benefits .filter-sticky{
+  position:sticky;
+  top:0;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:10px 0 12px;
+  margin-bottom:10px;
+  background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,.98) 86%,rgba(248,250,252,.92) 100%);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(226,232,240,.72);
+}
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav{
+  z-index:80;
+}
+.benefit-view-switch{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+  margin:0 2px -2px;
+}
+.view-mode-btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:#64748b;
+  border-radius:14px;
+  padding:8px 11px;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(15,23,42,.04);
+}
+.view-mode-btn.active{
+  color:#1d4ed8;
+  border-color:#93c5fd;
+  background:#eff6ff;
+}
+#cardList.view-list{
+  gap:8px;
+}
+#cardList.view-list .card{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  min-height:74px;
+  padding:11px 12px;
+  border-radius:18px;
+  box-shadow:0 8px 18px rgba(15,23,42,.055);
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  min-width:50px;
+  width:50px;
+  height:50px;
+  padding:0;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  line-height:1.1;
+}
+#cardList.view-list .card h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .meta{
+  margin-top:3px;
+  font-size:12px;
+  line-height:1.35;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .tags{
+  margin-top:5px;
+  gap:5px;
+  flex-wrap:nowrap;
+  overflow:hidden;
+}
+#cardList.view-list .tag{
+  padding:5px 7px;
+  font-size:11px;
+  white-space:nowrap;
+}
+#cardList.view-list .tag.rec,
+#cardList.view-list .tag:nth-of-type(n+4){
+  display:none;
+}
+#cardList.view-list .actions{
+  margin:0;
+  display:flex;
+  gap:4px;
+  align-items:center;
+}
+#cardList.view-list .actions .detail-btn{
+  min-width:0;
+  width:34px;
+  height:34px;
+  padding:0;
+  border-radius:12px;
+  font-size:0;
+}
+#cardList.view-list .actions .detail-btn::before{
+  content:"보기";
+  font-size:11px;
+}
+#cardList.view-list .actions .fav-btn{
+  min-width:0;
+  width:34px;
+  height:34px;
+  padding:0;
+  border-radius:12px;
+  font-size:0;
+  background:#fff;
+}
+#cardList.view-list .actions .fav-btn::before{
+  content:"☆";
+  font-size:18px;
+  color:#f59e0b;
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  content:"TOP";
+  position:absolute;
+  right:54px;
+  top:10px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#fffbeb;
+  border:1px solid #fde68a;
+  color:#b45309;
+  font-size:10px;
+  font-weight:1000;
+}
+@media(max-width:480px){
+  #view-benefits .filter-sticky{
+    top:0;
+    padding-top:8px;
+  }
+  .benefit-view-switch{
+    justify-content:flex-end;
+  }
+  .view-mode-btn{
+    padding:7px 10px;
+    font-size:11px;
+  }
+  #cardList.view-list .card{
+    grid-template-columns:auto minmax(0,1fr) auto;
+    gap:9px;
+    padding:10px;
+  }
+  #cardList.view-list .badge{
+    width:46px;
+    height:46px;
+    min-width:46px;
+    font-size:13px;
+  }
+  #cardList.view-list .actions .detail-btn,
+  #cardList.view-list .actions .fav-btn{
+    width:32px;
+    height:32px;
+  }
+}
+
+</style>
 
 </head>
 <body>
@@ -3225,7 +3577,10 @@ html, body{overflow-x:hidden;}
         <div class="section-head" style="margin-bottom:12px;"><h3>혜택</h3><small>전체 혜택 검색</small></div>
         <div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
       </div>
-      <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
+      <div class="filter-sticky"><div class="benefit-view-switch" aria-label="혜택 보기 방식">
+        <button type="button" class="view-mode-btn" id="benefitCardModeBtn" data-view-mode="card">▦ 카드형</button>
+        <button type="button" class="view-mode-btn active" id="benefitListModeBtn" data-view-mode="list">☰ 리스트형</button>
+      </div><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
       <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운순·반경은 현재 위치 기준입니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
@@ -3903,7 +4258,9 @@ html, body{overflow-x:hidden;}
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0},
+      benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
+    };
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -7369,7 +7726,38 @@ function getShareTrackingParams(){
       const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
       return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span>${distanceTag}<span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
     }
-    function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');const topRank=getBenefitTopRank(item);card.className=`card ${topRank ? `top-rank-${topRank}` : ''}`;card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
+    function updateBenefitViewModeButtons(){
+      const isList = state.benefitViewMode !== 'card';
+      qs('#benefitListModeBtn')?.classList.toggle('active', isList);
+      qs('#benefitCardModeBtn')?.classList.toggle('active', !isList);
+    }
+    function setBenefitViewMode(mode){
+      state.benefitViewMode = mode === 'card' ? 'card' : 'list';
+      try{localStorage.setItem('benefitViewMode', state.benefitViewMode);}catch(_){}
+      renderHome();
+    }
+    function renderList(target,items){
+      const wrap=qs(target),favorites=new Set(getFavorites());
+      if(!wrap) return;
+      wrap.innerHTML='';
+      const isBenefitMain = target === '#cardList';
+      if(isBenefitMain){
+        wrap.classList.toggle('view-list', state.benefitViewMode !== 'card');
+        wrap.classList.toggle('view-card', state.benefitViewMode === 'card');
+        updateBenefitViewModeButtons();
+      }
+      if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
+      items.forEach(item=>{
+        const card=document.createElement('article');
+        const topRank=getBenefitTopRank(item);
+        card.className=`card ${topRank ? `top-rank-${topRank}` : ''}`;
+        card.innerHTML=cardTemplate(item,favorites.has(item.id));
+        card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
+        card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};
+        card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};
+        wrap.appendChild(card);
+      });
+    }
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
@@ -9585,6 +9973,8 @@ async function askAiAssistant(rawQuestion=''){
     const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
+    qs('#benefitCardModeBtn')?.addEventListener('click', () => setBenefitViewMode('card'));
+    qs('#benefitListModeBtn')?.addEventListener('click', () => setBenefitViewMode('list'));
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
     qs('#distanceRadiusSelect')?.addEventListener('change', async (e)=>{state.distanceRadius=e.target.value||'all';await ensureBenefitDistances();renderAll();});
     qs('#mapUseMyLocationBtn')?.addEventListener('click', centerMapToMyLocation);
