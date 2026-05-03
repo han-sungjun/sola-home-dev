@@ -5263,6 +5263,76 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 정렬/반경 아이콘 상단 이동 + 팝오버 표시 보정 ===== */
+.benefit-filter-top-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  margin:0 0 8px !important;
+}
+.benefit-filter-top-row .filter-icon-row{
+  order:1;
+  display:flex !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin:0 !important;
+  flex:1 1 auto !important;
+}
+.benefit-filter-top-row .benefit-view-switch{
+  order:2;
+  flex:0 0 auto !important;
+  margin:0 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  gap:6px !important;
+}
+.filter-pop-wrap{
+  position:relative !important;
+}
+.filter-popover{
+  display:block !important;
+  position:absolute !important;
+  left:0 !important;
+  right:auto !important;
+  top:calc(100% + 8px) !important;
+  z-index:99999 !important;
+  min-width:146px !important;
+  background:#fff !important;
+  border:1px solid #dbeafe !important;
+  box-shadow:0 18px 35px rgba(15,23,42,.20) !important;
+}
+.filter-popover.hidden{
+  display:none !important;
+}
+.filter-popover.show{
+  display:block !important;
+}
+.filter-popover button{
+  display:block !important;
+}
+#radiusPopover{
+  min-width:132px !important;
+}
+@media(max-width:480px){
+  .benefit-filter-top-row{
+    gap:8px !important;
+  }
+  .benefit-filter-top-row .filter-icon-row{
+    gap:5px !important;
+  }
+  .benefit-filter-top-row .benefit-view-switch{
+    gap:5px !important;
+  }
+  .filter-icon-btn,
+  .view-mode-btn{
+    padding:7px 9px !important;
+    font-size:11px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7403,6 +7473,76 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 정렬/반경 아이콘 상단 이동 + 팝오버 표시 보정 ===== */
+.benefit-filter-top-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  margin:0 0 8px !important;
+}
+.benefit-filter-top-row .filter-icon-row{
+  order:1;
+  display:flex !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin:0 !important;
+  flex:1 1 auto !important;
+}
+.benefit-filter-top-row .benefit-view-switch{
+  order:2;
+  flex:0 0 auto !important;
+  margin:0 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  gap:6px !important;
+}
+.filter-pop-wrap{
+  position:relative !important;
+}
+.filter-popover{
+  display:block !important;
+  position:absolute !important;
+  left:0 !important;
+  right:auto !important;
+  top:calc(100% + 8px) !important;
+  z-index:99999 !important;
+  min-width:146px !important;
+  background:#fff !important;
+  border:1px solid #dbeafe !important;
+  box-shadow:0 18px 35px rgba(15,23,42,.20) !important;
+}
+.filter-popover.hidden{
+  display:none !important;
+}
+.filter-popover.show{
+  display:block !important;
+}
+.filter-popover button{
+  display:block !important;
+}
+#radiusPopover{
+  min-width:132px !important;
+}
+@media(max-width:480px){
+  .benefit-filter-top-row{
+    gap:8px !important;
+  }
+  .benefit-filter-top-row .filter-icon-row{
+    gap:5px !important;
+  }
+  .benefit-filter-top-row .benefit-view-switch{
+    gap:5px !important;
+  }
+  .filter-icon-btn,
+  .view-mode-btn{
+    padding:7px 9px !important;
+    font-size:11px !important;
+  }
+}
+
 </style>
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
@@ -7481,11 +7621,7 @@ nav.bottom-nav{
         <div class="section-head" style="margin-bottom:12px;"><h3>혜택</h3><small>전체 혜택 검색</small></div>
         <div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
       </div>
-      <div class="filter-sticky"><div class="benefit-view-switch" aria-label="혜택 보기 방식">
-        <button type="button" class="view-mode-btn" id="benefitCardModeBtn" data-view-mode="card">▦ 카드형</button>
-        <button type="button" class="view-mode-btn active" id="benefitListModeBtn" data-view-mode="list">☰ 리스트형</button>
-      </div><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="filter-icon-row" id="filterIconRow">
+      <div class="filter-sticky"><div class="benefit-filter-top-row"><div class="filter-icon-row" id="filterIconRow">
         <div class="filter-pop-wrap">
           <button class="filter-icon-btn" type="button" id="sortPopoverBtn" aria-haspopup="true" aria-expanded="false">↕ 정렬</button>
           <div class="filter-popover hidden" id="sortPopover">
@@ -7517,7 +7653,11 @@ nav.bottom-nav{
           <option value="3000">3km 이내</option>
         </select>
         <div class="distance-filter-help hidden" id="distanceFilterHelp"></div>
-      </div></div>
+      </div><div class="benefit-view-switch" aria-label="혜택 보기 방식">
+        <button type="button" class="view-mode-btn" id="benefitCardModeBtn" data-view-mode="card">▦ 카드형</button>
+        <button type="button" class="view-mode-btn active" id="benefitListModeBtn" data-view-mode="list">☰ 리스트형</button>
+      </div></div><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
+      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
@@ -11724,8 +11864,10 @@ function getShareTrackingParams(){
 
 
     function closeFilterPopovers(){
-      qs('#sortPopover')?.classList.add('hidden');
-      qs('#radiusPopover')?.classList.add('hidden');
+      qsa('.filter-popover').forEach(pop => {
+        pop.classList.add('hidden');
+        pop.classList.remove('show');
+      });
       qs('#sortPopoverBtn')?.setAttribute('aria-expanded','false');
       qs('#radiusPopoverBtn')?.setAttribute('aria-expanded','false');
     }
@@ -11737,8 +11879,10 @@ function getShareTrackingParams(){
       if(!target || !btn) return;
       const willOpen = target.classList.contains('hidden');
       other?.classList.add('hidden');
+      other?.classList.remove('show');
       otherBtn?.setAttribute('aria-expanded','false');
       target.classList.toggle('hidden', !willOpen);
+      target.classList.toggle('show', willOpen);
       btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     }
     function updateFilterIconLabels(){
@@ -11778,11 +11922,16 @@ function getShareTrackingParams(){
       setTimeout(setupBenefitFilterFixed, 80);
     }
     function bindFilterIconPopovers(){
-      qs('#sortPopoverBtn')?.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFilterPopover('sort'); });
-      qs('#radiusPopoverBtn')?.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFilterPopover('radius'); });
-      qsa('[data-sort-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.stopPropagation(); applySortPopoverValue(btn.dataset.sortValue); }));
-      qsa('[data-radius-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.stopPropagation(); applyRadiusPopoverValue(btn.dataset.radiusValue); }));
+      if(bindFilterIconPopovers._bound){
+        updateFilterIconLabels();
+        return;
+      }
+      bindFilterIconPopovers._bound = true;
       document.addEventListener('click', closeFilterPopovers);
+      qs('#sortPopoverBtn')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleFilterPopover('sort'); });
+      qs('#radiusPopoverBtn')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleFilterPopover('radius'); });
+      qsa('[data-sort-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); applySortPopoverValue(btn.dataset.sortValue); }));
+      qsa('[data-radius-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); applyRadiusPopoverValue(btn.dataset.radiusValue); }));
       updateFilterIconLabels();
     }
 
