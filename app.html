@@ -5624,6 +5624,53 @@ body.calendar-view-active .calendar-day-grid{
   margin-bottom:0!important;
 }
 
+
+/* ===== 전역 하단 과잉 여백 제거 =====
+   - 기존 .app bottom padding 120px 제거
+   - 목록/캘린더/즐겨찾기/TOP5에 개별 적용된 bottom padding 제거
+   - 하단 네비는 fixed 상태 그대로 유지
+*/
+.app{
+  padding:18px 16px 0!important;
+}
+@media (max-width:480px){
+  .app{
+    padding-left:12px!important;
+    padding-right:12px!important;
+    padding-bottom:0!important;
+  }
+}
+#cardList,
+#favoriteList,
+#popularList,
+#noticeList,
+#calendarList,
+.calendar-list,
+.notice-list,
+.popular-list,
+.map-mode-list,
+.insight-list{
+  padding-bottom:0!important;
+  margin-bottom:0!important;
+}
+#view-home,
+#view-benefits,
+#view-favorites,
+#view-popular,
+#view-calendar,
+#view-map,
+#view-ai,
+.view,
+.panel{
+  margin-bottom:0!important;
+}
+.gnb-body{
+  padding-bottom:22px!important;
+}
+body.gnb-open .bottom-nav{
+  pointer-events:none;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
