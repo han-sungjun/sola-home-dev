@@ -5397,8 +5397,8 @@ nav.bottom-nav{
 .calendar-week-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:22px;background:#fff;border:1px solid #e2e8f0;box-shadow:var(--shadow);cursor:pointer;}
 .calendar-week-card.today{border-color:#93c5fd;background:#eff6ff;}
 .calendar-week-card.selected{border-color:#0f172a;background:#0f172a;color:#fff;}
-.calendar-week-date{display:flex;flex-direction:column;gap:4px;min-width:78px;}
-.calendar-week-date strong{font-size:16px;line-height:1;}
+.calendar-week-date{display:flex;flex-direction:column;gap:4px;min-width:126px;}
+.calendar-week-date strong{font-size:16px;line-height:1.2;}
 .calendar-week-date span{font-size:12px;color:#64748b;font-weight:900;}
 .calendar-week-card.selected .calendar-week-date span{color:rgba(255,255,255,.72);}
 .calendar-week-summary{min-width:0;flex:1;text-align:right;font-size:13px;font-weight:900;color:#475569;line-height:1.5;}
@@ -5422,7 +5422,7 @@ nav.bottom-nav{
 .calendar-day-modal-footer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .calendar-hidden-date-picker{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
 @keyframes calendarFocusPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}40%{transform:scale(1.08);box-shadow:0 0 0 7px rgba(37,99,235,.18)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}}
-@media (max-width:390px){.calendar-date-cell{min-height:58px;border-radius:16px;padding:7px 5px}.calendar-nav-row{gap:6px}.calendar-nav-btn{width:40px}.calendar-today-btn{height:40px;padding:0 11px;font-size:12px}.calendar-nav-title{padding:10px 10px;font-size:15px}.calendar-day-modal-head{padding-left:12px;padding-right:12px}.calendar-day-modal-body{padding-left:12px;padding-right:12px}.calendar-day-modal-footer{grid-template-columns:1fr}}
+@media (max-width:390px){.calendar-date-cell{min-height:58px;border-radius:16px;padding:7px 5px}.calendar-nav-row{gap:6px}.calendar-nav-btn{width:40px}.calendar-today-btn{height:40px;padding:0 11px;font-size:12px}.calendar-nav-title{padding:10px 8px;font-size:14px}.calendar-day-modal-head{padding-left:12px;padding-right:12px}.calendar-day-modal-body{padding-left:12px;padding-right:12px}.calendar-day-modal-footer{grid-template-columns:1fr}}
 
 /* ===== 캘린더 팝업/하단 목록 UX 보정 ===== */
 .calendar-selected-section{display:none!important;}
@@ -12577,14 +12577,14 @@ function getShareTrackingParams(){
  if(mode === 'week'){
  const start = startOfWeek(d);
  const end = addDays(start, 6);
- return `${start.getFullYear()}. ${pad2(start.getMonth()+1)}. ${pad2(start.getDate())} ~ ${pad2(end.getMonth()+1)}. ${pad2(end.getDate())}`;
+ return `${start.getFullYear()}. ${pad2(start.getMonth()+1)}. ${pad2(start.getDate())} ~ ${end.getFullYear()}. ${pad2(end.getMonth()+1)}. ${pad2(end.getDate())}`;
  }
  return formatCalendarDayTitle(dateKeyFromDate(d));
  }
  function formatCalendarDayTitle(dateKey){
  const d = dateFromKey(dateKey);
  const dayNames = ['일','월','화','수','목','금','토'];
- return `${pad2(d.getMonth()+1)}. ${pad2(d.getDate())}. (${dayNames[d.getDay()]})`;
+ return `${d.getFullYear()}. ${pad2(d.getMonth()+1)}. ${pad2(d.getDate())}. (${dayNames[d.getDay()]})`;
  }
  function getReservationVisitDateKey(item={}){
  const visitAt = toDateFromTimestamp(item.visitAt);
@@ -12684,7 +12684,7 @@ function getShareTrackingParams(){
  const items = getReservationsByDateKey(key);
  const first = items[0];
  const classes = ['calendar-week-card', key === todayKey ? 'today' : '', key === selected ? 'selected' : ''].filter(Boolean).join(' ');
- cards.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-week-date"><strong>${formatCalendarDayTitle(key)}</strong><span>${key}</span></span><span class="calendar-week-summary">${items.length ? `${items.length}건 · ${escapeHtml(first.storeName)}` : '예약 없음'}</span></button>`);
+ cards.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-week-date"><strong>${formatCalendarDayTitle(key)}</strong></span><span class="calendar-week-summary">${items.length ? `${items.length}건 · ${escapeHtml(first.storeName)}` : '예약 없음'}</span></button>`);
  }
  board.innerHTML = `<div class="calendar-week-grid">${cards.join('')}</div>`;
  }
