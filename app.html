@@ -2465,26 +2465,23 @@ body.app-role-resident [data-view="shareinsights"]{
 
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{
-  display:block;
+  display:flex;
+  align-items:center;
+  gap:8px;
   margin-top:10px;
 }
 .ai-voice-btn{
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
+  flex:0 0 auto;
   border:1px solid #dbeafe;
   background:#fff;
   color:#1d4ed8;
-  border-radius:18px;
-  padding:12px 14px;
-  font-size:13px;
+  border-radius:16px;
+  padding:11px 12px;
+  font-size:12px;
   font-weight:1000;
   cursor:pointer;
   box-shadow:0 8px 18px rgba(37,99,235,.06);
-  transition:transform .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease;
-  min-height:48px;
+  transition:transform .16s ease, background-color .16s ease, color .16s ease;
   white-space:nowrap;
 }
 .ai-voice-btn:hover{
@@ -2497,65 +2494,57 @@ body.app-role-resident [data-view="shareinsights"]{
   border-color:#fecaca;
   animation:aiVoicePulse 1s ease-in-out infinite;
 }
-.ai-voice-main{
-  flex:0 0 auto;
-  white-space:nowrap;
-}
-.ai-voice-sub,
 .ai-voice-status{
-  display:inline;
-  flex:0 1 auto;
+  flex:1 1 auto;
   min-width:0;
+  padding:10px 12px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
   color:#64748b;
   font-size:12px;
   font-weight:900;
-  line-height:1.35;
+  line-height:1.45;
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.ai-voice-btn.listening .ai-voice-sub,
-.ai-voice-btn.listening .ai-voice-status{
-  color:rgba(255,255,255,.9);
 }
 @keyframes aiVoicePulse{
   0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}
   50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}
 }
 @media(max-width:480px){
-  .ai-voice-btn{
-    display:grid;
-    grid-template-columns:auto minmax(0,1fr);
+  .ai-voice-row{
+    display:flex;
+    flex-direction:row;
     align-items:center;
-    justify-content:stretch;
     gap:8px;
-    padding:12px 12px;
-    border-radius:18px;
   }
-  .ai-voice-main{
-    font-size:13px;
-  }
-  .ai-voice-sub,
-  .ai-voice-status{
-    display:block;
+  .ai-voice-btn{
+    flex:0 0 auto;
+    padding:10px 11px;
     font-size:12px;
-    text-align:left;
+  }
+  .ai-voice-status{
+    flex:1 1 0;
+    min-width:0;
+    padding:10px 11px;
+    font-size:12px;
+    white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    white-space:nowrap;
   }
 }
 @media(max-width:370px){
-  .ai-voice-btn{
-    grid-template-columns:auto minmax(0,1fr);
+  .ai-voice-row{
     gap:6px;
-    padding:11px 10px;
   }
-  .ai-voice-main{
-    font-size:12px;
+  .ai-voice-btn{
+    padding:9px 9px;
+    font-size:11px;
   }
-  .ai-voice-sub,
   .ai-voice-status{
+    padding:9px 9px;
     font-size:11px;
   }
 }
@@ -3348,10 +3337,8 @@ html, body{overflow-x:hidden;}
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
-          <button class="ai-voice-btn" type="button" id="aiVoiceBtn">
-            <span class="ai-voice-main">🎙 말로 질문</span>
-            <span class="ai-voice-sub" id="aiVoiceStatus">버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.</span>
-          </button>
+          <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
+          <div class="ai-voice-status" id="aiVoiceStatus">버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.</div>
         </div>
         <div class="ai-input-row">
           <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?" />
