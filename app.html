@@ -4852,6 +4852,63 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 즐겨찾기 별 터치 영역 과다 확장 수정 ===== */
+
+/* 이전 ::after 투명 터치영역이 카드 클릭을 가로막지 않도록 제거 */
+#cardList.view-list .fav-icon-btn::after,
+#favoriteList .fav-icon-btn::after,
+#cardList.view-card .fav-icon-btn::after,
+.fav-icon-btn::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* 리스트형/즐겨찾기에서는 별 아이콘 자체 영역만 클릭되도록 제한 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  position:relative !important;
+  pointer-events:auto !important;
+  width:26px !important;
+  height:26px !important;
+  min-width:26px !important;
+  min-height:26px !important;
+  padding:0 !important;
+  margin:0 !important;
+  z-index:3 !important;
+}
+
+/* 카드 본문은 계속 상세보기 클릭 가능 */
+#cardList.view-list .card,
+#favoriteList .card{
+  cursor:pointer !important;
+}
+
+#cardList.view-list .card-info,
+#cardList.view-list .badge,
+#cardList.view-list .list-meta,
+#favoriteList .card-info,
+#favoriteList .badge,
+#favoriteList .list-meta{
+  pointer-events:none;
+}
+
+/* 별 버튼만 클릭 이벤트를 가져감 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  pointer-events:auto;
+}
+
+@media(max-width:480px){
+  #cardList.view-list .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    width:24px !important;
+    height:24px !important;
+    min-width:24px !important;
+    min-height:24px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -6578,6 +6635,63 @@ nav.bottom-nav{
   #favoriteList .fav-icon-btn{
     width:24px !important;
     height:24px !important;
+  }
+}
+
+
+/* ===== 즐겨찾기 별 터치 영역 과다 확장 수정 ===== */
+
+/* 이전 ::after 투명 터치영역이 카드 클릭을 가로막지 않도록 제거 */
+#cardList.view-list .fav-icon-btn::after,
+#favoriteList .fav-icon-btn::after,
+#cardList.view-card .fav-icon-btn::after,
+.fav-icon-btn::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* 리스트형/즐겨찾기에서는 별 아이콘 자체 영역만 클릭되도록 제한 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  position:relative !important;
+  pointer-events:auto !important;
+  width:26px !important;
+  height:26px !important;
+  min-width:26px !important;
+  min-height:26px !important;
+  padding:0 !important;
+  margin:0 !important;
+  z-index:3 !important;
+}
+
+/* 카드 본문은 계속 상세보기 클릭 가능 */
+#cardList.view-list .card,
+#favoriteList .card{
+  cursor:pointer !important;
+}
+
+#cardList.view-list .card-info,
+#cardList.view-list .badge,
+#cardList.view-list .list-meta,
+#favoriteList .card-info,
+#favoriteList .badge,
+#favoriteList .list-meta{
+  pointer-events:none;
+}
+
+/* 별 버튼만 클릭 이벤트를 가져감 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  pointer-events:auto;
+}
+
+@media(max-width:480px){
+  #cardList.view-list .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    width:24px !important;
+    height:24px !important;
+    min-width:24px !important;
+    min-height:24px !important;
   }
 }
 
