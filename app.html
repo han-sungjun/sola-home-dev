@@ -4781,6 +4781,77 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 즐겨찾기 별 아이콘: 버튼 박스 제거, 아이콘만 표시 ===== */
+#cardList.view-card .fav-icon-btn,
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn,
+.fav-icon-btn{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  outline:none !important;
+  color:#f59e0b !important;
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  cursor:pointer !important;
+}
+
+#cardList.view-card .fav-icon-btn.is-favorite,
+#cardList.view-list .fav-icon-btn.is-favorite,
+#favoriteList .fav-icon-btn.is-favorite,
+.fav-icon-btn.is-favorite{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  color:#f59e0b !important;
+}
+
+/* 카드형 위치는 유지하되 박스만 제거 */
+#cardList.view-card .fav-icon-btn{
+  right:18px !important;
+}
+
+/* 리스트형/즐겨찾기에서는 아이콘만 우측에 태그처럼 배치 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  width:26px !important;
+  height:26px !important;
+  font-size:23px !important;
+}
+
+/* 터치 영역은 아이콘 주변 최소 여백만 */
+#cardList.view-list .fav-icon-btn::after,
+#favoriteList .fav-icon-btn::after,
+#cardList.view-card .fav-icon-btn::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+}
+
+@media(max-width:480px){
+  #cardList.view-card .fav-icon-btn,
+  #cardList.view-list .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    font-size:23px !important;
+  }
+
+  #cardList.view-list .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    width:24px !important;
+    height:24px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -6436,6 +6507,77 @@ nav.bottom-nav{
   #cardList.view-card .card.top-rank-4 .fav-icon-btn,
   #cardList.view-card .card.top-rank-5 .fav-icon-btn{
     top:41px !important;
+  }
+}
+
+
+/* ===== 즐겨찾기 별 아이콘: 버튼 박스 제거, 아이콘만 표시 ===== */
+#cardList.view-card .fav-icon-btn,
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn,
+.fav-icon-btn{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  outline:none !important;
+  color:#f59e0b !important;
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  cursor:pointer !important;
+}
+
+#cardList.view-card .fav-icon-btn.is-favorite,
+#cardList.view-list .fav-icon-btn.is-favorite,
+#favoriteList .fav-icon-btn.is-favorite,
+.fav-icon-btn.is-favorite{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  color:#f59e0b !important;
+}
+
+/* 카드형 위치는 유지하되 박스만 제거 */
+#cardList.view-card .fav-icon-btn{
+  right:18px !important;
+}
+
+/* 리스트형/즐겨찾기에서는 아이콘만 우측에 태그처럼 배치 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  width:26px !important;
+  height:26px !important;
+  font-size:23px !important;
+}
+
+/* 터치 영역은 아이콘 주변 최소 여백만 */
+#cardList.view-list .fav-icon-btn::after,
+#favoriteList .fav-icon-btn::after,
+#cardList.view-card .fav-icon-btn::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+}
+
+@media(max-width:480px){
+  #cardList.view-card .fav-icon-btn,
+  #cardList.view-list .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    font-size:23px !important;
+  }
+
+  #cardList.view-list .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    width:24px !important;
+    height:24px !important;
   }
 }
 
