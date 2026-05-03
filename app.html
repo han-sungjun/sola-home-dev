@@ -4638,6 +4638,102 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== TOP 뱃지/리스트형 TOP 강조 최종 정리 ===== */
+
+/* 1) 카드형: TOP 뱃지는 별 아이콘 위쪽에 세로 배치 */
+#cardList.view-card .top-badge,
+#cardList.view-card [class*="top-badge"],
+#cardList.view-card .benefit-top-badge{
+  display:inline-flex !important;
+  position:absolute !important;
+  right:14px !important;
+  top:12px !important;
+  z-index:4 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  height:24px !important;
+  padding:0 9px !important;
+  border-radius:999px !important;
+  font-size:11px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+#cardList.view-card .fav-icon-btn{
+  position:absolute !important;
+  right:14px !important;
+  top:42px !important;
+  z-index:4 !important;
+}
+#cardList.view-card .card-info{
+  padding-right:72px !important;
+}
+
+/* 2) 즐겨찾기/리스트형에는 TOP 뱃지 숨김 */
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge,
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  display:none !important;
+}
+
+/* 3) 리스트형은 TOP 순위에 따라 카드 전체를 은은하게 차등 표시 */
+#cardList.view-list .card.top-rank-1,
+#favoriteList .card.top-rank-1{
+  background:linear-gradient(90deg,#fff7ed 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#fdba74 !important;
+}
+#cardList.view-list .card.top-rank-2,
+#favoriteList .card.top-rank-2{
+  background:linear-gradient(90deg,#eff6ff 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#bfdbfe !important;
+}
+#cardList.view-list .card.top-rank-3,
+#favoriteList .card.top-rank-3{
+  background:linear-gradient(90deg,#fffbeb 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#fcd34d !important;
+}
+#cardList.view-list .card.top-rank-4,
+#favoriteList .card.top-rank-4{
+  background:linear-gradient(90deg,#f5f3ff 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#ddd6fe !important;
+}
+#cardList.view-list .card.top-rank-5,
+#favoriteList .card.top-rank-5{
+  background:linear-gradient(90deg,#ecfeff 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#a5f3fc !important;
+}
+
+/* TOP 리스트형에서는 별은 우측 중앙에 깔끔히 유지 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  position:static !important;
+  z-index:3 !important;
+}
+
+@media(max-width:480px){
+  #cardList.view-card .top-badge,
+  #cardList.view-card [class*="top-badge"],
+  #cardList.view-card .benefit-top-badge{
+    right:14px !important;
+    top:12px !important;
+    height:23px !important;
+    padding:0 8px !important;
+    font-size:10.5px !important;
+  }
+  #cardList.view-card .fav-icon-btn{
+    right:14px !important;
+    top:41px !important;
+  }
+  #cardList.view-card .card-info{
+    padding-right:72px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -6150,6 +6246,102 @@ nav.bottom-nav{
 
   #favoriteList .card-info{
     padding-right:92px !important;
+  }
+}
+
+
+/* ===== TOP 뱃지/리스트형 TOP 강조 최종 정리 ===== */
+
+/* 1) 카드형: TOP 뱃지는 별 아이콘 위쪽에 세로 배치 */
+#cardList.view-card .top-badge,
+#cardList.view-card [class*="top-badge"],
+#cardList.view-card .benefit-top-badge{
+  display:inline-flex !important;
+  position:absolute !important;
+  right:14px !important;
+  top:12px !important;
+  z-index:4 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  height:24px !important;
+  padding:0 9px !important;
+  border-radius:999px !important;
+  font-size:11px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+#cardList.view-card .fav-icon-btn{
+  position:absolute !important;
+  right:14px !important;
+  top:42px !important;
+  z-index:4 !important;
+}
+#cardList.view-card .card-info{
+  padding-right:72px !important;
+}
+
+/* 2) 즐겨찾기/리스트형에는 TOP 뱃지 숨김 */
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge,
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  display:none !important;
+}
+
+/* 3) 리스트형은 TOP 순위에 따라 카드 전체를 은은하게 차등 표시 */
+#cardList.view-list .card.top-rank-1,
+#favoriteList .card.top-rank-1{
+  background:linear-gradient(90deg,#fff7ed 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#fdba74 !important;
+}
+#cardList.view-list .card.top-rank-2,
+#favoriteList .card.top-rank-2{
+  background:linear-gradient(90deg,#eff6ff 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#bfdbfe !important;
+}
+#cardList.view-list .card.top-rank-3,
+#favoriteList .card.top-rank-3{
+  background:linear-gradient(90deg,#fffbeb 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#fcd34d !important;
+}
+#cardList.view-list .card.top-rank-4,
+#favoriteList .card.top-rank-4{
+  background:linear-gradient(90deg,#f5f3ff 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#ddd6fe !important;
+}
+#cardList.view-list .card.top-rank-5,
+#favoriteList .card.top-rank-5{
+  background:linear-gradient(90deg,#ecfeff 0%,#ffffff 42%,#fff 100%) !important;
+  border-color:#a5f3fc !important;
+}
+
+/* TOP 리스트형에서는 별은 우측 중앙에 깔끔히 유지 */
+#cardList.view-list .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  position:static !important;
+  z-index:3 !important;
+}
+
+@media(max-width:480px){
+  #cardList.view-card .top-badge,
+  #cardList.view-card [class*="top-badge"],
+  #cardList.view-card .benefit-top-badge{
+    right:14px !important;
+    top:12px !important;
+    height:23px !important;
+    padding:0 8px !important;
+    font-size:10.5px !important;
+  }
+  #cardList.view-card .fav-icon-btn{
+    right:14px !important;
+    top:41px !important;
+  }
+  #cardList.view-card .card-info{
+    padding-right:72px !important;
   }
 }
 
