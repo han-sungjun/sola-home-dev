@@ -4158,6 +4158,19 @@ html, body{overflow-x:hidden;}
   }
 }
 
+
+/* ===== 카드형 즐겨찾기 강제 표시 ===== */
+#cardList.view-card .fav-icon-btn{
+  position:absolute !important;
+  right:14px !important;
+  top:14px !important;
+  z-index:999 !important;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  font-size:22px !important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -5191,6 +5204,19 @@ html, body{overflow-x:hidden;}
     border-radius:11px!important;
     font-size:18px!important;
   }
+}
+
+
+/* ===== 카드형 즐겨찾기 강제 표시 ===== */
+#cardList.view-card .fav-icon-btn{
+  position:absolute !important;
+  right:14px !important;
+  top:14px !important;
+  z-index:999 !important;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  font-size:22px !important;
 }
 
 </style>
@@ -9434,7 +9460,7 @@ function getShareTrackingParams(){
         <div class="card-tags">
           <span class="tag category-text-tag">${item.category}</span>
           ${distanceTag}
-          <span class="tag address-tag">📍 ${addressText}</span>
+          
           ${dateHtml}
         </div>
         <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
