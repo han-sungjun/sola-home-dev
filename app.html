@@ -4437,6 +4437,153 @@ nav.bottom-nav{
   border-color:#f59e0b !important;
 }
 
+
+/* ===== 즐겨찾기 탭: 항상 리스트형으로 강제 ===== */
+#favoriteList{
+  display:grid;
+  gap:8px;
+}
+#favoriteList.view-list .card,
+#favoriteList .card{
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:46px minmax(0,1fr) auto auto !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-height:64px !important;
+  padding:10px 12px !important;
+  border-radius:14px !important;
+  overflow:hidden !important;
+  box-shadow:0 6px 14px rgba(15,23,42,.045) !important;
+}
+#favoriteList .card-top{
+  display:contents !important;
+}
+#favoriteList .badge{
+  grid-column:1 !important;
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  padding:0 !important;
+  border-radius:12px !important;
+  display:grid !important;
+  place-items:center !important;
+  font-size:13px !important;
+  line-height:1 !important;
+}
+#favoriteList .card-info{
+  grid-column:2 !important;
+  min-width:0 !important;
+  padding-right:0 !important;
+}
+#favoriteList .card-info h4{
+  margin:0 !important;
+  font-size:15px !important;
+  line-height:1.25 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#favoriteList .card-info .meta{
+  margin-top:4px !important;
+  font-size:12px !important;
+  line-height:1.25 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#favoriteList .list-meta{
+  grid-column:3 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:6px !important;
+  min-width:0 !important;
+}
+#favoriteList .category-icon-tag{
+  width:28px !important;
+  height:28px !important;
+  border-radius:999px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:#f8fafc !important;
+  border:1px solid #e2e8f0 !important;
+  font-size:14px !important;
+  flex:0 0 auto !important;
+}
+#favoriteList .list-meta .distance-tag{
+  padding:6px 8px !important;
+  max-width:86px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  background:#eff6ff !important;
+  border-color:#bfdbfe !important;
+  color:#1d4ed8 !important;
+  font-weight:900 !important;
+}
+#favoriteList .card-tags,
+#favoriteList .actions,
+#favoriteList .detail-btn{
+  display:none !important;
+}
+#favoriteList .fav-icon-btn{
+  grid-column:4 !important;
+  position:static !important;
+  width:34px !important;
+  height:34px !important;
+  border-radius:12px !important;
+  z-index:3 !important;
+  display:grid !important;
+  place-items:center !important;
+  font-size:20px !important;
+  line-height:1 !important;
+  background:#fff7ed !important;
+  border:1.5px solid #fbbf24 !important;
+  color:#f59e0b !important;
+  box-shadow:0 6px 14px rgba(245,158,11,.10) !important;
+}
+#favoriteList .fav-icon-btn.is-favorite{
+  background:#f59e0b !important;
+  color:#fff !important;
+  border-color:#f59e0b !important;
+}
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  display:none !important;
+}
+@media(max-width:480px){
+  #favoriteList .card{
+    grid-template-columns:42px minmax(0,1fr) auto auto !important;
+    gap:8px !important;
+    min-height:62px !important;
+    padding:9px 10px !important;
+  }
+  #favoriteList .badge{
+    width:42px !important;
+    height:42px !important;
+    min-width:42px !important;
+    font-size:12px !important;
+  }
+  #favoriteList .category-icon-tag{
+    width:26px !important;
+    height:26px !important;
+    font-size:13px !important;
+  }
+  #favoriteList .list-meta .distance-tag{
+    max-width:78px !important;
+    padding:5px 7px !important;
+    font-size:10.5px !important;
+  }
+  #favoriteList .fav-icon-btn{
+    width:30px !important;
+    height:30px !important;
+    border-radius:11px !important;
+    font-size:18px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -5749,6 +5896,153 @@ nav.bottom-nav{
   background:#f59e0b !important;
   color:#fff !important;
   border-color:#f59e0b !important;
+}
+
+
+/* ===== 즐겨찾기 탭: 항상 리스트형으로 강제 ===== */
+#favoriteList{
+  display:grid;
+  gap:8px;
+}
+#favoriteList.view-list .card,
+#favoriteList .card{
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:46px minmax(0,1fr) auto auto !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-height:64px !important;
+  padding:10px 12px !important;
+  border-radius:14px !important;
+  overflow:hidden !important;
+  box-shadow:0 6px 14px rgba(15,23,42,.045) !important;
+}
+#favoriteList .card-top{
+  display:contents !important;
+}
+#favoriteList .badge{
+  grid-column:1 !important;
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  padding:0 !important;
+  border-radius:12px !important;
+  display:grid !important;
+  place-items:center !important;
+  font-size:13px !important;
+  line-height:1 !important;
+}
+#favoriteList .card-info{
+  grid-column:2 !important;
+  min-width:0 !important;
+  padding-right:0 !important;
+}
+#favoriteList .card-info h4{
+  margin:0 !important;
+  font-size:15px !important;
+  line-height:1.25 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#favoriteList .card-info .meta{
+  margin-top:4px !important;
+  font-size:12px !important;
+  line-height:1.25 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#favoriteList .list-meta{
+  grid-column:3 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:6px !important;
+  min-width:0 !important;
+}
+#favoriteList .category-icon-tag{
+  width:28px !important;
+  height:28px !important;
+  border-radius:999px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:#f8fafc !important;
+  border:1px solid #e2e8f0 !important;
+  font-size:14px !important;
+  flex:0 0 auto !important;
+}
+#favoriteList .list-meta .distance-tag{
+  padding:6px 8px !important;
+  max-width:86px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  background:#eff6ff !important;
+  border-color:#bfdbfe !important;
+  color:#1d4ed8 !important;
+  font-weight:900 !important;
+}
+#favoriteList .card-tags,
+#favoriteList .actions,
+#favoriteList .detail-btn{
+  display:none !important;
+}
+#favoriteList .fav-icon-btn{
+  grid-column:4 !important;
+  position:static !important;
+  width:34px !important;
+  height:34px !important;
+  border-radius:12px !important;
+  z-index:3 !important;
+  display:grid !important;
+  place-items:center !important;
+  font-size:20px !important;
+  line-height:1 !important;
+  background:#fff7ed !important;
+  border:1.5px solid #fbbf24 !important;
+  color:#f59e0b !important;
+  box-shadow:0 6px 14px rgba(245,158,11,.10) !important;
+}
+#favoriteList .fav-icon-btn.is-favorite{
+  background:#f59e0b !important;
+  color:#fff !important;
+  border-color:#f59e0b !important;
+}
+#favoriteList .top-badge,
+#favoriteList [class*="top-badge"],
+#favoriteList .benefit-top-badge{
+  display:none !important;
+}
+@media(max-width:480px){
+  #favoriteList .card{
+    grid-template-columns:42px minmax(0,1fr) auto auto !important;
+    gap:8px !important;
+    min-height:62px !important;
+    padding:9px 10px !important;
+  }
+  #favoriteList .badge{
+    width:42px !important;
+    height:42px !important;
+    min-width:42px !important;
+    font-size:12px !important;
+  }
+  #favoriteList .category-icon-tag{
+    width:26px !important;
+    height:26px !important;
+    font-size:13px !important;
+  }
+  #favoriteList .list-meta .distance-tag{
+    max-width:78px !important;
+    padding:5px 7px !important;
+    font-size:10.5px !important;
+  }
+  #favoriteList .fav-icon-btn{
+    width:30px !important;
+    height:30px !important;
+    border-radius:11px !important;
+    font-size:18px !important;
+  }
 }
 
 </style>
@@ -10017,6 +10311,10 @@ function getShareTrackingParams(){
         wrap.classList.toggle('view-list', state.benefitViewMode !== 'card');
         wrap.classList.toggle('view-card', state.benefitViewMode === 'card');
         updateBenefitViewModeButtons();
+      }
+      if(target === '#favoriteList'){
+        wrap.classList.add('view-list');
+        wrap.classList.remove('view-card');
       }
       if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
       items.forEach(item=>{
