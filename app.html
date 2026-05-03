@@ -3312,6 +3312,155 @@ html, body{overflow-x:hidden;}
   }
 }
 
+
+/* ===== 혜택 리스트형 깨짐 보정: 한 줄형 compact UI ===== */
+#cardList.view-list{
+  gap:8px;
+}
+#cardList.view-list .card{
+  position:relative;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  min-height:66px;
+  padding:10px 12px;
+  border-radius:14px;
+  box-shadow:0 6px 14px rgba(15,23,42,.045);
+  overflow:hidden;
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  grid-column:1;
+  min-width:46px;
+  width:46px;
+  height:46px;
+  padding:0;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  line-height:1;
+}
+#cardList.view-list .card-info{
+  grid-column:2;
+  min-width:0;
+}
+#cardList.view-list .card h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  letter-spacing:-.035em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .meta{
+  margin-top:3px;
+  font-size:12px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .tags{
+  grid-column:3;
+  margin:0;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;
+  min-width:0;
+  overflow:hidden;
+}
+#cardList.view-list .tag{
+  padding:5px 8px;
+  font-size:11px;
+  white-space:nowrap;
+  max-width:94px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .tag.rec,
+#cardList.view-list .tag.date-tag,
+#cardList.view-list .tag.address-tag,
+#cardList.view-list .tag:nth-of-type(n+4){
+  display:none!important;
+}
+#cardList.view-list .actions{
+  grid-column:4;
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+#cardList.view-list .actions .detail-btn{
+  width:38px;
+  height:32px;
+  min-height:32px;
+  padding:0;
+  border-radius:12px;
+  font-size:12px;
+}
+#cardList.view-list .actions .fav-btn{
+  width:32px;
+  height:32px;
+  min-height:32px;
+  padding:0;
+  border-radius:12px;
+  font-size:0;
+  background:#fff;
+  color:#f59e0b;
+  border:1px solid #e2e8f0;
+}
+#cardList.view-list .actions .fav-btn::before{
+  content:"☆";
+  font-size:18px;
+  line-height:1;
+}
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge{
+  display:none!important;
+}
+#cardList.view-list .card[class*="top-rank"]{
+  border-color:var(--line-soft);
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  content:"";
+  display:none!important;
+}
+@media(max-width:480px){
+  #cardList.view-list .card{
+    grid-template-columns:42px minmax(0,1fr) auto;
+    gap:8px;
+    padding:9px 10px;
+    min-height:62px;
+  }
+  #cardList.view-list .badge{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    border-radius:11px;
+    font-size:12px;
+  }
+  #cardList.view-list .tags{
+    grid-column:3;
+    max-width:94px;
+  }
+  #cardList.view-list .tag{
+    max-width:86px;
+    padding:5px 7px;
+    font-size:10.5px;
+  }
+  #cardList.view-list .actions{
+    display:none;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -3498,6 +3647,155 @@ html, body{overflow-x:hidden;}
   #cardList.view-list .actions .fav-btn{
     width:32px;
     height:32px;
+  }
+}
+
+
+/* ===== 혜택 리스트형 깨짐 보정: 한 줄형 compact UI ===== */
+#cardList.view-list{
+  gap:8px;
+}
+#cardList.view-list .card{
+  position:relative;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  min-height:66px;
+  padding:10px 12px;
+  border-radius:14px;
+  box-shadow:0 6px 14px rgba(15,23,42,.045);
+  overflow:hidden;
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  grid-column:1;
+  min-width:46px;
+  width:46px;
+  height:46px;
+  padding:0;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  line-height:1;
+}
+#cardList.view-list .card-info{
+  grid-column:2;
+  min-width:0;
+}
+#cardList.view-list .card h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  letter-spacing:-.035em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .meta{
+  margin-top:3px;
+  font-size:12px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .tags{
+  grid-column:3;
+  margin:0;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;
+  min-width:0;
+  overflow:hidden;
+}
+#cardList.view-list .tag{
+  padding:5px 8px;
+  font-size:11px;
+  white-space:nowrap;
+  max-width:94px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .tag.rec,
+#cardList.view-list .tag.date-tag,
+#cardList.view-list .tag.address-tag,
+#cardList.view-list .tag:nth-of-type(n+4){
+  display:none!important;
+}
+#cardList.view-list .actions{
+  grid-column:4;
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+#cardList.view-list .actions .detail-btn{
+  width:38px;
+  height:32px;
+  min-height:32px;
+  padding:0;
+  border-radius:12px;
+  font-size:12px;
+}
+#cardList.view-list .actions .fav-btn{
+  width:32px;
+  height:32px;
+  min-height:32px;
+  padding:0;
+  border-radius:12px;
+  font-size:0;
+  background:#fff;
+  color:#f59e0b;
+  border:1px solid #e2e8f0;
+}
+#cardList.view-list .actions .fav-btn::before{
+  content:"☆";
+  font-size:18px;
+  line-height:1;
+}
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge{
+  display:none!important;
+}
+#cardList.view-list .card[class*="top-rank"]{
+  border-color:var(--line-soft);
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  content:"";
+  display:none!important;
+}
+@media(max-width:480px){
+  #cardList.view-list .card{
+    grid-template-columns:42px minmax(0,1fr) auto;
+    gap:8px;
+    padding:9px 10px;
+    min-height:62px;
+  }
+  #cardList.view-list .badge{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    border-radius:11px;
+    font-size:12px;
+  }
+  #cardList.view-list .tags{
+    grid-column:3;
+    max-width:94px;
+  }
+  #cardList.view-list .tag{
+    max-width:86px;
+    padding:5px 7px;
+    font-size:10.5px;
+  }
+  #cardList.view-list .actions{
+    display:none;
   }
 }
 
@@ -7724,7 +8022,8 @@ function getShareTrackingParams(){
       const shortAddress = item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address;
       const distance = getItemDistance(item);
       const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
-      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span>${distanceTag}<span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
+      const dateHtml = benefitDateTag(item).replace('class="tag"', 'class="tag date-tag"');
+      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div class="card-info"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div></div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag category-tag">${item.category}</span>${distanceTag}<span class="tag address-tag">📍 ${shortAddress}</span>${dateHtml}</div></div><div class="actions"><button class="btn btn-primary detail-btn">보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
     }
     function updateBenefitViewModeButtons(){
       const isList = state.benefitViewMode !== 'card';
