@@ -4734,6 +4734,53 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 카드형: TOP 없는 항목 별 아이콘 위치 보정 ===== */
+
+/* 기본 카드형 별은 우측 상단으로 올림 */
+#cardList.view-card .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  top:14px !important;
+}
+
+/* TOP 항목만 TOP 뱃지 아래로 별을 내림 */
+#cardList.view-card .card.top-rank-1 .fav-icon-btn,
+#cardList.view-card .card.top-rank-2 .fav-icon-btn,
+#cardList.view-card .card.top-rank-3 .fav-icon-btn,
+#cardList.view-card .card.top-rank-4 .fav-icon-btn,
+#cardList.view-card .card.top-rank-5 .fav-icon-btn{
+  top:42px !important;
+}
+
+/* TOP 없는 항목은 우측 여백도 조금 줄여 제목 영역 확보 */
+#cardList.view-card .card:not(.top-rank-1):not(.top-rank-2):not(.top-rank-3):not(.top-rank-4):not(.top-rank-5) .card-info{
+  padding-right:48px !important;
+}
+
+/* TOP 항목은 기존처럼 TOP+별 공간 확보 */
+#cardList.view-card .card.top-rank-1 .card-info,
+#cardList.view-card .card.top-rank-2 .card-info,
+#cardList.view-card .card.top-rank-3 .card-info,
+#cardList.view-card .card.top-rank-4 .card-info,
+#cardList.view-card .card.top-rank-5 .card-info{
+  padding-right:72px !important;
+}
+
+@media(max-width:480px){
+  #cardList.view-card .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    top:14px !important;
+  }
+
+  #cardList.view-card .card.top-rank-1 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-2 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-3 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-4 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-5 .fav-icon-btn{
+    top:41px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -6342,6 +6389,53 @@ nav.bottom-nav{
   }
   #cardList.view-card .card-info{
     padding-right:72px !important;
+  }
+}
+
+
+/* ===== 카드형: TOP 없는 항목 별 아이콘 위치 보정 ===== */
+
+/* 기본 카드형 별은 우측 상단으로 올림 */
+#cardList.view-card .fav-icon-btn,
+#favoriteList .fav-icon-btn{
+  top:14px !important;
+}
+
+/* TOP 항목만 TOP 뱃지 아래로 별을 내림 */
+#cardList.view-card .card.top-rank-1 .fav-icon-btn,
+#cardList.view-card .card.top-rank-2 .fav-icon-btn,
+#cardList.view-card .card.top-rank-3 .fav-icon-btn,
+#cardList.view-card .card.top-rank-4 .fav-icon-btn,
+#cardList.view-card .card.top-rank-5 .fav-icon-btn{
+  top:42px !important;
+}
+
+/* TOP 없는 항목은 우측 여백도 조금 줄여 제목 영역 확보 */
+#cardList.view-card .card:not(.top-rank-1):not(.top-rank-2):not(.top-rank-3):not(.top-rank-4):not(.top-rank-5) .card-info{
+  padding-right:48px !important;
+}
+
+/* TOP 항목은 기존처럼 TOP+별 공간 확보 */
+#cardList.view-card .card.top-rank-1 .card-info,
+#cardList.view-card .card.top-rank-2 .card-info,
+#cardList.view-card .card.top-rank-3 .card-info,
+#cardList.view-card .card.top-rank-4 .card-info,
+#cardList.view-card .card.top-rank-5 .card-info{
+  padding-right:72px !important;
+}
+
+@media(max-width:480px){
+  #cardList.view-card .fav-icon-btn,
+  #favoriteList .fav-icon-btn{
+    top:14px !important;
+  }
+
+  #cardList.view-card .card.top-rank-1 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-2 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-3 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-4 .fav-icon-btn,
+  #cardList.view-card .card.top-rank-5 .fav-icon-btn{
+    top:41px !important;
   }
 }
 
