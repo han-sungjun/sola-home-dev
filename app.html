@@ -5791,6 +5791,29 @@ body:has(#view-calendar:not(.hidden)) .app{
   padding-bottom:0!important;
 }
 
+
+/* ===== 캘린더 하단 여백 최종 제거 =====
+   - calendar-view-active에서 다시 들어가던 padding-bottom 84px 제거
+   - 달력 아래 불필요한 빈 공간 제거
+*/
+body.calendar-view-active .app{
+  padding-bottom:0!important;
+}
+body.calendar-view-active .shell::after{
+  content:none!important;
+  display:none!important;
+  height:0!important;
+}
+body.calendar-view-active #view-calendar,
+body.calendar-view-active #view-calendar .panel:last-child,
+body.calendar-view-active #view-calendar .calendar-board,
+body.calendar-view-active #view-calendar .calendar-month-grid,
+body.calendar-view-active #view-calendar .calendar-week-grid,
+body.calendar-view-active #view-calendar .calendar-day-grid{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
