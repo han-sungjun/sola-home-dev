@@ -5145,6 +5145,37 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 혜택 필터 고정: JS fixed 방식 보강 ===== */
+#view-benefits .filter-sticky.is-fixed{
+  position:fixed !important;
+  top:0 !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:min(480px, 100%) !important;
+  max-width:480px !important;
+  z-index:1200 !important;
+  padding:10px 16px 12px !important;
+  margin:0 !important;
+  background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,.98) 88%,rgba(248,250,252,.94) 100%) !important;
+  border-bottom:1px solid rgba(226,232,240,.85) !important;
+  box-shadow:0 10px 24px rgba(15,23,42,.10) !important;
+  border-radius:0 0 20px 20px !important;
+}
+#view-benefits .filter-sticky-placeholder{
+  display:none;
+}
+#view-benefits .filter-sticky-placeholder.active{
+  display:block;
+}
+@media(max-width:480px){
+  #view-benefits .filter-sticky.is-fixed{
+    width:100% !important;
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7164,6 +7195,37 @@ nav.bottom-nav{
     top:0 !important;
     padding-top:8px !important;
     padding-bottom:10px !important;
+  }
+}
+
+
+/* ===== 혜택 필터 고정: JS fixed 방식 보강 ===== */
+#view-benefits .filter-sticky.is-fixed{
+  position:fixed !important;
+  top:0 !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:min(480px, 100%) !important;
+  max-width:480px !important;
+  z-index:1200 !important;
+  padding:10px 16px 12px !important;
+  margin:0 !important;
+  background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,.98) 88%,rgba(248,250,252,.94) 100%) !important;
+  border-bottom:1px solid rgba(226,232,240,.85) !important;
+  box-shadow:0 10px 24px rgba(15,23,42,.10) !important;
+  border-radius:0 0 20px 20px !important;
+}
+#view-benefits .filter-sticky-placeholder{
+  display:none;
+}
+#view-benefits .filter-sticky-placeholder.active{
+  display:block;
+}
+@media(max-width:480px){
+  #view-benefits .filter-sticky.is-fixed{
+    width:100% !important;
+    padding-left:16px !important;
+    padding-right:16px !important;
   }
 }
 
@@ -11453,6 +11515,54 @@ function getShareTrackingParams(){
         wrap.appendChild(card);
       });
     }
+
+    let benefitStickyBaseTop = 0;
+    function setupBenefitFilterFixed(){
+      const filter = qs('#view-benefits .filter-sticky');
+      if(!filter) return;
+      let placeholder = qs('#benefitFilterStickyPlaceholder');
+      if(!placeholder){
+        placeholder = document.createElement('div');
+        placeholder.id = 'benefitFilterStickyPlaceholder';
+        placeholder.className = 'filter-sticky-placeholder';
+        filter.parentNode.insertBefore(placeholder, filter);
+      }
+
+      const measure = () => {
+        filter.classList.remove('is-fixed');
+        placeholder.classList.remove('active');
+        placeholder.style.height = '0px';
+        const rect = filter.getBoundingClientRect();
+        benefitStickyBaseTop = rect.top + window.scrollY;
+      };
+
+      const update = () => {
+        if(state.view !== 'benefits'){
+          filter.classList.remove('is-fixed');
+          placeholder.classList.remove('active');
+          return;
+        }
+        const shouldFix = window.scrollY > benefitStickyBaseTop;
+        if(shouldFix){
+          placeholder.style.height = filter.offsetHeight + 'px';
+          placeholder.classList.add('active');
+          filter.classList.add('is-fixed');
+        }else{
+          filter.classList.remove('is-fixed');
+          placeholder.classList.remove('active');
+          placeholder.style.height = '0px';
+        }
+      };
+
+      setTimeout(() => { measure(); update(); }, 80);
+      window.removeEventListener('scroll', setupBenefitFilterFixed._scrollHandler || (()=>{}));
+      window.removeEventListener('resize', setupBenefitFilterFixed._resizeHandler || (()=>{}));
+      setupBenefitFilterFixed._scrollHandler = update;
+      setupBenefitFilterFixed._resizeHandler = () => { measure(); update(); };
+      window.addEventListener('scroll', setupBenefitFilterFixed._scrollHandler, { passive:true });
+      window.addEventListener('resize', setupBenefitFilterFixed._resizeHandler);
+    }
+
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
@@ -13665,7 +13775,7 @@ async function askAiAssistant(rawQuestion=''){
     }
 
     function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
     qs('#benefitCardModeBtn')?.addEventListener('click', () => setBenefitViewMode('card'));
