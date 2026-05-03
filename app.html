@@ -8477,7 +8477,11 @@ nav.bottom-nav{
 
         async function showForegroundSystemNotification(item = {}) {
           try {
-            if (!isPcBrowserForForegroundNotification()) return;
+            const isCalendarPush = String(item.type || '').toLowerCase() === 'calendar' || !!item.reservationId;
+
+            // 기존 포그라운드 일반 푸시는 PC 중복 방지 정책을 유지합니다.
+            // 단, 캘린더 예약 푸시는 사용자가 진동이 있는 시스템 알림을 원하므로 모바일/PC 모두 허용합니다.
+            if (!isCalendarPush && !isPcBrowserForForegroundNotification()) return;
             if (!('Notification' in window)) return;
             if (Notification.permission !== 'granted') return;
             if (!('serviceWorker' in navigator)) return;
@@ -8490,8 +8494,10 @@ nav.bottom-nav{
               body: item.body || '새로운 알림이 도착했습니다.',
               icon: '/icons/push-icon.png',
               badge: '/icons/badge-icon.png',
-              vibrate: item.important ? [160, 80, 160] : undefined,
-              tag: `foreground-${getForegroundPushKey(item)}`,
+              vibrate: isCalendarPush ? [200, 100, 200] : (item.important ? [160, 80, 160] : undefined),
+              tag: isCalendarPush
+                ? `calendar-${item.reservationId || getForegroundPushKey(item)}`
+                : `foreground-${getForegroundPushKey(item)}`,
               renotify: false,
               data: {
                 url: item.url || '/app',
@@ -8561,28 +8567,32 @@ nav.bottom-nav{
         }
 
         // Data-only FCM은 앱이 열려 있을 때 서비스워커 onBackgroundMessage를 타지 않습니다.
-        // 따라서 포그라운드에서는 공개앱 토스트만 1회 표시하고, 시스템 알림은 서비스워커/서버 푸시 경로에 맡깁니다.
-        onMessage(messaging, (payload) => {
+        // 캘린더 예약 푸시는 포그라운드에서도 serviceWorkerRegistration.showNotification()으로 시스템 알림 + 진동을 1회 표시합니다.
+        // 일반 푸시는 기존처럼 앱 내부 토스트 중심으로 유지합니다.
+        onMessage(messaging, async (payload) => {
           try {
             const item = normalizeForegroundPushPayload(payload);
-            if (!item || shouldSkipForegroundSystemNotification(item)) return;
+            if (!item) return;
 
             if (item.type === 'calendar') {
-              showForegroundPushToast({
+              await showForegroundSystemNotification({
+                ...item,
                 title: item.title || '예약 알림 시간이 되었습니다',
                 body: item.body || '등록한 혜택 매장 방문 알림입니다.',
-                url: item.url || '/app?view=calendar'
+                url: item.url || '/app?view=calendar',
+                important: true
               });
               return;
             }
 
+            if (shouldSkipForegroundSystemNotification(item)) return;
             showForegroundPushToast({
               title: item.title || '새 알림',
               body: item.body || '새로운 알림이 도착했습니다.',
               url: item.url || '/app'
             });
           } catch (error) {
-            console.warn('포그라운드 푸시 토스트 처리 실패', error);
+            console.warn('포그라운드 푸시 처리 실패', error);
           }
         });
 
