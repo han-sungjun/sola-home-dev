@@ -3615,6 +3615,264 @@ html, body{overflow-x:hidden;}
   }
 }
 
+
+/* ===== 혜택 카드형/리스트형 균형 보정 ===== */
+
+/* 공통: 별 아이콘 버튼 */
+.fav-icon-btn{
+  border:1px solid #e2e8f0;
+  background:#fff;
+  color:#f59e0b;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  padding:0;
+  line-height:1;
+}
+.fav-icon-btn.is-favorite{
+  background:#fffbeb;
+  border-color:#fcd34d;
+  color:#f59e0b;
+}
+
+/* 카드형: 상세보기 버튼 제거, 카드 클릭으로 상세 진입 */
+#cardList.view-card .card{
+  position:relative;
+  display:block;
+  padding:18px;
+  overflow:visible;
+}
+#cardList.view-card .card-top{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+#cardList.view-card .badge{
+  min-width:72px;
+  width:auto;
+  height:auto;
+  padding:12px 10px;
+  border-radius:18px;
+  display:block;
+  text-align:center;
+  font-size:16px;
+  line-height:1.2;
+}
+#cardList.view-card .card-info{
+  flex:1;
+  min-width:0;
+  padding-right:44px;
+}
+#cardList.view-card .card h4{
+  margin:0 0 6px;
+  font-size:18px;
+  letter-spacing:-.03em;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+#cardList.view-card .meta{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+#cardList.view-card .list-meta{
+  display:none!important;
+}
+#cardList.view-card .card-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+  width:100%;
+}
+#cardList.view-card .card-tags .tag{
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f8fafc;
+  border:1px solid var(--line);
+  color:#475569;
+  font-size:12px;
+  max-width:180px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#cardList.view-card .card-tags .distance-tag{
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:900;
+}
+#cardList.view-card .card-tags .category-text-tag{
+  font-weight:900;
+}
+#cardList.view-card .actions{
+  display:none!important;
+}
+#cardList.view-card .fav-icon-btn{
+  position:absolute;
+  right:16px;
+  top:16px;
+  width:36px;
+  height:36px;
+  border-radius:13px;
+  font-size:21px;
+  z-index:2;
+}
+#cardList.view-card .top-badge,
+#cardList.view-card [class*="top-badge"],
+#cardList.view-card .benefit-top-badge{
+  right:58px!important;
+  top:17px!important;
+}
+
+/* 리스트형: 사용자가 요청한 핵심 항목만 유지 */
+#cardList.view-list .card{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  min-height:64px;
+  padding:10px 12px;
+  border-radius:14px;
+  overflow:hidden;
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  grid-column:1;
+  width:46px;
+  height:46px;
+  min-width:46px;
+  padding:0;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  line-height:1;
+}
+#cardList.view-list .card-info{
+  grid-column:2;
+  min-width:0;
+  padding-right:0;
+}
+#cardList.view-list .card-info h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .card-info .meta{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .list-meta{
+  grid-column:3;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+}
+#cardList.view-list .category-icon-tag{
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  font-size:14px;
+  flex:0 0 auto;
+}
+#cardList.view-list .list-meta .distance-tag{
+  margin:0;
+  padding:6px 8px;
+  max-width:86px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:900;
+}
+#cardList.view-list .card-tags,
+#cardList.view-list .actions{
+  display:none!important;
+}
+#cardList.view-list .fav-icon-btn{
+  grid-column:4;
+  position:static;
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  font-size:20px;
+}
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge{
+  display:none!important;
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  display:none!important;
+  content:"";
+}
+
+@media(max-width:480px){
+  #cardList.view-card .card{
+    padding:16px;
+  }
+  #cardList.view-card .card-info{
+    padding-right:42px;
+  }
+  #cardList.view-card .fav-icon-btn{
+    right:14px;
+    top:14px;
+    width:34px;
+    height:34px;
+  }
+  #cardList.view-list .card{
+    grid-template-columns:42px minmax(0,1fr) auto auto;
+    gap:8px;
+    min-height:62px;
+    padding:9px 10px;
+  }
+  #cardList.view-list .badge{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    font-size:12px;
+  }
+  #cardList.view-list .category-icon-tag{
+    width:26px;
+    height:26px;
+    font-size:13px;
+  }
+  #cardList.view-list .list-meta .distance-tag{
+    max-width:78px;
+    padding:5px 7px;
+    font-size:10.5px;
+  }
+  #cardList.view-list .fav-icon-btn{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:18px;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -4104,6 +4362,264 @@ html, body{overflow-x:hidden;}
 @media(max-width:370px){
   #cardList.view-list .list-meta .distance-tag{
     max-width:68px;
+  }
+}
+
+
+/* ===== 혜택 카드형/리스트형 균형 보정 ===== */
+
+/* 공통: 별 아이콘 버튼 */
+.fav-icon-btn{
+  border:1px solid #e2e8f0;
+  background:#fff;
+  color:#f59e0b;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  padding:0;
+  line-height:1;
+}
+.fav-icon-btn.is-favorite{
+  background:#fffbeb;
+  border-color:#fcd34d;
+  color:#f59e0b;
+}
+
+/* 카드형: 상세보기 버튼 제거, 카드 클릭으로 상세 진입 */
+#cardList.view-card .card{
+  position:relative;
+  display:block;
+  padding:18px;
+  overflow:visible;
+}
+#cardList.view-card .card-top{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+#cardList.view-card .badge{
+  min-width:72px;
+  width:auto;
+  height:auto;
+  padding:12px 10px;
+  border-radius:18px;
+  display:block;
+  text-align:center;
+  font-size:16px;
+  line-height:1.2;
+}
+#cardList.view-card .card-info{
+  flex:1;
+  min-width:0;
+  padding-right:44px;
+}
+#cardList.view-card .card h4{
+  margin:0 0 6px;
+  font-size:18px;
+  letter-spacing:-.03em;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+#cardList.view-card .meta{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+#cardList.view-card .list-meta{
+  display:none!important;
+}
+#cardList.view-card .card-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+  width:100%;
+}
+#cardList.view-card .card-tags .tag{
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f8fafc;
+  border:1px solid var(--line);
+  color:#475569;
+  font-size:12px;
+  max-width:180px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#cardList.view-card .card-tags .distance-tag{
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:900;
+}
+#cardList.view-card .card-tags .category-text-tag{
+  font-weight:900;
+}
+#cardList.view-card .actions{
+  display:none!important;
+}
+#cardList.view-card .fav-icon-btn{
+  position:absolute;
+  right:16px;
+  top:16px;
+  width:36px;
+  height:36px;
+  border-radius:13px;
+  font-size:21px;
+  z-index:2;
+}
+#cardList.view-card .top-badge,
+#cardList.view-card [class*="top-badge"],
+#cardList.view-card .benefit-top-badge{
+  right:58px!important;
+  top:17px!important;
+}
+
+/* 리스트형: 사용자가 요청한 핵심 항목만 유지 */
+#cardList.view-list .card{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  min-height:64px;
+  padding:10px 12px;
+  border-radius:14px;
+  overflow:hidden;
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  grid-column:1;
+  width:46px;
+  height:46px;
+  min-width:46px;
+  padding:0;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  line-height:1;
+}
+#cardList.view-list .card-info{
+  grid-column:2;
+  min-width:0;
+  padding-right:0;
+}
+#cardList.view-list .card-info h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .card-info .meta{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .list-meta{
+  grid-column:3;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+}
+#cardList.view-list .category-icon-tag{
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  font-size:14px;
+  flex:0 0 auto;
+}
+#cardList.view-list .list-meta .distance-tag{
+  margin:0;
+  padding:6px 8px;
+  max-width:86px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:900;
+}
+#cardList.view-list .card-tags,
+#cardList.view-list .actions{
+  display:none!important;
+}
+#cardList.view-list .fav-icon-btn{
+  grid-column:4;
+  position:static;
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  font-size:20px;
+}
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge{
+  display:none!important;
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  display:none!important;
+  content:"";
+}
+
+@media(max-width:480px){
+  #cardList.view-card .card{
+    padding:16px;
+  }
+  #cardList.view-card .card-info{
+    padding-right:42px;
+  }
+  #cardList.view-card .fav-icon-btn{
+    right:14px;
+    top:14px;
+    width:34px;
+    height:34px;
+  }
+  #cardList.view-list .card{
+    grid-template-columns:42px minmax(0,1fr) auto auto;
+    gap:8px;
+    min-height:62px;
+    padding:9px 10px;
+  }
+  #cardList.view-list .badge{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    font-size:12px;
+  }
+  #cardList.view-list .category-icon-tag{
+    width:26px;
+    height:26px;
+    font-size:13px;
+  }
+  #cardList.view-list .list-meta .distance-tag{
+    max-width:78px;
+    padding:5px 7px;
+    font-size:10.5px;
+  }
+  #cardList.view-list .fav-icon-btn{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:18px;
   }
 }
 
@@ -8331,7 +8847,8 @@ function getShareTrackingParams(){
       const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
       const categoryIcon = getCategoryIcon(item.category);
       const favIcon = isFavorite ? '★' : '☆';
-      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div class="card-info"><h4>${item.name}</h4><div class="meta">${item.condition}</div></div><div class="list-meta"><span class="category-icon-tag" title="${escapeHtml(item.category)}">${categoryIcon}</span>${distanceTag}</div></div><button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
+      const dateHtml = benefitDateTag(item).replace('class="tag"', 'class="tag date-tag"');
+      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div class="card-info"><h4>${item.name}</h4><div class="meta">${item.condition}</div></div><div class="list-meta"><span class="category-icon-tag" title="${escapeHtml(item.category)}">${categoryIcon}</span>${distanceTag}</div><div class="card-tags"><span class="tag category-text-tag">${item.category}</span>${distanceTag}<span class="tag address-tag">📍 ${item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address}</span>${dateHtml}</div></div><button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button><div class="actions"><button class="btn btn-soft fav-btn">${favIcon}</button></div>`;
     }
     function updateBenefitViewModeButtons(){
       const isList = state.benefitViewMode !== 'card';
