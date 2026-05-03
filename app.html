@@ -5671,6 +5671,169 @@ body.gnb-open .bottom-nav{
   pointer-events:none;
 }
 
+
+/* ===== 전역 하단 여백 제거 + 섹션 간격 재정리 =====
+   - 불필요한 하단 padding은 제거
+   - 붙어 보이는 섹션/카드 사이는 margin/gap으로 자연스럽게 분리
+*/
+.app{
+  padding:18px 16px 0!important;
+}
+@media (max-width:480px){
+  .app{
+    padding-left:12px!important;
+    padding-right:12px!important;
+    padding-bottom:0!important;
+  }
+}
+
+/* 기존 목록 하단 과잉 여백 제거 */
+#cardList,
+#favoriteList,
+#popularList,
+#noticeList,
+#calendarList,
+.calendar-list,
+.notice-list,
+.popular-list,
+.map-mode-list,
+.insight-list{
+  padding-bottom:0!important;
+}
+
+/* 화면/섹션 사이 기본 간격 */
+.shell{
+  gap:18px!important;
+}
+.shell > section,
+.shell > div,
+.shell > article,
+.shell > main,
+.view,
+[id^="view-"]{
+  margin-bottom:18px;
+}
+.shell > section:last-child,
+.shell > div:last-child,
+.shell > article:last-child,
+.shell > main:last-child,
+.view:last-child,
+[id^="view-"]:last-child{
+  margin-bottom:0;
+}
+
+/* 패널이 연속될 때 붙지 않도록 */
+.panel + .panel,
+.hero + .panel,
+.panel + .hero,
+.calendar-hero + .panel,
+.panel + .calendar-hero{
+  margin-top:16px!important;
+}
+
+/* 주요 섹션 헤더/본문 간격 */
+.section-head{
+  margin-bottom:12px!important;
+}
+.section-head + .list,
+.section-head + .notice-list,
+.section-head + .popular-list,
+.section-head + .calendar-list,
+.section-head + .map-mode-panel,
+.section-head + .insight-grid{
+  margin-top:12px!important;
+}
+
+/* 혜택 필터 영역과 리스트 사이 */
+.filter-sticky{
+  margin-bottom:16px!important;
+}
+.filter-sticky + .list,
+.filter-sticky + #cardList{
+  margin-top:14px!important;
+}
+
+/* 홈 카드/서비스 메뉴/공지/지도/커뮤니티류 섹션 간격 */
+#view-home .panel,
+#view-benefits .panel,
+#view-favorites .panel,
+#view-popular .panel,
+#view-calendar .panel,
+#view-map .panel,
+#view-community .panel,
+#view-ai .panel{
+  margin-bottom:18px!important;
+}
+#view-home .panel:last-child,
+#view-benefits .panel:last-child,
+#view-favorites .panel:last-child,
+#view-popular .panel:last-child,
+#view-calendar .panel:last-child,
+#view-map .panel:last-child,
+#view-community .panel:last-child,
+#view-ai .panel:last-child{
+  margin-bottom:0!important;
+}
+
+/* 카드 리스트 내부 간격 강화 */
+.list,
+.notice-list,
+.popular-list,
+.calendar-list,
+.map-mode-list,
+.insight-list{
+  gap:16px!important;
+}
+
+/* 커뮤니티/게시글 계열 카드 간격 */
+.community-section,
+.community-panel,
+.community-list,
+.post-list,
+.board-list{
+  margin-top:16px!important;
+}
+.community-card,
+.post-card,
+.board-card{
+  margin-top:14px!important;
+}
+.community-card:first-child,
+.post-card:first-child,
+.board-card:first-child{
+  margin-top:0!important;
+}
+
+/* 지도 블록과 안내/지도 캔버스 사이 */
+.map-mode-panel{
+  gap:16px!important;
+}
+.map-mode-canvas-wrap,
+.detail-map-box{
+  margin-top:14px!important;
+}
+
+/* 인기매장 강조 박스와 위 섹션 간격 */
+.popular-highlight,
+.hot-store-panel,
+.live-popular-panel,
+.trending-panel{
+  margin-top:16px!important;
+}
+
+/* 하단 네비가 fixed이므로 마지막 콘텐츠가 너무 붙지 않게 최소 숨쉴 공간만 */
+.shell::after{
+  content:"";
+  display:block;
+  height:14px;
+  flex:0 0 auto;
+}
+
+/* GNB 내부는 과한 하단 여백 축소 */
+.gnb-body{
+  padding-bottom:28px!important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
