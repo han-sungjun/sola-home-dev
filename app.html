@@ -5176,6 +5176,93 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 정렬/반경 아이콘 팝오버 필터 ===== */
+.filter-icon-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:-2px;
+}
+.filter-pop-wrap{
+  position:relative;
+  flex:0 0 auto;
+}
+.filter-icon-btn{
+  border:1px solid #dbeafe;
+  background:#fff;
+  color:#1d4ed8;
+  border-radius:999px;
+  padding:8px 11px;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(15,23,42,.04);
+  white-space:nowrap;
+}
+.filter-icon-btn.active{
+  background:#eff6ff;
+  border-color:#93c5fd;
+}
+.filter-popover{
+  position:absolute;
+  right:0;
+  top:calc(100% + 8px);
+  width:146px;
+  padding:6px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid #dbeafe;
+  box-shadow:0 18px 35px rgba(15,23,42,.16);
+  z-index:3000;
+}
+.filter-popover.hidden{
+  display:none!important;
+}
+.filter-popover button{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:10px 10px;
+  border-radius:11px;
+  text-align:left;
+  font-size:13px;
+  font-weight:900;
+  color:#0f172a;
+  cursor:pointer;
+}
+.filter-popover button:hover,
+.filter-popover button.active{
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+.sr-only-filter{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  left:-9999px!important;
+}
+#view-benefits .filter-sticky .distance-filter-panel,
+#view-benefits .filter-sticky .distance-filter-help{
+  display:none!important;
+}
+@media(max-width:480px){
+  .filter-icon-row{
+    justify-content:flex-end;
+    gap:6px;
+  }
+  .filter-icon-btn{
+    padding:7px 10px;
+    font-size:11px;
+  }
+  .filter-popover{
+    width:138px;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7229,6 +7316,93 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 정렬/반경 아이콘 팝오버 필터 ===== */
+.filter-icon-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:-2px;
+}
+.filter-pop-wrap{
+  position:relative;
+  flex:0 0 auto;
+}
+.filter-icon-btn{
+  border:1px solid #dbeafe;
+  background:#fff;
+  color:#1d4ed8;
+  border-radius:999px;
+  padding:8px 11px;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(15,23,42,.04);
+  white-space:nowrap;
+}
+.filter-icon-btn.active{
+  background:#eff6ff;
+  border-color:#93c5fd;
+}
+.filter-popover{
+  position:absolute;
+  right:0;
+  top:calc(100% + 8px);
+  width:146px;
+  padding:6px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid #dbeafe;
+  box-shadow:0 18px 35px rgba(15,23,42,.16);
+  z-index:3000;
+}
+.filter-popover.hidden{
+  display:none!important;
+}
+.filter-popover button{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:10px 10px;
+  border-radius:11px;
+  text-align:left;
+  font-size:13px;
+  font-weight:900;
+  color:#0f172a;
+  cursor:pointer;
+}
+.filter-popover button:hover,
+.filter-popover button.active{
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+.sr-only-filter{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  left:-9999px!important;
+}
+#view-benefits .filter-sticky .distance-filter-panel,
+#view-benefits .filter-sticky .distance-filter-help{
+  display:none!important;
+}
+@media(max-width:480px){
+  .filter-icon-row{
+    justify-content:flex-end;
+    gap:6px;
+  }
+  .filter-icon-btn{
+    padding:7px 10px;
+    font-size:11px;
+  }
+  .filter-popover{
+    width:138px;
+  }
+}
+
 </style>
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
@@ -7311,7 +7485,39 @@ nav.bottom-nav{
         <button type="button" class="view-mode-btn" id="benefitCardModeBtn" data-view-mode="card">▦ 카드형</button>
         <button type="button" class="view-mode-btn active" id="benefitListModeBtn" data-view-mode="list">☰ 리스트형</button>
       </div><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운순·반경은 현재 위치 기준입니다.</div></div></div>
+      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="filter-icon-row" id="filterIconRow">
+        <div class="filter-pop-wrap">
+          <button class="filter-icon-btn" type="button" id="sortPopoverBtn" aria-haspopup="true" aria-expanded="false">↕ 정렬</button>
+          <div class="filter-popover hidden" id="sortPopover">
+            <button type="button" data-sort-value="default">추천/할인순</button>
+            <button type="button" data-sort-value="latest">최신 순</button>
+            <button type="button" data-sort-value="top">TOP 5 순</button>
+            <button type="button" data-sort-value="distance">가까운 순</button>
+          </div>
+        </div>
+        <div class="filter-pop-wrap">
+          <button class="filter-icon-btn" type="button" id="radiusPopoverBtn" aria-haspopup="true" aria-expanded="false">📍 반경</button>
+          <div class="filter-popover hidden" id="radiusPopover">
+            <button type="button" data-radius-value="all">전체</button>
+            <button type="button" data-radius-value="500">500m 이내</button>
+            <button type="button" data-radius-value="1000">1km 이내</button>
+            <button type="button" data-radius-value="3000">3km 이내</button>
+          </div>
+        </div>
+        <select id="benefitSortSelect" class="sr-only-filter" aria-hidden="true" tabindex="-1">
+          <option value="default">추천/할인순</option>
+          <option value="latest">최신 순</option>
+          <option value="top">TOP 5 순</option>
+          <option value="distance">가까운 순</option>
+        </select>
+        <select id="distanceRadiusSelect" class="sr-only-filter" aria-hidden="true" tabindex="-1">
+          <option value="all">전체</option>
+          <option value="500">500m 이내</option>
+          <option value="1000">1km 이내</option>
+          <option value="3000">3km 이내</option>
+        </select>
+        <div class="distance-filter-help hidden" id="distanceFilterHelp"></div>
+      </div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
@@ -11516,6 +11722,70 @@ function getShareTrackingParams(){
       });
     }
 
+
+    function closeFilterPopovers(){
+      qs('#sortPopover')?.classList.add('hidden');
+      qs('#radiusPopover')?.classList.add('hidden');
+      qs('#sortPopoverBtn')?.setAttribute('aria-expanded','false');
+      qs('#radiusPopoverBtn')?.setAttribute('aria-expanded','false');
+    }
+    function toggleFilterPopover(type){
+      const target = type === 'radius' ? qs('#radiusPopover') : qs('#sortPopover');
+      const other = type === 'radius' ? qs('#sortPopover') : qs('#radiusPopover');
+      const btn = type === 'radius' ? qs('#radiusPopoverBtn') : qs('#sortPopoverBtn');
+      const otherBtn = type === 'radius' ? qs('#sortPopoverBtn') : qs('#radiusPopoverBtn');
+      if(!target || !btn) return;
+      const willOpen = target.classList.contains('hidden');
+      other?.classList.add('hidden');
+      otherBtn?.setAttribute('aria-expanded','false');
+      target.classList.toggle('hidden', !willOpen);
+      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    }
+    function updateFilterIconLabels(){
+      const sortMap = { default:'↕ 추천', latest:'↕ 최신', top:'↕ TOP', distance:'↕ 가까운순' };
+      const radiusMap = { all:'📍 전체', 500:'📍 500m', 1000:'📍 1km', 3000:'📍 3km' };
+      const sortValue = state.benefitSortMode || 'default';
+      const radiusValue = state.distanceRadius || 'all';
+      const sortBtn = qs('#sortPopoverBtn');
+      const radiusBtn = qs('#radiusPopoverBtn');
+      if(sortBtn){
+        sortBtn.textContent = sortMap[sortValue] || '↕ 정렬';
+        sortBtn.classList.toggle('active', sortValue !== 'default');
+      }
+      if(radiusBtn){
+        radiusBtn.textContent = radiusMap[radiusValue] || '📍 반경';
+        radiusBtn.classList.toggle('active', radiusValue !== 'all');
+      }
+      qsa('[data-sort-value]').forEach(btn => btn.classList.toggle('active', btn.dataset.sortValue === sortValue));
+      qsa('[data-radius-value]').forEach(btn => btn.classList.toggle('active', btn.dataset.radiusValue === radiusValue));
+    }
+    async function applySortPopoverValue(value){
+      state.benefitSortMode = value || 'default';
+      if(qs('#benefitSortSelect')) qs('#benefitSortSelect').value = state.benefitSortMode;
+      await ensureBenefitDistances();
+      updateFilterIconLabels();
+      closeFilterPopovers();
+      renderAll();
+      setTimeout(setupBenefitFilterFixed, 80);
+    }
+    async function applyRadiusPopoverValue(value){
+      state.distanceRadius = value || 'all';
+      if(qs('#distanceRadiusSelect')) qs('#distanceRadiusSelect').value = state.distanceRadius;
+      await ensureBenefitDistances();
+      updateFilterIconLabels();
+      closeFilterPopovers();
+      renderAll();
+      setTimeout(setupBenefitFilterFixed, 80);
+    }
+    function bindFilterIconPopovers(){
+      qs('#sortPopoverBtn')?.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFilterPopover('sort'); });
+      qs('#radiusPopoverBtn')?.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFilterPopover('radius'); });
+      qsa('[data-sort-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.stopPropagation(); applySortPopoverValue(btn.dataset.sortValue); }));
+      qsa('[data-radius-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.stopPropagation(); applyRadiusPopoverValue(btn.dataset.radiusValue); }));
+      document.addEventListener('click', closeFilterPopovers);
+      updateFilterIconLabels();
+    }
+
     let benefitStickyBaseTop = 0;
     function setupBenefitFilterFixed(){
       const filter = qs('#view-benefits .filter-sticky');
@@ -11563,7 +11833,7 @@ function getShareTrackingParams(){
       window.addEventListener('resize', setupBenefitFilterFixed._resizeHandler);
     }
 
-    function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
+    function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);updateFilterIconLabels();} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
     function openDetail(item, options = {}){
@@ -13775,9 +14045,9 @@ async function askAiAssistant(rawQuestion=''){
     }
 
     function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
-    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
+    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';updateFilterIconLabels();changeView('benefits');};
     qs('#benefitCardModeBtn')?.addEventListener('click', () => setBenefitViewMode('card'));
     qs('#benefitListModeBtn')?.addEventListener('click', () => setBenefitViewMode('list'));
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
