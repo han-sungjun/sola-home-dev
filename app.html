@@ -5599,6 +5599,31 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 캘린더 화면 하단 불필요 padding 제거 =====
+   - 전체 앱의 기본 bottom padding은 다른 탭 보호용으로 유지
+   - 캘린더 탭에서는 달력 아래 과도한 빈 영역만 제거
+   - 하단 네비와 safe-area는 최소 여백만 유지
+*/
+body.calendar-view-active .app{
+  padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important;
+}
+body.calendar-view-active #view-calendar{
+  padding-bottom:0!important;
+  margin-bottom:0!important;
+}
+body.calendar-view-active #view-calendar .panel:last-child{
+  margin-bottom:0!important;
+}
+body.calendar-view-active .calendar-shell,
+body.calendar-view-active .calendar-view-shell,
+body.calendar-view-active .calendar-board,
+body.calendar-view-active .calendar-month-grid,
+body.calendar-view-active .calendar-week-grid,
+body.calendar-view-active .calendar-day-grid{
+  margin-bottom:0!important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -15938,6 +15963,51 @@ window.addEventListener("load", handlePushDeepLink);
         console.warn('AI 상단 아이콘 강조 처리 실패:', error);
       }
     })();
+
+/* ===== 캘린더 화면 전용 padding class 동기화 ===== */
+(function(){
+  function isVisible(el){
+    if (!el) return false;
+    if (el.classList && el.classList.contains("hidden")) return false;
+    const style = window.getComputedStyle(el);
+    return style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0";
+  }
+
+  function syncCalendarViewPaddingClass(){
+    const calendarView =
+      document.getElementById("view-calendar") ||
+      document.querySelector('[data-view="calendar"]') ||
+      document.querySelector(".calendar-hero")?.closest("section,div");
+
+    const calendarNavActive =
+      document.querySelector('.nav-btn.active[data-tab="calendar"], .nav-btn.active[data-view="calendar"], .nav-btn.active[aria-label*="캘린더"]');
+
+    const isCalendar =
+      (calendarView && isVisible(calendarView)) ||
+      !!calendarNavActive ||
+      (location.hash || "").toLowerCase().includes("calendar") ||
+      (location.search || "").toLowerCase().includes("open=calendar");
+
+    document.body.classList.toggle("calendar-view-active", !!isCalendar);
+  }
+
+  window.syncCalendarViewPaddingClass = syncCalendarViewPaddingClass;
+
+  document.addEventListener("DOMContentLoaded", function(){
+    syncCalendarViewPaddingClass();
+    setTimeout(syncCalendarViewPaddingClass, 250);
+    setTimeout(syncCalendarViewPaddingClass, 800);
+  });
+
+  document.addEventListener("click", function(){
+    setTimeout(syncCalendarViewPaddingClass, 80);
+  }, true);
+
+  window.addEventListener("hashchange", syncCalendarViewPaddingClass);
+  window.addEventListener("popstate", syncCalendarViewPaddingClass);
+  setInterval(syncCalendarViewPaddingClass, 1200);
+})();
+
 </script>
 
 </body></html>
