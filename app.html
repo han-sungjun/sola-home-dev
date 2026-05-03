@@ -5542,6 +5542,63 @@ nav.bottom-nav{
   .calendar-day-modal-list .calendar-item-actions .btn{flex-basis:100%;}
 }
 
+
+/* ===== 캘린더 날짜 예약 팝업: 고정 높이 + 내부 목록만 스크롤 ===== */
+#calendarDayModal{
+  height:min(82dvh,720px)!important;
+  max-height:min(82dvh,720px)!important;
+  overflow:hidden!important;
+}
+#calendarDayModal[open]{
+  display:flex!important;
+  flex-direction:column!important;
+}
+#calendarDayModal .calendar-day-modal-head{
+  flex:0 0 auto!important;
+}
+#calendarDayModal .calendar-day-modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  padding:14px 16px 14px!important;
+  overflow:hidden!important;
+}
+#calendarDayModal .calendar-day-modal-list{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:2px 4px 10px 0!important;
+}
+#calendarDayModal .calendar-day-modal-footer{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  padding-top:10px!important;
+  background:#fff!important;
+  border-top:1px solid rgba(15,23,42,.06)!important;
+}
+#calendarDayModal .calendar-empty{
+  min-height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+@media (max-width:390px){
+  #calendarDayModal{
+    height:min(84dvh,700px)!important;
+    max-height:min(84dvh,700px)!important;
+  }
+  #calendarDayModal .calendar-day-modal-footer{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
