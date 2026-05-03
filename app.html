@@ -5089,6 +5089,62 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 혜택 검색/카테고리/정렬 영역 상단 고정 최종 보정 ===== */
+#view-benefits{
+  overflow:visible !important;
+}
+
+#view-benefits .filter-sticky{
+  position:-webkit-sticky !important;
+  position:sticky !important;
+  top:0 !important;
+  z-index:120 !important;
+  background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,.98) 88%,rgba(248,250,252,.92) 100%) !important;
+  backdrop-filter:blur(14px) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+  padding:10px 0 12px !important;
+  margin:0 0 12px !important;
+  border-bottom:1px solid rgba(226,232,240,.75) !important;
+  box-shadow:0 8px 20px rgba(15,23,42,.045) !important;
+}
+
+/* sticky 내부 요소가 뒤로 밀리지 않도록 보정 */
+#view-benefits .filter-sticky .benefit-view-switch,
+#view-benefits .filter-sticky .searchbox,
+#view-benefits .filter-sticky .chips,
+#view-benefits .filter-sticky .chips-toggle,
+#view-benefits .filter-sticky .distance-filter-panel{
+  position:relative !important;
+  z-index:121 !important;
+}
+
+/* 검색창/필터 패널 sticky 상태에서 여백 안정화 */
+#view-benefits .filter-sticky .searchbox{
+  margin:0 !important;
+}
+
+#view-benefits .filter-sticky .distance-filter-panel{
+  margin-top:0 !important;
+}
+
+/* 하단 네비는 sticky 필터보다 위에 오도록 유지 */
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  z-index:9999 !important;
+}
+
+/* iOS/모바일에서 sticky가 흔들리지 않도록 */
+@media(max-width:480px){
+  #view-benefits .filter-sticky{
+    top:0 !important;
+    padding-top:8px !important;
+    padding-bottom:10px !important;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7055,9 +7111,66 @@ nav.bottom-nav{
   }
 }
 
+
+/* ===== 혜택 검색/카테고리/정렬 영역 상단 고정 최종 보정 ===== */
+#view-benefits{
+  overflow:visible !important;
+}
+
+#view-benefits .filter-sticky{
+  position:-webkit-sticky !important;
+  position:sticky !important;
+  top:0 !important;
+  z-index:120 !important;
+  background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,.98) 88%,rgba(248,250,252,.92) 100%) !important;
+  backdrop-filter:blur(14px) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+  padding:10px 0 12px !important;
+  margin:0 0 12px !important;
+  border-bottom:1px solid rgba(226,232,240,.75) !important;
+  box-shadow:0 8px 20px rgba(15,23,42,.045) !important;
+}
+
+/* sticky 내부 요소가 뒤로 밀리지 않도록 보정 */
+#view-benefits .filter-sticky .benefit-view-switch,
+#view-benefits .filter-sticky .searchbox,
+#view-benefits .filter-sticky .chips,
+#view-benefits .filter-sticky .chips-toggle,
+#view-benefits .filter-sticky .distance-filter-panel{
+  position:relative !important;
+  z-index:121 !important;
+}
+
+/* 검색창/필터 패널 sticky 상태에서 여백 안정화 */
+#view-benefits .filter-sticky .searchbox{
+  margin:0 !important;
+}
+
+#view-benefits .filter-sticky .distance-filter-panel{
+  margin-top:0 !important;
+}
+
+/* 하단 네비는 sticky 필터보다 위에 오도록 유지 */
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  z-index:9999 !important;
+}
+
+/* iOS/모바일에서 sticky가 흔들리지 않도록 */
+@media(max-width:480px){
+  #view-benefits .filter-sticky{
+    top:0 !important;
+    padding-top:8px !important;
+    padding-bottom:10px !important;
+  }
+}
+
 </style>
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
+<!-- sticky-filter-final-v1 -->
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
