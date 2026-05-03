@@ -4177,6 +4177,24 @@ html, body{overflow-x:hidden;}
   z-index:10 !important;
 }
 
+
+/* ===== 최종: 등록일 제거 + 즐겨찾기/하단 네비 z-index 정리 ===== */
+#cardList.view-card .fav-icon-btn,
+#cardList.view-list .fav-icon-btn,
+#cardList .fav-icon-btn{
+  z-index:3 !important;
+}
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  z-index:9999 !important;
+}
+#cardList.view-card .card-tags .date-tag,
+#cardList.view-list .date-tag{
+  display:none !important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -5231,8 +5249,27 @@ html, body{overflow-x:hidden;}
   z-index:10 !important;
 }
 
+
+/* ===== 최종: 등록일 제거 + 즐겨찾기/하단 네비 z-index 정리 ===== */
+#cardList.view-card .fav-icon-btn,
+#cardList.view-list .fav-icon-btn,
+#cardList .fav-icon-btn{
+  z-index:3 !important;
+}
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  z-index:9999 !important;
+}
+#cardList.view-card .card-tags .date-tag,
+#cardList.view-list .date-tag{
+  display:none !important;
+}
+
 </style>
 
+<!-- benefit-final-date-zindex-fixed-v2 -->
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -7222,7 +7259,7 @@ async function refreshPushStatus(){
     function benefitDateTag(item = {}){
       const createdText = formatKoreanDate(item.createdAt);
       const newBadge = recentNewBadgeHtml(item);
-      const dateTag = createdText ? `<span class="tag">🗓️ 등록일 ${createdText}</span>` : '';
+      const dateTag = createdText ? `` : '';
       return `${newBadge}${dateTag}`;
     }
 
@@ -9456,7 +9493,6 @@ function getShareTrackingParams(){
       const categoryIcon = getCategoryIcon(item.category);
       const favIcon = isFavorite ? '★' : '☆';
       const addressText = item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address;
-      const dateHtml = benefitDateTag(item).replace('class="tag"', 'class="tag date-tag"');
       return `${benefitTopBadgeHtml(item)}
         <div class="card-top">
           <div class="${getBadgeClass(item)}">${item.discountText}</div>
@@ -9473,7 +9509,7 @@ function getShareTrackingParams(){
           <span class="tag category-text-tag">${item.category}</span>
           ${distanceTag}
           
-          ${dateHtml}
+          
         </div>
         <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
         <div class="actions"><button class="btn btn-soft fav-btn">${favIcon}</button></div>`;
