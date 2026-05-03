@@ -5516,6 +5516,32 @@ nav.bottom-nav{
 @keyframes calendarFocusPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}40%{transform:scale(1.08);box-shadow:0 0 0 7px rgba(37,99,235,.18)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}}
 @media (max-width:390px){.calendar-date-cell{min-height:58px;border-radius:16px;padding:7px 5px}.calendar-nav-row{gap:6px}.calendar-nav-btn{width:40px}.calendar-day-modal-head{padding-left:12px;padding-right:12px}.calendar-day-modal-body{padding-left:12px;padding-right:12px}.calendar-day-modal-footer{grid-template-columns:1fr}}
 
+
+/* ===== 캘린더 팝업/하단 목록 UX 보정 ===== */
+.calendar-selected-section{display:none!important;}
+.calendar-view-panel{margin-bottom:0!important;}
+#calendarDayModal[open]{display:flex;flex-direction:column;max-height:min(92dvh,820px);}
+#calendarDayModal{max-height:min(92dvh,820px);}
+.calendar-day-modal-head{flex:0 0 auto;}
+.calendar-day-modal-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;}
+.calendar-day-modal-list{flex:1 1 auto;min-height:0;max-height:none!important;overflow-y:auto;display:grid;gap:12px;padding:2px 4px 10px 0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+.calendar-day-modal-list .calendar-item{min-height:auto!important;height:auto!important;max-height:none!important;overflow:visible!important;padding:16px!important;gap:10px!important;}
+.calendar-day-modal-list .calendar-item-head{display:flex!important;align-items:flex-start!important;}
+.calendar-day-modal-list .calendar-info-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
+.calendar-day-modal-list .calendar-info{display:block!important;min-height:auto!important;}
+.calendar-day-modal-list .calendar-item-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;position:relative!important;}
+.calendar-day-modal-list .calendar-item-actions .btn{flex:1 1 120px;min-height:42px;}
+.calendar-day-modal-footer{flex:0 0 auto;background:#fff;padding-top:4px;}
+.calendar-day-compact{display:grid;gap:12px;padding:14px;border-radius:22px;background:#fff;border:1px solid #e2e8f0;box-shadow:var(--shadow);}
+.calendar-day-compact strong{font-size:16px;line-height:1.35;}
+.calendar-day-compact p{margin:0;color:#64748b;font-size:13px;font-weight:800;line-height:1.6;}
+.calendar-day-compact .btn{width:100%;min-height:46px;}
+@media (max-width:390px){
+  #calendarDayModal[open],#calendarDayModal{max-height:92dvh;}
+  .calendar-day-modal-list .calendar-info-grid{grid-template-columns:1fr!important;}
+  .calendar-day-modal-list .calendar-item-actions .btn{flex-basis:100%;}
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -12568,7 +12594,7 @@ function getShareTrackingParams(){
     function renderCalendarDayBoard(board){
       const key = calendarUiState.selectedDateKey || dateKeyFromDate(calendarUiState.cursorDate);
       const items = getReservationsByDateKey(key);
-      board.innerHTML = `<div class="calendar-day-head"><div><strong>${formatCalendarDayTitle(key)} 일정</strong><div class="helper">예약 카드를 누르면 날짜별 팝업으로 확인할 수 있습니다.</div></div><button class="calendar-open-day-btn" type="button" data-calendar-date="${escapeAttr(key)}">팝업 보기</button></div><div class="calendar-day-timeline">${items.length ? items.map(item => calendarItemHtml(item, { clickable:true })).join('') : '<div class="calendar-empty">선택한 날짜에 등록된 예약이 없습니다.</div>'}</div>`;
+      board.innerHTML = `<div class="calendar-day-compact" data-calendar-date="${escapeAttr(key)}"><div><strong>${formatCalendarDayTitle(key)} 일정</strong><p>${items.length ? `${items.length}건의 예약이 있습니다. 팝업으로 편하게 확인하세요.` : '선택한 날짜에 등록된 예약이 없습니다.'}</p></div><button class="calendar-open-day-btn" type="button" data-calendar-date="${escapeAttr(key)}">해당 날짜 예약 보기</button></div>`;
     }
     function renderCalendarVisualBoard(){
       const board = qs('#calendarVisualBoard');
@@ -12589,19 +12615,8 @@ function getShareTrackingParams(){
     function renderSelectedCalendarList(){
       const wrap = qs('#calendarReservationList');
       const head = qs('#calendarSelectedHead');
-      if(!wrap) return;
-      const key = calendarUiState.selectedDateKey || dateKeyFromDate(new Date());
-      const items = getReservationsByDateKey(key);
-      if(head){
-        head.innerHTML = `<div><h3>${escapeHtml(formatCalendarDayTitle(key))} 예약</h3><p>선택 날짜의 예약 알림입니다.</p></div><button class="btn btn-soft" type="button" data-calendar-date="${escapeAttr(key)}">팝업 보기</button>`;
-        head.querySelector('[data-calendar-date]')?.addEventListener('click', () => openCalendarDayModal(key));
-      }
-      if(!items.length){
-        wrap.innerHTML = '<div class="calendar-empty">선택한 날짜에 등록된 예약 알림이 없습니다.<br>다른 날짜를 선택해 보세요.</div>';
-        return;
-      }
-      wrap.innerHTML = items.map(item => calendarItemHtml(item)).join('');
-      bindCalendarReservationActions(wrap);
+      if(head) head.innerHTML = '';
+      if(wrap) wrap.innerHTML = '';
     }
     function renderCalendarReservations(){
       const counts = getReservationCounts();
@@ -12671,6 +12686,7 @@ function getShareTrackingParams(){
       if(picker) picker.value = key;
       if(!list) return;
       list.innerHTML = items.length ? items.map(item => calendarItemHtml(item)).join('') : '<div class="calendar-empty">해당 날짜에 등록된 예약이 없습니다.</div>';
+      list.scrollTop = 0;
       bindCalendarReservationActions(list);
     }
     function closeCalendarDayModal(){
