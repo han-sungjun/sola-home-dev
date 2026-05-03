@@ -3461,6 +3461,160 @@ html, body{overflow-x:hidden;}
   }
 }
 
+
+/* ===== 혜택 리스트형 최종 구조: 할인율 / 가게명 / 핵심혜택 / 카테고리 아이콘 / 거리 / 별 ===== */
+#cardList.view-list .card{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  min-height:64px;
+  padding:10px 12px;
+  border-radius:14px;
+  overflow:hidden;
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  grid-column:1;
+  width:46px;
+  height:46px;
+  min-width:46px;
+  padding:0;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  line-height:1;
+}
+#cardList.view-list .card-info{
+  grid-column:2;
+  min-width:0;
+}
+#cardList.view-list .card-info h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .card-info .meta{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .list-meta{
+  grid-column:3;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+}
+#cardList.view-list .category-icon-tag{
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  font-size:14px;
+  flex:0 0 auto;
+}
+#cardList.view-list .list-meta .distance-tag{
+  margin:0;
+  padding:6px 8px;
+  max-width:86px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:900;
+}
+#cardList.view-list .tags,
+#cardList.view-list .actions,
+#cardList.view-list .detail-btn{
+  display:none!important;
+}
+#cardList.view-list .fav-icon-btn{
+  grid-column:4;
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  border:1px solid #e2e8f0;
+  background:#fff;
+  color:#f59e0b;
+  display:grid;
+  place-items:center;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+  padding:0;
+}
+#cardList.view-list .fav-icon-btn.is-favorite{
+  background:#fffbeb;
+  border-color:#fcd34d;
+  color:#f59e0b;
+}
+#cardList.view-card .fav-icon-btn{
+  display:none!important;
+}
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge{
+  display:none!important;
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  display:none!important;
+  content:"";
+}
+@media(max-width:480px){
+  #cardList.view-list .card{
+    grid-template-columns:42px minmax(0,1fr) auto auto;
+    gap:8px;
+    min-height:62px;
+    padding:9px 10px;
+  }
+  #cardList.view-list .badge{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    font-size:12px;
+  }
+  #cardList.view-list .category-icon-tag{
+    width:26px;
+    height:26px;
+    font-size:13px;
+  }
+  #cardList.view-list .list-meta{
+    gap:5px;
+  }
+  #cardList.view-list .list-meta .distance-tag{
+    max-width:78px;
+    padding:5px 7px;
+    font-size:10.5px;
+  }
+  #cardList.view-list .fav-icon-btn{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:18px;
+  }
+}
+@media(max-width:370px){
+  #cardList.view-list .list-meta .distance-tag{
+    max-width:68px;
+  }
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -3796,6 +3950,160 @@ html, body{overflow-x:hidden;}
   }
   #cardList.view-list .actions{
     display:none;
+  }
+}
+
+
+/* ===== 혜택 리스트형 최종 구조: 할인율 / 가게명 / 핵심혜택 / 카테고리 아이콘 / 거리 / 별 ===== */
+#cardList.view-list .card{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  min-height:64px;
+  padding:10px 12px;
+  border-radius:14px;
+  overflow:hidden;
+}
+#cardList.view-list .card-top{
+  display:contents;
+}
+#cardList.view-list .badge{
+  grid-column:1;
+  width:46px;
+  height:46px;
+  min-width:46px;
+  padding:0;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  line-height:1;
+}
+#cardList.view-list .card-info{
+  grid-column:2;
+  min-width:0;
+}
+#cardList.view-list .card-info h4{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .card-info .meta{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#cardList.view-list .list-meta{
+  grid-column:3;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+}
+#cardList.view-list .category-icon-tag{
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  font-size:14px;
+  flex:0 0 auto;
+}
+#cardList.view-list .list-meta .distance-tag{
+  margin:0;
+  padding:6px 8px;
+  max-width:86px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:900;
+}
+#cardList.view-list .tags,
+#cardList.view-list .actions,
+#cardList.view-list .detail-btn{
+  display:none!important;
+}
+#cardList.view-list .fav-icon-btn{
+  grid-column:4;
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  border:1px solid #e2e8f0;
+  background:#fff;
+  color:#f59e0b;
+  display:grid;
+  place-items:center;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+  padding:0;
+}
+#cardList.view-list .fav-icon-btn.is-favorite{
+  background:#fffbeb;
+  border-color:#fcd34d;
+  color:#f59e0b;
+}
+#cardList.view-card .fav-icon-btn{
+  display:none!important;
+}
+#cardList.view-list .top-badge,
+#cardList.view-list [class*="top-badge"],
+#cardList.view-list .benefit-top-badge{
+  display:none!important;
+}
+#cardList.view-list .card[class*="top-rank"]::after{
+  display:none!important;
+  content:"";
+}
+@media(max-width:480px){
+  #cardList.view-list .card{
+    grid-template-columns:42px minmax(0,1fr) auto auto;
+    gap:8px;
+    min-height:62px;
+    padding:9px 10px;
+  }
+  #cardList.view-list .badge{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    font-size:12px;
+  }
+  #cardList.view-list .category-icon-tag{
+    width:26px;
+    height:26px;
+    font-size:13px;
+  }
+  #cardList.view-list .list-meta{
+    gap:5px;
+  }
+  #cardList.view-list .list-meta .distance-tag{
+    max-width:78px;
+    padding:5px 7px;
+    font-size:10.5px;
+  }
+  #cardList.view-list .fav-icon-btn{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:18px;
+  }
+}
+@media(max-width:370px){
+  #cardList.view-list .list-meta .distance-tag{
+    max-width:68px;
   }
 }
 
@@ -8019,11 +8327,11 @@ function getShareTrackingParams(){
       return value <= 5 ? 'badge low' : 'badge';
     };
     function cardTemplate(item,isFavorite){
-      const shortAddress = item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address;
       const distance = getItemDistance(item);
       const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
-      const dateHtml = benefitDateTag(item).replace('class="tag"', 'class="tag date-tag"');
-      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div class="card-info"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div></div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag category-tag">${item.category}</span>${distanceTag}<span class="tag address-tag">📍 ${shortAddress}</span>${dateHtml}</div></div><div class="actions"><button class="btn btn-primary detail-btn">보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
+      const categoryIcon = getCategoryIcon(item.category);
+      const favIcon = isFavorite ? '★' : '☆';
+      return `${benefitTopBadgeHtml(item)}<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div class="card-info"><h4>${item.name}</h4><div class="meta">${item.condition}</div></div><div class="list-meta"><span class="category-icon-tag" title="${escapeHtml(item.category)}">${categoryIcon}</span>${distanceTag}</div></div><button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;
     }
     function updateBenefitViewModeButtons(){
       const isList = state.benefitViewMode !== 'card';
@@ -8052,8 +8360,10 @@ function getShareTrackingParams(){
         card.className=`card ${topRank ? `top-rank-${topRank}` : ''}`;
         card.innerHTML=cardTemplate(item,favorites.has(item.id));
         card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
-        card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};
-        card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};
+        card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
+        card.querySelectorAll('.fav-btn').forEach((btn)=>{
+          btn.addEventListener('click',(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);});
+        });
         wrap.appendChild(card);
       });
     }
