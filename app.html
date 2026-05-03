@@ -819,51 +819,6 @@ html[data-font-size] .calendar-note{font-size:clamp(12px,calc(13px * var(--app-f
 html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 @media (max-width:390px){.calendar-summary-grid,.calendar-info-grid,.calendar-form-actions{grid-template-columns:1fr;}.calendar-toolbar{align-items:flex-start;flex-direction:column}.calendar-item-head{flex-direction:column}.calendar-status{align-self:flex-start}}
 
-/* ===== 캘린더 월간/주간/일간 보기 ===== */
-.calendar-view-panel{display:grid;gap:14px;margin-bottom:14px;}
-.calendar-nav-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.calendar-nav-title{font-size:18px;font-weight:1000;letter-spacing:-.04em;line-height:1.25;}
-.calendar-nav-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;}
-.calendar-nav-actions .btn{min-height:40px;padding:9px 11px;border-radius:14px;font-size:13px;}
-.calendar-view-toggle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:6px;border-radius:18px;background:#f1f5f9;border:1px solid #e2e8f0;}
-.calendar-view-toggle button{border:none;border-radius:14px;min-height:40px;background:transparent;color:#64748b;font-size:13px;font-weight:1000;cursor:pointer;transition:background-color .16s ease,color .16s ease,transform .16s ease,box-shadow .16s ease;}
-.calendar-view-toggle button.active{background:#fff;color:#1d4ed8;box-shadow:0 8px 18px rgba(15,23,42,.08);}
-.calendar-view-toggle button:active{transform:scale(.98);}
-.calendar-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
-.calendar-weekday{font-size:11px;font-weight:1000;color:#94a3b8;text-align:center;padding:4px 0;}
-.calendar-day-cell{min-height:62px;border:none;border-radius:18px;background:#fff;border:1px solid #e2e8f0;padding:8px 6px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;cursor:pointer;text-align:left;box-shadow:0 8px 18px rgba(15,23,42,.04);transition:transform .16s ease,border-color .16s ease,background-color .16s ease,box-shadow .16s ease;color:#0f172a;}
-.calendar-day-cell:hover{transform:translateY(-1px);border-color:#bfdbfe;}
-.calendar-day-cell.other-month{opacity:.38;background:#f8fafc;}
-.calendar-day-cell.today{border-color:#93c5fd;background:#eff6ff;}
-.calendar-day-cell.selected{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 12px 26px rgba(15,23,42,.18);}
-.calendar-day-number{font-size:13px;font-weight:1000;line-height:1;}
-.calendar-day-dots{display:flex;align-items:center;gap:3px;flex-wrap:wrap;min-height:8px;}
-.calendar-dot{width:6px;height:6px;border-radius:999px;background:#2563eb;display:inline-block;}
-.calendar-day-cell.selected .calendar-dot{background:#fff;}
-.calendar-day-count{font-size:10px;font-weight:1000;color:#2563eb;line-height:1;}
-.calendar-day-cell.selected .calendar-day-count{color:#fff;}
-.calendar-week-list,.calendar-day-timeline{display:grid;gap:10px;}
-.calendar-week-day{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:12px;box-shadow:0 8px 18px rgba(15,23,42,.04);}
-.calendar-week-day.selected{border-color:#93c5fd;background:#eff6ff;}
-.calendar-week-day-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
-.calendar-week-day-head strong{font-size:14px;letter-spacing:-.03em;}
-.calendar-week-day-head span{font-size:11px;font-weight:900;color:#64748b;}
-.calendar-mini-reservation{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-top:1px solid #edf2f7;}
-.calendar-mini-reservation:first-of-type{border-top:none;}
-.calendar-mini-time{min-width:48px;font-size:12px;font-weight:1000;color:#1d4ed8;line-height:1.35;}
-.calendar-mini-copy{min-width:0;flex:1;}
-.calendar-mini-copy strong{display:block;font-size:13px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.calendar-mini-copy span{display:block;margin-top:2px;font-size:11px;color:#64748b;line-height:1.4;}
-.calendar-day-timeline .calendar-empty{box-shadow:none;}
-.calendar-selected-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 10px;}
-.calendar-selected-title strong{font-size:16px;letter-spacing:-.03em;}
-.calendar-selected-title small{font-size:12px;color:#64748b;font-weight:900;}
-html[data-font-size] .calendar-view-toggle button,
-html[data-font-size] .calendar-day-number,
-html[data-font-size] .calendar-mini-copy strong{font-size:clamp(12px,calc(13px * var(--app-font-scale)),16px);}
-@media (max-width:390px){.calendar-nav-row{align-items:flex-start;flex-direction:column}.calendar-nav-actions{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr}.calendar-day-cell{min-height:56px;border-radius:15px;padding:7px 5px}.calendar-month-grid{gap:5px}.calendar-weekday{font-size:10px}.calendar-view-toggle button{min-height:38px}}
-
-
 .notice-list{
   display:grid;
   gap:12px;
@@ -5505,6 +5460,62 @@ nav.bottom-nav{
   display:none !important;
 }
 
+
+
+/* ===== 캘린더 월간/주간/일간 + 공통 날짜 예약 팝업 ===== */
+.calendar-view-panel{display:grid;gap:14px;margin-bottom:14px;}
+.calendar-nav-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.calendar-nav-title{border:none;background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:12px 14px;font-size:16px;font-weight:1000;color:#0f172a;box-shadow:0 8px 18px rgba(15,23,42,.05);cursor:pointer;min-width:0;flex:1;}
+.calendar-nav-btn{width:44px;height:44px;border:none;border-radius:16px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:18px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.05);}
+.calendar-mode-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.calendar-mode-btn{border:none;border-radius:16px;padding:11px 10px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-weight:1000;cursor:pointer;}
+.calendar-mode-btn.active{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 12px 24px rgba(15,23,42,.14);}
+.calendar-board{display:grid;gap:12px;}
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;text-align:center;color:#64748b;font-size:12px;font-weight:1000;}
+.calendar-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;}
+.calendar-date-cell{min-height:62px;border:1px solid #e2e8f0;background:#fff;border-radius:18px;padding:8px 6px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;justify-content:flex-start;cursor:pointer;transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, background-color .16s ease;}
+.calendar-date-cell:hover{transform:translateY(-1px);border-color:#bfdbfe;box-shadow:0 10px 20px rgba(37,99,235,.08);}
+.calendar-date-cell.other-month{opacity:.42;background:#f8fafc;}
+.calendar-date-cell.today{border-color:#93c5fd;background:#eff6ff;}
+.calendar-date-cell.selected{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 12px 24px rgba(15,23,42,.18);}
+.calendar-date-cell.focus-highlight{animation:calendarFocusPulse .9s ease both;}
+.calendar-date-num{font-size:14px;font-weight:1000;line-height:1;}
+.calendar-dots{display:flex;flex-wrap:wrap;gap:3px;align-items:center;min-height:8px;}
+.calendar-dot{width:5px;height:5px;border-radius:999px;background:#2563eb;display:inline-block;}
+.calendar-date-cell.selected .calendar-dot{background:#fff;}
+.calendar-more{font-size:11px;font-weight:1000;color:#2563eb;line-height:1;}
+.calendar-date-cell.selected .calendar-more{color:#fff;}
+.calendar-week-grid{display:grid;gap:10px;}
+.calendar-week-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:22px;background:#fff;border:1px solid #e2e8f0;box-shadow:var(--shadow);cursor:pointer;}
+.calendar-week-card.today{border-color:#93c5fd;background:#eff6ff;}
+.calendar-week-card.selected{border-color:#0f172a;background:#0f172a;color:#fff;}
+.calendar-week-date{display:flex;flex-direction:column;gap:4px;min-width:78px;}
+.calendar-week-date strong{font-size:16px;line-height:1;}
+.calendar-week-date span{font-size:12px;color:#64748b;font-weight:900;}
+.calendar-week-card.selected .calendar-week-date span{color:rgba(255,255,255,.72);}
+.calendar-week-summary{min-width:0;flex:1;text-align:right;font-size:13px;font-weight:900;color:#475569;line-height:1.5;}
+.calendar-week-card.selected .calendar-week-summary{color:#fff;}
+.calendar-day-timeline{display:grid;gap:10px;}
+.calendar-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:20px;background:#fff;border:1px solid #e2e8f0;}
+.calendar-day-head strong{font-size:15px;}
+.calendar-open-day-btn{border:none;border-radius:14px;padding:9px 12px;background:#0f172a;color:#fff;font-weight:900;cursor:pointer;}
+.calendar-selected-section{display:grid;gap:12px;}
+.calendar-selected-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px;}
+.calendar-selected-head h3{margin:0;font-size:18px;letter-spacing:-.04em;}
+.calendar-selected-head p{margin:4px 0 0;color:#64748b;font-size:12px;font-weight:800;}
+#calendarDayModal{width:min(460px,calc(100% - 20px));border:none;border-radius:30px;padding:0;background:#fff;color:#0f172a;box-shadow:0 32px 70px rgba(15,23,42,.25);overflow:hidden;}
+#calendarDayModal::backdrop{background:rgba(15,23,42,.46);backdrop-filter:blur(6px);}
+.calendar-day-modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:18px 16px 10px;border-bottom:1px solid rgba(15,23,42,.06);}
+.calendar-day-modal-date{min-width:0;flex:1;border:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:12px 10px;text-align:center;font-weight:1000;color:#0f172a;cursor:pointer;}
+.calendar-day-modal-arrow,.calendar-day-modal-close{width:42px;height:42px;border:none;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#0f172a;font-size:18px;font-weight:1000;cursor:pointer;}
+.calendar-day-modal-body{padding:14px 16px 18px;display:grid;gap:12px;}
+.calendar-day-modal-list{max-height:60vh;overflow-y:auto;display:grid;gap:12px;padding-right:2px;scrollbar-width:thin;}
+.calendar-day-modal-list .calendar-item{box-shadow:none;border-color:#e2e8f0;}
+.calendar-day-modal-footer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.calendar-hidden-date-picker{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+@keyframes calendarFocusPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}40%{transform:scale(1.08);box-shadow:0 0 0 7px rgba(37,99,235,.18)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}}
+@media (max-width:390px){.calendar-date-cell{min-height:58px;border-radius:16px;padding:7px 5px}.calendar-nav-row{gap:6px}.calendar-nav-btn{width:40px}.calendar-day-modal-head{padding-left:12px;padding-right:12px}.calendar-day-modal-body{padding-left:12px;padding-right:12px}.calendar-day-modal-footer{grid-template-columns:1fr}}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7972,32 +7983,26 @@ nav.bottom-nav{
         <div class="calendar-summary-card"><strong id="calendarUpcomingCount">0</strong><span>예정 알림</span></div>
       </div>
       <div class="panel calendar-view-panel">
-        <div class="calendar-nav-row">
-          <div>
-            <div class="calendar-nav-title" id="calendarCurrentTitle">캘린더</div>
-            <div class="helper" id="calendarCurrentHelper">월간/주간/일간으로 예약 알림을 확인합니다.</div>
-          </div>
-          <div class="calendar-nav-actions">
-            <button class="btn btn-soft" type="button" id="calendarPrevBtn">‹</button>
-            <button class="btn btn-soft" type="button" id="calendarTodayBtn">오늘</button>
-            <button class="btn btn-soft" type="button" id="calendarNextBtn">›</button>
-          </div>
-        </div>
-        <div class="calendar-view-toggle" role="tablist" aria-label="캘린더 보기 전환">
-          <button type="button" data-calendar-mode="month" class="active">월간</button>
-          <button type="button" data-calendar-mode="week">주간</button>
-          <button type="button" data-calendar-mode="day">일간</button>
-        </div>
-        <div id="calendarGridArea"></div>
-        <div class="calendar-note">예약 시스템 알림은 Cloud Scheduler + Cloud Functions 서버 푸시가 담당합니다. 앱 실행 중에도 캘린더 푸시는 시스템 알림으로 1회 표시됩니다.</div>
-      </div>
-      <div class="panel" style="margin-bottom:14px;">
         <div class="calendar-toolbar">
-          <div><strong id="calendarListTitle">선택 날짜 예약</strong><div class="helper" id="calendarListHelper">선택한 날짜의 예약 알림을 시간순으로 보여드립니다.</div></div>
+          <div><strong>내 예약 캘린더</strong><div class="helper">월간·주간·일간으로 방문 알림을 확인할 수 있습니다.</div></div>
           <button class="btn btn-soft" type="button" id="calendarRefreshBtn">새로고침</button>
         </div>
+        <div class="calendar-nav-row">
+          <button class="calendar-nav-btn" type="button" id="calendarPrevBtn" aria-label="이전">‹</button>
+          <button class="calendar-nav-title" type="button" id="calendarTitleBtn">-</button>
+          <button class="calendar-nav-btn" type="button" id="calendarNextBtn" aria-label="다음">›</button>
+        </div>
+        <div class="calendar-mode-tabs" role="tablist" aria-label="캘린더 보기 전환">
+          <button class="calendar-mode-btn active" type="button" data-calendar-mode="month">월간</button>
+          <button class="calendar-mode-btn" type="button" data-calendar-mode="week">주간</button>
+          <button class="calendar-mode-btn" type="button" data-calendar-mode="day">일간</button>
+        </div>
+        <div class="calendar-board" id="calendarVisualBoard"></div>
       </div>
-      <div class="calendar-list" id="calendarReservationList"><div class="calendar-empty">등록된 예약 알림이 없습니다.<br>혜택 매장 상세에서 방문 알림을 추가해 보세요.</div></div>
+      <div class="calendar-selected-section">
+        <div class="calendar-selected-head" id="calendarSelectedHead"></div>
+        <div class="calendar-list" id="calendarReservationList"><div class="calendar-empty">등록된 예약 알림이 없습니다.<br>혜택 매장 상세에서 방문 알림을 추가해 보세요.</div></div>
+      </div>
     </section>
 
     <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 클릭 + 즐겨찾기 + 공유수 + 입주민 반응을 합산한 실시간 인기 매장입니다.</div></div><div id="hotNowPanel" class="panel hot-now-panel hidden"><div class="hot-now-head"><div><h3 class="hot-now-title">🔥 지금 뜨는 매장</h3><p class="hot-now-desc">공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.</p></div><span class="hot-now-live">LIVE</span></div><div class="hot-now-list" id="hotNowList"></div></div><div id="nearbyProximityPanel" class="panel nearby-proximity-panel"><div class="nearby-proximity-head"><div><h3 class="nearby-proximity-title">📍 근처 자동 알림</h3><p class="nearby-proximity-desc">100m / 300m 안에 들어오면 앱 실행 중 토스트와 브라우저 알림으로 알려줍니다.</p></div></div><div class="nearby-proximity-actions"><button type="button" class="nearby-mini-btn" id="enableNearbyAutoPushBtn">근처 알림 시작</button><button type="button" class="nearby-mini-btn soft" id="checkNearbyNowBtn">지금 주변 확인</button></div><div class="nearby-proximity-status" id="nearbyProximityStatus">위치 권한을 허용하면 근처 혜택 알림이 동작합니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div><div id="residentRankPanel" class="panel resident-rank-panel"><div class="resident-rank-head"><div><h3 class="resident-rank-title">🏆 입주민 활동 랭킹</h3><p class="resident-rank-desc">조회, 공유, 추천, HOT 반응을 점수로 합산합니다.</p></div><small id="residentRankUpdatedText">실시간 집계</small></div><div class="resident-rank-list" id="residentRankList"><div class="notice-empty">아직 활동 랭킹 데이터가 없습니다.</div></div></div></section>
@@ -8017,6 +8022,22 @@ nav.bottom-nav{
         <div class="calendar-field"><label for="calendarReservationMemo">메모</label><textarea id="calendarReservationMemo" maxlength="200" placeholder="예: 가족과 방문, 전화 확인 필요 등"></textarea></div>
         <div class="calendar-form-actions"><button class="btn btn-primary" type="submit">알림 등록</button><button class="btn btn-soft" type="button" id="cancelCalendarReservationBtn">취소</button></div>
       </form>
+    </div>
+  </dialog>
+  <dialog id="calendarDayModal">
+    <div class="calendar-day-modal-head">
+      <button class="calendar-day-modal-arrow" type="button" id="calendarDayPrevBtn" aria-label="이전 날짜">‹</button>
+      <button class="calendar-day-modal-date" type="button" id="calendarDayDateBtn">-</button>
+      <button class="calendar-day-modal-arrow" type="button" id="calendarDayNextBtn" aria-label="다음 날짜">›</button>
+      <button class="calendar-day-modal-close" type="button" id="calendarDayCloseBtn" aria-label="닫기">✕</button>
+    </div>
+    <div class="calendar-day-modal-body">
+      <input class="calendar-hidden-date-picker" type="date" id="calendarDayDatePicker" />
+      <div class="calendar-day-modal-list" id="calendarDayModalList"></div>
+      <div class="calendar-day-modal-footer">
+        <button class="btn btn-soft" type="button" id="calendarDayTodayBtn">오늘로 이동</button>
+        <button class="btn btn-primary" type="button" id="calendarDayCloseBottomBtn">닫기</button>
+      </div>
     </div>
   </dialog>
   <div class="modal-head"><div class="pill">공지사항</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
@@ -8670,7 +8691,7 @@ nav.bottom-nav{
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],calendarMode:localStorage.getItem('myhills_calendar_mode') || 'month',calendarCursorDate:new Date(),calendarSelectedDate:new Date(),activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
       benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
     };
 
@@ -12383,246 +12404,287 @@ function getShareTrackingParams(){
       if(notifyAt && notifyAt.getTime() <= Date.now()) return { text:'알림 대기', cls:'' };
       return { text:'예약됨', cls:'' };
     }
-    function dateKeyFromDate(date){
-      if(!date) return '';
-      return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
-    }
-    function startOfDay(date){
-      const d = new Date(date || Date.now());
-      d.setHours(0,0,0,0);
-      return d;
-    }
-    function addDays(date, amount){
-      const d = new Date(date || Date.now());
-      d.setDate(d.getDate() + Number(amount || 0));
-      return d;
-    }
-    function startOfWeek(date){
-      const d = startOfDay(date);
-      d.setDate(d.getDate() - d.getDay());
-      return d;
-    }
-    function startOfMonth(date){
-      const d = new Date(date || Date.now());
-      d.setDate(1);
-      d.setHours(0,0,0,0);
-      return d;
-    }
-    function endOfMonth(date){
-      const d = startOfMonth(date);
-      d.setMonth(d.getMonth()+1);
-      d.setDate(0);
-      d.setHours(23,59,59,999);
-      return d;
-    }
-    function sameDate(a,b){
-      return !!a && !!b && dateKeyFromDate(a) === dateKeyFromDate(b);
-    }
-    function formatCalendarTitleDate(date){
-      if(!date) return '-';
-      try{return date.toLocaleDateString('ko-KR', { year:'numeric', month:'long' });}catch(e){return '-';}
-    }
-    function formatCalendarDayLabel(date){
-      if(!date) return '-';
-      try{return date.toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', weekday:'short' });}catch(e){return '-';}
-    }
-    function formatReservationTime(date){
-      if(!date) return '--:--';
-      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
-    }
-    function getReservationVisitDate(item){
-      return toDateFromTimestamp(item?.visitAt);
-    }
-    function getActiveCalendarReservations(){
-      return state.calendarReservations.filter(v => v.status !== 'cancelled');
-    }
-    function getReservationsByDateKey(){
-      const map = new Map();
-      getActiveCalendarReservations().forEach(item => {
-        const d = getReservationVisitDate(item);
-        const key = dateKeyFromDate(d);
-        if(!key) return;
-        if(!map.has(key)) map.set(key, []);
-        map.get(key).push(item);
-      });
-      for(const list of map.values()){
-        list.sort((a,b) => (getReservationVisitDate(a)?.getTime() || 0) - (getReservationVisitDate(b)?.getTime() || 0));
-      }
-      return map;
-    }
-    function getReservationsForDate(date){
-      const key = dateKeyFromDate(date);
-      return getActiveCalendarReservations()
-        .filter(item => dateKeyFromDate(getReservationVisitDate(item)) === key)
-        .sort((a,b) => (getReservationVisitDate(a)?.getTime() || 0) - (getReservationVisitDate(b)?.getTime() || 0));
-    }
     function getReservationCounts(){
-      const active = getActiveCalendarReservations();
-      const todayKey = dateKeyFromDate(new Date());
-      const today = active.filter(v => dateKeyFromDate(getReservationVisitDate(v)) === todayKey).length;
+      const active = state.calendarReservations.filter(v => v.status !== 'cancelled');
+      const now = new Date();
+      const todayKey = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+      const today = active.filter(v => {
+        const d = toDateFromTimestamp(v.visitAt);
+        return d && `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}` === todayKey;
+      }).length;
       const upcoming = active.filter(v => {
         const n = toDateFromTimestamp(v.notifyAt);
         return n && n.getTime() >= Date.now();
       }).length;
       return { total:active.length, today, upcoming };
     }
-    function buildCalendarItemHtml(item){
+    const calendarUiState = {
+      mode: 'month',
+      cursorDate: new Date(),
+      selectedDateKey: '',
+      dayModalDateKey: '',
+      focusAfterModalDateKey: ''
+    };
+    function cloneDateOnly(date){
+      const d = date instanceof Date ? date : new Date();
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+    function dateKeyFromDate(date){
+      if(!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+      return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
+    }
+    function dateFromKey(dateKey){
+      const parts = String(dateKey || '').split('-').map(Number);
+      if(parts.length !== 3 || parts.some(v => !Number.isFinite(v))) return cloneDateOnly(new Date());
+      return new Date(parts[0], parts[1]-1, parts[2]);
+    }
+    function addDays(date, offset){
+      const d = cloneDateOnly(date);
+      d.setDate(d.getDate() + Number(offset || 0));
+      return d;
+    }
+    function startOfWeek(date){
+      const d = cloneDateOnly(date);
+      d.setDate(d.getDate() - d.getDay());
+      return d;
+    }
+    function formatCalendarTitle(date, mode){
+      const d = cloneDateOnly(date);
+      if(mode === 'month') return `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+      if(mode === 'week'){
+        const start = startOfWeek(d);
+        const end = addDays(start, 6);
+        return `${start.getFullYear()}. ${pad2(start.getMonth()+1)}. ${pad2(start.getDate())} ~ ${pad2(end.getMonth()+1)}. ${pad2(end.getDate())}`;
+      }
+      return formatCalendarDayTitle(dateKeyFromDate(d));
+    }
+    function formatCalendarDayTitle(dateKey){
+      const d = dateFromKey(dateKey);
+      const dayNames = ['일','월','화','수','목','금','토'];
+      return `${pad2(d.getMonth()+1)}. ${pad2(d.getDate())}. (${dayNames[d.getDay()]})`;
+    }
+    function getReservationVisitDateKey(item={}){
+      const visitAt = toDateFromTimestamp(item.visitAt);
+      return visitAt ? dateKeyFromDate(visitAt) : '';
+    }
+    function getReservationsByDateKey(dateKey){
+      return state.calendarReservations
+        .filter(item => item.status !== 'cancelled' && getReservationVisitDateKey(item) === dateKey)
+        .sort((a,b) => (toDateFromTimestamp(a.visitAt)?.getTime() || 0) - (toDateFromTimestamp(b.visitAt)?.getTime() || 0));
+    }
+    function ensureCalendarSelectedDate(){
+      if(!calendarUiState.selectedDateKey) calendarUiState.selectedDateKey = dateKeyFromDate(new Date());
+      if(!(calendarUiState.cursorDate instanceof Date) || Number.isNaN(calendarUiState.cursorDate.getTime())){
+        calendarUiState.cursorDate = dateFromKey(calendarUiState.selectedDateKey);
+      }
+    }
+    function calendarItemHtml(item, options={}){
       const status = reservationStatusMeta(item);
       const visitAt = toDateFromTimestamp(item.visitAt);
       const notifyAt = toDateFromTimestamp(item.notifyAt);
+      const clickable = options.clickable ? ` data-calendar-date-card="${escapeAttr(getReservationVisitDateKey(item))}"` : '';
       return `
-          <article class="calendar-item ${escapeAttr(status.cls)}" data-calendar-id="${escapeAttr(item.id)}">
-            <div class="calendar-item-head">
-              <div class="calendar-item-title">
-                <strong>${escapeHtml(item.storeName)}</strong>
-                <span>${escapeHtml(item.category || '혜택 매장')} ${item.discountText ? '· ' + escapeHtml(item.discountText) : ''}</span>
-              </div>
-              <span class="calendar-status ${escapeAttr(status.cls)}">${escapeHtml(status.text)}</span>
+        <article class="calendar-item ${escapeAttr(status.cls)}" data-calendar-id="${escapeAttr(item.id)}"${clickable}>
+          <div class="calendar-item-head">
+            <div class="calendar-item-title">
+              <strong>${escapeHtml(item.storeName)}</strong>
+              <span>${escapeHtml(item.category || '혜택 매장')} ${item.discountText ? '· ' + escapeHtml(item.discountText) : ''}</span>
             </div>
-            <div class="calendar-info-grid">
-              <div class="calendar-info"><small>방문 예정</small><b>${escapeHtml(formatDateTimeKo(visitAt))}</b></div>
-              <div class="calendar-info"><small>알림 시간</small><b>${escapeHtml(formatDateTimeKo(notifyAt))}</b></div>
-              <div class="calendar-info"><small>전화번호</small><b>${escapeHtml(item.phone || '미등록')}</b></div>
-              <div class="calendar-info"><small>주소</small><b>${escapeHtml(item.address || '미등록')}</b></div>
-            </div>
-            ${item.memo ? `<div class="calendar-info"><small>메모</small><b>${escapeHtml(item.memo)}</b></div>` : ''}
-            <div class="calendar-item-actions">
-              ${item.phone ? `<a class="btn btn-primary" href="tel:${escapeAttr(item.phone)}">전화하기</a>` : ''}
-              ${item.benefitId ? `<button class="btn btn-soft" type="button" data-calendar-open-benefit="${escapeAttr(item.benefitId)}">혜택 상세</button>` : ''}
-              ${item.status !== 'cancelled' ? `<button class="btn btn-soft" type="button" data-calendar-cancel="${escapeAttr(item.id)}">알림 취소</button>` : ''}
-            </div>
-          </article>
-        `;
+            <span class="calendar-status ${escapeAttr(status.cls)}">${escapeHtml(status.text)}</span>
+          </div>
+          <div class="calendar-info-grid">
+            <div class="calendar-info"><small>방문 예정</small><b>${escapeHtml(formatDateTimeKo(visitAt))}</b></div>
+            <div class="calendar-info"><small>알림 시간</small><b>${escapeHtml(formatDateTimeKo(notifyAt))}</b></div>
+            <div class="calendar-info"><small>전화번호</small><b>${escapeHtml(item.phone || '미등록')}</b></div>
+            <div class="calendar-info"><small>주소</small><b>${escapeHtml(item.address || '미등록')}</b></div>
+          </div>
+          ${item.memo ? `<div class="calendar-info"><small>메모</small><b>${escapeHtml(item.memo)}</b></div>` : ''}
+          <div class="calendar-item-actions">
+            ${item.phone ? `<a class="btn btn-primary" href="tel:${escapeAttr(item.phone)}">전화하기</a>` : ''}
+            ${item.benefitId ? `<button class="btn btn-soft" type="button" data-calendar-open-benefit="${escapeAttr(item.benefitId)}">혜택 상세</button>` : ''}
+            ${item.status !== 'cancelled' ? `<button class="btn btn-soft" type="button" data-calendar-cancel="${escapeAttr(item.id)}">알림 취소</button>` : ''}
+          </div>
+        </article>
+      `;
     }
-    function renderCalendarMonthView(){
-      const area = qs('#calendarGridArea');
-      if(!area) return;
-      const cursor = startOfMonth(state.calendarCursorDate || new Date());
-      const first = startOfWeek(cursor);
-      const selectedKey = dateKeyFromDate(state.calendarSelectedDate || new Date());
+    function bindCalendarReservationActions(scope=document){
+      scope.querySelectorAll?.('[data-calendar-open-benefit]')?.forEach(btn => {
+        if(btn.dataset.boundCalendarOpen === '1') return;
+        btn.dataset.boundCalendarOpen = '1';
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const item = state.benefits.find(v => v.id === btn.dataset.calendarOpenBenefit);
+          if(item) openDetail(item);
+          else openModalAlert('현재 혜택 목록에서 해당 매장을 찾지 못했습니다.');
+        });
+      });
+      scope.querySelectorAll?.('[data-calendar-cancel]')?.forEach(btn => {
+        if(btn.dataset.boundCalendarCancel === '1') return;
+        btn.dataset.boundCalendarCancel = '1';
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          cancelCalendarReservation(btn.dataset.calendarCancel);
+        });
+      });
+    }
+    function renderCalendarMonthBoard(board){
+      const cursor = cloneDateOnly(calendarUiState.cursorDate);
+      const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+      const start = addDays(first, -first.getDay());
       const todayKey = dateKeyFromDate(new Date());
-      const month = cursor.getMonth();
-      const map = getReservationsByDateKey();
-      const weekNames = ['일','월','화','수','목','금','토'];
-      let html = `<div class="calendar-month-grid">${weekNames.map(w=>`<div class="calendar-weekday">${w}</div>`).join('')}`;
+      const selected = calendarUiState.selectedDateKey;
+      const rows = [];
       for(let i=0;i<42;i++){
-        const d = addDays(first, i);
+        const d = addDays(start, i);
         const key = dateKeyFromDate(d);
-        const count = (map.get(key) || []).length;
-        const cls = [
-          'calendar-day-cell',
-          d.getMonth() !== month ? 'other-month' : '',
+        const items = getReservationsByDateKey(key);
+        const dots = items.slice(0,3).map(() => '<span class="calendar-dot"></span>').join('');
+        const more = items.length > 3 ? `<span class="calendar-more">+${items.length - 3}</span>` : (items.length ? `<span class="calendar-more">${items.length}건</span>` : '');
+        const classes = [
+          'calendar-date-cell',
+          d.getMonth() !== cursor.getMonth() ? 'other-month' : '',
           key === todayKey ? 'today' : '',
-          key === selectedKey ? 'selected' : ''
+          key === selected ? 'selected' : ''
         ].filter(Boolean).join(' ');
-        const dots = count ? `<div class="calendar-day-dots">${Array.from({length:Math.min(count,3)}).map(()=>'<span class="calendar-dot"></span>').join('')}${count>3?`<span class="calendar-day-count">+${count-3}</span>`:''}</div>` : '<div class="calendar-day-dots"></div>';
-        html += `<button class="${cls}" type="button" data-calendar-select-date="${key}" aria-label="${key} 예약 ${count}건"><span class="calendar-day-number">${d.getDate()}</span>${dots}</button>`;
+        rows.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-date-num">${d.getDate()}</span><span class="calendar-dots">${dots}</span>${more}</button>`);
       }
-      html += '</div>';
-      area.innerHTML = html;
+      board.innerHTML = `<div class="calendar-weekdays"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div><div class="calendar-month-grid">${rows.join('')}</div>`;
     }
-    function renderCalendarWeekView(){
-      const area = qs('#calendarGridArea');
-      if(!area) return;
-      const start = startOfWeek(state.calendarCursorDate || state.calendarSelectedDate || new Date());
-      const selectedKey = dateKeyFromDate(state.calendarSelectedDate || new Date());
-      let html = '<div class="calendar-week-list">';
+    function renderCalendarWeekBoard(board){
+      const start = startOfWeek(calendarUiState.cursorDate);
+      const todayKey = dateKeyFromDate(new Date());
+      const selected = calendarUiState.selectedDateKey;
+      const cards = [];
       for(let i=0;i<7;i++){
         const d = addDays(start, i);
         const key = dateKeyFromDate(d);
-        const list = getReservationsForDate(d);
-        html += `<section class="calendar-week-day ${key===selectedKey?'selected':''}" data-calendar-select-date="${key}">
-          <div class="calendar-week-day-head"><strong>${escapeHtml(formatCalendarDayLabel(d))}</strong><span>${list.length}건</span></div>
-          ${list.length ? list.map(item => {
-            const visitAt = getReservationVisitDate(item);
-            const status = reservationStatusMeta(item);
-            return `<div class="calendar-mini-reservation"><div class="calendar-mini-time">${escapeHtml(formatReservationTime(visitAt))}</div><div class="calendar-mini-copy"><strong>${escapeHtml(item.storeName)}</strong><span>${escapeHtml(status.text)} · ${escapeHtml(item.category || '혜택 매장')}</span></div></div>`;
-          }).join('') : '<div class="calendar-empty" style="padding:12px;box-shadow:none;">예약 없음</div>'}
-        </section>`;
+        const items = getReservationsByDateKey(key);
+        const first = items[0];
+        const classes = ['calendar-week-card', key === todayKey ? 'today' : '', key === selected ? 'selected' : ''].filter(Boolean).join(' ');
+        cards.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-week-date"><strong>${formatCalendarDayTitle(key)}</strong><span>${key}</span></span><span class="calendar-week-summary">${items.length ? `${items.length}건 · ${escapeHtml(first.storeName)}` : '예약 없음'}</span></button>`);
       }
-      html += '</div>';
-      area.innerHTML = html;
+      board.innerHTML = `<div class="calendar-week-grid">${cards.join('')}</div>`;
     }
-    function renderCalendarDayView(){
-      const area = qs('#calendarGridArea');
-      if(!area) return;
-      const selected = startOfDay(state.calendarSelectedDate || new Date());
-      const list = getReservationsForDate(selected);
-      area.innerHTML = `<div class="calendar-day-timeline">
-        <div class="calendar-selected-title"><strong>${escapeHtml(formatCalendarDayLabel(selected))}</strong><small>${list.length}건</small></div>
-        ${list.length ? list.map(item => {
-          const visitAt = getReservationVisitDate(item);
-          const status = reservationStatusMeta(item);
-          return `<div class="calendar-week-day"><div class="calendar-mini-reservation"><div class="calendar-mini-time">${escapeHtml(formatReservationTime(visitAt))}</div><div class="calendar-mini-copy"><strong>${escapeHtml(item.storeName)}</strong><span>${escapeHtml(status.text)} · 알림 ${escapeHtml(formatDateTimeKo(toDateFromTimestamp(item.notifyAt)))}</span></div></div></div>`;
-        }).join('') : '<div class="calendar-empty">선택한 날짜에 예약 알림이 없습니다.</div>'}
-      </div>`;
+    function renderCalendarDayBoard(board){
+      const key = calendarUiState.selectedDateKey || dateKeyFromDate(calendarUiState.cursorDate);
+      const items = getReservationsByDateKey(key);
+      board.innerHTML = `<div class="calendar-day-head"><div><strong>${formatCalendarDayTitle(key)} 일정</strong><div class="helper">예약 카드를 누르면 날짜별 팝업으로 확인할 수 있습니다.</div></div><button class="calendar-open-day-btn" type="button" data-calendar-date="${escapeAttr(key)}">팝업 보기</button></div><div class="calendar-day-timeline">${items.length ? items.map(item => calendarItemHtml(item, { clickable:true })).join('') : '<div class="calendar-empty">선택한 날짜에 등록된 예약이 없습니다.</div>'}</div>`;
     }
-    function renderCalendarVisual(){
-      const mode = state.calendarMode || 'month';
-      const cursor = state.calendarCursorDate || new Date();
-      const selected = state.calendarSelectedDate || new Date();
-      qsa('[data-calendar-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.calendarMode === mode));
-      const titleEl = qs('#calendarCurrentTitle');
-      const helperEl = qs('#calendarCurrentHelper');
-      if(mode === 'month'){
-        if(titleEl) titleEl.textContent = formatCalendarTitleDate(cursor);
-        if(helperEl) helperEl.textContent = '예약이 있는 날짜에는 점으로 표시됩니다.';
-        renderCalendarMonthView();
-      }else if(mode === 'week'){
-        const start = startOfWeek(cursor);
-        const end = addDays(start, 6);
-        if(titleEl) titleEl.textContent = `${formatCalendarDayLabel(start)} ~ ${formatCalendarDayLabel(end)}`;
-        if(helperEl) helperEl.textContent = '이번 주 예약을 요일별로 확인합니다.';
-        renderCalendarWeekView();
-      }else{
-        if(titleEl) titleEl.textContent = formatCalendarDayLabel(selected);
-        if(helperEl) helperEl.textContent = '선택한 하루의 예약을 시간순으로 확인합니다.';
-        renderCalendarDayView();
+    function renderCalendarVisualBoard(){
+      const board = qs('#calendarVisualBoard');
+      if(!board) return;
+      ensureCalendarSelectedDate();
+      if(qs('#calendarTitleBtn')) qs('#calendarTitleBtn').textContent = formatCalendarTitle(calendarUiState.cursorDate, calendarUiState.mode);
+      qsa('[data-calendar-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.calendarMode === calendarUiState.mode));
+      if(calendarUiState.mode === 'week') renderCalendarWeekBoard(board);
+      else if(calendarUiState.mode === 'day') renderCalendarDayBoard(board);
+      else renderCalendarMonthBoard(board);
+      qsa('[data-calendar-date]').forEach(btn => btn.addEventListener('click', () => openCalendarDayModal(btn.dataset.calendarDate)));
+      qsa('[data-calendar-date-card]').forEach(card => card.addEventListener('click', (event) => {
+        if(event.target.closest('button,a')) return;
+        openCalendarDayModal(card.dataset.calendarDateCard);
+      }));
+      bindCalendarReservationActions(board);
+    }
+    function renderSelectedCalendarList(){
+      const wrap = qs('#calendarReservationList');
+      const head = qs('#calendarSelectedHead');
+      if(!wrap) return;
+      const key = calendarUiState.selectedDateKey || dateKeyFromDate(new Date());
+      const items = getReservationsByDateKey(key);
+      if(head){
+        head.innerHTML = `<div><h3>${escapeHtml(formatCalendarDayTitle(key))} 예약</h3><p>선택 날짜의 예약 알림입니다.</p></div><button class="btn btn-soft" type="button" data-calendar-date="${escapeAttr(key)}">팝업 보기</button>`;
+        head.querySelector('[data-calendar-date]')?.addEventListener('click', () => openCalendarDayModal(key));
       }
-    }
-    function bindCalendarActionButtons(){
-      qsa('[data-calendar-open-benefit]').forEach(btn => btn.addEventListener('click', () => {
-        const item = state.benefits.find(v => v.id === btn.dataset.calendarOpenBenefit);
-        if(item) openDetail(item);
-        else openModalAlert('현재 혜택 목록에서 해당 매장을 찾지 못했습니다.');
-      }));
-      qsa('[data-calendar-cancel]').forEach(btn => btn.addEventListener('click', () => cancelCalendarReservation(btn.dataset.calendarCancel)));
-    }
-    function bindCalendarDateButtons(){
-      qsa('[data-calendar-select-date]').forEach(el => el.addEventListener('click', () => {
-        const key = el.dataset.calendarSelectDate || '';
-        if(!key) return;
-        const next = new Date(`${key}T00:00:00`);
-        if(Number.isNaN(next.getTime())) return;
-        state.calendarSelectedDate = next;
-        if(state.calendarMode === 'month') state.calendarCursorDate = startOfMonth(next);
-        if(state.calendarMode === 'week') state.calendarCursorDate = startOfWeek(next);
-        renderCalendarReservations();
-      }));
+      if(!items.length){
+        wrap.innerHTML = '<div class="calendar-empty">선택한 날짜에 등록된 예약 알림이 없습니다.<br>다른 날짜를 선택해 보세요.</div>';
+        return;
+      }
+      wrap.innerHTML = items.map(item => calendarItemHtml(item)).join('');
+      bindCalendarReservationActions(wrap);
     }
     function renderCalendarReservations(){
-      const wrap = qs('#calendarReservationList');
-      if(!wrap) return;
       const counts = getReservationCounts();
       if(qs('#calendarTotalCount')) qs('#calendarTotalCount').textContent = counts.total;
       if(qs('#calendarTodayCount')) qs('#calendarTodayCount').textContent = counts.today;
       if(qs('#calendarUpcomingCount')) qs('#calendarUpcomingCount').textContent = counts.upcoming;
-      renderCalendarVisual();
-      bindCalendarDateButtons();
-      const selected = startOfDay(state.calendarSelectedDate || new Date());
-      const selectedItems = getReservationsForDate(selected);
-      if(qs('#calendarListTitle')) qs('#calendarListTitle').textContent = `${formatCalendarDayLabel(selected)} 예약`;
-      if(qs('#calendarListHelper')) qs('#calendarListHelper').textContent = selectedItems.length ? '선택 날짜의 예약 알림입니다.' : '선택 날짜에 예약이 없습니다. 혜택 상세에서 방문 알림을 추가해 보세요.';
-      if(!state.calendarReservations.length){
-        wrap.innerHTML = '<div class="calendar-empty">등록된 예약 알림이 없습니다.<br>혜택 매장 상세에서 방문 알림을 추가해 보세요.</div>';
-        return;
-      }
-      if(!selectedItems.length){
-        wrap.innerHTML = '<div class="calendar-empty">선택한 날짜에 예약 알림이 없습니다.<br>다른 날짜를 선택해 보세요.</div>';
-        return;
-      }
-      wrap.innerHTML = selectedItems.map(buildCalendarItemHtml).join('');
-      bindCalendarActionButtons();
+      ensureCalendarSelectedDate();
+      renderCalendarVisualBoard();
+      renderSelectedCalendarList();
+    }
+    function changeCalendarMode(mode){
+      if(!['month','week','day'].includes(mode)) return;
+      calendarUiState.mode = mode;
+      calendarUiState.cursorDate = dateFromKey(calendarUiState.selectedDateKey || dateKeyFromDate(new Date()));
+      renderCalendarReservations();
+    }
+    function moveCalendarView(offset){
+      ensureCalendarSelectedDate();
+      const d = cloneDateOnly(calendarUiState.cursorDate);
+      if(calendarUiState.mode === 'month') d.setMonth(d.getMonth() + offset);
+      else if(calendarUiState.mode === 'week') d.setDate(d.getDate() + offset * 7);
+      else d.setDate(d.getDate() + offset);
+      calendarUiState.cursorDate = d;
+      calendarUiState.selectedDateKey = dateKeyFromDate(d);
+      renderCalendarReservations();
+      focusCalendarDate(calendarUiState.selectedDateKey);
+    }
+    function goCalendarToday(){
+      const today = cloneDateOnly(new Date());
+      calendarUiState.cursorDate = today;
+      calendarUiState.selectedDateKey = dateKeyFromDate(today);
+      renderCalendarReservations();
+      focusCalendarDate(calendarUiState.selectedDateKey);
+    }
+    function focusCalendarDate(dateKey){
+      setTimeout(() => {
+        const el = document.querySelector(`[data-calendar-date="${CSS.escape(dateKey)}"]`) || document.querySelector(`[data-calendar-date-card="${CSS.escape(dateKey)}"]`);
+        if(!el) return;
+        el.scrollIntoView({ behavior:'smooth', block:'center' });
+        el.classList.add('focus-highlight');
+        setTimeout(() => el.classList.remove('focus-highlight'), 1100);
+      }, 80);
+    }
+    function openCalendarDayModal(dateKey){
+      if(!dateKey) return;
+      calendarUiState.dayModalDateKey = dateKey;
+      calendarUiState.focusAfterModalDateKey = dateKey;
+      renderCalendarDayModal();
+      const modal = qs('#calendarDayModal');
+      if(!modal) return;
+      if(modal.open) modal.close();
+      modal.showModal();
+    }
+    function moveCalendarDayModal(offset){
+      const d = addDays(dateFromKey(calendarUiState.dayModalDateKey || calendarUiState.selectedDateKey), offset);
+      calendarUiState.dayModalDateKey = dateKeyFromDate(d);
+      calendarUiState.focusAfterModalDateKey = calendarUiState.dayModalDateKey;
+      renderCalendarDayModal();
+    }
+    function renderCalendarDayModal(){
+      const key = calendarUiState.dayModalDateKey || dateKeyFromDate(new Date());
+      const items = getReservationsByDateKey(key);
+      const title = qs('#calendarDayDateBtn');
+      const list = qs('#calendarDayModalList');
+      const picker = qs('#calendarDayDatePicker');
+      if(title) title.textContent = formatCalendarDayTitle(key);
+      if(picker) picker.value = key;
+      if(!list) return;
+      list.innerHTML = items.length ? items.map(item => calendarItemHtml(item)).join('') : '<div class="calendar-empty">해당 날짜에 등록된 예약이 없습니다.</div>';
+      bindCalendarReservationActions(list);
+    }
+    function closeCalendarDayModal(){
+      const modal = qs('#calendarDayModal');
+      if(modal?.open) modal.close();
+    }
+    function syncCalendarFocusFromDayModal(){
+      const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
+      if(!key) return;
+      const d = dateFromKey(key);
+      calendarUiState.selectedDateKey = key;
+      calendarUiState.cursorDate = d;
+      renderCalendarReservations();
+      focusCalendarDate(key);
     }
     function openCalendarReservationModal(item={}){
       if(!state.currentUser){ openModalAlert('로그인이 필요합니다.'); return; }
@@ -15245,41 +15307,18 @@ async function askAiAssistant(rawQuestion=''){
     qs('#cancelCalendarReservationBtn')?.addEventListener('click', closeCalendarReservationModal);
     qs('#calendarReservationForm')?.addEventListener('submit', saveCalendarReservation);
     qs('#calendarRefreshBtn')?.addEventListener('click', renderCalendarReservations);
-    qsa('[data-calendar-mode]').forEach(btn => btn.addEventListener('click', () => {
-      const mode = btn.dataset.calendarMode || 'month';
-      state.calendarMode = mode;
-      try{ localStorage.setItem('myhills_calendar_mode', mode); }catch(e){}
-      if(mode === 'month') state.calendarCursorDate = startOfMonth(state.calendarSelectedDate || new Date());
-      if(mode === 'week') state.calendarCursorDate = startOfWeek(state.calendarSelectedDate || new Date());
-      if(mode === 'day') state.calendarCursorDate = startOfDay(state.calendarSelectedDate || new Date());
-      renderCalendarReservations();
-    }));
-    qs('#calendarTodayBtn')?.addEventListener('click', () => {
-      const today = new Date();
-      state.calendarSelectedDate = today;
-      state.calendarCursorDate = today;
-      renderCalendarReservations();
-    });
-    qs('#calendarPrevBtn')?.addEventListener('click', () => {
-      const mode = state.calendarMode || 'month';
-      const d = new Date(state.calendarCursorDate || state.calendarSelectedDate || new Date());
-      if(mode === 'month') d.setMonth(d.getMonth() - 1);
-      else if(mode === 'week') d.setDate(d.getDate() - 7);
-      else d.setDate(d.getDate() - 1);
-      state.calendarCursorDate = d;
-      if(mode === 'day') state.calendarSelectedDate = d;
-      renderCalendarReservations();
-    });
-    qs('#calendarNextBtn')?.addEventListener('click', () => {
-      const mode = state.calendarMode || 'month';
-      const d = new Date(state.calendarCursorDate || state.calendarSelectedDate || new Date());
-      if(mode === 'month') d.setMonth(d.getMonth() + 1);
-      else if(mode === 'week') d.setDate(d.getDate() + 7);
-      else d.setDate(d.getDate() + 1);
-      state.calendarCursorDate = d;
-      if(mode === 'day') state.calendarSelectedDate = d;
-      renderCalendarReservations();
-    });
+    qs('#calendarPrevBtn')?.addEventListener('click', () => moveCalendarView(-1));
+    qs('#calendarNextBtn')?.addEventListener('click', () => moveCalendarView(1));
+    qs('#calendarTitleBtn')?.addEventListener('click', goCalendarToday);
+    qsa('[data-calendar-mode]').forEach(btn => btn.addEventListener('click', () => changeCalendarMode(btn.dataset.calendarMode)));
+    qs('#calendarDayPrevBtn')?.addEventListener('click', () => moveCalendarDayModal(-1));
+    qs('#calendarDayNextBtn')?.addEventListener('click', () => moveCalendarDayModal(1));
+    qs('#calendarDayCloseBtn')?.addEventListener('click', closeCalendarDayModal);
+    qs('#calendarDayCloseBottomBtn')?.addEventListener('click', closeCalendarDayModal);
+    qs('#calendarDayTodayBtn')?.addEventListener('click', () => { calendarUiState.dayModalDateKey = dateKeyFromDate(new Date()); calendarUiState.focusAfterModalDateKey = calendarUiState.dayModalDateKey; renderCalendarDayModal(); });
+    qs('#calendarDayDateBtn')?.addEventListener('click', () => { const picker = qs('#calendarDayDatePicker'); if(!picker) return; picker.value = calendarUiState.dayModalDateKey || dateKeyFromDate(new Date()); if(typeof picker.showPicker === 'function') picker.showPicker(); else picker.click(); });
+    qs('#calendarDayDatePicker')?.addEventListener('change', (event) => { if(!event.target.value) return; calendarUiState.dayModalDateKey = event.target.value; calendarUiState.focusAfterModalDateKey = event.target.value; renderCalendarDayModal(); });
+    qs('#calendarDayModal')?.addEventListener('close', syncCalendarFocusFromDayModal);
     qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
     qs('#detailModal')?.addEventListener('close', () => {
       if(parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
