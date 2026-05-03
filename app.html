@@ -2473,7 +2473,7 @@ body.app-role-resident [data-view="shareinsights"]{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
+  gap:8px;
   border:1px solid #dbeafe;
   background:#fff;
   color:#1d4ed8;
@@ -2485,6 +2485,7 @@ body.app-role-resident [data-view="shareinsights"]{
   box-shadow:0 8px 18px rgba(37,99,235,.06);
   transition:transform .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease;
   min-height:48px;
+  white-space:nowrap;
 }
 .ai-voice-btn:hover{
   transform:translateY(-1px);
@@ -2500,7 +2501,10 @@ body.app-role-resident [data-view="shareinsights"]{
   flex:0 0 auto;
   white-space:nowrap;
 }
-.ai-voice-sub{
+.ai-voice-sub,
+.ai-voice-status{
+  display:inline;
+  flex:0 1 auto;
   min-width:0;
   color:#64748b;
   font-size:12px;
@@ -2510,7 +2514,8 @@ body.app-role-resident [data-view="shareinsights"]{
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.ai-voice-btn.listening .ai-voice-sub{
+.ai-voice-btn.listening .ai-voice-sub,
+.ai-voice-btn.listening .ai-voice-status{
   color:rgba(255,255,255,.9);
 }
 @keyframes aiVoicePulse{
@@ -2519,26 +2524,39 @@ body.app-role-resident [data-view="shareinsights"]{
 }
 @media(max-width:480px){
   .ai-voice-btn{
-    justify-content:center;
-    gap:6px;
-    padding:12px 10px;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:center;
+    justify-content:stretch;
+    gap:8px;
+    padding:12px 12px;
     border-radius:18px;
   }
   .ai-voice-main{
     font-size:13px;
   }
-  .ai-voice-sub{
+  .ai-voice-sub,
+  .ai-voice-status{
+    display:block;
     font-size:12px;
+    text-align:left;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 }
 @media(max-width:370px){
   .ai-voice-btn{
-    flex-direction:column;
-    gap:3px;
+    grid-template-columns:auto minmax(0,1fr);
+    gap:6px;
+    padding:11px 10px;
   }
-  .ai-voice-sub{
-    white-space:normal;
-    text-align:center;
+  .ai-voice-main{
+    font-size:12px;
+  }
+  .ai-voice-sub,
+  .ai-voice-status{
+    font-size:11px;
   }
 }
 
