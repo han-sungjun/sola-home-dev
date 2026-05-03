@@ -12427,32 +12427,61 @@ function getShareTrackingParams(){
       });
     }
     let calendarCheckTimer = null;
+    const calendarNotificationInFlight = new Set();
     function scheduleLocalCalendarChecks(){
       if(calendarCheckTimer) clearInterval(calendarCheckTimer);
       checkDueCalendarReservations();
       calendarCheckTimer = setInterval(checkDueCalendarReservations, 30000);
     }
+    async function markCalendarReservationSent(item){
+      if(!item?.id) return;
+      await setDoc(doc(db, CALENDAR_RESERVATIONS_COLLECTION, item.id), {
+        status: 'sent',
+        notifiedAt: serverTimestamp(),
+        localNotifiedAt: serverTimestamp(),
+        sentAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+      const target = state.calendarReservations.find(v => v.id === item.id);
+      if(target){
+        target.status = 'sent';
+        target.notifiedAt = new Date();
+        target.localNotifiedAt = new Date();
+      }
+      renderCalendarReservations();
+    }
     async function checkDueCalendarReservations(){
       const now = Date.now();
       const due = state.calendarReservations.filter(item => {
-        if(item.status !== 'scheduled' || item.localNotifiedAt || item.notifiedAt) return false;
+        if(!item?.id) return false;
+        if(calendarNotificationInFlight.has(item.id)) return false;
+        if(item.status !== 'scheduled' || item.localNotifiedAt || item.notifiedAt || item.sentAt) return false;
         const notifyAt = toDateFromTimestamp(item.notifyAt);
         return notifyAt && notifyAt.getTime() <= now;
       });
       for(const item of due){
+        calendarNotificationInFlight.add(item.id);
         try{
+          // 알림을 먼저 발송하되, 즉시 sent 상태로 바꿔 다음 30초 체크/스냅샷 재실행 때 중복 발송을 막습니다.
           const title = '혜택 방문 알림';
           const body = `${item.storeName} 방문 예정 시간: ${formatDateTimeKo(toDateFromTimestamp(item.visitAt))}`;
           if('Notification' in window){
             if(Notification.permission === 'default') await Notification.requestPermission().catch(()=>{});
-            if(Notification.permission === 'granted') new Notification(title, { body, icon:'/icons/icon-192.png', badge:'/icons/icon-192.png' });
+            if(Notification.permission === 'granted'){
+              new Notification(title, {
+                body,
+                icon:'/icons/icon-192.png',
+                badge:'/icons/icon-192.png',
+                tag:`calendar-reservation-${item.id}`,
+                renotify:false
+              });
+            }
           }
-          await setDoc(doc(db, CALENDAR_RESERVATIONS_COLLECTION, item.id), {
-            localNotifiedAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }, { merge:true });
+          await markCalendarReservationSent(item);
         }catch(error){
           console.warn('앱 실행 중 캘린더 알림 처리 실패', error);
+        }finally{
+          setTimeout(() => calendarNotificationInFlight.delete(item.id), 120000);
         }
       }
     }
