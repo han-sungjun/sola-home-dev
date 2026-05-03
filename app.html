@@ -5763,6 +5763,34 @@ body.gnb-open .bottom-nav{
   gap:14px!important;
 }
 
+
+/* ===== 캘린더 하단 빈 공간 전용 보정 =====
+   - 캘린더 카드 아래 과한 여백만 제거
+   - 하단 네비는 유지
+*/
+#view-calendar{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+#view-calendar .panel:last-child,
+#view-calendar .calendar-board,
+#view-calendar .calendar-month-grid,
+#view-calendar .calendar-week-grid,
+#view-calendar .calendar-day-grid{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+#view-calendar::after{
+  content:none!important;
+  display:none!important;
+}
+body:has(#view-calendar:not(.hidden)) .shell::after{
+  height:0!important;
+}
+body:has(#view-calendar:not(.hidden)) .app{
+  padding-bottom:0!important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
