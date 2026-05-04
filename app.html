@@ -15611,7 +15611,9 @@ async function askAiAssistant(rawQuestion=''){
  function normalizeGnbMenu(raw={}, fallbackId=''){
   const menuId = String(raw.menuId || raw.id || fallbackId || raw.view || raw.route || '').trim();
   const view = String(raw.view || raw.viewLink || raw.route || menuId || 'home').replace(/^#|^\//,'').trim();
-  const sections = Array.isArray(raw.sections) ? raw.sections : [raw.section || raw.type || 'main'].filter(Boolean);
+  const sections = Array.isArray(raw.sections)
+    ? raw.sections.map(v => String(v).trim()).filter(Boolean)
+    : String(raw.sections || raw.section || raw.type || 'main').split(',').map(v => v.trim()).filter(Boolean);
   const keywords = Array.isArray(raw.keywords) ? raw.keywords : String(raw.keywords || '').split(',').map(v=>v.trim()).filter(Boolean);
   return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
  }
@@ -15663,9 +15665,10 @@ async function askAiAssistant(rawQuestion=''){
   if(!el) return;
   const rows = gnbMenuCache
     .filter(canUseGnbMenu)
-    .filter(m => !String(m.sections || '').includes('admin'))
     .filter(m => String(m.menuId) !== 'home')
-    .filter(m => (m.sections || []).includes('all') || (m.sections || []).includes('main') || (m.sections || []).includes('gnb'))
+    // 전체 기능은 관리자에서 노출 구역에 "all"을 체크한 메뉴만 표시합니다.
+    // 주의: sections에 admin이 함께 있어도 all이 있으면 표시해야 합니다.
+    .filter(m => Array.isArray(m.sections) && m.sections.includes('all'))
     .sort((a,b)=>a.order-b.order);
   el.innerHTML = rows.length ? rows.map(makeAllMenuCard).join('') : '<div class="panel empty" style="grid-column:1/-1;">관리자 메뉴에서 전체 기능에 표시할 메뉴를 등록해 주세요.</div>';
  }
