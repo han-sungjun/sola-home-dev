@@ -16596,4 +16596,68 @@ body.app-scrolled .topbar .icon-btn{
 })();
 </script>
 
+
+
+<!-- ===== v5: GNB 하단 네비 가림 방지 + 혜택 필터 간격 최종 보정 ===== -->
+<style id="gnb-benefit-spacing-safe-v5">
+  /* GNB가 열릴 때는 하단 네비를 완전히 숨겨 메뉴 내용이 가려지지 않도록 처리 */
+  .gnb-overlay{
+    z-index:30000 !important;
+  }
+  .gnb-sheet{
+    z-index:30010 !important;
+  }
+  body.gnb-open .bottom-nav,
+  body.gnb-open .bottom-tab,
+  body.gnb-open .mobile-bottom-nav,
+  body.gnb-open nav.bottom-nav{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    transform:translateY(110%) !important;
+  }
+  body.gnb-open .gnb-body{
+    padding-bottom:calc(34px + env(safe-area-inset-bottom,0px)) !important;
+  }
+
+  /* 혜택 설명 카드와 필터 영역 사이 최소 간격 확보 */
+  #view-benefits .filter-sticky:not(.is-fixed){
+    margin-top:16px !important;
+    margin-bottom:12px !important;
+  }
+  #view-benefits > .panel + .filter-sticky:not(.is-fixed),
+  #view-benefits > .benefit-hero + .filter-sticky:not(.is-fixed),
+  #view-benefits > .section-hero + .filter-sticky:not(.is-fixed){
+    margin-top:18px !important;
+  }
+
+  /* 고정 상태에서는 기존 위치 유지 */
+  #view-benefits .filter-sticky.is-fixed{
+    margin-top:0 !important;
+  }
+</style>
+<script id="gnb-menu-nav-visibility-safe-v5">
+(function(){
+  'use strict';
+  function syncGnbNavSafe(){
+    var sheet = document.querySelector('.gnb-sheet');
+    var overlay = document.querySelector('.gnb-overlay');
+    var opened = !!((sheet && sheet.classList.contains('show')) || (overlay && overlay.classList.contains('show')));
+    document.body.classList.toggle('gnb-open', opened);
+  }
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+    else fn();
+  }
+  ready(function(){
+    syncGnbNavSafe();
+    if(window.MutationObserver){
+      new MutationObserver(syncGnbNavSafe).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
+    }
+    document.addEventListener('click', function(){ setTimeout(syncGnbNavSafe, 0); }, true);
+    window.addEventListener('resize', syncGnbNavSafe, {passive:true});
+  });
+})();
+</script>
+
 </body></html>
