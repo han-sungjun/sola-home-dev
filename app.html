@@ -11989,7 +11989,7 @@ async function refreshPushStatus(){
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false));}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,benefitMapInstance.getZoom?benefitMapInstance.getZoom():15); clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.min(19,Number(benefitMapInstance.getZoom()||15)+1));}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
- async function renderDetailMiniMap(item = {}, attempt = 0){
+ async function renderDetailMiniMap(item = {}){
  const mapEl = qs('#detailNaverMap');
  const pos = getBenefitLatLng(item);
  if(!mapEl || !pos) return;
@@ -11998,13 +11998,6 @@ async function refreshPushStatus(){
  if(box){
    box.classList.add('is-loading');
    box.classList.remove('is-ready');
- }
-
- // dialog 내부 지도는 실제 레이아웃이 잡힌 뒤 생성해야 빈 화면이 덜 납니다.
- const rect = mapEl.getBoundingClientRect();
- if((rect.width < 40 || rect.height < 40) && attempt < 12){
-   setTimeout(() => renderDetailMiniMap(item, attempt + 1), 120);
-   return;
  }
 
  if(!NAVER_MAP_CLIENT_ID){
@@ -12019,6 +12012,7 @@ async function refreshPushStatus(){
    const currentMapEl = qs('#detailNaverMap');
    if(!currentMapEl) return;
 
+   currentMapEl.innerHTML = '';
    currentMapEl.style.width = '100%';
    currentMapEl.style.height = '178px';
    currentMapEl.style.minHeight = '178px';
@@ -12026,9 +12020,9 @@ async function refreshPushStatus(){
    const nm = window.naver.maps;
    const store = new nm.LatLng(pos.lat, pos.lng);
 
-   // 같은 매장을 다시 열 때도 모달 내부 DOM은 새로 그려지므로 element 기준으로 새 인스턴스를 만듭니다.
-   currentMapEl.innerHTML = '';
-   detailMapInstance = new nm.Map(currentMapEl, {
+   // 운영계와 동일하게 DOM id 기준으로 빠르게 생성합니다.
+   // 모달 오픈 직후 한 번만 생성하고, 이후 resize만 보정합니다.
+   detailMapInstance = new nm.Map('detailNaverMap', {
      center: store,
      zoom: 16,
      zoomControl: false,
@@ -12049,21 +12043,24 @@ async function refreshPushStatus(){
      zIndex: 100
    });
 
-   const applyResize = () => {
+   const resizeDetailMap = () => {
      try{
        nm.Event.trigger(detailMapInstance, 'resize');
-       if(typeof detailMapInstance.refresh === 'function') detailMapInstance.refresh();
        detailMapInstance.setCenter(store);
-     }catch(_){}
+     }catch(_){ }
    };
 
-   requestAnimationFrame(applyResize);
-   setTimeout(applyResize, 80);
-   setTimeout(applyResize, 220);
-   setTimeout(applyResize, 520);
+   requestAnimationFrame(resizeDetailMap);
+   setTimeout(resizeDetailMap, 120);
+   setTimeout(resizeDetailMap, 360);
+
+   const bounds = new nm.LatLngBounds();
+   bounds.extend(store);
 
    if(hasFreshUserLocation()){
      const me = new nm.LatLng(state.userLocation.lat, state.userLocation.lng);
+     bounds.extend(me);
+
      new nm.Marker({
        position: me,
        map: detailMapInstance,
@@ -12073,6 +12070,7 @@ async function refreshPushStatus(){
        },
        zIndex: 120
      });
+
      new nm.Polyline({
        map: detailMapInstance,
        path: [me, store],
@@ -12081,24 +12079,15 @@ async function refreshPushStatus(){
        strokeOpacity: .82
      });
 
-     const bounds = new nm.LatLngBounds();
-     bounds.extend(store);
-     bounds.extend(me);
-     setTimeout(() => {
-       try{
-         detailMapInstance.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
-         applyResize();
-       }catch(_){
-         try{ detailMapInstance.fitBounds(bounds); }catch(__){}
-       }
-     }, 260);
+     try{
+       detailMapInstance.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
+     }catch(_){
+       try{ detailMapInstance.fitBounds(bounds); }catch(__){}
+     }
+     setTimeout(resizeDetailMap, 180);
    }else{
-     // 현재 위치가 없어도 매장 지도는 먼저 표시합니다. 위치는 비동기로 받아서 한 번만 보강합니다.
-     getReliableCurrentPosition({ forceRefresh:false })
-       .then(() => {
-         if(qs('#detailNaverMap')) renderDetailMiniMap(item, 0);
-       })
-       .catch(() => {});
+     // 현재 위치 권한/응답을 기다리느라 지도 표시를 늦추지 않습니다.
+     getReliableCurrentPosition({ forceRefresh:false }).catch(() => {});
    }
 
    const readyBox = currentMapEl.closest('.detail-map-box');
@@ -14592,15 +14581,14 @@ function renderCalendarDayModal(){
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
  updateDistanceText(item);
- setTimeout(() => renderDetailMiniMap(item, 0), 80);
- setTimeout(() => renderDetailMiniMap(item, 0), 280);
+ setTimeout(() => renderDetailMiniMap(item), 120);
  setTimeout(() => {
    try{
      if(detailMapInstance && window.naver?.maps){
        window.naver.maps.Event.trigger(detailMapInstance, 'resize');
      }
    }catch(_){}
- }, 700);
+ }, 500);
  qs('#modalFavBtn').onclick=async ()=>{
  const isFavorite = await toggleFavorite(item.id, item.name);
  const btn = qs('#modalFavBtn');
