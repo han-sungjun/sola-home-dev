@@ -16478,7 +16478,50 @@ async function askAiAssistant(rawQuestion=''){
    setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); }, 250);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
- async function loadRecentGnbMenus(){
+ 
+ // ===== 인기 메뉴 비용 절감형 주기 갱신 =====
+ const POPULAR_REFRESH_MS = 5 * 60 * 1000;
+ let popularRefreshTimer = null;
+ let popularRefreshBusy = false;
+
+ async function refreshPopularMenusInterval(){
+  if(popularRefreshBusy) return;
+  if(document.visibilityState && document.visibilityState !== 'visible') return;
+
+  popularRefreshBusy = true;
+  try{
+    await loadPopularGnbMenus();
+    renderDynamicAllMenus();
+    renderDynamicGnbMenus();
+    if(typeof refreshBottomTrendUi === 'function') refreshBottomTrendUi();
+    else if(typeof refreshStaticNavTrendBadges === 'function') refreshStaticNavTrendBadges();
+  }catch(error){
+    console.warn('인기 메뉴 주기 갱신 실패', error);
+  }finally{
+    popularRefreshBusy = false;
+  }
+ }
+
+ function startPopularMenuIntervalRefresh(){
+  if(popularRefreshTimer) clearInterval(popularRefreshTimer);
+
+  // 최초 1회는 약간 늦게 실행해서 초기 메뉴 로딩과 충돌 방지
+  setTimeout(refreshPopularMenusInterval, 1200);
+
+  popularRefreshTimer = setInterval(() => {
+    if(document.visibilityState === 'visible'){
+      refreshPopularMenusInterval();
+    }
+  }, POPULAR_REFRESH_MS);
+ }
+
+ document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible'){
+    refreshPopularMenusInterval();
+  }
+ });
+
+async function loadRecentGnbMenus(){
   const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
   try{
    const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(1)));
@@ -16531,6 +16574,7 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
+ setTimeout(startPopularMenuIntervalRefresh, 1800);
 
 // AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
 document.addEventListener('click', (event) => {
