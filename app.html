@@ -15721,19 +15721,19 @@ async function askAiAssistant(rawQuestion=''){
 
   const view = btn.dataset.viewLink;
   const isInGnbSheet = !!btn.closest('#gnbSheet');
-  const isDynamicGnbMenu = isInGnbSheet && btn.hasAttribute('data-gnb-dynamic-menu');
+  const isInAllMenuGrid = !!btn.closest('#allMenuGrid');
+  const isDynamicMenu = btn.hasAttribute('data-gnb-dynamic-menu');
 
-  if(isInGnbSheet || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn'){
-    trackGnbMenuVisitByView(view);
-  }
-
-  // DB에서 렌더링된 GNB 메뉴는 qsa('[data-view-link]') 바인딩 이후에 생성되므로
-  // 이벤트 위임 방식으로 직접 화면 이동 + GNB 닫기를 처리합니다.
-  if(isDynamicGnbMenu && view){
+  // DB에서 렌더링된 GNB/전체기능 메뉴는 초기 qsa 바인딩 이후 생성되므로
+  // 이벤트 위임 방식으로 직접 화면 이동 + 방문 기록을 처리합니다.
+  if(view && (isDynamicMenu || isInGnbSheet || isInAllMenuGrid)){
     event.preventDefault();
     event.stopPropagation();
+    trackGnbMenuVisitByView(view);
     changeView(view);
-    closeGnb();
+    if(isInGnbSheet) closeGnb();
+  }else if(isInGnbSheet || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn'){
+    trackGnbMenuVisitByView(view);
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
