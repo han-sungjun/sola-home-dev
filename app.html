@@ -9231,6 +9231,36 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 }
 </style>
 
+
+<style id="detail-map-render-fix-style">
+/* ===== Detail mini-map render fix ===== */
+.detail-map-box,
+.detail-map-canvas,
+#detailMap,
+[id^="detailMap"],
+.naver-detail-map{
+  min-height:178px;
+}
+.detail-map-canvas,
+#detailMap,
+[id^="detailMap"],
+.naver-detail-map{
+  width:100%!important;
+  height:178px!important;
+  display:block!important;
+  background:#eef2f7;
+}
+.detail-map-box.map-loading::after{
+  content:"지도를 불러오는 중입니다.";
+  display:grid;
+  place-items:center;
+  min-height:178px;
+  color:#64748b;
+  font-size:13px;
+  font-weight:800;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -12957,6 +12987,20 @@ ${item.content || ''}`);
    el.textContent = current.toLocaleString('ko-KR');
  }, 18);
  }
+
+ let current = 0;
+ const steps = 24;
+ const step = Math.max(1, Math.ceil(end / steps));
+ clearInterval(el._popularCountTimer);
+
+ el._popularCountTimer = setInterval(() => {
+ current += step;
+ if(current >= end){
+ current = end;
+ clearInterval(el._popularCountTimer);
+ }
+ el.textContent = current.toLocaleString('ko-KR');
+ }, 24);
 
  function isShareInsightAdmin(){
  const profile = state.currentUserProfile || {};
@@ -17435,6 +17479,160 @@ try{
     }
   });
 }catch(_){}
+
+
+/* ===== Detail mini-map robust render fix ===== */
+let __lastDetailMapPayload = null;
+let __detailMapRetryTimer = null;
+let __detailMapInstance = null;
+
+function getDetailMapCandidateElement(){
+  return document.querySelector('#detailModal .detail-map-canvas')
+    || document.querySelector('#detailModal #detailMap')
+    || document.querySelector('#detailModal [id^="detailMap"]')
+    || document.querySelector('#detailModal .naver-detail-map')
+    || document.querySelector('.detail-map-canvas')
+    || document.querySelector('#detailMap')
+    || document.querySelector('[id^="detailMap"]');
+}
+
+function getBenefitLatLngSafe(item){
+  if(!item) return null;
+  const lat = Number(item.lat ?? item.latitude ?? item.y ?? item.mapLat);
+  const lng = Number(item.lng ?? item.longitude ?? item.x ?? item.mapLng);
+  if(Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0){
+    return { lat, lng };
+  }
+  return null;
+}
+
+function naverMapReady(){
+  return !!(window.naver && naver.maps && typeof naver.maps.Map === 'function');
+}
+
+function forceRefreshNaverMap(map, center){
+  try{
+    if(!map) return;
+    if(naver?.maps?.Event?.trigger) naver.maps.Event.trigger(map, 'resize');
+    if(typeof map.refresh === 'function') map.refresh();
+    if(center && typeof map.setCenter === 'function') map.setCenter(center);
+  }catch(error){
+    console.warn('상세 지도 리사이즈 보정 실패', error);
+  }
+}
+
+function renderDetailMiniMapNow(item){
+  const el = getDetailMapCandidateElement();
+  if(!el) return false;
+
+  const box = el.closest('.detail-map-box');
+  if(box) box.classList.add('map-loading');
+
+  if(!naverMapReady()){
+    return false;
+  }
+
+  const latlng = getBenefitLatLngSafe(item || __lastDetailMapPayload);
+  if(!latlng){
+    if(box) box.classList.remove('map-loading');
+    return false;
+  }
+
+  const center = new naver.maps.LatLng(latlng.lat, latlng.lng);
+
+  try{
+    // 기존 인스턴스가 같은 엘리먼트에 있으면 재사용하고, 아니면 새로 생성
+    if(!el.__naverDetailMapInstance){
+      el.innerHTML = '';
+      el.__naverDetailMapInstance = new naver.maps.Map(el, {
+        center,
+        zoom: 16,
+        minZoom: 8,
+        scaleControl: false,
+        logoControl: false,
+        mapDataControl: false,
+        zoomControl: false
+      });
+      el.__naverDetailMarker = new naver.maps.Marker({
+        position: center,
+        map: el.__naverDetailMapInstance
+      });
+    }else{
+      el.__naverDetailMapInstance.setCenter(center);
+      if(el.__naverDetailMarker) el.__naverDetailMarker.setPosition(center);
+    }
+
+    __detailMapInstance = el.__naverDetailMapInstance;
+
+    requestAnimationFrame(() => {
+      forceRefreshNaverMap(el.__naverDetailMapInstance, center);
+      setTimeout(() => forceRefreshNaverMap(el.__naverDetailMapInstance, center), 120);
+      setTimeout(() => forceRefreshNaverMap(el.__naverDetailMapInstance, center), 360);
+    });
+
+    if(box) box.classList.remove('map-loading');
+    return true;
+  }catch(error){
+    console.warn('상세 지도 렌더링 실패', error);
+    if(box) box.classList.remove('map-loading');
+    return false;
+  }
+}
+
+function scheduleDetailMiniMapRender(item, retry=0){
+  if(item) __lastDetailMapPayload = item;
+  clearTimeout(__detailMapRetryTimer);
+
+  const delay = retry === 0 ? 80 : Math.min(250 + retry * 180, 1200);
+  __detailMapRetryTimer = setTimeout(() => {
+    const ok = renderDetailMiniMapNow(item || __lastDetailMapPayload);
+    if(!ok && retry < 10){
+      scheduleDetailMiniMapRender(item || __lastDetailMapPayload, retry + 1);
+    }
+  }, delay);
+}
+
+// 기존 상세 지도 함수가 있으면 감싸서 모달 렌더 후에도 한번 더 보정
+if(typeof window.renderDetailMap === 'function' && !window.renderDetailMap.__patched){
+  const __origRenderDetailMap = window.renderDetailMap;
+  window.renderDetailMap = function(...args){
+    const result = __origRenderDetailMap.apply(this, args);
+    scheduleDetailMiniMapRender(args[0] || __lastDetailMapPayload);
+    return result;
+  };
+  window.renderDetailMap.__patched = true;
+}
+
+// openDetail 호출 직후 지도 재렌더 보정
+if(typeof openDetail === 'function' && !openDetail.__detailMapPatched){
+  const __origOpenDetail = openDetail;
+  openDetail = function(item, ...rest){
+    __lastDetailMapPayload = item || null;
+    const result = __origOpenDetail.call(this, item, ...rest);
+    scheduleDetailMiniMapRender(item, 0);
+    setTimeout(() => scheduleDetailMiniMapRender(item, 1), 250);
+    setTimeout(() => scheduleDetailMiniMapRender(item, 2), 700);
+    return result;
+  };
+  openDetail.__detailMapPatched = true;
+}
+
+// dialog가 열린 뒤 레이아웃이 확정되는 시점 보정
+try{
+  const detailModal = document.querySelector('#detailModal');
+  if(detailModal && !detailModal.__detailMapObserverAttached){
+    const observer = new MutationObserver(() => {
+      if(detailModal.open || detailModal.matches?.('[open]')){
+        scheduleDetailMiniMapRender(__lastDetailMapPayload, 0);
+      }
+    });
+    observer.observe(detailModal, { childList:true, subtree:true, attributes:true, attributeFilter:['open','class','style'] });
+    detailModal.addEventListener('toggle', () => scheduleDetailMiniMapRender(__lastDetailMapPayload, 0));
+    detailModal.__detailMapObserverAttached = true;
+  }
+}catch(_){}
+
+window.addEventListener('resize', () => scheduleDetailMiniMapRender(__lastDetailMapPayload, 0));
 
 setTimeout(loadGnbMenusFromDb, 900);
 
