@@ -12012,17 +12012,15 @@ async function refreshPushStatus(){
    const currentMapEl = qs('#detailNaverMap');
    if(!currentMapEl) return;
 
-   currentMapEl.innerHTML = '';
+   // 운영계처럼 지도는 먼저 즉시 생성합니다. 위치 조회/보정 때문에 첫 화면을 기다리게 하지 않습니다.
    currentMapEl.style.width = '100%';
    currentMapEl.style.height = '178px';
    currentMapEl.style.minHeight = '178px';
+   currentMapEl.innerHTML = '';
 
    const nm = window.naver.maps;
    const store = new nm.LatLng(pos.lat, pos.lng);
-
-   // 운영계와 동일하게 DOM id 기준으로 빠르게 생성합니다.
-   // 모달 오픈 직후 한 번만 생성하고, 이후 resize만 보정합니다.
-   detailMapInstance = new nm.Map('detailNaverMap', {
+   detailMapInstance = new nm.Map(currentMapEl, {
      center: store,
      zoom: 16,
      zoomControl: false,
@@ -12043,57 +12041,64 @@ async function refreshPushStatus(){
      zIndex: 100
    });
 
-   const resizeDetailMap = () => {
-     try{
-       nm.Event.trigger(detailMapInstance, 'resize');
-       detailMapInstance.setCenter(store);
-     }catch(_){ }
-   };
-
-   requestAnimationFrame(resizeDetailMap);
-   setTimeout(resizeDetailMap, 120);
-   setTimeout(resizeDetailMap, 360);
-
-   const bounds = new nm.LatLngBounds();
-   bounds.extend(store);
-
-   if(hasFreshUserLocation()){
-     const me = new nm.LatLng(state.userLocation.lat, state.userLocation.lng);
-     bounds.extend(me);
-
-     new nm.Marker({
-       position: me,
-       map: detailMapInstance,
-       icon: {
-         content: '<div class="map-marker-user" title="현재 위치"></div>',
-         anchor: new nm.Point(9, 9)
-       },
-       zIndex: 120
-     });
-
-     new nm.Polyline({
-       map: detailMapInstance,
-       path: [me, store],
-       strokeColor: '#2563eb',
-       strokeWeight: 4,
-       strokeOpacity: .82
-     });
-
-     try{
-       detailMapInstance.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
-     }catch(_){
-       try{ detailMapInstance.fitBounds(bounds); }catch(__){}
-     }
-     setTimeout(resizeDetailMap, 180);
-   }else{
-     // 현재 위치 권한/응답을 기다리느라 지도 표시를 늦추지 않습니다.
-     getReliableCurrentPosition({ forceRefresh:false }).catch(() => {});
-   }
-
    const readyBox = currentMapEl.closest('.detail-map-box');
    if(readyBox){
      readyBox.classList.remove('is-loading');
      readyBox.classList.add('is-ready');
+   }
+
+   const resizeMap = () => {
+     try{
+       if(!detailMapInstance || qs('#detailNaverMap') !== currentMapEl) return;
+       nm.Event.trigger(detailMapInstance, 'resize');
+       if(typeof detailMapInstance.refresh === 'function') detailMapInstance.refresh();
+       detailMapInstance.setCenter(store);
+     }catch(_){}
+   };
+
+   // 첫 지도는 바로 보이게 하고, 타일 틀어짐만 가볍게 1회 보정합니다.
+   requestAnimationFrame(resizeMap);
+   setTimeout(resizeMap, 120);
+
+   const addMyLocationLayer = (location) => {
+     try{
+       if(!location || !detailMapInstance || qs('#detailNaverMap') !== currentMapEl) return;
+       const me = new nm.LatLng(location.lat, location.lng);
+       new nm.Marker({
+         position: me,
+         map: detailMapInstance,
+         icon: {
+           content: '<div class="map-marker-user" title="현재 위치"></div>',
+           anchor: new nm.Point(9, 9)
+         },
+         zIndex: 120
+       });
+       new nm.Polyline({
+         map: detailMapInstance,
+         path: [me, store],
+         strokeColor: '#2563eb',
+         strokeWeight: 4,
+         strokeOpacity: .82
+       });
+       const bounds = new nm.LatLngBounds();
+       bounds.extend(store);
+       bounds.extend(me);
+       try{
+         detailMapInstance.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
+       }catch(_){
+         try{ detailMapInstance.fitBounds(bounds); }catch(__){}
+       }
+       setTimeout(resizeMap, 80);
+     }catch(_){}
+   };
+
+   if(hasFreshUserLocation()){
+     addMyLocationLayer(state.userLocation);
+   }else if(navigator.geolocation){
+     // 위치는 비동기로 받아서 같은 지도 위에 선/마커만 보강합니다. 지도 재생성은 하지 않습니다.
+     getReliableCurrentPosition({ forceRefresh:false })
+       .then((location) => addMyLocationLayer(location || state.userLocation))
+       .catch(() => {});
    }
  }catch(e){
    console.warn('상세 미니 지도 렌더링 실패', e);
@@ -14581,14 +14586,15 @@ function renderCalendarDayModal(){
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
  updateDistanceText(item);
- setTimeout(() => renderDetailMiniMap(item), 120);
+ setTimeout(() => renderDetailMiniMap(item, 0), 80);
+ setTimeout(() => renderDetailMiniMap(item, 0), 280);
  setTimeout(() => {
    try{
      if(detailMapInstance && window.naver?.maps){
        window.naver.maps.Event.trigger(detailMapInstance, 'resize');
      }
    }catch(_){}
- }, 500);
+ }, 700);
  qs('#modalFavBtn').onclick=async ()=>{
  const isFavorite = await toggleFavorite(item.id, item.name);
  const btn = qs('#modalFavBtn');
