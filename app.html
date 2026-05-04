@@ -8836,6 +8836,66 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="gnb-badges-off-keep-card-title-nav">
+/* ===== 최종 배지 노출 범위 =====
+   유지: 하단 네비바 / 각 화면 타이틀 / 전체 기능 카드
+   제거: GNB 내부 메뉴 배지
+*/
+#gnbSheet .menu-trend-ribbon,
+#gnbSheet .menu-trend-badge-wrap,
+#gnbSheet .gnb-inline-badges,
+#gnbSheet .gnb-context-badges,
+#gnbSheet .gnb-context-badge,
+#gnbSheet .gnb-inline-badge{
+  display:none!important;
+}
+
+/* GNB 메뉴는 텍스트만 깔끔하게 */
+#gnbSheet .gnb-menu-label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+}
+
+/* 하단 네비바 배지는 계속 작게 유지 */
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend{
+  display:inline-flex!important;
+}
+
+/* 타이틀 배지 유지 */
+.view-final-trend-badges,
+.view-title-trend-badges{
+  display:inline-flex!important;
+}
+
+/* 카드 배지 유지 */
+.all-menu-ribbon,
+.all-menu-badge-wrap{
+  display:inline-flex;
+}
+</style>
+
+
+<style id="trend-final-polish-bottom-card-title">
+/* HOT 메뉴만 은은하게 강조 */
+.bottom-nav .nav-final-trend-badge.hot,
+.bottom-nav .nav-mini-trend.hot{
+  box-shadow:0 0 0 2px rgba(37,99,235,.12), 0 6px 12px rgba(37,99,235,.20)!important;
+}
+
+.all-menu-card:has(.all-menu-ribbon.new-source-trending),
+.all-menu-card:has(.view-final-trend-badge.hot){
+  box-shadow:0 18px 34px rgba(37,99,235,.10), inset 0 0 0 1px rgba(37,99,235,.06);
+}
+
+/* 카드 HOT/NEW 배지는 너무 튀지 않게 유지 */
+.all-menu-ribbon{
+  opacity:.9!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16512,8 +16572,7 @@ async function askAiAssistant(rawQuestion=''){
  }
 
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
-  const contextBadges = makeGnbContextBadges(menu, mode);
-  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${contextBadges}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
+  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
   return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
