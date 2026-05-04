@@ -17335,14 +17335,14 @@ function markAiRecoShownToday(){
     .sort((a,b)=>a.order-b.order);
   el.innerHTML = rows.length ? rows.map(makeAllMenuCard).join('') : '<div class="panel empty" style="grid-column:1/-1;">관리자 메뉴에서 전체 기능에 표시할 메뉴를 등록해 주세요.</div>';
  }
- async 
+ 
 /* ===== Fixed menu exclusion: home/all are navigation anchors, not trend menus ===== */
 function isFixedNavigationMenuId(value){
   const id = String(value || '').replace(/^#|^\//,'').trim();
   return id === 'home' || id === 'all';
 }
 
-function trackGnbMenuVisitByView(view){
+async function trackGnbMenuVisitByView(view){
   if(isFixedNavigationMenuId(view)) return;
 
   const user = auth?.currentUser; if(!user || !view || !db) return;
