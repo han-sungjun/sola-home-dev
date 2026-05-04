@@ -8062,6 +8062,52 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style>
+/* ===== Full Menu Auto Trend System: NEW ribbon + badge layout ===== */
+.all-menu-card{
+  position:relative;
+  overflow:hidden;
+}
+.all-menu-ribbon{
+  position:absolute;
+  top:12px;
+  left:-10px;
+  z-index:3;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:58px;
+  height:24px;
+  padding:0 12px;
+  transform:rotate(-18deg);
+  border-radius:8px;
+  background:linear-gradient(135deg,#ef4444,#f97316);
+  color:#fff;
+  font-size:10px!important;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 8px 18px rgba(239,68,68,.22);
+}
+.all-menu-badge-wrap{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:4px;
+  flex-wrap:wrap;
+  max-width:118px;
+}
+.all-menu-badge-wrap .all-menu-badge{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -15622,6 +15668,7 @@ async function askAiAssistant(rawQuestion=''){
  let gnbMenuCache = [];
  let recentGnbMenuIdSet = new Set();
  let popularGnbMenuIdSet = new Set();
+ let popularGnbStatsMap = new Map();
 
  function getCurrentUserRole(){ return state.currentUserProfile?.role || 'resident'; }
  function canUseGnbMenu(menu){
@@ -15666,24 +15713,60 @@ async function askAiAssistant(rawQuestion=''){
   if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
  }
 
+
+ function toMenuDate(value){
+  if(!value) return null;
+  try{
+    if(typeof value.toDate === 'function') return value.toDate();
+    if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }catch(_){ return null; }
+ }
+ function isWithinDays(dateValue, days){
+  const d = toMenuDate(dateValue);
+  if(!d) return false;
+  const diff = Date.now() - d.getTime();
+  return diff >= 0 && diff < days * 24 * 60 * 60 * 1000;
+ }
+ function isMenuNew(menu){
+  const sections = Array.isArray(menu?.sections) ? menu.sections : [];
+  if(!sections.includes('new')) return false;
+  // 관리자에서 createdAt이 없던 기존 메뉴는 updatedAt을 보조 기준으로 사용합니다.
+  return isWithinDays(menu.createdAt || menu.created || menu.createdAtText || menu.updatedAt, 7);
+ }
+ function isTrendingMenu(menu){
+  const id = String(menu?.menuId || '');
+  const stat = popularGnbStatsMap.get(id);
+  if(!stat) return false;
+  const total = Number(stat.totalClickCount || stat.clickCount || 0);
+  const recent = isWithinDays(stat.lastClickedAt || stat.updatedAt, 1);
+  // 최근 24시간 내 클릭되고, 누적 3회 이상이면 급상승 NEW로 봅니다.
+  return recent && total >= 3;
+ }
+ function shouldShowNewRibbon(menu){
+  return isMenuNew(menu) || isTrendingMenu(menu);
+ }
+
  function getAllMenuDescription(menu){
   return menu.description || menu.desc || menu.memo || menu.adminMemo || menu.subtitle || menu.summary || '필요한 기능을 바로 이용할 수 있습니다.';
  }
  function getAllMenuBadge(menu){
   const id = String(menu?.menuId || '');
   const badges = [];
-  // 같은 메뉴가 인기+최근이면 [인기][최근] 모두 표시
+  // 인기와 최근이 같은 메뉴면 [인기][최근] 모두 표시
   if(popularGnbMenuIdSet.has(id)) badges.push({ label:'인기', className:'popular' });
   if(recentGnbMenuIdSet.has(id)) badges.push({ label:'최근', className:'recent' });
   return badges;
  }
  function makeAllMenuCard(menu){
   const badges = getAllMenuBadge(menu);
+  const ribbonHtml = shouldShowNewRibbon(menu) ? '<span class="all-menu-ribbon">NEW</span>' : '';
   const badgeHtml = badges.length
     ? `<span class="all-menu-badge-wrap">${badges.map(b => `<span class="all-menu-badge ${b.className}">${b.label}</span>`).join('')}</span>`
     : '';
   const isAi = String(menu.view || menu.route || menu.menuId) === 'ai' ? ' ai-entry-card' : '';
-  return `<button class="all-menu-card${isAi}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${badgeHtml}<span class="all-icon">${escapeHtml(menu.icon || '•')}</span><strong>${escapeHtml(menu.name || menu.menuId)}</strong><span>${escapeHtml(getAllMenuDescription(menu))}</span></button>`;
+  return `<button class="all-menu-card${isAi}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${ribbonHtml}${badgeHtml}<span class="all-icon">${escapeHtml(menu.icon || '•')}</span><strong>${escapeHtml(menu.name || menu.menuId)}</strong><span>${escapeHtml(getAllMenuDescription(menu))}</span></button>`;
  }
  function renderDynamicAllMenus(){
   const el = qs('#allMenuGrid');
@@ -15726,7 +15809,9 @@ async function askAiAssistant(rawQuestion=''){
   try{
    const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
    const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).slice(0,1);
-   popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+      popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+   popularGnbStatsMap = new Map(rows.map(m => [String(m.menuId), m]));
+popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); }
