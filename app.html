@@ -7900,6 +7900,76 @@ nav.bottom-nav{
  display:none !important;
 }
 
+
+
+/* =========================================================
+   Bottom Navigation Safe Visibility Patch
+   - fixed 하단 네비바에 마지막 UI가 가려지지 않도록 전역 보정
+   - JS에서 실제 네비바 높이를 --bottom-nav-safe-offset 으로 동기화
+   ========================================================= */
+:root{
+  --bottom-nav-safe-offset: calc(128px + env(safe-area-inset-bottom, 0px));
+  --bottom-nav-extra-gap: 28px;
+}
+
+html,
+body{
+  min-height:100%;
+  scroll-padding-bottom:calc(var(--bottom-nav-safe-offset) + var(--bottom-nav-extra-gap));
+}
+
+.app{
+  padding-bottom:calc(var(--bottom-nav-safe-offset) + 42px) !important;
+}
+
+.shell{
+  padding-bottom:var(--bottom-nav-extra-gap);
+}
+
+/* 각 탭/리스트의 마지막 요소가 네비바 위로 충분히 올라오도록 보정 */
+#cardList,
+#favoriteList,
+#popularList,
+#noticeList,
+#homeNoticeList,
+#calendarList,
+.notice-list,
+.benefit-list,
+.popular-list,
+.favorite-list,
+.calendar-list,
+.list{
+  padding-bottom:calc(var(--bottom-nav-safe-offset) + 22px) !important;
+}
+
+/* 화면 마지막 카드가 살짝 떠오른 위치에서 끝나도록 최소 여백 확보 */
+.shell::after{
+  content:"";
+  display:block;
+  height:calc(var(--bottom-nav-safe-offset) + 8px);
+  flex:0 0 auto;
+}
+
+/* dialog 상세 화면도 모바일 하단/상단 safe-area 안에서 끝까지 스크롤 가능 */
+dialog:not(.app-alert){
+  max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch;
+}
+
+dialog:not(.app-alert) .modal-body{
+  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@supports (height: 100svh){
+  dialog:not(.app-alert){
+    max-height:calc(100svh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+.bottom-nav{
+  padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+}
 </style>
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
@@ -16071,4 +16141,51 @@ window.addEventListener("load", handlePushDeepLink);
 
 </script>
 
+
+
+<script>
+/* =========================================================
+   Bottom Navigation Dynamic Safe Offset
+   실제 하단 네비바 높이를 계산해서 모든 화면의 하단 여백에 반영합니다.
+   ========================================================= */
+(function(){
+  function syncBottomNavSafeOffset(){
+    try{
+      var nav = document.querySelector('.bottom-nav');
+      var root = document.documentElement;
+      if(!root) return;
+
+      var safeFallback = 128;
+      if(nav){
+        var rect = nav.getBoundingClientRect();
+        var height = Math.ceil(rect.height || nav.offsetHeight || safeFallback);
+        var extra = 44;
+        root.style.setProperty('--bottom-nav-safe-offset', (height + extra) + 'px');
+      }else{
+        root.style.setProperty('--bottom-nav-safe-offset', safeFallback + 'px');
+      }
+    }catch(e){
+      console.warn('[bottom-nav-safe-offset] sync skipped', e);
+    }
+  }
+
+  window.syncBottomNavSafeOffset = syncBottomNavSafeOffset;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    syncBottomNavSafeOffset();
+    setTimeout(syncBottomNavSafeOffset, 150);
+    setTimeout(syncBottomNavSafeOffset, 600);
+    setTimeout(syncBottomNavSafeOffset, 1200);
+  });
+
+  window.addEventListener('resize', syncBottomNavSafeOffset, { passive:true });
+  window.addEventListener('orientationchange', function(){
+    setTimeout(syncBottomNavSafeOffset, 250);
+  }, { passive:true });
+
+  document.addEventListener('click', function(){
+    setTimeout(syncBottomNavSafeOffset, 80);
+  }, true);
+})();
+</script>
 </body></html>
