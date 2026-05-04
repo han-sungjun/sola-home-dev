@@ -5692,6 +5692,18 @@ body:has(#view-calendar:not(.hidden)) .app{
  padding-bottom:0!important;
 }
 
+
+/* ===== Notice detail modal: benefit-detail style ===== */
+.notice-detail-wrap{display:grid;gap:14px;}
+.notice-detail-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:2px;}
+.notice-detail-title{margin:0;font-size:26px;line-height:1.25;letter-spacing:-.04em;color:#0f172a;}
+.notice-detail-content{white-space:pre-wrap;line-height:1.78;color:#334155;font-size:15px;}
+.notice-detail-panel{background:#fff;border:1px solid var(--line-soft);border-radius:24px;padding:18px;box-shadow:var(--shadow);}
+.notice-detail-panel strong{display:block;margin-bottom:8px;font-size:13px;color:var(--muted);}
+.notice-detail-actions{margin-top:2px;}
+#noticeModal .modal-body{padding-bottom:22px;}
+#noticeModal .share-actions{margin-top:0;}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -8190,7 +8202,7 @@ nav.bottom-nav{
  </div>
  </div>
  </dialog>
- <div class="modal-head"><div class="pill">공지사항</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
+ <dialog id="noticeModal"><div class="modal-head"><div class="pill">공지 상세</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
  <dialog id="communityEditorModal"><div class="modal-head"><div class="pill" id="communityEditorTitle">커뮤니티 글쓰기</div><button class="close-btn" id="closeCommunityEditor">✕</button></div><div class="modal-body"><div class="community-write-form"><select id="communityPostCategory"><option value="자유">자유</option><option value="질문">질문</option><option value="나눔">나눔</option><option value="생활정보">생활정보</option><option value="건의">건의</option></select><input id="communityPostTitle" maxlength="80" placeholder="제목을 입력하세요" /><textarea id="communityPostContent" maxlength="3000" placeholder="내용을 입력하세요"></textarea><button class="btn btn-primary block" type="button" id="submitCommunityPostBtn">게시글 등록</button></div></div></dialog>
  <dialog id="communityDetailModal"><div class="modal-head"><div class="pill">커뮤니티</div><button class="close-btn" id="closeCommunityDetail">✕</button></div><div class="modal-body"><div id="communityDetailBody"></div><div class="comment-list" id="communityCommentList"></div><div class="comment-write"><textarea id="communityCommentContent" maxlength="1000" placeholder="댓글을 입력하세요"></textarea><button class="btn btn-primary" type="button" id="submitCommunityCommentBtn">댓글 등록</button></div></div></dialog>
  <dialog id="communityReportModal">
@@ -11269,14 +11281,21 @@ function getShareTrackingParams(){
  const body = qs('#noticeModalBody');
  const dateText = formatDateTime(item.updatedAt || item.createdAt);
  const noticeHtml = `
- <div class="notice-meta" style="margin-bottom:12px;">
+ <div class="notice-detail-wrap">
+ <div>
+ <div class="notice-detail-meta">
  ${item.pinned ? '<span class="notice-badge pin">📌 중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
  <span class="notice-badge">${escapeHtml(item.category || '일반')}</span>
  ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
  </div>
- <h3 style="margin:0 0 12px;font-size:24px;letter-spacing:-.04em;">${escapeHtml(item.title || '공지사항')}</h3>
- <div style="white-space:pre-wrap;line-height:1.75;color:#334155;">${escapeHtml(item.content || '')}</div>
- ${shareActionsHtml('notice')}
+ <h3 class="notice-detail-title">${escapeHtml(item.title || '공지사항')}</h3>
+ </div>
+ <div class="notice-detail-panel">
+ <strong>공지 내용</strong>
+ <div class="notice-detail-content">${escapeHtml(item.content || '')}</div>
+ </div>
+ <div class="notice-detail-actions">${shareActionsHtml('notice')}</div>
+ </div>
  `;
 
  // 공지 모달 DOM이 아직 없거나 렌더링에서 누락된 경우에도 앱이 멈추지 않도록 방어
@@ -15479,7 +15498,7 @@ async function askAiAssistant(rawQuestion=''){
  });
 
  qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
- qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal').close(); clearCleanDeepLinkUrl({ replace:true });};
+ qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal')?.close(); clearCleanDeepLinkUrl({ replace:true });};
  qs('#closeCalendarReservationModal')?.addEventListener('click', closeCalendarReservationModal);
  qs('#cancelCalendarReservationBtn')?.addEventListener('click', closeCalendarReservationModal);
  qs('#calendarReservationForm')?.addEventListener('submit', saveCalendarReservation);
