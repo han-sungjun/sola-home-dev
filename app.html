@@ -16881,15 +16881,15 @@ async function askAiAssistant(rawQuestion=''){
  const BOTTOM_NAV_SETTINGS_COLLECTION = 'app_settings';
  const BOTTOM_NAV_SETTINGS_DOC = 'bottom_nav';
  const DEFAULT_GNB_MENUS = [
-  {menuId:'home', name:'홈', icon:'🏠', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
-  {menuId:'ai', name:'AI 생활 도우미', icon:'🤖', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
-  {menuId:'benefits', name:'혜택 전체보기', icon:'🎁', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
-  {menuId:'favorite', name:'즐겨찾기 확인', icon:'⭐', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
-  {menuId:'notices', name:'공지사항 보기', icon:'📢', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
-  {menuId:'calendar', name:'캘린더 예약', icon:'📅', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
-  {menuId:'map', name:'지도', icon:'🗺️', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
-  {menuId:'top5', name:'인기 매장 TOP 5', icon:'🏆', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
-  {menuId:'shareinsights', name:'공유 인사이트', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
+  {menuId:'home', name:'홈', bottomLabel:'홈', icon:'🏠', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
+  {menuId:'ai', name:'AI 생활 도우미', bottomLabel:'AI', icon:'🤖', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
+  {menuId:'benefits', name:'혜택 전체보기', bottomLabel:'혜택', icon:'🎁', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
+  {menuId:'favorite', name:'즐겨찾기 확인', bottomLabel:'즐겨찾기', icon:'⭐', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
+  {menuId:'notices', name:'공지사항 보기', bottomLabel:'공지', icon:'📢', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
+  {menuId:'calendar', name:'캘린더 예약', bottomLabel:'캘린더', icon:'📅', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
+  {menuId:'map', name:'지도', bottomLabel:'지도', icon:'🗺️', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
+  {menuId:'top5', name:'인기 매장 TOP 5', bottomLabel:'TOP5', icon:'🏆', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
+  {menuId:'shareinsights', name:'공유 인사이트', bottomLabel:'공유', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
  ];
  let gnbMenuCache = [];
  let recentGnbMenuIdSet = new Set();
@@ -16910,7 +16910,7 @@ async function askAiAssistant(rawQuestion=''){
     ? raw.sections.map(v => String(v).trim()).filter(Boolean)
     : String(raw.sections || raw.section || raw.type || 'main').split(',').map(v => v.trim()).filter(Boolean);
   const keywords = Array.isArray(raw.keywords) ? raw.keywords : String(raw.keywords || '').split(',').map(v=>v.trim()).filter(Boolean);
-  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
+  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, bottomLabel:raw.bottomLabel || raw.navLabel || raw.shortName || raw.bottomName || '', icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
  }
  
  
@@ -16930,7 +16930,8 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
  function uniqBottomMenuIds(list=[]){
   const result = [];
   for(const raw of list || []){
-    const id = String(raw || '').replace(/^#|^\//,'').trim();
+    const rawId = (raw && typeof raw === 'object') ? (raw.menuId || raw.view || raw.route || raw.id || raw.key || '') : raw;
+    const id = String(rawId || '').replace(/^#|^\//,'').trim();
     if(!id || id === 'home' || id === 'all') continue;
     if(!result.includes(id)) result.push(id);
     if(result.length >= 3) break;
@@ -17029,18 +17030,32 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   if(found) return found;
 
   const fallbackMap = {
-    home:{menuId:'home',name:'홈',icon:'🏠',view:'home',route:'home',sections:['bottom'],order:0},
-    all:{menuId:'all',name:'전체',icon:'☰',view:'all',route:'all',sections:['bottom'],order:9999},
-    benefits:{menuId:'benefits',name:'혜택',icon:'🎁',view:'benefits',route:'benefits',sections:['bottom'],order:10},
-    favorite:{menuId:'favorite',name:'즐겨찾기',icon:'⭐',view:'favorite',route:'favorite',sections:['bottom'],order:20},
-    top5:{menuId:'top5',name:'TOP5',icon:'🏆',view:'top5',route:'top5',sections:['bottom'],order:30}
+    home:{menuId:'home',name:'홈',bottomLabel:'홈',icon:'🏠',view:'home',route:'home',sections:['bottom'],order:0},
+    all:{menuId:'all',name:'전체',bottomLabel:'전체',icon:'☰',view:'all',route:'all',sections:['bottom'],order:9999},
+    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:'혜택',icon:'🎁',view:'benefits',route:'benefits',sections:['bottom'],order:10},
+    favorite:{menuId:'favorite',name:'즐겨찾기 확인',bottomLabel:'즐겨찾기',icon:'⭐',view:'favorite',route:'favorite',sections:['bottom'],order:20},
+    top5:{menuId:'top5',name:'인기 매장 TOP 5',bottomLabel:'TOP5',icon:'🏆',view:'top5',route:'top5',sections:['bottom'],order:30},
+    ai:{menuId:'ai',name:'AI 생활 도우미',bottomLabel:'AI',icon:'🤖',view:'ai',route:'ai',sections:['bottom'],order:40},
+    calendar:{menuId:'calendar',name:'캘린더 예약',bottomLabel:'캘린더',icon:'📅',view:'calendar',route:'calendar',sections:['bottom'],order:50},
+    map:{menuId:'map',name:'지도',bottomLabel:'지도',icon:'🗺️',view:'map',route:'map',sections:['bottom'],order:60},
+    notices:{menuId:'notices',name:'공지사항 보기',bottomLabel:'공지',icon:'📢',view:'notices',route:'notices',sections:['bottom'],order:70},
+    shareinsights:{menuId:'shareinsights',name:'공유 인사이트',bottomLabel:'공유',icon:'📈',view:'shareinsights',route:'shareinsights',sections:['bottom'],order:200,roles:['admin','root']}
   };
-  return fallbackMap[key] || {menuId:key,name:key,icon:'•',view:key,route:key,sections:['bottom'],order:999};
+  return fallbackMap[key] || {menuId:key,name:key,bottomLabel:key,icon:'•',view:key,route:key,sections:['bottom'],order:999};
+ }
+
+ function getBottomNavSafeLabel(menu = {}){
+  const key = String(menu.view || menu.route || menu.menuId || '').replace(/^#|^\//,'').trim();
+  const shortLabelMap = {
+    home:'홈', all:'전체', benefits:'혜택', favorite:'즐겨찾기', top5:'TOP5',
+    ai:'AI', calendar:'캘린더', map:'지도', notices:'공지', shareinsights:'공유'
+  };
+  return menu.bottomLabel || menu.navLabel || menu.shortName || shortLabelMap[key] || menu.name || menu.menuId || key;
  }
 
  function makeBottomNavButton(menu, fixed=false){
-  const view = menu.view || menu.route || menu.menuId;
-  const label = menu.bottomLabel || menu.navLabel || menu.shortName || menu.name || menu.menuId;
+  const view = String(menu.view || menu.route || menu.menuId || '').replace(/^#|^\//,'').trim();
+  const label = getBottomNavSafeLabel(menu);
   return `<button class="nav-btn${fixed && view === state.view ? ' active' : ''}" data-view-link="${escapeHtml(view)}" type="button">
     <span class="nav-icon">${escapeHtml(menu.icon || '•')}</span>
     <span class="nav-label">${escapeHtml(label)}</span>
@@ -17086,6 +17101,7 @@ async function loadGnbMenusFromDb(){
   }
   renderDynamicGnbMenus();
   renderDynamicAllMenus();
+  renderDynamicBottomNav?.(true);
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
   syncBottomNavDotBadgesFinal?.();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
@@ -17635,7 +17651,7 @@ function syncBottomNavDotBadgesFinal(){
 window.syncBottomNavDotBadgesFinal = syncBottomNavDotBadgesFinal;
 
 setTimeout(syncBottomNavDotBadgesFinal, 1100);
-setInterval(()=>syncBottomNavDotBadgesFinal?.(), 3000);
+// 반복 실행 제거: 동적 네비 재렌더/클릭 시점에만 갱신합니다.
 
 
 /* ===== Public user bottom nav settings ===== */
@@ -17845,7 +17861,7 @@ window.addEventListener('load', () => {
   setTimeout(syncBottomNavTrendBadgesFinal, 900);
   setTimeout(syncBottomNavTrendBadgesFinal, 1800);
 });
-setInterval(syncBottomNavTrendBadgesFinal, 2500);
+// 반복 실행 제거: TOP5 진입 후 DOM/뱃지 갱신 루프를 방지합니다.
 
 setTimeout(syncBottomNavTrendBadgesFinal, 1000);
 
@@ -17940,7 +17956,8 @@ document.addEventListener('click', (event) => {
 window.addEventListener('load', scheduleTrendFinalDisplay);
 try{
   const trendObserver = new MutationObserver(() => scheduleTrendFinalDisplay());
-  trendObserver.observe(document.body, { childList:true, subtree:true });
+  const trendTargets = [document.querySelector('.bottom-nav'), document.querySelector('#gnbSheet'), document.querySelector('#allMenuGrid')].filter(Boolean);
+  trendTargets.forEach(target => trendObserver.observe(target, { childList:true, subtree:true }));
 }catch(_){}
 
 scheduleTrendFinalDisplay();
