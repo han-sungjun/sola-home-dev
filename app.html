@@ -13096,41 +13096,27 @@ ${item.content || ''}`);
 
  function animatePopularCount(el, target){
  if(!el) return;
- const end = Math.max(0, Number(target || 0));
+ const finalValue = Math.max(0, Number(target || 0));
  clearInterval(el._popularCountTimer);
 
- if(!Number.isFinite(end) || end <= 0){
+ if(!Number.isFinite(finalValue) || finalValue <= 0){
    el.textContent = '0';
    return;
  }
 
- let current = 0;
- const steps = 18;
- const step = Math.max(1, Math.ceil(end / steps));
+ let currentValue = 0;
+ const stepsCount = 18;
+ const stepValue = Math.max(1, Math.ceil(finalValue / stepsCount));
 
  el._popularCountTimer = setInterval(() => {
-   current += step;
-   if(current >= end){
-     current = end;
+   currentValue += stepValue;
+   if(currentValue >= finalValue){
+     currentValue = finalValue;
      clearInterval(el._popularCountTimer);
    }
-   el.textContent = current.toLocaleString('ko-KR');
+   el.textContent = currentValue.toLocaleString('ko-KR');
  }, 18);
- }
-
- let current = 0;
- const steps = 24;
- const step = Math.max(1, Math.ceil(end / steps));
- clearInterval(el._popularCountTimer);
-
- el._popularCountTimer = setInterval(() => {
- current += step;
- if(current >= end){
- current = end;
- clearInterval(el._popularCountTimer);
- }
- el.textContent = current.toLocaleString('ko-KR');
- }, 24);
+}
 
  function isShareInsightAdmin(){
  const profile = state.currentUserProfile || {};
