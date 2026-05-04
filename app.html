@@ -8755,6 +8755,87 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="trend-final-force-display">
+/* ===== Trend Final Force Display ===== */
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+.bottom-nav .nav-final-trend-badge{
+  position:absolute!important;
+  top:2px!important;
+  right:4px!important;
+  z-index:30!important;
+  height:14px!important;
+  min-width:25px!important;
+  padding:0 5px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:999px!important;
+  font-size:7px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:.03em!important;
+  color:#fff!important;
+  opacity:.92!important;
+  box-shadow:0 5px 10px rgba(15,23,42,.18)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.bottom-nav .nav-final-trend-badge.hot{
+  background:rgba(37,99,235,.90)!important;
+}
+.bottom-nav .nav-final-trend-badge.new{
+  background:rgba(249,115,22,.90)!important;
+}
+.bottom-nav .nav-final-trend-badge::after,
+.view-final-trend-badge::after{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-65%;
+  width:34%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.46),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+.view-final-trend-badges{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-right:8px!important;
+  vertical-align:middle!important;
+}
+.view-final-trend-badge{
+  position:relative!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:22px!important;
+  min-width:38px!important;
+  padding:0 9px!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  color:#fff!important;
+  opacity:.92!important;
+  overflow:hidden!important;
+  box-shadow:0 8px 16px rgba(15,23,42,.10)!important;
+}
+.view-final-trend-badge.hot{
+  background:rgba(37,99,235,.90)!important;
+}
+.view-final-trend-badge.new{
+  background:rgba(249,115,22,.90)!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16669,7 +16750,7 @@ async function askAiAssistant(rawQuestion=''){
    // 그래서 읽기 없이 merge 저장만 수행합니다.
    await setDoc(hRef, payload, { merge:true });
    await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
-   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); }, 250);
+   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.(); }, 250);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
  async function loadRecentGnbMenus(){
@@ -16725,6 +16806,99 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
+
+/* ===== Trend Final Force Sync ===== */
+function normalizeTrendViewKey(value){
+  return String(value || '').replace(/^#|^\//,'').trim();
+}
+function findTrendMenuByView(value){
+  const key = normalizeTrendViewKey(value);
+  if(!key) return null;
+  return (gnbMenuCache || []).find(m => {
+    return normalizeTrendViewKey(m.view) === key ||
+      normalizeTrendViewKey(m.route) === key ||
+      normalizeTrendViewKey(m.menuId) === key;
+  }) || null;
+}
+function getTrendMenuFlagsSafe(menu){
+  if(!menu) return { hot:false, new:false };
+  const id = String(menu.menuId || '');
+  let hot = false;
+  let isNewFlag = false;
+  try{
+    hot = (popularGnbMenuIdSet && popularGnbMenuIdSet.has(id)) || isTrendingMenu(menu);
+  }catch(_){
+    hot = popularGnbMenuIdSet && popularGnbMenuIdSet.has(id);
+  }
+  try{
+    isNewFlag = isMenuNew(menu);
+  }catch(_){
+    isNewFlag = Array.isArray(menu.sections) && menu.sections.includes('new');
+  }
+  return { hot, new:isNewFlag };
+}
+function makeTrendBadgeHtmlForView(menu, mode='nav'){
+  const flags = getTrendMenuFlagsSafe(menu);
+  if(flags.hot) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} hot">HOT</span>`;
+  if(flags.new) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} new">NEW</span>`;
+  return '';
+}
+function refreshBottomNavFinalTrendBadges(){
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-final-trend-badge,.nav-mini-trend,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findTrendMenuByView(btn.dataset.viewLink);
+    const html = makeTrendBadgeHtmlForView(menu, 'nav');
+    if(html) btn.insertAdjacentHTML('afterbegin', html);
+  });
+}
+function getCurrentVisibleViewKey(){
+  const activeNav = document.querySelector('.bottom-nav .nav-btn.active[data-view-link]');
+  if(activeNav?.dataset?.viewLink) return normalizeTrendViewKey(activeNav.dataset.viewLink);
+
+  const visible = Array.from(document.querySelectorAll('section[id^="view-"]')).find(sec => !sec.classList.contains('hidden'));
+  if(visible?.id) return visible.id.replace(/^view-/, '');
+
+  return normalizeTrendViewKey(state?.view || 'home');
+}
+function refreshCurrentViewFinalTrendBadge(){
+  document.querySelectorAll('.view-final-trend-badges').forEach(el => el.remove());
+  const view = getCurrentVisibleViewKey();
+  const menu = findTrendMenuByView(view);
+  const hotNew = [];
+  const flags = getTrendMenuFlagsSafe(menu);
+  if(flags.hot) hotNew.push('<span class="view-final-trend-badge hot">HOT</span>');
+  if(flags.new) hotNew.push('<span class="view-final-trend-badge new">NEW</span>');
+  if(!hotNew.length) return;
+
+  const viewEl = document.querySelector(`#view-${CSS.escape(view)}`) || document.querySelector('section[id^="view-"]:not(.hidden)');
+  if(!viewEl) return;
+
+  const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
+  if(!title) return;
+  title.insertAdjacentHTML('afterbegin', `<span class="view-final-trend-badges">${hotNew.join('')}</span>`);
+}
+function refreshTrendFinalDisplay(){
+  refreshBottomNavFinalTrendBadges();
+  refreshCurrentViewFinalTrendBadge();
+}
+function scheduleTrendFinalDisplay(){
+  setTimeout(refreshTrendFinalDisplay, 0);
+  setTimeout(refreshTrendFinalDisplay, 150);
+  setTimeout(refreshTrendFinalDisplay, 600);
+}
+document.addEventListener('click', (event) => {
+  if(event.target.closest?.('[data-view-link], .bottom-nav, #gnbSheet, #allMenuGrid')){
+    scheduleTrendFinalDisplay();
+  }
+}, true);
+window.addEventListener('load', scheduleTrendFinalDisplay);
+setInterval(refreshTrendFinalDisplay, 2500);
+try{
+  const trendObserver = new MutationObserver(() => scheduleTrendFinalDisplay());
+  trendObserver.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
+}catch(_){}
+
+scheduleTrendFinalDisplay();
 
 // AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
 document.addEventListener('click', (event) => {
