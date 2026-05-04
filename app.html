@@ -7973,6 +7973,12 @@ dialog:not(.app-alert) .modal-body{
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
 <!-- sticky-filter-final-v1 -->
+
+<style id="dynamic-gnb-menu-db-style-v1">
+  .gnb-search-box{display:flex;align-items:center;gap:10px;border:1px solid rgba(15,23,42,.08);background:#f8fafc;border-radius:20px;padding:12px 14px;margin-bottom:12px}
+  .gnb-search-box::before{content:'🔍';font-size:16px;opacity:.8}.gnb-search-box input{width:100%;border:none;outline:none;background:transparent;font-weight:800;color:#0f172a}
+  .gnb-menu-search-results{display:grid;gap:10px;margin-top:10px}.gnb-search-result-title{font-size:12px;font-weight:900;color:#64748b;margin:6px 2px 2px}.gnb-empty{width:100%;padding:13px 14px;border-radius:18px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;font-size:13px;font-weight:800}.gnb-menu-count{display:inline-flex;margin-left:6px;font-size:11px;color:#64748b;font-weight:900}.gnb-chip .gnb-menu-count,.gnb-menu-item .gnb-menu-count,.gnb-menu-subitem .gnb-menu-count{opacity:.76}
+</style>
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -15519,6 +15525,110 @@ async function askAiAssistant(rawQuestion=''){
  );
  });
 
+
+
+ // ===== Dynamic GNB menu DB personalization v1 =====
+ const APP_MENUS_COLLECTION = 'app_menus';
+ const USER_MENU_HISTORY_COLLECTION = 'user_menu_history';
+ const MENU_STATS_COLLECTION = 'menu_stats';
+ const DEFAULT_GNB_MENUS = [
+  {menuId:'home', name:'홈', icon:'🏠', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
+  {menuId:'ai', name:'AI 생활 도우미', icon:'🤖', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
+  {menuId:'benefits', name:'혜택 전체보기', icon:'🎁', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
+  {menuId:'favorite', name:'즐겨찾기 확인', icon:'⭐', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
+  {menuId:'notices', name:'공지사항 보기', icon:'📢', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
+  {menuId:'calendar', name:'캘린더 예약', icon:'📅', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
+  {menuId:'map', name:'지도', icon:'🗺️', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
+  {menuId:'top5', name:'인기 매장 TOP 5', icon:'🏆', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
+  {menuId:'shareinsights', name:'공유 인사이트', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
+ ];
+ let gnbMenuCache = [];
+
+ function getCurrentUserRole(){ return state.currentUserProfile?.role || 'resident'; }
+ function canUseGnbMenu(menu){
+  if(menu?.isActive === false || menu?.visible === false) return false;
+  const role = getCurrentUserRole();
+  const roles = Array.isArray(menu?.roles) ? menu.roles : (menu?.role ? [menu.role] : []);
+  return !roles.length || roles.includes(role) || (role === 'root');
+ }
+ function normalizeGnbMenu(raw={}, fallbackId=''){
+  const menuId = String(raw.menuId || raw.id || fallbackId || raw.view || raw.route || '').trim();
+  const view = String(raw.view || raw.viewLink || raw.route || menuId || 'home').replace(/^#|^\//,'').trim();
+  const sections = Array.isArray(raw.sections) ? raw.sections : [raw.section || raw.type || 'main'].filter(Boolean);
+  const keywords = Array.isArray(raw.keywords) ? raw.keywords : String(raw.keywords || '').split(',').map(v=>v.trim()).filter(Boolean);
+  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
+ }
+ async function loadGnbMenusFromDb(){
+  try{
+   const snap = await getDocs(collection(db, APP_MENUS_COLLECTION));
+   const rows = snap.docs.map(d => normalizeGnbMenu({ id:d.id, ...d.data() }, d.id)).filter(canUseGnbMenu).sort((a,b)=>a.order-b.order);
+   gnbMenuCache = rows.length ? rows : DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
+  }catch(error){
+   console.warn('GNB 메뉴 DB 로딩 실패, 기본 메뉴 사용', error);
+   gnbMenuCache = DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
+  }
+  renderDynamicGnbMenus();
+  await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
+ }
+ function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText=''){
+  const label = `${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}`;
+  return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
+ }
+ function renderDynamicGnbMenus(){
+  const newMenus = gnbMenuCache.filter(m => m.sections.includes('new'));
+  const mainMenus = gnbMenuCache.filter(m => m.sections.includes('main') || m.sections.includes('gnb'));
+  const newEl = qs('#gnbNewMenus');
+  const mainEl = qs('#gnbMainMenus');
+  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item')).join('') : '<div class="gnb-empty">관리자 메뉴에서 새 메뉴를 등록하면 여기에 표시됩니다.</div>';
+  if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
+ }
+ async function trackGnbMenuVisitByView(view){
+  const user = auth?.currentUser; if(!user || !view || !db) return;
+  const menu = gnbMenuCache.find(m => String(m.view) === String(view) || String(m.route) === String(view) || String(m.menuId) === String(view)) || normalizeGnbMenu({menuId:view,name:view,view,sections:['main']});
+  const historyId = `${user.uid}_${menu.menuId}`;
+  const payload = { uid:user.uid, userId:user.uid, menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], clickCount:increment(1), lastVisitedAt:serverTimestamp(), updatedAt:serverTimestamp() };
+  try{
+   const hRef = doc(db, USER_MENU_HISTORY_COLLECTION, historyId);
+   const hSnap = await getDoc(hRef);
+   await setDoc(hRef, { ...payload, firstVisitedAt: hSnap.exists() ? (hSnap.data().firstVisitedAt || serverTimestamp()) : serverTimestamp() }, { merge:true });
+   await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
+   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); }, 250);
+  }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
+ }
+ async function loadRecentGnbMenus(){
+  const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
+  try{
+   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(3)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu);
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 최근 메뉴가 표시됩니다.</div>';
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; }
+ }
+ async function loadPopularGnbMenus(){
+  const el = qs('#gnbPopularMenus'); if(!el || !db) return;
+  try{
+   const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).slice(0,3);
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 인기 메뉴가 표시됩니다.</div>';
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; }
+ }
+ function renderGnbMenuSearch(keyword=''){
+  const box = qs('#gnbMenuSearchResults'); if(!box) return;
+  const q = String(keyword || '').trim().toLowerCase();
+  if(!q){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  const rows = gnbMenuCache.filter(m => [m.name, m.menuId, m.view, ...(m.keywords||[])].join(' ').toLowerCase().includes(q)).slice(0,8);
+  box.classList.remove('hidden');
+  box.innerHTML = `<div class="gnb-search-result-title">통합검색 결과</div>` + (rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">검색 결과가 없습니다.</div>');
+ }
+ qs('#gnbMenuSearchInput')?.addEventListener('input', (event)=>renderGnbMenuSearch(event.target.value));
+ document.addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-view-link]');
+  if(!btn) return;
+  const view = btn.dataset.viewLink;
+  if(btn.closest('#gnbSheet') || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn') trackGnbMenuVisitByView(view);
+ }, true);
+ setTimeout(loadGnbMenusFromDb, 900);
+
+
  qsa('[data-view-link]').forEach(btn => {
  btn.addEventListener('click', () => {
  const view = btn.dataset.viewLink;
@@ -15683,38 +15793,30 @@ async function askAiAssistant(rawQuestion=''){
  <span>›</span>
  </div>
 
+ <section class="gnb-section gnb-search-section">
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🔎</span><span class="title-text">메뉴 검색</span></h3>
+ <div class="gnb-search-box"><input id="gnbMenuSearchInput" type="search" placeholder="메뉴 통합검색, 인기메뉴, 최근메뉴" autocomplete="off" /></div>
+ <div class="gnb-menu-search-results hidden" id="gnbMenuSearchResults"></div>
+ </section>
+
  <section class="gnb-section">
- <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">🕘</span><span class="title-text">최근에 봤어요</span></h3>
- <div class="gnb-chip-row">
- <button class="gnb-chip" type="button" data-view-link="benefits">전체 혜택</button>
- </div>
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🕘</span><span class="title-text">최근에 봤어요</span></h3>
+ <div class="gnb-chip-row" id="gnbRecentMenus"><div class="gnb-empty">최근 방문 메뉴를 불러오는 중입니다.</div></div>
+ </section>
+
+ <section class="gnb-section">
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🔥</span><span class="title-text">인기 메뉴</span></h3>
+ <div class="gnb-chip-row" id="gnbPopularMenus"><div class="gnb-empty">인기 메뉴를 불러오는 중입니다.</div></div>
  </section>
 
  <section class="gnb-section">
  <div class="gnb-menu-group">
  <h4 class="gnb-menu-group-title">📌 새로 나왔어요</h4>
- <div class="gnb-new-section"><div class="gnb-menu-list">
- <button class="gnb-menu-item" type="button" data-view-link="ai">AI 생활 도우미</button>
- <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
- <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
- <button class="gnb-menu-item" type="button" data-view-link="calendar">캘린더 예약</button>
- <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
- <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
+ <div class="gnb-new-section"><div class="gnb-menu-list" id="gnbNewMenus"><div class="gnb-empty">새 메뉴를 불러오는 중입니다.</div></div></div>
  </div>
- </div>
-
  <div class="gnb-menu-group">
  <h4 class="gnb-menu-group-title">🏠 더운정 마이힐스</h4>
- <div class="gnb-menu-sublist">
- <button class="gnb-menu-subitem" type="button" data-view-link="home">홈</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="ai">AI 도우미</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="benefits">혜택</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="calendar">캘린더</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="map">지도</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
- </div>
+ <div class="gnb-menu-sublist" id="gnbMainMenus"><div class="gnb-empty">메뉴를 불러오는 중입니다.</div></div>
  </div>
  </section>
 
