@@ -1795,6 +1795,35 @@ body.gnb-open .admin-bottom-nav{
 <style id="admin-dynamic-menu-manager-style-v1">
   .menu-admin-grid{display:grid;gap:14px}.menu-admin-form{display:grid;gap:12px}.menu-admin-list{display:grid;gap:10px}.menu-role-row,.menu-section-row{display:flex;flex-wrap:wrap;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#fff}.menu-role-row label,.menu-section-row label{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:800;color:#334155}.menu-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:10px}.menu-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.menu-card-title{display:flex;gap:10px;align-items:center}.menu-card-title strong{font-size:15px}.menu-card-title span{font-size:20px}.menu-card-meta{display:flex;flex-wrap:wrap;gap:6px}.menu-search-preview{display:grid;gap:10px;margin-top:10px}.admin-bottom-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important}
 </style>
+
+<style>
+/* ===== Admin bottom nav compact: 주요 기능 4개 + 더보기 ===== */
+.admin-bottom-nav{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+.admin-bottom-nav .admin-nav-btn .nav-label{
+  font-size:11px!important;
+}
+.admin-bottom-nav .admin-nav-btn[data-admin-view="all"]{
+  background:rgba(255,255,255,.06);
+}
+.admin-bottom-nav .admin-nav-btn[data-admin-view="all"].active{
+  background:rgba(255,255,255,.16);
+}
+@media (max-width:380px){
+  .admin-bottom-nav{
+    gap:4px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn{
+    padding:8px 0 10px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn .nav-label{
+    font-size:10px!important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2059,9 +2088,7 @@ body.gnb-open .admin-bottom-nav{
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
-    <button class="admin-nav-btn" data-admin-view="ai"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
-    <button class="admin-nav-btn" data-admin-view="menus"><span class="nav-icon">🧭</span><span class="nav-label">메뉴</span></button>
-    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">▦</span><span class="nav-label">전체</span></button>
+    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">☰</span><span class="nav-label">더보기</span></button>
   </nav>
 
   <script type="module">
