@@ -8896,6 +8896,77 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="bottom-nav-badge-final-robot-style">
+/* ===== Bottom Nav Badge Final: 상단 로봇 아이콘 느낌의 작은 플로팅 배지 ===== */
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend,
+.bottom-nav .nav-robot-trend-badge{
+  position:absolute!important;
+  top:5px!important;
+  right:8px!important;
+  z-index:50!important;
+  min-width:18px!important;
+  width:18px!important;
+  height:18px!important;
+  padding:0!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:9px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  color:#fff!important;
+  opacity:.96!important;
+  border:2px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 6px 14px rgba(15,23,42,.28)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.bottom-nav .nav-final-trend-badge.hot,
+.bottom-nav .nav-mini-trend.hot,
+.bottom-nav .nav-robot-trend-badge.hot{
+  background:linear-gradient(135deg,#2563eb,#7c3aed)!important;
+}
+.bottom-nav .nav-final-trend-badge.new,
+.bottom-nav .nav-mini-trend.new,
+.bottom-nav .nav-robot-trend-badge.new{
+  background:linear-gradient(135deg,#f97316,#ef4444)!important;
+}
+.bottom-nav .nav-final-trend-badge.hot::before,
+.bottom-nav .nav-mini-trend.hot::before,
+.bottom-nav .nav-robot-trend-badge.hot::before{
+  content:"H";
+}
+.bottom-nav .nav-final-trend-badge.new::before,
+.bottom-nav .nav-mini-trend.new::before,
+.bottom-nav .nav-robot-trend-badge.new::before{
+  content:"N";
+}
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend,
+.bottom-nav .nav-robot-trend-badge{
+  color:transparent!important;
+}
+.bottom-nav .nav-final-trend-badge::after,
+.bottom-nav .nav-mini-trend::after,
+.bottom-nav .nav-robot-trend-badge::after{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-70%;
+  width:42%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.4s ease-in-out infinite;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16532,7 +16603,7 @@ async function askAiAssistant(rawQuestion=''){
   }
   renderDynamicGnbMenus();
   renderDynamicAllMenus();
-  refreshBottomNavMiniTrendBadges();
+  refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
   renderDynamicAllMenus();
   refreshBottomTrendUi();
@@ -16788,7 +16859,7 @@ function markAiRecoShownToday(){
   refreshBottomNavTopHighlight();
   refreshAiBottomRecommendation();
   forceBottomNavTopPopularBadge();
-  refreshBottomNavMiniTrendBadges();
+  refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
   refreshCurrentViewTitleTrendBadges();
  }
 
@@ -16891,6 +16962,69 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
 
+/* ===== Bottom Nav HOT/NEW Final Force Sync ===== */
+function getBottomNavTrendMenuByKey(key){
+  key = String(key || '').replace(/^#|^\//,'').trim();
+  if(!key) return null;
+  return (gnbMenuCache || []).find(m => {
+    const keys = [m.menuId, m.view, m.route].map(v => String(v || '').replace(/^#|^\//,'').trim());
+    return keys.includes(key);
+  }) || null;
+}
+function getBottomNavPopularTopId(){
+  try{
+    const ids = Array.from(popularGnbMenuIdSet || []);
+    if(ids.length) return String(ids[0]);
+  }catch(_){}
+  try{
+    let best = null;
+    (gnbMenuCache || []).forEach(m => {
+      const count = Number(m.totalClickCount || m.clickCount || 0);
+      const last = m.lastClickedAt?.toDate?.() || (m.lastClickedAt ? new Date(m.lastClickedAt) : null);
+      if(!best || count > best.count || (count === best.count && last && best.last && last > best.last)){
+        best = { id:String(m.menuId || ''), count, last };
+      }
+    });
+    return best?.count > 0 ? best.id : '';
+  }catch(_){ return ''; }
+}
+function bottomNavMenuIsNew(menu){
+  try{ return isMenuNew(menu); }catch(_){ return Array.isArray(menu?.sections) && menu.sections.includes('new'); }
+}
+function syncBottomNavTrendBadgesFinal(){
+  const popularId = getBottomNavPopularTopId();
+  const popularMenu = popularId ? getBottomNavTrendMenuByKey(popularId) : null;
+  const popularKeys = popularMenu ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean) : [];
+
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+
+    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    const menu = getBottomNavTrendMenuByKey(viewKey);
+
+    let type = '';
+    if(popularKeys.includes(viewKey)){
+      type = 'hot';
+    }else if(bottomNavMenuIsNew(menu)){
+      type = 'new';
+    }
+
+    if(type){
+      btn.insertAdjacentHTML('afterbegin', `<span class="nav-robot-trend-badge ${type}" aria-hidden="true"></span>`);
+    }
+  });
+}
+window.syncBottomNavTrendBadgesFinal = syncBottomNavTrendBadgesFinal;
+document.addEventListener('click', () => setTimeout(syncBottomNavTrendBadgesFinal, 80), true);
+window.addEventListener('load', () => {
+  setTimeout(syncBottomNavTrendBadgesFinal, 200);
+  setTimeout(syncBottomNavTrendBadgesFinal, 900);
+  setTimeout(syncBottomNavTrendBadgesFinal, 1800);
+});
+setInterval(syncBottomNavTrendBadgesFinal, 2500);
+
+setTimeout(syncBottomNavTrendBadgesFinal, 1000);
+
 /* ===== Trend Final Force Sync ===== */
 function normalizeTrendViewKey(value){
   return String(value || '').replace(/^#|^\//,'').trim();
@@ -16962,7 +17096,7 @@ function refreshCurrentViewFinalTrendBadge(){
   title.insertAdjacentHTML('afterbegin', `<span class="view-final-trend-badges">${hotNew.join('')}</span>`);
 }
 function refreshTrendFinalDisplay(){
-  refreshBottomNavFinalTrendBadges();
+  refreshBottomNavFinalTrendBadges(); syncBottomNavTrendBadgesFinal?.();
   refreshCurrentViewFinalTrendBadge();
 }
 function scheduleTrendFinalDisplay(){
