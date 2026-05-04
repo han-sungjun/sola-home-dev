@@ -11989,127 +11989,7 @@ async function refreshPushStatus(){
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false));}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,benefitMapInstance.getZoom?benefitMapInstance.getZoom():15); clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.min(19,Number(benefitMapInstance.getZoom()||15)+1));}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
- async function renderDetailMiniMap(item = {}){
- const mapEl = qs('#detailNaverMap');
- const pos = getBenefitLatLng(item);
- if(!mapEl || !pos) return;
-
- const box = mapEl.closest('.detail-map-box');
- if(box){
-   box.classList.add('is-loading');
-   box.classList.remove('is-ready');
- }
-
- if(!NAVER_MAP_CLIENT_ID){
-   mapEl.innerHTML = '<div class="detail-map-empty">NAVER_MAP_CLIENT_ID를 입력하면 지도가 표시됩니다.</div>';
-   if(box) box.classList.remove('is-loading');
-   return;
- }
-
- try{
-   await loadNaverMapsSdk();
-
-   const currentMapEl = qs('#detailNaverMap');
-   if(!currentMapEl) return;
-
-   // 운영계처럼 지도는 먼저 즉시 생성합니다. 위치 조회/보정 때문에 첫 화면을 기다리게 하지 않습니다.
-   currentMapEl.style.width = '100%';
-   currentMapEl.style.height = '178px';
-   currentMapEl.style.minHeight = '178px';
-   currentMapEl.innerHTML = '';
-
-   const nm = window.naver.maps;
-   const store = new nm.LatLng(pos.lat, pos.lng);
-   detailMapInstance = new nm.Map(currentMapEl, {
-     center: store,
-     zoom: 16,
-     zoomControl: false,
-     scrollWheel: false,
-     draggable: true,
-     scaleControl: false,
-     logoControl: false,
-     mapDataControl: false
-   });
-
-   new nm.Marker({
-     position: store,
-     map: detailMapInstance,
-     icon: {
-       content: '<div class="map-marker-store">매장</div>',
-       anchor: new nm.Point(20, 34)
-     },
-     zIndex: 100
-   });
-
-   const readyBox = currentMapEl.closest('.detail-map-box');
-   if(readyBox){
-     readyBox.classList.remove('is-loading');
-     readyBox.classList.add('is-ready');
-   }
-
-   const resizeMap = () => {
-     try{
-       if(!detailMapInstance || qs('#detailNaverMap') !== currentMapEl) return;
-       nm.Event.trigger(detailMapInstance, 'resize');
-       if(typeof detailMapInstance.refresh === 'function') detailMapInstance.refresh();
-       detailMapInstance.setCenter(store);
-     }catch(_){}
-   };
-
-   // 첫 지도는 바로 보이게 하고, 타일 틀어짐만 가볍게 1회 보정합니다.
-   requestAnimationFrame(resizeMap);
-   setTimeout(resizeMap, 120);
-
-   const addMyLocationLayer = (location) => {
-     try{
-       if(!location || !detailMapInstance || qs('#detailNaverMap') !== currentMapEl) return;
-       const me = new nm.LatLng(location.lat, location.lng);
-       new nm.Marker({
-         position: me,
-         map: detailMapInstance,
-         icon: {
-           content: '<div class="map-marker-user" title="현재 위치"></div>',
-           anchor: new nm.Point(9, 9)
-         },
-         zIndex: 120
-       });
-       new nm.Polyline({
-         map: detailMapInstance,
-         path: [me, store],
-         strokeColor: '#2563eb',
-         strokeWeight: 4,
-         strokeOpacity: .82
-       });
-       const bounds = new nm.LatLngBounds();
-       bounds.extend(store);
-       bounds.extend(me);
-       try{
-         detailMapInstance.fitBounds(bounds, { top:34, right:34, bottom:34, left:34 });
-       }catch(_){
-         try{ detailMapInstance.fitBounds(bounds); }catch(__){}
-       }
-       setTimeout(resizeMap, 80);
-     }catch(_){}
-   };
-
-   if(hasFreshUserLocation()){
-     addMyLocationLayer(state.userLocation);
-   }else if(navigator.geolocation){
-     // 위치는 비동기로 받아서 같은 지도 위에 선/마커만 보강합니다. 지도 재생성은 하지 않습니다.
-     getReliableCurrentPosition({ forceRefresh:false })
-       .then((location) => addMyLocationLayer(location || state.userLocation))
-       .catch(() => {});
-   }
- }catch(e){
-   console.warn('상세 미니 지도 렌더링 실패', e);
-   const currentMapEl = qs('#detailNaverMap');
-   if(currentMapEl){
-     currentMapEl.innerHTML = '<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
-   }
-   const failBox = currentMapEl?.closest('.detail-map-box');
-   if(failBox) failBox.classList.remove('is-loading');
- }
-}
+ async function renderDetailMiniMap(item={}){const mapEl=qs('#detailNaverMap'); const pos=getBenefitLatLng(item); if(!mapEl||!pos)return; if(!NAVER_MAP_CLIENT_ID){mapEl.innerHTML='<div class="detail-map-empty">NAVER_MAP_CLIENT_ID를 입력하면 지도가 표시됩니다.</div>';return;} try{await loadNaverMapsSdk(); if(!qs('#detailNaverMap'))return; const nm=window.naver.maps; const store=new nm.LatLng(pos.lat,pos.lng); detailMapInstance=new nm.Map('detailNaverMap',{center:store,zoom:16,zoomControl:false,scrollWheel:false,draggable:true}); new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100}); const bounds=new nm.LatLngBounds(); bounds.extend(store); if(hasFreshUserLocation()){const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); bounds.extend(me); new nm.Marker({position:me,map:detailMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:120}); new nm.Polyline({map:detailMapInstance,path:[me,store],strokeColor:'#2563eb',strokeWeight:4,strokeOpacity:.82}); try{detailMapInstance.fitBounds(bounds,{top:34,right:34,bottom:34,left:34});}catch(_){detailMapInstance.fitBounds(bounds);}}else{getReliableCurrentPosition({forceRefresh:false}).then(()=>renderDetailMiniMap(item)).catch(()=>{});}}catch(e){console.warn('상세 미니 지도 렌더링 실패',e); if(qs('#detailNaverMap'))qs('#detailNaverMap').innerHTML='<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';}}
 
  const CATEGORY_ICONS = {
  '전체':'🏷️',
@@ -12994,14 +12874,16 @@ ${item.content || ''}`);
  return candidates[0]?.id || '';
  }
 
+ let popularStatsUnsubscribe = null;
  function subscribePopularStats() {
+ if(popularStatsUnsubscribe) return;
  const popularQuery = query(
  collection(db, BENEFIT_STATS_COLLECTION),
- orderBy('detailViewCount', 'desc'),
+ orderBy('popularScore', 'desc'),
  limit(80)
  );
 
- onSnapshot(popularQuery, (snapshot) => {
+ popularStatsUnsubscribe = onSnapshot(popularQuery, (snapshot) => {
  const runtimePreviousRanks = new Map(
  (state.popularItems || []).map((item, index) => [item.id, index + 1])
  );
@@ -13017,8 +12899,7 @@ ${item.content || ''}`);
  const favoriteCount = Number(data.favoriteCount || 0);
  const shareClickCount = Number(data.shareClickCount || 0);
  const calculatedPopularScore = calcPopularScoreFromStats(data);
- const storedPopularScore = Number(data.popularScore || data.score || 0);
- const popularScore = Math.max(calculatedPopularScore, storedPopularScore);
+ const popularScore = Math.max(Number(data.popularScore || 0), calculatedPopularScore);
 
  return {
  id: d.id,
@@ -17181,12 +17062,9 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
 
   updateBottomNavActiveState?.();
   syncBottomNavTrendBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavSafeOffset?.();
   scheduleTrendFinalDisplay?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
  }
 
  function updateBottomNavActiveState(){
@@ -17209,9 +17087,7 @@ async function loadGnbMenusFromDb(){
   renderDynamicGnbMenus();
   renderDynamicAllMenus();
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
   renderDynamicAllMenus();
   refreshBottomTrendUi();
@@ -17470,9 +17346,7 @@ function markAiRecoShownToday(){
   refreshAiBottomRecommendation();
   forceBottomNavTopPopularBadge();
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   refreshCurrentViewTitleTrendBadges();
  }
 
@@ -17514,11 +17388,31 @@ function isFixedNavigationMenuId(value){
   return id === 'home' || id === 'all';
 }
 
+const gnbVisitLastTrackedAt = new Map();
+let gnbMenuRefreshTimer = null;
+function scheduleGnbMenuLightRefresh(delay = 900){
+  if(gnbMenuRefreshTimer) return;
+  gnbMenuRefreshTimer = setTimeout(() => {
+   gnbMenuRefreshTimer = null;
+   loadRecentGnbMenus();
+   loadPopularGnbMenus();
+   scheduleTrendFinalDisplay?.();
+   syncBottomNavDotBadgesFinal?.();
+  }, delay);
+}
 async function trackGnbMenuVisitByView(view){
   if(isFixedNavigationMenuId(view)) return;
 
   const user = auth?.currentUser; if(!user || !view || !db) return;
   const menu = gnbMenuCache.find(m => String(m.view) === String(view) || String(m.route) === String(view) || String(m.menuId) === String(view)) || normalizeGnbMenu({menuId:view,name:view,view,sections:['main']});
+  const now = Date.now();
+  const visitKey = `${user.uid}_${menu.menuId}`;
+  const lastAt = Number(gnbVisitLastTrackedAt.get(visitKey) || 0);
+  if(now - lastAt < 3000){
+   scheduleTrendFinalDisplay?.();
+   return;
+  }
+  gnbVisitLastTrackedAt.set(visitKey, now);
   const historyId = `${user.uid}_${menu.menuId}`;
   const payload = { uid:user.uid, userId:user.uid, menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], clickCount:increment(1), lastVisitedAt:serverTimestamp(), updatedAt:serverTimestamp() };
   try{
@@ -17527,10 +17421,7 @@ async function trackGnbMenuVisitByView(view){
    // 그래서 읽기 없이 merge 저장만 수행합니다.
    await setDoc(hRef, payload, { merge:true });
    await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
-   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
-  syncBottomNavDotBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.(); }, 250);
+   scheduleGnbMenuLightRefresh(900);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
  async function loadRecentGnbMenus(){
@@ -17675,8 +17566,7 @@ function syncBottomNavDotBadgesOnlyFinal(){
 window.syncBottomNavDotBadgesOnlyFinal = syncBottomNavDotBadgesOnlyFinal;
 setTimeout(syncBottomNavDotBadgesOnlyFinal, 300);
 setTimeout(syncBottomNavDotBadgesOnlyFinal, 1200);
-setInterval(syncBottomNavDotBadgesOnlyFinal, 2500);
-document.addEventListener('click', () => setTimeout(syncBottomNavDotBadgesOnlyFinal, 100), true);
+document.addEventListener('click', () => scheduleTrendFinalDisplay?.(), true);
 
 
 /* ===== Bottom nav tiny-dot badge final sync ===== */
@@ -17889,9 +17779,7 @@ document.addEventListener('click', (event) => {
   updateBottomNavActiveState?.();
   setTimeout(() => {
     syncBottomNavTrendBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
-  syncBottomNavDotBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
+    syncBottomNavDotBadgesFinal?.();
     syncBottomNavSafeOffset?.();
   }, 80);
 }, true);
@@ -18033,15 +17921,16 @@ function refreshCurrentViewFinalTrendBadge(){
 }
 function refreshTrendFinalDisplay(){
   refreshBottomNavFinalTrendBadges(); syncBottomNavTrendBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
-  syncBottomNavDotBadgesOnlyFinal?.();
   refreshCurrentViewFinalTrendBadge();
 }
+let trendFinalDisplayTimer = null;
 function scheduleTrendFinalDisplay(){
-  setTimeout(refreshTrendFinalDisplay, 0);
-  setTimeout(refreshTrendFinalDisplay, 150);
-  setTimeout(refreshTrendFinalDisplay, 600);
+  if(trendFinalDisplayTimer) return;
+  trendFinalDisplayTimer = setTimeout(() => {
+    trendFinalDisplayTimer = null;
+    refreshTrendFinalDisplay();
+  }, 120);
 }
 document.addEventListener('click', (event) => {
   if(event.target.closest?.('[data-view-link], .bottom-nav, #gnbSheet, #allMenuGrid')){
@@ -18049,10 +17938,9 @@ document.addEventListener('click', (event) => {
   }
 }, true);
 window.addEventListener('load', scheduleTrendFinalDisplay);
-setInterval(refreshTrendFinalDisplay, 2500);
 try{
   const trendObserver = new MutationObserver(() => scheduleTrendFinalDisplay());
-  trendObserver.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
+  trendObserver.observe(document.body, { childList:true, subtree:true });
 }catch(_){}
 
 scheduleTrendFinalDisplay();
