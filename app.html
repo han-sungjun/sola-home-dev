@@ -16796,6 +16796,14 @@ async function askAiAssistant(rawQuestion=''){
 /* Safe noop for legacy calls */
 const syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 
+
+/* ===== Bottom nav persistent settings cache ===== */
+let bottomNavUserMenusCache = null;
+let bottomNavAdminMenusCache = null;
+let bottomNavAdminMenusConfiguredCache = false;
+let bottomNavUseAdminDefaultFillCache = true;
+let bottomNavSettingsLoadedOnce = false;
+
 const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
 
  function uniqBottomMenuIds(list=[]){
@@ -16809,12 +16817,22 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   return result;
  }
 
- async function loadBottomNavSettings(){
+ async function loadBottomNavSettings(force=false){
   const uid = auth?.currentUser?.uid || '';
   let userMenus = [];
   let adminMenus = [];
   let adminMenusConfigured = false;
   let useAdminDefaultFill = true;
+
+  // 이미 한 번 읽었고 같은 세션에서 강제 갱신이 아니면 캐시를 우선 사용합니다.
+  if(!force && bottomNavSettingsLoadedOnce){
+    return {
+      userMenus: bottomNavUserMenusCache || [],
+      adminMenus: bottomNavAdminMenusCache || [],
+      adminMenusConfigured: bottomNavAdminMenusConfiguredCache === true,
+      useAdminDefaultFill: bottomNavUseAdminDefaultFillCache !== false
+    };
+  }
 
   try{
     if(uid && db){
@@ -16840,6 +16858,12 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   }catch(error){
     console.warn('관리자 하단 네비 기본값 로딩 실패', error);
   }
+
+  bottomNavUserMenusCache = userMenus;
+  bottomNavAdminMenusCache = adminMenus;
+  bottomNavAdminMenusConfiguredCache = adminMenusConfigured;
+  bottomNavUseAdminDefaultFillCache = useAdminDefaultFill;
+  bottomNavSettingsLoadedOnce = true;
 
   return { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill };
  }
@@ -16902,11 +16926,11 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   </button>`;
  }
 
- async function renderDynamicBottomNav(){
+ async function renderDynamicBottomNav(forceReload=false){
   const nav = document.querySelector('.bottom-nav');
   if(!nav) return;
 
-  const { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill } = await loadBottomNavSettings();
+  const { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill } = await loadBottomNavSettings(forceReload);
   const middleIds = resolveBottomMenuIds(userMenus, adminMenus, useAdminDefaultFill, adminMenusConfigured);
   const middleMenus = middleIds.map(getMenuByIdOrFallback).filter(Boolean);
   const menus = [getMenuByIdOrFallback('home'), ...middleMenus, getMenuByIdOrFallback('all')].filter(Boolean);
@@ -16919,8 +16943,7 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   syncBottomNavTrendBadgesFinal?.();
   syncBottomNavDotBadgesFinal?.();
   syncBottomNavSafeOffset?.();
-scheduleTrendFinalDisplay?.();
-  syncBottomNavDotBadgesFinal?.();
+  scheduleTrendFinalDisplay?.();
  }
 
  function updateBottomNavActiveState(){
@@ -17303,7 +17326,20 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
     trackGnbMenuVisitByView(view);
   }
  }, true);
- setTimeout(loadGnbMenusFromDb, 900);
+ 
+/* bottom nav refresh after auth */
+try{
+  onAuthStateChanged(auth, async (user) => {
+    bottomNavSettingsLoadedOnce = false;
+    bottomNavUserMenusCache = null;
+    if(user){
+      setTimeout(()=>renderDynamicBottomNav?.(true), 250);
+      setTimeout(()=>loadUserBottomNavSettings?.(), 500);
+    }
+  });
+}catch(_){}
+
+setTimeout(loadGnbMenusFromDb, 900);
 
 /* ===== Bottom nav tiny-dot badge final sync ===== */
 function getNavBadgeTodayKey(){
@@ -17437,6 +17473,7 @@ async function loadUserBottomNavSettings(){
     console.warn('사용자 하단 네비 설정 로딩 실패', error);
     userBottomNavSelectedMenus = [];
   }
+  bottomNavUserMenusCache = userBottomNavSelectedMenus;
   renderUserBottomNavSettings();
 }
 
@@ -17448,7 +17485,7 @@ async function saveUserBottomNavSettings(){
       bottomNavMenus: uniqBottomMenuIds(userBottomNavSelectedMenus),
       bottomNavUpdatedAt: serverTimestamp()
     }, { merge:true });
-    await renderDynamicBottomNav?.();
+    await renderDynamicBottomNav?.(true);
   await loadUserBottomNavSettings?.();
     renderUserBottomNavSettings();
     await openModalAlert('하단 네비바 설정이 저장되었습니다.');
@@ -17469,7 +17506,9 @@ async function resetUserBottomNavSettings(){
       bottomNavMenus: [],
       bottomNavUpdatedAt: serverTimestamp()
     }, { merge:true });
-    await renderDynamicBottomNav?.();
+    bottomNavUserMenusCache = uniqBottomMenuIds(userBottomNavSelectedMenus);
+    bottomNavSettingsLoadedOnce = true;
+    await renderDynamicBottomNav?.(true);
     renderUserBottomNavSettings();
     await openModalAlert('개인화 설정이 해제되었습니다.');
   }catch(error){
