@@ -15623,8 +15623,23 @@ async function askAiAssistant(rawQuestion=''){
  document.addEventListener('click', (event) => {
   const btn = event.target.closest('[data-view-link]');
   if(!btn) return;
+
   const view = btn.dataset.viewLink;
-  if(btn.closest('#gnbSheet') || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn') trackGnbMenuVisitByView(view);
+  const isInGnbSheet = !!btn.closest('#gnbSheet');
+  const isDynamicGnbMenu = isInGnbSheet && btn.hasAttribute('data-gnb-dynamic-menu');
+
+  if(isInGnbSheet || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn'){
+    trackGnbMenuVisitByView(view);
+  }
+
+  // DB에서 렌더링된 GNB 메뉴는 qsa('[data-view-link]') 바인딩 이후에 생성되므로
+  // 이벤트 위임 방식으로 직접 화면 이동 + GNB 닫기를 처리합니다.
+  if(isDynamicGnbMenu && view){
+    event.preventDefault();
+    event.stopPropagation();
+    changeView(view);
+    closeGnb();
+  }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
 
