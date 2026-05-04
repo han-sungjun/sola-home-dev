@@ -1025,7 +1025,7 @@ body.gnb-open .admin-bottom-nav{
 .community-report-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 
 /* ===== Admin Community v1 ===== */
-.admin-bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
+.admin-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
 
   
 /* ===== AI 생활 도우미 관리자 ===== */
@@ -1817,6 +1817,44 @@ body.gnb-open .admin-bottom-nav{
 }
 </style>
 
+
+<style>
+/* ===== Admin bottom nav final compact patch: 주요 기능 4개 + 더보기 ===== */
+.admin-bottom-nav{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+.admin-bottom-nav .admin-nav-btn{
+  min-width:0!important;
+}
+.admin-bottom-nav .admin-nav-btn .nav-label{
+  font-size:11px!important;
+  line-height:1.15!important;
+}
+.admin-bottom-nav .admin-nav-btn[data-admin-view="all"]{
+  background:rgba(255,255,255,.06);
+}
+.admin-bottom-nav .admin-nav-btn[data-admin-view="all"].active{
+  background:rgba(255,255,255,.16);
+}
+@media (max-width:380px){
+  .admin-bottom-nav{
+    gap:4px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn{
+    padding:8px 0 10px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn .nav-icon{
+    font-size:16px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn .nav-label{
+    font-size:10px!important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2081,9 +2119,7 @@ body.gnb-open .admin-bottom-nav{
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
-    <button class="admin-nav-btn" data-admin-view="ai"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
-    <button class="admin-nav-btn" data-admin-view="menus"><span class="nav-icon">🧭</span><span class="nav-label">메뉴</span></button>
-    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">▦</span><span class="nav-label">전체</span></button>
+    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">☰</span><span class="nav-label">더보기</span></button>
   </nav>
 
   <script type="module">
