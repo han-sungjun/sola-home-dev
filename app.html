@@ -15589,8 +15589,9 @@ async function askAiAssistant(rawQuestion=''){
   const payload = { uid:user.uid, userId:user.uid, menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], clickCount:increment(1), lastVisitedAt:serverTimestamp(), updatedAt:serverTimestamp() };
   try{
    const hRef = doc(db, USER_MENU_HISTORY_COLLECTION, historyId);
-   const hSnap = await getDoc(hRef);
-   await setDoc(hRef, { ...payload, firstVisitedAt: hSnap.exists() ? (hSnap.data().firstVisitedAt || serverTimestamp()) : serverTimestamp() }, { merge:true });
+   // 입주민 권한에서는 아직 없는 history 문서를 getDoc()으로 먼저 읽으면 Rules에서 차단될 수 있습니다.
+   // 그래서 읽기 없이 merge 저장만 수행합니다.
+   await setDoc(hRef, payload, { merge:true });
    await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
    setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); }, 250);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
