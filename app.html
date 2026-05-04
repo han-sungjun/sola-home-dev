@@ -12988,19 +12988,6 @@ ${item.content || ''}`);
  }, 18);
  }
 
- let current = 0;
- const steps = 24;
- const step = Math.max(1, Math.ceil(end / steps));
- clearInterval(el._popularCountTimer);
-
- el._popularCountTimer = setInterval(() => {
- current += step;
- if(current >= end){
- current = end;
- clearInterval(el._popularCountTimer);
- }
- el.textContent = current.toLocaleString('ko-KR');
- }, 24);
 
  function isShareInsightAdmin(){
  const profile = state.currentUserProfile || {};
