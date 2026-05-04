@@ -8219,6 +8219,28 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style>
+/* ===== Different NEW ribbons: 신규 메뉴 vs 인기 급상승 ===== */
+.all-menu-ribbon.new-source-manual,
+.menu-trend-ribbon.new-source-manual{
+  background:linear-gradient(135deg,#ef4444,#f97316)!important;
+  color:#fff!important;
+}
+.all-menu-ribbon.new-source-trending,
+.menu-trend-ribbon.new-source-trending{
+  background:linear-gradient(135deg,#7c3aed,#2563eb)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.22)!important;
+}
+.all-menu-ribbon.new-source-both,
+.menu-trend-ribbon.new-source-both{
+  background:linear-gradient(135deg,#ef4444 0%,#f97316 45%,#7c3aed 100%)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(124,58,237,.22)!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -15861,6 +15883,22 @@ async function askAiAssistant(rawQuestion=''){
   return isMenuNew(menu) || isTrendingMenu(menu);
  }
 
+ function getNewRibbonSource(menu){
+  const manual = isMenuNew(menu);
+  const trending = isTrendingMenu(menu);
+  if(manual && trending) return 'both';
+  if(trending) return 'trending';
+  if(manual) return 'manual';
+  return '';
+ }
+ function makeNewRibbonHtml(baseClass='all-menu-ribbon', menu){
+  const source = getNewRibbonSource(menu);
+  if(!source) return '';
+  const label = source === 'trending' ? 'HOT' : 'NEW';
+  return `<span class="${baseClass} new-source-${source}">${label}</span>`;
+ }
+
+
  function getAllMenuDescription(menu){
   return menu.description || menu.desc || menu.memo || menu.adminMemo || menu.subtitle || menu.summary || '필요한 기능을 바로 이용할 수 있습니다.';
  }
@@ -15874,7 +15912,7 @@ async function askAiAssistant(rawQuestion=''){
  }
 
  function makeMenuTrendDecor(menu){
-  const ribbonHtml = shouldShowNewRibbon(menu) ? '<span class="menu-trend-ribbon">NEW</span>' : '';
+  const ribbonHtml = makeNewRibbonHtml('menu-trend-ribbon', menu);
   const badges = getAllMenuBadge(menu);
   const badgeHtml = badges.length
     ? `<span class="menu-trend-badge-wrap">${badges.map(b => `<span class="menu-trend-badge ${b.className}">${b.label}</span>`).join('')}</span>`
@@ -15900,7 +15938,7 @@ async function askAiAssistant(rawQuestion=''){
 
  function makeAllMenuCard(menu){
   const badges = getAllMenuBadge(menu);
-  const ribbonHtml = shouldShowNewRibbon(menu) ? '<span class="all-menu-ribbon">NEW</span>' : '';
+  const ribbonHtml = makeNewRibbonHtml('all-menu-ribbon', menu);
   const badgeHtml = badges.length
     ? `<span class="all-menu-badge-wrap">${badges.map(b => `<span class="all-menu-badge ${b.className}">${b.label}</span>`).join('')}</span>`
     : '';
