@@ -12862,7 +12862,9 @@ ${item.content || ''}`);
  const clickCount = Number(data.clickCount || 0);
  const favoriteCount = Number(data.favoriteCount || 0);
  const shareClickCount = Number(data.shareClickCount || 0);
- const popularScore = calcPopularScoreFromStats(data);
+ const calculatedPopularScore = calcPopularScoreFromStats(data);
+ const storedPopularScore = Number(data.popularScore || data.score || 0);
+ const popularScore = Math.max(calculatedPopularScore, storedPopularScore);
 
  return {
  id: d.id,
@@ -12935,9 +12937,25 @@ ${item.content || ''}`);
  function animatePopularCount(el, target){
  if(!el) return;
  const end = Math.max(0, Number(target || 0));
- if(end === 0){
- el.textContent = '0';
- return;
+ clearInterval(el._popularCountTimer);
+
+ if(!Number.isFinite(end) || end <= 0){
+   el.textContent = '0';
+   return;
+ }
+
+ let current = 0;
+ const steps = 18;
+ const step = Math.max(1, Math.ceil(end / steps));
+
+ el._popularCountTimer = setInterval(() => {
+   current += step;
+   if(current >= end){
+     current = end;
+     clearInterval(el._popularCountTimer);
+   }
+   el.textContent = current.toLocaleString('ko-KR');
+ }, 18);
  }
 
  let current = 0;
@@ -13594,7 +13612,14 @@ ${item.content || ''}`);
  }
  };
  wrap.appendChild(row);
- animatePopularCount(row.querySelector('.popular-count'), item.score);
+ const scoreTarget = Number(item.popularScore ?? item.score ?? 0);
+ const countEl = row.querySelector('.popular-count');
+ if(countEl){
+   // 인기점수는 0으로 남지 않도록 먼저 확정값을 표시합니다.
+   countEl.textContent = scoreTarget.toLocaleString('ko-KR');
+   // 애니메이션은 보조 효과로만 실행합니다.
+   requestAnimationFrame(() => animatePopularCount(countEl, scoreTarget));
+ }
  });
  renderHotNowStores();
  }
