@@ -9009,6 +9009,101 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="user-bottom-nav-settings-style">
+/* ===== Public GNB: user bottom nav settings ===== */
+.user-bottom-nav-settings{
+  display:grid;
+  gap:12px;
+}
+.user-bottom-nav-help{
+  padding:12px 14px;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.65;
+  font-weight:700;
+}
+.user-bottom-nav-current{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.user-bottom-nav-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:36px;
+  padding:8px 11px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  color:#334155;
+  font-size:12px;
+  font-weight:900;
+}
+.user-bottom-nav-chip.fixed{
+  background:#f1f5f9;
+  color:#64748b;
+}
+.user-bottom-nav-chip.selected{
+  background:#eff6ff;
+  color:#1d4ed8;
+  border-color:#93c5fd;
+}
+.user-bottom-nav-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.user-bottom-nav-pick{
+  border:none;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid rgba(15,23,42,.08);
+  box-shadow:0 10px 20px rgba(15,23,42,.05);
+  min-height:58px;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:#0f172a;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform .16s ease, background-color .16s ease, border-color .16s ease, opacity .16s ease;
+}
+.user-bottom-nav-pick:active{transform:scale(.985)}
+.user-bottom-nav-pick.active{
+  background:#eff6ff;
+  color:#1d4ed8;
+  border-color:#93c5fd;
+}
+.user-bottom-nav-pick.disabled{
+  opacity:.46;
+  cursor:not-allowed;
+}
+.user-bottom-nav-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.user-bottom-nav-status{
+  min-height:18px;
+  font-size:12px;
+  color:#64748b;
+  font-weight:800;
+  line-height:1.5;
+}
+@media(max-width:390px){
+  .user-bottom-nav-grid{grid-template-columns:1fr;}
+  .user-bottom-nav-actions{grid-template-columns:1fr;}
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16418,6 +16513,7 @@ async function askAiAssistant(rawQuestion=''){
  [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
  { duration:180, easing:'ease-out' }
  );
+  setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
  }
  }
 
@@ -16951,6 +17047,7 @@ function getAiRecoDailyKey(){
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `aiBottomRecoShown:${uid}:${y}-${m}-${day}`;
+ setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
 }
 function hasShownAiRecoToday(){
   try{ return localStorage.getItem(getAiRecoDailyKey()) === '1'; }catch(_){ return false; }
@@ -17133,6 +17230,126 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
+
+/* ===== Public user bottom nav settings ===== */
+let userBottomNavSelectedMenus = [];
+
+function getBottomNavCandidateMenusForUser(){
+  const preferred=['benefits','favorite','top5','ai','calendar','map','notices'];
+  return [...(gnbMenuCache || [])]
+    .filter(canUseGnbMenu)
+    .filter(m => m.isActive !== false)
+    .filter(m => !['home','all'].includes(String(m.menuId)))
+    .filter(m => !(Array.isArray(m.sections) && m.sections.includes('admin') && !m.sections.includes('bottom')))
+    .sort((a,b)=>{
+      const ai=preferred.indexOf(a.menuId), bi=preferred.indexOf(b.menuId);
+      if(ai!==-1 || bi!==-1) return (ai===-1?999:ai)-(bi===-1?999:bi);
+      return a.order-b.order;
+    });
+}
+
+function renderUserBottomNavSettings(){
+  const picker = qs('#userBottomNavPicker');
+  const current = qs('#userBottomNavCurrent');
+  const status = qs('#userBottomNavStatus');
+  if(!picker || !current) return;
+
+  const candidates = getBottomNavCandidateMenusForUser();
+  picker.innerHTML = candidates.length ? candidates.map(menu => {
+    const active = userBottomNavSelectedMenus.includes(menu.menuId);
+    const disabled = !active && userBottomNavSelectedMenus.length >= 3;
+    return `<button type="button" class="user-bottom-nav-pick ${active?'active':''} ${disabled?'disabled':''}" data-user-bottom-pick="${escapeHtml(menu.menuId)}">
+      <span>${escapeHtml(menu.icon || '•')} ${escapeHtml(menu.name || menu.menuId)}</span>
+      <small>${active?'선택됨':'선택'}</small>
+    </button>`;
+  }).join('') : '<div class="notice">선택 가능한 메뉴가 없습니다.</div>';
+
+  const selectedMenus = userBottomNavSelectedMenus.map(getMenuByIdOrFallback).filter(Boolean);
+  current.innerHTML = [
+    '<span class="user-bottom-nav-chip fixed">🏠 홈</span>',
+    ...selectedMenus.map(m => `<span class="user-bottom-nav-chip selected">${escapeHtml(m.icon || '•')} ${escapeHtml(m.name || m.menuId)}</span>`),
+    '<span class="user-bottom-nav-chip fixed">☰ 전체</span>'
+  ].join('');
+
+  if(status){
+    status.textContent = userBottomNavSelectedMenus.length
+      ? `개인화 메뉴 ${userBottomNavSelectedMenus.length}개가 선택되어 있습니다.`
+      : '개인화 메뉴가 없습니다. 관리자 기본 메뉴를 사용합니다.';
+  }
+}
+
+async function loadUserBottomNavSettings(){
+  const user = auth?.currentUser;
+  if(!user || !db) return;
+  try{
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userBottomNavSelectedMenus = snap.exists() ? uniqBottomMenuIds(snap.data().bottomNavMenus || []) : [];
+  }catch(error){
+    console.warn('사용자 하단 네비 설정 로딩 실패', error);
+    userBottomNavSelectedMenus = [];
+  }
+  renderUserBottomNavSettings();
+}
+
+async function saveUserBottomNavSettings(){
+  const user = auth?.currentUser;
+  if(!user || !db) return;
+  try{
+    await setDoc(doc(db, 'users', user.uid), {
+      bottomNavMenus: uniqBottomMenuIds(userBottomNavSelectedMenus),
+      bottomNavUpdatedAt: serverTimestamp()
+    }, { merge:true });
+    await renderDynamicBottomNav?.();
+  await loadUserBottomNavSettings?.();
+    renderUserBottomNavSettings();
+    await openModalAlert('하단 네비바 설정이 저장되었습니다.');
+  }catch(error){
+    console.error(error);
+    await openModalAlert('하단 네비바 설정 저장 중 오류가 발생했습니다.');
+  }
+}
+
+async function resetUserBottomNavSettings(){
+  const user = auth?.currentUser;
+  if(!user || !db) return;
+  const ok = await openModalConfirm('내 하단 네비바 개인화 설정을 해제하고 관리자 기본값을 사용할까요?');
+  if(!ok) return;
+  try{
+    userBottomNavSelectedMenus = [];
+    await setDoc(doc(db, 'users', user.uid), {
+      bottomNavMenus: [],
+      bottomNavUpdatedAt: serverTimestamp()
+    }, { merge:true });
+    await renderDynamicBottomNav?.();
+    renderUserBottomNavSettings();
+    await openModalAlert('개인화 설정이 해제되었습니다.');
+  }catch(error){
+    console.error(error);
+    await openModalAlert('설정 초기화 중 오류가 발생했습니다.');
+  }
+}
+
+document.addEventListener('click', (event) => {
+  const pick = event.target.closest?.('[data-user-bottom-pick]');
+  if(pick){
+    const id = pick.dataset.userBottomPick;
+    if(userBottomNavSelectedMenus.includes(id)){
+      userBottomNavSelectedMenus = userBottomNavSelectedMenus.filter(v => v !== id);
+    }else{
+      if(userBottomNavSelectedMenus.length >= 3){
+        openModalAlert('하단 네비바는 최대 3개까지 선택할 수 있습니다.');
+        return;
+      }
+      userBottomNavSelectedMenus = [...userBottomNavSelectedMenus, id];
+    }
+    renderUserBottomNavSettings();
+  }
+}, true);
+
+qs('#saveUserBottomNavBtn')?.addEventListener('click', saveUserBottomNavSettings);
+qs('#resetUserBottomNavBtn')?.addEventListener('click', resetUserBottomNavSettings);
+
+setTimeout(loadUserBottomNavSettings, 1200);
 
 /* Dynamic bottom nav delegated click */
 document.addEventListener('click', (event) => {
@@ -17603,6 +17820,39 @@ document.addEventListener('keydown', (event) => {
  <button class="font-size-option" type="button" data-font-size="xlarge" role="radio" aria-checked="false"><span class="sample">가</span><span class="label">아주 크게</span></button>
  </div>
  <div class="font-size-status" id="fontSizeStatus">현재 글자 크기를 확인하고 있습니다.</div>
+ </div>
+ </div>
+
+ <div class="gnb-settings-section" id="userBottomNavSettingsSection">
+ <div class="gnb-settings-section-header">
+ <div>
+ <h4 class="gnb-settings-section-title">하단 네비바 설정</h4>
+ <p class="gnb-settings-section-desc">홈과 전체는 고정됩니다. 가운데 메뉴는 최대 3개까지 직접 선택할 수 있습니다.</p>
+ </div>
+ </div>
+ <div class="user-bottom-nav-settings">
+ <div class="user-bottom-nav-help">
+ 선택하지 않으면 관리자 기본 메뉴가 표시됩니다.<br>
+ 1~2개만 선택하면 남은 자리는 관리자 기본 메뉴로 자동 채워집니다.
+ </div>
+ <div class="field">
+ <label>현재 구성</label>
+ <div class="user-bottom-nav-current" id="userBottomNavCurrent">
+ <span class="user-bottom-nav-chip fixed">🏠 홈</span>
+ <span class="user-bottom-nav-chip fixed">☰ 전체</span>
+ </div>
+ </div>
+ <div class="field">
+ <label>가운데 메뉴 선택 <small style="color:#64748b;">최대 3개</small></label>
+ <div class="user-bottom-nav-grid" id="userBottomNavPicker">
+ <div class="notice">메뉴를 불러오는 중입니다.</div>
+ </div>
+ </div>
+ <div class="user-bottom-nav-actions">
+ <button class="gnb-action-btn primary" type="button" id="saveUserBottomNavBtn"><span>저장</span><span class="desc">내 설정</span></button>
+ <button class="gnb-action-btn outline" type="button" id="resetUserBottomNavBtn"><span>기본값 사용</span><span class="desc">개인화 해제</span></button>
+ </div>
+ <div class="user-bottom-nav-status" id="userBottomNavStatus">내 하단 네비바 설정을 확인하고 있습니다.</div>
  </div>
  </div>
 
