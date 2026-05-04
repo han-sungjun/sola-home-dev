@@ -5511,7 +5511,7 @@ nav.bottom-nav{
  - 하단 네비와 safe-area는 최소 여백만 유지
 */
 body.calendar-view-active .app{
- padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important;
+ padding-bottom:calc(var(--bottom-nav-safe-offset) + 12px)!important;
 }
 body.calendar-view-active #view-calendar{
  padding-bottom:0!important;
@@ -7903,13 +7903,14 @@ nav.bottom-nav{
 
 
 /* =========================================================
-   Bottom Navigation Safe Visibility Patch
-   - fixed 하단 네비바에 마지막 UI가 가려지지 않도록 전역 보정
-   - JS에서 실제 네비바 높이를 --bottom-nav-safe-offset 으로 동기화
+   Bottom Navigation Auto Safe Visibility Patch v2
+   - 하단 네비바 실제 높이를 CSS 변수로 반영
+   - 과도한 .shell::after spacer 제거
+   - 컨텐츠가 네비에 가리지 않을 만큼만 최소 여백 확보
    ========================================================= */
 :root{
-  --bottom-nav-safe-offset: calc(128px + env(safe-area-inset-bottom, 0px));
-  --bottom-nav-extra-gap: 28px;
+  --bottom-nav-safe-offset: 96px;
+  --bottom-nav-extra-gap: 16px;
 }
 
 html,
@@ -7919,14 +7920,20 @@ body{
 }
 
 .app{
-  padding-bottom:calc(var(--bottom-nav-safe-offset) + 42px) !important;
+  padding-bottom:calc(var(--bottom-nav-safe-offset) + var(--bottom-nav-extra-gap)) !important;
 }
 
 .shell{
-  padding-bottom:var(--bottom-nav-extra-gap);
+  padding-bottom:0 !important;
 }
 
-/* 각 탭/리스트의 마지막 요소가 네비바 위로 충분히 올라오도록 보정 */
+.shell::after{
+  content:none !important;
+  display:none !important;
+  height:0 !important;
+}
+
+/* 리스트 자체에는 작은 여백만 둡니다. 전체 하단 보호는 .app padding에서 처리합니다. */
 #cardList,
 #favoriteList,
 #popularList,
@@ -7939,15 +7946,7 @@ body{
 .favorite-list,
 .calendar-list,
 .list{
-  padding-bottom:calc(var(--bottom-nav-safe-offset) + 22px) !important;
-}
-
-/* 화면 마지막 카드가 살짝 떠오른 위치에서 끝나도록 최소 여백 확보 */
-.shell::after{
-  content:"";
-  display:block;
-  height:calc(var(--bottom-nav-safe-offset) + 8px);
-  flex:0 0 auto;
+  padding-bottom:16px !important;
 }
 
 /* dialog 상세 화면도 모바일 하단/상단 safe-area 안에서 끝까지 스크롤 가능 */
@@ -16145,28 +16144,36 @@ window.addEventListener("load", handlePushDeepLink);
 
 <script>
 /* =========================================================
-   Bottom Navigation Dynamic Safe Offset
-   실제 하단 네비바 높이를 계산해서 모든 화면의 하단 여백에 반영합니다.
+   Bottom Navigation Dynamic Safe Offset v2
+   실제 하단 네비바 높이를 계산해서 최소 하단 여백만 반영합니다.
    ========================================================= */
 (function(){
-  function syncBottomNavSafeOffset(){
-    try{
-      var nav = document.querySelector('.bottom-nav');
-      var root = document.documentElement;
-      if(!root) return;
+  var rafId = null;
 
-      var safeFallback = 128;
-      if(nav){
-        var rect = nav.getBoundingClientRect();
-        var height = Math.ceil(rect.height || nav.offsetHeight || safeFallback);
-        var extra = 44;
-        root.style.setProperty('--bottom-nav-safe-offset', (height + extra) + 'px');
-      }else{
-        root.style.setProperty('--bottom-nav-safe-offset', safeFallback + 'px');
+  function syncBottomNavSafeOffset(){
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(function(){
+      try{
+        var nav = document.querySelector('.bottom-nav');
+        var root = document.documentElement;
+        if(!root) return;
+
+        var fallback = 96;
+        var navHeight = fallback;
+
+        if(nav){
+          var rect = nav.getBoundingClientRect();
+          navHeight = Math.ceil(rect.height || nav.offsetHeight || fallback);
+        }
+
+        // 네비 실제 높이 + 최소 여유 8px만 변수에 반영합니다.
+        // 추가 여백은 CSS의 --bottom-nav-extra-gap(16px)에서 한 번만 더해집니다.
+        var offset = Math.max(72, navHeight + 8);
+        root.style.setProperty('--bottom-nav-safe-offset', offset + 'px');
+      }catch(e){
+        console.warn('[bottom-nav-safe-offset] sync skipped', e);
       }
-    }catch(e){
-      console.warn('[bottom-nav-safe-offset] sync skipped', e);
-    }
+    });
   }
 
   window.syncBottomNavSafeOffset = syncBottomNavSafeOffset;
@@ -16174,13 +16181,23 @@ window.addEventListener("load", handlePushDeepLink);
   document.addEventListener('DOMContentLoaded', function(){
     syncBottomNavSafeOffset();
     setTimeout(syncBottomNavSafeOffset, 150);
-    setTimeout(syncBottomNavSafeOffset, 600);
-    setTimeout(syncBottomNavSafeOffset, 1200);
+    setTimeout(syncBottomNavSafeOffset, 500);
+    setTimeout(syncBottomNavSafeOffset, 1000);
+
+    var nav = document.querySelector('.bottom-nav');
+    if(nav && 'ResizeObserver' in window){
+      try{
+        var observer = new ResizeObserver(syncBottomNavSafeOffset);
+        observer.observe(nav);
+      }catch(e){}
+    }
   });
 
+  window.addEventListener('load', syncBottomNavSafeOffset, { passive:true });
   window.addEventListener('resize', syncBottomNavSafeOffset, { passive:true });
   window.addEventListener('orientationchange', function(){
     setTimeout(syncBottomNavSafeOffset, 250);
+    setTimeout(syncBottomNavSafeOffset, 700);
   }, { passive:true });
 
   document.addEventListener('click', function(){
