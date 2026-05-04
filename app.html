@@ -16641,14 +16641,38 @@ async function askAiAssistant(rawQuestion=''){
     }
   });
  }
+
+function getAiRecoDailyKey(){
+  const uid = auth?.currentUser?.uid || 'guest';
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `aiBottomRecoShown:${uid}:${y}-${m}-${day}`;
+}
+function hasShownAiRecoToday(){
+  try{ return localStorage.getItem(getAiRecoDailyKey()) === '1'; }catch(_){ return false; }
+}
+function markAiRecoShownToday(){
+  try{ localStorage.setItem(getAiRecoDailyKey(), '1'); }catch(_){}
+}
+
  function refreshAiBottomRecommendation(){
   const box = qs('#aiBottomReco');
   if(!box) return;
+
+  // AI 추천 토스트는 사용자별 하루 1회만 노출합니다.
+  if(hasShownAiRecoToday()){
+    box.classList.remove('show');
+    return;
+  }
+
   const picked = pickAiRecommendedMenu();
   if(!picked || !picked.menu){
     box.classList.remove('show');
     return;
   }
+
   const menu = picked.menu;
   box.dataset.viewLink = menu.view || menu.route || menu.menuId;
   box.setAttribute('role','button');
@@ -16656,6 +16680,7 @@ async function askAiAssistant(rawQuestion=''){
   qs('#aiBottomRecoTitle') && (qs('#aiBottomRecoTitle').textContent = `AI 추천 · ${menu.name || menu.menuId}`);
   qs('#aiBottomRecoText') && (qs('#aiBottomRecoText').textContent = picked.reason);
   box.classList.add('show');
+  markAiRecoShownToday();
  }
 
  function forceBottomNavTopPopularBadge(){
@@ -16908,6 +16933,7 @@ document.addEventListener('click', (event) => {
   event.stopPropagation();
   const view = box.dataset.viewLink || 'ai';
   try{ trackGnbMenuVisitByView(view); }catch(_){}
+  markAiRecoShownToday?.();
   box.classList.remove('show');
   changeView(view);
 }, true);
