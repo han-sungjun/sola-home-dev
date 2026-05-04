@@ -10783,7 +10783,7 @@ async function refreshPushStatus(){
  }
  const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
  function subscribeBenefits(){
- onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
+ onSnapshot(query(collection(db, BENEFITS_COLLECTION), where("status","==","active")), (snapshot) => {
  state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
  if(state.userLocation) recalculateBenefitDistances();
  state.loading = false;
