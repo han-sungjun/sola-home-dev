@@ -9163,6 +9163,74 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 }
 </style>
 
+
+<style id="bottom-nav-dot-only-final-cleanup">
+/* ===== Bottom nav dot-only final cleanup ===== */
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+
+/* 이전 패치들의 큰 배지/리본/텍스트 배지 전부 제거 */
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend,
+.bottom-nav .nav-robot-trend-badge,
+.bottom-nav .menu-trend-ribbon,
+.bottom-nav .menu-trend-badge-wrap,
+.bottom-nav .menu-trend-badge{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  padding:0!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* 이전 TOP 강조 pseudo 배지 제거 */
+.bottom-nav .nav-btn.nav-top1::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* 강조 배경만 너무 과하지 않게 */
+.bottom-nav .nav-btn.nav-top1{
+  box-shadow:none!important;
+  animation:none!important;
+}
+
+/* 최종 점 배지: 작게, 아이콘 우상단 느낌 */
+.bottom-nav .nav-badge-dot{
+  display:block!important;
+  position:absolute!important;
+  top:9px!important;
+  right:18px!important;
+  z-index:80!important;
+  width:6px!important;
+  height:6px!important;
+  min-width:6px!important;
+  min-height:6px!important;
+  padding:0!important;
+  border-radius:999px!important;
+  background:#fb923c!important;
+  border:1.5px solid rgba(255,255,255,.95)!important;
+  box-shadow:0 0 0 2px rgba(251,146,60,.10), 0 3px 7px rgba(15,23,42,.18)!important;
+  pointer-events:none!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+}
+
+.bottom-nav .nav-badge-dot.hot{
+  background:#3b82f6!important;
+  box-shadow:0 0 0 2px rgba(59,130,246,.12), 0 3px 7px rgba(15,23,42,.18)!important;
+}
+
+.bottom-nav .nav-badge-dot.blink{
+  animation:navBadgeBlinkOnce .5s ease-in-out 1;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16941,9 +17009,12 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
 
   updateBottomNavActiveState?.();
   syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavSafeOffset?.();
   scheduleTrendFinalDisplay?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
  }
 
  function updateBottomNavActiveState(){
@@ -16966,7 +17037,9 @@ async function loadGnbMenusFromDb(){
   renderDynamicGnbMenus();
   renderDynamicAllMenus();
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
   renderDynamicAllMenus();
   refreshBottomTrendUi();
@@ -17224,7 +17297,9 @@ function markAiRecoShownToday(){
   refreshAiBottomRecommendation();
   forceBottomNavTopPopularBadge();
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   refreshCurrentViewTitleTrendBadges();
  }
 
@@ -17271,7 +17346,9 @@ function markAiRecoShownToday(){
    await setDoc(hRef, payload, { merge:true });
    await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
    setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.();
-  syncBottomNavDotBadgesFinal?.(); }, 250);
+  syncBottomNavDotBadgesOnlyFinal?.();
+  syncBottomNavDotBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.(); }, 250);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
  async function loadRecentGnbMenus(){
@@ -17340,6 +17417,60 @@ try{
 }catch(_){}
 
 setTimeout(loadGnbMenusFromDb, 900);
+
+/* ===== Bottom nav dot-only cleanup sync ===== */
+function cleanupBottomNavOldBadges(){
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.classList.remove('nav-top1');
+    btn.querySelectorAll(
+      '.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap,.menu-trend-badge'
+    ).forEach(el => el.remove());
+  });
+}
+function syncBottomNavDotBadgesOnlyFinal(){
+  cleanupBottomNavOldBadges();
+
+  let popularId = '';
+  try{
+    popularId = String(Array.from(popularGnbMenuIdSet || [])[0] || '');
+  }catch(_){}
+
+  let popularMenu = popularId ? getMenuByIdOrFallback?.(popularId) : null;
+  const popularKeys = popularMenu
+    ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean)
+    : [];
+
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-badge-dot').forEach(el => el.remove());
+
+    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    const menu = getMenuByIdOrFallback?.(viewKey) || findTrendMenuByView?.(viewKey) || null;
+
+    let type = '';
+    if(popularKeys.includes(viewKey)){
+      type = 'hot';
+    }else{
+      try{
+        if(menu && isMenuNew(menu)) type = 'new';
+      }catch(_){
+        if(menu && Array.isArray(menu.sections) && menu.sections.includes('new')) type = 'new';
+      }
+    }
+
+    if(type){
+      const dot = document.createElement('span');
+      dot.className = `nav-badge-dot ${type === 'hot' ? 'hot' : 'new'}`;
+      dot.setAttribute('aria-hidden','true');
+      btn.insertAdjacentElement('afterbegin', dot);
+    }
+  });
+}
+window.syncBottomNavDotBadgesOnlyFinal = syncBottomNavDotBadgesOnlyFinal;
+setTimeout(syncBottomNavDotBadgesOnlyFinal, 300);
+setTimeout(syncBottomNavDotBadgesOnlyFinal, 1200);
+setInterval(syncBottomNavDotBadgesOnlyFinal, 2500);
+document.addEventListener('click', () => setTimeout(syncBottomNavDotBadgesOnlyFinal, 100), true);
+
 
 /* ===== Bottom nav tiny-dot badge final sync ===== */
 function getNavBadgeTodayKey(){
@@ -17551,7 +17682,9 @@ document.addEventListener('click', (event) => {
   updateBottomNavActiveState?.();
   setTimeout(() => {
     syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
     syncBottomNavSafeOffset?.();
   }, 80);
 }, true);
@@ -17692,7 +17825,9 @@ function refreshCurrentViewFinalTrendBadge(){
 }
 function refreshTrendFinalDisplay(){
   refreshBottomNavFinalTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   syncBottomNavDotBadgesFinal?.();
+  syncBottomNavDotBadgesOnlyFinal?.();
   refreshCurrentViewFinalTrendBadge();
 }
 function scheduleTrendFinalDisplay(){
