@@ -8108,6 +8108,117 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style>
+/* ===== Menu Trend Badges for GNB + Bottom Nav ===== */
+.menu-trend-ribbon{
+  position:absolute;
+  top:7px;
+  left:-9px;
+  z-index:4;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  height:18px;
+  padding:0 8px;
+  transform:rotate(-18deg);
+  border-radius:7px;
+  background:linear-gradient(135deg,#ef4444,#f97316);
+  color:#fff;
+  font-size:9px!important;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 8px 18px rgba(239,68,68,.20);
+  pointer-events:none;
+}
+.menu-trend-badge-wrap{
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:4;
+  display:flex;
+  gap:3px;
+  align-items:center;
+  justify-content:flex-end;
+  pointer-events:none;
+}
+.menu-trend-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:32px;
+  height:20px;
+  padding:0 7px;
+  border-radius:999px;
+  font-size:10px!important;
+  font-weight:1000;
+  line-height:1;
+  border:1px solid rgba(15,23,42,.06);
+  box-shadow:0 8px 16px rgba(15,23,42,.07);
+  background:#f8fafc;
+}
+.menu-trend-badge.popular{
+  background:#fff7ed;
+  color:#c2410c!important;
+  border-color:#fed7aa;
+}
+.menu-trend-badge.recent{
+  background:#eff6ff;
+  color:#1d4ed8!important;
+  border-color:#bfdbfe;
+}
+.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.nav-btn{
+  position:relative;
+  overflow:hidden;
+}
+.nav-btn .menu-trend-ribbon{
+  top:2px;
+  left:-8px;
+  min-width:38px;
+  height:16px;
+  font-size:8px!important;
+}
+.nav-btn .menu-trend-badge-wrap{
+  top:3px;
+  right:4px;
+}
+.nav-btn .menu-trend-badge{
+  min-width:28px;
+  height:17px;
+  padding:0 6px;
+  font-size:8px!important;
+}
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon{
+  top:8px;
+  left:-8px;
+}
+.gnb-chip .menu-trend-badge-wrap,
+.gnb-menu-item .menu-trend-badge-wrap,
+.gnb-menu-subitem .menu-trend-badge-wrap{
+  top:10px;
+  right:10px;
+}
+</style>
+
+
+<style>
+.gnb-menu-label{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  min-width:0;
+}
+.gnb-menu-count{
+  margin-left:5px;
+  font-size:11px;
+  color:#64748b;
+  font-weight:900;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -15699,9 +15810,11 @@ async function askAiAssistant(rawQuestion=''){
   renderDynamicAllMenus();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
   renderDynamicAllMenus();
+  refreshStaticNavTrendBadges();
  }
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText=''){
-  const label = `${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}`;
+  const decor = makeMenuTrendDecor(menu);
+  const label = `${decor}<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
   return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
@@ -15759,6 +15872,32 @@ async function askAiAssistant(rawQuestion=''){
   if(recentGnbMenuIdSet.has(id)) badges.push({ label:'최근', className:'recent' });
   return badges;
  }
+
+ function makeMenuTrendDecor(menu){
+  const ribbonHtml = shouldShowNewRibbon(menu) ? '<span class="menu-trend-ribbon">NEW</span>' : '';
+  const badges = getAllMenuBadge(menu);
+  const badgeHtml = badges.length
+    ? `<span class="menu-trend-badge-wrap">${badges.map(b => `<span class="menu-trend-badge ${b.className}">${b.label}</span>`).join('')}</span>`
+    : '';
+  return ribbonHtml + badgeHtml;
+ }
+ function findMenuByView(view){
+  return gnbMenuCache.find(m =>
+    String(m.view) === String(view) ||
+    String(m.route) === String(view) ||
+    String(m.menuId) === String(view)
+  ) || null;
+ }
+ function refreshStaticNavTrendBadges(){
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findMenuByView(btn.dataset.viewLink);
+    if(!menu) return;
+    const decor = makeMenuTrendDecor(menu);
+    if(decor) btn.insertAdjacentHTML('afterbegin', decor);
+  });
+ }
+
  function makeAllMenuCard(menu){
   const badges = getAllMenuBadge(menu);
   const ribbonHtml = shouldShowNewRibbon(menu) ? '<span class="all-menu-ribbon">NEW</span>' : '';
@@ -15802,7 +15941,7 @@ async function askAiAssistant(rawQuestion=''){
    recentGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
    renderDynamicAllMenus();
-  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); }
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); refreshStaticNavTrendBadges(); }
  }
  async function loadPopularGnbMenus(){
   const el = qs('#gnbPopularMenus'); if(!el || !db) return;
@@ -15814,7 +15953,7 @@ async function askAiAssistant(rawQuestion=''){
 popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
    renderDynamicAllMenus();
-  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); }
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); refreshStaticNavTrendBadges(); }
  }
  function renderGnbMenuSearch(keyword=''){
   const box = qs('#gnbMenuSearchResults'); if(!box) return;
