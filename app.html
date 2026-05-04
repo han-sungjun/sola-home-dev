@@ -15714,10 +15714,10 @@ async function askAiAssistant(rawQuestion=''){
  async function loadRecentGnbMenus(){
   const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
   try{
-   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(3)));
+   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(1)));
    const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu);
-   recentGnbMenuIdSet = new Set(rows.map(m => String(m.menuId)));
-   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 최근 메뉴가 표시됩니다.</div>';
+   recentGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); }
  }
@@ -15725,9 +15725,9 @@ async function askAiAssistant(rawQuestion=''){
   const el = qs('#gnbPopularMenus'); if(!el || !db) return;
   try{
    const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
-   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).slice(0,3);
-   popularGnbMenuIdSet = new Set(rows.map(m => String(m.menuId)));
-   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 인기 메뉴가 표시됩니다.</div>';
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).slice(0,1);
+   popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); }
  }
