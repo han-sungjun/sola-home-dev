@@ -12772,14 +12772,16 @@ ${item.content || ''}`);
  return candidates[0]?.id || '';
  }
 
+ let popularStatsUnsubscribe = null;
  function subscribePopularStats() {
+ if(popularStatsUnsubscribe) return;
  const popularQuery = query(
  collection(db, BENEFIT_STATS_COLLECTION),
- orderBy('detailViewCount', 'desc'),
+ orderBy('popularScore', 'desc'),
  limit(80)
  );
 
- onSnapshot(popularQuery, (snapshot) => {
+ popularStatsUnsubscribe = onSnapshot(popularQuery, (snapshot) => {
  const runtimePreviousRanks = new Map(
  (state.popularItems || []).map((item, index) => [item.id, index + 1])
  );
@@ -12794,7 +12796,8 @@ ${item.content || ''}`);
  const clickCount = Number(data.clickCount || 0);
  const favoriteCount = Number(data.favoriteCount || 0);
  const shareClickCount = Number(data.shareClickCount || 0);
- const popularScore = calcPopularScoreFromStats(data);
+ const calculatedPopularScore = calcPopularScoreFromStats(data);
+ const popularScore = Math.max(Number(data.popularScore || 0), calculatedPopularScore);
 
  return {
  id: d.id,
@@ -17236,19 +17239,36 @@ function markAiRecoShownToday(){
     .sort((a,b)=>a.order-b.order);
   el.innerHTML = rows.length ? rows.map(makeAllMenuCard).join('') : '<div class="panel empty" style="grid-column:1/-1;">관리자 메뉴에서 전체 기능에 표시할 메뉴를 등록해 주세요.</div>';
  }
+ const gnbVisitLastTrackedAt = new Map();
+ let gnbMenuRefreshTimer = null;
+ function scheduleGnbMenuLightRefresh(delay = 900){
+  if(gnbMenuRefreshTimer) return;
+  gnbMenuRefreshTimer = setTimeout(() => {
+   gnbMenuRefreshTimer = null;
+   loadRecentGnbMenus();
+   loadPopularGnbMenus();
+   scheduleTrendFinalDisplay?.();
+   syncBottomNavDotBadgesFinal?.();
+  }, delay);
+ }
  async function trackGnbMenuVisitByView(view){
   const user = auth?.currentUser; if(!user || !view || !db) return;
   const menu = gnbMenuCache.find(m => String(m.view) === String(view) || String(m.route) === String(view) || String(m.menuId) === String(view)) || normalizeGnbMenu({menuId:view,name:view,view,sections:['main']});
+  const now = Date.now();
+  const visitKey = `${user.uid}_${menu.menuId}`;
+  const lastAt = Number(gnbVisitLastTrackedAt.get(visitKey) || 0);
+  if(now - lastAt < 3000){
+   scheduleTrendFinalDisplay?.();
+   return;
+  }
+  gnbVisitLastTrackedAt.set(visitKey, now);
   const historyId = `${user.uid}_${menu.menuId}`;
   const payload = { uid:user.uid, userId:user.uid, menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], clickCount:increment(1), lastVisitedAt:serverTimestamp(), updatedAt:serverTimestamp() };
   try{
    const hRef = doc(db, USER_MENU_HISTORY_COLLECTION, historyId);
-   // 입주민 권한에서는 아직 없는 history 문서를 getDoc()으로 먼저 읽으면 Rules에서 차단될 수 있습니다.
-   // 그래서 읽기 없이 merge 저장만 수행합니다.
    await setDoc(hRef, payload, { merge:true });
    await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
-   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.();
-  syncBottomNavDotBadgesFinal?.(); }, 250);
+   scheduleGnbMenuLightRefresh(900);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
  async function loadRecentGnbMenus(){
@@ -17571,14 +17591,11 @@ function syncBottomNavTrendBadgesFinal(){
   });
 }
 window.syncBottomNavTrendBadgesFinal = syncBottomNavTrendBadgesFinal;
-document.addEventListener('click', () => setTimeout(syncBottomNavTrendBadgesFinal, 80), true);
 window.addEventListener('load', () => {
   setTimeout(syncBottomNavTrendBadgesFinal, 200);
   setTimeout(syncBottomNavTrendBadgesFinal, 900);
   setTimeout(syncBottomNavTrendBadgesFinal, 1800);
 });
-setInterval(syncBottomNavTrendBadgesFinal, 2500);
-
 setTimeout(syncBottomNavTrendBadgesFinal, 1000);
 
 /* ===== Trend Final Force Sync ===== */
@@ -17656,10 +17673,13 @@ function refreshTrendFinalDisplay(){
   syncBottomNavDotBadgesFinal?.();
   refreshCurrentViewFinalTrendBadge();
 }
+let trendFinalDisplayTimer = null;
 function scheduleTrendFinalDisplay(){
-  setTimeout(refreshTrendFinalDisplay, 0);
-  setTimeout(refreshTrendFinalDisplay, 150);
-  setTimeout(refreshTrendFinalDisplay, 600);
+  if(trendFinalDisplayTimer) return;
+  trendFinalDisplayTimer = setTimeout(() => {
+    trendFinalDisplayTimer = null;
+    refreshTrendFinalDisplay();
+  }, 120);
 }
 document.addEventListener('click', (event) => {
   if(event.target.closest?.('[data-view-link], .bottom-nav, #gnbSheet, #allMenuGrid')){
@@ -17667,10 +17687,9 @@ document.addEventListener('click', (event) => {
   }
 }, true);
 window.addEventListener('load', scheduleTrendFinalDisplay);
-setInterval(refreshTrendFinalDisplay, 2500);
 try{
   const trendObserver = new MutationObserver(() => scheduleTrendFinalDisplay());
-  trendObserver.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
+  trendObserver.observe(document.body, { childList:true, subtree:true });
 }catch(_){}
 
 scheduleTrendFinalDisplay();
