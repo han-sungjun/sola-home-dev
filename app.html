@@ -9104,6 +9104,11 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<script id="sync-gnb-nav-safe-noop">
+window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
+</script>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16733,7 +16738,11 @@ async function askAiAssistant(rawQuestion=''){
   return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
  }
  
- const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
+ 
+/* Safe noop for legacy calls */
+const syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
+
+const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
 
  function uniqBottomMenuIds(list=[]){
   const result = [];
@@ -16750,6 +16759,7 @@ async function askAiAssistant(rawQuestion=''){
   const uid = auth?.currentUser?.uid || '';
   let userMenus = [];
   let adminMenus = [];
+  let adminMenusConfigured = false;
   let useAdminDefaultFill = true;
 
   try{
@@ -16768,6 +16778,7 @@ async function askAiAssistant(rawQuestion=''){
       const adminSnap = await getDoc(doc(db, BOTTOM_NAV_SETTINGS_COLLECTION, BOTTOM_NAV_SETTINGS_DOC));
       if(adminSnap.exists()){
         const data = adminSnap.data() || {};
+        adminMenusConfigured = true;
         adminMenus = uniqBottomMenuIds(data.defaultMenus || data.menus || []);
         useAdminDefaultFill = data.useAdminDefaultFill !== false;
       }
@@ -16776,10 +16787,10 @@ async function askAiAssistant(rawQuestion=''){
     console.warn('관리자 하단 네비 기본값 로딩 실패', error);
   }
 
-  return { userMenus, adminMenus, useAdminDefaultFill };
+  return { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill };
  }
 
- function resolveBottomMenuIds(userMenus=[], adminMenus=[], useAdminDefaultFill=true){
+ function resolveBottomMenuIds(userMenus=[], adminMenus=[], useAdminDefaultFill=true, adminMenusConfigured=false){
   const result = [];
 
   for(const id of uniqBottomMenuIds(userMenus)){
@@ -16787,13 +16798,18 @@ async function askAiAssistant(rawQuestion=''){
     if(result.length >= 3) return result;
   }
 
-  if(useAdminDefaultFill){
-    const fillSource = adminMenus.length ? adminMenus : FALLBACK_BOTTOM_MENUS;
-    for(const id of uniqBottomMenuIds(fillSource)){
+  // 관리자 설정 문서가 있으면 빈 배열도 의도된 설정으로 봅니다.
+  // 즉 defaultMenus: [] 이면 fallback으로 자동 채우지 않습니다.
+  if(useAdminDefaultFill && adminMenusConfigured){
+    for(const id of uniqBottomMenuIds(adminMenus)){
       if(!result.includes(id)) result.push(id);
       if(result.length >= 3) return result;
     }
+    return result;
+  }
 
+  // 관리자 설정 문서가 아직 없는 최초 상태에서만 코드 기본값 사용
+  if(useAdminDefaultFill && !adminMenusConfigured){
     for(const id of FALLBACK_BOTTOM_MENUS){
       if(!result.includes(id)) result.push(id);
       if(result.length >= 3) return result;
@@ -16836,8 +16852,8 @@ async function askAiAssistant(rawQuestion=''){
   const nav = document.querySelector('.bottom-nav');
   if(!nav) return;
 
-  const { userMenus, adminMenus, useAdminDefaultFill } = await loadBottomNavSettings();
-  const middleIds = resolveBottomMenuIds(userMenus, adminMenus, useAdminDefaultFill);
+  const { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill } = await loadBottomNavSettings();
+  const middleIds = resolveBottomMenuIds(userMenus, adminMenus, useAdminDefaultFill, adminMenusConfigured);
   const middleMenus = middleIds.map(getMenuByIdOrFallback).filter(Boolean);
   const menus = [getMenuByIdOrFallback('home'), ...middleMenus, getMenuByIdOrFallback('all')].filter(Boolean);
 
@@ -16848,8 +16864,7 @@ async function askAiAssistant(rawQuestion=''){
   updateBottomNavActiveState?.();
   syncBottomNavTrendBadgesFinal?.();
   syncBottomNavSafeOffset?.();
-  syncGnbNavSafe?.();
-  scheduleTrendFinalDisplay?.();
+scheduleTrendFinalDisplay?.();
  }
 
  function updateBottomNavActiveState(){
@@ -17236,16 +17251,22 @@ let userBottomNavSelectedMenus = [];
 
 function getBottomNavCandidateMenusForUser(){
   const preferred=['benefits','favorite','top5','ai','calendar','map','notices'];
-  return [...(gnbMenuCache || [])]
+  const rows = [...(gnbMenuCache || [])]
     .filter(canUseGnbMenu)
     .filter(m => m.isActive !== false)
     .filter(m => !['home','all'].includes(String(m.menuId)))
-    .filter(m => !(Array.isArray(m.sections) && m.sections.includes('admin') && !m.sections.includes('bottom')))
+    // 사용자가 선택하는 후보는 resident 권한 기준으로 열어둡니다.
+    .filter(m => !Array.isArray(m.roles) || m.roles.includes('resident') || m.roles.includes('admin') || m.roles.includes('root'))
     .sort((a,b)=>{
       const ai=preferred.indexOf(a.menuId), bi=preferred.indexOf(b.menuId);
       if(ai!==-1 || bi!==-1) return (ai===-1?999:ai)-(bi===-1?999:bi);
       return a.order-b.order;
     });
+
+  if(rows.length) return rows;
+
+  // DB 메뉴 로딩 전/후보 필터가 비어도 기본 핵심 메뉴는 선택 가능하게 표시합니다.
+  return preferred.map(getMenuByIdOrFallback).filter(Boolean).filter(m => !['home','all'].includes(String(m.menuId)));
 }
 
 function renderUserBottomNavSettings(){
@@ -18707,8 +18728,7 @@ body.app-scrolled .topbar .icon-btn{
     else fn();
   }
   ready(function(){
-    syncGnbNavSafe();
-    if(window.MutationObserver){
+if(window.MutationObserver){
       new MutationObserver(syncGnbNavSafe).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
     }
     document.addEventListener('click', function(){ setTimeout(syncGnbNavSafe, 0); }, true);
