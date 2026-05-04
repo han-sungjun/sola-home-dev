@@ -8040,6 +8040,28 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style>
+/* ===== Full Menu Badges: 인기/최근 개별 표시 + 중복 시 나란히 표시 ===== */
+.all-menu-badge-wrap{
+  position:absolute;
+  top:14px;
+  right:14px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:112px;
+  z-index:2;
+}
+.all-menu-badge-wrap .all-menu-badge{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -15649,14 +15671,17 @@ async function askAiAssistant(rawQuestion=''){
  }
  function getAllMenuBadge(menu){
   const id = String(menu?.menuId || '');
-  // 인기와 최근이 겹치면 인기 우선
-  if(popularGnbMenuIdSet.has(id)) return { label:'인기', className:'popular' };
-  if(recentGnbMenuIdSet.has(id)) return { label:'최근', className:'recent' };
-  return null;
+  const badges = [];
+  // 같은 메뉴가 인기+최근이면 [인기][최근] 모두 표시
+  if(popularGnbMenuIdSet.has(id)) badges.push({ label:'인기', className:'popular' });
+  if(recentGnbMenuIdSet.has(id)) badges.push({ label:'최근', className:'recent' });
+  return badges;
  }
  function makeAllMenuCard(menu){
-  const badge = getAllMenuBadge(menu);
-  const badgeHtml = badge ? `<span class="all-menu-badge ${badge.className}">${badge.label}</span>` : '';
+  const badges = getAllMenuBadge(menu);
+  const badgeHtml = badges.length
+    ? `<span class="all-menu-badge-wrap">${badges.map(b => `<span class="all-menu-badge ${b.className}">${b.label}</span>`).join('')}</span>`
+    : '';
   const isAi = String(menu.view || menu.route || menu.menuId) === 'ai' ? ' ai-entry-card' : '';
   return `<button class="all-menu-card${isAi}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${badgeHtml}<span class="all-icon">${escapeHtml(menu.icon || '•')}</span><strong>${escapeHtml(menu.name || menu.menuId)}</strong><span>${escapeHtml(getAllMenuDescription(menu))}</span></button>`;
  }
