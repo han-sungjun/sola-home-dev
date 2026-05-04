@@ -9109,6 +9109,60 @@ dialog:not(.app-alert) .modal-body{
 window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 </script>
 
+
+<style id="bottom-nav-dot-badge-final">
+/* ===== Bottom nav final badge: tiny dot + once-daily blink ===== */
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+
+/* 기존 큰 배지 계열은 하단 네비에서는 숨김 */
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend,
+.bottom-nav .nav-robot-trend-badge{
+  display:none!important;
+}
+
+.bottom-nav .nav-badge-dot{
+  position:absolute!important;
+  top:7px!important;
+  right:13px!important;
+  z-index:60!important;
+  width:7px!important;
+  height:7px!important;
+  min-width:7px!important;
+  min-height:7px!important;
+  padding:0!important;
+  border-radius:999px!important;
+  background:#fb923c!important; /* NEW */
+  border:1.5px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 0 0 2px rgba(251,146,60,.12), 0 4px 9px rgba(15,23,42,.18)!important;
+  pointer-events:none!important;
+}
+
+.bottom-nav .nav-badge-dot.hot{
+  background:#3b82f6!important; /* HOT */
+  box-shadow:0 0 0 2px rgba(59,130,246,.13), 0 4px 9px rgba(15,23,42,.18)!important;
+}
+
+.bottom-nav .nav-badge-dot.blink{
+  animation:navBadgeBlinkOnce .5s ease-in-out 1;
+}
+
+@keyframes navBadgeBlinkOnce{
+  0%{transform:scale(.45);opacity:0}
+  48%{transform:scale(1.75);opacity:1}
+  100%{transform:scale(1);opacity:1}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bottom-nav .nav-badge-dot.blink{
+    animation:none!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16863,8 +16917,10 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
 
   updateBottomNavActiveState?.();
   syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
   syncBottomNavSafeOffset?.();
 scheduleTrendFinalDisplay?.();
+  syncBottomNavDotBadgesFinal?.();
  }
 
  function updateBottomNavActiveState(){
@@ -16887,6 +16943,7 @@ async function loadGnbMenusFromDb(){
   renderDynamicGnbMenus();
   renderDynamicAllMenus();
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
   renderDynamicAllMenus();
   refreshBottomTrendUi();
@@ -17144,6 +17201,7 @@ function markAiRecoShownToday(){
   refreshAiBottomRecommendation();
   forceBottomNavTopPopularBadge();
   refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
   refreshCurrentViewTitleTrendBadges();
  }
 
@@ -17189,7 +17247,8 @@ function markAiRecoShownToday(){
    // 그래서 읽기 없이 merge 저장만 수행합니다.
    await setDoc(hRef, payload, { merge:true });
    await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
-   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.(); }, 250);
+   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.();
+  syncBottomNavDotBadgesFinal?.(); }, 250);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
  async function loadRecentGnbMenus(){
@@ -17245,6 +17304,75 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
+
+/* ===== Bottom nav tiny-dot badge final sync ===== */
+function getNavBadgeTodayKey(){
+  const uid = auth?.currentUser?.uid || 'guest';
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `bottomNavBadgeBlinked:${uid}:${y}-${m}-${day}`;
+}
+
+function shouldBlinkBottomNavBadgeToday(){
+  try{
+    const key = getNavBadgeTodayKey();
+    if(localStorage.getItem(key) === '1') return false;
+    localStorage.setItem(key, '1');
+    return true;
+  }catch(_){
+    return false;
+  }
+}
+
+let bottomNavBadgeBlinkAllowed = shouldBlinkBottomNavBadgeToday();
+
+function syncBottomNavDotBadgesFinal(){
+  let popularId = '';
+  try{
+    popularId = String(Array.from(popularGnbMenuIdSet || [])[0] || '');
+  }catch(_){}
+
+  let popularMenu = popularId ? getMenuByIdOrFallback?.(popularId) : null;
+  const popularKeys = popularMenu
+    ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean)
+    : [];
+
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+
+    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    const menu = getMenuByIdOrFallback?.(viewKey) || findTrendMenuByView?.(viewKey) || null;
+
+    let type = '';
+    if(popularKeys.includes(viewKey)){
+      type = 'hot';
+    }else{
+      try{
+        if(menu && isMenuNew(menu)) type = 'new';
+      }catch(_){
+        if(menu && Array.isArray(menu.sections) && menu.sections.includes('new')) type = 'new';
+      }
+    }
+
+    if(type){
+      const dot = document.createElement('span');
+      dot.className = `nav-badge-dot ${type === 'hot' ? 'hot' : 'new'}${bottomNavBadgeBlinkAllowed ? ' blink' : ''}`;
+      dot.setAttribute('aria-hidden','true');
+      btn.insertAdjacentElement('afterbegin', dot);
+    }
+  });
+
+  // 첫 렌더에만 blink 적용, 이후 재동기화에서는 조용한 점만 유지
+  bottomNavBadgeBlinkAllowed = false;
+}
+
+window.syncBottomNavDotBadgesFinal = syncBottomNavDotBadgesFinal;
+
+setTimeout(syncBottomNavDotBadgesFinal, 1100);
+setInterval(()=>syncBottomNavDotBadgesFinal?.(), 3000);
+
 
 /* ===== Public user bottom nav settings ===== */
 let userBottomNavSelectedMenus = [];
@@ -17384,6 +17512,7 @@ document.addEventListener('click', (event) => {
   updateBottomNavActiveState?.();
   setTimeout(() => {
     syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
     syncBottomNavSafeOffset?.();
   }, 80);
 }, true);
@@ -17524,6 +17653,7 @@ function refreshCurrentViewFinalTrendBadge(){
 }
 function refreshTrendFinalDisplay(){
   refreshBottomNavFinalTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
   refreshCurrentViewFinalTrendBadge();
 }
 function scheduleTrendFinalDisplay(){
