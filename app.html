@@ -8426,6 +8426,120 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="trend-badge-subtle-final">
+/* ===== Trend Badge Subtle Final Patch ===== */
+/* 전체 기능 카드 NEW/HOT 리본: 과한 사선 띠 → 작고 반투명한 좌상단 배지 */
+.all-menu-card .all-menu-ribbon{
+  position:absolute!important;
+  top:12px!important;
+  left:12px!important;
+  min-width:38px!important;
+  width:auto!important;
+  height:22px!important;
+  padding:0 9px!important;
+  transform:none!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  font-weight:1000!important;
+  letter-spacing:.02em!important;
+  opacity:.88!important;
+  box-shadow:0 8px 16px rgba(15,23,42,.10)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.all-menu-card .all-menu-ribbon.new-source-manual{
+  background:rgba(249,115,22,.82)!important;
+  border:1px solid rgba(253,186,116,.55)!important;
+}
+.all-menu-card .all-menu-ribbon.new-source-trending{
+  background:rgba(37,99,235,.82)!important;
+  border:1px solid rgba(147,197,253,.50)!important;
+}
+.all-menu-card .all-menu-ribbon.new-source-both{
+  background:linear-gradient(135deg,rgba(249,115,22,.84),rgba(37,99,235,.84))!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+}
+
+/* 우상단 인기/최근 배지: 반투명 + 작은 광택만 */
+.all-menu-badge,
+.menu-trend-badge{
+  opacity:.88!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.all-menu-badge.popular,
+.menu-trend-badge.popular{
+  background:rgba(255,247,237,.78)!important;
+  color:#c2410c!important;
+  border-color:rgba(253,186,116,.58)!important;
+}
+.all-menu-badge.recent,
+.menu-trend-badge.recent{
+  background:rgba(239,246,255,.78)!important;
+  color:#1d4ed8!important;
+  border-color:rgba(147,197,253,.58)!important;
+}
+
+/* 광택 효과를 배지 안에서만 은은하게 */
+.menu-trend-ribbon::after,
+.all-menu-ribbon::after,
+.menu-trend-badge::after,
+.all-menu-badge::after{
+  width:30%!important;
+  height:160%!important;
+  top:-35%!important;
+  left:-55%;
+  opacity:.55!important;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0))!important;
+  animation:badgeShineSoft 3.8s ease-in-out infinite!important;
+}
+@keyframes badgeShineSoft{
+  0%{left:-60%;opacity:0}
+  18%{opacity:.55}
+  34%{left:125%;opacity:0}
+  100%{left:125%;opacity:0}
+}
+
+/* 하단 네비바는 더욱 작게 */
+.bottom-nav .menu-trend-ribbon{
+  top:2px!important;
+  left:4px!important;
+  min-width:25px!important;
+  height:13px!important;
+  padding:0 4px!important;
+  transform:none!important;
+  border-radius:999px!important;
+  font-size:7px!important;
+  opacity:.78!important;
+}
+.bottom-nav .menu-trend-badge-wrap{
+  top:2px!important;
+  right:3px!important;
+}
+.bottom-nav .menu-trend-badge{
+  min-width:22px!important;
+  height:13px!important;
+  padding:0 4px!important;
+  font-size:7px!important;
+  opacity:.78!important;
+}
+
+/* GNB 내부 배지도 카드 방해하지 않게 작게 */
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon{
+  top:8px!important;
+  left:10px!important;
+  transform:none!important;
+  min-width:32px!important;
+  height:17px!important;
+  border-radius:999px!important;
+  font-size:8px!important;
+  opacity:.82!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16181,6 +16295,8 @@ async function askAiAssistant(rawQuestion=''){
   }
   const menu = picked.menu;
   box.dataset.viewLink = menu.view || menu.route || menu.menuId;
+  box.setAttribute('role','button');
+  box.setAttribute('tabindex','0');
   qs('#aiBottomRecoTitle') && (qs('#aiBottomRecoTitle').textContent = `AI 추천 · ${menu.name || menu.menuId}`);
   qs('#aiBottomRecoText') && (qs('#aiBottomRecoText').textContent = picked.reason);
   box.classList.add('show');
@@ -16289,6 +16405,29 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
+
+// AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
+document.addEventListener('click', (event) => {
+  const box = event.target.closest?.('#aiBottomReco');
+  if(!box) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const view = box.dataset.viewLink || 'ai';
+  try{ trackGnbMenuVisitByView(view); }catch(_){}
+  changeView(view);
+}, true);
+
+document.addEventListener('keydown', (event) => {
+  const box = event.target.closest?.('#aiBottomReco');
+  if(!box) return;
+  if(event.key === 'Enter' || event.key === ' '){
+    event.preventDefault();
+    const view = box.dataset.viewLink || 'ai';
+    try{ trackGnbMenuVisitByView(view); }catch(_){}
+    changeView(view);
+  }
+}, true);
+
 
 
  qsa('[data-view-link]').forEach(btn => {
