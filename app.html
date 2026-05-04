@@ -8625,6 +8625,136 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="trend-context-final-v2">
+/* ===== Trend Context Final v2 ===== */
+/* 하단 네비바 미니 배지 */
+.bottom-nav .nav-mini-trend{
+  position:absolute;
+  top:3px;
+  right:6px;
+  z-index:5;
+  min-width:25px;
+  height:14px;
+  padding:0 5px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:7px!important;
+  font-weight:1000;
+  line-height:1;
+  letter-spacing:.03em;
+  opacity:.88;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 5px 10px rgba(15,23,42,.16);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.bottom-nav .nav-mini-trend.hot{
+  background:rgba(37,99,235,.88);
+  color:#fff;
+}
+.bottom-nav .nav-mini-trend.new{
+  background:rgba(249,115,22,.88);
+  color:#fff;
+}
+.bottom-nav .nav-mini-trend::after,
+.view-title-trend-badge::after,
+.gnb-context-badge::after{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-60%;
+  width:34%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+
+/* 본 화면 제목 왼쪽 트렌드 배지 */
+.view-title-trend-badges{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-right:8px;
+  vertical-align:middle;
+}
+.view-title-trend-badge{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:22px;
+  min-width:38px;
+  padding:0 9px;
+  border-radius:999px;
+  font-size:10px!important;
+  font-weight:1000;
+  line-height:1;
+  overflow:hidden;
+  opacity:.92;
+  box-shadow:0 8px 16px rgba(15,23,42,.10);
+}
+.view-title-trend-badge.hot{
+  background:rgba(37,99,235,.88);
+  color:#fff;
+}
+.view-title-trend-badge.new{
+  background:rgba(249,115,22,.88);
+  color:#fff;
+}
+
+/* GNB 안에서는 섹션 성격에 맞는 배지만 inline으로 표시 */
+.gnb-context-badges{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-left:6px;
+  vertical-align:middle;
+}
+.gnb-context-badge{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:17px;
+  min-width:29px;
+  padding:0 6px;
+  border-radius:999px;
+  font-size:9px!important;
+  font-weight:1000;
+  line-height:1;
+  overflow:hidden;
+  opacity:.88;
+}
+.gnb-context-badge.hot{
+  background:rgba(37,99,235,.84);
+  color:#fff;
+}
+.gnb-context-badge.new{
+  background:rgba(249,115,22,.84);
+  color:#fff;
+}
+/* 기존 GNB 리본/전역 배지는 숨김 유지 */
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon,
+.gnb-chip .menu-trend-badge-wrap,
+.gnb-menu-item .menu-trend-badge-wrap,
+.gnb-menu-subitem .menu-trend-badge-wrap,
+.gnb-inline-badges{
+  display:none!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -9969,6 +10099,29 @@ function setPushStatusUi(enabled){
  return false;
  }
  return true;
+ }
+
+
+ function makeViewTitleTrendBadges(menu){
+  if(!menu) return '';
+  const flags = getMenuTrendFlags(menu);
+  const pieces = [];
+  if(flags.isPopular || flags.isHot) pieces.push('<span class="view-title-trend-badge hot">HOT</span>');
+  if(flags.isNew) pieces.push('<span class="view-title-trend-badge new">NEW</span>');
+  return pieces.length ? `<span class="view-title-trend-badges">${pieces.join('')}</span>` : '';
+ }
+ function refreshCurrentViewTitleTrendBadges(){
+  qsa('.view-title-trend-badges').forEach(el => el.remove());
+  const view = state?.view || 'home';
+  const menu = findMenuByView(view);
+  const html = makeViewTitleTrendBadges(menu);
+  if(!html) return;
+  const viewEl = qs(`#view-${view}`);
+  if(!viewEl) return;
+  const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
+  if(title){
+    title.insertAdjacentHTML('afterbegin', html);
+  }
  }
 
  function changeView(nextView){
@@ -16238,6 +16391,7 @@ async function askAiAssistant(rawQuestion=''){
   }
   renderDynamicGnbMenus();
   renderDynamicAllMenus();
+  refreshBottomNavMiniTrendBadges();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
   renderDynamicAllMenus();
   refreshBottomTrendUi();
@@ -16256,9 +16410,29 @@ async function askAiAssistant(rawQuestion=''){
   return pieces.length ? `<span class="gnb-inline-badges">${pieces.join('')}</span>` : '';
  }
 
- function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText=''){
-  const inlineBadges = makeGnbInlineTrendBadges(menu);
-  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${inlineBadges}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
+
+ function makeGnbContextBadges(menu, mode=''){
+  const pieces = [];
+  if(mode === 'popular' && isTrendingMenu(menu)){
+    pieces.push('<span class="gnb-context-badge hot">HOT</span>');
+  }
+  if(mode === 'new' && isMenuNew(menu)){
+    pieces.push('<span class="gnb-context-badge new">NEW</span>');
+  }
+  return pieces.length ? `<span class="gnb-context-badges">${pieces.join('')}</span>` : '';
+ }
+ function getMenuTrendFlags(menu){
+  return {
+    isNew: isMenuNew(menu),
+    isHot: isTrendingMenu(menu),
+    isPopular: popularGnbMenuIdSet.has(String(menu?.menuId || '')),
+    isRecent: recentGnbMenuIdSet.has(String(menu?.menuId || ''))
+  };
+ }
+
+ function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
+  const contextBadges = makeGnbContextBadges(menu, mode);
+  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${contextBadges}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
   return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
@@ -16266,7 +16440,7 @@ async function askAiAssistant(rawQuestion=''){
   const mainMenus = gnbMenuCache.filter(m => m.sections.includes('main') || m.sections.includes('gnb'));
   const newEl = qs('#gnbNewMenus');
   const mainEl = qs('#gnbMainMenus');
-  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item')).join('') : '<div class="gnb-empty">관리자 메뉴에서 새 메뉴를 등록하면 여기에 표시됩니다.</div>';
+  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item','', 'new')).join('') : '<div class="gnb-empty">관리자 메뉴에서 새 메뉴를 등록하면 여기에 표시됩니다.</div>';
   if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
  }
 
@@ -16426,11 +16600,31 @@ async function askAiAssistant(rawQuestion=''){
   });
  }
 
+
+ function refreshBottomNavMiniTrendBadges(){
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-mini-trend,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findMenuByView(btn.dataset.viewLink);
+    if(!menu) return;
+    const flags = getMenuTrendFlags(menu);
+    let label = '';
+    let cls = '';
+    // 하단 네비바는 공간이 작으므로 HOT 우선, 그다음 NEW만 표시
+    if(flags.isPopular || flags.isHot){ label = 'HOT'; cls = 'hot'; }
+    else if(flags.isNew){ label = 'NEW'; cls = 'new'; }
+    if(label){
+      btn.insertAdjacentHTML('afterbegin', `<span class="nav-mini-trend ${cls}">${label}</span>`);
+    }
+  });
+ }
+
  function refreshBottomTrendUi(){
   refreshStaticNavTrendBadges?.();
   refreshBottomNavTopHighlight();
   refreshAiBottomRecommendation();
   forceBottomNavTopPopularBadge();
+  refreshBottomNavMiniTrendBadges();
+  refreshCurrentViewTitleTrendBadges();
  }
 
  function refreshStaticNavTrendBadges(){
@@ -16478,50 +16672,7 @@ async function askAiAssistant(rawQuestion=''){
    setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); }, 250);
   }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
  }
- 
- // ===== 인기 메뉴 비용 절감형 주기 갱신 =====
- const POPULAR_REFRESH_MS = 5 * 60 * 1000;
- let popularRefreshTimer = null;
- let popularRefreshBusy = false;
-
- async function refreshPopularMenusInterval(){
-  if(popularRefreshBusy) return;
-  if(document.visibilityState && document.visibilityState !== 'visible') return;
-
-  popularRefreshBusy = true;
-  try{
-    await loadPopularGnbMenus();
-    renderDynamicAllMenus();
-    renderDynamicGnbMenus();
-    if(typeof refreshBottomTrendUi === 'function') refreshBottomTrendUi();
-    else if(typeof refreshStaticNavTrendBadges === 'function') refreshStaticNavTrendBadges();
-  }catch(error){
-    console.warn('인기 메뉴 주기 갱신 실패', error);
-  }finally{
-    popularRefreshBusy = false;
-  }
- }
-
- function startPopularMenuIntervalRefresh(){
-  if(popularRefreshTimer) clearInterval(popularRefreshTimer);
-
-  // 최초 1회는 약간 늦게 실행해서 초기 메뉴 로딩과 충돌 방지
-  setTimeout(refreshPopularMenusInterval, 1200);
-
-  popularRefreshTimer = setInterval(() => {
-    if(document.visibilityState === 'visible'){
-      refreshPopularMenusInterval();
-    }
-  }, POPULAR_REFRESH_MS);
- }
-
- document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible'){
-    refreshPopularMenusInterval();
-  }
- });
-
-async function loadRecentGnbMenus(){
+ async function loadRecentGnbMenus(){
   const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
   try{
    const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(1)));
@@ -16539,7 +16690,7 @@ async function loadRecentGnbMenus(){
       popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
    popularGnbStatsMap = new Map(rows.map(m => [String(m.menuId), m]));
 popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
-   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`, 'popular')).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
  }
@@ -16574,7 +16725,6 @@ popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
   }
  }, true);
  setTimeout(loadGnbMenusFromDb, 900);
- setTimeout(startPopularMenuIntervalRefresh, 1800);
 
 // AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
 document.addEventListener('click', (event) => {
