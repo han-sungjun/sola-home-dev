@@ -1797,29 +1797,22 @@ body.gnb-open .admin-bottom-nav{
 </style>
 
 <style>
-/* ===== Admin bottom nav compact: 주요 기능 4개 + 더보기 ===== */
-.admin-bottom-nav{
-  grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  gap:6px!important;
+/* ===== GNB 메뉴 노출구역: 전체 기능 체크 추가 ===== */
+.menu-section-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 14px;
 }
-.admin-bottom-nav .admin-nav-btn .nav-label{
-  font-size:11px!important;
+.menu-section-row label{
+  min-width:82px;
 }
-.admin-bottom-nav .admin-nav-btn[data-admin-view="all"]{
-  background:rgba(255,255,255,.06);
-}
-.admin-bottom-nav .admin-nav-btn[data-admin-view="all"].active{
-  background:rgba(255,255,255,.16);
-}
-@media (max-width:380px){
-  .admin-bottom-nav{
-    gap:4px!important;
+@media (max-width:420px){
+  .menu-section-row{
+    gap:10px 12px;
   }
-  .admin-bottom-nav .admin-nav-btn{
-    padding:8px 0 10px!important;
-  }
-  .admin-bottom-nav .admin-nav-btn .nav-label{
-    font-size:10px!important;
+  .menu-section-row label{
+    min-width:72px;
+    font-size:13px;
   }
 }
 </style>
@@ -1959,7 +1952,7 @@ body.gnb-open .admin-bottom-nav{
             <div class="grid-2"><div class="field"><label for="menuIcon">아이콘</label><input id="menuIcon" placeholder="예: 📅" /></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div>
             <div class="field"><label for="menuKeywords">검색 키워드</label><input id="menuKeywords" placeholder="예약, 알림, 일정, 달력" /><div class="admin-field-help">쉼표로 구분합니다. GNB 검색과 AI 메뉴 안내에 같이 활용됩니다.</div></div>
             <div class="grid-2"><div class="field"><label for="menuOrder">정렬 순서</label><input id="menuOrder" type="number" value="100" /></div><div class="field"><label for="menuDescription">관리 메모</label><input id="menuDescription" placeholder="사용자에게 노출될 설명 또는 운영 메모" /></div></div>
-            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정 마이힐스</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
+            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정 마이힐스</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
             <div class="field"><label>노출 권한</label><div class="menu-role-row"><label><input type="checkbox" name="menuRole" value="resident" checked> 입주민</label><label><input type="checkbox" name="menuRole" value="admin" checked> 관리자</label><label><input type="checkbox" name="menuRole" value="root" checked> Root</label></div></div>
             <div class="field"><label>상태</label><div class="check-row"><label><input type="checkbox" id="menuIsActive" checked> 공개앱 노출</label></div></div>
             <div class="grid-2"><button class="btn btn-primary" type="submit">메뉴 저장</button><button class="btn btn-soft" type="button" id="menuResetBtn">새 메뉴 작성</button></div>
@@ -2088,7 +2081,9 @@ body.gnb-open .admin-bottom-nav{
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
-    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">☰</span><span class="nav-label">더보기</span></button>
+    <button class="admin-nav-btn" data-admin-view="ai"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
+    <button class="admin-nav-btn" data-admin-view="menus"><span class="nav-icon">🧭</span><span class="nav-label">메뉴</span></button>
+    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">▦</span><span class="nav-label">전체</span></button>
   </nav>
 
   <script type="module">
