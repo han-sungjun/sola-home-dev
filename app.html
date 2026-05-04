@@ -8540,6 +8540,91 @@ dialog:not(.app-alert) .modal-body{
 }
 </style>
 
+
+<style id="gnb-badge-clean-final">
+/* ===== GNB badge clean final: GNB는 깨지지 않게 inline pill만 표시 ===== */
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon,
+.gnb-chip .menu-trend-badge-wrap,
+.gnb-menu-item .menu-trend-badge-wrap,
+.gnb-menu-subitem .menu-trend-badge-wrap{
+  display:none!important;
+}
+
+.gnb-inline-badges{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  margin-left:6px;
+  vertical-align:middle;
+}
+
+.gnb-inline-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:17px;
+  min-width:27px;
+  padding:0 6px;
+  border-radius:999px;
+  font-size:9px!important;
+  font-weight:1000;
+  line-height:1;
+  border:1px solid rgba(15,23,42,.06);
+  opacity:.86;
+  overflow:hidden;
+  position:relative;
+  white-space:nowrap;
+}
+
+.gnb-inline-badge.new{
+  background:rgba(249,115,22,.82);
+  color:#fff;
+  border-color:rgba(253,186,116,.55);
+}
+.gnb-inline-badge.hot{
+  background:rgba(37,99,235,.82);
+  color:#fff;
+  border-color:rgba(147,197,253,.50);
+}
+.gnb-inline-badge.popular{
+  background:rgba(255,247,237,.78);
+  color:#c2410c;
+  border-color:rgba(253,186,116,.58);
+}
+.gnb-inline-badge.recent{
+  background:rgba(239,246,255,.78);
+  color:#1d4ed8;
+  border-color:rgba(147,197,253,.58);
+}
+
+.gnb-inline-badge::after{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-65%;
+  width:30%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* 하단 네비 TOP 배지가 아이콘과 충돌하지 않게 살짝 위로 */
+.bottom-nav .nav-btn.nav-top1::after{
+  bottom:auto!important;
+  top:3px!important;
+  right:4px!important;
+  height:13px!important;
+  min-width:22px!important;
+  font-size:7px!important;
+  padding:0 4px!important;
+  opacity:.86;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -15323,6 +15408,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  qs('#aiBottomReco')?.addEventListener('click', () => {
    const view = qs('#aiBottomReco')?.dataset?.viewLink || 'ai';
    trackGnbMenuVisitByView(view);
+   qs('#aiBottomReco')?.classList.remove('show');
    changeView(view);
  });
  qs('#aiBottomReco')?.addEventListener('keydown', (event) => {
@@ -16156,9 +16242,23 @@ async function askAiAssistant(rawQuestion=''){
   renderDynamicAllMenus();
   refreshBottomTrendUi();
  }
+
+ function makeGnbInlineTrendBadges(menu){
+  const pieces = [];
+  const source = getNewRibbonSource(menu);
+  if(source === 'trending') pieces.push('<span class="gnb-inline-badge hot">HOT</span>');
+  else if(source) pieces.push('<span class="gnb-inline-badge new">NEW</span>');
+
+  const id = String(menu?.menuId || '');
+  if(popularGnbMenuIdSet.has(id)) pieces.push('<span class="gnb-inline-badge popular">인기</span>');
+  if(recentGnbMenuIdSet.has(id)) pieces.push('<span class="gnb-inline-badge recent">최근</span>');
+
+  return pieces.length ? `<span class="gnb-inline-badges">${pieces.join('')}</span>` : '';
+ }
+
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText=''){
-  const decor = makeMenuTrendDecor(menu);
-  const label = `${decor}<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
+  const inlineBadges = makeGnbInlineTrendBadges(menu);
+  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${inlineBadges}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
   return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
@@ -16242,10 +16342,11 @@ async function askAiAssistant(rawQuestion=''){
   return ribbonHtml + badgeHtml;
  }
  function findMenuByView(view){
+  const key = String(view || '').replace(/^#|^\//,'').trim();
   return gnbMenuCache.find(m =>
-    String(m.view) === String(view) ||
-    String(m.route) === String(view) ||
-    String(m.menuId) === String(view)
+    String(m.view || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.route || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.menuId || '').trim() === key
   ) || null;
  }
 
@@ -16301,10 +16402,35 @@ async function askAiAssistant(rawQuestion=''){
   qs('#aiBottomRecoText') && (qs('#aiBottomRecoText').textContent = picked.reason);
   box.classList.add('show');
  }
+
+ function forceBottomNavTopPopularBadge(){
+  const topMenu = getPopularTopMenu?.();
+  if(!topMenu) return;
+  const topKeys = [topMenu.view, topMenu.route, topMenu.menuId].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean);
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    const view = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    if(!topKeys.includes(view)) return;
+    btn.classList.add('nav-top1');
+    if(!btn.querySelector('.menu-trend-badge.popular')){
+      let wrap = btn.querySelector('.menu-trend-badge-wrap');
+      if(!wrap){
+        wrap = document.createElement('span');
+        wrap.className = 'menu-trend-badge-wrap';
+        btn.insertAdjacentElement('afterbegin', wrap);
+      }
+      const b = document.createElement('span');
+      b.className = 'menu-trend-badge popular';
+      b.textContent = '인기';
+      wrap.appendChild(b);
+    }
+  });
+ }
+
  function refreshBottomTrendUi(){
   refreshStaticNavTrendBadges?.();
   refreshBottomNavTopHighlight();
   refreshAiBottomRecommendation();
+  forceBottomNavTopPopularBadge();
  }
 
  function refreshStaticNavTrendBadges(){
@@ -16414,6 +16540,7 @@ document.addEventListener('click', (event) => {
   event.stopPropagation();
   const view = box.dataset.viewLink || 'ai';
   try{ trackGnbMenuVisitByView(view); }catch(_){}
+  box.classList.remove('show');
   changeView(view);
 }, true);
 
@@ -16424,6 +16551,7 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault();
     const view = box.dataset.viewLink || 'ai';
     try{ trackGnbMenuVisitByView(view); }catch(_){}
+    box.classList.remove('show');
     changeView(view);
   }
 }, true);
