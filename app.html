@@ -16205,4 +16205,44 @@ window.addEventListener("load", handlePushDeepLink);
   }, true);
 })();
 </script>
+
+
+<!-- calendar-bottom-nav-safe-final-v3 -->
+<style id="calendar-bottom-nav-safe-final-v3">
+/* =========================================================
+   Calendar Bottom Navigation Safe Patch v3
+   - 기존 캘린더 전용 padding:0 과보정 무효화
+   - 하단 네비 실제 높이 변수(--bottom-nav-safe-offset)를 그대로 사용
+   - 캘린더 월간/주간/일간 마지막 영역이 네비바에 가리지 않도록 최소 여백만 확보
+   ========================================================= */
+body.calendar-view-active .app,
+body:has(#view-calendar:not(.hidden)) .app{
+  padding-bottom:calc(var(--bottom-nav-safe-offset, 96px) + var(--bottom-nav-extra-gap, 16px)) !important;
+}
+
+body.calendar-view-active #view-calendar,
+body:has(#view-calendar:not(.hidden)) #view-calendar{
+  padding-bottom:18px !important;
+  margin-bottom:0 !important;
+}
+
+body.calendar-view-active #view-calendar .panel:last-child,
+body:has(#view-calendar:not(.hidden)) #view-calendar .panel:last-child{
+  padding-bottom:18px !important;
+  margin-bottom:0 !important;
+}
+
+body.calendar-view-active .calendar-board,
+body.calendar-view-active .calendar-month-grid,
+body.calendar-view-active .calendar-week-grid,
+body.calendar-view-active .calendar-day-grid,
+body:has(#view-calendar:not(.hidden)) .calendar-board,
+body:has(#view-calendar:not(.hidden)) .calendar-month-grid,
+body:has(#view-calendar:not(.hidden)) .calendar-week-grid,
+body:has(#view-calendar:not(.hidden)) .calendar-day-grid{
+  padding-bottom:8px !important;
+  margin-bottom:0 !important;
+}
+</style>
+
 </body></html>
