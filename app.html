@@ -7979,6 +7979,39 @@ dialog:not(.app-alert) .modal-body{
   .gnb-search-box::before{content:'🔍';font-size:16px;opacity:.8}.gnb-search-box input{width:100%;border:none;outline:none;background:transparent;font-weight:800;color:#0f172a}
   .gnb-menu-search-results{display:grid;gap:10px;margin-top:10px}.gnb-search-result-title{font-size:12px;font-weight:900;color:#64748b;margin:6px 2px 2px}.gnb-empty{width:100%;padding:13px 14px;border-radius:18px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;font-size:13px;font-weight:800}.gnb-menu-count{display:inline-flex;margin-left:6px;font-size:11px;color:#64748b;font-weight:900}.gnb-chip .gnb-menu-count,.gnb-menu-item .gnb-menu-count,.gnb-menu-subitem .gnb-menu-count{opacity:.76}
 </style>
+
+<style>
+.all-menu-card{position:relative;overflow:hidden;}
+.all-menu-badge{
+ position:absolute;
+ top:14px;
+ right:14px;
+ min-width:42px;
+ height:26px;
+ padding:0 9px;
+ border-radius:999px;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ font-size:11px!important;
+ font-weight:1000;
+ line-height:1;
+ letter-spacing:-.02em;
+ border:1px solid rgba(15,23,42,.06);
+ box-shadow:0 8px 18px rgba(15,23,42,.08);
+}
+.all-menu-badge.popular{
+ background:#fff7ed;
+ color:#c2410c!important;
+ border-color:#fed7aa;
+}
+.all-menu-badge.recent{
+ background:#eff6ff;
+ color:#1d4ed8!important;
+ border-color:#bfdbfe;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -8143,14 +8176,8 @@ dialog:not(.app-alert) .modal-body{
  <div class="section-head" style="margin-bottom:12px;"><h3>전체 기능</h3><small>서비스 메뉴</small></div>
  <div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
  </div>
- <div class="all-menu-grid">
- <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>궁금한 정보를 빠르게 찾아드려요.</span></button>
- <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="calendar"><span class="all-icon">📅</span><strong>캘린더 예약</strong><span>가고 싶은 혜택 매장을 예약하고 알림으로 편하게 이용하세요.</span></button>
- <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="top5"><span class="all-icon">🏆</span><strong>TOP 5</strong><span>입주민이 많이 보는 인기 매장입니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="favorite"><span class="all-icon">⭐</span><strong>즐겨찾기</strong><span>자주 쓰는 혜택을 빠르게 봅니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="benefits"><span class="all-icon">🎁</span><strong>혜택 전체</strong><span>모든 제휴 혜택을 검색합니다.</span></button>
+ <div class="all-menu-grid" id="allMenuGrid">
+ <div class="panel empty" style="grid-column:1/-1;">전체 기능 메뉴를 불러오는 중입니다.</div>
  </div>
  </section>
 
@@ -15543,6 +15570,8 @@ async function askAiAssistant(rawQuestion=''){
   {menuId:'shareinsights', name:'공유 인사이트', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
  ];
  let gnbMenuCache = [];
+ let recentGnbMenuIdSet = new Set();
+ let popularGnbMenuIdSet = new Set();
 
  function getCurrentUserRole(){ return state.currentUserProfile?.role || 'resident'; }
  function canUseGnbMenu(menu){
@@ -15568,7 +15597,9 @@ async function askAiAssistant(rawQuestion=''){
    gnbMenuCache = DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
   }
   renderDynamicGnbMenus();
+  renderDynamicAllMenus();
   await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
+  renderDynamicAllMenus();
  }
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText=''){
   const label = `${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}`;
@@ -15581,6 +15612,34 @@ async function askAiAssistant(rawQuestion=''){
   const mainEl = qs('#gnbMainMenus');
   if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item')).join('') : '<div class="gnb-empty">관리자 메뉴에서 새 메뉴를 등록하면 여기에 표시됩니다.</div>';
   if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
+ }
+
+ function getAllMenuDescription(menu){
+  return menu.description || menu.desc || menu.memo || menu.adminMemo || menu.subtitle || menu.summary || '필요한 기능을 바로 이용할 수 있습니다.';
+ }
+ function getAllMenuBadge(menu){
+  const id = String(menu?.menuId || '');
+  // 인기와 최근이 겹치면 인기 우선
+  if(popularGnbMenuIdSet.has(id)) return { label:'인기', className:'popular' };
+  if(recentGnbMenuIdSet.has(id)) return { label:'최근', className:'recent' };
+  return null;
+ }
+ function makeAllMenuCard(menu){
+  const badge = getAllMenuBadge(menu);
+  const badgeHtml = badge ? `<span class="all-menu-badge ${badge.className}">${badge.label}</span>` : '';
+  const isAi = String(menu.view || menu.route || menu.menuId) === 'ai' ? ' ai-entry-card' : '';
+  return `<button class="all-menu-card${isAi}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${badgeHtml}<span class="all-icon">${escapeHtml(menu.icon || '•')}</span><strong>${escapeHtml(menu.name || menu.menuId)}</strong><span>${escapeHtml(getAllMenuDescription(menu))}</span></button>`;
+ }
+ function renderDynamicAllMenus(){
+  const el = qs('#allMenuGrid');
+  if(!el) return;
+  const rows = gnbMenuCache
+    .filter(canUseGnbMenu)
+    .filter(m => !String(m.sections || '').includes('admin'))
+    .filter(m => String(m.menuId) !== 'home')
+    .filter(m => (m.sections || []).includes('all') || (m.sections || []).includes('main') || (m.sections || []).includes('gnb'))
+    .sort((a,b)=>a.order-b.order);
+  el.innerHTML = rows.length ? rows.map(makeAllMenuCard).join('') : '<div class="panel empty" style="grid-column:1/-1;">관리자 메뉴에서 전체 기능에 표시할 메뉴를 등록해 주세요.</div>';
  }
  async function trackGnbMenuVisitByView(view){
   const user = auth?.currentUser; if(!user || !view || !db) return;
@@ -15601,16 +15660,20 @@ async function askAiAssistant(rawQuestion=''){
   try{
    const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(3)));
    const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu);
+   recentGnbMenuIdSet = new Set(rows.map(m => String(m.menuId)));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 최근 메뉴가 표시됩니다.</div>';
-  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; }
+   renderDynamicAllMenus();
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); }
  }
  async function loadPopularGnbMenus(){
   const el = qs('#gnbPopularMenus'); if(!el || !db) return;
   try{
    const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
    const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).slice(0,3);
+   popularGnbMenuIdSet = new Set(rows.map(m => String(m.menuId)));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`)).join('') : '<div class="gnb-empty">방문이 쌓이면 인기 메뉴가 표시됩니다.</div>';
-  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; }
+   renderDynamicAllMenus();
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); }
  }
  function renderGnbMenuSearch(keyword=''){
   const box = qs('#gnbMenuSearchResults'); if(!box) return;
