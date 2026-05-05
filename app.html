@@ -5734,6 +5734,87 @@ body:has(#view-calendar:not(.hidden)) .app{
 #noticeModal .modal-body{padding-bottom:22px;}
 #noticeModal .share-actions{margin-top:0;}
 
+
+/* ===== AI 첨부 이미지 확대 보기 ===== */
+.ai-image-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.ai-image-zoom-backdrop.show{display:flex;}
+.ai-image-zoom-card{
+  position:relative;
+  width:min(100%,460px);
+  max-height:92dvh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  border-radius:24px;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 30px 70px rgba(15,23,42,.32);
+  border:1px solid rgba(255,255,255,.72);
+}
+.ai-image-zoom-scroll{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(92dvh - 78px);
+  border-radius:18px;
+  background:#f8fafc;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-img{
+  display:block;
+  max-width:100%;
+  width:auto;
+  height:auto;
+  border-radius:16px;
+  object-fit:contain;
+}
+.ai-image-zoom-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:2px 2px 0;
+}
+.ai-image-zoom-title{
+  min-width:0;
+  flex:1;
+  font-size:13px;
+  font-weight:900;
+  color:#334155;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ai-image-zoom-close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:14px;
+  background:#0f172a;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.ai-attachment-preview-img,
+.ai-attachment-card img,
+.ai-answer-attachments img{
+  cursor:zoom-in;
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -19393,6 +19474,92 @@ if(window.MutationObserver){
   window.downloadAiAttachmentByDataset = function(button){
     window.downloadAiAttachment(button, null);
   };
+})();
+</script>
+
+
+<!-- AI 첨부 이미지 확대 보기 -->
+<div id="aiImageZoomBackdrop" class="ai-image-zoom-backdrop" aria-hidden="true">
+  <div class="ai-image-zoom-card" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
+    <div class="ai-image-zoom-head">
+      <div id="aiImageZoomTitle" class="ai-image-zoom-title">이미지 확대 보기</div>
+      <button type="button" id="aiImageZoomCloseBtn" class="ai-image-zoom-close" aria-label="닫기">×</button>
+    </div>
+    <div class="ai-image-zoom-scroll">
+      <img id="aiImageZoomImg" class="ai-image-zoom-img" src="" alt="확대 이미지">
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== AI 첨부 이미지 클릭 확대 보기 ===== */
+(function(){
+  function getZoomElements(){
+    return {
+      backdrop: document.getElementById("aiImageZoomBackdrop"),
+      img: document.getElementById("aiImageZoomImg"),
+      title: document.getElementById("aiImageZoomTitle"),
+      close: document.getElementById("aiImageZoomCloseBtn")
+    };
+  }
+
+  window.openAiImageZoom = function(src, title){
+    const els = getZoomElements();
+    if (!els.backdrop || !els.img) return;
+    els.img.src = src || "";
+    els.img.alt = title || "확대 이미지";
+    if (els.title) els.title.textContent = title || "이미지 확대 보기";
+    els.backdrop.classList.add("show");
+    els.backdrop.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  };
+
+  window.closeAiImageZoom = function(){
+    const els = getZoomElements();
+    if (!els.backdrop || !els.img) return;
+    els.backdrop.classList.remove("show");
+    els.backdrop.setAttribute("aria-hidden", "true");
+    els.img.src = "";
+    document.body.style.overflow = "";
+  };
+
+  document.addEventListener("click", function(e){
+    const target = e.target;
+    if (!target) return;
+
+    if (target.id === "aiImageZoomBackdrop" || target.id === "aiImageZoomCloseBtn") {
+      window.closeAiImageZoom();
+      return;
+    }
+
+    const img = target.closest ? target.closest("img") : null;
+    if (!img) return;
+
+    const isAiAttachment =
+      img.closest(".ai-attachment-card") ||
+      img.closest(".ai-answer-attachments") ||
+      img.closest("[data-ai-attachment-card]") ||
+      img.closest("[data-ai-attachment-list]") ||
+      img.dataset.aiAttachmentImage === "true" ||
+      img.classList.contains("ai-attachment-preview-img");
+
+    if (!isAiAttachment) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const title =
+      img.dataset.aiAttachmentName ||
+      img.dataset.attachmentName ||
+      img.getAttribute("alt") ||
+      "이미지 확대 보기";
+
+    window.openAiImageZoom(img.currentSrc || img.src, title);
+  }, true);
+
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape") window.closeAiImageZoom();
+  });
 })();
 </script>
 
