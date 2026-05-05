@@ -3064,7 +3064,7 @@ function fillForm(item){
       const legacy = String(typeof item.address === 'string' ? item.address : (item.displayAddress || nested.display || '')).trim();
       const main = road || jibun || legacy;
       const display = String(item.displayAddress || [main, detail].filter(Boolean).join(' ') || legacy).trim();
-      return { road, jibun, detail, main, display };
+      return { zipcode, road, jibun, detail, main, display };
     }
 
     async function geocodeAddressByNaver(){
