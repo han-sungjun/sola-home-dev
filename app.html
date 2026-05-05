@@ -19845,4 +19845,187 @@ if(window.MutationObserver){
 })();
 </script>
 
+
+<script>
+/* ===== AI 첨부 이미지 확대 팝업 - 런타임 강제 생성형 ===== */
+(function(){
+  function ensureAiRuntimeZoomLayer(){
+    var old = document.getElementById("aiRuntimeImageZoomBackdrop");
+    if(old) return old;
+
+    var backdrop = document.createElement("div");
+    backdrop.id = "aiRuntimeImageZoomBackdrop";
+    backdrop.setAttribute("aria-hidden", "true");
+    backdrop.style.cssText = [
+      "position:fixed",
+      "inset:0",
+      "z-index:2147483647",
+      "display:none",
+      "background:rgba(0,0,0,.94)",
+      "overflow:auto",
+      "-webkit-overflow-scrolling:touch",
+      "padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(24px + env(safe-area-inset-bottom,0px))",
+      "box-sizing:border-box"
+    ].join(";");
+
+    var title = document.createElement("div");
+    title.id = "aiRuntimeImageZoomTitle";
+    title.style.cssText = [
+      "position:fixed",
+      "left:14px",
+      "right:76px",
+      "top:calc(19px + env(safe-area-inset-top,0px))",
+      "z-index:2147483647",
+      "color:#fff",
+      "font-size:13px",
+      "font-weight:900",
+      "white-space:nowrap",
+      "overflow:hidden",
+      "text-overflow:ellipsis",
+      "pointer-events:none"
+    ].join(";");
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.textContent = "×";
+    close.setAttribute("aria-label", "닫기");
+    close.style.cssText = [
+      "position:fixed",
+      "top:calc(12px + env(safe-area-inset-top,0px))",
+      "right:14px",
+      "z-index:2147483647",
+      "width:46px",
+      "height:46px",
+      "border:0",
+      "border-radius:999px",
+      "background:rgba(15,23,42,.94)",
+      "color:#fff",
+      "font-size:26px",
+      "font-weight:900",
+      "display:grid",
+      "place-items:center",
+      "cursor:pointer",
+      "box-shadow:0 12px 28px rgba(0,0,0,.34)"
+    ].join(";");
+
+    var wrap = document.createElement("div");
+    wrap.style.cssText = [
+      "width:100%",
+      "min-height:100%",
+      "display:flex",
+      "align-items:flex-start",
+      "justify-content:center",
+      "box-sizing:border-box"
+    ].join(";");
+
+    var img = document.createElement("img");
+    img.id = "aiRuntimeImageZoomImg";
+    img.alt = "확대 이미지";
+    img.style.cssText = [
+      "display:block",
+      "width:auto",
+      "max-width:none",
+      "height:auto",
+      "max-height:none",
+      "background:#fff",
+      "box-shadow:0 18px 50px rgba(0,0,0,.42)"
+    ].join(";");
+
+    if(window.innerWidth <= 480){
+      img.style.width = "100vw";
+      img.style.minWidth = "100vw";
+    }
+
+    close.addEventListener("click", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      window.closeAiImageZoom();
+    });
+
+    backdrop.addEventListener("click", function(e){
+      if(e.target === backdrop) window.closeAiImageZoom();
+    });
+
+    wrap.appendChild(img);
+    backdrop.appendChild(title);
+    backdrop.appendChild(close);
+    backdrop.appendChild(wrap);
+    document.body.appendChild(backdrop);
+    return backdrop;
+  }
+
+  window.openAiImageZoom = function(src, title){
+    if(!src) return false;
+
+    var backdrop = ensureAiRuntimeZoomLayer();
+    var img = document.getElementById("aiRuntimeImageZoomImg");
+    var titleEl = document.getElementById("aiRuntimeImageZoomTitle");
+
+    if(!backdrop || !img) return false;
+
+    img.src = src;
+    img.alt = title || "확대 이미지";
+    if(titleEl) titleEl.textContent = title || "이미지 확대 보기";
+
+    backdrop.style.display = "block";
+    backdrop.setAttribute("aria-hidden", "false");
+    backdrop.scrollTop = 0;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    return false;
+  };
+
+  window.closeAiImageZoom = function(){
+    var backdrop = document.getElementById("aiRuntimeImageZoomBackdrop");
+    var img = document.getElementById("aiRuntimeImageZoomImg");
+    if(backdrop){
+      backdrop.style.display = "none";
+      backdrop.setAttribute("aria-hidden", "true");
+    }
+    if(img) img.removeAttribute("src");
+
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+    return false;
+  };
+
+  window.openAiImageZoomFromElement = function(el){
+    if(!el) return false;
+    var img = el.tagName === "IMG" ? el : (el.querySelector ? el.querySelector("img") : null);
+    if(!img) return false;
+
+    var src =
+      el.getAttribute("data-ai-image-src") ||
+      img.currentSrc ||
+      img.src ||
+      "";
+
+    var title =
+      el.getAttribute("data-ai-image-title") ||
+      img.getAttribute("alt") ||
+      "이미지 확대 보기";
+
+    return window.openAiImageZoom(src, title);
+  };
+
+  document.addEventListener("click", function(e){
+    var target = e.target && e.target.closest
+      ? e.target.closest("[data-ai-image-zoom='1'], [data-ai-attachment-image='true'], .ai-attachment-image-card img")
+      : null;
+
+    if(!target) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    window.openAiImageZoomFromElement(target);
+  }, true);
+
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") window.closeAiImageZoom();
+  });
+})();
+</script>
+
 </body></html>
