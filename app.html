@@ -16398,7 +16398,7 @@ function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
 
 function isExplicitAiBenefitQuestion(question='', answer=''){
  const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
- return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페)/.test(q);
+ return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|점심|저녁|밥|가족|비오는날|날씨)/.test(q);
 }
 
 function isApartmentLifeKnowledgeQuestion(question='', answer=''){
@@ -16413,10 +16413,63 @@ function isAiDialogCandidateConfirmAnswer(finalText='', question=''){
 }
 
 
+
+function normalizeAiAttachmentTitleText(value=''){
+ return normalizeAiSearchText(value || '')
+   .replace(/처리안내|이용안내|안내문|안내|방법|정보|관련|자료|수수료|리스트|목록/g,'')
+   .trim();
+}
+
+function isAiKnowledgeAttachmentQuestion(question=''){
+ const q = normalizeAiSearchText(question || '');
+ if(!q) return false;
+ if(/(최근공지|공지알려|공지사항|혜택매장추천|혜택추천|매장추천|지도혜택|인기|TOP5|TOP\s*5|탑5|가까운|근처|할인매장|혜택매장|데이트|아이와|점심|저녁|밥|카페추천|맛집추천)/.test(q)) return false;
+ return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커|전자책|가이드|FAQ|faq|안내)/.test(q);
+}
+
+function getMatchedAiKnowledgeAttachmentsStrict(question='', answer=''){
+ if(!isAiKnowledgeAttachmentQuestion(question)) return [];
+ const qNorm = normalizeAiAttachmentTitleText(question);
+ if(!qNorm) return [];
+
+ const list = Array.isArray(state.aiKnowledge) ? state.aiKnowledge : [];
+ const scored = [];
+
+ list.forEach(item => {
+   const attachments = Array.isArray(item.attachments) ? item.attachments.filter(a => a && (a.url || a.path || a.name)) : [];
+   if(!attachments.length) return;
+
+   const typeText = normalizeAiSearchText(item.type || item.category || '');
+   const isKnowledgeType = /(faq|전자책|가이드|생활|안내|booklet|guide)/.test(typeText);
+   if(!isKnowledgeType) return;
+
+   const title = item.question || item.title || item.name || item.keywords || '';
+   const titleNorm = normalizeAiAttachmentTitleText(Array.isArray(title) ? title.join(' ') : title);
+   const keywordNorm = normalizeAiAttachmentTitleText(Array.isArray(item.keywords) ? item.keywords.join(' ') : (item.keywords || ''));
+   const contentNorm = normalizeAiAttachmentTitleText(`${item.answer || ''} ${item.content || ''}`);
+
+   let score = 0;
+   if(titleNorm && titleNorm === qNorm) score += 100;
+   if(titleNorm && (titleNorm.includes(qNorm) || qNorm.includes(titleNorm))) score += 70;
+   if(keywordNorm && (keywordNorm.includes(qNorm) || qNorm.includes(keywordNorm))) score += 45;
+
+   // 핵심어 교집합 기준: 대형폐기물 -> 대형폐기물 처리 안내 허용
+   const qTokens = (qNorm.match(/[가-힣a-z0-9]{2,}/g) || []).filter(t => t.length >= 2);
+   qTokens.forEach(t => {
+     if(titleNorm.includes(t)) score += 18;
+     else if(keywordNorm.includes(t)) score += 12;
+     else if(contentNorm.includes(t)) score += 4;
+   });
+
+   if(score >= 35) scored.push({ item, attachments, score });
+ });
+
+ scored.sort((a,b)=>b.score-a.score);
+ return scored.slice(0, 2).flatMap(v => v.attachments).slice(0, 6);
+}
+
 function shouldShowAiKnowledgeAttachments(question='', answer=''){
- const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
- if(/(최근공지|공지알려|공지사항|혜택매장추천|혜택추천|매장추천|지도혜택|인기|TOP5|TOP\s*5|탑5|가까운|근처|할인매장|혜택매장)/.test(q)) return false;
- return isApartmentLifeKnowledgeQuestion(question, answer) || /(전자책|가이드|faq|안내문|수수료|스티커|이미지|첨부파일|파일|문서|다운로드)/.test(q);
+ return getMatchedAiKnowledgeAttachmentsStrict(question, answer).length > 0;
 }
 
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
@@ -16449,7 +16502,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
  const personalSummary = getAiPersonalSummary();
  const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
- const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachments(question, cleaned)) : '';
+ const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
@@ -16476,8 +16529,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const shouldShowBenefitCards =
    !isApartmentLifePhoneQuestion(question, cleaned) &&
    !isApartmentLifeKnowledgeQuestion(question, cleaned) &&
-   isExplicitAiBenefitQuestion(question, cleaned) &&
-   !(hasAiKnowledgeAttachments && !isExplicitAiBenefitQuestion(question, cleaned)) &&
+   !hasAiKnowledgeAttachments &&
    !!benefitCards;
  return `
  <div class="ai-answer ai-answer-upgrade">
