@@ -4266,6 +4266,8 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         const fileRef = storageRef(storage, path);
         const uploadTask = uploadBytesResumable(fileRef, file, {
           contentType: file.type || 'application/octet-stream',
+          // Firebase Storage가 브라우저에서 새창 미리보기로 열지 않고 다운로드로 처리하도록 설정
+          contentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(file.name || 'attachment')}`,
           customMetadata:{ source:'myhills-ai-admin', collectionName, docId }
         });
         await new Promise((resolve, reject) => uploadTask.on('state_changed', null, reject, resolve));

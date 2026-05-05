@@ -2544,8 +2544,6 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-attachment-file-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;text-decoration:none;color:#0f172a;font-size:12px;font-weight:1000}
 .ai-attachment-file-link span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ai-attachment-file-link em{font-style:normal;color:#2563eb;flex:0 0 auto}
-.ai-attachment-download-btn{width:100%;font:inherit;cursor:pointer}
-.ai-attachment-download-btn:active{transform:scale(.99)}
 
 @keyframes aiStreamPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.35)}50%{box-shadow:0 0 0 7px rgba(34,197,94,0)}}
 @keyframes aiCursorBlink{0%,45%{opacity:1}46%,100%{opacity:.08}}
@@ -15311,41 +15309,6 @@ function renderCalendarDayModal(){
  }
  }
 
- function buildAiAttachmentDownloadUrl(url='', fileName='첨부파일'){
- try{
- const target = new URL(String(url || ''), location.href);
- const safeName = String(fileName || '첨부파일').replace(/[\\/:*?"<>|]+/g, '_').trim() || '첨부파일';
- const disposition = `attachment; filename*=UTF-8''${encodeURIComponent(safeName)}`;
- target.searchParams.set('response-content-disposition', disposition);
- return target.toString();
- }catch(error){
- return String(url || '');
- }
- }
-
- function downloadAiAttachmentDirect(url='', fileName='첨부파일'){
- const href = buildAiAttachmentDownloadUrl(url, fileName);
- if(!href) return;
- const a = document.createElement('a');
- a.href = href;
- a.download = String(fileName || '첨부파일');
- a.rel = 'noopener';
- a.style.display = 'none';
- document.body.appendChild(a);
- a.click();
- setTimeout(() => a.remove(), 800);
- }
-
- window.downloadAiAttachmentDirect = downloadAiAttachmentDirect;
-
- document.addEventListener('click', (event) => {
- const btn = event.target?.closest?.('[data-ai-download-url]');
- if(!btn) return;
- event.preventDefault();
- event.stopPropagation();
- downloadAiAttachmentDirect(btn.dataset.aiDownloadUrl || '', btn.dataset.aiDownloadName || '첨부파일');
- });
-
  function buildAiAttachmentsHtml(matches=[]){
  const attachments = [];
  (matches || []).forEach(({item}) => {
@@ -15362,8 +15325,8 @@ function renderCalendarDayModal(){
  if(!unique.length) return '';
  const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
- const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button type="button" class="ai-attachment-download-link ai-attachment-download-btn" data-ai-download-url="${escapeAttr(a.url)}" data-ai-download-name="${escapeAttr(a.name || '안내 이미지')}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
- const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button type="button" class="ai-attachment-file-link ai-attachment-download-btn" data-ai-download-url="${escapeAttr(a.url)}" data-ai-download-name="${escapeAttr(a.name || '첨부파일')}"><span>📎 ${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><a class="ai-attachment-download-link" href="${escapeAttr(a.url)}" download="${escapeAttr(a.name || 'image')}" rel="noopener"><span>이미지 저장</span><em>다운로드</em></a></div></div>`).join('')}</div>` : '';
+ const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<a class="ai-attachment-file-link" href="${escapeAttr(a.url)}" download="${escapeAttr(a.name || 'attachment')}" rel="noopener"><span>📎 ${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></a>`).join('')}</div>` : '';
  return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${imageHtml}${fileHtml}</div>`;
  }
 
