@@ -16412,6 +16412,13 @@ function isAiDialogCandidateConfirmAnswer(finalText='', question=''){
  return /찾으시려는건가요/.test(text) && /맞다고말씀해주시면/.test(text);
 }
 
+
+function shouldShowAiKnowledgeAttachments(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ if(/(최근공지|공지알려|공지사항|혜택매장추천|혜택추천|매장추천|지도혜택|인기|TOP5|TOP\s*5|탑5|가까운|근처|할인매장|혜택매장)/.test(q)) return false;
+ return isApartmentLifeKnowledgeQuestion(question, answer) || /(전자책|가이드|faq|안내문|수수료|스티커|이미지|첨부파일|파일|문서|다운로드)/.test(q);
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
@@ -16442,7 +16449,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
  const personalSummary = getAiPersonalSummary();
  const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
- const aiAttachmentHtml = buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachments(question, cleaned));
+ const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachments(question, cleaned)) : '';
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
