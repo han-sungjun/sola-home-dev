@@ -5736,6 +5736,86 @@ body:has(#view-calendar:not(.hidden)) .app{
 
 
 /* ===== AI 첨부 이미지 확대 보기 ===== */
+.ai-image-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.ai-image-zoom-backdrop.show{display:flex;}
+.ai-image-zoom-card{
+  position:relative;
+  width:min(100%,460px);
+  max-height:92dvh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  border-radius:24px;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 30px 70px rgba(15,23,42,.32);
+  border:1px solid rgba(255,255,255,.72);
+}
+.ai-image-zoom-scroll{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(92dvh - 78px);
+  border-radius:18px;
+  background:#f8fafc;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-img{
+  display:block;
+  max-width:100%;
+  width:auto;
+  height:auto;
+  border-radius:16px;
+  object-fit:contain;
+}
+.ai-image-zoom-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:2px 2px 0;
+}
+.ai-image-zoom-title{
+  min-width:0;
+  flex:1;
+  font-size:13px;
+  font-weight:900;
+  color:#334155;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ai-image-zoom-close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:14px;
+  background:#0f172a;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.ai-attachment-preview-img,
+.ai-attachment-card img,
+.ai-answer-attachments img{
+  cursor:zoom-in;
+}
+
+
 /* ===== AI 첨부파일 아이콘 / 안내 / 이미지 확대 ===== */
 .ai-attachment-guide{
   margin:8px 0 10px;
@@ -5863,79 +5943,68 @@ body:has(#view-calendar:not(.hidden)) .app{
 }
 
 
-/* ===== AI 첨부 이미지 전체화면 확대 팝업 ===== */
+/* ===== AI 첨부 이미지 전체화면 확대 팝업 - 강제 적용 ===== */
 .ai-image-zoom-backdrop{
-  position:fixed;
-  inset:0;
-  z-index:2147483000;
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483000!important;
   display:none;
-  background:rgba(0,0,0,.92);
+  background:rgba(0,0,0,.94)!important;
   overflow:hidden;
 }
-.ai-image-zoom-backdrop.show{
-  display:block;
-}
+.ai-image-zoom-backdrop.show{display:block!important;}
 .ai-image-zoom-close{
-  position:fixed;
-  top:calc(12px + env(safe-area-inset-top,0px));
-  right:14px;
-  z-index:2147483002;
-  width:44px;
-  height:44px;
-  border:none;
-  border-radius:999px;
-  background:rgba(15,23,42,.88);
-  color:#fff;
-  font-size:25px;
-  font-weight:900;
-  line-height:1;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  box-shadow:0 12px 28px rgba(0,0,0,.32);
-  -webkit-tap-highlight-color:transparent;
+  position:fixed!important;
+  top:calc(12px + env(safe-area-inset-top,0px))!important;
+  right:14px!important;
+  z-index:2147483002!important;
+  width:46px!important;
+  height:46px!important;
+  border:none!important;
+  border-radius:999px!important;
+  background:rgba(15,23,42,.92)!important;
+  color:#fff!important;
+  font-size:26px!important;
+  font-weight:900!important;
+  display:grid!important;
+  place-items:center!important;
+  cursor:pointer!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.34)!important;
 }
 .ai-image-zoom-title{
-  position:fixed;
-  left:14px;
-  right:70px;
-  top:calc(18px + env(safe-area-inset-top,0px));
-  z-index:2147483001;
-  color:#fff;
-  font-size:13px;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  opacity:.92;
-  pointer-events:none;
+  position:fixed!important;
+  left:14px!important;
+  right:74px!important;
+  top:calc(19px + env(safe-area-inset-top,0px))!important;
+  z-index:2147483001!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
 }
 .ai-image-zoom-scroll{
-  position:absolute;
-  inset:0;
-  overflow:auto;
-  -webkit-overflow-scrolling:touch;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  padding:calc(62px + env(safe-area-inset-top,0px)) 0 calc(24px + env(safe-area-inset-bottom,0px));
+  position:absolute!important;
+  inset:0!important;
+  overflow:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(24px + env(safe-area-inset-bottom,0px))!important;
 }
 .ai-image-zoom-img{
-  display:block;
+  display:block!important;
   width:auto;
-  max-width:none;
-  height:auto;
-  min-width:320px;
-  max-height:none;
-  object-fit:contain;
-  background:#fff;
-  box-shadow:0 18px 50px rgba(0,0,0,.42);
+  max-width:none!important;
+  height:auto!important;
+  max-height:none!important;
+  background:#fff!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.42)!important;
 }
 @media (max-width:480px){
-  .ai-image-zoom-img{
-    width:100vw;
-    min-width:100vw;
-  }
+  .ai-image-zoom-img{width:100vw!important;min-width:100vw!important;}
 }
 .ai-attachment-image-preview,
 .ai-attachment-image-preview img,
@@ -5943,8 +6012,29 @@ body:has(#view-calendar:not(.hidden)) .app{
 [data-ai-attachment-image="true"]{
   cursor:zoom-in!important;
 }
+.ai-attachment-image-preview{
+  position:relative!important;
+  border:none!important;
+  padding:0!important;
+  background:transparent!important;
+  display:block!important;
+  width:100%!important;
+  -webkit-tap-highlight-color:transparent;
+}
 .ai-attachment-zoom-badge{
-  pointer-events:none;
+  position:absolute!important;
+  right:10px!important;
+  bottom:10px!important;
+  width:38px!important;
+  height:38px!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(15,23,42,.92)!important;
+  color:#fff!important;
+  font-size:18px!important;
+  box-shadow:0 10px 22px rgba(15,23,42,.22)!important;
+  pointer-events:none!important;
 }
 
 </style>
@@ -15637,7 +15727,7 @@ function getAiAttachmentType(item={}){
  if(!unique.length) return '';
  const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
- const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true"><span class="ai-attachment-zoom-badge" aria-hidden="true">🔍</span></button><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this) : false;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this.closest('[data-ai-image-zoom]') || this) : false;"><span class="ai-attachment-zoom-badge" aria-hidden="true">🔍</span></button><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
  const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span><span class="ai-attachment-file-icon">${getAiAttachmentIcon(a)}</span>${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
  const guideText = getAiAttachmentGuideText(unique);
  const guideHtml = guideText ? `<div class="ai-attachment-guide">${escapeHtml(guideText)}</div>` : '';
@@ -19673,23 +19763,23 @@ if(window.MutationObserver){
 <!-- AI 첨부 이미지 전체화면 확대 팝업 -->
 <div id="aiImageZoomBackdrop" class="ai-image-zoom-backdrop" aria-hidden="true">
   <div id="aiImageZoomTitle" class="ai-image-zoom-title">이미지 확대 보기</div>
-  <button type="button" id="aiImageZoomCloseBtn" class="ai-image-zoom-close" aria-label="닫기">×</button>
+  <button type="button" id="aiImageZoomCloseBtn" class="ai-image-zoom-close" aria-label="닫기" onclick="window.closeAiImageZoom && window.closeAiImageZoom()">×</button>
   <div id="aiImageZoomScroll" class="ai-image-zoom-scroll">
     <img id="aiImageZoomImg" class="ai-image-zoom-img" src="" alt="확대 이미지">
   </div>
 </div>
 
 <script>
-/* ===== AI 첨부 이미지 전체화면 클릭 확대 ===== */
+/* ===== AI 첨부 이미지 전체화면 확대 - 직접 호출형 ===== */
 (function(){
-  function qs(id){ return document.getElementById(id); }
+  function byId(id){ return document.getElementById(id); }
 
-  function openZoom(src, title){
-    const backdrop = qs("aiImageZoomBackdrop");
-    const img = qs("aiImageZoomImg");
-    const titleEl = qs("aiImageZoomTitle");
-    const scroll = qs("aiImageZoomScroll");
-    if(!backdrop || !img || !src) return;
+  window.openAiImageZoom = function(src, title){
+    var backdrop = byId("aiImageZoomBackdrop");
+    var img = byId("aiImageZoomImg");
+    var titleEl = byId("aiImageZoomTitle");
+    var scroll = byId("aiImageZoomScroll");
+    if(!backdrop || !img || !src) return false;
 
     img.src = src;
     img.alt = title || "확대 이미지";
@@ -19700,73 +19790,57 @@ if(window.MutationObserver){
     backdrop.setAttribute("aria-hidden", "false");
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
-  }
+    return false;
+  };
 
-  function closeZoom(){
-    const backdrop = qs("aiImageZoomBackdrop");
-    const img = qs("aiImageZoomImg");
-    if(!backdrop || !img) return;
+  window.closeAiImageZoom = function(){
+    var backdrop = byId("aiImageZoomBackdrop");
+    var img = byId("aiImageZoomImg");
+    if(!backdrop || !img) return false;
 
     backdrop.classList.remove("show");
     backdrop.setAttribute("aria-hidden", "true");
     img.removeAttribute("src");
     document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
-  }
+    return false;
+  };
 
-  window.openAiImageZoom = openZoom;
-  window.closeAiImageZoom = closeZoom;
+  window.openAiImageZoomFromElement = function(el){
+    if(!el) return false;
+    var img = el.tagName === "IMG" ? el : el.querySelector && el.querySelector("img");
+    if(!img) return false;
+    var src = el.getAttribute("data-ai-image-src") || img.currentSrc || img.src || "";
+    var title = el.getAttribute("data-ai-image-title") || img.alt || "이미지 확대 보기";
+    return window.openAiImageZoom(src, title);
+  };
 
   document.addEventListener("click", function(e){
-    const closeBtn = e.target && e.target.closest ? e.target.closest("#aiImageZoomCloseBtn") : null;
+    var closeBtn = e.target && e.target.closest ? e.target.closest("#aiImageZoomCloseBtn") : null;
     if(closeBtn){
       e.preventDefault();
       e.stopPropagation();
-      closeZoom();
+      window.closeAiImageZoom();
       return;
     }
 
-    const backdrop = qs("aiImageZoomBackdrop");
+    var backdrop = byId("aiImageZoomBackdrop");
     if(e.target === backdrop){
       e.preventDefault();
-      closeZoom();
+      window.closeAiImageZoom();
       return;
     }
 
-    const zoomTarget = e.target && e.target.closest ? e.target.closest("[data-ai-image-zoom='1'], .ai-attachment-image-card img, [data-ai-attachment-image='true']") : null;
-    if(!zoomTarget) return;
-
-    const card = zoomTarget.closest ? zoomTarget.closest(".ai-attachment-image-card") : null;
-    const img = zoomTarget.tagName === "IMG" ? zoomTarget : (zoomTarget.querySelector ? zoomTarget.querySelector("img") : null);
-
-    const isAttachmentImage =
-      zoomTarget.matches?.("[data-ai-image-zoom='1']") ||
-      zoomTarget.matches?.("[data-ai-attachment-image='true']") ||
-      !!(card && img);
-
-    if(!isAttachmentImage || !img) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const src =
-      zoomTarget.dataset?.aiImageSrc ||
-      img.currentSrc ||
-      img.src ||
-      "";
-
-    const title =
-      zoomTarget.dataset?.aiImageTitle ||
-      img.dataset?.aiAttachmentName ||
-      img.alt ||
-      card?.querySelector?.(".ai-attachment-caption")?.textContent?.replace(/^🖼️\s*/, "") ||
-      "이미지 확대 보기";
-
-    openZoom(src, title);
+    var target = e.target && e.target.closest ? e.target.closest("[data-ai-image-zoom='1'], [data-ai-attachment-image='true'], .ai-attachment-image-card img") : null;
+    if(target){
+      e.preventDefault();
+      e.stopPropagation();
+      window.openAiImageZoomFromElement(target);
+    }
   }, true);
 
   document.addEventListener("keydown", function(e){
-    if(e.key === "Escape") closeZoom();
+    if(e.key === "Escape") window.closeAiImageZoom();
   });
 })();
 </script>
