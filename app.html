@@ -16395,6 +16395,17 @@ function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
  return /(전화번호|전화|연락처|번호|콜|통화)/.test(q);
  }
 
+
+function isExplicitAiBenefitQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페)/.test(q);
+}
+
+function isApartmentLifeKnowledgeQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커)/.test(q);
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
@@ -16440,6 +16451,13 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
  </div>
  </div>`).join('');
+ const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
+ const shouldShowBenefitCards =
+   !isApartmentLifePhoneQuestion(question, cleaned) &&
+   !isApartmentLifeKnowledgeQuestion(question, cleaned) &&
+   isExplicitAiBenefitQuestion(question, cleaned) &&
+   !(hasAiKnowledgeAttachments && !isExplicitAiBenefitQuestion(question, cleaned)) &&
+   !!benefitCards;
  return `
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
@@ -16448,7 +16466,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  ${dialogButtons}
  ${locationMapCard}
  ${aiAttachmentHtml}
- ${(!isApartmentLifePhoneQuestion(question, cleaned) && benefitCards) ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
+ ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  <span class="ai-mode-pill upgraded">상황에 맞는 정보를 준비했어요.</span>
  </div>`;
  }
