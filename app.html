@@ -19337,4 +19337,46 @@ if(window.MutationObserver){
 
 </script>
 
+
+<script>
+/* ===== AI 첨부파일 다운로드: Cloud Run 다운로드 API 연결 ===== */
+(function(){
+  const AI_ATTACHMENT_DOWNLOAD_BASE = "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+
+  function resolveAiAttachmentPath(input){
+    if (!input) return "";
+    if (typeof input === "string") return input;
+    if (input.dataset) return input.dataset.path || input.dataset.filePath || input.dataset.storagePath || "";
+    return "";
+  }
+
+  function resolveAiAttachmentName(input, fallback){
+    if (fallback) return fallback;
+    if (input && input.dataset) return input.dataset.name || input.dataset.fileName || "download";
+    return "download";
+  }
+
+  window.downloadAiAttachment = function(path, name){
+    const safePath = resolveAiAttachmentPath(path);
+    const safeName = resolveAiAttachmentName(path, name);
+
+    if (!safePath) {
+      alert("다운로드 경로가 없습니다.");
+      return;
+    }
+
+    const url =
+      AI_ATTACHMENT_DOWNLOAD_BASE +
+      "/download-ai-attachment?path=" + encodeURIComponent(safePath) +
+      "&name=" + encodeURIComponent(safeName || "download");
+
+    window.location.href = url;
+  };
+
+  window.downloadAiAttachmentByDataset = function(button){
+    window.downloadAiAttachment(button, null);
+  };
+})();
+</script>
+
 </body></html>
