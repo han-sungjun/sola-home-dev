@@ -15992,7 +15992,7 @@ function getAiAttachmentType(item={}){
  const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
  if(mapped.length) return mapped;
  const qNorm = normalizeAiSearchText(question || '');
- const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|점심|저녁|밥|카페|맛집|디저트|비오는날|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
+ const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
  if(explicitRecommendation){
    const fallback = (state.benefits || [])
      .filter(item => item && item.visible !== false && item.id)
@@ -16432,7 +16432,7 @@ function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
 
 function isExplicitAiBenefitQuestion(question='', answer=''){
  const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
- return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|점심|저녁|밥|가족|비오는날|날씨)/.test(q);
+ return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|점심|저녁|밥|가족|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은)/.test(q);
 }
 
 function isApartmentLifeKnowledgeQuestion(question='', answer=''){
@@ -16767,7 +16767,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  </div>
  </div>`).join('');
  const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
- // 혜택/매장 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
+ // 혜택/매장/날씨 기반 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
  // 단, 대형폐기물/생활안내처럼 실제 첨부파일을 보여주는 질문은 혜택 카드를 숨깁니다.
  const isExplicitBenefitCardIntent = isExplicitAiBenefitQuestion(question, '');
  const shouldHideBenefitCardsForKnowledge = isApartmentLifeKnowledgeQuestion(question, cleaned) && !isExplicitBenefitCardIntent;
