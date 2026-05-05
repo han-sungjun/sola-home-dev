@@ -4266,14 +4266,42 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       return `${(n / 1024 / 1024).toFixed(1)}MB`;
     }
 
+    const AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV = {
+      dev: 'https://ai-stream-server-dev-292137041544.asia-northeast3.run.app',
+      prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app'
+    };
+
+    function getAiAttachmentDownloadBase(){
+      const globalBase = String(window.AI_ATTACHMENT_DOWNLOAD_BASE || window.AI_STREAM_SERVER_BASE_URL || '').trim();
+      if(globalBase) return globalBase.replace(/\/?stream\/?$/, '').replace(/\/+$/, '');
+      return (AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV[ENV] || AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV.prod || '').replace(/\/+$/, '');
+    }
+
+    function getAiAttachmentDownloadPath(a={}){
+      return a.path || a.storagePath || a.filePath || '';
+    }
+
     function buildAiAttachmentDownloadUrl(a={}){
-      return a.url || '';
+      const path = getAiAttachmentDownloadPath(a);
+      const base = getAiAttachmentDownloadBase();
+      if(!path || !base) return '';
+      return `${base}/download-ai-attachment?path=${encodeURIComponent(path)}&name=${encodeURIComponent(a.name || 'attachment')}`;
     }
 
     function getAiAttachmentDownloadButtonHtml(a={}, label='다운로드'){
+      const path = getAiAttachmentDownloadPath(a);
       const url = buildAiAttachmentDownloadUrl(a);
-      if(!url) return '';
-      return `<a class="ai-attachment-download" href="${escapeHtml(url)}" target="_blank" rel="noopener" download="${escapeHtml(a.name || 'attachment')}">${escapeHtml(label)}</a>`;
+      if(!path || !url) return '';
+      return `<button class="ai-attachment-download" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeHtml(path)}" data-ai-attachment-name="${escapeHtml(a.name || 'attachment')}">${escapeHtml(label)}</button>`;
+    }
+
+    function downloadAiAttachmentFromButton(button){
+      const path = button?.dataset?.aiAttachmentPath || '';
+      const name = button?.dataset?.aiAttachmentName || 'attachment';
+      const base = getAiAttachmentDownloadBase();
+      if(!path){ openModalAlert('다운로드 경로가 없습니다.'); return; }
+      if(!base){ openModalAlert('다운로드 서버 주소가 설정되지 않았습니다.'); return; }
+      window.location.href = `${base}/download-ai-attachment?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
     }
 
     function getAiAttachmentDownloadsHtml(d={}){
@@ -4285,7 +4313,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         return `<div class="ai-attachment-item">
           <div class="ai-attachment-left">
             ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
-            <span class="ai-attachment-name"><a href="${escapeHtml(a.url)}" target="_blank" rel="noopener">${escapeHtml(a.name || '첨부파일')}</a><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
+            <span class="ai-attachment-name"><span style="font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;">${escapeHtml(a.name || '첨부파일')}</span><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
           </div>
           <div class="ai-attachment-actions">${getAiAttachmentDownloadButtonHtml(a, isImage ? '이미지 저장' : '파일 받기')}</div>
         </div>`;
@@ -4303,7 +4331,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         return `<div class="ai-attachment-item">
           <div class="ai-attachment-left">
             ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
-            <span class="ai-attachment-name"><a href="${escapeHtml(a.url)}" target="_blank" rel="noopener">${escapeHtml(a.name || '첨부파일')}</a><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
+            <span class="ai-attachment-name"><span style="font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;">${escapeHtml(a.name || '첨부파일')}</span><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
           </div>
           <div class="ai-attachment-actions">
             ${getAiAttachmentDownloadButtonHtml(a, isImage ? '이미지 저장' : '파일 받기')}
@@ -4980,6 +5008,13 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     }
 
     document.addEventListener('click', async (event) => {
+      const downloadBtn = event.target.closest('[data-ai-attachment-download]');
+      if(downloadBtn){
+        event.preventDefault();
+        event.stopPropagation();
+        return downloadAiAttachmentFromButton(downloadBtn);
+      }
+
       const tabBtn = event.target.closest('[data-ai-tab]');
       if(tabBtn && !tabBtn.closest('#aiManagerTabs')) openAIManager(tabBtn.dataset.aiTab);
 
