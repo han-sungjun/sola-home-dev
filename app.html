@@ -15713,8 +15713,20 @@ function getAiAttachmentType(item={}){
 
  function buildAiAttachmentsHtml(matches=[]){
  const attachments = [];
- (matches || []).forEach(({item}) => {
- (item.attachments || []).forEach(a => attachments.push({ ...a, sourceTitle: item.title || item.question || item.section || 'AI 안내' }));
+ const sourceList = Array.isArray(matches) ? matches : [];
+ sourceList.forEach(entry => {
+   // 1) 기존 매칭 객체 형태: { item, score }
+   if(entry && entry.item){
+     const item = entry.item || {};
+     (Array.isArray(item.attachments) ? item.attachments : []).forEach(a => {
+       if(a) attachments.push({ ...a, sourceTitle: item.title || item.question || item.section || 'AI 안내' });
+     });
+     return;
+   }
+   // 2) 엄격 매칭 함수가 바로 첨부파일 배열을 반환하는 형태도 허용
+   if(entry && (entry.url || entry.path || entry.name || entry.fileName)){
+     attachments.push({ ...entry, name: entry.name || entry.fileName || '첨부파일', sourceTitle: entry.sourceTitle || 'AI 안내' });
+   }
  });
  const unique = [];
  const seen = new Set();
@@ -15979,6 +15991,28 @@ function getAiAttachmentType(item={}){
  function extractAiBenefitCards(finalText='', maxCount=3, question=''){
  const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
  if(mapped.length) return mapped;
+ const qNorm = normalizeAiSearchText(question || '');
+ const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|점심|저녁|밥|카페|맛집|디저트|비오는날|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
+ if(explicitRecommendation){
+   const fallback = (state.benefits || [])
+     .filter(item => item && item.visible !== false && item.id)
+     .map(item => {
+       const score = Number(item.popularScore || item.score || item.recommendScore || 0)
+         + Number(item.favoriteCount || 0) * 2
+         + Number(item.detailViewCount || 0) * 0.2
+         + Number(item.shareClickCount || 0) * 1.5
+         + (item.recommended ? 8 : 0)
+         + (item.isHot || item.hot ? 5 : 0);
+       const reasons = [];
+       if(item.recommended) reasons.push('추천 혜택');
+       if(item.category) reasons.push(item.category);
+       if(item.address) reasons.push('위치 정보 있음');
+       return { item, score: Math.max(4, score || 4), reason: reasons[0] || '혜택 추천', reasons: reasons.slice(0,4) };
+     })
+     .sort((a,b) => b.score - a.score)
+     .slice(0, maxCount);
+   if(fallback.length) return fallback;
+ }
  const text = normalizeAiSearchText(finalText);
  if(!text) return [];
  return (state.benefits || [])
