@@ -2721,6 +2721,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function uploadThumbnailFile(){
+      let uploadPath='';
       try{
         const fileInput=qs('#thumbnailFile');
         const file=fileInput?.files?.[0];
@@ -2729,12 +2730,28 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         const maxSize=5 * 1024 * 1024;
         if(file.size > maxSize){ await openModalAlert('이미지 용량은 5MB 이하로 업로드해주세요.', fileInput, '썸네일 업로드'); return; }
         if(!storage){ await openModalAlert('Firebase Storage 초기화가 완료되지 않았습니다. 새로고침 후 다시 시도해주세요.', null, '썸네일 업로드'); return; }
+        if(!auth?.currentUser){ await openModalAlert('관리자 로그인 상태가 확인되지 않아 업로드할 수 없습니다. 다시 로그인 후 시도해주세요.', null, '썸네일 업로드'); return; }
+
         const editId=(qs('#editId')?.value || 'new').trim() || 'new';
+        const benefitKey=editId === 'new' ? `draft_${auth.currentUser.uid}` : editId;
         const safeName=(file.name || 'thumbnail').replace(/[^a-zA-Z0-9._-]/g,'_');
-        const ext=safeName.includes('.') ? safeName.split('.').pop() : 'jpg';
-        const path=`benefit-thumbnails/${editId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-        const fileRef=storageRef(storage, path);
-        const uploadTask=uploadBytesResumable(fileRef, file, { contentType:file.type, customMetadata:{ source:'myhills-admin', benefitId:editId } });
+        const ext=(safeName.includes('.') ? safeName.split('.').pop() : 'jpg').toLowerCase();
+        const imageExt=['jpg','jpeg','png','webp','gif'].includes(ext) ? ext : 'jpg';
+
+        // Storage Rules와 일치하는 공통 경로입니다. 기존 benefit-thumbnails 경로는 사용하지 않습니다.
+        uploadPath=`ai-content/benefits/${benefitKey}/thumbnails/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${safeName.replace(/\.[^.]+$/,'')}.${imageExt}`;
+        console.info('[admin] thumbnail upload path', uploadPath);
+
+        const fileRef=storageRef(storage, uploadPath);
+        const uploadTask=uploadBytesResumable(fileRef, file, {
+          contentType:file.type,
+          contentDisposition:`inline; filename*=UTF-8''${encodeURIComponent(file.name || 'thumbnail')}`,
+          customMetadata:{
+            source:'myhills-admin-thumbnail',
+            benefitId:editId,
+            uploaderUid:auth.currentUser.uid
+          }
+        });
         const uploadBtn=qs('#thumbnailUploadBtn');
         if(uploadBtn) uploadBtn.disabled=true;
         setThumbnailUploadProgress(0,true);
@@ -2757,9 +2774,10 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         setThumbnailUploadStatus('업로드 완료! URL이 자동 입력되었습니다.', 'success');
         setTimeout(()=>setThumbnailUploadProgress(0,false), 900);
       }catch(e){
-        console.error('thumbnail upload error', e);
-        setThumbnailUploadStatus('업로드 실패: Storage 권한 또는 네트워크 상태를 확인해주세요.', 'error');
-        await openModalAlert('썸네일 업로드에 실패했습니다.\nFirebase Storage 규칙과 네트워크 상태를 확인해주세요.', null, '썸네일 업로드 오류');
+        console.error('thumbnail upload error', { code:e?.code, message:e?.message, uploadPath, error:e });
+        const code=e?.code ? ` (${e.code})` : '';
+        setThumbnailUploadStatus(`업로드 실패${code}: Storage 권한, 로그인 상태, 경로를 확인해주세요.`, 'error');
+        await openModalAlert(`썸네일 업로드에 실패했습니다${code}.\n경로: ${uploadPath || '생성 전'}\nFirebase Storage 규칙과 관리자 로그인 상태를 확인해주세요.`, null, '썸네일 업로드 오류');
       }finally{
         const uploadBtn=qs('#thumbnailUploadBtn');
         if(uploadBtn) uploadBtn.disabled=false;
