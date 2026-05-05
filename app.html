@@ -5736,87 +5736,18 @@ body:has(#view-calendar:not(.hidden)) .app{
 
 
 /* ===== AI 첨부 이미지 확대 보기 ===== */
-.ai-image-zoom-backdrop{
-  position:fixed;
-  inset:0;
-  z-index:10020;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:rgba(15,23,42,.72);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.ai-image-zoom-backdrop.show{display:flex;}
-.ai-image-zoom-card{
-  position:relative;
-  width:min(100%,460px);
-  max-height:92dvh;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  padding:12px;
-  border-radius:24px;
-  background:rgba(255,255,255,.98);
-  box-shadow:0 30px 70px rgba(15,23,42,.32);
-  border:1px solid rgba(255,255,255,.72);
-}
-.ai-image-zoom-scroll{
-  overflow:auto;
-  -webkit-overflow-scrolling:touch;
-  max-height:calc(92dvh - 78px);
-  border-radius:18px;
-  background:#f8fafc;
-  display:grid;
-  place-items:center;
-}
-.ai-image-zoom-img{
-  display:block;
-  max-width:100%;
-  width:auto;
-  height:auto;
-  border-radius:16px;
-  object-fit:contain;
-}
-.ai-image-zoom-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:2px 2px 0;
-}
-.ai-image-zoom-title{
-  min-width:0;
-  flex:1;
-  font-size:13px;
-  font-weight:900;
-  color:#334155;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.ai-image-zoom-close{
-  width:38px;
-  height:38px;
-  border:none;
-  border-radius:14px;
-  background:#0f172a;
-  color:#fff;
-  font-size:18px;
-  font-weight:900;
-  cursor:pointer;
-  display:grid;
-  place-items:center;
-}
-.ai-attachment-preview-img,
-.ai-attachment-card img,
-.ai-answer-attachments img{
-  cursor:zoom-in;
-}
-
-
 /* ===== AI 첨부파일 아이콘 / 안내 / 이미지 확대 ===== */
+.ai-attachment-guide{
+  margin:8px 0 10px;
+  padding:11px 13px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#475569;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.55;
+}
 .ai-attachment-image-preview{
   position:relative;
   display:block;
@@ -5932,10 +5863,89 @@ body:has(#view-calendar:not(.hidden)) .app{
 }
 
 
-/* ===== AI 첨부 이미지 렌더링 최적화 ===== */
-.ai-attachment-image-card{content-visibility:auto;contain-intrinsic-size:320px 420px}
-.ai-attachment-image-preview{min-height:220px;display:grid;place-items:center}
-.ai-attachment-image-preview img{max-height:260px;object-fit:contain}
+/* ===== AI 첨부 이미지 전체화면 확대 팝업 ===== */
+.ai-image-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  display:none;
+  background:rgba(0,0,0,.92);
+  overflow:hidden;
+}
+.ai-image-zoom-backdrop.show{
+  display:block;
+}
+.ai-image-zoom-close{
+  position:fixed;
+  top:calc(12px + env(safe-area-inset-top,0px));
+  right:14px;
+  z-index:2147483002;
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:999px;
+  background:rgba(15,23,42,.88);
+  color:#fff;
+  font-size:25px;
+  font-weight:900;
+  line-height:1;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  box-shadow:0 12px 28px rgba(0,0,0,.32);
+  -webkit-tap-highlight-color:transparent;
+}
+.ai-image-zoom-title{
+  position:fixed;
+  left:14px;
+  right:70px;
+  top:calc(18px + env(safe-area-inset-top,0px));
+  z-index:2147483001;
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:.92;
+  pointer-events:none;
+}
+.ai-image-zoom-scroll{
+  position:absolute;
+  inset:0;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:calc(62px + env(safe-area-inset-top,0px)) 0 calc(24px + env(safe-area-inset-bottom,0px));
+}
+.ai-image-zoom-img{
+  display:block;
+  width:auto;
+  max-width:none;
+  height:auto;
+  min-width:320px;
+  max-height:none;
+  object-fit:contain;
+  background:#fff;
+  box-shadow:0 18px 50px rgba(0,0,0,.42);
+}
+@media (max-width:480px){
+  .ai-image-zoom-img{
+    width:100vw;
+    min-width:100vw;
+  }
+}
+.ai-attachment-image-preview,
+.ai-attachment-image-preview img,
+.ai-attachment-image-card img,
+[data-ai-attachment-image="true"]{
+  cursor:zoom-in!important;
+}
+.ai-attachment-zoom-badge{
+  pointer-events:none;
+}
 
 </style>
  <style id="myhills-ios-safearea-fix">
@@ -15540,6 +15550,15 @@ function getAiAttachmentIcon(attachment={}){
  return '📎';
 }
 
+function getAiAttachmentGuideText(attachments=[]){
+ const list = Array.isArray(attachments) ? attachments : [];
+ const hasImage = list.some(a => getAiAttachmentType(a) === 'image');
+ const hasFile = list.some(a => getAiAttachmentType(a) !== 'image');
+ if(hasImage && hasFile) return '이미지와 파일이 있으니 참고하여 주시기 바랍니다. 이미지는 클릭하면 확대 가능하며 이미지와 파일 모두 다운로드 받을 수 있습니다.';
+ if(hasImage) return '이미지를 클릭하면 확대해서 확인이 가능하며, 필요 시 다운로드도 가능합니다.';
+ if(hasFile) return '파일을 다운받아서 확인이 가능합니다.';
+ return '';
+}
 
 function getAiAttachmentType(item={}){
  const mime = String(item.mimeType || item.type || '').toLowerCase();
@@ -15620,7 +15639,9 @@ function getAiAttachmentType(item={}){
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
  const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true"><span class="ai-attachment-zoom-badge" aria-hidden="true">🔍</span></button><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
  const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span><span class="ai-attachment-file-icon">${getAiAttachmentIcon(a)}</span>${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
- return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${imageHtml}${fileHtml}</div>`;
+ const guideText = getAiAttachmentGuideText(unique);
+ const guideHtml = guideText ? `<div class="ai-attachment-guide">${escapeHtml(guideText)}</div>` : '';
+ return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${guideHtml}${imageHtml}${fileHtml}</div>`;
  }
 
  function subscribeAiKnowledge(){
@@ -19648,71 +19669,104 @@ if(window.MutationObserver){
 
 
 
-<!-- AI 첨부 이미지 확대 보기 -->
+
+<!-- AI 첨부 이미지 전체화면 확대 팝업 -->
 <div id="aiImageZoomBackdrop" class="ai-image-zoom-backdrop" aria-hidden="true">
-  <div class="ai-image-zoom-card" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
-    <div class="ai-image-zoom-head">
-      <div id="aiImageZoomTitle" class="ai-image-zoom-title">이미지 확대 보기</div>
-      <button type="button" id="aiImageZoomCloseBtn" class="ai-image-zoom-close" aria-label="닫기">×</button>
-    </div>
-    <div class="ai-image-zoom-scroll">
-      <img id="aiImageZoomImg" class="ai-image-zoom-img" src="" alt="확대 이미지">
-    </div>
+  <div id="aiImageZoomTitle" class="ai-image-zoom-title">이미지 확대 보기</div>
+  <button type="button" id="aiImageZoomCloseBtn" class="ai-image-zoom-close" aria-label="닫기">×</button>
+  <div id="aiImageZoomScroll" class="ai-image-zoom-scroll">
+    <img id="aiImageZoomImg" class="ai-image-zoom-img" src="" alt="확대 이미지">
   </div>
 </div>
 
 <script>
-/* ===== AI 첨부 이미지 클릭 확대 보기 ===== */
+/* ===== AI 첨부 이미지 전체화면 클릭 확대 ===== */
 (function(){
-  function getZoomElements(){
-    return {
-      backdrop: document.getElementById("aiImageZoomBackdrop"),
-      img: document.getElementById("aiImageZoomImg"),
-      title: document.getElementById("aiImageZoomTitle"),
-      close: document.getElementById("aiImageZoomCloseBtn")
-    };
+  function qs(id){ return document.getElementById(id); }
+
+  function openZoom(src, title){
+    const backdrop = qs("aiImageZoomBackdrop");
+    const img = qs("aiImageZoomImg");
+    const titleEl = qs("aiImageZoomTitle");
+    const scroll = qs("aiImageZoomScroll");
+    if(!backdrop || !img || !src) return;
+
+    img.src = src;
+    img.alt = title || "확대 이미지";
+    if(titleEl) titleEl.textContent = title || "이미지 확대 보기";
+    if(scroll) scroll.scrollTop = 0;
+
+    backdrop.classList.add("show");
+    backdrop.setAttribute("aria-hidden", "false");
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
   }
 
-  window.openAiImageZoom = function(src, title){
-    const els = getZoomElements();
-    if (!els.backdrop || !els.img || !src) return;
-    els.img.src = src;
-    els.img.alt = title || "확대 이미지";
-    if (els.title) els.title.textContent = title || "이미지 확대 보기";
-    els.backdrop.classList.add("show");
-    els.backdrop.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  };
+  function closeZoom(){
+    const backdrop = qs("aiImageZoomBackdrop");
+    const img = qs("aiImageZoomImg");
+    if(!backdrop || !img) return;
 
-  window.closeAiImageZoom = function(){
-    const els = getZoomElements();
-    if (!els.backdrop || !els.img) return;
-    els.backdrop.classList.remove("show");
-    els.backdrop.setAttribute("aria-hidden", "true");
-    els.img.src = "";
+    backdrop.classList.remove("show");
+    backdrop.setAttribute("aria-hidden", "true");
+    img.removeAttribute("src");
+    document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
-  };
+  }
+
+  window.openAiImageZoom = openZoom;
+  window.closeAiImageZoom = closeZoom;
 
   document.addEventListener("click", function(e){
-    const zoomButton = e.target.closest ? e.target.closest("[data-ai-image-zoom='1']") : null;
-    if (zoomButton) {
+    const closeBtn = e.target && e.target.closest ? e.target.closest("#aiImageZoomCloseBtn") : null;
+    if(closeBtn){
       e.preventDefault();
       e.stopPropagation();
-      window.openAiImageZoom(
-        zoomButton.dataset.aiImageSrc || zoomButton.querySelector("img")?.src || "",
-        zoomButton.dataset.aiImageTitle || zoomButton.querySelector("img")?.alt || "이미지 확대 보기"
-      );
+      closeZoom();
       return;
     }
 
-    const backdrop = document.getElementById("aiImageZoomBackdrop");
-    if (e.target === backdrop || e.target?.id === "aiImageZoomCloseBtn") {
-      window.closeAiImageZoom();
+    const backdrop = qs("aiImageZoomBackdrop");
+    if(e.target === backdrop){
+      e.preventDefault();
+      closeZoom();
+      return;
     }
+
+    const zoomTarget = e.target && e.target.closest ? e.target.closest("[data-ai-image-zoom='1'], .ai-attachment-image-card img, [data-ai-attachment-image='true']") : null;
+    if(!zoomTarget) return;
+
+    const card = zoomTarget.closest ? zoomTarget.closest(".ai-attachment-image-card") : null;
+    const img = zoomTarget.tagName === "IMG" ? zoomTarget : (zoomTarget.querySelector ? zoomTarget.querySelector("img") : null);
+
+    const isAttachmentImage =
+      zoomTarget.matches?.("[data-ai-image-zoom='1']") ||
+      zoomTarget.matches?.("[data-ai-attachment-image='true']") ||
+      !!(card && img);
+
+    if(!isAttachmentImage || !img) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const src =
+      zoomTarget.dataset?.aiImageSrc ||
+      img.currentSrc ||
+      img.src ||
+      "";
+
+    const title =
+      zoomTarget.dataset?.aiImageTitle ||
+      img.dataset?.aiAttachmentName ||
+      img.alt ||
+      card?.querySelector?.(".ai-attachment-caption")?.textContent?.replace(/^🖼️\s*/, "") ||
+      "이미지 확대 보기";
+
+    openZoom(src, title);
   }, true);
 
   document.addEventListener("keydown", function(e){
-    if (e.key === "Escape") window.closeAiImageZoom();
+    if(e.key === "Escape") closeZoom();
   });
 })();
 </script>
