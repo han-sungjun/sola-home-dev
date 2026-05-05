@@ -11893,33 +11893,12 @@ async function refreshPushStatus(){
  return normalizeKoreaLatLng(item.lat, item.lng);
  }
 
-
- function getBenefitAddressParts(item = {}){
- const nested = item.addressParts || (item.address && typeof item.address === 'object' ? item.address : {});
- const road = String(item.roadAddress || nested.road || nested.roadAddress || '').trim();
- const jibun = String(item.jibunAddress || nested.jibun || nested.jibunAddress || '').trim();
- const detail = String(item.detailAddress || nested.detail || nested.detailAddress || '').trim();
- const legacy = String(typeof item.address === 'string' ? item.address : (item.displayAddress || nested.display || '')).trim();
- const main = road || jibun || legacy;
- const display = String(item.displayAddress || [main, detail].filter(Boolean).join(' ') || legacy).trim();
- return { road, jibun, detail, main, display };
- }
-
- function getBenefitDisplayAddress(item = {}){
- return getBenefitAddressParts(item).display;
- }
-
- function getBenefitSearchAddress(item = {}){
- const parts = getBenefitAddressParts(item);
- return parts.road || parts.jibun || parts.main || parts.display;
- }
-
  function hasBenefitLocation(item = {}){
  return !!getBenefitLatLng(item);
  }
 
  function buildMapSearchLink(item = {}){
- const keyword = String(getBenefitSearchAddress(item) || item.name || '').trim();
+ const keyword = String(item.address || item.name || '').trim();
  if(item.url) return item.url;
  if(keyword) return `https://map.naver.com/v5/search/${encodeURIComponent(keyword)}`;
  return 'https://map.naver.com/';
@@ -11931,7 +11910,7 @@ async function refreshPushStatus(){
  if(pos){
  return `https://map.naver.com/v5/directions/-/-/${pos.lng},${pos.lat},${name},PLACE_POI/-/transit`;
  }
- const keyword = encodeURIComponent(String(getBenefitSearchAddress(item) || item.name || '').trim());
+ const keyword = encodeURIComponent(String(item.address || item.name || '').trim());
  return keyword ? `https://map.naver.com/v5/search/${keyword}` : 'https://map.naver.com/';
  }
 
@@ -12297,7 +12276,7 @@ async function refreshPushStatus(){
  }
 
  function locationPanelHtml(item = {}){
- const address = String(getBenefitDisplayAddress(item) || '').trim();
+ const address = String(item.address || '').trim();
  const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
  const mapLink = buildMapSearchLink(item);
  const directionLink = buildDirectionLink(item);
@@ -12415,7 +12394,7 @@ async function refreshPushStatus(){
  discountValue:Number(item.discountValue||0),
  discountText:item.discountText||`${Number(item.discountValue||0)}%`,
  condition:item.condition||'',
- address:getBenefitDisplayAddress(item)||'',
+ address:item.address||'',
  phone:item.phone||'',
  url:item.url||'',
  imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',
@@ -12743,7 +12722,7 @@ function getShareTrackingParams(){
  function getShareDescription(type, item = {}){
  const raw = type === 'notice'
  ? (item.content || '입주민 전용 공지 바로가기')
- : (item.condition || getBenefitDisplayAddress(item) || '입주민 전용 혜택 바로가기');
+ : (item.condition || item.address || '입주민 전용 혜택 바로가기');
  return String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 90) || '더운정 마이힐스 바로가기';
  }
 
@@ -12826,7 +12805,7 @@ function getShareTrackingParams(){
  );
 
  const categoryLine = compactShareText(item.category || item.type || '', 20);
- const locationLine = compactShareText(getBenefitDisplayAddress(item) || item.location || item.place || '', 36);
+ const locationLine = compactShareText(item.address || item.location || item.place || '', 36);
 
  const lines = [];
 
@@ -14082,7 +14061,7 @@ ${item.content || ''}`);
  const items = getVisibleBenefits().filter(item => {
  const matchCategory = state.category === '전체' || normalizeCategory(item.category) === normalizeCategory(state.category);
  const q = state.keyword.trim().toLowerCase();
- const blob = [item.name,item.category,item.condition,getBenefitDisplayAddress(item),item.roadAddress,item.jibunAddress,item.detailAddress,item.phone].join(' ').toLowerCase();
+ const blob = [item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();
  const matchKeyword = !q || blob.includes(q);
  const matchFilter = state.filter === 'all' ? true : (item.discountValue >= 15 || item.recommended);
  const matchMode = mode === 'favorite' ? favorites.has(item.id) : true;
@@ -14128,8 +14107,7 @@ ${item.content || ''}`);
  const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag">🚶 ${formatDistance(distance)}</span>` : '';
  const categoryIcon = getCategoryIcon(item.category);
  const favIcon = isFavorite ? '★' : '☆';
- const fullAddress = getBenefitDisplayAddress(item);
- const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
+ const addressText = item.address.length > 20 ? item.address.slice(0,20) + '…' : item.address;
  return `${benefitTopBadgeHtml(item)}
  <div class="card-top">
  <div class="${getBadgeClass(item)}">${item.discountText}</div>
@@ -14461,7 +14439,7 @@ ${item.content || ''}`);
  <div class="calendar-info"><small>방문 예정</small><b>${escapeHtml(formatDateTimeKo(visitAt))}</b></div>
  <div class="calendar-info"><small>알림 시간</small><b>${escapeHtml(formatDateTimeKo(notifyAt))}</b></div>
  <div class="calendar-info"><small>전화번호</small><b>${escapeHtml(item.phone || '미등록')}</b></div>
- <div class="calendar-info"><small>주소</small><b>${escapeHtml(getBenefitDisplayAddress(item) || '미등록')}</b></div>
+ <div class="calendar-info"><small>주소</small><b>${escapeHtml(item.address || '미등록')}</b></div>
  </div>
  ${item.memo ? `<div class="calendar-info"><small>메모</small><b>${escapeHtml(item.memo)}</b></div>` : ''}
  <div class="calendar-item-actions">
@@ -14743,7 +14721,7 @@ function renderCalendarDayModal(){
  storeName: item.name || '',
  category: item.category || '',
  phone: item.phone || '',
- address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+ address: item.address || item.roadAddress || '',
  discountText: item.discountText || '',
  visitAt: visitAtDate,
  notifyAt: notifyAtDate,
@@ -15168,7 +15146,7 @@ function renderCalendarDayModal(){
  item.content,
  item.desc,
  item.description,
- getBenefitDisplayAddress(item), item.roadAddress, item.jibunAddress, item.detailAddress,
+ item.address,
  item.benefit,
  item.condition,
  item.answer,
@@ -15787,7 +15765,7 @@ function getAiAttachmentType(item={}){
  const fields = [
  type, item.id, item.name, item.storeName, item.title, item.category,
  item.benefit, item.description, item.content, item.body,
- getBenefitDisplayAddress(item), item.roadAddress, item.jibunAddress, item.detailAddress, item.phone, item.tel, item.contact, item.officePhone,
+ item.address, item.phone, item.tel, item.contact, item.officePhone,
  item.contactNumber, item.phoneNumber, item.department,
  Array.isArray(item.keywords) ? item.keywords.join(' ') : item.keywords,
  item.memo, item.note,
@@ -15876,7 +15854,7 @@ function getAiAttachmentType(item={}){
  if(signals.recentCategory && signals.recentCategory !== '전체' && normalizeAiSearchText(signals.recentCategory) === categoryNorm){
  score += 3; reasons.push('최근 관심 카테고리');
  }
- if(/가까|근처|주변|거리|위치/.test(question) && getBenefitDisplayAddress(item)){
+ if(/가까|근처|주변|거리|위치/.test(question) && item.address){
  score += 4; reasons.push('위치 정보 있음');
  }
  if(/전화|연락|예약|문의/.test(question) && pickAiPhone(item)){
@@ -15958,7 +15936,7 @@ function getAiAttachmentType(item={}){
  benefit: item.benefit || item.description || '',
  description: item.description || item.benefit || item.content || '',
  content: item.content || item.body || item.memo || item.note || '',
- address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+ address: item.address || item.roadAddress || '',
  roadAddress: item.roadAddress || '',
  phone: pickAiPhone(item),
  link: item.link || item.url || item.naverUrl || '',
@@ -16028,7 +16006,7 @@ function getAiAttachmentType(item={}){
        const reasons = [];
        if(item.recommended) reasons.push('추천 혜택');
        if(item.category) reasons.push(item.category);
-       if(getBenefitDisplayAddress(item)) reasons.push('위치 정보 있음');
+       if(item.address) reasons.push('위치 정보 있음');
        return { item, score: Math.max(4, score || 4), reason: reasons[0] || '혜택 추천', reasons: reasons.slice(0,4) };
      })
      .sort((a,b) => b.score - a.score)
@@ -16196,7 +16174,7 @@ function getAiAttachmentType(item={}){
 
  function getAiMapUrl(item={}){
  const name = item.name || item.storeName || item.title || '';
- const address = getBenefitSearchAddress(item) || item.roadAddress || '';
+ const address = item.address || item.roadAddress || '';
  const url = item.url || item.link || item.naverUrl || '';
  if(url) return url;
  return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
@@ -16204,7 +16182,7 @@ function getAiAttachmentType(item={}){
 
  function getAiDirectionsUrl(item={}){
  const name = item.name || item.storeName || item.title || '';
- const address = getBenefitSearchAddress(item) || item.roadAddress || '';
+ const address = item.address || item.roadAddress || '';
  const lat = Number(item.lat ?? item.latitude);
  const lng = Number(item.lng ?? item.lon ?? item.longitude);
  if(Number.isFinite(lat) && Number.isFinite(lng)){
@@ -16216,11 +16194,11 @@ function getAiAttachmentType(item={}){
  function buildAiLocationMapCardHtml(mappedCards=[], question='', answer=''){
  if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
  if(!isAiLocationQuestion(question, answer)) return '';
- const found = mappedCards.find(({item}) => item && (getBenefitDisplayAddress(item) || item.roadAddress || item.lat || item.lng));
+ const found = mappedCards.find(({item}) => item && (item.address || item.roadAddress || item.lat || item.lng));
  if(!found) return '';
  const item = found.item || {};
  const name = item.name || item.storeName || item.title || '매장';
- const address = getBenefitDisplayAddress(item) || item.roadAddress || '등록된 주소 정보가 없습니다.';
+ const address = item.address || item.roadAddress || '등록된 주소 정보가 없습니다.';
  const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
  const mapUrl = getAiMapUrl(item);
  const dirUrl = getAiDirectionsUrl(item);
@@ -16775,7 +16753,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
  <div class="ai-benefit-meta">
  ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
- ${getBenefitDisplayAddress(item) ? `<em>위치 등록</em>` : ''}
+ ${item.address ? `<em>위치 등록</em>` : ''}
  ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
  ${getBenefitSocialLinks(item).length ? `<em>SNS/링크 있음</em>` : ''}
  ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
@@ -17198,7 +17176,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  name: item.name || item.title || '이름 없음',
  category: item.category || '기타',
  description: item.benefitText || item.description || item.summary || item.answer || '등록된 정보를 확인해보세요.',
- address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+ address: item.address || item.roadAddress || '',
  phone: item.phone || item.telephone || '',
  link: item.link || item.url || '',
  sourceType: item.sourceType || '',
@@ -17226,7 +17204,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  if(!Number.isFinite(lat) || !Number.isFinite(lng)){
  return '<div class="ai-mini-map"><div class="ai-mini-map-fallback">좌표 정보가 없어 미니지도를 표시할 수 없습니다.</div></div>';
  }
- const q = encodeURIComponent(item.name || item.address || item.roadAddress || `${lat},${lng}`);
+ const q = encodeURIComponent(item.name || item.address || `${lat},${lng}`);
  const src = `https://maps.google.com/maps?q=${lat},${lng}(${q})&z=16&output=embed`;
  return `<div class="ai-mini-map"><iframe title="${escapeHtml(item.name)} 미니지도" loading="lazy" src="${src}"></iframe></div>`;
  }
@@ -17237,8 +17215,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  if(Number.isFinite(lat) && Number.isFinite(lng)){
  return `https://map.naver.com/v5/search/${encodeURIComponent(item.name)}?c=${lng},${lat},16,0,0,0,dh`;
  }
- if(item.address || item.roadAddress || item.name){
- return `https://map.naver.com/v5/search/${encodeURIComponent(`${item.name || ''} ${item.address || item.roadAddress || ''}`.trim())}`;
+ if(item.address || item.name){
+ return `https://map.naver.com/v5/search/${encodeURIComponent(`${item.name || ''} ${item.address || ''}`.trim())}`;
  }
  return item.link || '#';
  }
