@@ -19346,19 +19346,36 @@ if(window.MutationObserver){
   function resolveAiAttachmentPath(input){
     if (!input) return "";
     if (typeof input === "string") return input;
-    if (input.dataset) return input.dataset.path || input.dataset.filePath || input.dataset.storagePath || "";
+
+    if (input.dataset) {
+      return input.dataset.aiAttachmentPath ||
+             input.dataset.attachmentPath ||
+             input.dataset.path ||
+             input.dataset.filePath ||
+             input.dataset.storagePath ||
+             "";
+    }
+
     return "";
   }
 
   function resolveAiAttachmentName(input, fallback){
     if (fallback) return fallback;
-    if (input && input.dataset) return input.dataset.name || input.dataset.fileName || "download";
+
+    if (input && input.dataset) {
+      return input.dataset.aiAttachmentName ||
+             input.dataset.attachmentName ||
+             input.dataset.name ||
+             input.dataset.fileName ||
+             "download";
+    }
+
     return "download";
   }
 
-  window.downloadAiAttachment = function(path, name){
-    const safePath = resolveAiAttachmentPath(path);
-    const safeName = resolveAiAttachmentName(path, name);
+  window.downloadAiAttachment = function(pathOrButton, name){
+    const safePath = resolveAiAttachmentPath(pathOrButton);
+    const safeName = resolveAiAttachmentName(pathOrButton, name);
 
     if (!safePath) {
       alert("다운로드 경로가 없습니다.");
