@@ -16447,6 +16447,62 @@ function isAiDialogCandidateConfirmAnswer(finalText='', question=''){
 }
 
 
+// ===== AI 오타/영문키 확인 응답 이어가기 =====
+// 예: 사용자가 dkfpqh 입력 → AI가 “아레볼 맞나요?” 확인 → 사용자가 “맞습니다” 입력 시
+// 다음 질문을 “아레볼”로 치환해서 카드/검색 흐름이 끊기지 않도록 합니다.
+let aiPendingConfirmCandidate = '';
+
+function isAiAffirmativeFollowupAnswer(text=''){
+ const raw = String(text || '').trim();
+ const compact = raw.replace(/[\s.!?。．,，~…]+/g, '').toLowerCase();
+ if(!compact) return false;
+ return /^(네|넵|예|옙|응|어|ㅇㅇ|맞아|맞아요|맞습니다|맞습니다요|맞다|맞음|그래|그래요|그거|그겁니다|그게맞아|그게맞아요|yes|y|ok|okay)$/i.test(compact);
+}
+
+function extractAiConfirmCandidateFromText(finalText=''){
+ const text = String(finalText || '').trim();
+ if(!text) return '';
+ const patterns = [
+   /[“"]([^“”"]{2,40})[”"]\s*(?:을|를)?\s*입력하신\s*건가요/i,
+   /[“"]([^“”"]{2,40})[”"]\s*로\s*바로\s*이어서\s*찾아볼게요/i,
+   /혹시\s+(.{2,40}?)\s*(?:을|를)?\s*찾으시려는\s*건가요/i,
+   /(.{2,40}?)\s*(?:맞나요|맞으신가요|찾으시려는건가요)/i
+ ];
+ for(const pattern of patterns){
+   const match = text.match(pattern);
+   const candidate = match?.[1] ? String(match[1]).trim() : '';
+   if(candidate && !/[?？!！.。]\s*$/.test(candidate)){
+     return candidate.replace(/[“”"'`]/g, '').trim();
+   }
+ }
+ return '';
+}
+
+function rememberAiConfirmCandidate(finalText=''){
+ const candidate = extractAiConfirmCandidateFromText(finalText);
+ if(candidate){
+   aiPendingConfirmCandidate = candidate;
+   try{ sessionStorage.setItem('aiPendingConfirmCandidate', candidate); }catch(_error){}
+ }
+ return candidate;
+}
+
+function resolveAiFollowupQuestion(rawQuestion=''){
+ const original = String(rawQuestion || '').trim();
+ const stored = aiPendingConfirmCandidate || (() => { try{ return sessionStorage.getItem('aiPendingConfirmCandidate') || ''; }catch(_error){ return ''; } })();
+ if(stored && isAiAffirmativeFollowupAnswer(original)){
+   aiPendingConfirmCandidate = '';
+   try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
+   return { originalQuestion: original, effectiveQuestion: stored, usedConfirmCandidate: true };
+ }
+ if(original && !isAiAffirmativeFollowupAnswer(original)){
+   aiPendingConfirmCandidate = '';
+   try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
+ }
+ return { originalQuestion: original, effectiveQuestion: original, usedConfirmCandidate: false };
+}
+
+
 
 function normalizeAiAttachmentTitleText(value=''){
  return normalizeAiSearchText(value || '')
@@ -17271,14 +17327,23 @@ async function askAiAssistant(rawQuestion=''){
  if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
  const input = qs('#aiQuestionInput');
  const btn = qs('#aiAskBtn');
- const question = String(rawQuestion || input?.value || '').trim();
- if(!question) return openModalAlert('질문을 입력해주세요.');
- if(!(await guardAiUserInputOrAlert(question))) return;
- logPersonalAssistantEvent({ action:'ask', question, category: question, source: window.__AI_LAST_INPUT_MODE || 'text' });
+ const rawInputQuestion = String(rawQuestion || input?.value || '').trim();
+ const followup = resolveAiFollowupQuestion(rawInputQuestion);
+ const question = followup.effectiveQuestion;
+ const displayQuestion = followup.originalQuestion || question;
+ if(!displayQuestion) return openModalAlert('질문을 입력해주세요.');
+ if(!(await guardAiUserInputOrAlert(displayQuestion))) return;
+ logPersonalAssistantEvent({
+ action:'ask',
+ question,
+ originalQuestion: displayQuestion,
+ category: question,
+ source: followup.usedConfirmCandidate ? 'confirm_followup' : (window.__AI_LAST_INPUT_MODE || 'text')
+ });
 
  if(input) input.value = '';
  setAiAssistantBusy(true);
- appendAiMessage('user', escapeHtml(question));
+ appendAiMessage('user', escapeHtml(displayQuestion));
  const pendingRow = createAiTypingBubble(question);
  const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
@@ -17311,6 +17376,7 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
+ rememberAiConfirmCandidate(finalText);
  if(pendingBubble){
  pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
  bindAiAnswerActions(pendingBubble);
