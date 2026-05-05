@@ -16560,9 +16560,13 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  </div>
  </div>`).join('');
  const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
+ // 혜택/매장 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
+ // 단, 대형폐기물/생활안내처럼 실제 첨부파일을 보여주는 질문은 혜택 카드를 숨깁니다.
+ const isExplicitBenefitCardIntent = isExplicitAiBenefitQuestion(question, '');
+ const shouldHideBenefitCardsForKnowledge = isApartmentLifeKnowledgeQuestion(question, cleaned) && !isExplicitBenefitCardIntent;
  const shouldShowBenefitCards =
    !isApartmentLifePhoneQuestion(question, cleaned) &&
-   !isApartmentLifeKnowledgeQuestion(question, cleaned) &&
+   !shouldHideBenefitCardsForKnowledge &&
    !hasAiKnowledgeAttachments &&
    !!benefitCards;
  return `
