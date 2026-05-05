@@ -5816,9 +5816,9 @@ body:has(#view-calendar:not(.hidden)) .app{
 }
 
 
-/* ===== AI 첨부파일 아이콘 / 안내 문구 ===== */
+/* ===== AI 첨부파일 아이콘 / 안내 / 이미지 확대 ===== */
 .ai-attachment-guide{
-  margin:10px 0 12px;
+  margin:8px 0 10px;
   padding:11px 13px;
   border-radius:16px;
   background:#f8fafc;
@@ -5828,35 +5828,118 @@ body:has(#view-calendar:not(.hidden)) .app{
   font-weight:800;
   line-height:1.55;
 }
-.ai-attachment-file-icon{
-  width:34px;
-  height:34px;
-  border-radius:12px;
-  display:inline-grid;
+.ai-attachment-image-preview{
+  position:relative;
+  display:block;
+  border-radius:14px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+.ai-attachment-image-preview img{
+  display:block;
+  width:100%;
+  cursor:zoom-in;
+}
+.ai-attachment-zoom-badge{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  width:36px;
+  height:36px;
+  border:none;
+  border-radius:999px;
+  display:grid;
   place-items:center;
-  flex:0 0 auto;
+  background:rgba(15,23,42,.90);
+  color:#fff;
+  font-size:18px;
+  box-shadow:0 10px 22px rgba(15,23,42,.22);
+  pointer-events:none;
+}
+.ai-attachment-file-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  margin-right:6px;
+  border-radius:9px;
   background:#eef2ff;
   border:1px solid #dbeafe;
-  font-size:17px;
+  flex:0 0 auto;
 }
-.ai-attachment-file-row{
+.ai-image-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.74);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.ai-image-zoom-backdrop.show{display:flex;}
+.ai-image-zoom-card{
+  position:relative;
+  width:min(100%,460px);
+  max-height:92dvh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  border-radius:24px;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 30px 70px rgba(15,23,42,.32);
+  border:1px solid rgba(255,255,255,.72);
+}
+.ai-image-zoom-head{
   display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:10px;
-  min-width:0;
+  padding:2px 2px 0;
 }
-.ai-attachment-file-name{
+.ai-image-zoom-title{
   min-width:0;
   flex:1;
+  font-size:13px;
+  font-weight:900;
+  color:#334155;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.ai-attachment-download-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+.ai-image-zoom-close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:14px;
+  background:#0f172a;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-scroll{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(92dvh - 78px);
+  border-radius:18px;
+  background:#f8fafc;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-img{
+  display:block;
+  max-width:100%;
+  width:auto;
+  height:auto;
+  border-radius:16px;
+  object-fit:contain;
 }
 
 </style>
@@ -9801,23 +9884,24 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  const path = String(attachment.path || '').trim() || extractAiAttachmentStoragePath(attachment.url || '');
  const name = String(attachment.name || path.split('/').pop() || 'attachment');
  if(!AI_STREAM_SERVER_BASE_URL || !path) return String(attachment.url || '');
- const params = new URLSearchParams({ path, name });
+ const params = new URLSearchParams({ path, name, mime: getAiAttachmentMimeType(attachment), ext: getAiAttachmentExt(name || path) });
  return `${AI_STREAM_SERVER_BASE_URL}/download-ai-attachment?${params.toString()}`;
  }
 
  function downloadAiAttachmentByDataset(button){
  try{
- const path = button?.dataset?.aiAttachmentPath || '';
- const url = button?.dataset?.aiAttachmentUrl || '';
- const name = button?.dataset?.aiAttachmentName || 'attachment';
- const downloadUrl = getAiAttachmentDownloadUrl({ path, url, name });
+ const path = button?.dataset?.aiAttachmentPath || button?.dataset?.attachmentPath || button?.dataset?.path || '';
+ const url = button?.dataset?.aiAttachmentUrl || button?.dataset?.attachmentUrl || '';
+ const name = button?.dataset?.aiAttachmentName || button?.dataset?.attachmentName || button?.dataset?.name || 'attachment';
+ const mimeType = button?.dataset?.aiAttachmentMime || button?.dataset?.attachmentMime || button?.dataset?.mime || '';
+ const downloadUrl = getAiAttachmentDownloadUrl({ path, url, name, mimeType });
  if(!downloadUrl) return;
  window.location.href = downloadUrl;
  }catch(error){
  console.warn('AI 첨부파일 다운로드 실패:', error);
  showAppAlert?.('다운로드 안내', '파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
  }
- }
+}
 
  const AI_DAILY_NUDGE_CHECK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/check` : '';
  const AI_DAILY_NUDGE_MARK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/mark` : '';
@@ -15416,7 +15500,62 @@ function renderCalendarDayModal(){
  return String(value || '').split(/[\n,，#]+/).map(v => v.trim()).filter(Boolean);
  }
 
- function getAiAttachmentType(item={}){
+ 
+function getAiAttachmentExt(fileName=''){
+ const clean = String(fileName || '').split('?')[0].split('#')[0];
+ const last = clean.split('/').pop() || '';
+ const idx = last.lastIndexOf('.');
+ return idx >= 0 ? last.slice(idx + 1).toLowerCase() : '';
+}
+
+function getAiAttachmentMimeType(attachment={}){
+ const explicit = String(attachment.mimeType || attachment.contentType || '').trim();
+ if(explicit && explicit.includes('/')) return explicit;
+ const fileName = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentExt(fileName);
+ const map = {
+  jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp', svg:'image/svg+xml',
+  pdf:'application/pdf',
+  xls:'application/vnd.ms-excel',
+  xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  csv:'text/csv',
+  doc:'application/msword',
+  docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ppt:'application/vnd.ms-powerpoint',
+  pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  hwp:'application/x-hwp',
+  hwpx:'application/vnd.hancom.hwpx',
+  txt:'text/plain',
+  zip:'application/zip'
+ };
+ return map[ext] || 'application/octet-stream';
+}
+
+function getAiAttachmentIcon(attachment={}){
+ const mime = getAiAttachmentMimeType(attachment).toLowerCase();
+ const name = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentExt(name);
+ if(mime.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
+ if(mime.includes('pdf') || ext === 'pdf') return '📕';
+ if(['xls','xlsx','csv'].includes(ext)) return '📊';
+ if(['doc','docx','hwp','hwpx'].includes(ext)) return '📄';
+ if(['ppt','pptx'].includes(ext)) return '📽️';
+ if(['zip','7z','rar'].includes(ext)) return '🗂️';
+ if(['txt','md'].includes(ext)) return '📝';
+ return '📎';
+}
+
+function getAiAttachmentGuideText(attachments=[]){
+ const list = Array.isArray(attachments) ? attachments : [];
+ const hasImage = list.some(a => getAiAttachmentType(a) === 'image');
+ const hasFile = list.some(a => getAiAttachmentType(a) !== 'image');
+ if(hasImage && hasFile) return '이미지와 파일이 있으니 참고하여 주시기 바랍니다. 이미지는 클릭하면 확대 가능하며 이미지와 파일 모두 다운로드 받을 수 있습니다.';
+ if(hasImage) return '이미지를 클릭하면 확대해서 확인이 가능하며, 필요 시 다운로드도 가능합니다.';
+ if(hasFile) return '파일을 다운받아서 확인이 가능합니다.';
+ return '';
+}
+
+function getAiAttachmentType(item={}){
  const mime = String(item.mimeType || item.type || '').toLowerCase();
  const name = String(item.name || '').toLowerCase();
  if(mime.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(name)) return 'image';
@@ -15493,9 +15632,11 @@ function renderCalendarDayModal(){
  if(!unique.length) return '';
  const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
- const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || '')}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
- const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || '')}"><span>${getAiAttachmentIcon(a)} ${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
- return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${imageHtml}${fileHtml}</div>`;
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy" data-ai-attachment-image="true"><span class="ai-attachment-zoom-badge" aria-hidden="true">🔍</span></button><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span><span class="ai-attachment-file-icon">${getAiAttachmentIcon(a)}</span>${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
+ const guideText = getAiAttachmentGuideText(unique);
+ const guideHtml = guideText ? `<div class="ai-attachment-guide">${escapeHtml(guideText)}</div>` : '';
+ return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${guideHtml}${imageHtml}${fileHtml}</div>`;
  }
 
  function subscribeAiKnowledge(){
@@ -19522,6 +19663,7 @@ if(window.MutationObserver){
 </script>
 
 
+
 <!-- AI 첨부 이미지 확대 보기 -->
 <div id="aiImageZoomBackdrop" class="ai-image-zoom-backdrop" aria-hidden="true">
   <div class="ai-image-zoom-card" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
@@ -19549,8 +19691,8 @@ if(window.MutationObserver){
 
   window.openAiImageZoom = function(src, title){
     const els = getZoomElements();
-    if (!els.backdrop || !els.img) return;
-    els.img.src = src || "";
+    if (!els.backdrop || !els.img || !src) return;
+    els.img.src = src;
     els.img.alt = title || "확대 이미지";
     if (els.title) els.title.textContent = title || "이미지 확대 보기";
     els.backdrop.classList.add("show");
@@ -19568,37 +19710,21 @@ if(window.MutationObserver){
   };
 
   document.addEventListener("click", function(e){
-    const target = e.target;
-    if (!target) return;
-
-    if (target.id === "aiImageZoomBackdrop" || target.id === "aiImageZoomCloseBtn") {
-      window.closeAiImageZoom();
+    const zoomButton = e.target.closest ? e.target.closest("[data-ai-image-zoom='1']") : null;
+    if (zoomButton) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.openAiImageZoom(
+        zoomButton.dataset.aiImageSrc || zoomButton.querySelector("img")?.src || "",
+        zoomButton.dataset.aiImageTitle || zoomButton.querySelector("img")?.alt || "이미지 확대 보기"
+      );
       return;
     }
 
-    const img = target.closest ? target.closest("img") : null;
-    if (!img) return;
-
-    const isAiAttachment =
-      img.closest(".ai-attachment-card") ||
-      img.closest(".ai-answer-attachments") ||
-      img.closest("[data-ai-attachment-card]") ||
-      img.closest("[data-ai-attachment-list]") ||
-      img.dataset.aiAttachmentImage === "true" ||
-      img.classList.contains("ai-attachment-preview-img");
-
-    if (!isAiAttachment) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const title =
-      img.dataset.aiAttachmentName ||
-      img.dataset.attachmentName ||
-      img.getAttribute("alt") ||
-      "이미지 확대 보기";
-
-    window.openAiImageZoom(img.currentSrc || img.src, title);
+    const backdrop = document.getElementById("aiImageZoomBackdrop");
+    if (e.target === backdrop || e.target?.id === "aiImageZoomCloseBtn") {
+      window.closeAiImageZoom();
+    }
   }, true);
 
   document.addEventListener("keydown", function(e){
@@ -19607,45 +19733,4 @@ if(window.MutationObserver){
 })();
 </script>
 
-<script>
-function getAiAttachmentExt(fileName=''){
- const clean = String(fileName || '').split('?')[0].split('#')[0];
- const last = clean.split('/').pop() || '';
- const idx = last.lastIndexOf('.');
- return idx >= 0 ? last.slice(idx + 1).toLowerCase() : '';
-}
-
-function getAiAttachmentIcon(attachment={}){
- const name = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
- const mime = String(attachment.mimeType || attachment.contentType || '').toLowerCase();
- const ext = getAiAttachmentExt(name);
-
- if(mime.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
- if(mime.includes('pdf') || ext === 'pdf') return '📕';
- if(['xls','xlsx','csv'].includes(ext)) return '📊';
- if(['doc','docx','hwp','hwpx'].includes(ext)) return '📄';
- if(['ppt','pptx'].includes(ext)) return '📽️';
- if(['zip','7z','rar'].includes(ext)) return '🗂️';
- if(['txt','md'].includes(ext)) return '📝';
- return '📎';
-}
-
-function getAiAttachmentGuideText(attachments=[]){
- const list = Array.isArray(attachments) ? attachments : [];
- const hasImage = list.some(a => isImageAttachment(a));
- const hasFile = list.some(a => !isImageAttachment(a));
-
- if(hasImage && hasFile){
-  return '이미지와 파일이 있으니 참고하여 주시기 바랍니다. 이미지는 확대 가능하며 이미지와 파일 모두 다운로드 받을 수 있습니다.';
- }
- if(hasImage){
-  return '이미지를 확대해서 확인이 가능하며, 필요 시 다운로드도 가능합니다.';
- }
- if(hasFile){
-  return '파일을 다운받아서 확인이 가능합니다.';
- }
- return '';
-}
-
-</script>
 </body></html>
