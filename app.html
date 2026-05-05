@@ -16793,29 +16793,51 @@ function isLikelyKnownBenefitKeyword(keyword=''){
 }
 
 function extractAiConfirmCandidateFromText(finalText=''){
- const text = String(finalText || '').trim();
- if(!text) return '';
- const patterns = [
-   /[“"]([^“”"]{2,40})[”"]\s*(?:을|를)?\s*입력하신\s*건가요/i,
-   /[“"]([^“”"]{2,40})[”"]\s*로\s*바로\s*이어서\s*찾아볼게요/i,
-   /혹시\s+[“"]?([^“”"?？!！
-]{2,40})[”"]?\s*(?:을|를|이|가)?\s*찾으시려는\s*건가요/i,
-   /[“"]?([^“”"?？!！
-]{2,40})[”"]?\s*(?:이|가|을|를)?\s*(?:맞나요|맞으신가요|맞을까요|찾으시려는\s*건가요|찾으시려는건가요)/i
- ];
- for(const pattern of patterns){
-   const match = text.match(pattern);
-   const candidate = match?.[1] ? normalizeAiTypoQueryForSearch(String(match[1]).trim()) : '';
-   if(candidate){
-     const cleanedCandidate = candidate
-       .replace(/[“”"'`]/g, '')
-       .replace(/^(혹시|그러면|그럼|네|예)\s*/,'')
-       .replace(/\s*(?:을|를|이|가)?\s*(?:맞나요|맞으신가요|맞을까요|찾으시려는\s*건가요|찾으시려는건가요).*$/,'')
-       .trim();
-     if(cleanedCandidate && !/[?？!！.。]\s*$/.test(cleanedCandidate)) return cleanedCandidate;
-   }
- }
- return '';
+  const text = String(finalText || '').trim();
+  if(!text) return '';
+
+  const cleanCandidate = (value='') => {
+    let out = String(value || '').trim();
+    ['“','”','"',"'",'`'].forEach(ch => { out = out.split(ch).join(''); });
+    ['혹시','그러면','그럼','네','예'].forEach(prefix => {
+      if(out.startsWith(prefix)) out = out.slice(prefix.length).trim();
+    });
+    const suffixes = ['맞나요','맞으신가요','맞을까요','찾으시려는 건가요','찾으시려는건가요','입력하신 건가요','입력하신건가요'];
+    suffixes.forEach(suffix => {
+      const idx = out.indexOf(suffix);
+      if(idx >= 0) out = out.slice(0, idx).trim();
+    });
+    ['을','를','이','가'].forEach(p => {
+      if(out.endsWith(p) && out.length > 2) out = out.slice(0, -1).trim();
+    });
+    return normalizeAiTypoQueryForSearch(out);
+  };
+
+  const quotePairs = [['“','”'], ['"','"']];
+  for(const [open, close] of quotePairs){
+    const a = text.indexOf(open);
+    if(a >= 0){
+      const b = text.indexOf(close, a + 1);
+      if(b > a){
+        const candidate = cleanCandidate(text.slice(a + 1, b));
+        if(candidate && candidate.length >= 2 && candidate.length <= 40) return candidate;
+      }
+    }
+  }
+
+  const markers = ['찾으시려는 건가요','찾으시려는건가요','맞나요','맞으신가요','맞을까요','입력하신 건가요','입력하신건가요'];
+  for(const marker of markers){
+    const idx = text.indexOf(marker);
+    if(idx > 0){
+      let before = text.slice(0, idx).trim();
+      const maybeIdx = before.lastIndexOf('혹시');
+      if(maybeIdx >= 0) before = before.slice(maybeIdx + 2).trim();
+      const chunks = before.split(' ');
+      let candidate = cleanCandidate(chunks.slice(-3).join(' '));
+      if(candidate && candidate.length >= 2 && candidate.length <= 40) return candidate;
+    }
+  }
+  return '';
 }
 
 function rememberAiConfirmCandidate(finalText=''){
