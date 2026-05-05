@@ -16406,11 +16406,25 @@ function isApartmentLifeKnowledgeQuestion(question='', answer=''){
  return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커)/.test(q);
 }
 
+
+function isAiDialogCandidateConfirmAnswer(finalText='', question=''){
+ const text = normalizeAiSearchText(`${finalText || ''}`);
+ return /찾으시려는건가요/.test(text) && /맞다고말씀해주시면/.test(text);
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
  const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+ if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
+ return `
+ <div class="ai-answer ai-answer-upgrade">
+ <div class="ai-answer-summary">${safe}</div>
+ ${buildAiDialogActionButtons(parsedDialog.actions)}
+ <span class="ai-mode-pill upgraded">확인 후 바로 찾아볼게요.</span>
+ </div>`;
+ }
  const isApartmentPhone = isApartmentLifePhoneQuestion(question, cleaned);
  const apartmentOnlyPhoneCard = isApartmentPhone ? buildAiApartmentLifePhoneCardHtml(question, cleaned) : '';
  if(isApartmentPhone){
