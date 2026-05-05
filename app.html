@@ -9753,22 +9753,61 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  }
  }
 
- function getAiAttachmentDownloadUrl(attachment={}){
+ 
+function getAiAttachmentFileExt(fileName=''){
+ const clean = String(fileName || '').split('?')[0].split('#')[0];
+ const last = clean.split('/').pop() || '';
+ const idx = last.lastIndexOf('.');
+ return idx >= 0 ? last.slice(idx + 1).toLowerCase() : '';
+}
+
+function getAiAttachmentMimeType(attachment={}){
+ const explicit = String(attachment.mimeType || attachment.contentType || attachment.typeHint || '').trim();
+ if(explicit && explicit.includes('/')) return explicit;
+ const fileName = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentFileExt(fileName);
+ const map = {
+  jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp', svg:'image/svg+xml',
+  pdf:'application/pdf',
+  xls:'application/vnd.ms-excel',
+  xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  csv:'text/csv',
+  doc:'application/msword',
+  docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ppt:'application/vnd.ms-powerpoint',
+  pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  hwp:'application/x-hwp',
+  hwpx:'application/vnd.hancom.hwpx',
+  txt:'text/plain',
+  zip:'application/zip'
+ };
+ return map[ext] || 'application/octet-stream';
+}
+
+
+function getAiAttachmentDownloadUrl(attachment={}){
  const path = String(attachment.path || '').trim() || extractAiAttachmentStoragePath(attachment.url || '');
  const name = String(attachment.name || path.split('/').pop() || 'attachment');
+ const mime = getAiAttachmentMimeType(attachment);
+ const ext = getAiAttachmentFileExt(name || path);
  if(!AI_STREAM_SERVER_BASE_URL || !path) return String(attachment.url || '');
- const params = new URLSearchParams({ path, name });
+ const params = new URLSearchParams({ path, name, mime, ext });
  return `${AI_STREAM_SERVER_BASE_URL}/download-ai-attachment?${params.toString()}`;
  }
 
  function downloadAiAttachmentByDataset(button){
  try{
- const path = button?.dataset?.aiAttachmentPath || '';
+ const path = button?.dataset?.aiAttachmentPath || button?.dataset?.attachmentPath || button?.dataset?.path || '';
  const url = button?.dataset?.aiAttachmentUrl || '';
- const name = button?.dataset?.aiAttachmentName || 'attachment';
- const downloadUrl = getAiAttachmentDownloadUrl({ path, url, name });
+ const name = button?.dataset?.aiAttachmentName || button?.dataset?.attachmentName || button?.dataset?.name || 'attachment';
+ const mimeType = button?.dataset?.aiAttachmentMime || button?.dataset?.attachmentMime || button?.dataset?.mime || '';
+ const downloadUrl = getAiAttachmentDownloadUrl({ path, url, name, mimeType });
  if(!downloadUrl) return;
  window.location.href = downloadUrl;
+ }catch(error){
+ console.warn('AI 첨부파일 다운로드 실패:', error);
+ showAppAlert?.('다운로드 안내', '파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
+ }
  }catch(error){
  console.warn('AI 첨부파일 다운로드 실패:', error);
  showAppAlert?.('다운로드 안내', '파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -15449,8 +15488,8 @@ function renderCalendarDayModal(){
  if(!unique.length) return '';
  const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
- const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
- const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}"><span>📎 ${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>📎 ${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
  return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${imageHtml}${fileHtml}</div>`;
  }
 
@@ -19454,9 +19493,45 @@ if(window.MutationObserver){
     return "download";
   }
 
+  function resolveAiAttachmentExt(fileName){
+    const clean = String(fileName || "").split("?")[0].split("#")[0];
+    const last = clean.split("/").pop() || "";
+    const idx = last.lastIndexOf(".");
+    return idx >= 0 ? last.slice(idx + 1).toLowerCase() : "";
+  }
+
+  function resolveAiAttachmentMime(input, fileName){
+    if (input && input.dataset) {
+      const explicit = input.dataset.aiAttachmentMime ||
+                       input.dataset.attachmentMime ||
+                       input.dataset.mime ||
+                       "";
+      if (explicit && explicit.includes("/")) return explicit;
+    }
+    const ext = resolveAiAttachmentExt(fileName);
+    const map = {
+      jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", gif:"image/gif", webp:"image/webp", svg:"image/svg+xml",
+      pdf:"application/pdf",
+      xls:"application/vnd.ms-excel",
+      xlsx:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      csv:"text/csv",
+      doc:"application/msword",
+      docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ppt:"application/vnd.ms-powerpoint",
+      pptx:"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      hwp:"application/x-hwp",
+      hwpx:"application/vnd.hancom.hwpx",
+      txt:"text/plain",
+      zip:"application/zip"
+    };
+    return map[ext] || "application/octet-stream";
+  }
+
   window.downloadAiAttachment = function(pathOrButton, name){
     const safePath = resolveAiAttachmentPath(pathOrButton);
     const safeName = resolveAiAttachmentName(pathOrButton, name);
+    const safeMime = resolveAiAttachmentMime(pathOrButton, safeName);
+    const safeExt = resolveAiAttachmentExt(safeName || safePath);
 
     if (!safePath) {
       alert("다운로드 경로가 없습니다.");
@@ -19466,7 +19541,9 @@ if(window.MutationObserver){
     const url =
       AI_ATTACHMENT_DOWNLOAD_BASE +
       "/download-ai-attachment?path=" + encodeURIComponent(safePath) +
-      "&name=" + encodeURIComponent(safeName || "download");
+      "&name=" + encodeURIComponent(safeName || "download") +
+      "&mime=" + encodeURIComponent(safeMime || "application/octet-stream") +
+      "&ext=" + encodeURIComponent(safeExt || "");
 
     window.location.href = url;
   };
