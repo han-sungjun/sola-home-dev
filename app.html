@@ -10561,26 +10561,26 @@ function setPushStatusUi(enabled){
  state.isPushEnabledForThisDevice = !!enabled;
 
  if(statusEl){
- statusEl.textContent = enabled ? '🔔 푸시 알림 켜짐' : '🔕 푸시 알림 꺼짐';
+ statusEl.textContent = enabled ? '이 기기 수신 중' : '이 기기는 아직 미등록 상태입니다';
  }
  if(subEl){
  subEl.textContent = enabled
- ? '현재 기기에서 공지와 주요 안내 알림을 받을 수 있습니다.'
- : '알림을 받고 싶다면 아래 알림 받기 버튼을 눌러 주세요.';
+ ? '현재 브라우저에서 알림 알림을 받을 수 있습니다.'
+ : '현재 브라우저/기기에서만 다시 알림 허용을 진행해 주세요.';
  }
  if(enableBtn) enableBtn.classList.toggle('hidden', !!enabled);
  if(disableBtn) disableBtn.classList.toggle('hidden', !enabled);
 
  if(gnbStatusPill){
- gnbStatusPill.textContent = enabled ? '🔔 푸시 알림 켜짐' : '🔕 푸시 알림 꺼짐';
- gnbStatusPill.style.background = enabled ? '#ecfdf5' : '#f8fafc';
- gnbStatusPill.style.color = enabled ? '#15803d' : '#475569';
- gnbStatusPill.style.borderColor = enabled ? '#bbf7d0' : '#e2e8f0';
+ gnbStatusPill.textContent = enabled ? '🔔 이 기기 수신 중' : '🔕 미등록 상태';
+ gnbStatusPill.style.background = enabled ? '#eff6ff' : '#f8fafc';
+ gnbStatusPill.style.color = enabled ? '#1d4ed8' : '#475569';
+ gnbStatusPill.style.borderColor = enabled ? '#bfdbfe' : '#e2e8f0';
  }
  if(gnbStatusText){
  gnbStatusText.textContent = enabled
- ? '현재 기기에서 공지와 주요 안내를 바로 받을 수 있습니다.'
- : '현재 기기에서는 푸시 알림이 꺼져 있습니다. 필요하면 알림 받기를 눌러 주세요.';
+ ? '현재 브라우저에서 공지와 주요 안내를 바로 받을 수 있습니다.'
+ : '아직 이 기기는 등록되지 않았습니다. 알림 받기를 눌러 등록해 주세요.';
  }
  if(gnbEnableBtn) gnbEnableBtn.classList.toggle('hidden', !!enabled);
  if(gnbDisableBtn) gnbDisableBtn.classList.toggle('hidden', !enabled);
@@ -18309,7 +18309,7 @@ document.addEventListener('keydown', (event) => {
  <div class="gnb-info-item">
  <div class="gnb-info-icon">🔔</div>
  <div class="gnb-info-copy">
- <strong>알림 알림 상태</strong>
+ <strong>푸시 알림 상태</strong>
  <p id="gnbPushStatusText">현재 브라우저의 알림 수신 상태를 확인하고 있습니다.</p>
  </div>
  </div>
