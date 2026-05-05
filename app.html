@@ -19847,15 +19847,12 @@ if(window.MutationObserver){
 
 
 
+
 <script>
-/* ===== AI 첨부 이미지 확대 팝업 - 런타임 강제 생성형 / 리사이즈 대응 ===== */
+/* ===== AI 첨부 이미지 확대 팝업 - 헤더 고정 / 이미지 영역 분리 ===== */
 (function(){
   function getViewportWidth(){
     return Math.max(320, Math.floor((window.visualViewport && window.visualViewport.width) || window.innerWidth || document.documentElement.clientWidth || 360));
-  }
-
-  function getViewportHeight(){
-    return Math.max(320, Math.floor((window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight || 640));
   }
 
   function applyZoomImageSize(){
@@ -19864,17 +19861,12 @@ if(window.MutationObserver){
     if(!img || !backdrop || backdrop.style.display === "none") return;
 
     var vw = getViewportWidth();
-    var vh = getViewportHeight();
-
     img.style.width = vw + "px";
     img.style.maxWidth = "100%";
     img.style.minWidth = "0";
     img.style.height = "auto";
     img.style.maxHeight = "none";
     img.style.objectFit = "contain";
-
-    backdrop.style.paddingTop = "calc(64px + env(safe-area-inset-top,0px))";
-    backdrop.style.paddingBottom = "calc(24px + env(safe-area-inset-bottom,0px))";
   }
 
   function ensureAiRuntimeZoomLayer(){
@@ -19890,27 +19882,40 @@ if(window.MutationObserver){
       "z-index:2147483647",
       "display:none",
       "background:rgba(0,0,0,.94)",
-      "overflow:auto",
-      "-webkit-overflow-scrolling:touch",
+      "overflow:hidden",
+      "box-sizing:border-box"
+    ].join(";");
+
+    var header = document.createElement("div");
+    header.id = "aiRuntimeImageZoomHeader";
+    header.style.cssText = [
+      "position:absolute",
+      "left:0",
+      "right:0",
+      "top:0",
+      "height:calc(58px + env(safe-area-inset-top,0px))",
+      "padding:calc(10px + env(safe-area-inset-top,0px)) 12px 8px",
       "box-sizing:border-box",
-      "padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(24px + env(safe-area-inset-bottom,0px))"
+      "display:flex",
+      "align-items:center",
+      "gap:12px",
+      "background:rgba(0,0,0,.92)",
+      "border-bottom:1px solid rgba(255,255,255,.16)",
+      "box-shadow:0 10px 24px rgba(0,0,0,.25)",
+      "z-index:2"
     ].join(";");
 
     var title = document.createElement("div");
     title.id = "aiRuntimeImageZoomTitle";
     title.style.cssText = [
-      "position:fixed",
-      "left:14px",
-      "right:76px",
-      "top:calc(19px + env(safe-area-inset-top,0px))",
-      "z-index:2147483647",
+      "min-width:0",
+      "flex:1",
       "color:#fff",
-      "font-size:13px",
+      "font-size:14px",
       "font-weight:900",
       "white-space:nowrap",
       "overflow:hidden",
-      "text-overflow:ellipsis",
-      "pointer-events:none"
+      "text-overflow:ellipsis"
     ].join(";");
 
     var close = document.createElement("button");
@@ -19918,33 +19923,37 @@ if(window.MutationObserver){
     close.textContent = "×";
     close.setAttribute("aria-label", "닫기");
     close.style.cssText = [
-      "position:fixed",
-      "top:calc(12px + env(safe-area-inset-top,0px))",
-      "right:14px",
-      "z-index:2147483647",
-      "width:46px",
-      "height:46px",
+      "width:42px",
+      "height:42px",
       "border:0",
       "border-radius:999px",
-      "background:rgba(15,23,42,.94)",
+      "background:rgba(15,23,42,.96)",
       "color:#fff",
       "font-size:26px",
       "font-weight:900",
       "display:grid",
       "place-items:center",
       "cursor:pointer",
-      "box-shadow:0 12px 28px rgba(0,0,0,.34)"
+      "box-shadow:0 10px 24px rgba(0,0,0,.32)",
+      "flex:0 0 auto",
+      "line-height:1"
     ].join(";");
 
-    var wrap = document.createElement("div");
-    wrap.id = "aiRuntimeImageZoomWrap";
-    wrap.style.cssText = [
-      "width:100%",
-      "min-height:100%",
+    var scroll = document.createElement("div");
+    scroll.id = "aiRuntimeImageZoomScroll";
+    scroll.style.cssText = [
+      "position:absolute",
+      "left:0",
+      "right:0",
+      "top:calc(58px + env(safe-area-inset-top,0px))",
+      "bottom:0",
+      "overflow:auto",
+      "-webkit-overflow-scrolling:touch",
       "display:flex",
       "align-items:flex-start",
       "justify-content:center",
-      "box-sizing:border-box"
+      "box-sizing:border-box",
+      "padding:0 0 calc(24px + env(safe-area-inset-bottom,0px))"
     ].join(";");
 
     var img = document.createElement("img");
@@ -19972,10 +19981,11 @@ if(window.MutationObserver){
       if(e.target === backdrop) window.closeAiImageZoom();
     });
 
-    wrap.appendChild(img);
-    backdrop.appendChild(title);
-    backdrop.appendChild(close);
-    backdrop.appendChild(wrap);
+    header.appendChild(title);
+    header.appendChild(close);
+    scroll.appendChild(img);
+    backdrop.appendChild(header);
+    backdrop.appendChild(scroll);
     document.body.appendChild(backdrop);
     return backdrop;
   }
@@ -19986,6 +19996,7 @@ if(window.MutationObserver){
     var backdrop = ensureAiRuntimeZoomLayer();
     var img = document.getElementById("aiRuntimeImageZoomImg");
     var titleEl = document.getElementById("aiRuntimeImageZoomTitle");
+    var scroll = document.getElementById("aiRuntimeImageZoomScroll");
 
     if(!backdrop || !img) return false;
 
@@ -19995,8 +20006,10 @@ if(window.MutationObserver){
 
     backdrop.style.display = "block";
     backdrop.setAttribute("aria-hidden", "false");
-    backdrop.scrollTop = 0;
-    backdrop.scrollLeft = 0;
+    if(scroll){
+      scroll.scrollTop = 0;
+      scroll.scrollLeft = 0;
+    }
 
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
