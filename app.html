@@ -2538,10 +2538,10 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-attachment-image-card img{width:100%;max-height:260px;object-fit:contain;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
 .ai-attachment-caption{font-size:11px;color:#64748b;font-weight:900;line-height:1.45}
 .ai-attachment-image-actions{display:grid;grid-template-columns:1fr;gap:7px}
-.ai-attachment-download-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;text-decoration:none;color:#1d4ed8;font-size:12px;font-weight:1000;cursor:pointer}
+.ai-attachment-download-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;text-decoration:none;color:#1d4ed8;font-size:12px;font-weight:1000;cursor:pointer;width:100%;appearance:none;-webkit-appearance:none}
 .ai-attachment-download-link span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ai-attachment-download-link em{font-style:normal;flex:0 0 auto}
-.ai-attachment-file-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;text-decoration:none;color:#0f172a;font-size:12px;font-weight:1000;cursor:pointer}
+.ai-attachment-file-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;text-decoration:none;color:#0f172a;font-size:12px;font-weight:1000;cursor:pointer;width:100%;appearance:none;-webkit-appearance:none}
 .ai-attachment-file-link span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ai-attachment-file-link em{font-style:normal;color:#2563eb;flex:0 0 auto}
 
@@ -10782,62 +10782,55 @@ function setPushStatusUi(enabled){
  .replaceAll('>','&gt;');
  }
 
+ function sanitizeDownloadFileName(name='download'){
+ const cleaned = String(name || 'download')
+ .replace(/[\/:*?"<>|]+/g, '_')
+ .replace(/\s+/g, ' ')
+ .trim();
+ return cleaned || 'download';
+ }
 
-
- function getAiDownloadFileName(url='', name='download'){
+ function buildAiAttachmentDownloadUrl(url='', fileName='download'){
+ const rawUrl = String(url || '').trim();
+ if(!rawUrl) return '';
  try{
- const rawName = String(name || '').trim();
- if(rawName) return rawName;
- const cleanUrl = String(url || '').split('?')[0];
- const last = decodeURIComponent(cleanUrl.split('/').pop() || 'download');
- return last || 'download';
- }catch(_){
- return String(name || 'download');
+ const parsed = new URL(rawUrl, window.location.href);
+ const safeName = sanitizeDownloadFileName(fileName);
+ parsed.searchParams.set('response-content-disposition', `attachment; filename="${encodeURIComponent(safeName)}"`);
+ return parsed.toString();
+ }catch(error){
+ return rawUrl;
  }
  }
 
- async function downloadAiAttachment(url='', name='download'){
- const fileUrl = String(url || '').trim();
- const fileName = getAiDownloadFileName(fileUrl, name);
- if(!fileUrl){
- await appAlert('다운로드할 파일 주소가 없습니다.', { title:'다운로드 안내', icon:'📎' });
+ function downloadAiAttachment(url='', fileName='download'){
+ const downloadUrl = buildAiAttachmentDownloadUrl(url, fileName);
+ if(!downloadUrl){
+ showToast?.('다운로드할 파일 주소가 없습니다.');
  return;
  }
- try{
- const response = await fetch(fileUrl, { mode:'cors', credentials:'omit' });
- if(!response.ok) throw new Error('download response ' + response.status);
- const blob = await response.blob();
- const objectUrl = URL.createObjectURL(blob);
- const link = document.createElement('a');
- link.href = objectUrl;
- link.download = fileName;
- link.style.display = 'none';
- document.body.appendChild(link);
- link.click();
- setTimeout(() => {
- try{ URL.revokeObjectURL(objectUrl); }catch(_){}
- try{ link.remove(); }catch(_){}
- }, 1200);
- }catch(error){
- console.warn('AI 첨부파일 직접 다운로드 실패, 기본 다운로드로 전환', error);
- const link = document.createElement('a');
- link.href = fileUrl;
- link.download = fileName;
- link.rel = 'noopener';
- link.style.display = 'none';
- document.body.appendChild(link);
- link.click();
- setTimeout(() => { try{ link.remove(); }catch(_){} }, 500);
- }
+ const frame = document.createElement('iframe');
+ frame.style.position = 'fixed';
+ frame.style.left = '-9999px';
+ frame.style.top = '-9999px';
+ frame.style.width = '1px';
+ frame.style.height = '1px';
+ frame.style.opacity = '0';
+ frame.setAttribute('aria-hidden', 'true');
+ frame.src = downloadUrl;
+ document.body.appendChild(frame);
+ setTimeout(() => frame.remove(), 60000);
  }
  window.downloadAiAttachment = downloadAiAttachment;
+
  document.addEventListener('click', (event) => {
- const trigger = event.target.closest('[data-ai-download-url]');
+ const trigger = event.target.closest?.('[data-ai-download-url]');
  if(!trigger) return;
  event.preventDefault();
  event.stopPropagation();
  downloadAiAttachment(trigger.dataset.aiDownloadUrl || '', trigger.dataset.aiDownloadName || 'download');
  });
+
  function getAccountRoleMeta(profile = {}){
  const role = String(profile.role || profile.userRole || '').toLowerCase();
 
@@ -15381,7 +15374,7 @@ function renderCalendarDayModal(){
  if(!unique.length) return '';
  const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
- const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button type="button" class="ai-attachment-download-link" data-ai-download-url="${escapeAttr(a.url)}" data-ai-download-name="${escapeAttr(a.name || '안내 이미지')}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="lazy"><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button type="button" class="ai-attachment-download-link" data-ai-download-url="${escapeAttr(a.url)}" data-ai-download-name="${escapeAttr(a.name || a.sourceTitle || 'image')}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
  const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button type="button" class="ai-attachment-file-link" data-ai-download-url="${escapeAttr(a.url)}" data-ai-download-name="${escapeAttr(a.name || '첨부파일')}"><span>📎 ${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
  return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${imageHtml}${fileHtml}</div>`;
  }
