@@ -10474,7 +10474,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  if (!('serviceWorker' in navigator)) return false;
  if (shouldSkipForegroundSystemNotification(item)) return true;
 
- const foregroundRegistration = window.pushSwRegistration || (fcmDebugLog("BEFORE_SERVICE_WORKER_READY", "waiting serviceWorker.ready"), await navigator.serviceWorker.ready);
+ const foregroundRegistration = window.pushSwRegistration || (window.fcmDebugLog?.("BEFORE_SERVICE_WORKER_READY", "waiting serviceWorker.ready"), await navigator.serviceWorker.ready);
  if (!foregroundRegistration?.showNotification) return false;
 
  await foregroundRegistration.showNotification(item.title || '새 알림', {
@@ -10623,7 +10623,7 @@ function shouldUseForegroundSystemNotification(payload) {
 }
 
 
-function fcmDebugLog(step, detail) {
+window.fcmDebugLog = function(step, detail) {
   try {
     const info = {
       step,
@@ -10642,14 +10642,14 @@ function fcmDebugLog(step, detail) {
 }
 
 
-setTimeout(() => fcmDebugLog("PAGE_SCRIPT_LOADED", "app.html script loaded"), 800);
+setTimeout(() => window.fcmDebugLog?.("PAGE_SCRIPT_LOADED", "app.html script loaded"), 800);
 
 document.addEventListener("visibilitychange", () => {
-  fcmDebugLog("VISIBILITY_CHANGE", "visibility=" + document.visibilityState);
+  window.fcmDebugLog?.("VISIBILITY_CHANGE", "visibility=" + document.visibilityState);
 });
 
 onMessage(messaging, async (payload) => {
-  fcmDebugLog("ON_MESSAGE_ENTER", payload);
+  window.fcmDebugLog?.("ON_MESSAGE_ENTER", payload);
  try {
  const item = normalizeForegroundPushPayload(payload);
  if (!item) return;
@@ -10664,17 +10664,17 @@ onMessage(messaging, async (payload) => {
  };
 
  try {
- fcmDebugLog("BEFORE_SYSTEM_NOTIFICATION_CHECK", {
+ window.fcmDebugLog?.("BEFORE_SYSTEM_NOTIFICATION_CHECK", {
   shouldUseForegroundSystemNotification: shouldUseForegroundSystemNotification(normalizedItem),
   normalizedItem
  });
 
  if (shouldUseForegroundSystemNotification(normalizedItem)) {
-  fcmDebugLog("BEFORE_SYSTEM_NOTIFICATION", normalizedItem);
+  window.fcmDebugLog?.("BEFORE_SYSTEM_NOTIFICATION", normalizedItem);
 
   const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
 
-  fcmDebugLog("AFTER_SYSTEM_NOTIFICATION", {
+  window.fcmDebugLog?.("AFTER_SYSTEM_NOTIFICATION", {
    shownAsSystemNotification,
    normalizedItem
   });
@@ -10682,11 +10682,11 @@ onMessage(messaging, async (payload) => {
   if (shownAsSystemNotification) return;
  }
 } catch (e) {
- fcmDebugLog("SYSTEM_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
+ window.fcmDebugLog?.("SYSTEM_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
  console.warn("[push] foreground system notification failed; fallback to toast", e);
 }
 
-fcmDebugLog("BEFORE_TOAST_FALLBACK", normalizedItem);
+window.fcmDebugLog?.("BEFORE_TOAST_FALLBACK", normalizedItem);
 
 showForegroundPushToast({
  title: normalizedItem.title,
@@ -11571,9 +11571,9 @@ async function enablePushNotifications(){
  return;
  }
  }
-fcmDebugLog("BEFORE_PERMISSION_REQUEST", "requestPermission before");
+window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
  const permission = await Notification.requestPermission();
- fcmDebugLog("AFTER_PERMISSION_REQUEST", "permission=" + permission);
+ window.fcmDebugLog?.("AFTER_PERMISSION_REQUEST", "permission=" + permission);
  if(permission !== 'granted'){
  state.currentPushToken = null;
  setPushStatusUi(false);
