@@ -2663,7 +2663,65 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       })).filter(s=>s.line||s.name||s.exit||s.distance).sort((a,b)=>(a.distance||999999)-(b.distance||999999));
     }
     function getPrimaryStationAccessText(stations=[]){ return formatStationAccess((stations||[])[0]||{}); }
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',priceDetails:item.priceDetails||item.priceInfo||item.servicePriceText||item.servicePriceDetails||'',address:item.address||'',zipcode:item.zipcode||item.addressParts?.zipcode||'',roadAddress:item.roadAddress||item.addressParts?.road||'',jibunAddress:item.jibunAddress||item.addressParts?.jibun||'',detailAddress:item.detailAddress||item.addressParts?.detail||'',displayAddress:item.displayAddress||item.addressParts?.display||'',stations:normalizeBenefitStations(item),stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||item.nearStationText||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||item.contact?.phone||'',emergencyPhone:item.emergencyPhone||item.contact?.emergency||'',contact:item.contact||{},service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),favoriteCount:Number(item.favoriteCount||0),shareCount:Number(item.shareCount||item.shareClickCount||0),likeCount:Number(item.likeCount||0),recommendCount:Number(item.recommendCount||0),hotCount:Number(item.hotCount||0),popularScore:Number(item.popularScore||item.score||0),status:item.status || (item.closed === true ? 'closed' : (item.visible === false ? 'hidden' : 'active')),closed:!!item.closed || item.status === 'closed',closedAt:item.closedAt||'',closedReason:item.closedReason||'',createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
+    function sanitizeBenefit(item={},id=''){
+      const normalizedStoreStatus = item.storeStatus || item.operationStatus || item.status || (item.closed === true ? 'shutdown' : (item.visible === false ? 'hidden' : 'active'));
+      const normalizedBenefitStatus = item.benefitStatus || item.residentBenefitStatus || item.discountStatus || 'active';
+      return {
+        id,
+        name:item.name||'',
+        category:item.category||'기타',
+        discountValue:Number(item.discountValue||0),
+        discountText:item.discountText||`${Number(item.discountValue||0)}%`,
+        condition:item.condition||'',
+        priceDetails:item.priceDetails||item.priceInfo||item.servicePriceText||item.servicePriceDetails||'',
+        address:item.address||'',
+        zipcode:item.zipcode||item.addressParts?.zipcode||'',
+        roadAddress:item.roadAddress||item.addressParts?.road||'',
+        jibunAddress:item.jibunAddress||item.addressParts?.jibun||'',
+        detailAddress:item.detailAddress||item.addressParts?.detail||'',
+        displayAddress:item.displayAddress||item.addressParts?.display||'',
+        stations:normalizeBenefitStations(item),
+        stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||item.nearStationText||'',
+        lat:Number(item.lat||0),
+        lng:Number(item.lng||0),
+        url:item.url||'',
+        phone:item.phone||item.contact?.phone||'',
+        emergencyPhone:item.emergencyPhone||item.contact?.emergency||'',
+        contact:item.contact||{},
+        service:!!item.service||String(item.discountText).trim()==='서비스',
+        visible:item.visible!==false,
+        recommended:!!item.recommended,
+        thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',
+        shareDescription:item.shareDescription||'',
+        shareBest:!!item.shareBest,
+        rankBoost:Number(item.rankBoost||0),
+        viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),
+        favoriteCount:Number(item.favoriteCount||0),
+        shareCount:Number(item.shareCount||item.shareClickCount||0),
+        likeCount:Number(item.likeCount||0),
+        recommendCount:Number(item.recommendCount||0),
+        hotCount:Number(item.hotCount||0),
+        popularScore:Number(item.popularScore||item.score||0),
+        // 신규 상태 필드는 목록 렌더링/수정 재조회 시 사라지지 않도록 반드시 보존합니다.
+        storeStatus:normalizedStoreStatus,
+        operationStatus:item.operationStatus || normalizedStoreStatus,
+        status:item.status || normalizedStoreStatus,
+        benefitStatus:normalizedBenefitStatus,
+        residentBenefitStatus:item.residentBenefitStatus || normalizedBenefitStatus,
+        discountStatus:item.discountStatus || normalizedBenefitStatus,
+        benefitEndedAt:item.benefitEndedAt||item.discountEndedAt||'',
+        discountEndedAt:item.discountEndedAt||item.benefitEndedAt||'',
+        benefitStatusReason:item.benefitStatusReason||item.statusReason||item.discountStatusReason||'',
+        discountStatusReason:item.discountStatusReason||item.benefitStatusReason||item.statusReason||'',
+        statusReason:item.statusReason||item.benefitStatusReason||item.discountStatusReason||'',
+        closed:!!item.closed || normalizedStoreStatus === 'shutdown' || normalizedStoreStatus === 'closed',
+        closedAt:item.closedAt||'',
+        closedReason:item.closedReason||item.storeStatusReason||'',
+        storeStatusReason:item.storeStatusReason||item.closedReason||'',
+        createdAt:item.createdAt||null,
+        updatedAt:item.updatedAt||null
+      };
+    }
     function mergeBenefitStatsIntoBenefits(){
       state.benefits = state.benefits.map((item) => {
         const stats = state.benefitStats[item.id] || {};
@@ -2683,7 +2741,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null,storage=null;
     function getPublicVisibleBenefitsForStats(){
-      return (state.benefits || []).filter(item => item && item.visible !== false && item.status !== 'closed' && item.closed !== true);
+      return (state.benefits || []).filter(item => {
+        if(!item || item.visible === false) return false;
+        const storeStatus = normalizeAdminStoreStatus(item);
+        const benefitStatus = normalizeAdminBenefitStatus(item);
+        return ['active','reopened'].includes(storeStatus) && ['active','resumed'].includes(benefitStatus);
+      });
     }
 
     function updateStats(){
@@ -3457,8 +3520,15 @@ function fillForm(item){
         const editId=qs('#editId').value;
         if(editId){
           await updateDoc(doc(db,BENEFITS_COLLECTION,editId),payload);
+          // 저장 직후 목록에 이전 상태가 남아 보이지 않도록 로컬 상태도 즉시 동기화합니다.
+          state.benefits = (state.benefits || []).map(item => item.id === editId ? sanitizeBenefit({...item, ...payload}, editId) : item);
+          updateStats();
+          renderList();
         }else{
-          await addDoc(collection(db,BENEFITS_COLLECTION),{...payload,createdAt:serverTimestamp()});
+          const addedRef = await addDoc(collection(db,BENEFITS_COLLECTION),{...payload,createdAt:serverTimestamp()});
+          state.benefits = [sanitizeBenefit({...payload}, addedRef.id), ...(state.benefits || [])];
+          updateStats();
+          renderList();
         }
         hideGlobalLoading();
         resetForm();
