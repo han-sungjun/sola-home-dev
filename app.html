@@ -10474,7 +10474,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  if (!('serviceWorker' in navigator)) return false;
  if (shouldSkipForegroundSystemNotification(item)) return true;
 
- const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
+ const foregroundRegistration = window.pushSwRegistration || (fcmDebugLog("BEFORE_SERVICE_WORKER_READY", "waiting serviceWorker.ready"), await navigator.serviceWorker.ready);
  if (!foregroundRegistration?.showNotification) return false;
 
  await foregroundRegistration.showNotification(item.title || '새 알림', {
@@ -10623,104 +10623,33 @@ function shouldUseForegroundSystemNotification(payload) {
 }
 
 
-function isMobileEdgeDebugBrowser() {
-  const ua = String(navigator.userAgent || "").toLowerCase();
-
-  return (
-    (ua.includes("android") || ua.includes("mobile")) &&
-    (
-      ua.includes("edga") ||
-      ua.includes("edgios") ||
-      ua.includes("edg/") ||
-      ua.includes("edg")
-    )
-  );
-}
-
-function showMobileEdgeDebugModal(step, detail) {
+function fcmDebugLog(step, detail) {
   try {
-    if (!isMobileEdgeDebugBrowser()) return;
-
-    const old = document.getElementById("mobile-edge-debug-modal");
-    if (old) old.remove();
-
-    const wrap = document.createElement("div");
-    wrap.id = "mobile-edge-debug-modal";
-
-    wrap.style.position = "fixed";
-    wrap.style.left = "16px";
-    wrap.style.right = "16px";
-    wrap.style.bottom = "24px";
-    wrap.style.zIndex = "999999";
-    wrap.style.background = "rgba(12,18,38,0.96)";
-    wrap.style.color = "#fff";
-    wrap.style.borderRadius = "18px";
-    wrap.style.padding = "16px";
-    wrap.style.boxShadow = "0 12px 40px rgba(0,0,0,0.35)";
-    wrap.style.fontSize = "12px";
-    wrap.style.lineHeight = "1.45";
-
-    wrap.innerHTML = `
-      <div style="font-size:14px;font-weight:700;margin-bottom:10px;">
-        📡 Mobile Edge Push Debug
-      </div>
-
-      <div style="margin-bottom:8px;">
-        <b>STEP</b>: ${step}
-      </div>
-
-      <div style="margin-bottom:10px;word-break:break-word;max-height:160px;overflow:auto;">
-        ${String(detail || "").replace(/</g, "&lt;")}
-      </div>
-
-      <div style="opacity:0.9;">
-        permission: ${window.Notification ? Notification.permission : "unsupported"}<br>
-        serviceWorker: ${!!navigator.serviceWorker}<br>
-        secureContext: ${window.isSecureContext}<br>
-        visibility: ${document.visibilityState}
-      </div>
-
-      <button id="mobile-edge-debug-close"
-        style="
-          margin-top:12px;
-          width:100%;
-          border:none;
-          border-radius:12px;
-          background:#2f7cff;
-          color:#fff;
-          padding:10px 12px;
-          font-weight:700;
-          cursor:pointer;
-        ">
-        확인
-      </button>
-    `;
-
-    document.body.appendChild(wrap);
-
-    const btn = document.getElementById("mobile-edge-debug-close");
-    if (btn) {
-      btn.onclick = () => wrap.remove();
-    }
-
-    setTimeout(() => {
-      if (wrap && wrap.parentNode) {
-        wrap.remove();
-      }
-    }, 6000);
-
+    const info = {
+      step,
+      detail,
+      permission: window.Notification ? Notification.permission : "unsupported",
+      serviceWorker: !!navigator.serviceWorker,
+      secureContext: window.isSecureContext,
+      visibility: document.visibilityState,
+      userAgent: String(navigator.userAgent || ""),
+      time: new Date().toISOString()
+    };
+    console.log("[FCM_DEBUG]", info);
   } catch (e) {
-    console.warn("[mobile-edge-debug-modal]", e);
+    console.warn("[FCM_DEBUG_ERROR]", e);
   }
 }
 
 
-setTimeout(() => showMobileEdgeDebugModal("PAGE_SCRIPT_LOADED", "페이지 스크립트 로드"), 1200);
+setTimeout(() => fcmDebugLog("PAGE_SCRIPT_LOADED", "app.html script loaded"), 800);
+
+document.addEventListener("visibilitychange", () => {
+  fcmDebugLog("VISIBILITY_CHANGE", "visibility=" + document.visibilityState);
+});
+
 onMessage(messaging, async (payload) => {
-  showMobileEdgeDebugModal(
-    "ON_MESSAGE_ENTER",
-    "payload: " + JSON.stringify(payload)
-  );
+  fcmDebugLog("ON_MESSAGE_ENTER", payload);
  try {
  const item = normalizeForegroundPushPayload(payload);
  if (!item) return;
@@ -10735,34 +10664,29 @@ onMessage(messaging, async (payload) => {
  };
 
  try {
- showMobileEdgeDebugModal(
-   "BEFORE_SYSTEM_NOTIFICATION",
-   "shouldUseForegroundSystemNotification=" + shouldUseForegroundSystemNotification(normalizedItem)
- );
+ fcmDebugLog("BEFORE_SYSTEM_NOTIFICATION_CHECK", {
+  shouldUseForegroundSystemNotification: shouldUseForegroundSystemNotification(normalizedItem),
+  normalizedItem
+ });
 
  if (shouldUseForegroundSystemNotification(normalizedItem)) {
+  fcmDebugLog("BEFORE_SYSTEM_NOTIFICATION", normalizedItem);
+
   const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
 
-  showMobileEdgeDebugModal(
-    "AFTER_SYSTEM_NOTIFICATION",
-    "shownAsSystemNotification=" + shownAsSystemNotification
-  );
+  fcmDebugLog("AFTER_SYSTEM_NOTIFICATION", {
+   shownAsSystemNotification,
+   normalizedItem
+  });
 
   if (shownAsSystemNotification) return;
  }
 } catch (e) {
- showMobileEdgeDebugModal(
-   "SYSTEM_NOTIFICATION_ERROR",
-   String(e && (e.stack || e.message) || e)
- );
-
+ fcmDebugLog("SYSTEM_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
  console.warn("[push] foreground system notification failed; fallback to toast", e);
 }
 
-showMobileEdgeDebugModal(
-  "BEFORE_TOAST_FALLBACK",
-  "내부 토스트 fallback 실행"
-);
+fcmDebugLog("BEFORE_TOAST_FALLBACK", normalizedItem);
 
 showForegroundPushToast({
  title: normalizedItem.title,
@@ -11647,7 +11571,9 @@ async function enablePushNotifications(){
  return;
  }
  }
-const permission = await Notification.requestPermission();
+fcmDebugLog("BEFORE_PERMISSION_REQUEST", "requestPermission before");
+ const permission = await Notification.requestPermission();
+ fcmDebugLog("AFTER_PERMISSION_REQUEST", "permission=" + permission);
  if(permission !== 'granted'){
  state.currentPushToken = null;
  setPushStatusUi(false);
