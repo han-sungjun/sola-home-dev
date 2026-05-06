@@ -10558,7 +10558,47 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  // Data-only FCM은 앱이 열려 있을 때 서비스워커 onBackgroundMessage를 타지 않습니다.
  // 앱 실행 중에도 모든 포그라운드 푸시는 시스템 알림을 우선 시도합니다.
  // 브라우저 정책/권한 문제로 시스템 알림 표시가 실패하면 내부 토스트로 fallback합니다.
- onMessage(messaging, async (payload) => {
+ 
+function isMobileForegroundNotificationTarget() {
+  const ua = String(navigator.userAgent || "").toLowerCase();
+
+  const isMobile =
+    ua.includes("android") ||
+    ua.includes("iphone") ||
+    ua.includes("ipad") ||
+    ua.includes("mobile");
+
+  const isInAppBrowser =
+    ua.includes("kakaotalk") ||
+    ua.includes("naver") ||
+    ua.includes("naver(inapp") ||
+    ua.includes("naverapp");
+
+  // 카카오톡/네이버 인앱은 알림 초기화/Service Worker/Push 권한이 제한되는 경우가 많아
+  // 시스템 알림 시도 대상에서 제외하고 내부 토스트로 조용히 fallback 합니다.
+  if (isInAppBrowser) return false;
+
+  return (
+    isMobile &&
+    (
+      ua.includes("samsungbrowser") ||
+      ua.includes("chrome") ||
+      ua.includes("crios") ||
+      ua.includes("whale")
+    )
+  );
+}
+
+function isPcForegroundNotificationTarget() {
+  return false;
+}
+
+function shouldUseForegroundSystemNotification(payload) {
+  // PC는 일부 환경에서 브라우저/서비스워커 알림과 onMessage 알림이 중복될 수 있어 제외합니다.
+  // 모바일 Chrome/Samsung/Whale만 포그라운드 시스템 알림을 우선 시도합니다.
+  return isMobileForegroundNotificationTarget() || isPcForegroundNotificationTarget();
+}
+onMessage(messaging, async (payload) => {
  try {
  const item = normalizeForegroundPushPayload(payload);
  if (!item) return;
