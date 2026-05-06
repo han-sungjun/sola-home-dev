@@ -10474,7 +10474,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  if (!('serviceWorker' in navigator)) return false;
  if (shouldSkipForegroundSystemNotification(item)) return true;
 
- const foregroundRegistration = window.pushSwRegistration || (window.fcmDebugLog?.("BEFORE_SERVICE_WORKER_READY", "waiting serviceWorker.ready"), await navigator.serviceWorker.ready);
+ const foregroundRegistration = window.pushSwRegistration || (window.fcmDebugLog?.("BEFORE_SERVICE_WORKER_READY", "waiting serviceWorker.ready"), await (window.fcmDebugLog?.("BEFORE_SERVICE_WORKER_READY_DEEP", "navigator.serviceWorker.ready 접근"), navigator.serviceWorker.ready));
  if (!foregroundRegistration?.showNotification) return false;
 
  await foregroundRegistration.showNotification(item.title || '새 알림', {
@@ -10648,6 +10648,7 @@ document.addEventListener("visibilitychange", () => {
   window.fcmDebugLog?.("VISIBILITY_CHANGE", "visibility=" + document.visibilityState);
 });
 
+window.fcmDebugLog?.("ON_MESSAGE_REGISTER", "onMessage 리스너 등록 직전");
 onMessage(messaging, async (payload) => {
   window.fcmDebugLog?.("ON_MESSAGE_ENTER", payload);
  try {
@@ -11555,6 +11556,7 @@ function setPushStatusUi(enabled){
  }
  }
 async function enablePushNotifications(){
+ window.fcmDebugLog?.("ENABLE_PUSH_ENTER", "알림 받기 버튼 흐름 진입");
  try{
  if(!state.currentUser?.uid){
  await openModalAlert('로그인 후 이용해 주세요.');
@@ -11585,6 +11587,7 @@ window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
  vapidKey: window.VAPID_PUBLIC_KEY,
  serviceWorkerRegistration: window.pushSwRegistration
  }).catch(() => null);
+ window.fcmDebugLog?.("AFTER_GET_TOKEN_DEEP", token ? "token exists: " + String(token).slice(0, 32) + "..." : "no token");
 
  if(!token){
  state.currentPushToken = null;
