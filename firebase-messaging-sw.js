@@ -36,7 +36,7 @@ const firebaseConfig = isDev
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-function swDebugLog(step, detail) {
+function swFlowLog(step, detail) {
   try {
     const info = {
       step,
@@ -46,23 +46,39 @@ function swDebugLog(step, detail) {
       userAgent: String(self.navigator?.userAgent || "")
     };
 
-    console.log("[SW_DEBUG]", info);
+    console.log("[SW_FLOW]", info);
 
     self.clients.matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
+        console.log("[SW_FLOW_CLIENTS]", {
+          step,
+          clientCount: clientList.length,
+          clients: clientList.map((client) => ({
+            url: client.url,
+            visibilityState: client.visibilityState,
+            focused: client.focused
+          }))
+        });
+
         clientList.forEach((client) => {
           try {
             client.postMessage({
-              type: "SW_DEBUG",
+              type: "SW_FLOW",
               info
             });
           } catch (e) {}
         });
       })
-      .catch(() => {});
+      .catch((e) => {
+        console.warn("[SW_FLOW_CLIENTS_ERROR]", e);
+      });
   } catch (e) {
-    console.warn("[SW_DEBUG_ERROR]", e);
+    console.warn("[SW_FLOW_ERROR]", e);
   }
+}
+
+function swDebugLog(step, detail) {
+  swFlowLog(step, detail);
 }
 
 
@@ -71,6 +87,8 @@ function swDebugLog(step, detail) {
    - fallback push는 모바일에서만 실행
    - PC Chrome 중복 알림 방지
 ========================= */
+swFlowLog("SW_SCRIPT_LOADED", { isDev, swUrl, swHost });
+
 function isMobileBrowser() {
   const ua = String(self.navigator?.userAgent || "").toLowerCase();
 
@@ -193,18 +211,18 @@ function normalizePayload(payload) {
    알림 표시 공통 함수
 ========================= */
 function showPushNotification(payload) {
-  swDebugLog("SHOW_PUSH_NOTIFICATION_ENTER", payload);
+  swFlowLog("SHOW_PUSH_NOTIFICATION_ENTER", payload);
 
   const normalized = normalizePayload(payload);
-  swDebugLog("SHOW_PUSH_NOTIFICATION_NORMALIZED", normalized);
+  swFlowLog("SHOW_PUSH_NOTIFICATION_NORMALIZED", normalized);
   const key = makeNotificationKey(normalized);
 
   if (isDuplicateNotification(key)) {
-    swDebugLog("SHOW_PUSH_NOTIFICATION_DUPLICATE_SKIPPED", normalized);
+    swFlowLog("SHOW_PUSH_NOTIFICATION_DUPLICATE_SKIPPED", normalized);
     return Promise.resolve();
   }
 
-  swDebugLog("SHOW_NOTIFICATION_CALL", normalized);
+  swFlowLog("BEFORE_SHOW_NOTIFICATION_CALL", normalized);
 
   return self.registration.showNotification(normalized.title, {
     body: normalized.body,
@@ -222,6 +240,12 @@ function showPushNotification(payload) {
       benefitId: normalized.benefitId,
       type: normalized.type
     }
+  }).then((result) => {
+    swFlowLog("AFTER_SHOW_NOTIFICATION_CALL", normalized);
+    return result;
+  }).catch((e) => {
+    swFlowLog("SHOW_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
+    throw e;
   });
 }
 
@@ -229,12 +253,12 @@ function showPushNotification(payload) {
    Firebase 백그라운드 수신
 ========================= */
 messaging.onBackgroundMessage((payload) => {
-  swDebugLog("ON_BACKGROUND_MESSAGE", payload);
+  swFlowLog("ON_BACKGROUND_MESSAGE_ENTER", payload);
 
   return showPushNotification(payload)
-    .then(() => swDebugLog("BACKGROUND_SHOW_NOTIFICATION_DONE", payload))
+    .then(() => swFlowLog("ON_BACKGROUND_MESSAGE_DONE", payload))
     .catch((e) => {
-      swDebugLog("BACKGROUND_SHOW_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
+      swFlowLog("ON_BACKGROUND_MESSAGE_ERROR", String(e && (e.stack || e.message) || e));
       throw e;
     });
 });
@@ -246,12 +270,12 @@ messaging.onBackgroundMessage((payload) => {
    - 앱 닫힘 상태 2회 알림 방지
 ========================= */
 self.addEventListener("push", (event) => {
-  swDebugLog("PUSH_EVENT_ENTER", {
+  swFlowLog("PUSH_EVENT_ENTER", {
     hasData: !!event.data
   });
 
   if (!event.data) {
-    swDebugLog("PUSH_EVENT_NO_DATA", {});
+    swFlowLog("PUSH_EVENT_NO_DATA", {});
     return;
   }
 
@@ -260,13 +284,19 @@ self.addEventListener("push", (event) => {
       let payload = {};
 
       try {
+        swFlowLog("PUSH_EVENT_RAW_TEXT", event.data.text());
+      } catch (_) {}
+
+      try {
         payload = event.data.json();
+        swFlowLog("PUSH_EVENT_JSON_PARSED", payload);
       } catch (e) {
         payload = {
           title: "알림",
           body: event.data.text() || "",
           url: "/app"
         };
+        swFlowLog("PUSH_EVENT_TEXT_FALLBACK_PAYLOAD", payload);
       }
 
       // FCM Web Push는 onBackgroundMessage에서도 동일하게 들어오기 때문에
@@ -279,18 +309,18 @@ self.addEventListener("push", (event) => {
         String(payload?.from || "").includes("firebase") ||
         String(payload?.collapse_key || "").includes("firebase");
 
-      swDebugLog("PUSH_EVENT_PAYLOAD_PARSED", {
+      swFlowLog("PUSH_EVENT_PAYLOAD_CLASSIFIED", {
         payload,
         isFcmPayload
       });
 
       if (isFcmPayload) {
-        swDebugLog("PUSH_EVENT_FCM_PAYLOAD_SKIPPED_BY_FALLBACK", payload);
+        swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SKIPPED_BY_FALLBACK", payload);
         return;
       }
 
       await showPushNotification(payload);
-      swDebugLog("PUSH_EVENT_FALLBACK_NOTIFICATION_DONE", payload);
+      swFlowLog("PUSH_EVENT_FALLBACK_NOTIFICATION_DONE", payload);
     })()
   );
 });
@@ -299,6 +329,11 @@ self.addEventListener("push", (event) => {
    알림 클릭 처리
 ========================= */
 self.addEventListener("notificationclick", (event) => {
+  swFlowLog("NOTIFICATION_CLICK_ENTER", {
+    data: event.notification?.data || {},
+    title: event.notification?.title || ""
+  });
+
   event.notification.close();
 
   const data = event.notification?.data || {};
@@ -345,11 +380,11 @@ self.addEventListener("notificationclick", (event) => {
    SW 최신화
 ========================= */
 self.addEventListener("install", () => {
-  swDebugLog("SW_INSTALL", {});
+  swFlowLog("SW_INSTALL", {});
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  swDebugLog("SW_ACTIVATE", {});
+  swFlowLog("SW_ACTIVATE", {});
   event.waitUntil(self.clients.claim());
 });
