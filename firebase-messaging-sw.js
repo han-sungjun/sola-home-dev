@@ -37,7 +37,11 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 function swFlowLog(step, detail) {
+  // 운영 기본값: 서비스 워커 흐름 로그 비활성화
+  // 필요 시 DevTools 콘솔에서 self.__MYHILLS_SW_DEBUG__ = true 설정 후 확인
   try {
+    if (!self.__MYHILLS_SW_DEBUG__) return;
+
     const info = {
       step,
       detail,
@@ -46,35 +50,16 @@ function swFlowLog(step, detail) {
       userAgent: String(self.navigator?.userAgent || "")
     };
 
-    console.log("[SW_FLOW]", info);
-
     self.clients.matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
-        console.log("[SW_FLOW_CLIENTS]", {
-          step,
-          clientCount: clientList.length,
-          clients: clientList.map((client) => ({
-            url: client.url,
-            visibilityState: client.visibilityState,
-            focused: client.focused
-          }))
-        });
-
         clientList.forEach((client) => {
           try {
-            client.postMessage({
-              type: "SW_FLOW",
-              info
-            });
+            client.postMessage({ type: "SW_FLOW", info });
           } catch (e) {}
         });
       })
-      .catch((e) => {
-        console.warn("[SW_FLOW_CLIENTS_ERROR]", e);
-      });
-  } catch (e) {
-    console.warn("[SW_FLOW_ERROR]", e);
-  }
+      .catch(() => {});
+  } catch (e) {}
 }
 
 function swDebugLog(step, detail) {

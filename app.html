@@ -10508,7 +10508,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  if (!('serviceWorker' in navigator)) return false;
  if (shouldSkipForegroundSystemNotification(item)) return true;
 
- const foregroundRegistration = window.pushSwRegistration || (window.fcmDebugLog?.("BEFORE_SERVICE_WORKER_READY", "waiting serviceWorker.ready"), await (window.fcmDebugLog?.("BEFORE_SERVICE_WORKER_READY_DEEP", "navigator.serviceWorker.ready 접근"), navigator.serviceWorker.ready));
+ const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
  if (!foregroundRegistration?.showNotification) return false;
 
  await foregroundRegistration.showNotification(item.title || '새 알림', {
@@ -10660,7 +10660,9 @@ function shouldUseForegroundSystemNotification(payload) {
 }
 
 
+const ENABLE_PUSH_DEBUG_LOG = localStorage.getItem('myhillsPushDebug') === '1';
 window.fcmDebugLog = function(step, detail) {
+  if (!ENABLE_PUSH_DEBUG_LOG) return;
   try {
     const info = {
       step,
@@ -10672,43 +10674,13 @@ window.fcmDebugLog = function(step, detail) {
       userAgent: String(navigator.userAgent || ""),
       time: new Date().toISOString()
     };
-    console.log("[FCM_DEBUG]", info);
-  } catch (e) {
-    console.warn("[FCM_DEBUG_ERROR]", e);
-  }
+    console.debug("[FCM_DEBUG]", info);
+  } catch (e) {}
 }
 
 
-setTimeout(() => window.fcmDebugLog?.("PAGE_SCRIPT_LOADED", "app.html script loaded"), 800);
-
-document.addEventListener("visibilitychange", () => {
-  window.fcmDebugLog?.("VISIBILITY_CHANGE", "visibility=" + document.visibilityState);
-});
-
-window.fcmDebugLog?.("ON_MESSAGE_REGISTER", "onMessage 리스너 등록 직전");
-
-
-window.fcmDebugLog = window.fcmDebugLog || function(step, detail) {
-  try {
-    const info = {
-      step,
-      detail,
-      permission: window.Notification ? Notification.permission : "unsupported",
-      serviceWorker: !!navigator.serviceWorker,
-      controller: !!navigator.serviceWorker?.controller,
-      secureContext: window.isSecureContext,
-      visibility: document.visibilityState,
-      focus: document.hasFocus ? document.hasFocus() : null,
-      userAgent: String(navigator.userAgent || ""),
-      time: new Date().toISOString()
-    };
-    console.log("[FCM_DEBUG]", info);
-  } catch (e) {
-    console.warn("[FCM_DEBUG_ERROR]", e);
-  }
-};
-
 window.pushFlowLog = window.pushFlowLog || function(step, detail) {
+  if (!ENABLE_PUSH_DEBUG_LOG) return;
   try {
     const info = {
       step,
@@ -10722,61 +10694,36 @@ window.pushFlowLog = window.pushFlowLog || function(step, detail) {
       userAgent: String(navigator.userAgent || ""),
       time: new Date().toISOString()
     };
-    console.log("[PUSH_FLOW]", info);
-  } catch (e) {
-    console.warn("[PUSH_FLOW_ERROR]", e);
-  }
+    console.debug("[PUSH_FLOW]", info);
+  } catch (e) {}
 };
-
-
-
-setTimeout(() => {
-  window.pushFlowLog?.("PAGE_SCRIPT_LOADED", {
-    href: location.href,
-    readyState: document.readyState
-  });
-}, 800);
-
-document.addEventListener("visibilitychange", () => {
-  window.pushFlowLog?.("VISIBILITY_CHANGE", {
-    visibility: document.visibilityState,
-    focus: document.hasFocus ? document.hasFocus() : null
-  });
-});
 
 if (navigator.serviceWorker) {
   navigator.serviceWorker.addEventListener("message", (event) => {
     const data = event.data || {};
-    console.log("[SW_TO_APP_MESSAGE]", data);
-
-    if (data.type === "SW_FLOW" || data.type === "SW_DEBUG" || data.type === "SW_RAW_PUSH") {
+    if (ENABLE_PUSH_DEBUG_LOG && (data.type === "SW_FLOW" || data.type === "SW_DEBUG" || data.type === "SW_RAW_PUSH")) {
       window.pushFlowLog?.("SW_MESSAGE_RECEIVED", data);
       window.fcmDebugLog?.("SW_MESSAGE_RECEIVED", data);
     }
   });
 
-  navigator.serviceWorker.ready
-    .then((reg) => {
-      window.pushFlowLog?.("SERVICE_WORKER_READY_RESOLVED", {
-        scope: reg.scope,
-        active: !!reg.active,
-        activeState: reg.active?.state || "",
-        installing: !!reg.installing,
-        waiting: !!reg.waiting
+  if (ENABLE_PUSH_DEBUG_LOG) {
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        window.pushFlowLog?.("SERVICE_WORKER_READY_RESOLVED", {
+          scope: reg.scope,
+          active: !!reg.active,
+          activeState: reg.active?.state || "",
+          installing: !!reg.installing,
+          waiting: !!reg.waiting
+        });
+      })
+      .catch((e) => {
+        window.pushFlowLog?.("SERVICE_WORKER_READY_ERROR", String(e && (e.stack || e.message) || e));
       });
-    })
-    .catch((e) => {
-      window.pushFlowLog?.("SERVICE_WORKER_READY_ERROR", String(e && (e.stack || e.message) || e));
-    });
+  }
 }
-
-window.pushFlowLog?.("ON_MESSAGE_REGISTER", "onMessage listener register");
-window.fcmDebugLog?.("ON_MESSAGE_REGISTER", "onMessage listener register");
 onMessage(messaging, async (payload) => {
-  window.pushFlowLog?.("ON_MESSAGE_ENTER", payload);
-  window.fcmDebugLog?.("ON_MESSAGE_ENTER", payload);
-  console.log("[FCM_DEBUG][onMessage]", payload);
-  window.fcmDebugLog?.("ON_MESSAGE_ENTER", payload);
  try {
  const item = normalizeForegroundPushPayload(payload);
  if (!item) return;
@@ -10791,29 +10738,13 @@ onMessage(messaging, async (payload) => {
  };
 
  try {
- window.fcmDebugLog?.("BEFORE_SYSTEM_NOTIFICATION_CHECK", {
-  shouldUseForegroundSystemNotification: shouldUseForegroundSystemNotification(normalizedItem),
-  normalizedItem
- });
-
  if (shouldUseForegroundSystemNotification(normalizedItem)) {
-  window.fcmDebugLog?.("BEFORE_SYSTEM_NOTIFICATION", normalizedItem);
-
   const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
-
-  window.fcmDebugLog?.("AFTER_SYSTEM_NOTIFICATION", {
-   shownAsSystemNotification,
-   normalizedItem
-  });
 
   if (shownAsSystemNotification) return;
  }
 } catch (e) {
- window.fcmDebugLog?.("SYSTEM_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
- console.warn("[push] foreground system notification failed; fallback to toast", e);
 }
-
-window.fcmDebugLog?.("BEFORE_TOAST_FALLBACK", normalizedItem);
 
 showForegroundPushToast({
  title: normalizedItem.title,
@@ -11204,7 +11135,7 @@ function setPushStatusUi(enabled){
  }
  if(subEl){
  subEl.textContent = enabled
- ? '현재 브라우저에서 알림을 받을 수 있습니다.'
+ ? '현재 브라우저에서 알림 알림을 받을 수 있습니다.'
  : '현재 브라우저/기기에서만 다시 알림 허용을 진행해 주세요.';
  }
  if(enableBtn) enableBtn.classList.toggle('hidden', !!enabled);
@@ -11716,7 +11647,6 @@ function setPushStatusUi(enabled){
  }
  }
 async function enablePushNotifications(){
- window.fcmDebugLog?.("ENABLE_PUSH_ENTER", "알림 받기 버튼 흐름 진입");
  try{
  if(!state.currentUser?.uid){
  await openModalAlert('로그인 후 이용해 주세요.');
@@ -11733,9 +11663,7 @@ async function enablePushNotifications(){
  return;
  }
  }
-window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
  const permission = await Notification.requestPermission();
- window.fcmDebugLog?.("AFTER_PERMISSION_REQUEST", "permission=" + permission);
  if(permission !== 'granted'){
  state.currentPushToken = null;
  setPushStatusUi(false);
@@ -11748,7 +11676,6 @@ window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
  vapidKey: window.VAPID_PUBLIC_KEY,
  serviceWorkerRegistration: window.pushSwRegistration
  }).catch(() => null);
- window.fcmDebugLog?.("AFTER_GET_TOKEN_DEEP", token ? "token exists: " + String(token).slice(0, 32) + "..." : "no token");
 
  if(!token){
  state.currentPushToken = null;
@@ -11782,12 +11709,12 @@ window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
  }, { merge:true });
 
  setPushStatusUi(true);
- await openModalAlert('현재 기기에서 알림이 설정되었습니다.');
+ await openModalAlert('현재 기기에서 알림 알림이 설정되었습니다.');
  }catch(error){
  console.error('알림 설정 실패', error);
  state.currentPushToken = null;
  setPushStatusUi(false);
- await openModalAlert('알림 설정 중 오류가 발생했습니다.');
+ await openModalAlert('알림 알림 설정 중 오류가 발생했습니다.');
  }
  }
 
@@ -11806,10 +11733,10 @@ async function disablePushNotifications(){
  await deleteDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', state.currentPushToken));
  state.currentPushToken = null;
  setPushStatusUi(false);
- await openModalAlert('현재 기기에서 알림이 해제되었습니다.');
+ await openModalAlert('현재 기기에서 알림 알림이 해제되었습니다.');
  }catch(error){
  console.error('알림 해제 실패', error);
- await openModalAlert('알림 해제 중 오류가 발생했습니다.');
+ await openModalAlert('알림 알림 해제 중 오류가 발생했습니다.');
  }
  }
 
@@ -12005,7 +11932,6 @@ async function refreshPushStatus(){
  updateUserChip();
  await refreshPushStatus();
  if(shouldUseMobileEdgeInAppFallback()){
- window.fcmDebugLog?.('MOBILE_EDGE_IN_APP_FALLBACK_ACTIVE', 'system push limited; in-app toast fallback enabled');
  }
  if(hasAiOpenDeepLink()){
  setTimeout(() => handleAiOpenDeepLink().catch(error => console.warn('AI 알림 딥링크 처리 실패:', error)), 500);
@@ -12906,7 +12832,6 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  if(!mobileEdgeNoticeToastReady){
  mobileEdgeNoticeToastReady = true;
  mobileEdgeNoticeToastStartedAt = Date.now();
- window.fcmDebugLog?.('MOBILE_EDGE_NOTICE_TOAST_READY', { startedAt: mobileEdgeNoticeToastStartedAt });
  return;
  }
 
@@ -12931,7 +12856,6 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  const body = bodySource.length > 90 ? `${bodySource.slice(0, 90)}…` : bodySource;
  const url = `/app?open=notice&id=${encodeURIComponent(noticeId)}&from=edge-toast`;
 
- window.fcmDebugLog?.('MOBILE_EDGE_NOTICE_TOAST_SHOW', { noticeId, title, url });
  showForegroundPushToast({ title, body, url });
  });
  }
