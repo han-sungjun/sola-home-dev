@@ -10622,7 +10622,45 @@ function isDesktopSupportedBrowser() {
 function shouldUseForegroundSystemNotification(payload) {
   return isMobileForegroundNotificationTarget() || isPcForegroundNotificationTarget();
 }
+
+
+function isMobileEdgeDebugBrowser() {
+  const ua = String(navigator.userAgent || "").toLowerCase();
+  return (
+    (ua.includes("android") || ua.includes("mobile")) &&
+    (
+      ua.includes("edga") ||
+      ua.includes("edgios") ||
+      ua.includes("edg/") ||
+      ua.includes("edg")
+    )
+  );
+}
+
+function mobileEdgeDebugAlert(step, detail) {
+  try {
+    if (!isMobileEdgeDebugBrowser()) return;
+
+    const message =
+      "[Mobile Edge Push Debug]\n\n" +
+      "STEP: " + step + "\n\n" +
+      (detail ? String(detail).slice(0, 1400) + "\n\n" : "") +
+      "permission: " + (window.Notification ? Notification.permission : "Notification 없음") + "\n" +
+      "serviceWorker: " + (!!navigator.serviceWorker) + "\n" +
+      "secureContext: " + window.isSecureContext + "\n" +
+      "visibility: " + document.visibilityState + "\n" +
+      "UA: " + navigator.userAgent;
+
+    alert(message);
+  } catch (e) {
+    try { alert("[Mobile Edge Push Debug Error]\n" + String(e && e.message || e)); } catch (_) {}
+  }
+}
+
+
+setTimeout(() => mobileEdgeDebugAlert("PAGE_SCRIPT_LOADED", "페이지 스크립트 로드됨"), 800);
 onMessage(messaging, async (payload) => {
+  mobileEdgeDebugAlert("ON_MESSAGE_ENTER", "payload keys: " + Object.keys(payload || {}).join(", ") + "\nraw: " + JSON.stringify(payload));
   try {
     const __ua = String(navigator.userAgent || "").toLowerCase();
     const __isMobileEdge =
@@ -10658,14 +10696,19 @@ onMessage(messaging, async (payload) => {
  };
 
  try {
+ mobileEdgeDebugAlert("BEFORE_SYSTEM_NOTIFICATION", "shouldUseForegroundSystemNotification=" + shouldUseForegroundSystemNotification(normalizedItem));
+
  if (shouldUseForegroundSystemNotification(normalizedItem)) {
   const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
+  mobileEdgeDebugAlert("AFTER_SYSTEM_NOTIFICATION", "shownAsSystemNotification=" + shownAsSystemNotification);
   if (shownAsSystemNotification) return;
  }
 } catch (e) {
+ mobileEdgeDebugAlert("SYSTEM_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
  console.warn("[push] foreground system notification failed; fallback to toast", e);
 }
 
+mobileEdgeDebugAlert("BEFORE_TOAST_FALLBACK", "toast fallback 실행");
 showForegroundPushToast({
  title: normalizedItem.title,
  body: normalizedItem.body,
@@ -11549,7 +11592,9 @@ async function enablePushNotifications(){
  return;
  }
  }
-const permission = await Notification.requestPermission();
+mobileEdgeDebugAlert("BEFORE_PERMISSION_REQUEST", "Notification.requestPermission 호출 직전");
+ const permission = await Notification.requestPermission();
+ mobileEdgeDebugAlert("AFTER_PERMISSION_REQUEST", "permission=" + permission);
  if(permission !== 'granted'){
  state.currentPushToken = null;
  setPushStatusUi(false);
