@@ -10636,16 +10636,20 @@ onMessage(messaging, async (payload) => {
  important: isCalendarPush ? true : item.important
  };
 
+ try {
  if (shouldUseForegroundSystemNotification(normalizedItem)) {
- const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
- if (shownAsSystemNotification) return;
+  const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
+  if (shownAsSystemNotification) return;
  }
+} catch (e) {
+ console.warn("[push] foreground system notification failed; fallback to toast", e);
+}
 
- showForegroundPushToast({
+showForegroundPushToast({
  title: normalizedItem.title,
  body: normalizedItem.body,
  url: normalizedItem.url
- });
+});
  } catch (error) {
  console.warn('포그라운드 알림 처리 실패', error);
  }
