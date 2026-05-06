@@ -10612,8 +10612,10 @@ onMessage(messaging, async (payload) => {
  important: isCalendarPush ? true : item.important
  };
 
+ if (shouldUseForegroundSystemNotification(normalizedItem)) {
  const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
  if (shownAsSystemNotification) return;
+ }
 
  showForegroundPushToast({
  title: normalizedItem.title,
