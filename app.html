@@ -10658,8 +10658,10 @@ window.fcmDebugLog = window.fcmDebugLog || function(step, detail) {
       detail,
       permission: window.Notification ? Notification.permission : "unsupported",
       serviceWorker: !!navigator.serviceWorker,
+      controller: !!navigator.serviceWorker?.controller,
       secureContext: window.isSecureContext,
       visibility: document.visibilityState,
+      focus: document.hasFocus ? document.hasFocus() : null,
       userAgent: String(navigator.userAgent || ""),
       time: new Date().toISOString()
     };
@@ -10692,31 +10694,28 @@ window.pushFlowLog = window.pushFlowLog || function(step, detail) {
 
 
 setTimeout(() => {
-  window.fcmDebugLog?.("PAGE_SCRIPT_LOADED", "app.html script loaded");
-  window.pushFlowLog?.("PAGE_LOADED", {
+  window.pushFlowLog?.("PAGE_SCRIPT_LOADED", {
     href: location.href,
     readyState: document.readyState
   });
 }, 800);
 
 document.addEventListener("visibilitychange", () => {
-  window.fcmDebugLog?.("VISIBILITY_CHANGE", "visibility=" + document.visibilityState);
   window.pushFlowLog?.("VISIBILITY_CHANGE", {
     visibility: document.visibilityState,
     focus: document.hasFocus ? document.hasFocus() : null
   });
 });
 
-window.addEventListener("focus", () => window.pushFlowLog?.("WINDOW_FOCUS", "focus"));
-window.addEventListener("blur", () => window.pushFlowLog?.("WINDOW_BLUR", "blur"));
-window.addEventListener("online", () => window.pushFlowLog?.("NETWORK_ONLINE", "online"));
-window.addEventListener("offline", () => window.pushFlowLog?.("NETWORK_OFFLINE", "offline"));
-
 if (navigator.serviceWorker) {
   navigator.serviceWorker.addEventListener("message", (event) => {
-    window.fcmDebugLog?.("SW_MESSAGE_RECEIVED", event.data || {});
-    window.pushFlowLog?.("SW_MESSAGE_RECEIVED", event.data || {});
-    console.log("[SW_DEBUG][message]", event.data);
+    const data = event.data || {};
+    console.log("[SW_TO_APP_MESSAGE]", data);
+
+    if (data.type === "SW_FLOW" || data.type === "SW_DEBUG" || data.type === "SW_RAW_PUSH") {
+      window.pushFlowLog?.("SW_MESSAGE_RECEIVED", data);
+      window.fcmDebugLog?.("SW_MESSAGE_RECEIVED", data);
+    }
   });
 
   navigator.serviceWorker.ready
@@ -10724,6 +10723,7 @@ if (navigator.serviceWorker) {
       window.pushFlowLog?.("SERVICE_WORKER_READY_RESOLVED", {
         scope: reg.scope,
         active: !!reg.active,
+        activeState: reg.active?.state || "",
         installing: !!reg.installing,
         waiting: !!reg.waiting
       });
@@ -11663,11 +11663,7 @@ async function enablePushNotifications(){
  }
  }
 window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
- window.pushFlowLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
- window.fcmDebugLog?.("BEFORE_PERMISSION_REQUEST", "requestPermission before");
  const permission = await Notification.requestPermission();
- window.pushFlowLog?.("AFTER_PERMISSION_REQUEST", "permission=" + permission);
- window.fcmDebugLog?.("AFTER_PERMISSION_REQUEST", "permission=" + permission);
  window.fcmDebugLog?.("AFTER_PERMISSION_REQUEST", "permission=" + permission);
  if(permission !== 'granted'){
  state.currentPushToken = null;
@@ -20924,20 +20920,6 @@ if(window.MutationObserver){
     if(e.key === "Escape") window.closeAiImageZoom();
   });
 })();
-
-window.addEventListener("error", (event) => {
-  window.pushFlowLog?.("WINDOW_ERROR", {
-    message: event.message,
-    filename: event.filename,
-    lineno: event.lineno,
-    colno: event.colno
-  });
-});
-
-window.addEventListener("unhandledrejection", (event) => {
-  window.pushFlowLog?.("UNHANDLED_REJECTION", String(event.reason && (event.reason.stack || event.reason.message) || event.reason));
-});
-
 </script>
 
 </body></html>

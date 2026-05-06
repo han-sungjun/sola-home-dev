@@ -81,14 +81,17 @@ function swDebugLog(step, detail) {
   swFlowLog(step, detail);
 }
 
+swFlowLog("SW_SCRIPT_LOADED", {
+  href: String(self.location.href || ""),
+  scope: self.registration?.scope || "",
+});
+
 
 /* =========================
    모바일 판별
    - fallback push는 모바일에서만 실행
    - PC Chrome 중복 알림 방지
 ========================= */
-swFlowLog("SW_SCRIPT_LOADED", { isDev, swUrl, swHost });
-
 function isMobileBrowser() {
   const ua = String(self.navigator?.userAgent || "").toLowerCase();
 
@@ -256,7 +259,9 @@ messaging.onBackgroundMessage((payload) => {
   swFlowLog("ON_BACKGROUND_MESSAGE_ENTER", payload);
 
   return showPushNotification(payload)
-    .then(() => swFlowLog("ON_BACKGROUND_MESSAGE_DONE", payload))
+    .then(() => {
+      swFlowLog("ON_BACKGROUND_MESSAGE_DONE", payload);
+    })
     .catch((e) => {
       swFlowLog("ON_BACKGROUND_MESSAGE_ERROR", String(e && (e.stack || e.message) || e));
       throw e;
@@ -271,36 +276,40 @@ messaging.onBackgroundMessage((payload) => {
 ========================= */
 self.addEventListener("push", (event) => {
   swFlowLog("PUSH_EVENT_ENTER", {
-    hasData: !!event.data
+    hasData: !!event.data,
+    timestamp: Date.now()
   });
-
-  if (!event.data) {
-    swFlowLog("PUSH_EVENT_NO_DATA", {});
-    return;
-  }
 
   event.waitUntil(
     (async () => {
+      if (!event.data) {
+        swFlowLog("PUSH_EVENT_NO_DATA", {});
+        return;
+      }
+
+      let rawText = "";
       let payload = {};
 
       try {
-        swFlowLog("PUSH_EVENT_RAW_TEXT", event.data.text());
-      } catch (_) {}
+        rawText = event.data.text();
+        swFlowLog("PUSH_EVENT_RAW_TEXT", rawText);
+      } catch (e) {
+        swFlowLog("PUSH_EVENT_RAW_TEXT_ERROR", String(e && (e.stack || e.message) || e));
+      }
 
       try {
-        payload = event.data.json();
+        payload = rawText ? JSON.parse(rawText) : event.data.json();
         swFlowLog("PUSH_EVENT_JSON_PARSED", payload);
       } catch (e) {
+        swFlowLog("PUSH_EVENT_JSON_ERROR", String(e && (e.stack || e.message) || e));
         payload = {
           title: "알림",
-          body: event.data.text() || "",
+          body: rawText || "",
           url: "/app"
         };
         swFlowLog("PUSH_EVENT_TEXT_FALLBACK_PAYLOAD", payload);
       }
 
-      // FCM Web Push는 onBackgroundMessage에서도 동일하게 들어오기 때문에
-      // 여기서 다시 showNotification을 호출하면 앱 닫힘 상태에서 2회 표시됩니다.
       const isFcmPayload =
         !!payload?.data ||
         !!payload?.notification ||
@@ -310,12 +319,14 @@ self.addEventListener("push", (event) => {
         String(payload?.collapse_key || "").includes("firebase");
 
       swFlowLog("PUSH_EVENT_PAYLOAD_CLASSIFIED", {
-        payload,
-        isFcmPayload
+        isFcmPayload,
+        payload
       });
 
+      // FCM payload는 Firebase SDK의 onBackgroundMessage가 처리하는 것이 기본 경로입니다.
+      // 다만 모바일 Edge에서 onBackgroundMessage가 누락되는지 확인하기 위해 여기서는 로그만 남깁니다.
       if (isFcmPayload) {
-        swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SKIPPED_BY_FALLBACK", payload);
+        swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SEEN_IN_FALLBACK", payload);
         return;
       }
 
@@ -330,8 +341,8 @@ self.addEventListener("push", (event) => {
 ========================= */
 self.addEventListener("notificationclick", (event) => {
   swFlowLog("NOTIFICATION_CLICK_ENTER", {
-    data: event.notification?.data || {},
-    title: event.notification?.title || ""
+    title: event.notification?.title || "",
+    data: event.notification?.data || {}
   });
 
   event.notification.close();
