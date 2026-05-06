@@ -10434,6 +10434,17 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  );
  }
 
+ function isMobileForegroundNotificationTarget() {
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ return (
+ ua.includes('android') ||
+ ua.includes('iphone') ||
+ ua.includes('ipad') ||
+ ua.includes('mobile') ||
+ ua.includes('samsungbrowser')
+ );
+ }
+
  function getForegroundPushKey(item = {}) {
  return [
  String(item.type || ''),
@@ -10469,14 +10480,14 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 
  // 기존 포그라운드 일반 알림는 PC 중복 방지 정책을 유지합니다.
  // 단, 방문 예약 알림는 사용자가 진동이 있는 알림을 원하므로 모바일/PC 모두 허용합니다.
- if (!isCalendarPush && !isPcBrowserForForegroundNotification()) return;
- if (!('Notification' in window)) return;
- if (Notification.permission !== 'granted') return;
- if (!('serviceWorker' in navigator)) return;
- if (shouldSkipForegroundSystemNotification(item)) return;
+ if (!isCalendarPush && !isPcBrowserForForegroundNotification() && !isMobileForegroundNotificationTarget()) return false;
+ if (!('Notification' in window)) return false;
+ if (Notification.permission !== 'granted') return false;
+ if (!('serviceWorker' in navigator)) return false;
+ if (shouldSkipForegroundSystemNotification(item)) return true;
 
  const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
- if (!foregroundRegistration?.showNotification) return;
+ if (!foregroundRegistration?.showNotification) return false;
 
  await foregroundRegistration.showNotification(item.title || '새 알림', {
  body: item.body || '새로운 알림이 도착했습니다.',
@@ -10495,8 +10506,10 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  type: item.type || 'notice'
  }
  });
+ return true;
  } catch (error) {
  console.warn('포그라운드 알림 표시 실패', error);
+ return false;
  }
  }
 
@@ -10563,17 +10576,32 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  if (!item) return;
 
  if (item.type === 'calendar') {
- await showForegroundSystemNotification({
+ const shown = await showForegroundSystemNotification({
  ...item,
  title: item.title || '예약 알림 시간이 되었습니다',
  body: item.body || '등록한 혜택 매장 방문 알림입니다.',
  url: item.url || '/app?view=calendar',
  important: true
  });
+ if (shown) return;
+ showForegroundPushToast({
+ title: item.title || '예약 알림 시간이 되었습니다',
+ body: item.body || '등록한 혜택 매장 방문 알림입니다.',
+ url: item.url || '/app?view=calendar'
+ });
  return;
  }
 
- if (shouldSkipForegroundSystemNotification(item)) return;
+ // 모바일 브라우저는 앱 실행 중에도 시스템 알림을 우선 시도합니다.
+ // PC 브라우저는 서비스워커/브라우저 자동 알림과 중복될 수 있어 기존 내부 토스트를 유지합니다.
+ if (isMobileForegroundNotificationTarget()) {
+ const shown = await showForegroundSystemNotification({
+ ...item,
+ important: true
+ });
+ if (shown) return;
+ }
+
  showForegroundPushToast({
  title: item.title || '새 알림',
  body: item.body || '새로운 알림이 도착했습니다.',
