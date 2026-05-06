@@ -36,6 +36,36 @@ const firebaseConfig = isDev
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+function swDebugLog(step, detail) {
+  try {
+    const info = {
+      step,
+      detail,
+      time: new Date().toISOString(),
+      url: String(self.location.href || ""),
+      userAgent: String(self.navigator?.userAgent || "")
+    };
+
+    console.log("[SW_DEBUG]", info);
+
+    self.clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        clientList.forEach((client) => {
+          try {
+            client.postMessage({
+              type: "SW_DEBUG",
+              info
+            });
+          } catch (e) {}
+        });
+      })
+      .catch(() => {});
+  } catch (e) {
+    console.warn("[SW_DEBUG_ERROR]", e);
+  }
+}
+
+
 /* =========================
    모바일 판별
    - fallback push는 모바일에서만 실행
@@ -163,10 +193,18 @@ function normalizePayload(payload) {
    알림 표시 공통 함수
 ========================= */
 function showPushNotification(payload) {
+  swDebugLog("SHOW_PUSH_NOTIFICATION_ENTER", payload);
+
   const normalized = normalizePayload(payload);
+  swDebugLog("SHOW_PUSH_NOTIFICATION_NORMALIZED", normalized);
   const key = makeNotificationKey(normalized);
 
-  if (isDuplicateNotification(key)) return Promise.resolve();
+  if (isDuplicateNotification(key)) {
+    swDebugLog("SHOW_PUSH_NOTIFICATION_DUPLICATE_SKIPPED", normalized);
+    return Promise.resolve();
+  }
+
+  swDebugLog("SHOW_NOTIFICATION_CALL", normalized);
 
   return self.registration.showNotification(normalized.title, {
     body: normalized.body,
@@ -191,7 +229,14 @@ function showPushNotification(payload) {
    Firebase 백그라운드 수신
 ========================= */
 messaging.onBackgroundMessage((payload) => {
-  return showPushNotification(payload);
+  swDebugLog("ON_BACKGROUND_MESSAGE", payload);
+
+  return showPushNotification(payload)
+    .then(() => swDebugLog("BACKGROUND_SHOW_NOTIFICATION_DONE", payload))
+    .catch((e) => {
+      swDebugLog("BACKGROUND_SHOW_NOTIFICATION_ERROR", String(e && (e.stack || e.message) || e));
+      throw e;
+    });
 });
 
 /* =========================
@@ -201,7 +246,14 @@ messaging.onBackgroundMessage((payload) => {
    - 앱 닫힘 상태 2회 알림 방지
 ========================= */
 self.addEventListener("push", (event) => {
-  if (!event.data) return;
+  swDebugLog("PUSH_EVENT_ENTER", {
+    hasData: !!event.data
+  });
+
+  if (!event.data) {
+    swDebugLog("PUSH_EVENT_NO_DATA", {});
+    return;
+  }
 
   event.waitUntil(
     (async () => {
@@ -227,11 +279,18 @@ self.addEventListener("push", (event) => {
         String(payload?.from || "").includes("firebase") ||
         String(payload?.collapse_key || "").includes("firebase");
 
+      swDebugLog("PUSH_EVENT_PAYLOAD_PARSED", {
+        payload,
+        isFcmPayload
+      });
+
       if (isFcmPayload) {
+        swDebugLog("PUSH_EVENT_FCM_PAYLOAD_SKIPPED_BY_FALLBACK", payload);
         return;
       }
 
       await showPushNotification(payload);
+      swDebugLog("PUSH_EVENT_FALLBACK_NOTIFICATION_DONE", payload);
     })()
   );
 });
@@ -286,9 +345,11 @@ self.addEventListener("notificationclick", (event) => {
    SW 최신화
 ========================= */
 self.addEventListener("install", () => {
+  swDebugLog("SW_INSTALL", {});
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
+  swDebugLog("SW_ACTIVATE", {});
   event.waitUntil(self.clients.claim());
 });
