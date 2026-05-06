@@ -3367,6 +3367,9 @@ function fillForm(item){
       if(qs('#stationAccessText')) qs('#stationAccessText').value = primaryStationText;
       if(qs('#address')) qs('#address').value = addressParts.display;
 
+      const selectedStoreStatus = qs('#storeStatus')?.value || 'active';
+      const selectedBenefitStatus = qs('#benefitStatus')?.value || 'active';
+      const selectedVisible = selectedStoreStatus === 'hidden' ? false : qs('#visible').checked;
       const payload={
         name:qs('#name').value.trim(),
         category:qs('#category').value.trim(),
@@ -3391,13 +3394,13 @@ function fillForm(item){
         emergencyPhone:qs('#emergencyPhone')?.value.trim() || '',
         contact:{ phone:qs('#phone').value.trim(), emergency:qs('#emergencyPhone')?.value.trim() || '' },
         service:qs('#serviceType').value==='service',
-        storeStatus:qs('#storeStatus')?.value || 'active',
-        operationStatus:qs('#storeStatus')?.value || 'active',
-        status:qs('#storeStatus')?.value || 'active',
-        benefitStatus:qs('#benefitStatus')?.value || 'active',
-        residentBenefitStatus:qs('#benefitStatus')?.value || 'active',
-        discountStatus:qs('#benefitStatus')?.value || 'active',
-        closed:(qs('#storeStatus')?.value || 'active') === 'shutdown',
+        storeStatus:selectedStoreStatus,
+        operationStatus:selectedStoreStatus,
+        status:selectedStoreStatus,
+        benefitStatus:selectedBenefitStatus,
+        residentBenefitStatus:selectedBenefitStatus,
+        discountStatus:selectedBenefitStatus,
+        closed:selectedStoreStatus === 'shutdown',
         closedAt:qs('#closedAt')?.value || '',
         closedReason:qs('#closedReason')?.value.trim() || '',
         storeStatusReason:qs('#closedReason')?.value.trim() || '',
@@ -3405,7 +3408,7 @@ function fillForm(item){
         discountEndedAt:qs('#benefitEndedAt')?.value || '',
         benefitStatusReason:qs('#benefitStatusReason')?.value.trim() || '',
         discountStatusReason:qs('#benefitStatusReason')?.value.trim() || '',
-        visible:(qs('#storeStatus')?.value || 'active') === 'hidden' ? false : qs('#visible').checked,
+        visible:selectedVisible,
         recommended:qs('#recommended').checked,
         shareBest:qs('#shareBest')?.checked || false,
         rankBoost:Number(qs('#rankBoost')?.value || 0),

@@ -12548,7 +12548,8 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  }
  const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
  function subscribeBenefits(){
- onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
+ const benefitsQuery = query(collection(db, BENEFITS_COLLECTION), where('visible', '==', true));
+ onSnapshot(benefitsQuery, (snapshot) => {
  state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
  if(state.userLocation) recalculateBenefitDistances();
  state.loading = false;
