@@ -10570,10 +10570,12 @@ function isMobileForegroundNotificationTarget() {
 
   const isInAppBrowser =
     ua.includes("kakaotalk") ||
+    ua.includes("naver") ||
     ua.includes("naver(inapp") ||
     ua.includes("naverapp");
 
-  // 카카오톡 / 네이버 인앱은 시스템 알림 초기화가 제한되는 경우가 많아 내부 토스트 fallback
+  // 카카오톡/네이버 인앱은 알림 초기화/Service Worker/Push 권한이 제한되는 경우가 많아
+  // 시스템 알림 시도 대상에서 제외하고 내부 토스트로 조용히 fallback 합니다.
   if (isInAppBrowser) return false;
 
   return (
@@ -10583,40 +10585,20 @@ function isMobileForegroundNotificationTarget() {
       ua.includes("chrome") ||
       ua.includes("crios") ||
       ua.includes("whale") ||
-      ua.includes("firefox") ||
-      ua.includes("fxios")
+      ua.includes("edga") ||
+      ua.includes("edgios") ||
+      ua.includes("edg")
     )
   );
 }
 
 function isPcForegroundNotificationTarget() {
-  // PC는 FCM/Service Worker/브라우저 자동 알림과 foreground showNotification이 중복될 수 있어 제외합니다.
   return false;
 }
 
-
-function isDesktopSupportedBrowser() {
-  const ua = String(navigator.userAgent || "").toLowerCase();
-
-  const isDesktop =
-    !ua.includes("android") &&
-    !ua.includes("iphone") &&
-    !ua.includes("ipad") &&
-    !ua.includes("mobile");
-
-  return (
-    isDesktop &&
-    (
-      ua.includes("chrome") ||
-      ua.includes("edg") ||
-      ua.includes("edge") ||
-      ua.includes("whale") ||
-      ua.includes("firefox")
-    )
-  );
-}
-
 function shouldUseForegroundSystemNotification(payload) {
+  // PC는 일부 환경에서 브라우저/서비스워커 알림과 onMessage 알림이 중복될 수 있어 제외합니다.
+  // 모바일 Chrome/Samsung/Whale만 포그라운드 시스템 알림을 우선 시도합니다.
   return isMobileForegroundNotificationTarget() || isPcForegroundNotificationTarget();
 }
 onMessage(messaging, async (payload) => {
