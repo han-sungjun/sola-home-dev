@@ -10570,10 +10570,12 @@ function isMobileForegroundNotificationTarget() {
 
   const isInAppBrowser =
     ua.includes("kakaotalk") ||
+    ua.includes("naver") ||
     ua.includes("naver(inapp") ||
     ua.includes("naverapp");
 
-  // 카카오톡 / 네이버 인앱은 내부 토스트 fallback
+  // 카카오톡/네이버 인앱은 알림 초기화/Service Worker/Push 권한이 제한되는 경우가 많아
+  // 시스템 알림 시도 대상에서 제외하고 내부 토스트로 조용히 fallback 합니다.
   if (isInAppBrowser) return false;
 
   return (
@@ -10582,27 +10584,9 @@ function isMobileForegroundNotificationTarget() {
       ua.includes("samsungbrowser") ||
       ua.includes("chrome") ||
       ua.includes("crios") ||
-      ua.includes("whale")
-    )
-  );
-}
-
-function isDesktopSupportedBrowser() {
-  const ua = String(navigator.userAgent || "").toLowerCase();
-
-  const isDesktop =
-    !ua.includes("android") &&
-    !ua.includes("iphone") &&
-    !ua.includes("ipad") &&
-    !ua.includes("mobile");
-
-  return (
-    isDesktop &&
-    (
-      ua.includes("chrome") ||
-      ua.includes("edg") ||
-      ua.includes("edge") ||
-      ua.includes("whale")
+      ua.includes("whale") ||
+      ua.includes("firefox") ||
+      ua.includes("fxios")
     )
   );
 }
