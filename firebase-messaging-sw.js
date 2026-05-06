@@ -104,6 +104,24 @@ function isMobileBrowser() {
   );
 }
 
+function isMobileEdgeBrowser() {
+  const ua = String(self.navigator?.userAgent || "").toLowerCase();
+
+  const isMobile =
+    ua.includes("android") ||
+    ua.includes("iphone") ||
+    ua.includes("ipad") ||
+    ua.includes("mobile");
+
+  const isEdge =
+    ua.includes("edga") ||
+    ua.includes("edgios") ||
+    ua.includes("edg/") ||
+    ua.includes("edg");
+
+  return isMobile && isEdge;
+}
+
 /* =========================
    중복 알림 방지용
 ========================= */
@@ -323,10 +341,20 @@ self.addEventListener("push", (event) => {
         payload
       });
 
-      // FCM payload는 Firebase SDK의 onBackgroundMessage가 처리하는 것이 기본 경로입니다.
-      // 다만 모바일 Edge에서 onBackgroundMessage가 누락되는지 확인하기 위해 여기서는 로그만 남깁니다.
+      // FCM payload는 기본적으로 Firebase SDK의 onBackgroundMessage가 처리합니다.
+      // 단, 모바일 Edge에서는 onBackgroundMessage가 누락될 수 있어
+      // 모바일 Edge에서만 push fallback 경로에서 직접 표시합니다.
       if (isFcmPayload) {
-        swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SEEN_IN_FALLBACK", payload);
+        swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SEEN_IN_FALLBACK", {
+          isMobileEdge: isMobileEdgeBrowser(),
+          payload
+        });
+
+        if (isMobileEdgeBrowser()) {
+          await showPushNotification(payload);
+          swFlowLog("PUSH_EVENT_MOBILE_EDGE_FCM_NOTIFICATION_DONE", payload);
+        }
+
         return;
       }
 
