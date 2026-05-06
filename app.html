@@ -10623,6 +10623,27 @@ function shouldUseForegroundSystemNotification(payload) {
   return isMobileForegroundNotificationTarget() || isPcForegroundNotificationTarget();
 }
 onMessage(messaging, async (payload) => {
+  try {
+    const __ua = String(navigator.userAgent || "").toLowerCase();
+    const __isMobileEdge =
+      (__ua.includes("android") || __ua.includes("mobile")) &&
+      (
+        __ua.includes("edga") ||
+        __ua.includes("edgios") ||
+        __ua.includes("edg/")
+      );
+
+    if (__isMobileEdge) {
+      alert(
+        "[Mobile Edge Debug]\n\n" +
+        "onMessage 수신 성공\n\n" +
+        "UA: " + navigator.userAgent + "\n\n" +
+        "payload: " + JSON.stringify(payload)
+      );
+    }
+  } catch (e) {
+    console.warn("[push][mobile-edge-debug]", e);
+  }
  try {
  const item = normalizeForegroundPushPayload(payload);
  if (!item) return;
