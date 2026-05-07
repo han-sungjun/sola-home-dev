@@ -21697,4 +21697,74 @@ if(window.MutationObserver){
 })();
 </script>
 
+
+<style id="ai-composer-singleline-fix">
+.ai-composer textarea,
+.ai-input-wrap textarea,
+.ai-question-textarea,
+#aiQuestionInput,
+#aiQuestionTextarea{
+  min-height:44px !important;
+  height:44px !important;
+  max-height:140px !important;
+  overflow-y:auto !important;
+  resize:none !important;
+  line-height:22px !important;
+  padding-top:10px !important;
+  padding-bottom:10px !important;
+}
+
+.ai-composer textarea:placeholder-shown,
+.ai-input-wrap textarea:placeholder-shown,
+.ai-question-textarea:placeholder-shown,
+#aiQuestionInput:placeholder-shown,
+#aiQuestionTextarea:placeholder-shown{
+  height:44px !important;
+}
+</style>
+
+<script id="ai-composer-reset-fix">
+(function(){
+  function getTargets(){
+    return Array.from(document.querySelectorAll('textarea'));
+  }
+
+  function resetTextarea(el){
+    if(!el) return;
+    el.style.height='44px';
+    el.scrollTop = 0;
+  }
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+
+    const txt = (btn.innerText || '').trim();
+    if(txt.includes('질문') || btn.id.toLowerCase().includes('send')){
+      setTimeout(()=>{
+        getTargets().forEach((t)=>{
+          if(!t.value.trim()){
+            resetTextarea(t);
+          }
+        });
+      },50);
+    }
+  }, true);
+
+  document.addEventListener('input', function(e){
+    if(e.target.tagName !== 'TEXTAREA') return;
+
+    const ta = e.target;
+
+    if(!ta.value.trim()){
+      resetTextarea(ta);
+      return;
+    }
+
+    ta.style.height = '44px';
+    ta.style.height = Math.min(140, ta.scrollHeight) + 'px';
+  }, true);
+})();
+</script>
+
 </body></html>
