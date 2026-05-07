@@ -10043,8 +10043,8 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  </div>
  </dialog>
  <dialog id="noticeModal"><div class="modal-head"><div class="pill">공지 상세</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
- <dialog id="communityEditorModal"><div class="modal-head"><div class="pill" id="communityEditorTitle">커뮤니티 글쓰기</div><button class="close-btn" id="closeCommunityEditor">✕</button></div><div class="modal-body"><div class="community-write-form"><select id="communityPostCategory"><option value="자유">자유</option><option value="질문">질문</option><option value="나눔">나눔</option><option value="생활정보">생활정보</option><option value="건의">건의</option></select><input id="communityPostTitle" maxlength="80" placeholder="제목을 입력하세요" /><textarea id="communityPostContent" maxlength="3000" placeholder="내용을 입력하세요"></textarea><button class="btn btn-primary block" type="button" id="submitCommunityPostBtn">게시글 등록</button></div></div></dialog>
- <dialog id="communityDetailModal"><div class="modal-head"><div class="pill">커뮤니티</div><button class="close-btn" id="closeCommunityDetail">✕</button></div><div class="modal-body"><div id="communityDetailBody"></div><div class="comment-list" id="communityCommentList"></div><div class="comment-write"><textarea id="communityCommentContent" maxlength="1000" placeholder="댓글을 입력하세요"></textarea><button class="btn btn-primary" type="button" id="submitCommunityCommentBtn">댓글 등록</button></div></div></dialog>
+ <dialog id="communityEditorModal"><div class="modal-head"><div class="pill" id="communityEditorTitle">커뮤니티 글쓰기</div><button class="close-btn" id="closeCommunityEditor">✕</button></div><div class="modal-body"><div class="community-write-form"><select id="communityPostCategory"><option value="자유">자유</option><option value="질문">질문</option><option value="나눔">나눔</option><option value="생활정보">생활정보</option><option value="건의">건의</option></select><input id="communityPostTitle" maxlength="80" placeholder="궁금한 내용을 입력하세요" /><textarea id="communityPostContent" maxlength="3000" placeholder="궁금한 내용을 입력하세요"></textarea><button class="btn btn-primary block" type="button" id="submitCommunityPostBtn">게시글 등록</button></div></div></dialog>
+ <dialog id="communityDetailModal"><div class="modal-head"><div class="pill">커뮤니티</div><button class="close-btn" id="closeCommunityDetail">✕</button></div><div class="modal-body"><div id="communityDetailBody"></div><div class="comment-list" id="communityCommentList"></div><div class="comment-write"><textarea id="communityCommentContent" maxlength="1000" placeholder="궁금한 내용을 입력하세요"></textarea><button class="btn btn-primary" type="button" id="submitCommunityCommentBtn">댓글 등록</button></div></div></dialog>
  <dialog id="communityReportModal">
  <div class="modal-head">
  <div class="pill">신고 사유 선택</div>
@@ -21764,6 +21764,163 @@ if(window.MutationObserver){
     ta.style.height = '44px';
     ta.style.height = Math.min(140, ta.scrollHeight) + 'px';
   }, true);
+})();
+</script>
+
+
+<style id="ai-error-retry-patch-v1-style">
+.ai-error-retry-btn{
+  margin-top:14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:38px;
+  padding:0 16px;
+  border:0;
+  border-radius:999px;
+  background:#101a33;
+  color:#fff;
+  font-weight:800;
+  font-size:14px;
+  box-shadow:0 8px 18px rgba(16,26,51,.18);
+  cursor:pointer;
+}
+.ai-error-retry-btn:active{ transform:translateY(1px); }
+</style>
+
+<script id="ai-error-retry-patch-v1">
+(function(){
+  const SHORT_PLACEHOLDER = '궁금한 내용을 입력하세요';
+
+  function normalizeComposerPlaceholder(){
+    document.querySelectorAll('textarea, input[type="text"]').forEach((el)=>{
+      const ph = el.getAttribute('placeholder') || '';
+      if (
+        ph.includes('최근 공지') ||
+        ph.includes('혜택 매장') ||
+        ph.includes('질문을') ||
+        ph.includes('궁금한 내용')
+      ) {
+        el.setAttribute('placeholder', SHORT_PLACEHOLDER);
+      }
+    });
+  }
+
+  function findComposerInput(){
+    const candidates = [
+      '#aiQuestionTextarea',
+      '#aiQuestionInput',
+      '#aiInput',
+      '#questionInput',
+      'textarea.ai-question-textarea',
+      'textarea'
+    ];
+    for (const sel of candidates) {
+      const el = document.querySelector(sel);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  function findSendButton(){
+    const candidates = [
+      '#aiSendBtn',
+      '#sendAiBtn',
+      '#askAiBtn',
+      '#aiAskBtn',
+      '.ai-send-btn',
+      '.ai-submit-btn',
+      'button[data-ai-send="true"]'
+    ];
+    for (const sel of candidates) {
+      const el = document.querySelector(sel);
+      if (el) return el;
+    }
+    return Array.from(document.querySelectorAll('button')).find((btn)=>{
+      const t = (btn.innerText || '').trim();
+      return t === '질문' || t.includes('질문');
+    }) || null;
+  }
+
+  function getLastUserQuestionText(card){
+    let node = card;
+    for (let i=0; i<8 && node; i++, node=node.previousElementSibling) {
+      const txt = (node.innerText || '').trim();
+      if (!txt) continue;
+      if (txt.includes('첨부파일 내용을 분석해줘')) return '첨부파일 내용을 분석해줘';
+      if (!txt.includes('답변을 준비하는 중') && !txt.includes('문제가 발생') && !txt.includes('잠시 후 다시')) {
+        const lines = txt.split('\n').map(v=>v.trim()).filter(Boolean);
+        const last = lines[lines.length - 1] || '';
+        if (last && last.length < 300) return last;
+      }
+    }
+    return '';
+  }
+
+  function retryLastQuestion(btn){
+    const card = btn.closest('.ai-message, .ai-answer, .chat-message, .message, .bot-message, .assistant-message, div') || btn.parentElement;
+    const retryText = btn.dataset.retryText || getLastUserQuestionText(card);
+    const input = findComposerInput();
+    const send = findSendButton();
+
+    if (!input || !send) return;
+
+    if (retryText && !input.value.trim()) {
+      input.value = retryText;
+      input.dispatchEvent(new Event('input', { bubbles:true }));
+    }
+
+    setTimeout(()=>send.click(), 30);
+  }
+
+  function enhanceErrorCards(){
+    const errorTexts = [
+      '답변을 준비하는 중 문제가 발생했습니다',
+      '잠시 후 다시 질문해 주세요',
+      '오류가 발생',
+      '문제가 발생했습니다',
+      '다시 질문'
+    ];
+
+    const nodes = Array.from(document.querySelectorAll('div, section, article, li')).filter((el)=>{
+      if (el.dataset.aiRetryEnhanced === '1') return false;
+      const txt = (el.innerText || '').trim();
+      if (!txt || txt.length > 500) return false;
+      return errorTexts.some(k => txt.includes(k));
+    });
+
+    nodes.forEach((el)=>{
+      if (el.querySelector('.ai-error-retry-btn')) {
+        el.dataset.aiRetryEnhanced = '1';
+        return;
+      }
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ai-error-retry-btn';
+      btn.textContent = '↻ 다시 보내기';
+      btn.addEventListener('click', function(){
+        retryLastQuestion(btn);
+      });
+
+      el.appendChild(btn);
+      el.dataset.aiRetryEnhanced = '1';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    normalizeComposerPlaceholder();
+    enhanceErrorCards();
+  });
+
+  document.addEventListener('input', normalizeComposerPlaceholder, true);
+
+  const observer = new MutationObserver(function(){
+    normalizeComposerPlaceholder();
+    enhanceErrorCards();
+  });
+  observer.observe(document.documentElement, { childList:true, subtree:true });
 })();
 </script>
 
