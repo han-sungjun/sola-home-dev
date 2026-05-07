@@ -21926,25 +21926,18 @@ if(window.MutationObserver){
 
 
 
-<script id="ai-download-url-guard-v2">
+
+<script id="ai-download-url-guard-v3">
 (function(){
   function showDownloadAlert(message){
     const text = message || '파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
-
-    if (typeof window.showCustomAlert === 'function') {
-      window.showCustomAlert('안내', text);
-      return;
-    }
-    if (typeof window.showAlert === 'function') {
-      window.showAlert('안내', text);
-      return;
-    }
+    if (typeof window.showCustomAlert === 'function') return window.showCustomAlert('안내', text);
+    if (typeof window.showAlert === 'function') return window.showAlert('안내', text);
     alert(text);
   }
 
   function isClearlyBadUrl(url){
     if (!url) return true;
-
     const raw = String(url).trim();
     if (!raw) return true;
 
@@ -21956,19 +21949,12 @@ if(window.MutationObserver){
       lower.includes('null') ||
       lower.includes('[object object]') ||
       lower.includes('[object%20object]')
-    ) {
-      return true;
-    }
+    ) return true;
 
     try {
       const u = new URL(raw, location.origin);
-
-      // 앱 자체 화면으로 이동되는 값은 다운로드 URL로 보지 않음
       const appPaths = ['/', '/app', '/app.html', location.pathname];
-      if (u.origin === location.origin && appPaths.includes(u.pathname) && !u.search) {
-        return true;
-      }
-
+      if (u.origin === location.origin && appPaths.includes(u.pathname) && !u.search) return true;
       return false;
     } catch(e) {
       return true;
@@ -21977,17 +21963,27 @@ if(window.MutationObserver){
 
   function buildSafeDownloadUrl(rawUrl){
     if (!rawUrl) return '';
-
     const input = String(rawUrl).trim();
     if (!input) return '';
-
     if (/^https?:\/\//i.test(input)) return input;
     if (input.startsWith('/')) return location.origin + input;
-
     return location.origin + '/' + input.replace(/^\.?\//, '');
   }
 
-  function downloadByBrowser(url, filename){
+  function guessFilename(url, fallback){
+    if (fallback) return fallback;
+    try {
+      const u = new URL(url, location.origin);
+      const alt = u.searchParams.get('filename') || u.searchParams.get('name');
+      if (alt) return decodeURIComponent(alt);
+      const pathName = decodeURIComponent(u.pathname.split('/').pop() || 'download');
+      return pathName || 'download';
+    } catch(e) {
+      return 'download';
+    }
+  }
+
+  async function downloadAsBlob(url, filename){
     const safeUrl = buildSafeDownloadUrl(url);
 
     if (isClearlyBadUrl(safeUrl)) {
@@ -21996,21 +21992,40 @@ if(window.MutationObserver){
     }
 
     try {
+      const res = await fetch(safeUrl, {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'no-store'
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) throw new Error('EMPTY_FILE');
+
+      const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = safeUrl;
-      if (filename) a.download = filename;
-      a.rel = 'noopener';
+      a.href = objectUrl;
+      a.download = guessFilename(safeUrl, filename);
       a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      setTimeout(function(){ a.remove(); }, 500);
+
+      setTimeout(function(){
+        URL.revokeObjectURL(objectUrl);
+        a.remove();
+      }, 800);
+
       return true;
     } catch(err) {
-      console.warn('[AI Download] browser download failed:', err);
-      showDownloadAlert('파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      console.warn('[AI Download] blob download failed:', err);
+      showDownloadAlert('파일 다운로드에 실패했습니다. 다운로드 권한 또는 서버 설정을 확인해주세요.');
       return false;
     }
   }
+
+  window.safeAiAttachmentDownload = downloadAsBlob;
 
   const oldDownloadAiAttachment = window.downloadAiAttachment;
 
@@ -22042,9 +22057,7 @@ if(window.MutationObserver){
           '';
       }
 
-      if (url) {
-        return downloadByBrowser(url, filename);
-      }
+      if (url) return downloadAsBlob(url, filename);
 
       if (typeof oldDownloadAiAttachment === 'function') {
         return oldDownloadAiAttachment.apply(this, arguments);
@@ -22054,33 +22067,49 @@ if(window.MutationObserver){
       return false;
     } catch(err) {
       console.warn('[AI Download] wrapper failed:', err);
-      showDownloadAlert('파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      showDownloadAlert('파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
       return false;
     }
   };
 
-  // 잘못된 URL만 차단하고, 정상 URL은 브라우저 기본 동작에 맡김.
+  function isDownloadLink(a){
+    if (!a) return false;
+    const text = (a.innerText || '').trim();
+    const cls = (a.className || '').toString();
+    const href = a.getAttribute('href') || '';
+
+    return (
+      a.hasAttribute('download') ||
+      cls.includes('download') ||
+      text.includes('다운로드') ||
+      text.includes('이미지') ||
+      text.includes('첨부파일') ||
+      /\.(png|jpe?g|webp|gif|pdf|txt|docx?|xlsx?|pptx?|hwp|zip|mp4|m4a|mp3|wav)(\?|#|$)/i.test(href) ||
+      href.includes('firebasestorage.googleapis.com')
+    );
+  }
+
   document.addEventListener('click', function(e){
     const a = e.target.closest('a');
-    if (!a) return;
-
-    const isDownload =
-      a.hasAttribute('download') ||
-      a.className.toString().includes('download') ||
-      (a.innerText || '').includes('다운로드');
-
-    if (!isDownload) return;
+    if (!a || !isDownloadLink(a)) return;
 
     const href = a.getAttribute('href') || '';
-    if (isClearlyBadUrl(href)) {
-      e.preventDefault();
-      e.stopPropagation();
-      showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
-      return false;
-    }
-  }, true);
+    if (!href) return;
 
-  window.safeAiAttachmentDownload = downloadByBrowser;
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
+    const filename =
+      a.getAttribute('download') ||
+      a.dataset.fileName ||
+      a.dataset.filename ||
+      a.dataset.name ||
+      '';
+
+    downloadAsBlob(href, filename);
+    return false;
+  }, true);
 })();
 </script>
 
