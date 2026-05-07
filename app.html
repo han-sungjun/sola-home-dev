@@ -21662,4 +21662,39 @@ if(window.MutationObserver){
 })();
 </script>
 
+
+<script id="ai-composer-ctrl-enter-fixed">
+(function(){
+  function isAiTextarea(el){
+    if (!el) return false;
+    if (el.tagName !== 'TEXTAREA') return false;
+    var id = (el.id || '').toLowerCase();
+    var cls = (el.className || '').toString().toLowerCase();
+    return id.includes('ai') || id.includes('question') || cls.includes('ai') || cls.includes('question') || cls.includes('composer');
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (!isAiTextarea(e.target)) return;
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
+      var sendBtn =
+        document.getElementById('aiSendBtn') ||
+        document.getElementById('sendAiBtn') ||
+        document.getElementById('askAiBtn') ||
+        document.getElementById('aiAskBtn') ||
+        document.querySelector('.ai-send-btn, .ai-submit-btn, button[data-ai-send="true"]');
+
+      if (sendBtn && !sendBtn.disabled) {
+        sendBtn.click();
+      }
+      return false;
+    }
+  }, true);
+})();
+</script>
+
 </body></html>
