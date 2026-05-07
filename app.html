@@ -2648,6 +2648,9 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-busy .ai-quick-btn,
 .ai-busy .ai-dialog-action-btn,
 .ai-busy .ai-voice-btn,
+.ai-busy .ai-attach-btn,
+.ai-busy .ai-attach-remove,
+.ai-busy .ai-attach-clear,
 .ai-busy #aiAskBtn,
 .ai-busy #aiQuestionInput,
 .ai-locked-control,
@@ -6041,6 +6044,26 @@ body:has(#view-calendar:not(.hidden)) .app{
   pointer-events:none!important;
 }
 
+
+
+/* ===== AI 다중 첨부파일 질문 UX ===== */
+.ai-attach-panel{display:grid;gap:10px;margin-top:10px;padding:12px;border-radius:20px;background:#f8fafc;border:1px solid #e2e8f0}
+.ai-attach-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ai-attach-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:10px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);white-space:nowrap}
+.ai-attach-btn:hover{background:#eff6ff;transform:translateY(-1px)}
+.ai-attach-help{min-width:0;flex:1;color:#64748b;font-size:12px;font-weight:800;line-height:1.45}
+.ai-attach-input{display:none!important}
+.ai-attach-list{display:grid;gap:7px}
+.ai-attach-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border-radius:15px;background:#fff;border:1px solid #e2e8f0}
+.ai-attach-icon{width:30px;height:30px;border-radius:11px;display:grid;place-items:center;background:#eef2ff;font-size:15px;flex:0 0 auto}
+.ai-attach-name{font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-attach-meta{font-size:11px;font-weight:800;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-attach-remove{width:28px;height:28px;border:none;border-radius:10px;background:#fff1f2;color:#be123c;font-weight:1000;cursor:pointer}
+.ai-attach-clear{border:none;background:transparent;color:#64748b;font-size:12px;font-weight:900;cursor:pointer;display:none;justify-self:end}
+.ai-attach-panel.has-files .ai-attach-clear{display:inline-flex}
+.ai-attach-status{display:none;padding:9px 10px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1.45}
+.ai-attach-status.show{display:block}
+@media(max-width:420px){.ai-attach-top{align-items:stretch;flex-direction:column}.ai-attach-btn{width:100%}}
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -9811,6 +9834,17 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 👉 최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
 
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
+ </div>
+
+ <div class="ai-attach-panel" id="aiAttachPanel">
+ <div class="ai-attach-top">
+ <button class="ai-attach-btn" type="button" id="aiAttachBtn">📎 사진/파일/영상 첨부</button>
+ <div class="ai-attach-help">이미지, PDF, 문서, 영상까지 최대 5개를 함께 질문할 수 있습니다.</div>
+ </div>
+ <input class="ai-attach-input" id="aiFileInput" type="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx" />
+ <div class="ai-attach-status" id="aiAttachStatus"></div>
+ <div class="ai-attach-list" id="aiAttachList"></div>
+ <button class="ai-attach-clear" type="button" id="aiAttachClearBtn">첨부 모두 지우기</button>
  </div>
  <div class="ai-voice-row" id="aiVoiceRow">
  <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
@@ -17989,6 +18023,180 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  return false;
  }
 
+
+
+const AI_MAX_ATTACH_FILES = 5;
+const AI_MAX_ATTACH_TOTAL_BYTES = 50 * 1024 * 1024;
+let aiSelectedFiles = [];
+
+function getAiAnalyzeFilesUrl(){
+ if(!AI_STREAM_SERVER_BASE_URL) return '';
+ return `${AI_STREAM_SERVER_BASE_URL}/api/ai/analyze-files`;
+}
+
+function formatAiFileSize(bytes=0){
+ const n = Number(bytes || 0);
+ if(n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(n >= 10 * 1024 * 1024 ? 0 : 1)}MB`;
+ if(n >= 1024) return `${Math.round(n / 1024)}KB`;
+ return `${n}B`;
+}
+
+function getAiFileIcon(file={}){
+ const type = String(file.type || '').toLowerCase();
+ const name = String(file.name || '').toLowerCase();
+ if(type.startsWith('image/')) return '🖼️';
+ if(type.startsWith('video/')) return '🎥';
+ if(type.includes('pdf') || name.endsWith('.pdf')) return '📄';
+ if(name.endsWith('.doc') || name.endsWith('.docx')) return '📝';
+ if(name.endsWith('.xls') || name.endsWith('.xlsx')) return '📊';
+ if(name.endsWith('.ppt') || name.endsWith('.pptx')) return '📽️';
+ if(name.endsWith('.txt')) return '📃';
+ return '📎';
+}
+
+function setAiAttachStatus(message='', type='info'){
+ const el = qs('#aiAttachStatus');
+ if(!el) return;
+ el.textContent = message || '';
+ el.classList.toggle('show', !!message);
+ el.style.background = type === 'error' ? '#fff1f2' : '#eff6ff';
+ el.style.borderColor = type === 'error' ? '#fecdd3' : '#bfdbfe';
+ el.style.color = type === 'error' ? '#b91c1c' : '#1d4ed8';
+}
+
+function renderAiSelectedFiles(){
+ const panel = qs('#aiAttachPanel');
+ const list = qs('#aiAttachList');
+ if(panel) panel.classList.toggle('has-files', aiSelectedFiles.length > 0);
+ if(!list) return;
+ if(!aiSelectedFiles.length){
+ list.innerHTML = '';
+ setAiAttachStatus('', 'info');
+ return;
+ }
+ const total = aiSelectedFiles.reduce((sum, file) => sum + Number(file.size || 0), 0);
+ setAiAttachStatus(`첨부 ${aiSelectedFiles.length}개 · 전체 ${formatAiFileSize(total)} · 영상은 분석 시간이 조금 더 걸릴 수 있습니다.`, 'info');
+ list.innerHTML = aiSelectedFiles.map((file, index) => `
+ <div class="ai-attach-item">
+ <span class="ai-attach-icon">${getAiFileIcon(file)}</span>
+ <div style="min-width:0">
+ <div class="ai-attach-name">${escapeHtml(file.name || `file-${index + 1}`)}</div>
+ <div class="ai-attach-meta">${escapeHtml(file.type || '파일')} · ${formatAiFileSize(file.size)}</div>
+ </div>
+ <button class="ai-attach-remove" type="button" data-ai-remove-file-index="${index}" aria-label="첨부 삭제">×</button>
+ </div>`).join('');
+ list.querySelectorAll('[data-ai-remove-file-index]').forEach(btn => {
+ btn.addEventListener('click', () => {
+ const idx = Number(btn.dataset.aiRemoveFileIndex || -1);
+ if(idx >= 0) aiSelectedFiles.splice(idx, 1);
+ renderAiSelectedFiles();
+ });
+ });
+}
+
+function addAiSelectedFiles(fileList){
+ const incoming = Array.from(fileList || []);
+ if(!incoming.length) return;
+ const merged = [...aiSelectedFiles];
+ for(const file of incoming){
+ if(merged.length >= AI_MAX_ATTACH_FILES){
+ setAiAttachStatus(`첨부파일은 최대 ${AI_MAX_ATTACH_FILES}개까지 가능합니다.`, 'error');
+ break;
+ }
+ const duplicate = merged.some(v => v.name === file.name && v.size === file.size && v.lastModified === file.lastModified);
+ if(!duplicate) merged.push(file);
+ }
+ const total = merged.reduce((sum, file) => sum + Number(file.size || 0), 0);
+ if(total > AI_MAX_ATTACH_TOTAL_BYTES){
+ setAiAttachStatus(`전체 첨부 용량은 ${formatAiFileSize(AI_MAX_ATTACH_TOTAL_BYTES)} 이하로 올려주세요.`, 'error');
+ return;
+ }
+ aiSelectedFiles = merged.slice(0, AI_MAX_ATTACH_FILES);
+ renderAiSelectedFiles();
+}
+
+function clearAiSelectedFiles(){
+ aiSelectedFiles = [];
+ const input = qs('#aiFileInput');
+ if(input) input.value = '';
+ renderAiSelectedFiles();
+}
+
+function normalizeAiAnalyzeFilesResponse(rawText=''){
+ const raw = String(rawText || '').trim();
+ if(!raw) return '첨부파일 분석 결과가 비어 있습니다.';
+ try{
+ const data = JSON.parse(raw);
+ if(typeof data === 'string') return data;
+ const answer = data.answer || data.finalAnswer || data.message || data.summary || data.text || '';
+ const results = Array.isArray(data.results) ? data.results : (Array.isArray(data.files) ? data.files : []);
+ const lines = [];
+ if(answer) lines.push(String(answer));
+ if(results.length){
+ lines.push('');
+ lines.push('[첨부파일 분석 결과]');
+ results.forEach((item, index) => {
+ const fileName = item.fileName || item.filename || item.name || `첨부파일 ${index + 1}`;
+ const summary = item.summary || item.text || item.transcript || item.description || item.content || '';
+ const subtitle = item.subtitleText || item.captionText || '';
+ lines.push(`${index + 1}. ${fileName}`);
+ if(summary) lines.push(`- ${summary}`);
+ if(subtitle && subtitle !== summary) lines.push(`- 자막/텍스트: ${String(subtitle).slice(0, 1200)}`);
+ });
+ }
+ return lines.filter(Boolean).join('\n') || raw;
+ }catch(_error){
+ return raw;
+ }
+}
+
+async function callAiAnalyzeFiles(question='', files=[]){
+ const q = String(question || '').trim() || '첨부파일 내용을 분석해줘';
+ const targetUrl = getAiAnalyzeFilesUrl();
+ if(!targetUrl) throw new Error('AI 첨부파일 분석 서버 URL이 설정되지 않았습니다.');
+ if(!files.length) throw new Error('첨부파일이 없습니다.');
+ let idToken = '';
+ try{ idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : ''; }catch(error){ console.warn('AI 첨부 분석 ID 토큰 생성 실패:', error); }
+ const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext(q) : {};
+ const localCandidates = collectAiLocalCandidates(q, 12);
+ const formData = new FormData();
+ formData.append('message', q);
+ formData.append('question', q);
+ formData.append('env', ENV || 'prod');
+ formData.append('conversationId', aiConversationId || '');
+ formData.append('pageContext', JSON.stringify(pageContext));
+ formData.append('context', JSON.stringify(pageContext));
+ formData.append('localCandidates', JSON.stringify(localCandidates));
+ files.forEach(file => formData.append('files', file, file.name || 'file'));
+ const response = await fetch(targetUrl, {
+ method:'POST',
+ headers:{
+ 'Accept':'application/json, text/plain;charset=utf-8',
+ ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+ },
+ body: formData
+ });
+ const rawText = await response.text().catch(() => '');
+ if(!response.ok) throw new Error(rawText || `AI 첨부파일 분석 실패 (${response.status})`);
+ return normalizeAiAnalyzeFilesResponse(rawText);
+}
+
+function bindAiAttachmentPicker(){
+ const btn = qs('#aiAttachBtn');
+ const input = qs('#aiFileInput');
+ const clearBtn = qs('#aiAttachClearBtn');
+ if(btn && input && btn.dataset.bound !== 'true'){
+ btn.dataset.bound = 'true';
+ btn.addEventListener('click', () => input.click());
+ input.addEventListener('change', () => addAiSelectedFiles(input.files));
+ }
+ if(clearBtn && clearBtn.dataset.bound !== 'true'){
+ clearBtn.dataset.bound = 'true';
+ clearBtn.addEventListener('click', clearAiSelectedFiles);
+ }
+ renderAiSelectedFiles();
+}
+
 function buildDirectApartmentLifeLocalAnswer(question=''){
  const fallback = getApartmentLifeFallbackContact(question, '');
  if(!fallback) return '';
@@ -18016,12 +18224,15 @@ async function askAiAssistant(rawQuestion=''){
  if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
  const input = qs('#aiQuestionInput');
  const btn = qs('#aiAskBtn');
+ const hasAttachFiles = aiSelectedFiles.length > 0;
  const rawInputQuestion = String(rawQuestion || input?.value || '').trim();
- const followup = resolveAiFollowupQuestion(rawInputQuestion);
- const question = followup.effectiveQuestion;
+ const defaultAttachQuestion = hasAttachFiles ? '첨부파일 내용을 분석해줘' : '';
+ const followup = resolveAiFollowupQuestion(rawInputQuestion || defaultAttachQuestion);
+ const question = followup.effectiveQuestion || defaultAttachQuestion;
  const displayQuestion = followup.originalQuestion || question;
  if(!displayQuestion) return openModalAlert('질문을 입력해주세요.');
- if(!(await guardAiUserInputOrAlert(displayQuestion))) return;
+ if(!hasAttachFiles && !(await guardAiUserInputOrAlert(displayQuestion))) return;
+ if(hasAttachFiles && rawInputQuestion && !(await guardAiUserInputOrAlert(displayQuestion))) return;
  logPersonalAssistantEvent({
  action:'ask',
  question,
@@ -18032,11 +18243,13 @@ async function askAiAssistant(rawQuestion=''){
 
  if(input) input.value = '';
  setAiAssistantBusy(true);
- appendAiMessage('user', escapeHtml(displayQuestion));
+ appendAiMessage('user', escapeHtml(displayQuestion) + (hasAttachFiles ? `<small>첨부 ${aiSelectedFiles.length}개: ${escapeHtml(aiSelectedFiles.map(file => file.name).join(', '))}</small>` : ''));
  const pendingRow = createAiTypingBubble(question);
  const pendingBubble = pendingRow?.querySelector('.ai-bubble');
+ const filesForThisQuestion = hasAttachFiles ? [...aiSelectedFiles] : [];
+ if(hasAttachFiles) clearAiSelectedFiles();
 
- const directApartmentLifeHtml = buildDirectApartmentLifeLocalAnswer(question);
+ const directApartmentLifeHtml = hasAttachFiles ? '' : buildDirectApartmentLifeLocalAnswer(question);
  if(directApartmentLifeHtml){
  if(pendingBubble){
  pendingBubble.innerHTML = directApartmentLifeHtml;
@@ -18055,16 +18268,23 @@ async function askAiAssistant(rawQuestion=''){
  try{
  aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '필요한 정보를 정리하는 중입니다.'), 4500);
  aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '답변이 평소보다 조금 더 걸리고 있어요.', '정확한 안내를 위해 한 번 더 확인하고 있습니다.'), 10000);
- const streamRenderer = createAiStreamRenderer(pendingBubble, question);
+ let finalText = '';
+ let streamRenderer = null;
+ if(filesForThisQuestion.length){
+ setAiThinkingMessage(pendingBubble, '첨부파일을 분석하고 있어요.', '여러 파일이나 영상은 조금 더 걸릴 수 있습니다.');
+ finalText = await callAiAnalyzeFiles(question, filesForThisQuestion);
+ }else{
+ streamRenderer = createAiStreamRenderer(pendingBubble, question);
  await callAiStreamServer(question, {
  onChunk: (chunk) => {
  streamRenderer.push(chunk);
  }
  });
+ }
 
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
- const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
+ finalText = finalText || (streamRenderer ? streamRenderer.flush() : '') || '답변을 생성하지 못했습니다.';
  rememberAiConfirmCandidate(finalText);
  if(pendingBubble){
  pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
@@ -19438,6 +19658,7 @@ document.addEventListener('keydown', (event) => {
 
  updateAiConversationStatus(aiConversationTitle);
  resetAiChatWindow();
+ bindAiAttachmentPicker();
  qs('#aiAskBtn')?.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(); });
  qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
  qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
