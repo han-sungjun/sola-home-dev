@@ -17852,6 +17852,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  function appendAiRecommendationCardsSafe(data, question=''){
  const mode = String(data?.retrievalMode || '');
  if(isApartmentLifePhoneQuestion(question) || mode.includes('direct-apartment-life-phone')) return;
+ if(data?.suppressRelatedItems || data?.suppressFollowupButtons || data?.analysisStatus === 'no_analyzable_files') return;
  if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
  }
 
@@ -18046,6 +18047,7 @@ function getAiFileIcon(file={}){
  const name = String(file.name || '').toLowerCase();
  if(type.startsWith('image/')) return '🖼️';
  if(type.startsWith('video/')) return '🎥';
+ if(type.startsWith('audio/') || /\.(m4a|mp3|wav|aac|ogg|flac)$/i.test(name)) return '🎙️';
  if(type.includes('pdf') || name.endsWith('.pdf')) return '📄';
  if(name.endsWith('.doc') || name.endsWith('.docx')) return '📝';
  if(name.endsWith('.xls') || name.endsWith('.xlsx')) return '📊';
@@ -18218,6 +18220,32 @@ function buildDirectApartmentLifeLocalAnswer(question=''){
  </div>`;
  }
 
+
+function scrollAiAnswerIntoView(rowOrBubble, options = {}){
+ const target = rowOrBubble?.closest?.('.ai-message') || rowOrBubble;
+ const win = qs('#aiChatWindow');
+ try{
+   if(win){
+     requestAnimationFrame(() => {
+       win.scrollTo({ top: win.scrollHeight, behavior: options.instant ? 'auto' : 'smooth' });
+     });
+   }
+   setTimeout(() => {
+     const aiView = qs('#view-ai');
+     if(target && typeof target.scrollIntoView === 'function'){
+       target.scrollIntoView({ behavior: options.instant ? 'auto' : 'smooth', block: 'start', inline: 'nearest' });
+     }else if(aiView && typeof aiView.scrollIntoView === 'function'){
+       aiView.scrollIntoView({ behavior: options.instant ? 'auto' : 'smooth', block: 'nearest' });
+     }
+   }, options.delay || 80);
+   setTimeout(() => {
+     if(win) win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' });
+   }, options.secondDelay || 420);
+ }catch(_error){
+   try{ if(win) win.scrollTop = win.scrollHeight; }catch(_e){}
+ }
+}
+
 async function askAiAssistant(rawQuestion=''){
  if(guardAiAssistantBusy()) return;
  if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
@@ -18272,6 +18300,7 @@ async function askAiAssistant(rawQuestion=''){
  let streamRenderer = null;
  if(filesForThisQuestion.length){
  setAiThinkingMessage(pendingBubble, '첨부파일을 분석하고 있어요.', '여러 파일이나 영상은 조금 더 걸릴 수 있습니다.');
+ scrollAiAnswerIntoView(pendingRow || pendingBubble, { delay: 40 });
  finalText = await callAiAnalyzeFiles(question, filesForThisQuestion);
  }else{
  streamRenderer = createAiStreamRenderer(pendingBubble, question);
@@ -18289,6 +18318,7 @@ async function askAiAssistant(rawQuestion=''){
  if(pendingBubble){
  pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
  bindAiAnswerActions(pendingBubble);
+ scrollAiAnswerIntoView(pendingRow || pendingBubble, { delay: filesForThisQuestion.length ? 120 : 80, secondDelay: filesForThisQuestion.length ? 700 : 420 });
  }
  if(pendingRow) delete pendingRow.dataset.pending;
  window.__AI_LAST_INPUT_MODE = 'text';
