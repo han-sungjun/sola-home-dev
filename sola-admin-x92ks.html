@@ -5985,7 +5985,8 @@ function fillForm(item){
 
 
 
-<script id="ai-download-url-guard-v3">
+
+<script id="ai-download-url-guard-v4">
 (function(){
   function showDownloadAlert(message){
     const text = message || '파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
@@ -6019,7 +6020,7 @@ function fillForm(item){
     }
   }
 
-  function buildSafeDownloadUrl(rawUrl){
+  function buildAbsoluteUrl(rawUrl){
     if (!rawUrl) return '';
     const input = String(rawUrl).trim();
     if (!input) return '';
@@ -6032,17 +6033,45 @@ function fillForm(item){
     if (fallback) return fallback;
     try {
       const u = new URL(url, location.origin);
-      const alt = u.searchParams.get('filename') || u.searchParams.get('name');
-      if (alt) return decodeURIComponent(alt);
-      const pathName = decodeURIComponent(u.pathname.split('/').pop() || 'download');
-      return pathName || 'download';
+      const queryName = u.searchParams.get('filename') || u.searchParams.get('name');
+      if (queryName) return decodeURIComponent(queryName);
+
+      const decodedPath = decodeURIComponent(u.pathname || '');
+      const last = decodedPath.split('/').pop() || 'download';
+
+      // Firebase Storage path often has encoded folders in /o/...
+      if (decodedPath.includes('/o/')) {
+        const afterO = decodedPath.split('/o/')[1] || last;
+        return afterO.split('/').pop() || last;
+      }
+
+      return last || 'download';
     } catch(e) {
-      return 'download';
+      return fallback || 'download';
     }
   }
 
-  async function downloadAsBlob(url, filename){
-    const safeUrl = buildSafeDownloadUrl(url);
+  function addForcedDownloadParams(url, filename){
+    const abs = buildAbsoluteUrl(url);
+    try {
+      const u = new URL(abs, location.origin);
+      const name = guessFilename(abs, filename);
+
+      // Firebase Storage / Google Storage: force attachment when possible.
+      if (u.hostname.includes('firebasestorage.googleapis.com') || u.hostname.includes('storage.googleapis.com')) {
+        if (!u.searchParams.has('alt')) u.searchParams.set('alt', 'media');
+        u.searchParams.set('response-content-disposition', 'attachment; filename="' + name.replace(/"/g, '') + '"');
+        return u.toString();
+      }
+
+      return u.toString();
+    } catch(e) {
+      return abs;
+    }
+  }
+
+  function browserDownload(url, filename){
+    const safeUrl = addForcedDownloadParams(url, filename);
 
     if (isClearlyBadUrl(safeUrl)) {
       showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
@@ -6050,40 +6079,62 @@ function fillForm(item){
     }
 
     try {
-      const res = await fetch(safeUrl, {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'omit',
-        cache: 'no-store'
-      });
-
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      const blob = await res.blob();
-      if (!blob || blob.size === 0) throw new Error('EMPTY_FILE');
-
-      const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = objectUrl;
+      a.href = safeUrl;
       a.download = guessFilename(safeUrl, filename);
+      a.rel = 'noopener';
       a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-
-      setTimeout(function(){
-        URL.revokeObjectURL(objectUrl);
-        a.remove();
-      }, 800);
-
+      setTimeout(function(){ a.remove(); }, 500);
       return true;
     } catch(err) {
-      console.warn('[AI Download] blob download failed:', err);
-      showDownloadAlert('파일 다운로드에 실패했습니다. 다운로드 권한 또는 서버 설정을 확인해주세요.');
+      console.warn('[AI Download] browser download failed:', err);
+      showDownloadAlert('파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
       return false;
     }
   }
 
-  window.safeAiAttachmentDownload = downloadAsBlob;
+  async function tryBlobThenFallback(url, filename){
+    const safeUrl = addForcedDownloadParams(url, filename);
+
+    if (isClearlyBadUrl(safeUrl)) {
+      showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
+      return false;
+    }
+
+    // Same-origin은 blob 다운로드가 가장 안정적입니다.
+    try {
+      const u = new URL(safeUrl, location.origin);
+      if (u.origin === location.origin) {
+        const res = await fetch(safeUrl, { method:'GET', credentials:'include', cache:'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const blob = await res.blob();
+        if (!blob || blob.size === 0) throw new Error('EMPTY_FILE');
+
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = guessFilename(safeUrl, filename);
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function(){
+          URL.revokeObjectURL(objectUrl);
+          a.remove();
+        }, 800);
+        return true;
+      }
+    } catch(err) {
+      console.warn('[AI Download] same-origin blob failed, fallback:', err);
+    }
+
+    // Cross-origin(Firebase 등)은 CORS 때문에 fetch가 실패할 수 있으므로
+    // 알럿을 띄우지 않고 강제 다운로드 URL로 브라우저에 맡깁니다.
+    return browserDownload(safeUrl, filename);
+  }
+
+  window.safeAiAttachmentDownload = tryBlobThenFallback;
 
   const oldDownloadAiAttachment = window.downloadAiAttachment;
 
@@ -6115,7 +6166,7 @@ function fillForm(item){
           '';
       }
 
-      if (url) return downloadAsBlob(url, filename);
+      if (url) return tryBlobThenFallback(url, filename);
 
       if (typeof oldDownloadAiAttachment === 'function') {
         return oldDownloadAiAttachment.apply(this, arguments);
@@ -6125,7 +6176,7 @@ function fillForm(item){
       return false;
     } catch(err) {
       console.warn('[AI Download] wrapper failed:', err);
-      showDownloadAlert('파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      showDownloadAlert('파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
       return false;
     }
   };
@@ -6165,7 +6216,7 @@ function fillForm(item){
       a.dataset.name ||
       '';
 
-    downloadAsBlob(href, filename);
+    tryBlobThenFallback(href, filename);
     return false;
   }, true);
 })();
