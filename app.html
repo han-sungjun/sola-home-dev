@@ -21928,7 +21928,8 @@ if(window.MutationObserver){
 
 
 
-<script id="ai-download-url-guard-v4">
+
+<script id="ai-download-url-guard-v5-server-proxy">
 (function(){
   function showDownloadAlert(message){
     const text = message || '파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
@@ -21977,53 +21978,55 @@ if(window.MutationObserver){
       const u = new URL(url, location.origin);
       const queryName = u.searchParams.get('filename') || u.searchParams.get('name');
       if (queryName) return decodeURIComponent(queryName);
-
       const decodedPath = decodeURIComponent(u.pathname || '');
-      const last = decodedPath.split('/').pop() || 'download';
-
-      // Firebase Storage path often has encoded folders in /o/...
       if (decodedPath.includes('/o/')) {
-        const afterO = decodedPath.split('/o/')[1] || last;
-        return afterO.split('/').pop() || last;
+        const afterO = decodedPath.split('/o/')[1] || '';
+        return afterO.split('/').pop() || 'download';
       }
-
-      return last || 'download';
+      return decodedPath.split('/').pop() || 'download';
     } catch(e) {
       return fallback || 'download';
     }
   }
 
-  function addForcedDownloadParams(url, filename){
-    const abs = buildAbsoluteUrl(url);
-    try {
-      const u = new URL(abs, location.origin);
-      const name = guessFilename(abs, filename);
+  function resolveDownloadProxyBase(){
+    const cfg = window.ENV || window.env || window.__ENV__ || {};
+    return (
+      cfg.AI_STREAM_SERVER_URL ||
+      cfg.AI_SERVER_URL ||
+      cfg.AI_API_BASE ||
+      cfg.API_BASE_URL ||
+      window.AI_STREAM_SERVER_URL ||
+      window.AI_ATTACHMENT_DOWNLOAD_BASE ||
+      ''
+    );
+  }
 
-      // Firebase Storage / Google Storage: force attachment when possible.
-      if (u.hostname.includes('firebasestorage.googleapis.com') || u.hostname.includes('storage.googleapis.com')) {
-        if (!u.searchParams.has('alt')) u.searchParams.set('alt', 'media');
-        u.searchParams.set('response-content-disposition', 'attachment; filename="' + name.replace(/"/g, '') + '"');
-        return u.toString();
-      }
+  function buildProxyUrl(fileUrl, filename){
+    const base = resolveDownloadProxyBase();
+    const endpoint = '/api/ai/attachments/download';
 
-      return u.toString();
-    } catch(e) {
-      return abs;
+    if (!base) {
+      // Same-origin fallback only if server is routed through frontend domain.
+      return endpoint + '?url=' + encodeURIComponent(fileUrl) + '&filename=' + encodeURIComponent(filename || 'download');
     }
+
+    return String(base).replace(/\/$/, '') +
+      endpoint +
+      '?url=' + encodeURIComponent(fileUrl) +
+      '&filename=' + encodeURIComponent(filename || 'download');
   }
 
   function browserDownload(url, filename){
-    const safeUrl = addForcedDownloadParams(url, filename);
-
-    if (isClearlyBadUrl(safeUrl)) {
+    if (isClearlyBadUrl(url)) {
       showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
       return false;
     }
 
     try {
       const a = document.createElement('a');
-      a.href = safeUrl;
-      a.download = guessFilename(safeUrl, filename);
+      a.href = url;
+      a.download = filename || 'download';
       a.rel = 'noopener';
       a.style.display = 'none';
       document.body.appendChild(a);
@@ -22037,46 +22040,20 @@ if(window.MutationObserver){
     }
   }
 
-  async function tryBlobThenFallback(url, filename){
-    const safeUrl = addForcedDownloadParams(url, filename);
+  function downloadViaServerProxy(rawUrl, filename){
+    const absoluteUrl = buildAbsoluteUrl(rawUrl);
+    const safeName = guessFilename(absoluteUrl, filename);
 
-    if (isClearlyBadUrl(safeUrl)) {
+    if (isClearlyBadUrl(absoluteUrl)) {
       showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
       return false;
     }
 
-    // Same-origin은 blob 다운로드가 가장 안정적입니다.
-    try {
-      const u = new URL(safeUrl, location.origin);
-      if (u.origin === location.origin) {
-        const res = await fetch(safeUrl, { method:'GET', credentials:'include', cache:'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const blob = await res.blob();
-        if (!blob || blob.size === 0) throw new Error('EMPTY_FILE');
-
-        const objectUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = objectUrl;
-        a.download = guessFilename(safeUrl, filename);
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function(){
-          URL.revokeObjectURL(objectUrl);
-          a.remove();
-        }, 800);
-        return true;
-      }
-    } catch(err) {
-      console.warn('[AI Download] same-origin blob failed, fallback:', err);
-    }
-
-    // Cross-origin(Firebase 등)은 CORS 때문에 fetch가 실패할 수 있으므로
-    // 알럿을 띄우지 않고 강제 다운로드 URL로 브라우저에 맡깁니다.
-    return browserDownload(safeUrl, filename);
+    const proxyUrl = buildProxyUrl(absoluteUrl, safeName);
+    return browserDownload(proxyUrl, safeName);
   }
 
-  window.safeAiAttachmentDownload = tryBlobThenFallback;
+  window.safeAiAttachmentDownload = downloadViaServerProxy;
 
   const oldDownloadAiAttachment = window.downloadAiAttachment;
 
@@ -22108,7 +22085,7 @@ if(window.MutationObserver){
           '';
       }
 
-      if (url) return tryBlobThenFallback(url, filename);
+      if (url) return downloadViaServerProxy(url, filename);
 
       if (typeof oldDownloadAiAttachment === 'function') {
         return oldDownloadAiAttachment.apply(this, arguments);
@@ -22136,7 +22113,8 @@ if(window.MutationObserver){
       text.includes('이미지') ||
       text.includes('첨부파일') ||
       /\.(png|jpe?g|webp|gif|pdf|txt|docx?|xlsx?|pptx?|hwp|zip|mp4|m4a|mp3|wav)(\?|#|$)/i.test(href) ||
-      href.includes('firebasestorage.googleapis.com')
+      href.includes('firebasestorage.googleapis.com') ||
+      href.includes('storage.googleapis.com')
     );
   }
 
@@ -22158,7 +22136,7 @@ if(window.MutationObserver){
       a.dataset.name ||
       '';
 
-    tryBlobThenFallback(href, filename);
+    downloadViaServerProxy(href, filename);
     return false;
   }, true);
 })();
