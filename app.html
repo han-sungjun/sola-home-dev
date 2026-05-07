@@ -21929,7 +21929,8 @@ if(window.MutationObserver){
 
 
 
-<script id="ai-download-url-guard-v5-server-proxy">
+
+<script id="ai-download-server-only-v1">
 (function(){
   function showDownloadAlert(message){
     const text = message || '파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
@@ -22005,42 +22006,14 @@ if(window.MutationObserver){
   function buildProxyUrl(fileUrl, filename){
     const base = resolveDownloadProxyBase();
     const endpoint = '/api/ai/attachments/download';
+    const query = '?url=' + encodeURIComponent(fileUrl) +
+                  '&filename=' + encodeURIComponent(filename || 'download');
 
-    if (!base) {
-      // Same-origin fallback only if server is routed through frontend domain.
-      return endpoint + '?url=' + encodeURIComponent(fileUrl) + '&filename=' + encodeURIComponent(filename || 'download');
-    }
-
-    return String(base).replace(/\/$/, '') +
-      endpoint +
-      '?url=' + encodeURIComponent(fileUrl) +
-      '&filename=' + encodeURIComponent(filename || 'download');
+    if (!base) return endpoint + query;
+    return String(base).replace(/\/$/, '') + endpoint + query;
   }
 
-  function browserDownload(url, filename){
-    if (isClearlyBadUrl(url)) {
-      showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
-      return false;
-    }
-
-    try {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename || 'download';
-      a.rel = 'noopener';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function(){ a.remove(); }, 500);
-      return true;
-    } catch(err) {
-      console.warn('[AI Download] browser download failed:', err);
-      showDownloadAlert('파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
-      return false;
-    }
-  }
-
-  function downloadViaServerProxy(rawUrl, filename){
+  function downloadViaServer(rawUrl, filename){
     const absoluteUrl = buildAbsoluteUrl(rawUrl);
     const safeName = guessFilename(absoluteUrl, filename);
 
@@ -22050,10 +22023,14 @@ if(window.MutationObserver){
     }
 
     const proxyUrl = buildProxyUrl(absoluteUrl, safeName);
-    return browserDownload(proxyUrl, safeName);
+
+    // 핵심: 프론트에서 fetch/blob/a.download 처리하지 않고 서버 다운로드 API만 호출
+    // 서버가 Content-Disposition: attachment 로 내려줌.
+    window.location.href = proxyUrl;
+    return true;
   }
 
-  window.safeAiAttachmentDownload = downloadViaServerProxy;
+  window.safeAiAttachmentDownload = downloadViaServer;
 
   const oldDownloadAiAttachment = window.downloadAiAttachment;
 
@@ -22085,7 +22062,7 @@ if(window.MutationObserver){
           '';
       }
 
-      if (url) return downloadViaServerProxy(url, filename);
+      if (url) return downloadViaServer(url, filename);
 
       if (typeof oldDownloadAiAttachment === 'function') {
         return oldDownloadAiAttachment.apply(this, arguments);
@@ -22094,7 +22071,7 @@ if(window.MutationObserver){
       showDownloadAlert('다운로드할 파일 주소를 찾지 못했습니다.');
       return false;
     } catch(err) {
-      console.warn('[AI Download] wrapper failed:', err);
+      console.warn('[AI Download] server-only wrapper failed:', err);
       showDownloadAlert('파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
       return false;
     }
@@ -22136,7 +22113,7 @@ if(window.MutationObserver){
       a.dataset.name ||
       '';
 
-    downloadViaServerProxy(href, filename);
+    downloadViaServer(href, filename);
     return false;
   }, true);
 })();
