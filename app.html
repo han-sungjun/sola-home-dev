@@ -6064,6 +6064,101 @@ body:has(#view-calendar:not(.hidden)) .app{
 .ai-attach-status{display:none;padding:9px 10px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1.45}
 .ai-attach-status.show{display:block}
 @media(max-width:420px){.ai-attach-top{align-items:stretch;flex-direction:column}.ai-attach-btn{width:100%}}
+
+
+/* ===== AI 입력창 통합 컴포저 UX: textarea + 아이콘 첨부/음성 + 클립보드 이미지 ===== */
+.ai-attach-panel-compact{
+  margin-top:10px!important;
+  padding:0!important;
+  border:none!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.ai-attach-panel-compact:not(.has-files) .ai-attach-status,
+.ai-attach-panel-compact:not(.has-files) .ai-attach-list,
+.ai-attach-panel-compact:not(.has-files) .ai-attach-clear{display:none!important;}
+.ai-composer-row{
+  display:grid!important;
+  grid-template-columns:auto auto minmax(0,1fr) auto!important;
+  align-items:end!important;
+  gap:8px!important;
+  padding:10px!important;
+  border:1px solid #dbe3ef!important;
+  background:#fff!important;
+  border-radius:22px!important;
+  box-shadow:0 12px 26px rgba(15,23,42,.06)!important;
+}
+.ai-composer-row:focus-within{
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10),0 14px 30px rgba(15,23,42,.07)!important;
+}
+.ai-composer-icon{
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  padding:0!important;
+  border-radius:15px!important;
+  border:1px solid #e2e8f0!important;
+  background:#f8fafc!important;
+  color:#1d4ed8!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:17px!important;
+  line-height:1!important;
+  box-shadow:none!important;
+  white-space:nowrap!important;
+}
+.ai-composer-icon:hover{background:#eff6ff!important;transform:translateY(-1px);}
+.ai-composer-row #aiQuestionInput{
+  width:100%!important;
+  min-width:0!important;
+  min-height:40px!important;
+  max-height:142px!important;
+  height:40px;
+  padding:9px 4px!important;
+  border:none!important;
+  outline:none!important;
+  resize:none!important;
+  background:transparent!important;
+  color:#0f172a!important;
+  font-size:15px!important;
+  line-height:1.45!important;
+  overflow-y:auto!important;
+  box-shadow:none!important;
+}
+.ai-composer-row #aiQuestionInput::placeholder{color:#94a3b8!important;}
+.ai-composer-row .ai-send-btn,
+.ai-composer-row #aiAskBtn{
+  height:40px!important;
+  min-width:56px!important;
+  padding:0 14px!important;
+  border-radius:16px!important;
+  align-self:end!important;
+}
+.ai-voice-status-compact{
+  margin-top:8px!important;
+  padding:10px 12px!important;
+  border-radius:16px!important;
+  background:#f8fafc!important;
+  border:1px solid #e2e8f0!important;
+  color:#64748b!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1.45!important;
+}
+.ai-attach-panel.has-files + .ai-composer-row{margin-top:8px!important;}
+.ai-attach-list{margin-top:8px!important;}
+@media(max-width:420px){
+  .ai-composer-row{grid-template-columns:auto auto minmax(0,1fr) auto!important;gap:6px!important;padding:9px!important;border-radius:20px!important;}
+  .ai-composer-icon{width:34px!important;height:34px!important;min-width:34px!important;border-radius:13px!important;font-size:15px!important;}
+  .ai-composer-row #aiQuestionInput{font-size:14px!important;min-height:36px!important;height:36px;padding:8px 2px!important;}
+  .ai-composer-row .ai-send-btn,.ai-composer-row #aiAskBtn{height:36px!important;min-width:50px!important;padding:0 12px!important;border-radius:14px!important;font-size:13px!important;}
+}
+@media(max-width:350px){
+  .ai-composer-row{grid-template-columns:auto auto minmax(0,1fr)!important;}
+  .ai-composer-row .ai-send-btn,.ai-composer-row #aiAskBtn{grid-column:1 / -1;width:100%!important;margin-top:2px;}
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -9836,24 +9931,19 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
  </div>
 
- <div class="ai-attach-panel" id="aiAttachPanel">
- <div class="ai-attach-top">
- <button class="ai-attach-btn" type="button" id="aiAttachBtn">📎 사진/파일/영상 첨부</button>
- <div class="ai-attach-help">이미지, PDF, 문서, 영상, 음성 녹음까지 최대 5개를 함께 질문할 수 있습니다.</div>
- </div>
+ <div class="ai-attach-panel ai-attach-panel-compact" id="aiAttachPanel">
  <input class="ai-attach-input" id="aiFileInput" type="file" multiple accept="image/*,video/*,audio/*,.m4a,.mp3,.wav,.aac,.ogg,.flac,.pdf,.txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx" />
  <div class="ai-attach-status" id="aiAttachStatus"></div>
  <div class="ai-attach-list" id="aiAttachList"></div>
  <button class="ai-attach-clear" type="button" id="aiAttachClearBtn">첨부 모두 지우기</button>
  </div>
- <div class="ai-voice-row" id="aiVoiceRow">
- <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
- <div class="ai-voice-status" id="aiVoiceStatus">버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.</div>
+ <div class="ai-input-row ai-composer-row" id="aiComposerRow">
+ <button class="ai-composer-icon ai-attach-btn" type="button" id="aiAttachBtn" title="사진/파일/영상 첨부" aria-label="사진, 파일, 영상 첨부">📎</button>
+ <button class="ai-composer-icon ai-voice-btn" type="button" id="aiVoiceBtn" title="말로 질문" aria-label="말로 질문">🎙️</button>
+ <textarea id="aiQuestionInput" rows="1" maxlength="500" placeholder="예: 최근 공지 알려줘, 혜택 매장 추천해줘"></textarea>
+ <button class="btn btn-primary ai-send-btn" type="button" id="aiAskBtn" aria-label="질문 보내기">질문</button>
  </div>
- <div class="ai-input-row">
- <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 혜택 매장 추천해줘" />
- <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
- </div>
+ <div class="ai-voice-status ai-voice-status-compact" id="aiVoiceStatus">마이크 버튼을 누르면 말로 질문할 수 있습니다. 클립보드 이미지는 입력창에 붙여넣을 수 있습니다.</div>
  </div>
  </section>
 
@@ -17582,7 +17672,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const btn = qs('#aiVoiceBtn');
  if(status) status.textContent = message || '';
  btn?.classList.toggle('listening', !!active);
- if(btn) btn.textContent = active ? '■ 듣는 중' : '🎙 말로 질문';
+ if(btn) btn.textContent = active ? '■' : '🎙️';
  }
 
  function stopAiMicTracks(stream){
@@ -17621,7 +17711,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  transcript = transcript.trim();
  if(!transcript) return;
  const input = qs('#aiQuestionInput');
- if(input) input.value = transcript;
+ if(input){ input.value = transcript; adjustAiQuestionTextareaHeight(input); }
  setAiVoiceStatus('인식 중: ' + transcript, true);
  const last = event.results[event.results.length - 1];
  if(last?.isFinal){
@@ -18421,6 +18511,60 @@ async function callAiAnalyzeFiles(question='', files=[]){
 }
 
 
+
+
+function adjustAiQuestionTextareaHeight(inputEl){
+ const el = inputEl || qs('#aiQuestionInput');
+ if(!el || String(el.tagName || '').toLowerCase() !== 'textarea') return;
+ try{
+   el.style.height = 'auto';
+   const maxHeight = 142;
+   const nextHeight = Math.min(maxHeight, Math.max(40, el.scrollHeight || 40));
+   el.style.height = `${nextHeight}px`;
+   el.style.overflowY = (el.scrollHeight || 0) > maxHeight ? 'auto' : 'hidden';
+ }catch(_error){}
+}
+
+function extractClipboardImageFiles(event){
+ const items = Array.from(event?.clipboardData?.items || []);
+ const files = [];
+ items.forEach((item, index) => {
+   if(!item || !String(item.type || '').startsWith('image/')) return;
+   const blob = item.getAsFile?.();
+   if(!blob) return;
+   const ext = String(blob.type || 'image/png').split('/')[1] || 'png';
+   const safeExt = ext === 'jpeg' ? 'jpg' : ext;
+   const name = `clipboard-image-${Date.now()}-${index + 1}.${safeExt}`;
+   try{ files.push(new File([blob], name, { type: blob.type || 'image/png', lastModified: Date.now() })); }
+   catch(_error){ blob.name = name; files.push(blob); }
+ });
+ return files;
+}
+
+function bindAiQuestionComposer(){
+ const input = qs('#aiQuestionInput');
+ if(!input || input.dataset.composerBound === 'true') return;
+ input.dataset.composerBound = 'true';
+ adjustAiQuestionTextareaHeight(input);
+ input.addEventListener('input', () => adjustAiQuestionTextareaHeight(input));
+ input.addEventListener('paste', (event) => {
+   const files = extractClipboardImageFiles(event);
+   if(!files.length) return;
+   event.preventDefault();
+   addAiSelectedFiles(files);
+   setAiAttachStatus(`클립보드 이미지 ${files.length}개를 첨부했습니다.`, 'info');
+   requestAnimationFrame(() => input.focus?.());
+ });
+ input.addEventListener('keydown', (event) => {
+   if(event.key !== 'Enter') return;
+   if(event.isComposing) return;
+   if(event.ctrlKey || event.metaKey){
+     event.preventDefault();
+     if(!guardAiAssistantBusy()) askAiAssistant();
+   }
+ });
+}
+
 function bindAiAttachmentPicker(){
  const btn = qs('#aiAttachBtn');
  const input = qs('#aiFileInput');
@@ -18511,7 +18655,7 @@ async function askAiAssistant(rawQuestion=''){
  source: followup.usedConfirmCandidate ? 'confirm_followup' : (window.__AI_LAST_INPUT_MODE || 'text')
  });
 
- if(input) input.value = '';
+ if(input){ input.value = ''; adjustAiQuestionTextareaHeight(input); }
  setAiAssistantBusy(true);
  appendAiMessage('user', escapeHtml(displayQuestion) + (hasAttachFiles ? `<small>첨부 ${aiSelectedFiles.length}개: ${escapeHtml(aiSelectedFiles.map(file => file.name).join(', '))}</small>` : ''));
  const pendingRow = createAiTypingBubble(question);
@@ -19935,13 +20079,14 @@ document.addEventListener('keydown', (event) => {
  updateAiConversationStatus(aiConversationTitle);
  resetAiChatWindow();
  bindAiAttachmentPicker();
+ bindAiQuestionComposer();
  qs('#aiAskBtn')?.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(); });
  qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
  qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
  qs('#aiCloseConversationListBtn')?.addEventListener('click', () => qs('#aiConversationPanel')?.classList.remove('show'));
  qs('#aiClearConversationBtn')?.addEventListener('click', clearCurrentAiConversation);
  qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
- if(event.key === 'Enter'){
+ if(event.key === 'Enter' && (event.ctrlKey || event.metaKey)){
  event.preventDefault();
  if(!guardAiAssistantBusy()) askAiAssistant();
  }
