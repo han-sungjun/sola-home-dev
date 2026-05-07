@@ -6159,6 +6159,31 @@ body:has(#view-calendar:not(.hidden)) .app{
   .ai-composer-row .ai-send-btn,.ai-composer-row #aiAskBtn{grid-column:1 / -1;width:100%!important;margin-top:2px;}
 }
 
+/* ===== AI 입력창 한 줄 초기 높이 고정 보정 ===== */
+.ai-composer-row{align-items:center!important;}
+.ai-composer-row #aiQuestionInput{
+  display:block!important;
+  box-sizing:border-box!important;
+  min-height:40px!important;
+  height:40px!important;
+  max-height:112px!important;
+  line-height:20px!important;
+  overflow-y:hidden!important;
+  scrollbar-width:thin;
+}
+.ai-composer-row #aiQuestionInput:placeholder-shown{
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+@media(max-width:420px){
+  .ai-composer-row #aiQuestionInput{
+    min-height:36px!important;
+    height:36px!important;
+    max-height:96px!important;
+    line-height:20px!important;
+  }
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -9940,7 +9965,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  <div class="ai-input-row ai-composer-row" id="aiComposerRow">
  <button class="ai-composer-icon ai-attach-btn" type="button" id="aiAttachBtn" title="사진/파일/영상 첨부" aria-label="사진, 파일, 영상 첨부">📎</button>
  <button class="ai-composer-icon ai-voice-btn" type="button" id="aiVoiceBtn" title="말로 질문" aria-label="말로 질문">🎙️</button>
- <textarea id="aiQuestionInput" rows="1" maxlength="500" placeholder="예: 최근 공지 알려줘, 혜택 매장 추천해줘"></textarea>
+ <textarea id="aiQuestionInput" rows="1" maxlength="500" placeholder="궁금한 내용을 입력하세요"></textarea>
  <button class="btn btn-primary ai-send-btn" type="button" id="aiAskBtn" aria-label="질문 보내기">질문</button>
  </div>
  <div class="ai-voice-status ai-voice-status-compact" id="aiVoiceStatus">마이크 버튼을 누르면 말로 질문할 수 있습니다. 클립보드 이미지는 입력창에 붙여넣을 수 있습니다.</div>
@@ -18513,15 +18538,29 @@ async function callAiAnalyzeFiles(question='', files=[]){
 
 
 
-function adjustAiQuestionTextareaHeight(inputEl){
+function adjustAiQuestionTextareaHeight(inputEl, options = {}){
  const el = inputEl || qs('#aiQuestionInput');
  if(!el || String(el.tagName || '').toLowerCase() !== 'textarea') return;
  try{
-   el.style.height = 'auto';
-   const maxHeight = 142;
-   const nextHeight = Math.min(maxHeight, Math.max(40, el.scrollHeight || 40));
-   el.style.height = `${nextHeight}px`;
-   el.style.overflowY = (el.scrollHeight || 0) > maxHeight ? 'auto' : 'hidden';
+   const isCompact = window.matchMedia && window.matchMedia('(max-width: 420px)').matches;
+   const baseHeight = isCompact ? 36 : 40;
+   const maxHeight = isCompact ? 96 : 112;
+   const hasValue = String(el.value || '').length > 0;
+
+   // 전송 직후/빈 입력창은 반드시 한 줄 높이로 복귀시킵니다.
+   if(!hasValue || options.reset){
+     el.rows = 1;
+     el.style.setProperty('height', `${baseHeight}px`, 'important');
+     el.style.setProperty('min-height', `${baseHeight}px`, 'important');
+     el.style.setProperty('overflow-y', 'hidden', 'important');
+     return;
+   }
+
+   el.style.setProperty('height', `${baseHeight}px`, 'important');
+   const nextHeight = Math.min(maxHeight, Math.max(baseHeight, el.scrollHeight || baseHeight));
+   el.style.setProperty('height', `${nextHeight}px`, 'important');
+   el.style.setProperty('min-height', `${baseHeight}px`, 'important');
+   el.style.setProperty('overflow-y', (el.scrollHeight || 0) > maxHeight ? 'auto' : 'hidden', 'important');
  }catch(_error){}
 }
 
@@ -18655,7 +18694,7 @@ async function askAiAssistant(rawQuestion=''){
  source: followup.usedConfirmCandidate ? 'confirm_followup' : (window.__AI_LAST_INPUT_MODE || 'text')
  });
 
- if(input){ input.value = ''; adjustAiQuestionTextareaHeight(input); }
+ if(input){ input.value = ''; input.rows = 1; adjustAiQuestionTextareaHeight(input, { reset:true }); }
  setAiAssistantBusy(true);
  appendAiMessage('user', escapeHtml(displayQuestion) + (hasAttachFiles ? `<small>첨부 ${aiSelectedFiles.length}개: ${escapeHtml(aiSelectedFiles.map(file => file.name).join(', '))}</small>` : ''));
  const pendingRow = createAiTypingBubble(question);
