@@ -2518,6 +2518,13 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-live-card .ai-live-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
 .ai-answer-upgrade{display:grid;gap:12px}
 .ai-answer-summary{white-space:pre-wrap;line-height:1.78;letter-spacing:-.02em}
+.ai-tts-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ai-tts-btn{border:0;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:1000;letter-spacing:-.02em;background:linear-gradient(180deg,#eff6ff,#dbeafe);color:#1d4ed8;box-shadow:0 8px 18px rgba(29,78,216,.12);cursor:pointer;transition:transform .12s ease,opacity .12s ease,box-shadow .12s ease}
+.ai-tts-btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(29,78,216,.16)}
+.ai-tts-btn:disabled{opacity:.62;cursor:not-allowed;transform:none;box-shadow:none}
+.ai-tts-btn.stop{background:#f8fafc;color:#475569;border:1px solid #e2e8f0;box-shadow:none}
+.ai-tts-btn.playing{background:linear-gradient(180deg,#ecfdf5,#dcfce7);color:#047857}
+.ai-tts-error{font-size:11px;color:#ef4444;font-weight:800;line-height:1.45}
 .ai-answer-section{display:grid;gap:10px;margin-top:2px}
 .ai-answer-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:1000;color:#0f172a}
 .ai-answer-section-title small{font-size:11px;color:#64748b;font-weight:800}
@@ -10078,7 +10085,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  })();
  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
- const { ENV, FIREBASE_CONFIG } = await import(__solaNoCache('/env-config.js'));
+ const { ENV, FIREBASE_CONFIG, TTS_SERVICE_URL } = await import(__solaNoCache('/env-config.js'));
 
  const envBadge = document.getElementById('envBadge');
  document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
@@ -10100,6 +10107,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
  const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
+ const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
 
  // AI 첨부파일 다운로드는 Firebase Storage URL을 직접 열지 않고 Cloud Run 다운로드 API를 사용합니다.
  function extractAiAttachmentStoragePath(url=''){
@@ -17389,6 +17397,126 @@ function shouldShowAiKnowledgeAttachments(question='', answer=''){
  return getMatchedAiKnowledgeAttachmentsStrict(question, answer).length > 0;
 }
 
+
+const AI_TTS_DEFAULT_VOICE = 'marin';
+let currentAiTtsAudio = null;
+let currentAiTtsObjectUrl = '';
+let currentAiTtsButton = null;
+
+function buildAiTtsControlsHtml(type='default'){
+ return `<div class="ai-tts-actions" data-ai-tts-actions><button class="ai-tts-btn" type="button" data-ai-tts-play data-ai-tts-type="${escapeAttr(type || 'default')}">🔊 안내 음성으로 듣기</button><button class="ai-tts-btn stop" type="button" data-ai-tts-stop style="display:none">⏹ 정지</button><span class="ai-tts-error" data-ai-tts-error style="display:none"></span></div>`;
+}
+
+function resetAiTtsButtons(){
+ document.querySelectorAll('[data-ai-tts-play]').forEach(btn => {
+   if(btn.dataset.aiTtsLoading === 'true') delete btn.dataset.aiTtsLoading;
+   btn.disabled = false;
+   btn.textContent = '🔊 안내 음성으로 듣기';
+   btn.classList.remove('playing');
+ });
+ document.querySelectorAll('[data-ai-tts-stop]').forEach(btn => { btn.style.display = 'none'; });
+}
+
+function stopAiTts(){
+ try{
+   if(currentAiTtsAudio){
+     currentAiTtsAudio.pause();
+     currentAiTtsAudio.currentTime = 0;
+   }
+ }catch(_error){}
+ try{
+   if(currentAiTtsObjectUrl) URL.revokeObjectURL(currentAiTtsObjectUrl);
+ }catch(_error){}
+ currentAiTtsAudio = null;
+ currentAiTtsObjectUrl = '';
+ currentAiTtsButton = null;
+ resetAiTtsButtons();
+}
+
+function getAiTtsReadableText(button){
+ const answer = button?.closest?.('.ai-answer') || button?.closest?.('.ai-bubble');
+ if(!answer) return '';
+ const summary = answer.querySelector('.ai-answer-summary') || answer.querySelector('.ai-stream-text') || answer;
+ const clone = summary.cloneNode(true);
+ clone.querySelectorAll('button, .ai-tts-actions, .ai-stream-cursor, script, style').forEach(el => el.remove());
+ return String(clone.innerText || clone.textContent || '')
+   .replace(/https?:\/\/\S+/g, '링크')
+   .replace(/\s+/g, ' ')
+   .trim();
+}
+
+function setAiTtsError(button, message){
+ const box = button?.closest?.('[data-ai-tts-actions]');
+ const errorEl = box?.querySelector?.('[data-ai-tts-error]');
+ if(errorEl){
+   errorEl.textContent = message || '';
+   errorEl.style.display = message ? '' : 'none';
+ }else if(message){
+   alert(message);
+ }
+}
+
+async function playAiTtsFromButton(button){
+ if(!button || button.dataset.aiTtsLoading === 'true') return;
+ const text = getAiTtsReadableText(button);
+ if(!text){ setAiTtsError(button, '읽어줄 답변 내용이 없습니다.'); return; }
+ if(!AI_TTS_SERVICE_URL){ setAiTtsError(button, '음성 안내 서버 주소가 설정되지 않았습니다.'); return; }
+
+ stopAiTts();
+ currentAiTtsButton = button;
+ button.dataset.aiTtsLoading = 'true';
+ button.disabled = true;
+ button.textContent = '음성 준비 중...';
+ setAiTtsError(button, '');
+
+ try{
+   let idToken = '';
+   try{ idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : ''; }catch(_error){}
+   const response = await fetch(`${AI_TTS_SERVICE_URL}/tts`, {
+     method: 'POST',
+     headers: {
+       'Accept': 'audio/mpeg',
+       'Content-Type': 'application/json',
+       ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+     },
+     body: JSON.stringify({
+       text,
+       voice: AI_TTS_DEFAULT_VOICE,
+       type: button.dataset.aiTtsType || 'default',
+       speed: 1.0,
+       env: ENV
+     })
+   });
+   if(!response.ok){
+     let message = '음성을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.';
+     try{ const data = await response.json(); if(data?.message) message = data.message; }catch(_error){}
+     throw new Error(message);
+   }
+   const blob = await response.blob();
+   currentAiTtsObjectUrl = URL.createObjectURL(blob);
+   currentAiTtsAudio = new Audio(currentAiTtsObjectUrl);
+   currentAiTtsAudio.onended = () => stopAiTts();
+   currentAiTtsAudio.onerror = () => {
+     setAiTtsError(button, '음성 재생 중 오류가 발생했습니다.');
+     stopAiTts();
+   };
+   await currentAiTtsAudio.play();
+   delete button.dataset.aiTtsLoading;
+   button.disabled = false;
+   button.textContent = '🔊 재생 중';
+   button.classList.add('playing');
+   const stopBtn = button.closest('[data-ai-tts-actions]')?.querySelector?.('[data-ai-tts-stop]');
+   if(stopBtn) stopBtn.style.display = '';
+ }catch(error){
+   console.error('[AI TTS] failed', error);
+   delete button.dataset.aiTtsLoading;
+   button.disabled = false;
+   button.textContent = '🔊 안내 음성으로 듣기';
+   button.classList.remove('playing');
+   setAiTtsError(button, error?.message || '음성을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.');
+ }
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const downloadPayload = extractAiDownloadPayload(String(parsedDialog.text || '답변을 생성하지 못했습니다.'));
@@ -17400,6 +17528,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  return `
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
+ ${buildAiTtsControlsHtml('default')}
  ${aiDownloadButtonsHtml}
  ${buildAiDialogActionButtons(parsedDialog.actions)}
  <span class="ai-mode-pill upgraded">확인 후 바로 찾아볼게요.</span>
@@ -17411,6 +17540,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  return `
  <div class="ai-answer ai-answer-upgrade apartment-life-answer">
  <div class="ai-answer-summary">${safe}</div>
+ ${buildAiTtsControlsHtml('notice')}
  ${aiDownloadButtonsHtml}
  ${apartmentOnlyPhoneCard}
  <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
@@ -17461,6 +17591,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  return `
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
+ ${buildAiTtsControlsHtml(isMultimodalAnalysisAnswer ? 'file' : (isExplicitBenefitCardIntent ? 'benefit' : 'default'))}
  ${!isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
  ${phoneCards}
  ${dialogButtons}
@@ -17602,6 +17733,24 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  event.stopPropagation();
  const view = btn.dataset.viewLink;
  if(view) changeView(view);
+ });
+ });
+ root.querySelectorAll('[data-ai-tts-play]').forEach(btn => {
+ if(btn.dataset.aiTtsBound === 'true') return;
+ btn.dataset.aiTtsBound = 'true';
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ playAiTtsFromButton(btn);
+ });
+ });
+ root.querySelectorAll('[data-ai-tts-stop]').forEach(btn => {
+ if(btn.dataset.aiTtsStopBound === 'true') return;
+ btn.dataset.aiTtsStopBound = 'true';
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ stopAiTts();
  });
  });
  }
@@ -18625,6 +18774,7 @@ function buildDirectApartmentLifeLocalAnswer(question=''){
  return `
  <div class="ai-answer ai-answer-upgrade apartment-life-answer">
  <div class="ai-answer-summary">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+ ${buildAiTtsControlsHtml('notice')}
  ${cardHtml}
  <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
  </div>`;
@@ -18662,6 +18812,7 @@ function scrollAiAnswerIntoView(rowOrBubble, options = {}){
 
 async function askAiAssistant(rawQuestion=''){
  if(guardAiAssistantBusy()) return;
+ stopAiTts();
  if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
  if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
  const input = qs('#aiQuestionInput');
