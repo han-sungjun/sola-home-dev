@@ -21924,4 +21924,182 @@ if(window.MutationObserver){
 })();
 </script>
 
+
+<script id="ai-download-url-guard-v1">
+(function(){
+  function showDownloadAlert(message){
+    const text = message || '파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
+
+    if (typeof window.showCustomAlert === 'function') {
+      window.showCustomAlert('안내', text);
+      return;
+    }
+    if (typeof window.showAlert === 'function') {
+      window.showAlert('안내', text);
+      return;
+    }
+    alert(text);
+  }
+
+  function isBadDownloadUrl(url){
+    if (!url) return true;
+
+    try {
+      const u = new URL(url, location.origin);
+
+      // 현재 페이지 자체로 이동되는 다운로드는 실패 처리
+      if (u.origin === location.origin && (u.pathname === location.pathname || u.pathname === '/' || u.pathname === '/app')) {
+        return true;
+      }
+
+      // undefined/null/object 문자열이 포함된 잘못된 URL 방지
+      const s = u.href.toLowerCase();
+      if (
+        s.includes('undefined') ||
+        s.includes('null') ||
+        s.includes('[object%20object]') ||
+        s.includes('[object object]')
+      ) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function buildSafeDownloadUrl(rawUrl){
+    if (!rawUrl) return '';
+
+    const input = String(rawUrl).trim();
+    if (!input) return '';
+
+    // 이미 절대 URL이면 그대로 사용
+    if (/^https?:\/\//i.test(input)) return input;
+
+    // Firebase Storage URL 등은 절대 URL로 들어오는 것이 정상
+    // 상대 경로만 들어온 경우 현재 origin 기준으로 보정
+    if (input.startsWith('/')) return location.origin + input;
+
+    return location.origin + '/' + input.replace(/^\.?\//, '');
+  }
+
+  async function safeDownload(url, filename){
+    const safeUrl = buildSafeDownloadUrl(url);
+
+    if (isBadDownloadUrl(safeUrl)) {
+      showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
+      return false;
+    }
+
+    try {
+      const res = await fetch(safeUrl, {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store'
+      });
+
+      if (!res.ok) {
+        throw new Error('HTTP ' + res.status);
+      }
+
+      const blob = await res.blob();
+
+      if (!blob || blob.size === 0) {
+        throw new Error('EMPTY_FILE');
+      }
+
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename || decodeURIComponent((safeUrl.split('/').pop() || 'download').split('?')[0]) || 'download';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){
+        URL.revokeObjectURL(objectUrl);
+        a.remove();
+      }, 500);
+
+      return true;
+    } catch (err) {
+      console.warn('[AI Download] failed:', err);
+      showDownloadAlert('파일 다운로드에 실패했습니다. 다운로드 주소나 서버 설정을 확인해주세요.');
+      return false;
+    }
+  }
+
+  // 기존 함수가 있으면 안전 래퍼로 감싸기
+  const oldDownloadAiAttachment = window.downloadAiAttachment;
+  window.downloadAiAttachment = async function(pathOrButton, name){
+    try {
+      let url = '';
+      let filename = name || 'download';
+
+      if (typeof pathOrButton === 'string') {
+        url = pathOrButton;
+      } else if (pathOrButton && pathOrButton.dataset) {
+        url =
+          pathOrButton.dataset.downloadUrl ||
+          pathOrButton.dataset.aiAttachmentUrl ||
+          pathOrButton.dataset.url ||
+          pathOrButton.dataset.href ||
+          pathOrButton.dataset.aiAttachmentPath ||
+          pathOrButton.dataset.attachmentPath ||
+          pathOrButton.dataset.path ||
+          pathOrButton.dataset.filePath ||
+          '';
+
+        filename =
+          name ||
+          pathOrButton.dataset.aiAttachmentName ||
+          pathOrButton.dataset.attachmentName ||
+          pathOrButton.dataset.name ||
+          pathOrButton.dataset.fileName ||
+          'download';
+      }
+
+      if (url) {
+        const ok = await safeDownload(url, filename);
+        if (ok) return;
+      }
+
+      if (typeof oldDownloadAiAttachment === 'function') {
+        const result = oldDownloadAiAttachment.apply(this, arguments);
+        return result;
+      }
+
+      showDownloadAlert('다운로드할 파일 주소를 찾지 못했습니다.');
+    } catch (err) {
+      console.warn('[AI Download] wrapper failed:', err);
+      showDownloadAlert('파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  };
+
+  // a 태그 다운로드 클릭도 방어
+  document.addEventListener('click', async function(e){
+    const a = e.target.closest('a');
+    if (!a) return;
+
+    const isDownload =
+      a.hasAttribute('download') ||
+      a.className.toString().includes('download') ||
+      (a.innerText || '').includes('다운로드');
+
+    if (!isDownload) return;
+
+    const href = a.getAttribute('href') || '';
+
+    if (isBadDownloadUrl(href)) {
+      e.preventDefault();
+      e.stopPropagation();
+      showDownloadAlert('다운로드 주소가 올바르지 않아 파일을 받을 수 없습니다. 관리자에게 문의해주세요.');
+      return false;
+    }
+  }, true);
+
+  window.safeAiAttachmentDownload = safeDownload;
+})();
+</script>
+
 </body></html>
