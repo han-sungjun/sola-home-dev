@@ -1705,6 +1705,11 @@ body.gnb-open .admin-bottom-nav{
 .nav-icon .upick-svg-icon,.admin-all-card-icon .upick-svg-icon,.gnb-card-icon .upick-svg-icon,.gnb-hero-emoji .upick-svg-icon,.logo .upick-svg-icon,.gnb-icon-btn .upick-svg-icon{width:24px;height:24px;vertical-align:middle}
 .gnb-icon-btn .upick-svg-icon{width:22px;height:22px}
 
+
+.menu-icon-preview{display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid rgba(148,163,184,.28);border-radius:14px;background:rgba(248,250,252,.78);font-size:13px;color:#64748b}
+.menu-icon-preview img{width:32px;height:32px;object-fit:contain}
+.menu-card-icon-img{width:28px;height:28px;object-fit:contain;vertical-align:middle}
+
 </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -2145,7 +2150,7 @@ body.gnb-open .admin-bottom-nav{
           <form id="menuForm" class="menu-admin-form" novalidate>
             <input type="hidden" id="menuEditId" value="" />
             <div class="grid-2"><div class="field"><label for="menuId">메뉴 ID</label><input id="menuId" placeholder="예: calendar" required /></div><div class="field"><label for="menuName">메뉴명</label><input id="menuName" placeholder="예: 캘린더 예약" required /></div></div>
-            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘</label><input id="menuIcon" placeholder="예: 📅" /></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div>
+            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘 fallback</label><input id="menuIcon" placeholder="예: 📅 또는 icon:calendar" /><div class="admin-field-help">아이콘 URL이 없을 때만 보조로 사용됩니다.</div></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div><div class="field"><label for="menuIconUrl">아이콘 URL</label><input id="menuIconUrl" placeholder="/icons/internal/calendar.svg" /><div class="admin-field-help">Firestore에는 상대경로로 저장하는 것을 권장합니다. 예: /icons/internal/ai-assistant.svg</div><div class="menu-icon-preview" id="menuIconPreview"><span>아이콘 미리보기</span></div></div>
             <div class="field"><label for="menuKeywords">검색 키워드</label><input id="menuKeywords" placeholder="예약, 알림, 일정, 달력" /><div class="admin-field-help">쉼표로 구분합니다. GNB 검색과 AI 메뉴 안내에 같이 활용됩니다.</div></div>
             <div class="grid-2"><div class="field"><label for="menuOrder">정렬 순서</label><input id="menuOrder" type="number" value="100" /></div><div class="field"><label for="menuDescription">관리 메모</label><input id="menuDescription" placeholder="사용자에게 노출될 설명 또는 운영 메모" /></div></div>
             <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정픽</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="bottom"> 하단 네비 후보</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
@@ -5634,19 +5639,40 @@ function fillForm(item){
 
     function getMenuCheckedValues(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el=>el.value); }
     function setMenuCheckedValues(name, values=[]){ document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{ el.checked = values.includes(el.value); }); }
+
+    function isSafeAdminIconUrl(url=''){
+      const value=String(url||'').trim();
+      return !!value && (value.startsWith('/icons/') || value.startsWith('/menu-icons/') || value.startsWith('/assets/') || /^https:\/\/firebasestorage\.googleapis\.com\//.test(value));
+    }
+    function renderAdminMenuIcon(item={}){
+      const iconUrl=String(item.iconUrl||'').trim();
+      if(isSafeAdminIconUrl(iconUrl)) return `<img class="menu-card-icon-img" src="${escapeHtml(iconUrl)}" alt="" loading="lazy">`;
+      return escapeHtml(item.icon || '•');
+    }
+    function updateMenuIconPreview(){
+      const box=qs('#menuIconPreview'); if(!box) return;
+      const iconUrl=qs('#menuIconUrl')?.value?.trim() || '';
+      const fallback=qs('#menuIcon')?.value?.trim() || '•';
+      if(isSafeAdminIconUrl(iconUrl)){
+        box.innerHTML=`<img src="${escapeHtml(iconUrl)}" alt=""><span>${escapeHtml(iconUrl)}</span>`;
+      }else{
+        box.innerHTML=`<span style="font-size:24px;line-height:1">${escapeHtml(fallback)}</span><span>아이콘 URL이 없거나 허용 경로가 아닙니다.</span>`;
+      }
+    }
+
     function normalizeAdminMenu(raw={}, id=''){
       const menuId=String(raw.menuId||id||raw.view||'').trim();
       const sections=Array.isArray(raw.sections)?raw.sections:[raw.section||raw.type||'main'].filter(Boolean);
       const roles=Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:['resident','admin','root']);
       const keywords=Array.isArray(raw.keywords)?raw.keywords:String(raw.keywords||'').split(',').map(v=>v.trim()).filter(Boolean);
-      return {...raw, id, menuId, name:raw.name||raw.title||menuId, icon:raw.icon||'•', view:raw.view||raw.route||menuId, route:raw.route||raw.view||menuId, keywords, sections, roles, order:Number(raw.order??100), isActive:raw.isActive!==false};
+      return {...raw, id, menuId, name:raw.name||raw.title||menuId, icon:raw.icon||'•', iconUrl:raw.iconUrl||'', iconKey:raw.iconKey||'', view:raw.view||raw.route||menuId, route:raw.route||raw.view||menuId, keywords, sections, roles, order:Number(raw.order??100), isActive:raw.isActive!==false};
     }
     function renderAdminMenus(){
       const list=qs('#menuAdminList'); const count=qs('#menuListCount'); if(!list) return;
       const items=[...adminMenuItems].sort((a,b)=>a.order-b.order);
       if(count) count.textContent=`${items.length}건`;
       if(!items.length){ list.innerHTML='<div class="notice">등록된 메뉴가 없습니다. 기본 메뉴를 먼저 등록해 주세요.</div>'; return; }
-      list.innerHTML=items.map(item=>`<div class="menu-card"><div class="menu-card-head"><div class="menu-card-title"><span>${escapeHtml(item.icon)}</span><div><strong>${escapeHtml(item.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px;">${escapeHtml(item.menuId)} · ${escapeHtml(item.view)}</div></div></div><div class="member-actions"><button class="btn btn-soft" type="button" data-menu-edit="${escapeHtml(item.id)}">수정</button><button class="btn btn-danger" type="button" data-menu-delete="${escapeHtml(item.id)}">삭제</button></div></div><div class="menu-card-meta"><span class="tag ${item.isActive?'live-tag':'hidden-tag'}">${item.isActive?'노출':'숨김'}</span><span class="tag">순서 ${item.order}</span>${item.sections.map(s=>`<span class="tag rec">${escapeHtml(s)}</span>`).join('')}${item.roles.map(r=>`<span class="tag">${escapeHtml(r)}</span>`).join('')}</div>${item.keywords?.length?`<div style="font-size:12px;color:#64748b;line-height:1.5;">검색어: ${escapeHtml(item.keywords.join(', '))}</div>`:''}</div>`).join('');
+      list.innerHTML=items.map(item=>`<div class="menu-card"><div class="menu-card-head"><div class="menu-card-title"><span>${renderAdminMenuIcon(item)}</span><div><strong>${escapeHtml(item.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px;">${escapeHtml(item.menuId)} · ${escapeHtml(item.view)}${item.iconUrl ? ` · ${escapeHtml(item.iconUrl)}` : ''}</div></div></div><div class="member-actions"><button class="btn btn-soft" type="button" data-menu-edit="${escapeHtml(item.id)}">수정</button><button class="btn btn-danger" type="button" data-menu-delete="${escapeHtml(item.id)}">삭제</button></div></div><div class="menu-card-meta"><span class="tag ${item.isActive?'live-tag':'hidden-tag'}">${item.isActive?'노출':'숨김'}</span><span class="tag">순서 ${item.order}</span>${item.sections.map(s=>`<span class="tag rec">${escapeHtml(s)}</span>`).join('')}${item.roles.map(r=>`<span class="tag">${escapeHtml(r)}</span>`).join('')}</div>${item.keywords?.length?`<div style="font-size:12px;color:#64748b;line-height:1.5;">검색어: ${escapeHtml(item.keywords.join(', '))}</div>`:''}</div>`).join('');
     }
     async function loadAdminMenus(){
       if(!requireAdminDataAccess(false)) return;
@@ -5655,10 +5681,10 @@ function fillForm(item){
       catch(error){ console.error(error); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오지 못했습니다. Firestore Rules를 확인해 주세요.</div>'; }
     }
     function resetMenuForm(){
-      qs('#menuForm')?.reset(); if(qs('#menuEditId')) qs('#menuEditId').value=''; if(qs('#menuOrder')) qs('#menuOrder').value=100; if(qs('#menuIsActive')) qs('#menuIsActive').checked=true; setMenuCheckedValues('menuSection',['main']); setMenuCheckedValues('menuRole',['resident','admin','root']); if(qs('#menuFormModeLabel')) qs('#menuFormModeLabel').textContent='새 메뉴';
+      qs('#menuForm')?.reset(); if(qs('#menuEditId')) qs('#menuEditId').value=''; if(qs('#menuOrder')) qs('#menuOrder').value=100; if(qs('#menuIsActive')) qs('#menuIsActive').checked=true; setMenuCheckedValues('menuSection',['main']); setMenuCheckedValues('menuRole',['resident','admin','root']); if(qs('#menuIconUrl')) qs('#menuIconUrl').value=''; if(qs('#menuFormModeLabel')) qs('#menuFormModeLabel').textContent='새 메뉴'; updateMenuIconPreview?.();
     }
     function fillMenuForm(item){
-      qs('#menuEditId').value=item.id||item.menuId; qs('#menuId').value=item.menuId; qs('#menuName').value=item.name; qs('#menuIcon').value=item.icon||''; qs('#menuView').value=item.view||item.route||item.menuId; qs('#menuKeywords').value=(item.keywords||[]).join(', '); qs('#menuOrder').value=item.order||100; qs('#menuDescription').value=item.description||''; qs('#menuIsActive').checked=item.isActive!==false; setMenuCheckedValues('menuSection', item.sections?.length?item.sections:['main']); setMenuCheckedValues('menuRole', item.roles?.length?item.roles:['resident','admin','root']); qs('#menuFormModeLabel').textContent='수정 중'; window.scrollTo({top:0,behavior:'smooth'});
+      qs('#menuEditId').value=item.id||item.menuId; qs('#menuId').value=item.menuId; qs('#menuName').value=item.name; qs('#menuIcon').value=item.icon||''; if(qs('#menuIconUrl')) qs('#menuIconUrl').value=item.iconUrl||''; qs('#menuView').value=item.view||item.route||item.menuId; qs('#menuKeywords').value=(item.keywords||[]).join(', '); qs('#menuOrder').value=item.order||100; qs('#menuDescription').value=item.description||''; qs('#menuIsActive').checked=item.isActive!==false; setMenuCheckedValues('menuSection', item.sections?.length?item.sections:['main']); setMenuCheckedValues('menuRole', item.roles?.length?item.roles:['resident','admin','root']); qs('#menuFormModeLabel').textContent='수정 중'; updateMenuIconPreview?.(); window.scrollTo({top:0,behavior:'smooth'});
     }
     async function saveMenu(event){
       event?.preventDefault?.(); if(!requireAdminDataAccess()) return;
@@ -5666,7 +5692,7 @@ function fillForm(item){
       if(!menuId || !name || !view){ await openModalAlert('메뉴 ID, 메뉴명, 이동 view를 입력해 주세요.', qs('#menuId')); return; }
       const keywords=qs('#menuKeywords').value.split(',').map(v=>v.trim()).filter(Boolean);
       const sections=getMenuCheckedValues('menuSection'); const roles=getMenuCheckedValues('menuRole');
-      const payload={ menuId, name, icon:qs('#menuIcon').value.trim()||'•', view, route:view, keywords, sections:sections.length?sections:['main'], roles:roles.length?roles:['resident','admin','root'], order:Number(qs('#menuOrder').value||100), description:qs('#menuDescription').value.trim(), isActive:qs('#menuIsActive').checked, updatedAt:serverTimestamp() };
+      const iconUrl=qs('#menuIconUrl')?.value?.trim() || ''; if(iconUrl && !isSafeAdminIconUrl(iconUrl)){ await openModalAlert('아이콘 URL은 /icons/, /menu-icons/, /assets/ 또는 Firebase Storage URL만 사용할 수 있습니다.', qs('#menuIconUrl')); return; } const payload={ menuId, name, icon:qs('#menuIcon').value.trim()||'•', iconUrl, view, route:view, keywords, sections:sections.length?sections:['main'], roles:roles.length?roles:['resident','admin','root'], order:Number(qs('#menuOrder').value||100), description:qs('#menuDescription').value.trim(), isActive:qs('#menuIsActive').checked, updatedAt:serverTimestamp() };
       const editId=qs('#menuEditId').value.trim();
       await setDoc(doc(db, APP_MENUS_COLLECTION, editId || menuId), editId ? payload : {...payload, createdAt:serverTimestamp()}, {merge:true});
       await openModalAlert('GNB 메뉴가 저장되었습니다.', qs('#menuName')); resetMenuForm();
@@ -5802,7 +5828,7 @@ function fillForm(item){
     }
     async function deleteMenu(id){ if(!id || !requireAdminDataAccess()) return; const ok=await openModalConfirm('해당 GNB 메뉴를 삭제할까요?\n공개앱 GNB와 검색 결과에서 제외됩니다.'); if(!ok) return; await deleteDoc(doc(db, APP_MENUS_COLLECTION, id)); await loadAdminMenus(); }
     document.addEventListener('click', (event)=>{ const edit=event.target.closest('[data-menu-edit]'); if(edit){ const item=adminMenuItems.find(v=>v.id===edit.dataset.menuEdit); if(item) fillMenuForm(item); return; } const del=event.target.closest('[data-menu-delete]'); if(del){ deleteMenu(del.dataset.menuDelete); } });
-    qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
+    qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuIconUrl')?.addEventListener('input', updateMenuIconPreview); qs('#menuIcon')?.addEventListener('input', updateMenuIconPreview); updateMenuIconPreview?.(); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
     const __origChangeAdminViewForMenus = changeAdminView;
     changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(async()=>{ await loadAdminMenus(); await window.loadBottomNavSettings?.(); }, 80); };
     window.changeAdminView = changeAdminView;

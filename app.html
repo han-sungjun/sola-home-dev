@@ -19438,12 +19438,27 @@ async function askAiAssistant(rawQuestion=''){
   notification:'/icons/internal/notification.svg',
   push:'/icons/internal/notification.svg'
  };
+ function isSafeIconUrl(url=''){
+  const value = String(url || '').trim();
+  if(!value) return false;
+  if(value.startsWith('/icons/') || value.startsWith('/menu-icons/') || value.startsWith('/assets/')) return true;
+  if(/^https:\/\/firebasestorage\.googleapis\.com\//.test(value)) return true;
+  return false;
+ }
  function upickIconHtml(key, alt=''){
   const src = UPICK_ICON_PATHS[key] || UPICK_ICON_PATHS[String(key || '').replace(/^icon:/,'')];
   if(!src) return escapeHtml(alt || '•');
   return `<img class="upick-svg-icon" src="${src}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
  }
+ function upickIconUrlHtml(url='', alt=''){
+  const src = String(url || '').trim();
+  if(!isSafeIconUrl(src)) return '';
+  return `<img class="upick-svg-icon" src="${escapeAttr(src)}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
+ }
  function normalizeMenuIconKey(menu = {}){
+  const rawIcon = String(menu.icon || menu.iconKey || '').trim();
+  if(rawIcon.startsWith('icon:')) return rawIcon.replace(/^icon:/,'');
+  if(menu.iconKey) return String(menu.iconKey).trim();
   const id = String(menu.menuId || menu.view || menu.route || '').toLowerCase();
   if(id === 'benefits') return 'benefits';
   if(id === 'notices') return 'notices';
@@ -19457,7 +19472,16 @@ async function askAiAssistant(rawQuestion=''){
   return id;
  }
  function renderMenuIcon(menu = {}, fallback = '•'){
-  return upickIconHtml(normalizeMenuIconKey(menu), menu.bottomLabel || menu.name || fallback);
+  const alt = menu.bottomLabel || menu.name || fallback;
+  if(menu.iconUrl){
+    const byUrl = upickIconUrlHtml(menu.iconUrl, alt);
+    if(byUrl) return byUrl;
+  }
+  const rawIcon = String(menu.icon || '').trim();
+  if(rawIcon.startsWith('icon:') || menu.iconKey) return upickIconHtml(normalizeMenuIconKey(menu), alt);
+  const mapped = upickIconHtml(normalizeMenuIconKey(menu), alt);
+  if(mapped && mapped !== escapeHtml(alt || '•')) return mapped;
+  return escapeHtml(rawIcon || fallback || '•');
  }
 
  const DEFAULT_GNB_MENUS = [
@@ -19490,7 +19514,7 @@ async function askAiAssistant(rawQuestion=''){
     ? raw.sections.map(v => String(v).trim()).filter(Boolean)
     : String(raw.sections || raw.section || raw.type || 'main').split(',').map(v => v.trim()).filter(Boolean);
   const keywords = Array.isArray(raw.keywords) ? raw.keywords : String(raw.keywords || '').split(',').map(v=>v.trim()).filter(Boolean);
-  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, bottomLabel:raw.bottomLabel || raw.navLabel || raw.shortName || raw.bottomName || '', icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
+  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, bottomLabel:raw.bottomLabel || raw.navLabel || raw.shortName || raw.bottomName || '', icon:raw.icon || '•', iconKey:raw.iconKey || '', iconUrl:raw.iconUrl || '', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
  }
  
  
@@ -19723,7 +19747,7 @@ async function loadGnbMenusFromDb(){
  }
 
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
-  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
+  const label = `<span class="gnb-menu-label"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span> ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
   return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
