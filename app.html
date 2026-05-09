@@ -6660,6 +6660,17 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   z-index:2;
 }
 
+
+/* icon:xxx 문자열 출력 방지용 inline 아이콘 */
+.upick-link-icon{
+  width:1.05em;
+  height:1.05em;
+  display:inline-block;
+  vertical-align:-.18em;
+  object-fit:contain;
+  margin-right:.28em;
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -13233,7 +13244,7 @@ function formatTravelDuration(minutes){
  const links = getBenefitSocialLinks(item);
  if(!links.length) return '';
  const cls = ai ? 'ai-social-links' : 'benefit-extra-links';
- return `<div class="${cls}">${links.map((link) => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener" data-social-link="${escapeAttr(link.key)}" data-social-stat="${escapeAttr(link.statField)}" data-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(link.icon)} ${escapeHtml(link.label)}</a>`).join('')}</div>`;
+ return `<div class="${cls}">${links.map((link) => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener" data-social-link="${escapeAttr(link.key)}" data-social-stat="${escapeAttr(link.statField)}" data-benefit-id="${escapeAttr(item.id || '')}">${renderIconToken(link.icon)} ${escapeHtml(link.label)}</a>`).join('')}</div>`;
  }
 
  function buildAiSocialHintHtml(item = {}){
@@ -20010,6 +20021,20 @@ async function askAiAssistant(rawQuestion=''){
   const rawIcon = String(menu.icon || '').trim();
   return escapeHtml(rawIcon || fallback || '•');
  }
+
+
+function renderIconToken(icon='', fallback=''){
+  const raw = String(icon || '').trim();
+  if(!raw) return escapeHtml(fallback || '');
+  if(raw.startsWith('icon:')){
+    const key = raw.replace(/^icon:/,'');
+    const src = (typeof UPICK_ICON_PATHS !== 'undefined') ? UPICK_ICON_PATHS[key] : '';
+    if(src) return `<img class="upick-link-icon" src="${src}" alt="" loading="lazy" decoding="async">`;
+    return '';
+  }
+  return escapeHtml(raw);
+}
+
 
  function renderIconByMenuId(menuId='', fallback='•'){
   return renderAnyMenuIcon({menuId, view:menuId, route:menuId, icon:fallback}, fallback);
