@@ -6534,6 +6534,76 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   border-color:rgba(255,255,255,.20) !important;
 }
 
+
+/* =========================
+   더운정픽 AI 아이콘 강조 보정
+========================= */
+
+/* AI 카드 아이콘 배경 강화 */
+.ai-card .all-menu-card-icon,
+.ai-card .menu-card-icon,
+.all-menu-card.ai .all-menu-card-icon,
+.all-menu-card.ai .menu-card-icon,
+.all-menu-card[data-view-link="ai"] .all-menu-card-icon,
+.all-menu-card[data-view-link="ai"] .menu-card-icon,
+.all-menu-card[data-view="ai"] .all-menu-card-icon,
+.all-menu-card[data-view="ai"] .menu-card-icon{
+  position:relative;
+  background:
+    radial-gradient(circle at 30% 30%,rgba(255,255,255,.22),rgba(255,255,255,.08)) !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 10px 24px rgba(0,0,0,.22),
+    0 0 0 1px rgba(255,255,255,.04) !important;
+  backdrop-filter:blur(8px);
+}
+
+/* 아이콘 자체도 살짝 밝게 */
+.ai-card .all-menu-card-icon img,
+.ai-card .menu-card-icon img,
+.all-menu-card.ai .all-menu-card-icon img,
+.all-menu-card.ai .menu-card-icon img,
+.all-menu-card[data-view-link="ai"] .all-menu-card-icon img,
+.all-menu-card[data-view-link="ai"] .menu-card-icon img,
+.all-menu-card[data-view="ai"] .all-menu-card-icon img,
+.all-menu-card[data-view="ai"] .menu-card-icon img{
+  filter:
+    brightness(1.08)
+    contrast(1.06)
+    drop-shadow(0 3px 8px rgba(255,255,255,.12));
+  transform:translateZ(0);
+}
+
+/* HOT/NEW 뱃지와 아이콘 간 간격 */
+.ai-card .gnb-inline-badges,
+.all-menu-card.ai .gnb-inline-badges,
+.all-menu-card[data-view-link="ai"] .gnb-inline-badges,
+.all-menu-card[data-view="ai"] .gnb-inline-badges{
+  margin-bottom:10px;
+}
+
+/* AI 카드 자체 depth 추가 */
+.ai-card,
+.all-menu-card.ai,
+.all-menu-card[data-view-link="ai"],
+.all-menu-card[data-view="ai"]{
+  overflow:hidden;
+}
+.ai-card::after,
+.all-menu-card.ai::after,
+.all-menu-card[data-view-link="ai"]::after,
+.all-menu-card[data-view="ai"]::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 12%,rgba(255,255,255,.10),transparent 26%),
+    radial-gradient(circle at 82% 20%,rgba(200,175,135,.14),transparent 24%);
+  opacity:.9;
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
