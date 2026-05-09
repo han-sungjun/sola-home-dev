@@ -6604,6 +6604,62 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   opacity:.9;
 }
 
+
+/* =========================
+   더운정픽 AI pill 아이콘 가독성 보정
+========================= */
+
+/* AI 상단 pill 내부 아이콘 전용 배지 */
+.ai-ready-pill{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  width:max-content;
+  max-width:100%;
+}
+
+.ai-ready-pill .upick-inline-icon,
+.ai-ready-pill .upick-svg-icon{
+  width:22px !important;
+  height:22px !important;
+  margin:0 2px 0 0 !important;
+  padding:4px !important;
+  box-sizing:border-box !important;
+  border-radius:999px !important;
+  background:
+    radial-gradient(circle at 30% 25%,#ffffff 0%,#f7f2ea 54%,#e8d8bf 100%) !important;
+  border:1px solid rgba(255,255,255,.70) !important;
+  box-shadow:
+    0 3px 10px rgba(0,0,0,.22),
+    0 0 0 1px rgba(200,175,135,.38),
+    inset 0 1px 0 rgba(255,255,255,.90) !important;
+  filter:
+    brightness(1.15)
+    contrast(1.12)
+    drop-shadow(0 1px 1px rgba(16,26,51,.18)) !important;
+  flex:0 0 22px !important;
+}
+
+/* pill 텍스트는 아이콘과 분리되어 잘 보이도록 */
+.ai-ready-pill{
+  color:#ffffff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.20);
+  background:rgba(255,255,255,.12) !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 6px 16px rgba(0,0,0,.16) !important;
+}
+
+/* AI hero/card 안에서 pill이 배경 효과보다 위에 오도록 */
+.ai-view-hero .ai-ready-pill,
+.all-menu-card.ai .ai-ready-pill,
+.all-menu-card[data-view-link="ai"] .ai-ready-pill,
+.all-menu-card[data-view="ai"] .ai-ready-pill{
+  position:relative;
+  z-index:2;
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
