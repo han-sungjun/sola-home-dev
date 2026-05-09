@@ -5647,7 +5647,31 @@ function fillForm(item){
     function renderAdminMenuIcon(item={}){
       const iconUrl=String(item.iconUrl||'').trim();
       if(isSafeAdminIconUrl(iconUrl)) return `<img class="menu-card-icon-img" src="${escapeHtml(iconUrl)}" alt="" loading="lazy">`;
-      return escapeHtml(item.icon || '•');
+
+      const keyMap = {
+        home:'/icons/internal/home.svg',
+        benefits:'/icons/internal/benefit.svg',
+        benefit:'/icons/internal/benefit.svg',
+        favorite:'/icons/internal/favorite.svg',
+        top5:'/icons/internal/top5.svg',
+        all:'/icons/internal/all-menu.svg',
+        ai:'/icons/internal/ai-assistant.svg',
+        calendar:'/icons/internal/calendar.svg',
+        map:'/icons/internal/map.svg',
+        notices:'/icons/internal/notice.svg',
+        notice:'/icons/internal/notice.svg',
+        settings:'/icons/internal/settings.svg',
+        notification:'/icons/internal/notification.svg',
+        push:'/icons/internal/notification.svg'
+      };
+      const rawIcon = String(item.icon || '').trim();
+      const key = rawIcon.startsWith('icon:')
+        ? rawIcon.replace(/^icon:/,'')
+        : String(item.iconKey || item.menuId || item.view || item.route || '').trim();
+      const src = keyMap[key];
+      if(src) return `<img class="menu-card-icon-img" src="${src}" alt="" loading="lazy">`;
+
+      return escapeHtml(rawIcon || '•');
     }
     function updateMenuIconPreview(){
       const box=qs('#menuIconPreview'); if(!box) return;

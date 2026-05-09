@@ -19473,14 +19473,26 @@ async function askAiAssistant(rawQuestion=''){
  }
  function renderMenuIcon(menu = {}, fallback = '•'){
   const alt = menu.bottomLabel || menu.name || fallback;
+
+  // 1) Firestore iconUrl 직접 지정 우선
   if(menu.iconUrl){
     const byUrl = upickIconUrlHtml(menu.iconUrl, alt);
     if(byUrl) return byUrl;
   }
+
+  // 2) iconKey 또는 icon:xxx 구조
   const rawIcon = String(menu.icon || '').trim();
-  if(rawIcon.startsWith('icon:') || menu.iconKey) return upickIconHtml(normalizeMenuIconKey(menu), alt);
-  const mapped = upickIconHtml(normalizeMenuIconKey(menu), alt);
-  if(mapped && mapped !== escapeHtml(alt || '•')) return mapped;
+  if(rawIcon.startsWith('icon:') || menu.iconKey){
+    return upickIconHtml(normalizeMenuIconKey(menu), alt);
+  }
+
+  // 3) Firestore에 아직 이모지가 남아 있어도 menuId/view/route 기준으로 SVG 자동 매핑
+  const key = normalizeMenuIconKey(menu);
+  if(UPICK_ICON_PATHS[key]){
+    return upickIconHtml(key, alt);
+  }
+
+  // 4) 매핑이 없는 메뉴만 기존 이모지 fallback
   return escapeHtml(rawIcon || fallback || '•');
  }
 
