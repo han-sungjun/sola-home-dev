@@ -2486,7 +2486,7 @@ body.app-role-resident [data-view="shareinsights"]{
 
 /* ===== AI 생활 도우미: ChatGPT 스타일 UI + 타이핑 UX ===== */
 .ai-chat-window{min-height:380px;max-height:56dvh;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border-radius:26px;padding:16px 14px 18px;scroll-behavior:smooth}
-.ai-message{align-items:flex-start;gap:10px;animation:aiMsgIn .18s ease both}.ai-message.bot::before{content:"🤖";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(180deg,#eef2ff 0%,#e0ecff 100%);border:1px solid #dbeafe;box-shadow:0 8px 18px rgba(37,99,235,.10);flex:0 0 auto}.ai-message.user::after{content:"👤";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;box-shadow:0 8px 18px rgba(15,23,42,.16);flex:0 0 auto}
+.ai-message{align-items:flex-start;gap:10px;animation:aiMsgIn .18s ease both}.ai-message.bot::before{content:"";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(180deg,#eef2ff 0%,#e0ecff 100%);border:1px solid #dbeafe;box-shadow:0 8px 18px rgba(37,99,235,.10);flex:0 0 auto}.ai-message.user::after{content:"👤";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;box-shadow:0 8px 18px rgba(15,23,42,.16);flex:0 0 auto}
 .ai-message.bot .ai-bubble{max-width:82%;border-radius:20px 20px 20px 8px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-message.user .ai-bubble{max-width:78%;border-radius:20px 20px 8px 20px;background:linear-gradient(135deg,#0f172a 0%,#172554 100%);box-shadow:0 14px 30px rgba(15,23,42,.16)}
 .ai-answer{white-space:normal}.ai-answer b{font-weight:1000;color:#0f172a}.ai-answer .ai-answer-line{display:block;margin:4px 0}.ai-answer .ai-answer-card{display:block;margin:9px 0;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
 .ai-typing-indicator{display:inline-flex;align-items:center;gap:5px;min-width:54px;min-height:24px}.ai-typing-indicator span{width:7px;height:7px;border-radius:999px;background:#94a3b8;animation:aiTypingDot 1s infinite ease-in-out}.ai-typing-indicator span:nth-child(2){animation-delay:.14s}.ai-typing-indicator span:nth-child(3){animation-delay:.28s}
@@ -21594,7 +21594,7 @@ body.app-scrolled .topbar .icon-btn{
   background:linear-gradient(90deg,#2563eb,#60a5fa);
 }
 #view-benefits > .panel:first-child .section-head h3::before{
-  content:"🎁 ";
+  content:"";
 }
 #view-benefits .filter-sticky{
   border-top:1px solid rgba(15,23,42,.05);
@@ -21609,7 +21609,7 @@ body.app-scrolled .topbar .icon-btn{
   background:linear-gradient(90deg,#ef4444,#fb923c);
 }
 #view-notices > .panel:first-child .section-head h3::before{
-  content:"📢 ";
+  content:"";
 }
 .notice-item{
   border-left:4px solid rgba(37,99,235,.16) !important;
@@ -21626,7 +21626,7 @@ body.app-scrolled .topbar .icon-btn{
   background:linear-gradient(90deg,#f59e0b,#ef4444);
 }
 #view-top5 > .panel:first-child .section-head h3::before{
-  content:"🏆 ";
+  content:"";
 }
 #view-top5 .popular-item{
   border-left:4px solid rgba(245,158,11,.22) !important;
