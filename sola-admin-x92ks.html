@@ -5767,7 +5767,7 @@ function fillForm(item){
           const active=bottomNavSelectedMenus.includes(item.menuId);
           const disabled=!active && bottomNavSelectedMenus.length>=3;
           return `<button type="button" class="bottom-nav-menu-pick ${active?'active':''} ${disabled?'disabled':''}" data-bottom-nav-pick="${escapeHtml(item.menuId)}">
-            <span>${escapeHtml(item.icon||'•')} ${escapeHtml(item.name||item.menuId)}</span>
+            <span>${renderAdminMenuIcon(item)} ${escapeHtml(item.name||item.menuId)}</span>
             <small>${active?'선택됨':'선택'}</small>
           </button>`;
         }).join('');
@@ -5779,7 +5779,7 @@ function fillForm(item){
 
       selected.innerHTML=selectedItems.length
         ? selectedItems.map((item,idx)=>`<div class="bottom-nav-selected-item">
-            <div><strong>${idx+1}. ${escapeHtml(item.icon||'•')} ${escapeHtml(item.name||item.menuId)}</strong><span>${escapeHtml(item.menuId)}</span></div>
+            <div><strong>${idx+1}. ${renderAdminMenuIcon(item)} ${escapeHtml(item.name||item.menuId)}</strong><span>${escapeHtml(item.menuId)}</span></div>
             <button type="button" class="btn btn-soft" data-bottom-nav-remove="${escapeHtml(item.menuId)}">제거</button>
           </div>`).join('')
         : '<div class="notice">선택된 기본 메뉴가 없습니다. 저장 시 코드 기본값(혜택/즐겨찾기/TOP5)이 사용됩니다.</div>';
