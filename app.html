@@ -6181,6 +6181,14 @@ body:has(#view-calendar:not(.hidden)) .app{
   }
 }
 
+
+/* 더운정픽 내부 SVG 아이콘 */
+.upick-svg-icon{width:1.35em;height:1.35em;display:inline-block;vertical-align:-.22em;object-fit:contain;flex:0 0 auto}
+.nav-icon .upick-svg-icon{width:24px;height:24px;vertical-align:middle}
+.gnb-card-icon .upick-svg-icon,.gnb-hero-emoji .upick-svg-icon,.logo .upick-svg-icon,.title-icon .upick-svg-icon,.ai-bottom-reco-icon .upick-svg-icon,.ai-ready-pill .upick-svg-icon{width:1.45em;height:1.45em}
+.icon-btn .upick-svg-icon,.ai-composer-icon .upick-svg-icon,.filter-icon-btn .upick-svg-icon,.btn .upick-svg-icon{width:1.15em;height:1.15em}
+.nav-btn.active .upick-svg-icon{filter:drop-shadow(0 4px 10px rgba(201,175,135,.35))}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -9860,16 +9868,16 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  </div>
  </div>
  <div class="topbar-quick-actions">
- <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기">🤖</button>
+ <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button>
  <button class="icon-btn" id="installTopBtn" title="앱처럼 설치">📲</button>
  </div>
  <div class="gnb-wrap">
- <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
+ <button class="icon-btn" id="gnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
  </div>
  </div>
  <div class="topbar-left topbar-left-titleline">
  <div class="brand">
- <div class="logo">🏠</div>
+ <div class="logo"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></div>
  <div>
  <h1>더운정픽</h1>
  <p>입주민 전용 혜택 웹앱</p>
@@ -10065,7 +10073,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 
  <section id="view-calendar" class="hidden">
  <div class="calendar-hero">
- <span class="calendar-kicker">📅 혜택 매장 방문 알림</span>
+ <span class="calendar-kicker"><img class="upick-svg-icon" src="/icons/internal/calendar.svg" alt="" loading="lazy"> 혜택 매장 방문 알림</span>
  <h3>방문 예약 알림</h3>
  <p>혜택 매장 방문 일정을 등록해두면 원하는 시간에 미리 알려드립니다. 등록한 방문 일정은 내 예약 캘린더에서 편하게 확인할 수 있습니다.</p>
  </div>
@@ -10103,7 +10111,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  </div></div>
  
 <div id="aiBottomReco" class="ai-bottom-reco" role="button" tabindex="0" aria-label="AI 추천 메뉴 열기">
-  <div class="ai-bottom-reco-icon">🤖</div>
+  <div class="ai-bottom-reco-icon"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></div>
   <div class="ai-bottom-reco-copy">
     <strong id="aiBottomRecoTitle">AI 추천 메뉴</strong>
     <span id="aiBottomRecoText">오늘 자주 쓰는 메뉴를 추천해드릴게요.</span>
@@ -10111,7 +10119,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
   <div class="ai-bottom-reco-arrow">›</div>
 </div>
 
-<nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button><button class="nav-btn" data-view="all"><span class="nav-icon">☰</span><span class="nav-label">전체</span></button></nav>
+<nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/favorite.svg" alt="" loading="lazy"></span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button><button class="nav-btn" data-view="all"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></span><span class="nav-label">전체</span></button></nav>
  <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
  <dialog id="calendarReservationModal">
  <div class="modal-head"><div class="pill">방문 알림 추가</div><button class="close-btn" id="closeCalendarReservationModal">✕</button></div>
@@ -10803,7 +10811,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  host = document.createElement('div');
  host.id = 'foregroundPushToast';
  host.className = 'foreground-push-toast';
- host.innerHTML = '<div class="foreground-push-card" id="foregroundPushCard" role="button" tabindex="0"><div class="foreground-push-icon">🔔</div><div class="foreground-push-copy"><div class="foreground-push-title" id="foregroundPushTitle"></div><div class="foreground-push-body" id="foregroundPushBody"></div></div><button type="button" class="foreground-push-close" id="foregroundPushClose" aria-label="알림 닫기">×</button></div>';
+ host.innerHTML = '<div class="foreground-push-card" id="foregroundPushCard" role="button" tabindex="0"><div class="foreground-push-icon"><img class="upick-svg-icon" src="/icons/internal/notification.svg" alt="" loading="lazy"></div><div class="foreground-push-copy"><div class="foreground-push-title" id="foregroundPushTitle"></div><div class="foreground-push-body" id="foregroundPushBody"></div></div><button type="button" class="foreground-push-close" id="foregroundPushClose" aria-label="알림 닫기">×</button></div>';
  document.body.appendChild(host);
  host.querySelector('#foregroundPushCard')?.addEventListener('click', () => {
  const targetUrl = host.dataset.url || '/';
@@ -12739,7 +12747,7 @@ function formatTravelDuration(minutes){
  { key:'youtube', field:'youtubeUrl', label:'유튜브', icon:'▶️', statField:'youtubeClickCount' },
  { key:'facebook', field:'facebookUrl', label:'페이스북', icon:'f', statField:'facebookClickCount' },
  { key:'smartstore', field:'smartstoreUrl', label:'스마트스토어', icon:'🛒', statField:'smartstoreClickCount' },
- { key:'band', field:'bandUrl', label:'밴드', icon:'📢', statField:'bandClickCount' }
+ { key:'band', field:'bandUrl', label:'밴드', icon:'icon:notices', statField:'bandClickCount' }
  ];
 
  function getBenefitSocialLinks(item = {}){
@@ -19413,15 +19421,54 @@ async function askAiAssistant(rawQuestion=''){
  const MENU_STATS_COLLECTION = 'menu_stats';
  const BOTTOM_NAV_SETTINGS_COLLECTION = 'app_settings';
  const BOTTOM_NAV_SETTINGS_DOC = 'bottom_nav';
+
+ const UPICK_ICON_PATHS = {
+  home:'/icons/internal/home.svg',
+  benefits:'/icons/internal/benefit.svg',
+  benefit:'/icons/internal/benefit.svg',
+  favorite:'/icons/internal/favorite.svg',
+  top5:'/icons/internal/top5.svg',
+  all:'/icons/internal/all-menu.svg',
+  ai:'/icons/internal/ai-assistant.svg',
+  calendar:'/icons/internal/calendar.svg',
+  map:'/icons/internal/map.svg',
+  notices:'/icons/internal/notice.svg',
+  notice:'/icons/internal/notice.svg',
+  settings:'/icons/internal/settings.svg',
+  notification:'/icons/internal/notification.svg',
+  push:'/icons/internal/notification.svg'
+ };
+ function upickIconHtml(key, alt=''){
+  const src = UPICK_ICON_PATHS[key] || UPICK_ICON_PATHS[String(key || '').replace(/^icon:/,'')];
+  if(!src) return escapeHtml(alt || '•');
+  return `<img class="upick-svg-icon" src="${src}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
+ }
+ function normalizeMenuIconKey(menu = {}){
+  const id = String(menu.menuId || menu.view || menu.route || '').toLowerCase();
+  if(id === 'benefits') return 'benefits';
+  if(id === 'notices') return 'notices';
+  if(id === 'favorite') return 'favorite';
+  if(id === 'top5') return 'top5';
+  if(id === 'calendar') return 'calendar';
+  if(id === 'map') return 'map';
+  if(id === 'ai') return 'ai';
+  if(id === 'all') return 'all';
+  if(id === 'home') return 'home';
+  return id;
+ }
+ function renderMenuIcon(menu = {}, fallback = '•'){
+  return upickIconHtml(normalizeMenuIconKey(menu), menu.bottomLabel || menu.name || fallback);
+ }
+
  const DEFAULT_GNB_MENUS = [
-  {menuId:'home', name:'홈', bottomLabel:'홈', icon:'🏠', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
-  {menuId:'ai', name:'AI 생활 도우미', bottomLabel:'AI', icon:'🤖', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
-  {menuId:'benefits', name:'혜택 전체보기', bottomLabel:'혜택', icon:'🎁', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
-  {menuId:'favorite', name:'즐겨찾기 확인', bottomLabel:'즐겨찾기', icon:'⭐', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
-  {menuId:'notices', name:'공지사항 보기', bottomLabel:'공지', icon:'📢', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
-  {menuId:'calendar', name:'캘린더 예약', bottomLabel:'캘린더', icon:'📅', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
-  {menuId:'map', name:'지도', bottomLabel:'지도', icon:'🗺️', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
-  {menuId:'top5', name:'인기 매장 TOP 5', bottomLabel:'TOP5', icon:'🏆', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
+  {menuId:'home', name:'홈', bottomLabel:'홈', icon:'icon:home', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
+  {menuId:'ai', name:'AI 생활 도우미', bottomLabel:'AI', icon:'icon:ai', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
+  {menuId:'benefits', name:'혜택 전체보기', bottomLabel:'혜택', icon:'icon:benefits', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
+  {menuId:'favorite', name:'즐겨찾기 확인', bottomLabel:'즐겨찾기', icon:'icon:favorite', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
+  {menuId:'notices', name:'공지사항 보기', bottomLabel:'공지', icon:'icon:notices', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
+  {menuId:'calendar', name:'캘린더 예약', bottomLabel:'캘린더', icon:'icon:calendar', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
+  {menuId:'map', name:'지도', bottomLabel:'지도', icon:'icon:map', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
+  {menuId:'top5', name:'인기 매장 TOP 5', bottomLabel:'TOP5', icon:'icon:top5', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
   {menuId:'shareinsights', name:'공유 인사이트', bottomLabel:'공유', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
  ];
  let gnbMenuCache = [];
@@ -19563,15 +19610,15 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   if(found) return found;
 
   const fallbackMap = {
-    home:{menuId:'home',name:'홈',bottomLabel:'홈',icon:'🏠',view:'home',route:'home',sections:['bottom'],order:0},
-    all:{menuId:'all',name:'전체',bottomLabel:'전체',icon:'☰',view:'all',route:'all',sections:['bottom'],order:9999},
-    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:'혜택',icon:'🎁',view:'benefits',route:'benefits',sections:['bottom'],order:10},
-    favorite:{menuId:'favorite',name:'즐겨찾기 확인',bottomLabel:'즐겨찾기',icon:'⭐',view:'favorite',route:'favorite',sections:['bottom'],order:20},
-    top5:{menuId:'top5',name:'인기 매장 TOP 5',bottomLabel:'TOP5',icon:'🏆',view:'top5',route:'top5',sections:['bottom'],order:30},
-    ai:{menuId:'ai',name:'AI 생활 도우미',bottomLabel:'AI',icon:'🤖',view:'ai',route:'ai',sections:['bottom'],order:40},
-    calendar:{menuId:'calendar',name:'캘린더 예약',bottomLabel:'캘린더',icon:'📅',view:'calendar',route:'calendar',sections:['bottom'],order:50},
-    map:{menuId:'map',name:'지도',bottomLabel:'지도',icon:'🗺️',view:'map',route:'map',sections:['bottom'],order:60},
-    notices:{menuId:'notices',name:'공지사항 보기',bottomLabel:'공지',icon:'📢',view:'notices',route:'notices',sections:['bottom'],order:70},
+    home:{menuId:'home',name:'홈',bottomLabel:'홈',icon:'icon:home',view:'home',route:'home',sections:['bottom'],order:0},
+    all:{menuId:'all',name:'전체',bottomLabel:'전체',icon:'icon:all',view:'all',route:'all',sections:['bottom'],order:9999},
+    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:'혜택',icon:'icon:benefits',view:'benefits',route:'benefits',sections:['bottom'],order:10},
+    favorite:{menuId:'favorite',name:'즐겨찾기 확인',bottomLabel:'즐겨찾기',icon:'icon:favorite',view:'favorite',route:'favorite',sections:['bottom'],order:20},
+    top5:{menuId:'top5',name:'인기 매장 TOP 5',bottomLabel:'TOP5',icon:'icon:top5',view:'top5',route:'top5',sections:['bottom'],order:30},
+    ai:{menuId:'ai',name:'AI 생활 도우미',bottomLabel:'AI',icon:'icon:ai',view:'ai',route:'ai',sections:['bottom'],order:40},
+    calendar:{menuId:'calendar',name:'캘린더 예약',bottomLabel:'캘린더',icon:'icon:calendar',view:'calendar',route:'calendar',sections:['bottom'],order:50},
+    map:{menuId:'map',name:'지도',bottomLabel:'지도',icon:'icon:map',view:'map',route:'map',sections:['bottom'],order:60},
+    notices:{menuId:'notices',name:'공지사항 보기',bottomLabel:'공지',icon:'icon:notices',view:'notices',route:'notices',sections:['bottom'],order:70},
     shareinsights:{menuId:'shareinsights',name:'공유 인사이트',bottomLabel:'공유',icon:'📈',view:'shareinsights',route:'shareinsights',sections:['bottom'],order:200,roles:['admin','root']}
   };
   return fallbackMap[key] || {menuId:key,name:key,bottomLabel:key,icon:'•',view:key,route:key,sections:['bottom'],order:999};
@@ -19590,7 +19637,7 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   const view = String(menu.view || menu.route || menu.menuId || '').replace(/^#|^\//,'').trim();
   const label = getBottomNavSafeLabel(menu);
   return `<button class="nav-btn${fixed && view === state.view ? ' active' : ''}" data-view-link="${escapeHtml(view)}" type="button">
-    <span class="nav-icon">${escapeHtml(menu.icon || '•')}</span>
+    <span class="nav-icon">${renderMenuIcon(menu)}</span>
     <span class="nav-label">${escapeHtml(label)}</span>
   </button>`;
  }
@@ -20681,7 +20728,7 @@ document.addEventListener('keydown', (event) => {
  <small>오늘은 어떤 혜택이 있을까?</small>
  <strong>입주민 혜택 서비스<br>전체보기</strong>
  </div>
- <div class="gnb-hero-emoji">🏠</div>
+ <div class="gnb-hero-emoji"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></div>
  </div>
  </div>
  <div class="gnb-body">
@@ -20749,7 +20796,7 @@ document.addEventListener('keydown', (event) => {
  </section>
 
  <section class="gnb-section">
- <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">⚙️</span><span class="title-text">설정</span></h3>
+ <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon"><img class="upick-svg-icon" src="/icons/internal/settings.svg" alt="" loading="lazy"></span><span class="title-text">설정</span></h3>
  <div class="gnb-settings-wrap">
  <div class="gnb-settings-section" id="gnbSettingsAccountSummary">
  <div class="gnb-settings-section-header">
@@ -20832,7 +20879,7 @@ document.addEventListener('keydown', (event) => {
  </div>
  <div class="gnb-info-grid">
  <div class="gnb-info-item">
- <div class="gnb-info-icon">🔔</div>
+ <div class="gnb-info-icon"><img class="upick-svg-icon" src="/icons/internal/notification.svg" alt="" loading="lazy"></div>
  <div class="gnb-info-copy">
  <strong>푸시 알림 상태</strong>
  <p id="gnbPushStatusText">현재 브라우저의 알림 수신 상태를 확인하고 있습니다.</p>
