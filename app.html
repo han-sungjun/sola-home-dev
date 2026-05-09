@@ -6201,6 +6201,252 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
 .ai-ready-pill .upick-inline-icon{width:1.05em;height:1.05em;margin-right:.22em}
 .ai-message.bot::before{content:"";background:url('/icons/internal/ai-assistant.svg') center/72% no-repeat}
 
+
+/* =========================
+   더운정픽 UI Polish v1
+   - 브랜드 톤 정리
+   - SVG 아이콘 정렬
+   - 카드/하단 네비/본문 섹션 안정화
+========================= */
+:root{
+  --upick-navy:#101a33;
+  --upick-navy-2:#172342;
+  --upick-gold:#c8af87;
+  --upick-gold-2:#d7b36f;
+  --upick-red:#8a1d2d;
+  --upick-card:#ffffff;
+  --upick-soft:#f7f9fc;
+  --upick-line:rgba(16,26,51,.08);
+  --upick-shadow:0 18px 42px rgba(16,26,51,.10);
+  --upick-shadow-soft:0 10px 28px rgba(16,26,51,.08);
+}
+
+/* SVG 아이콘 공통 정렬 */
+.upick-svg-icon,
+.upick-menu-icon-img,
+.upick-inline-icon{
+  object-fit:contain;
+  transform:translateZ(0);
+  image-rendering:auto;
+}
+.upick-inline-icon{
+  width:1.12em;
+  height:1.12em;
+  margin-right:.34em;
+  vertical-align:-.18em;
+}
+.nav-icon .upick-svg-icon,
+.nav-icon .upick-menu-icon-img{
+  width:24px !important;
+  height:24px !important;
+  margin:0 !important;
+  vertical-align:middle;
+}
+.icon-btn .upick-svg-icon,
+.gnb-icon-btn .upick-svg-icon{
+  width:22px;
+  height:22px;
+}
+
+/* 본문 상단 패널/섹션 헤더 정리 */
+.panel{
+  border-color:var(--upick-line);
+}
+.section-head h3,
+.panel h3{
+  letter-spacing:-.045em;
+}
+.section-head small{
+  color:#64748b;
+}
+
+/* 전체 기능 카드 */
+.all-menu-grid,
+#allMenuGrid{
+  gap:14px !important;
+}
+.all-menu-card{
+  border:1px solid rgba(16,26,51,.065) !important;
+  box-shadow:var(--upick-shadow-soft) !important;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%) !important;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.all-menu-card:active{
+  transform:scale(.985);
+}
+.all-menu-card:hover{
+  box-shadow:0 18px 40px rgba(16,26,51,.13) !important;
+  border-color:rgba(200,175,135,.28) !important;
+}
+.all-menu-card-icon,
+.menu-card-icon,
+.gnb-card-icon,
+.admin-all-card-icon{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:48px !important;
+  height:48px !important;
+  border-radius:18px !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(245,248,255,.78)) !important;
+  border:1px solid rgba(16,26,51,.06) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 18px rgba(16,26,51,.06) !important;
+}
+.all-menu-card-icon img,
+.menu-card-icon img,
+.gnb-card-icon img,
+.admin-all-card-icon img{
+  width:30px !important;
+  height:30px !important;
+  margin:0 !important;
+}
+
+/* AI 대표 카드 */
+.ai-view-hero,
+.ai-card,
+#view-ai .ai-view-hero{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(200,175,135,.20),transparent 28%),
+    linear-gradient(135deg,#101a33 0%,#173a86 58%,#2455d6 100%) !important;
+  box-shadow:0 22px 48px rgba(23,58,134,.24) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+.ai-ready-pill{
+  background:rgba(255,255,255,.10) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+/* 혜택/공지/TOP5 첫 패널 브랜드 선 정리 */
+#view-benefits > .panel:first-child,
+#view-notices > .panel:first-child,
+#view-top5 > .panel:first-child,
+#view-calendar > .panel:first-child{
+  border:1px solid rgba(16,26,51,.06);
+  box-shadow:var(--upick-shadow-soft);
+  overflow:hidden;
+}
+#view-benefits > .panel:first-child::before,
+#view-notices > .panel:first-child::before,
+#view-top5 > .panel:first-child::before,
+#view-calendar > .panel:first-child::before{
+  height:4px !important;
+  opacity:1 !important;
+}
+#view-benefits > .panel:first-child::before{
+  background:linear-gradient(90deg,#3b82f6,#60a5fa) !important;
+}
+#view-top5 > .panel:first-child::before{
+  background:linear-gradient(90deg,#f59e0b,#ef4444) !important;
+}
+#view-notices > .panel:first-child::before{
+  background:linear-gradient(90deg,#c8af87,#8a1d2d) !important;
+}
+#view-calendar > .panel:first-child::before{
+  background:linear-gradient(90deg,#8a1d2d,#c8af87) !important;
+}
+
+/* 필터/칩/버튼 질감 통일 */
+.filter-sticky,
+.benefit-filter-bar,
+.ai-memory-toolbar,
+.ai-quick-row{
+  border-color:rgba(16,26,51,.06) !important;
+}
+.btn,
+.filter-chip,
+.radius-chip,
+.view-mode-btn,
+.ai-quick-btn{
+  letter-spacing:-.025em;
+}
+.btn-primary,
+.nav-btn.active{
+  background:linear-gradient(135deg,var(--upick-navy),var(--upick-navy-2)) !important;
+}
+
+/* 하단 네비바 */
+.bottom-nav{
+  background:rgba(16,26,51,.96) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:0 -14px 36px rgba(16,26,51,.22) !important;
+  backdrop-filter:blur(18px);
+}
+.bottom-nav .nav-btn{
+  min-width:0;
+}
+.bottom-nav .nav-btn .nav-icon{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:28px;
+}
+.bottom-nav .nav-btn.active{
+  background:rgba(255,255,255,.12) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.bottom-nav .nav-btn.active .nav-icon{
+  filter:drop-shadow(0 6px 10px rgba(200,175,135,.26));
+}
+
+/* GNB 시트 */
+.gnb-sheet{
+  background:
+    radial-gradient(circle at 80% 12%,rgba(200,175,135,.13),transparent 28%),
+    linear-gradient(180deg,rgba(22,34,60,.98),rgba(16,26,51,.98)) !important;
+}
+.gnb-menu-item,
+.gnb-menu-subitem{
+  border-color:rgba(255,255,255,.10) !important;
+}
+.gnb-menu-label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.gnb-menu-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  flex:0 0 auto;
+}
+
+/* TOP5 카드 */
+.top5-card,
+.popular-card,
+.hot-card{
+  border-color:rgba(245,158,11,.22) !important;
+  box-shadow:0 12px 28px rgba(245,158,11,.10) !important;
+}
+
+/* 모바일 여백/터치감 */
+@media (max-width: 720px){
+  .panel{
+    border-radius:24px;
+  }
+  .all-menu-card{
+    border-radius:24px !important;
+    padding:20px !important;
+  }
+  .all-menu-card-icon,
+  .menu-card-icon{
+    width:46px !important;
+    height:46px !important;
+    border-radius:17px !important;
+  }
+  .all-menu-card-icon img,
+  .menu-card-icon img{
+    width:29px !important;
+    height:29px !important;
+  }
+  .bottom-nav{
+    border-radius:26px 26px 0 0 !important;
+  }
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
