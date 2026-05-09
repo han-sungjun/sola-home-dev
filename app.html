@@ -6447,6 +6447,93 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   }
 }
 
+
+/* =========================
+   더운정픽 UI Polish v1.1
+   - 전체 기능 카드 텍스트 대비 보정
+========================= */
+
+/* 전체 기능 카드 기본 텍스트는 항상 진한 색으로 고정 */
+.all-menu-card,
+.all-menu-card strong,
+.all-menu-card h3,
+.all-menu-card h4,
+.all-menu-card .all-menu-title,
+.all-menu-card .menu-title{
+  color:#0f172a !important;
+}
+.all-menu-card p,
+.all-menu-card small,
+.all-menu-card .all-menu-desc,
+.all-menu-card .menu-desc{
+  color:#64748b !important;
+}
+
+/* 강조 카드도 텍스트가 배경에 묻히지 않도록 보정 */
+.all-menu-card.featured,
+.all-menu-card.ai,
+.all-menu-card[data-view-link="ai"],
+.all-menu-card[data-view="ai"]{
+  background:
+    radial-gradient(circle at 80% 16%,rgba(200,175,135,.18),transparent 32%),
+    linear-gradient(135deg,#101a33 0%,#183d8f 62%,#2455d6 100%) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  box-shadow:0 22px 48px rgba(23,58,134,.22) !important;
+}
+.all-menu-card.featured strong,
+.all-menu-card.featured h3,
+.all-menu-card.featured h4,
+.all-menu-card.featured .all-menu-title,
+.all-menu-card.ai strong,
+.all-menu-card.ai h3,
+.all-menu-card.ai h4,
+.all-menu-card.ai .all-menu-title,
+.all-menu-card[data-view-link="ai"] strong,
+.all-menu-card[data-view-link="ai"] h3,
+.all-menu-card[data-view-link="ai"] h4,
+.all-menu-card[data-view-link="ai"] .all-menu-title,
+.all-menu-card[data-view="ai"] strong,
+.all-menu-card[data-view="ai"] h3,
+.all-menu-card[data-view="ai"] h4,
+.all-menu-card[data-view="ai"] .all-menu-title{
+  color:#ffffff !important;
+}
+.all-menu-card.featured p,
+.all-menu-card.featured small,
+.all-menu-card.featured .all-menu-desc,
+.all-menu-card.ai p,
+.all-menu-card.ai small,
+.all-menu-card.ai .all-menu-desc,
+.all-menu-card[data-view-link="ai"] p,
+.all-menu-card[data-view-link="ai"] small,
+.all-menu-card[data-view-link="ai"] .all-menu-desc,
+.all-menu-card[data-view="ai"] p,
+.all-menu-card[data-view="ai"] small,
+.all-menu-card[data-view="ai"] .all-menu-desc{
+  color:rgba(255,255,255,.78) !important;
+}
+
+/* NEW/인기/최근 배지는 카드 색상과 독립적으로 표시 */
+.all-menu-card .gnb-inline-badge,
+.all-menu-card .gnb-context-badge,
+.all-menu-card .menu-trend-badge,
+.all-menu-card .menu-trend-ribbon{
+  color:#fff !important;
+}
+
+/* 아이콘 카드 배경은 흰 카드/파란 카드 모두에서 자연스럽게 */
+.all-menu-card .all-menu-card-icon,
+.all-menu-card .menu-card-icon{
+  background:rgba(245,248,255,.88) !important;
+}
+.all-menu-card.featured .all-menu-card-icon,
+.all-menu-card.ai .all-menu-card-icon,
+.all-menu-card[data-view-link="ai"] .all-menu-card-icon,
+.all-menu-card[data-view="ai"] .all-menu-card-icon{
+  background:rgba(255,255,255,.16) !important;
+  border-color:rgba(255,255,255,.20) !important;
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
