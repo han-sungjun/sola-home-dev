@@ -14,19 +14,19 @@
  <meta name="apple-mobile-web-app-capable" content="yes">
  <meta name="mobile-web-app-capable" content="yes">
  <meta name="apple-mobile-web-app-status-bar-style" content="default">
- <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
+ <meta name="apple-mobile-web-app-title" content="더운정픽">
  <link rel="apple-touch-icon" href="/icons/icon-180.png">
- <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
+ <meta name="description" content="더운정픽 입주민 전용 혜택 웹앱">
  <meta name="robots" content="index,follow">
- <title>더운정 마이힐스</title>
+ <title>더운정픽</title>
  <meta property="og:type" content="website">
- <meta property="og:site_name" content="더운정 마이힐스">
- <meta property="og:title" content="더운정 마이힐스">
+ <meta property="og:site_name" content="더운정픽">
+ <meta property="og:title" content="더운정픽">
  <meta property="og:description" content="입주민 전용 혜택과 공지 바로가기">
  <meta property="og:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
  <meta property="og:url" content="__BASE_URL__/app">
  <meta name="twitter:card" content="summary_large_image">
- <meta name="twitter:title" content="더운정 마이힐스">
+ <meta name="twitter:title" content="더운정픽">
  <meta name="twitter:description" content="입주민 전용 혜택과 공지 바로가기">
  <meta name="twitter:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
  
@@ -9871,7 +9871,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  <div class="brand">
  <div class="logo">🏠</div>
  <div>
- <h1>더운정 마이힐스</h1>
+ <h1>더운정픽</h1>
  <p>입주민 전용 혜택 웹앱</p>
  </div>
  </div>
@@ -13513,7 +13513,7 @@ function getShareTrackingParams(){
  const raw = type === 'notice'
  ? (item.content || '입주민 전용 공지 바로가기')
  : (item.condition || getBenefitDisplayAddress(item) || '입주민 전용 혜택 바로가기');
- return String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 90) || '더운정 마이힐스 바로가기';
+ return String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 90) || '더운정픽 바로가기';
  }
 
  async function copyShareUrl(type, item = {}){
@@ -13564,10 +13564,10 @@ function getShareTrackingParams(){
 
  function buildKakaoShareTitle(type, item = {}){
  if(type === 'notice'){
- return `[공지 안내] ${compactShareText(item.title || '더운정 마이힐스 공지', 34)}`;
+ return `[공지 안내] ${compactShareText(item.title || '더운정픽 공지', 34)}`;
  }
 
- return `[입주민 혜택] ${compactShareText(item.name || item.title || '더운정 마이힐스 혜택', 34)}`;
+ return `[입주민 혜택] ${compactShareText(item.name || item.title || '더운정픽 혜택', 34)}`;
  }
 
  function buildKakaoShareDescription(type, item = {}){
@@ -13578,7 +13578,7 @@ function getShareTrackingParams(){
 
  return [
  body,
- '더운정 마이힐스에서 자세히 보기'
+ '더운정픽에서 자세히 보기'
  ].join('\n');
  }
 
@@ -13603,7 +13603,7 @@ function getShareTrackingParams(){
  if(categoryLine) lines.push(`🏷️ ${categoryLine}`);
  if(locationLine) lines.push(`📍 ${locationLine}`);
 
- lines.push('더운정 마이힐스 입주민 전용 혜택');
+ lines.push('더운정픽 입주민 전용 혜택');
 
  return lines.join('\n');
  }
@@ -13757,8 +13757,8 @@ function getShareTrackingParams(){
  ? (item.title || '공지사항')
  : (item.name || item.title || '입주민 혜택');
  const sub = type === 'notice'
- ? '더운정 마이힐스 공지 QR'
- : '더운정 마이힐스 혜택 QR';
+ ? '더운정픽 공지 QR'
+ : '더운정픽 혜택 QR';
  return { title, sub };
  }
 
@@ -16878,7 +16878,7 @@ function getAiAttachmentType(item={}){
  try{
  const now = new Date();
  return {
- appName: '더운정 마이힐스',
+ appName: '더운정픽',
  env: ENV,
  currentView: state.view || document.querySelector('.nav-btn.active')?.dataset?.view || 'home',
  activeCategory: state.category || document.querySelector('.chip.active')?.textContent?.trim() || '',
@@ -16896,7 +16896,7 @@ function getAiAttachmentType(item={}){
  };
  }catch(e){
  console.warn('buildAiPageContext 실패:', e);
- return { appName:'더운정 마이힐스', localCandidates:[] };
+ return { appName:'더운정픽', localCandidates:[] };
  }
  }
 
@@ -20712,7 +20712,7 @@ document.addEventListener('keydown', (event) => {
  <div class="gnb-new-section"><div class="gnb-menu-list" id="gnbNewMenus"><div class="gnb-empty">새 메뉴를 불러오는 중입니다.</div></div></div>
  </div>
  <div class="gnb-menu-group">
- <h4 class="gnb-menu-group-title">🏠 더운정 마이힐스</h4>
+ <h4 class="gnb-menu-group-title">🏠 더운정픽</h4>
  <div class="gnb-menu-sublist" id="gnbMainMenus"><div class="gnb-empty">메뉴를 불러오는 중입니다.</div></div>
  </div>
  </section>
@@ -20909,7 +20909,7 @@ document.addEventListener('keydown', (event) => {
  <form class="account-edit-form" id="accountEditForm">
  <div class="account-edit-field">
  <label for="accountNicknameInput">닉네임</label>
- <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
+ <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 더운정픽 입주민">
  </div>
  <div class="account-edit-field">
  <label>프로필 이미지 <small style="color:#94a3b8">선택</small></label>
