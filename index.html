@@ -1764,156 +1764,178 @@
   </script>
 
 
-<!-- ===== 더운정픽 UI v50: 로그인 페이지 캡슐형 제거 ===== -->
-<style id="upick-v50-login-capsule-remove">
+<!-- ===== 더운정픽 UI v51: 로그인 페이지 고급화 복구 + 안전 보정 ===== -->
+<style id="upick-v51-login-theme-restore-safe">
 /*
-  로그인 페이지 보정:
-  - 상단 브랜드 캡슐형 박스 제거
-  - 네이비 히어로 안에 로고 + 텍스트가 자연스럽게 올라가도록 정리
-  - 계정 로그인 제목 캡슐형 박스 제거
+  v50 문제:
+  - 로그인 페이지 캡슐 제거 과정에서 기존 네이비/블루 프리미엄 테마까지 깨짐.
+  v51 방향:
+  - v49의 고급화 테마를 유지
+  - red/black fallback 방지
+  - 로그인 페이지는 다시 네이비/블루 프리미엄 톤으로 고정
+  - 과한 캡슐감만 완화
 */
 
-/* 1) 로그인 페이지 전체 히어로 상단 브랜드 캡슐 제거 */
+/* 1) 로그인 페이지 전체 쉘 네이비 프리미엄 복구 */
+.login-premium-hero-shell,
+.login-premium-shell,
+.login-page-shell {
+  background:
+    radial-gradient(circle at 92% 7%, rgba(255,255,255,.16), transparent 28%),
+    linear-gradient(135deg, #071B3F 0%, #0A2C68 52%, #245BDE 100%) !important;
+  border-radius: 32px !important;
+  box-shadow:
+    0 24px 58px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+
+/* 2) 로그인 히어로 영역 red/black fallback 차단 */
+.login-premium-hero-shell .hero,
+.login-premium-hero-shell .login-hero,
+.login-premium-hero-shell .premium-hero,
+.login-premium-hero-shell section.hero {
+  background:
+    radial-gradient(circle at 94% 10%, rgba(255,255,255,.18), transparent 30%),
+    linear-gradient(135deg, #081F49 0%, #123C83 54%, #2563EB 100%) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow:
+    0 18px 42px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+
+/* 3) 상단 브랜드 캡슐은 완전 제거하지 않고, 제안서형 은은한 글래스로 완화 */
 .login-premium-hero-shell .login-brand-block,
 .login-premium-hero-shell > .brand,
 .login-premium-hero-shell .brand:not(.panel .brand) {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  min-height: auto !important;
-  overflow: visible !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.07)) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow:
+    0 12px 28px rgba(2,8,23,.14),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+  backdrop-filter: blur(14px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(125%) !important;
 }
 
-/* 브랜드 블록 pseudo 하이라이트 제거 */
-.login-premium-hero-shell .login-brand-block::before,
-.login-premium-hero-shell .login-brand-block::after,
-.login-premium-hero-shell > .brand::before,
-.login-premium-hero-shell > .brand::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* 상단 브랜드 로고는 작은 glass 타일만 유지 */
+/* 4) 브랜드 로고는 작고 밝게 유지 */
 .login-premium-hero-shell .login-brand-block .logo,
 .login-premium-hero-shell > .brand .logo {
-  width: 46px !important;
-  height: 46px !important;
-  min-width: 46px !important;
-  flex: 0 0 46px !important;
-  border-radius: 14px !important;
-  display: grid !important;
-  place-items: center !important;
-  padding: 0 !important;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.92), rgba(239,246,255,.78)) !important;
-  border: 1px solid rgba(255,255,255,.50) !important;
+    linear-gradient(180deg, rgba(255,255,255,.94), rgba(239,246,255,.82)) !important;
+  border: 1px solid rgba(255,255,255,.52) !important;
   box-shadow:
-    0 10px 22px rgba(2,8,23,.16),
+    0 10px 22px rgba(2,8,23,.14),
     inset 0 1px 0 rgba(255,255,255,.92) !important;
-  overflow: hidden !important;
+  border-radius: 14px !important;
 }
 
 .login-premium-hero-shell .login-brand-block .logo img,
 .login-premium-hero-shell > .brand .logo img {
   content: url('/icons/internal/brand-symbol-real.png') !important;
-  width: 34px !important;
-  height: 34px !important;
   object-fit: contain !important;
-  background: transparent !important;
+}
+
+/* 5) 히어로 텍스트 네이비 테마 복구 */
+.login-premium-hero-shell .hero h1,
+.login-premium-hero-shell .login-hero h1,
+.login-premium-hero-shell .premium-hero h1,
+.login-premium-hero-shell .hero-title {
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(2,8,23,.24) !important;
+}
+
+.login-premium-hero-shell .hero p,
+.login-premium-hero-shell .login-hero p,
+.login-premium-hero-shell .premium-hero p,
+.login-premium-hero-shell .hero-subtitle {
+  color: rgba(255,255,255,.86) !important;
+}
+
+/* 6) 계정 로그인 카드 복구 */
+.login-premium-hero-shell .panel,
+.login-premium-hero-shell .login-panel,
+.login-premium-hero-shell .form-panel,
+.login-premium-hero-shell .account-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,251,255,.92)) !important;
+  border: 1px solid rgba(219,234,254,.72) !important;
+  box-shadow:
+    0 24px 52px rgba(30,64,175,.12),
+    inset 0 1px 0 rgba(255,255,255,.90) !important;
+}
+
+/* 7) 계정 로그인 제목은 과한 캡슐감만 완화 */
+.login-premium-hero-shell .panel .brand,
+.login-premium-hero-shell .login-panel .brand {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.82), rgba(248,251,255,.62)) !important;
+  border: 1px solid rgba(191,219,254,.46) !important;
+  box-shadow: 0 12px 28px rgba(37,99,235,.07) !important;
+  border-radius: 20px !important;
+}
+
+/* 8) 입력창 복구 */
+.login-premium-hero-shell input,
+.login-premium-hero-shell .input,
+.login-premium-hero-shell .form-input {
+  background: #EAF2FF !important;
+  border: 1px solid rgba(191,219,254,.60) !important;
+  color: #071A3D !important;
+}
+
+/* 9) 버튼 네이비/블루 복구 */
+.login-premium-hero-shell button[type="submit"],
+.login-premium-hero-shell .login-btn,
+.login-premium-hero-shell .btn-primary {
+  background:
+    linear-gradient(135deg, #08214D 0%, #245BDE 100%) !important;
+  color: #fff !important;
   border: none !important;
+  box-shadow: 0 14px 28px rgba(37,99,235,.22) !important;
+}
+
+.login-premium-hero-shell .install-btn,
+.login-premium-hero-shell .app-install-btn,
+.login-premium-hero-shell .quick-app-btn {
+  background:
+    linear-gradient(135deg, #08214D 0%, #245BDE 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 14px 28px rgba(37,99,235,.22) !important;
+}
+
+/* 회원가입 보조 버튼은 흰색 유지 */
+.login-premium-hero-shell .signup-btn,
+.login-premium-hero-shell .btn-secondary {
+  background: #fff !important;
+  color: #071A3D !important;
+  border: 1px solid rgba(191,219,254,.85) !important;
   box-shadow: none !important;
 }
 
-/* 상단 브랜드 텍스트 */
-.login-premium-hero-shell .login-brand-block strong,
-.login-premium-hero-shell > .brand h1,
-.login-premium-hero-shell > .brand strong {
-  color: #fff !important;
-  font-weight: 1000 !important;
-  letter-spacing: -.06em !important;
-  text-shadow: 0 2px 10px rgba(2,8,23,.28) !important;
+/* 10) red 계열 fallback 제거 */
+.login-premium-hero-shell [style*="red"],
+.login-premium-hero-shell [class*="red"],
+.login-premium-hero-shell .danger,
+.login-premium-hero-shell .error:not(.message):not(.text) {
+  --tw-bg-opacity: initial;
 }
 
-.login-premium-hero-shell .login-brand-block span,
-.login-premium-hero-shell > .brand p,
-.login-premium-hero-shell > .brand span {
-  color: rgba(255,255,255,.82) !important;
+/* 11) 문구/라벨 색상 복구 */
+.login-premium-hero-shell label,
+.login-premium-hero-shell .label {
+  color: #64748b !important;
   font-weight: 800 !important;
 }
 
-/* 2) 계정 로그인 제목 영역 캡슐 제거 */
-.login-premium-hero-shell .panel .brand,
-.login-premium-hero-shell .login-panel .brand,
-.login-premium-hero-shell .panel .login-form-title,
-.login-premium-hero-shell .panel .account-title,
-.login-premium-hero-shell .panel .form-title {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  min-height: auto !important;
-}
-
-/* 계정 로그인 안쪽 로고도 과한 카드감 제거 */
-.login-premium-hero-shell .panel .brand .logo,
-.login-premium-hero-shell .login-panel .brand .logo {
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  flex: 0 0 40px !important;
-  border-radius: 13px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.92), rgba(244,248,255,.80)) !important;
-  border: 1px solid rgba(191,219,254,.48) !important;
-  box-shadow: 0 8px 18px rgba(37,99,235,.06) !important;
-}
-
-.login-premium-hero-shell .panel .brand .logo img,
-.login-premium-hero-shell .login-panel .brand .logo img {
-  width: 30px !important;
-  height: 30px !important;
-}
-
-/* 계정 로그인 텍스트는 단정하게 */
-.login-premium-hero-shell .panel .brand h2,
-.login-premium-hero-shell .login-panel .brand h2 {
+.login-premium-hero-shell .panel h2,
+.login-premium-hero-shell .login-panel h2 {
   color: #071A3D !important;
-  font-weight: 1000 !important;
-  letter-spacing: -.055em !important;
 }
 
-.login-premium-hero-shell .panel .brand p,
-.login-premium-hero-shell .login-panel .brand p {
+.login-premium-hero-shell .panel p,
+.login-premium-hero-shell .login-panel p {
   color: #64748b !important;
-  font-weight: 750 !important;
-}
-
-/* 모바일 보정 */
-@media (max-width: 430px) {
-  .login-premium-hero-shell .login-brand-block .logo,
-  .login-premium-hero-shell > .brand .logo {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    flex-basis: 42px !important;
-  }
-
-  .login-premium-hero-shell .login-brand-block .logo img,
-  .login-premium-hero-shell > .brand .logo img {
-    width: 31px !important;
-    height: 31px !important;
-  }
 }
 </style>
 
