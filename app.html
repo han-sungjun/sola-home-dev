@@ -10957,6 +10957,265 @@ html.upick-modal-open,body.upick-modal-open{overflow:hidden!important;}
 })();
 </script>
 
+
+<style id="upick-v8-modal-scroll-lock-fix">
+/* ===== 더운정픽 v8: 팝업 외부 스크롤 잠금 + 상세/공지/캘린더 모달 안정화 ===== */
+html.upick-modal-hard-lock,
+body.upick-modal-hard-lock{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+body.upick-modal-hard-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+}
+
+/* 모든 주요 dialog는 화면 안에 고정, dialog 자체가 아니라 내부 body만 스크롤 */
+#detailModal,
+#noticeModal,
+#calendarDayModal,
+#calendarReservationModal,
+#qrModal,
+#accountEditModal,
+#communityEditorModal,
+#communityDetailModal,
+#communityReportModal{
+  box-sizing:border-box!important;
+  max-width:calc(100vw - 20px)!important;
+  max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+  border-radius:30px!important;
+}
+#detailModal[open],
+#noticeModal[open],
+#calendarDayModal[open],
+#calendarReservationModal[open],
+#qrModal[open],
+#accountEditModal[open],
+#communityEditorModal[open],
+#communityDetailModal[open],
+#communityReportModal[open]{
+  display:flex!important;
+  flex-direction:column!important;
+}
+#detailModal::backdrop,
+#noticeModal::backdrop,
+#calendarDayModal::backdrop,
+#calendarReservationModal::backdrop,
+#qrModal::backdrop,
+#accountEditModal::backdrop,
+#communityEditorModal::backdrop,
+#communityDetailModal::backdrop,
+#communityReportModal::backdrop{
+  background:rgba(7,26,61,.50)!important;
+  backdrop-filter:blur(9px)!important;
+  -webkit-backdrop-filter:blur(9px)!important;
+}
+
+/* 혜택/공지 상세: 헤더 고정, 본문만 스크롤 */
+#detailModal{width:min(460px,calc(100% - 20px))!important;height:auto!important;}
+#noticeModal{width:min(430px,calc(100% - 24px))!important;height:auto!important;}
+#detailModal .modal-head,
+#noticeModal .modal-head{
+  flex:0 0 auto!important;
+  position:relative!important;
+  top:auto!important;
+  z-index:3!important;
+  padding:18px 18px 10px!important;
+  background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;
+  border-bottom:1px solid rgba(219,234,254,.82)!important;
+}
+#detailModal .modal-body,
+#noticeModal .modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:calc(100dvh - 118px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  padding:14px 18px calc(18px + env(safe-area-inset-bottom,0px))!important;
+  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)!important;
+}
+#noticeModal .notice-detail-wrap{
+  display:grid!important;
+  gap:14px!important;
+  min-height:0!important;
+}
+#noticeModal .notice-detail-title{
+  font-size:clamp(22px,5vw,28px)!important;
+  line-height:1.22!important;
+  margin:0!important;
+}
+#noticeModal .notice-detail-panel{
+  min-height:0!important;
+  max-height:none!important;
+  border-radius:22px!important;
+  box-shadow:0 12px 28px rgba(15,23,42,.06)!important;
+}
+#noticeModal .notice-detail-actions,
+#noticeModal .share-actions{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin:0!important;
+  padding-top:0!important;
+}
+#noticeModal .notice-detail-actions .btn,
+#noticeModal .share-actions .btn{
+  min-width:0!important;
+  padding:12px 8px!important;
+  border-radius:16px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:370px){
+  #noticeModal .notice-detail-actions,
+  #noticeModal .share-actions{grid-template-columns:1fr!important;}
+}
+
+/* 캘린더 일자 팝업: 헤더/푸터 고정, 리스트만 스크롤 */
+#calendarDayModal{
+  width:min(460px,calc(100% - 20px))!important;
+  height:min(82dvh,720px)!important;
+  max-height:min(82dvh,720px)!important;
+}
+#calendarDayModal .calendar-day-modal-head{
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:2!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(219,234,254,.82)!important;
+}
+#calendarDayModal .calendar-day-modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  padding:14px 16px 14px!important;
+}
+#calendarDayModal .calendar-day-modal-list{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  padding:2px 4px 10px 0!important;
+}
+#calendarDayModal .calendar-day-modal-footer{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  padding-top:10px!important;
+  background:#fff!important;
+  border-top:1px solid rgba(15,23,42,.06)!important;
+}
+
+/* 알럿은 카드만 터치 가능, 배경 스크롤 금지 */
+dialog.app-alert[open],
+.app-alert.show{
+  position:fixed!important;
+  inset:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+dialog.app-alert .app-alert-card,
+.app-alert.show .app-alert-card{
+  touch-action:auto!important;
+}
+</style>
+
+
+<script id="upick-v8-global-modal-scroll-lock">
+(function(){
+  var scrollY = 0;
+  var locked = false;
+  var allowedSelector = [
+    '#detailModal[open] .modal-body',
+    '#noticeModal[open] .modal-body',
+    '#calendarDayModal[open] .calendar-day-modal-list',
+    '#calendarDayModal[open] .calendar-day-modal-body',
+    '#calendarReservationModal[open] .modal-body',
+    '#qrModal[open] .modal-body',
+    '#accountEditModal[open] .modal-body',
+    '#communityEditorModal[open] .modal-body',
+    '#communityDetailModal[open] .modal-body',
+    '#communityReportModal[open] .modal-body',
+    'dialog.app-alert[open] .app-alert-card',
+    '.app-alert.show .app-alert-card',
+    '.ai-image-zoom-scroll',
+    '.sheet-panel'
+  ].join(',');
+  var lockSelector = [
+    '#detailModal[open]',
+    '#noticeModal[open]',
+    '#calendarDayModal[open]',
+    '#calendarReservationModal[open]',
+    '#qrModal[open]',
+    '#accountEditModal[open]',
+    '#communityEditorModal[open]',
+    '#communityDetailModal[open]',
+    '#communityReportModal[open]',
+    'dialog.app-alert[open]',
+    '.app-alert.show',
+    '.sheet-modal.show'
+  ].join(',');
+
+  function hasOpenModal(){ return !!document.querySelector(lockSelector); }
+
+  function lock(){
+    if(locked) return;
+    locked = true;
+    scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.documentElement.classList.add('upick-modal-hard-lock');
+    document.body.classList.add('upick-modal-hard-lock');
+    document.body.style.top = '-' + scrollY + 'px';
+  }
+  function unlock(){
+    if(!locked) return;
+    locked = false;
+    document.documentElement.classList.remove('upick-modal-hard-lock');
+    document.body.classList.remove('upick-modal-hard-lock');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY || 0);
+  }
+  function sync(){ hasOpenModal() ? lock() : unlock(); }
+  function isAllowedTarget(target){ return !!(target && target.closest && target.closest(allowedSelector)); }
+  function blockOutsideScroll(event){
+    if(!locked) return;
+    if(isAllowedTarget(event.target)) return;
+    event.preventDefault();
+  }
+
+  document.addEventListener('touchmove', blockOutsideScroll, {passive:false, capture:true});
+  document.addEventListener('wheel', blockOutsideScroll, {passive:false, capture:true});
+  document.addEventListener('toggle', function(event){
+    if(event.target && event.target.matches && event.target.matches('dialog')) setTimeout(sync, 0);
+  }, true);
+  document.addEventListener('close', function(event){
+    if(event.target && event.target.matches && event.target.matches('dialog')) setTimeout(sync, 0);
+  }, true);
+  document.addEventListener('cancel', function(event){
+    if(event.target && event.target.matches && event.target.matches('dialog')) setTimeout(sync, 0);
+  }, true);
+  document.addEventListener('DOMContentLoaded', function(){
+    sync();
+    var mo = new MutationObserver(function(){ setTimeout(sync, 0); });
+    mo.observe(document.body, {subtree:true, attributes:true, attributeFilter:['open','class','style','aria-hidden']});
+  });
+  window.__upickSyncModalScrollLock = sync;
+})();
+</script>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">

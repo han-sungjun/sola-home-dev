@@ -2773,6 +2773,68 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 }
 </style>
 
+
+<style id="upick-v8-admin-header-hero-unified">
+/* ===== 더운정픽 v8: 운영자 헤더 + 대시보드 히어로 단일 블루 시스템 보정 ===== */
+.admin-unified-header.unified-topbar{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:14px!important;
+  margin-bottom:-18px!important;
+  border-radius:32px 32px 0 0!important;
+  background:radial-gradient(circle at 84% 14%,rgba(96,165,250,.36),transparent 34%),linear-gradient(135deg,#071A3D 0%,#0B2A60 52%,#2563EB 100%)!important;
+  border:1px solid rgba(147,197,253,.20)!important;
+  border-bottom:none!important;
+  box-shadow:0 22px 52px rgba(7,26,61,.16)!important;
+}
+.admin-unified-header.unified-topbar::after{
+  content:""!important;
+  position:absolute!important;
+  right:-34px!important;
+  top:-28px!important;
+  width:150px!important;
+  height:150px!important;
+  border-radius:48px!important;
+  background:rgba(255,255,255,.08)!important;
+  transform:rotate(18deg)!important;
+  pointer-events:none!important;
+}
+.admin-unified-header .upick-header-brand,
+.admin-unified-header .upick-header-context,
+.admin-unified-header .icon-btn,
+.admin-unified-header .admin-userchip{
+  position:relative!important;
+  z-index:1!important;
+}
+.admin-unified-header .upick-header-brand{
+  background:rgba(255,255,255,.90)!important;
+  border-color:rgba(255,255,255,.72)!important;
+}
+.admin-unified-header .upick-header-context{
+  background:rgba(255,255,255,.12)!important;
+  border-color:rgba(255,255,255,.18)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 14px 34px rgba(7,26,61,.16)!important;
+}
+.admin-unified-header + .hero{
+  margin-top:0!important;
+  border-radius:0 0 32px 32px!important;
+  padding-top:42px!important;
+  border-top:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 26px 58px rgba(7,26,61,.18)!important;
+}
+@media(max-width:680px){
+  .admin-unified-header.unified-topbar{
+    margin-bottom:-14px!important;
+    padding:12px!important;
+    border-radius:30px 30px 0 0!important;
+  }
+  .admin-unified-header + .hero{
+    padding-top:34px!important;
+    border-radius:0 0 30px 30px!important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
