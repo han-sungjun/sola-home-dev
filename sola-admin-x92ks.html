@@ -2738,6 +2738,41 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 }
 </style>
 
+
+
+<style>
+/* ===== v7: 운영자 상단 헤더 제안서 구조 적용 ===== */
+:root{--upick-navy:#071A3D;--upick-navy-2:#0B2A60;--upick-blue:#2563EB;--upick-soft:#EFF6FF;}
+.admin-unified-header.unified-topbar{
+  display:grid!important;grid-template-columns:minmax(210px,1.05fr) minmax(170px,.9fr) auto!important;align-items:center!important;gap:12px!important;padding:0!important;margin:0 0 16px!important;background:transparent!important;border:none!important;box-shadow:none!important;position:relative!important;z-index:20!important;
+}
+.admin-unified-header .upick-header-brand{min-width:0!important;display:flex!important;align-items:center!important;gap:12px!important;padding:12px 14px!important;border-radius:26px!important;background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,246,255,.76))!important;border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 18px 38px rgba(11,31,77,.10), inset 0 1px 0 rgba(255,255,255,.96)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;}
+.admin-unified-header .logo{width:54px!important;height:54px!important;flex:0 0 54px!important;border-radius:18px!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:linear-gradient(180deg,#fff,#eef6ff)!important;border:1px solid rgba(191,219,254,.86)!important;box-shadow:0 12px 26px rgba(37,99,235,.10)!important;}
+.admin-unified-header .logo::before{content:none!important;display:none!important;}
+.admin-unified-header .logo img{opacity:1!important;width:40px!important;height:40px!important;object-fit:contain!important;display:block!important;}
+.admin-unified-header h1{margin:0!important;color:#071A3D!important;font-size:clamp(20px,4.5vw,27px)!important;line-height:1.06!important;font-weight:1000!important;letter-spacing:-.07em!important;white-space:nowrap!important;}
+.admin-unified-header p{margin:6px 0 0!important;color:#64748B!important;font-size:clamp(12px,2.7vw,14px)!important;line-height:1.2!important;font-weight:800!important;white-space:nowrap!important;}
+.admin-unified-header .upick-header-context{min-width:0!important;height:78px!important;border:none!important;border-radius:24px!important;padding:0 18px!important;display:flex!important;align-items:center!important;gap:12px!important;color:#fff!important;text-align:left!important;cursor:pointer!important;background:radial-gradient(circle at 86% 16%,rgba(96,165,250,.32),transparent 42%),linear-gradient(135deg,#071A3D 0%,#0B2A60 52%,#2563EB 100%)!important;border:1px solid rgba(147,197,253,.26)!important;box-shadow:0 18px 42px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.20)!important;overflow:hidden!important;}
+.admin-unified-header .upick-context-icon{width:42px!important;height:42px!important;flex:0 0 42px!important;display:grid!important;place-items:center!important;border-radius:999px!important;background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.18)!important;}
+.admin-unified-header .upick-context-icon img{width:23px!important;height:23px!important;filter:brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+.admin-unified-header .upick-context-text{font-size:16px!important;font-weight:950!important;line-height:1.32!important;letter-spacing:-.04em!important;}
+.admin-unified-header .upick-header-utils{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;min-width:0!important;}
+.admin-unified-header .icon-btn,.admin-unified-header .admin-userchip{width:58px!important;height:58px!important;min-width:58px!important;flex:0 0 58px!important;padding:0!important;border-radius:20px!important;display:grid!important;place-items:center!important;background:rgba(255,255,255,.92)!important;border:1px solid rgba(219,234,254,.88)!important;box-shadow:0 14px 30px rgba(11,31,77,.09)!important;}
+.admin-unified-header .admin-userchip div:not(.admin-avatar){display:none!important;}
+.admin-unified-header .admin-avatar{width:28px!important;height:28px!important;background:transparent!important;border:none!important;box-shadow:none!important;}
+.admin-unified-header .upick-svg-icon{width:24px!important;height:24px!important;object-fit:contain!important;}
+@media(max-width:680px){
+ .admin-unified-header.unified-topbar{grid-template-columns:1fr auto!important;grid-template-areas:"brand utils" "context context"!important;gap:10px!important;}
+ .admin-unified-header .upick-header-brand{grid-area:brand!important;min-width:0!important;padding:11px 13px!important;}
+ .admin-unified-header .logo{width:50px!important;height:50px!important;flex-basis:50px!important;}
+ .admin-unified-header .logo img{width:37px!important;height:37px!important;}
+ .admin-unified-header .upick-header-context{grid-area:context!important;height:auto!important;min-height:62px!important;padding:14px 16px!important;border-radius:22px!important;}
+ .admin-unified-header .upick-header-utils{grid-area:utils!important;gap:8px!important;}
+ .admin-unified-header .admin-userchip{display:none!important;}
+ .admin-unified-header .icon-btn{width:52px!important;height:52px!important;min-width:52px!important;flex-basis:52px!important;border-radius:18px!important;}
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2750,27 +2785,27 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
     </div>
   </div>
   <div class="app"><div class="shell">
-    <header class="admin-topbar">
-      <div class="admin-topbar-right">
-        <div class="admin-userchip">
-          <div class="admin-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
-          <div><strong id="adminTopUser">운영자 확인 중</strong><span id="adminTopStatus">로그인 필요</span></div>
-        </div>
-        <button class="icon-btn admin-public-app-btn" onclick="location.href='/'" title="입주민 앱"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="" loading="lazy"></button>
-<button class="icon-btn" id="adminGnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
-      </div>
-      <div class="admin-topbar-left admin-topbar-left-titleline">
-        <div class="brand">
-          <div class="logo"><img class="upick-svg-icon" src="/icons/internal/settings.svg" alt="" loading="lazy"></div>
-          <div>
-            <h1>더운정픽<br>운영자</h1>
-            <p>운영자 전용 관리 서비스</p>
-          </div>
-        </div>
-        
-        <div id="adminIdleTimerHost" class="hidden"></div>
-      </div>
-    </header>
+    <header class="admin-topbar unified-topbar admin-unified-header" aria-label="더운정픽 운영자 공통 헤더">
+  <div class="upick-header-brand brand">
+    <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="더운정픽 운영자" loading="lazy"></div>
+    <div class="upick-brand-copy">
+      <h1>더운정픽 운영자</h1>
+      <p>운영자 전용 관리 서비스</p>
+    </div>
+  </div>
+  <button class="upick-header-context" type="button" data-admin-view="dashboard" aria-label="운영 관리 대시보드로 이동">
+    <span class="upick-context-icon"><img class="upick-svg-icon" src="/icons/internal/settings.svg" alt="" loading="lazy"></span>
+    <span class="upick-context-text">운영 관리<br>업무를 한 번에</span>
+  </button>
+  <div class="upick-header-utils">
+    <div class="admin-userchip" title="운영자 상태">
+      <div class="admin-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
+      <div><strong id="adminTopUser">운영자 확인 중</strong><span id="adminTopStatus">로그인 필요</span></div>
+    </div>
+    <button class="icon-btn admin-public-app-btn" onclick="location.href='/'" title="입주민 앱"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="" loading="lazy"></button>
+    <button class="icon-btn" id="adminGnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
+  </div>
+</header>
     <div class="hero"><div class="eyebrow"><img class="upick-inline-icon" src="/icons/internal/lock.svg" alt="" loading="lazy"> 관리자 전용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 현황을 이 화면에서 편리하게 관리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
     <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
     

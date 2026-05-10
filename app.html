@@ -10778,6 +10778,185 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 }
 </style>
 
+
+
+<style>
+/* ===== v7: 제안서 기준 상단 헤더 구조 + 상세 모달 스크롤 고정 ===== */
+:root{
+  --upick-navy:#071A3D;
+  --upick-navy-2:#0B2A60;
+  --upick-blue:#2563EB;
+  --upick-blue-2:#1D4ED8;
+  --upick-soft:#EFF6FF;
+}
+.unified-topbar{
+  display:grid!important;
+  grid-template-columns:minmax(180px, 1.05fr) minmax(160px,.9fr) auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:0!important;
+  margin:0 0 16px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:none!important;
+  position:relative!important;
+  z-index:20!important;
+}
+.upick-header-brand{
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:12px 14px!important;
+  border-radius:26px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,246,255,.76))!important;
+  border:1px solid rgba(191,219,254,.92)!important;
+  box-shadow:0 18px 38px rgba(11,31,77,.10), inset 0 1px 0 rgba(255,255,255,.96)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+}
+.upick-header-brand .logo{
+  width:54px!important;
+  height:54px!important;
+  flex:0 0 54px!important;
+  border-radius:18px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,#fff,#eef6ff)!important;
+  border:1px solid rgba(191,219,254,.86)!important;
+  box-shadow:0 12px 26px rgba(37,99,235,.10)!important;
+}
+.upick-header-brand .logo::before{content:none!important;display:none!important;}
+.upick-header-brand .logo img{
+  opacity:1!important;
+  width:40px!important;
+  height:40px!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+.upick-header-brand h1{
+  margin:0!important;
+  color:#071A3D!important;
+  font-size:clamp(22px, 5.3vw, 30px)!important;
+  line-height:1.06!important;
+  font-weight:1000!important;
+  letter-spacing:-.07em!important;
+  white-space:nowrap!important;
+}
+.upick-header-brand p{
+  margin:6px 0 0!important;
+  color:#64748B!important;
+  font-size:clamp(12px, 2.9vw, 14px)!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+.upick-header-context{
+  min-width:0!important;
+  height:78px!important;
+  border:none!important;
+  border-radius:24px!important;
+  padding:0 18px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  color:#fff!important;
+  text-align:left!important;
+  cursor:pointer!important;
+  background:radial-gradient(circle at 86% 16%,rgba(96,165,250,.32),transparent 42%),linear-gradient(135deg,#071A3D 0%,#0B2A60 52%,#2563EB 100%)!important;
+  border:1px solid rgba(147,197,253,.26)!important;
+  box-shadow:0 18px 42px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.20)!important;
+  overflow:hidden!important;
+}
+.upick-context-icon{
+  width:42px!important;height:42px!important;flex:0 0 42px!important;
+  display:grid!important;place-items:center!important;
+  border-radius:999px!important;background:rgba(255,255,255,.12)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+}
+.upick-context-icon img{width:23px!important;height:23px!important;filter:brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+.upick-context-text{font-size:16px!important;font-weight:950!important;line-height:1.32!important;letter-spacing:-.04em!important;}
+.upick-header-utils{
+  display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;min-width:0!important;
+}
+.upick-header-utils .icon-btn,
+.upick-header-utils .user-chip{
+  width:58px!important;height:58px!important;min-width:58px!important;flex:0 0 58px!important;
+  padding:0!important;border-radius:20px!important;
+  display:grid!important;place-items:center!important;
+  background:rgba(255,255,255,.92)!important;border:1px solid rgba(219,234,254,.88)!important;
+  box-shadow:0 14px 30px rgba(11,31,77,.09)!important;
+}
+.upick-header-utils .user-chip .user-meta{display:none!important;}
+.upick-header-utils .user-avatar{width:28px!important;height:28px!important;background:transparent!important;border:none!important;box-shadow:none!important;}
+.upick-header-utils .upick-svg-icon{width:24px!important;height:24px!important;object-fit:contain!important;}
+.upick-header-utils .gnb-wrap{display:block!important;width:auto!important;}
+@media(max-width:680px){
+  .unified-topbar{grid-template-columns:1fr auto!important;grid-template-areas:"brand utils" "context context"!important;gap:10px!important;}
+  .upick-header-brand{grid-area:brand!important;min-width:0!important;padding:11px 13px!important;}
+  .upick-header-brand .logo{width:50px!important;height:50px!important;flex-basis:50px!important;}
+  .upick-header-brand .logo img{width:37px!important;height:37px!important;}
+  .upick-header-context{grid-area:context!important;height:auto!important;min-height:62px!important;padding:14px 16px!important;border-radius:22px!important;}
+  .upick-header-utils{grid-area:utils!important;gap:8px!important;}
+  .upick-header-utils .user-chip{display:none!important;}
+  .upick-header-utils .icon-btn{width:52px!important;height:52px!important;min-width:52px!important;flex-basis:52px!important;border-radius:18px!important;}
+}
+@media(max-width:370px){
+  .upick-header-utils{gap:6px!important;}
+  .upick-header-utils .icon-btn{width:46px!important;height:46px!important;min-width:46px!important;}
+  .upick-header-brand h1{font-size:21px!important;}
+  .upick-header-brand p{font-size:11.5px!important;}
+}
+#detailModal,#noticeModal{
+  width:min(460px, calc(100% - 20px))!important;
+  max-height:min(92dvh, 820px)!important;
+  height:auto!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:none!important;
+  border-radius:30px!important;
+  background:#fff!important;
+  color:#0f172a!important;
+  box-shadow:0 30px 76px rgba(7,26,61,.30)!important;
+}
+#detailModal[open],#noticeModal[open]{display:flex!important;flex-direction:column!important;}
+#detailModal::backdrop,#noticeModal::backdrop{background:rgba(7,26,61,.48)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
+#detailModal .modal-head,#noticeModal .modal-head{
+  flex:0 0 auto!important;position:sticky!important;top:0!important;z-index:10!important;
+  background:rgba(255,255,255,.96)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
+  border-bottom:1px solid rgba(219,234,254,.78)!important;padding:18px 18px 11px!important;
+}
+#detailModal .modal-head::before,#noticeModal .modal-head::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#60A5FA,#2563EB,#0B2A60);}
+#detailModal .modal-body,#noticeModal .modal-body{
+  flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;
+  padding:14px 18px 24px!important;max-height:none!important;
+}
+#detailModal .modal-body * , #noticeModal .modal-body *{max-width:100%;}
+#detailModal .notice-detail-wrap,#noticeModal .notice-detail-wrap,.detail-wrap{display:grid;gap:14px;}
+#detailModal .detail-content,#noticeModal .notice-detail-content,.notice-detail-content{white-space:pre-wrap!important;word-break:keep-all!important;overflow-wrap:anywhere!important;line-height:1.72!important;}
+html.upick-modal-open,body.upick-modal-open{overflow:hidden!important;}
+</style>
+<script>
+(function(){
+  function setModalLock(){
+    var opened=document.querySelector('#detailModal[open],#noticeModal[open]');
+    document.documentElement.classList.toggle('upick-modal-open',!!opened);
+    document.body.classList.toggle('upick-modal-open',!!opened);
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    ['detailModal','noticeModal'].forEach(function(id){
+      var modal=document.getElementById(id);
+      if(!modal || modal.__upickV7ScrollBound) return;
+      modal.__upickV7ScrollBound=true;
+      modal.addEventListener('toggle',setModalLock);
+      modal.addEventListener('close',setModalLock);
+      modal.addEventListener('cancel',setModalLock);
+    });
+  });
+})();
+</script>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -10790,36 +10969,31 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
  </div>
  </div>
  <div class="app"><div class="shell">
- <header class="topbar">
- <div class="topbar-row">
- <div class="topbar-right">
- <div class="user-chip" id="userChip" title="계정 정보" role="button" tabindex="0" aria-label="설정 열기">
- <div class="user-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
- <div class="user-meta">
- <strong class="user-name" id="userNickname" title="로그인 확인 중">로그인 확인 중</strong>
- <span class="user-sub" id="userUnitInfo">입주민 계정</span>
- </div>
- </div>
- <div class="topbar-quick-actions">
- <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button>
- <button class="icon-btn" id="installTopBtn" title="앱처럼 설치"><img class="upick-svg-icon" src="/icons/internal/install.svg" alt="" loading="lazy"></button>
- </div>
- <div class="gnb-wrap">
- <button class="icon-btn" id="gnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
- </div>
- </div>
- <div class="topbar-left topbar-left-titleline">
- <div class="brand">
- <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="" loading="lazy"></div>
- <div>
- <h1>더운정픽</h1>
- <p>입주민 전용 혜택 웹앱</p>
- </div>
- </div>
- 
- </div>
- </div>
- </header>
+ <header class="topbar unified-topbar public-unified-header" aria-label="더운정픽 공통 헤더">
+  <div class="upick-header-brand brand">
+    <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="더운정픽" loading="lazy"></div>
+    <div class="upick-brand-copy">
+      <h1>더운정픽</h1>
+      <p>입주민 전용 혜택 앱</p>
+    </div>
+  </div>
+  <button class="upick-header-context" type="button" data-view-link="benefits" aria-label="오늘의 혜택 보기">
+    <span class="upick-context-icon"><img class="upick-svg-icon" src="/icons/internal/favorite.svg" alt="" loading="lazy"></span>
+    <span class="upick-context-text">오늘도 특별한<br>혜택을 만나보세요</span>
+  </button>
+  <div class="upick-header-utils">
+    <div class="user-chip" id="userChip" title="계정 정보" role="button" tabindex="0" aria-label="설정 열기">
+      <div class="user-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
+      <div class="user-meta">
+        <strong class="user-name" id="userNickname" title="로그인 확인 중">로그인 확인 중</strong>
+        <span class="user-sub" id="userUnitInfo">입주민 계정</span>
+      </div>
+    </div>
+    <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button>
+    <button class="icon-btn" id="installTopBtn" title="앱처럼 설치"><img class="upick-svg-icon" src="/icons/internal/install.svg" alt="" loading="lazy"></button>
+    <div class="gnb-wrap"><button class="icon-btn" id="gnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button></div>
+  </div>
+</header>
  <section id="view-home" class="">
  <div class="hero">
  <div class="eyebrow"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/lock.svg" alt="" loading="lazy"> 간단 확인 후 입주민 혜택</div>
