@@ -8986,5 +8986,152 @@ function fillForm(item){
 }
 </style>
 
+
+
+<!-- Upick v68 loader logo restore: CSS-only background-layer fix -->
+<style id="upick-v68-loader-logo-restore">
+/* 로딩 로고가 pseudo-element 충돌로 사라지는 현상 방지: 로고를 loader-mark 배경 레이어로 고정 */
+.global-loading.upick-loader-enhanced .loader-mark,
+.page-loader.upick-loader-enhanced .loader-mark,
+.global-loading.upick-admin-loader-enhanced .loader-mark,
+.page-loader.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
+#pageLoader.page-loader.upick-loader-enhanced .loader-mark{
+  background:
+    url('/icons/internal/brand-symbol-real.png') center/64px 64px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::before,
+.page-loader.upick-loader-enhanced .loader-mark::before,
+.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.page-loader.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark::before,
+#pageLoader.page-loader.upick-loader-enhanced .loader-mark::before{
+  content:none!important;
+  display:none!important;
+}
+@media(max-width:430px){
+  .global-loading.upick-loader-enhanced .loader-mark,
+  .page-loader.upick-loader-enhanced .loader-mark,
+  .global-loading.upick-admin-loader-enhanced .loader-mark,
+  .page-loader.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
+  #pageLoader.page-loader.upick-loader-enhanced .loader-mark{
+    background:
+      url('/icons/internal/brand-symbol-real.png') center/61px 61px no-repeat,
+      linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+  }
+}
+</style>
+
+
+<!-- Upick v69 admin loader layer fix: logo above orbit, CSS-only -->
+<style id="upick-v69-admin-loader-layer-fix">
+/* 관리자 로딩바 깨짐 보정
+   - 로고를 배경이 아닌 ::before 전면 레이어로 고정
+   - 오빗 링은 ::after 후면 레이어로 분리
+   - 기존 img/arm 잔상은 숨김 유지
+*/
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+.global-loading.upick-admin-loader-enhanced .loader-mark,
+.page-loader.upick-admin-loader-enhanced .loader-mark,
+#pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark{
+  width:92px!important;
+  height:92px!important;
+  min-width:92px!important;
+  min-height:92px!important;
+  border-radius:29px!important;
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(221,237,255,.54))!important;
+  border:1px solid rgba(255,255,255,.58)!important;
+  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.82),inset 0 -1px 0 rgba(96,165,250,.13)!important;
+}
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.page-loader.upick-admin-loader-enhanced .loader-mark::before,
+#pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:64px!important;
+  height:64px!important;
+  transform:translate(-50%,-50%)!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.24)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
+  z-index:3!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after,
+.global-loading.upick-admin-loader-enhanced .loader-mark::after,
+.page-loader.upick-admin-loader-enhanced .loader-mark::after,
+#pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-6px!important;
+  width:auto!important;
+  height:auto!important;
+  left:-6px!important;
+  right:-6px!important;
+  top:-6px!important;
+  bottom:-6px!important;
+  transform:none!important;
+  border-radius:35px!important;
+  border:1.25px solid transparent!important;
+  border-top-color:rgba(147,197,253,.56)!important;
+  border-right-color:rgba(59,130,246,.30)!important;
+  border-bottom-color:rgba(191,219,254,.04)!important;
+  border-left-color:rgba(191,219,254,.08)!important;
+  background:transparent!important;
+  box-shadow:0 0 13px rgba(96,165,250,.14)!important;
+  opacity:.56!important;
+  animation:upickV69AdminLoaderOrbit 3s linear infinite!important;
+  z-index:1!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark > img,
+.global-loading.upick-admin-loader-enhanced .loader-mark > img,
+.page-loader.upick-admin-loader-enhanced .loader-mark > img,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
+.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
+.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark span,
+.global-loading.upick-admin-loader-enhanced .loader-mark span,
+.page-loader.upick-admin-loader-enhanced .loader-mark span{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+@keyframes upickV69AdminLoaderOrbit{to{transform:rotate(360deg)}}
+@media(max-width:430px){
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+  .global-loading.upick-admin-loader-enhanced .loader-mark,
+  .page-loader.upick-admin-loader-enhanced .loader-mark,
+  #pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark{
+    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
+  }
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
+  #pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::before{
+    width:61px!important;height:61px!important;
+  }
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
+  #pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::after{
+    inset:-6px!important;border-radius:34px!important;
+  }
+}
+</style>
+
 </body>
 </html>
