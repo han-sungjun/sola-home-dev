@@ -27561,4 +27561,163 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v49: 로딩 심볼 소프트 글래스 표시 ===== -->
+<style id="upick-v49-loader-soft-glass-visible">
+/*
+  v48에서 카드형은 제거됐지만 심볼까지 사라져 보이는 문제 보정.
+  방향: 강한 흰 카드형은 제거하되, 아주 옅은 glass 배경 + 심볼 + 짧은 캡슐 로딩바 유지.
+*/
+
+.page-loader,
+.global-loading,
+#pageLoader {
+  background:
+    linear-gradient(180deg, rgba(10,22,54,.30), rgba(10,22,54,.18)),
+    rgba(236,242,250,.20) !important;
+  backdrop-filter: blur(18px) saturate(110%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(110%) !important;
+}
+
+/* 중앙 로딩 심볼 래퍼: 흰 카드가 아니라 옅은 glass */
+.page-loader .loader-mark,
+.global-loading .loader-mark,
+#pageLoader .loader-mark,
+.page-loader .loader-logo-wrap,
+.global-loading .loader-logo-wrap,
+#pageLoader .loader-logo-wrap {
+  position: relative !important;
+  width: 96px !important;
+  height: 96px !important;
+  min-width: 96px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 30px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.055)) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow:
+    0 14px 34px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.22) !important;
+  backdrop-filter: blur(14px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(125%) !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* 기존 X형/막대 pseudo는 제거하고, 아래 로딩바만 새로 그림 */
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before,
+#pageLoader .loader-mark::before,
+.page-loader .loader-logo-wrap::before,
+.global-loading .loader-logo-wrap::before,
+#pageLoader .loader-logo-wrap::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 1px !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,0) 58%) !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+
+/* 심볼 이미지가 없거나 숨겨진 경우에도 background-image로 강제 표시 */
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::after,
+#pageLoader .loader-mark::after,
+.page-loader .loader-logo-wrap::after,
+.global-loading .loader-logo-wrap::after,
+#pageLoader .loader-logo-wrap::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -16px !important;
+  width: 82px !important;
+  height: 8px !important;
+  transform: translateX(-50%) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(147,197,253,.18), rgba(96,165,250,.95), rgba(147,197,253,.18)) !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.22),
+    inset 0 1px 0 rgba(255,255,255,.24) !important;
+  animation: upickV49LoaderPulse 1.15s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+@keyframes upickV49LoaderPulse {
+  0%,100% { opacity: .44; width: 62px; }
+  50% { opacity: 1; width: 96px; }
+}
+
+/* 실제 img가 있으면 보이게 */
+.page-loader .loader-mark img,
+.global-loading .loader-mark img,
+#pageLoader .loader-mark img,
+.page-loader .loader-logo-wrap img,
+.global-loading .loader-logo-wrap img,
+#pageLoader .loader-logo-wrap img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 74px !important;
+  height: 74px !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
+  z-index: 2 !important;
+}
+
+/* img가 없고 CSS로만 표시되는 구조 대비 */
+.page-loader .loader-mark:not(:has(img)),
+.global-loading .loader-mark:not(:has(img)),
+#pageLoader .loader-mark:not(:has(img)) {
+  background:
+    url('/icons/internal/brand-symbol-real.png') center center / 74px 74px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.055)) !important;
+}
+
+/* 기존 arm류 요소 숨김 */
+.page-loader .loader-mark .arm,
+.global-loading .loader-mark .arm,
+#pageLoader .loader-mark .arm,
+.page-loader .loader-logo-wrap .arm,
+.global-loading .loader-logo-wrap .arm,
+#pageLoader .loader-logo-wrap .arm {
+  display: none !important;
+}
+
+/* 별도 progress DOM이 있으면 보이게 */
+.page-loader .loader-progress,
+.global-loading .loader-progress,
+#pageLoader .loader-progress {
+  width: 96px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  background: rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.page-loader .loader-progress-bar,
+.global-loading .loader-progress-bar,
+#pageLoader .loader-progress-bar {
+  display: block !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #8fb7ff, #5a8cff) !important;
+}
+</style>
+
 </body></html>
