@@ -2399,5 +2399,251 @@ img.brand-icon[src*="home.svg"],
 }
 </style>
 
+
+
+<!-- ===== 더운정픽 v64: 공통 로딩 오빗 + 시간대별 문구 통합 ===== -->
+<style id="upick-v64-common-loader-orbit-copy">
+.page-loader.upick-loader-enhanced,
+.global-loading.upick-loader-enhanced{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(226,234,245,.72) !important;
+  backdrop-filter:blur(15px) saturate(1.08) !important;
+  -webkit-backdrop-filter:blur(15px) saturate(1.08) !important;
+  z-index:2147483000 !important;
+  overflow:hidden !important;
+}
+.page-loader.upick-loader-enhanced.show,
+.global-loading.upick-loader-enhanced.show,
+.global-loading.upick-loader-enhanced.is-visible,
+.global-loading.upick-loader-enhanced[aria-hidden="false"]{
+  display:flex !important;
+}
+.page-loader.upick-loader-enhanced::before,
+.global-loading.upick-loader-enhanced::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(37,99,235,.34), transparent 31%),
+    radial-gradient(ellipse at 50% 55%, rgba(255,255,255,.78), transparent 42%),
+    linear-gradient(180deg, rgba(9,37,86,.28) 0%, rgba(255,255,255,.40) 54%, rgba(238,231,219,.42) 100%) !important;
+  pointer-events:none !important;
+}
+.page-loader.upick-loader-enhanced .loader-content,
+.global-loading.upick-loader-enhanced .loader-content{
+  position:relative !important;
+  z-index:1 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:22px !important;
+  transform:translateY(-6px) !important;
+  width:min(92vw, 520px) !important;
+  text-align:center !important;
+}
+.page-loader.upick-loader-enhanced .loader-mark,
+.global-loading.upick-loader-enhanced .loader-mark{
+  width:92px !important;
+  height:92px !important;
+  min-width:92px !important;
+  min-height:92px !important;
+  border-radius:29px !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(221,237,255,.46)) !important;
+  border:1px solid rgba(255,255,255,.50) !important;
+  box-shadow:0 22px 50px rgba(15,44,92,.16), inset 0 1px 0 rgba(255,255,255,.74), inset 0 -1px 0 rgba(96,165,250,.12) !important;
+  display:grid !important;
+  place-items:center !important;
+  position:relative !important;
+  overflow:visible !important;
+  animation:upickV64LoaderFloat 1.65s ease-in-out infinite !important;
+}
+.page-loader.upick-loader-enhanced .loader-mark::before,
+.global-loading.upick-loader-enhanced .loader-mark::before{
+  content:"" !important;
+  width:64px !important;
+  height:64px !important;
+  display:block !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14)) !important;
+}
+.page-loader.upick-loader-enhanced .loader-mark::after,
+.global-loading.upick-loader-enhanced .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:-6px !important;
+  left:-6px !important;
+  right:-6px !important;
+  top:-6px !important;
+  bottom:-6px !important;
+  width:auto !important;
+  height:auto !important;
+  border-radius:35px !important;
+  border-width:1.5px !important;
+  border-style:solid !important;
+  border-top-color:rgba(147,197,253,.82) !important;
+  border-right-color:rgba(59,130,246,.58) !important;
+  border-bottom-color:rgba(191,219,254,.055) !important;
+  border-left-color:rgba(191,219,254,.13) !important;
+  background:none !important;
+  box-shadow:0 0 18px rgba(96,165,250,.22), 0 0 34px rgba(37,99,235,.095) !important;
+  filter:blur(.15px) !important;
+  opacity:.74 !important;
+  transform-origin:center center !important;
+  animation:upickV64LoaderOrbitSoft 2.35s linear infinite !important;
+  pointer-events:none !important;
+}
+.page-loader.upick-loader-enhanced .loader-mark .arm,
+.global-loading.upick-loader-enhanced .loader-mark .arm,
+.page-loader.upick-loader-enhanced .loader-mark > img,
+.global-loading.upick-loader-enhanced .loader-mark > img,
+.page-loader.upick-loader-enhanced .loader-mark .loader-orbit,
+.global-loading.upick-loader-enhanced .loader-mark .loader-orbit{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+.page-loader.upick-loader-enhanced .loader-copy,
+.global-loading.upick-loader-enhanced .loader-copy{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-height:54px !important;
+  color:#50637d !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.38) !important;
+}
+.page-loader.upick-loader-enhanced .loader-message,
+.global-loading.upick-loader-enhanced .loader-message{
+  margin:0 !important;
+  font-size:clamp(19px, 4.2vw, 23px) !important;
+  font-weight:800 !important;
+  letter-spacing:-.045em !important;
+  line-height:1.22 !important;
+  color:rgba(62,82,112,.90) !important;
+}
+.page-loader.upick-loader-enhanced .loader-sub-message,
+.global-loading.upick-loader-enhanced .loader-sub-message{
+  margin:0 !important;
+  font-size:clamp(13px, 3.2vw, 15px) !important;
+  font-weight:650 !important;
+  letter-spacing:-.035em !important;
+  line-height:1.28 !important;
+  color:rgba(78,98,130,.68) !important;
+}
+.page-loader.upick-loader-enhanced .loader-copy.is-changing,
+.global-loading.upick-loader-enhanced .loader-copy.is-changing{
+  opacity:.28 !important;
+  transform:translateY(2px) !important;
+  transition:opacity .22s ease, transform .22s ease !important;
+}
+.page-loader.upick-loader-enhanced .loader-copy,
+.global-loading.upick-loader-enhanced .loader-copy{
+  transition:opacity .24s ease, transform .24s ease !important;
+}
+@keyframes upickV64LoaderFloat{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-4px); }
+}
+@keyframes upickV64LoaderOrbitSoft{
+  0%{ transform:rotate(0deg); opacity:.56; }
+  35%{ opacity:.82; }
+  70%{ opacity:.68; }
+  100%{ transform:rotate(360deg); opacity:.56; }
+}
+@media(max-width:430px){
+  .page-loader.upick-loader-enhanced .loader-content,
+  .global-loading.upick-loader-enhanced .loader-content{gap:20px !important;transform:translateY(-4px) !important;}
+  .page-loader.upick-loader-enhanced .loader-mark,
+  .global-loading.upick-loader-enhanced .loader-mark{width:88px !important;height:88px !important;min-width:88px !important;min-height:88px !important;border-radius:28px !important;}
+  .page-loader.upick-loader-enhanced .loader-mark::after,
+  .global-loading.upick-loader-enhanced .loader-mark::after{inset:-6px !important;border-radius:34px !important;border-width:1.5px !important;}
+}
+</style>
+<script id="upick-v64-common-loader-orbit-copy-script">
+(function(){
+  const messages = [
+    { at:0, main:'입주민 전용 서비스를 연결하고 있어요', sub:'잠시만 기다려주세요' },
+    { at:1200, main:'필요한 정보를 정리하고 있어요', sub:'더운정픽 화면을 준비 중입니다' },
+    { at:3200, main:'거의 준비가 완료되었어요', sub:'네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+    { at:5600, main:'안정적으로 불러오는 중입니다', sub:'잠시 후 자동으로 연결됩니다' }
+  ];
+  function enhance(loader){
+    if(!loader || loader.dataset.upickV64Enhanced === '1') return;
+    loader.dataset.upickV64Enhanced = '1';
+    loader.classList.add('upick-loader-enhanced');
+    let mark = loader.querySelector('.loader-mark');
+    if(!mark){
+      mark = document.createElement('div');
+      mark.className = 'loader-mark';
+      mark.setAttribute('aria-label','로딩 중');
+      mark.setAttribute('role','status');
+    }
+    let content = loader.querySelector('.loader-content');
+    if(!content){
+      content = document.createElement('div');
+      content.className = 'loader-content';
+      content.setAttribute('role','status');
+      content.setAttribute('aria-live','polite');
+      if(mark.parentNode === loader){
+        loader.insertBefore(content, mark);
+        content.appendChild(mark);
+      }else{
+        content.appendChild(mark);
+        loader.appendChild(content);
+      }
+    }
+    let copy = loader.querySelector('.loader-copy');
+    if(!copy){
+      copy = document.createElement('div');
+      copy.className = 'loader-copy';
+      copy.setAttribute('aria-hidden','true');
+      copy.innerHTML = '<p class="loader-message">입주민 전용 서비스를 연결하고 있어요</p><p class="loader-sub-message">잠시만 기다려주세요</p>';
+      content.appendChild(copy);
+    }
+    const main = copy.querySelector('.loader-message');
+    const sub = copy.querySelector('.loader-sub-message');
+    let timers = [];
+    function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+    function setMessage(item){
+      if(!main || !sub) return;
+      copy.classList.add('is-changing');
+      window.setTimeout(function(){
+        main.textContent = item.main;
+        sub.textContent = item.sub;
+        copy.classList.remove('is-changing');
+      }, 160);
+    }
+    function startMessages(){
+      clearTimers();
+      setMessage(messages[0]);
+      messages.slice(1).forEach(function(item){
+        timers.push(window.setTimeout(function(){ setMessage(item); }, item.at));
+      });
+    }
+    function stopMessages(){ clearTimers(); }
+    const observer = new MutationObserver(function(){
+      const visible = loader.classList.contains('show') || loader.classList.contains('is-visible') || loader.getAttribute('aria-hidden') === 'false';
+      if(visible) startMessages(); else stopMessages();
+    });
+    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden','style'] });
+    if(loader.classList.contains('show') || loader.classList.contains('is-visible') || loader.getAttribute('aria-hidden') === 'false') startMessages();
+  }
+  function run(){
+    ['pageLoader','globalLoadingBar'].forEach(function(id){ enhance(document.getElementById(id)); });
+    document.querySelectorAll('.page-loader,.global-loading').forEach(enhance);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, {once:true});
+  else run();
+})();
+</script>
+
 </body>
 </html>
