@@ -462,6 +462,194 @@ button.primary,.btn-primary,.login-btn,.signup-submit{background:linear-gradient
 @media(max-width:430px){.signup-premium-hero-shell{padding:14px!important;border-radius:30px!important}.signup-premium-hero-shell>.brand{padding:10px 12px!important}.signup-premium-hero-shell>.brand .logo{width:48px!important;height:48px!important}.signup-premium-hero-shell>.brand h1{font-size:21px!important}}
 </style>
 
+<style id="upick-v17-signup-like-login">
+
+
+/* ===== 더운정픽 v17: 회원가입 페이지를 복구 로그인 페이지와 동일한 상단 쉘 구조로 정리 ===== */
+body{
+  max-width:480px!important;
+  margin:0 auto!important;
+  background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 48%,#f8fafc 100%)!important;
+}
+.page{
+  min-height:100dvh!important;
+  padding:22px 16px 42px!important;
+}
+.signup-premium-hero-shell{
+  position:relative!important;
+  display:grid!important;
+  gap:16px!important;
+  padding:18px!important;
+  border-radius:34px!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(96,165,250,.28),transparent 40%),
+    radial-gradient(circle at 100% 78%,rgba(37,99,235,.34),transparent 38%),
+    linear-gradient(135deg,#061A3D 0%,#0B2A60 54%,#2563EB 100%)!important;
+  box-shadow:0 26px 62px rgba(11,31,77,.18)!important;
+  border:1px solid rgba(147,197,253,.28)!important;
+}
+.signup-premium-hero-shell::after{
+  content:"";
+  position:absolute;
+  right:-34px;
+  top:-42px;
+  width:170px;
+  height:170px;
+  border-radius:46px;
+  background:rgba(255,255,255,.11);
+  transform:rotate(18deg);
+  pointer-events:none;
+}
+.signup-premium-hero-shell > *{
+  position:relative!important;
+  z-index:1!important;
+}
+.signup-premium-hero-shell > .brand{
+  display:inline-flex!important;
+  align-items:center!important;
+  width:max-content!important;
+  max-width:100%!important;
+  gap:12px!important;
+  padding:12px 15px!important;
+  margin:0!important;
+  border-radius:24px!important;
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.26)!important;
+  box-shadow:0 16px 34px rgba(7,26,61,.12),inset 0 1px 0 rgba(255,255,255,.18)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  color:#fff!important;
+}
+.signup-premium-hero-shell > .brand .logo{
+  width:52px!important;
+  height:52px!important;
+  flex:0 0 52px!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.94)!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(191,219,254,.86)!important;
+  box-shadow:0 10px 22px rgba(7,26,61,.10)!important;
+  overflow:hidden!important;
+}
+.signup-premium-hero-shell > .brand .logo img{
+  opacity:0!important;
+}
+.signup-premium-hero-shell > .brand .logo::before{
+  content:""!important;
+  position:absolute!important;
+  inset:8px!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+}
+.signup-premium-hero-shell > .brand h1{
+  margin:0!important;
+  color:#fff!important;
+  font-size:22px!important;
+  font-weight:1000!important;
+  letter-spacing:-.06em!important;
+  line-height:1.15!important;
+}
+.signup-premium-hero-shell > .brand p{
+  margin:4px 0 0!important;
+  color:rgba(255,255,255,.78)!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.signup-premium-hero-shell > .hero{
+  margin:0!important;
+  padding:24px!important;
+  border-radius:28px!important;
+  color:#fff!important;
+  background:rgba(255,255,255,.055)!important;
+  border:1px solid rgba(191,219,254,.20)!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+.signup-premium-hero-shell > .hero::after{
+  content:""!important;
+  position:absolute!important;
+  right:-28px!important;
+  top:-28px!important;
+  width:122px!important;
+  height:122px!important;
+  border-radius:36px!important;
+  background:rgba(255,255,255,.10)!important;
+  transform:rotate(18deg)!important;
+}
+.signup-premium-hero-shell > .hero .eyebrow,
+.signup-premium-hero-shell > .hero h2,
+.signup-premium-hero-shell > .hero p,
+.signup-premium-hero-shell > .hero .safe-row{
+  position:relative!important;
+  z-index:2!important;
+}
+.signup-premium-hero-shell > .hero h2{
+  margin:14px 0 8px!important;
+  font-size:28px!important;
+  line-height:1.18!important;
+  letter-spacing:-.055em!important;
+  color:#fff!important;
+}
+.signup-premium-hero-shell > .hero p{
+  color:rgba(255,255,255,.92)!important;
+  font-size:14px!important;
+  line-height:1.72!important;
+  max-width:320px!important;
+}
+.signup-premium-hero-shell > .panel{
+  margin:0!important;
+  width:100%!important;
+  border-radius:28px!important;
+  padding:20px!important;
+  background:rgba(255,255,255,.94)!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  box-shadow:0 18px 42px rgba(7,26,61,.12)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+}
+.signup-premium-hero-shell > .panel h3{
+  margin:0 0 8px!important;
+  font-size:22px!important;
+  letter-spacing:-.045em!important;
+  color:#071A3D!important;
+}
+.signup-premium-hero-shell .zero-grid{
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+}
+.signup-premium-hero-shell .zero-item{
+  background:#f8fbff!important;
+  border-color:#dbeafe!important;
+  border-radius:18px!important;
+}
+.signup-premium-hero-shell .btn,
+.signup-premium-hero-shell .check-btn{
+  background:linear-gradient(135deg,#071A3D 0%,#0B2A60 56%,#2563EB 100%)!important;
+  color:#fff!important;
+  box-shadow:0 14px 30px rgba(37,99,235,.22)!important;
+}
+.signup-premium-hero-shell .btn-soft{
+  background:#fff!important;
+  color:#071A3D!important;
+  border:1px solid #BFDBFE!important;
+  box-shadow:none!important;
+}
+@media(max-width:430px){
+  .page{padding:18px 14px 34px!important;}
+  .signup-premium-hero-shell{padding:14px!important;border-radius:30px!important;gap:14px!important;}
+  .signup-premium-hero-shell > .brand{padding:10px 12px!important;border-radius:22px!important;}
+  .signup-premium-hero-shell > .brand .logo{width:48px!important;height:48px!important;flex-basis:48px!important;}
+  .signup-premium-hero-shell > .brand h1{font-size:21px!important;}
+  .signup-premium-hero-shell > .hero{padding:22px 20px!important;border-radius:26px!important;}
+  .signup-premium-hero-shell > .hero h2{font-size:26px!important;}
+  .signup-premium-hero-shell .zero-grid{grid-template-columns:1fr 1fr!important;}
+}
+@media(max-width:370px){
+  .signup-premium-hero-shell .zero-grid,.signup-premium-hero-shell .sub-actions,.signup-premium-hero-shell .input-row{grid-template-columns:1fr!important;}
+}
+
+</style>
 </head>
 <body>
   <main class="page">
@@ -473,8 +661,7 @@ button.primary,.btn-primary,.login-btn,.signup-submit{background:linear-gradient
       <p>입주민 혜택 이용에 필요한 계정 정보만 간단하게 입력하면 됩니다.</p>
       <div class="safe-row"><span class="safe-chip">간단 입장</span><span class="safe-chip">가벼운 확인</span><span class="safe-chip">바로 이용</span></div>
     </section>
-    </section>
-    <section class="panel">
+    <section class="panel signup-info-panel">
       <h3>간단 입장 방식</h3>
       <p class="helper">입주민분들이 부담 없이 이용하실 수 있도록 신청 화면을 계정 중심으로 단순화했습니다.</p>
       <div class="zero-grid"><div class="zero-item"><strong>로그인 ID</strong><span>앱 접속에 사용하는 계정 ID입니다.</span></div><div class="zero-item"><strong>닉네임</strong><span>앱 화면에 표시되는 이름입니다.</span></div><div class="zero-item"><strong>회원 유형</strong><span>기능 접근을 나누는 단순 분류입니다.</span></div><div class="zero-item"><strong>초대 코드</strong><span>안내받은 경우에만 입력합니다.</span></div></div>
@@ -497,6 +684,7 @@ button.primary,.btn-primary,.login-btn,.signup-submit{background:linear-gradient
         </div>
       </form>
       <div class="status" id="statusBox"></div>
+    </section>
     </section>
   </main>
 <script type="module">
