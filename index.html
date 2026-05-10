@@ -3856,6 +3856,80 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v55: 로그인 페이지 로딩 심볼 보정 ===== -->
+<style id="upick-v55-login-loader-fix">
+/* 로그인 로딩 심볼 카드형 제거 + soft glass */
+
+.page-loader{
+  background:
+    linear-gradient(180deg, rgba(10,22,54,.28), rgba(10,22,54,.18)),
+    rgba(236,242,250,.20) !important;
+  backdrop-filter: blur(18px) saturate(110%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(110%) !important;
+}
+
+.page-loader .loader-mark{
+  position:relative !important;
+  width:96px !important;
+  height:96px !important;
+  min-width:96px !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:28px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.05)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    0 14px 34px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+  overflow:visible !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+.page-loader .loader-mark .arm{
+  display:none !important;
+}
+
+.page-loader .loader-mark::before{
+  content:"" !important;
+  width:74px !important;
+  height:74px !important;
+  display:block !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.20))
+    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
+}
+
+.page-loader .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  left:50% !important;
+  bottom:-14px !important;
+  width:86px !important;
+  height:8px !important;
+  transform:translateX(-50%) !important;
+  border-radius:999px !important;
+  background:
+    linear-gradient(90deg,
+      rgba(147,197,253,.14),
+      rgba(96,165,250,.96),
+      rgba(147,197,253,.14)
+    ) !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.24),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+  animation:upickV55LoaderPulse 1.15s ease-in-out infinite !important;
+}
+
+@keyframes upickV55LoaderPulse{
+  0%,100%{opacity:.46;width:64px}
+  50%{opacity:1;width:96px}
+}
+</style>
+
 </body>
 
 </html>
