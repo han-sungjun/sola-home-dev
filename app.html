@@ -11795,6 +11795,296 @@ header.topbar.unified-topbar{
 }
 </style>
 
+
+<style id="upick-public-tabs-blue-premium-v21">
+/* ===== 더운정픽 v21: 공개앱 전체 탭 공통 헤더 + 네이비 프리미엄 히어로 ===== */
+:root{
+  --upick-v21-navy:#071A3D;
+  --upick-v21-navy2:#0B2A60;
+  --upick-v21-blue:#1D4ED8;
+  --upick-v21-sky:#60A5FA;
+  --upick-v21-line:rgba(191,219,254,.78);
+}
+
+/* 비홈 탭용 공통 브랜드 헤더 */
+.upick-tab-common-header{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto auto;
+  align-items:center;
+  gap:10px;
+  margin:0 0 12px;
+}
+.upick-tab-brand-block{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 13px 10px 10px;
+  border-radius:24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,246,255,.74));
+  border:1px solid rgba(191,219,254,.86);
+  box-shadow:0 16px 34px rgba(11,31,77,.09), inset 0 1px 0 rgba(255,255,255,.94);
+}
+.upick-tab-brand-logo{
+  width:48px;
+  height:48px;
+  flex:0 0 48px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(180deg,#fff,#eef6ff);
+  border:1px solid rgba(191,219,254,.84);
+  box-shadow:0 10px 22px rgba(37,99,235,.10);
+}
+.upick-tab-brand-logo img{
+  width:34px;
+  height:34px;
+  object-fit:contain;
+  display:block;
+}
+.upick-tab-brand-copy{
+  min-width:0;
+}
+.upick-tab-brand-copy strong{
+  display:block;
+  color:#071A3D;
+  font-size:24px;
+  line-height:1.08;
+  font-weight:1000;
+  letter-spacing:-.065em;
+  white-space:nowrap;
+}
+.upick-tab-brand-copy span{
+  display:block;
+  margin-top:5px;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:800;
+  white-space:nowrap;
+}
+.upick-tab-header-btn{
+  width:50px;
+  height:50px;
+  border-radius:18px;
+  border:1px solid rgba(219,234,254,.86);
+  background:rgba(255,255,255,.88);
+  box-shadow:0 12px 28px rgba(11,31,77,.08);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  color:#0B2A60;
+}
+.upick-tab-header-btn img{
+  width:24px;
+  height:24px;
+  object-fit:contain;
+}
+.upick-tab-header-btn.ai{
+  position:relative;
+}
+.upick-tab-header-btn.ai::after{
+  content:"";
+  position:absolute;
+  top:6px;
+  right:8px;
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.12);
+}
+
+/* 메뉴별 네이비 프리미엄 히어로 */
+.upick-tab-premium-hero{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  gap:12px;
+  min-height:158px;
+  margin:0 0 16px;
+  padding:22px 22px 20px;
+  border-radius:30px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(96,165,250,.30),transparent 34%),
+    radial-gradient(circle at 100% 100%,rgba(29,78,216,.26),transparent 46%),
+    linear-gradient(135deg,#071A3D 0%,#0B2A60 56%,#1D4ED8 100%)!important;
+  border:1px solid rgba(147,197,253,.24);
+  box-shadow:0 18px 42px rgba(11,31,77,.15), inset 0 1px 0 rgba(255,255,255,.16);
+}
+.upick-tab-premium-hero::after{
+  content:"";
+  position:absolute;
+  right:-30px;
+  top:-30px;
+  width:142px;
+  height:142px;
+  border-radius:42px;
+  transform:rotate(18deg);
+  background:rgba(255,255,255,.12);
+  pointer-events:none;
+}
+.upick-tab-premium-hero > *{
+  position:relative;
+  z-index:1;
+}
+.upick-tab-kicker{
+  width:max-content;
+  max-width:100%;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.20);
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1;
+}
+.upick-tab-kicker img{
+  width:16px;
+  height:16px;
+  object-fit:contain;
+  filter:brightness(0) invert(1);
+}
+.upick-tab-premium-hero h2{
+  margin:0;
+  max-width:340px;
+  color:#fff!important;
+  font-size:clamp(25px,6.8vw,34px);
+  line-height:1.18;
+  letter-spacing:-.065em;
+  font-weight:1000;
+}
+.upick-tab-premium-hero p{
+  margin:0;
+  max-width:370px;
+  color:rgba(255,255,255,.88)!important;
+  font-size:14px;
+  line-height:1.68;
+  font-weight:700;
+}
+.upick-tab-mini-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:2px;
+}
+.upick-tab-mini-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:32px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* 기존 중복 설명 카드 숨김 */
+#view-benefits > .panel.upick-duplicate-hidden,
+#view-favorites > .panel.upick-duplicate-hidden,
+#view-all > .panel.upick-duplicate-hidden,
+#view-notices > .panel.upick-duplicate-hidden{
+  display:none!important;
+}
+
+/* AI/캘린더/지도/공지 기존 히어로가 있을 경우 네이비 톤 강제 */
+#view-ai .ai-view-hero,
+#view-calendar .calendar-hero,
+#view-map > .panel:first-of-type,
+#view-notices > .panel:first-of-type{
+  background:
+    radial-gradient(circle at 88% 12%,rgba(96,165,250,.30),transparent 34%),
+    radial-gradient(circle at 100% 100%,rgba(29,78,216,.26),transparent 46%),
+    linear-gradient(135deg,#071A3D 0%,#0B2A60 56%,#1D4ED8 100%)!important;
+  border:1px solid rgba(147,197,253,.24)!important;
+  box-shadow:0 18px 42px rgba(11,31,77,.15), inset 0 1px 0 rgba(255,255,255,.16)!important;
+  color:#fff!important;
+}
+#view-ai .ai-view-hero h1,#view-ai .ai-view-hero h2,#view-ai .ai-view-hero h3,#view-ai .ai-view-hero p,
+#view-calendar .calendar-hero h1,#view-calendar .calendar-hero h2,#view-calendar .calendar-hero h3,#view-calendar .calendar-hero p,
+#view-map > .panel:first-of-type h1,#view-map > .panel:first-of-type h2,#view-map > .panel:first-of-type h3,#view-map > .panel:first-of-type p,
+#view-notices > .panel:first-of-type h1,#view-notices > .panel:first-of-type h2,#view-notices > .panel:first-of-type h3,#view-notices > .panel:first-of-type p{
+  color:#fff!important;
+}
+
+/* 전체 기능 카드와 기타 카드 톤 안정화 */
+#view-all .all-menu-card{
+  border-color:rgba(219,234,254,.78)!important;
+}
+#view-benefits .card,
+#view-favorites .card,
+#view-popular .panel,
+#view-notices .notice-item,
+#view-map .panel,
+#view-calendar .panel,
+#view-ai .panel{
+  border-color:rgba(219,234,254,.76)!important;
+  box-shadow:0 16px 36px rgba(11,31,77,.08)!important;
+}
+
+/* 모바일 보정 */
+@media(max-width:520px){
+  .upick-tab-common-header{
+    grid-template-columns:minmax(0,1fr) 48px 48px 48px;
+    gap:8px;
+  }
+  .upick-tab-brand-block{
+    padding:9px 11px 9px 9px;
+    border-radius:22px;
+  }
+  .upick-tab-brand-logo{
+    width:44px;
+    height:44px;
+    flex-basis:44px;
+    border-radius:16px;
+  }
+  .upick-tab-brand-logo img{
+    width:31px;
+    height:31px;
+  }
+  .upick-tab-brand-copy strong{
+    font-size:22px;
+  }
+  .upick-tab-brand-copy span{
+    font-size:11px;
+  }
+  .upick-tab-header-btn{
+    width:48px;
+    height:48px;
+    border-radius:17px;
+  }
+  .upick-tab-premium-hero{
+    min-height:148px;
+    margin-bottom:14px;
+    padding:20px 18px 19px;
+    border-radius:28px;
+  }
+}
+@media(max-width:380px){
+  .upick-tab-common-header{
+    grid-template-columns:minmax(0,1fr) 44px 44px;
+  }
+  .upick-tab-header-btn.install{
+    display:none;
+  }
+  .upick-tab-header-btn{
+    width:44px;
+    height:44px;
+  }
+  .upick-tab-brand-copy strong{
+    font-size:20px;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -24958,59 +25248,85 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 
 
 
-<script id="upick-public-tabs-blue-premium-v20-js">
+
+<script id="upick-public-tabs-blue-premium-v21-js">
 (function(){
-  const VIEW_META = {
-    benefits: { icon:"/icons/internal/benefit.svg", kicker:"혜택 찾기", title:"입주민 혜택을 빠르게 찾아보세요", desc:"매장명, 카테고리, 조건으로 원하는 혜택을 검색하고 필터링할 수 있습니다.", chips:["혜택 검색","카테고리 필터","즐겨찾기"] },
-    favorites: { icon:"/icons/internal/favorite.svg", kicker:"자주 쓰는 혜택", title:"저장한 혜택을 바로 확인하세요", desc:"관심 있는 매장을 저장해 두고 필요할 때 빠르게 다시 확인할 수 있습니다.", chips:["내 관심 혜택","빠른 확인","계정 동기화"] },
-    popular: { icon:"/icons/internal/top5.svg", kicker:"실시간 인기", title:"지금 많이 찾는 매장을 확인하세요", desc:"조회, 클릭, 공유, 즐겨찾기 반응을 합산해 인기 매장을 보여드립니다.", chips:["실시간 집계","TOP5","입주민 반응"] },
-    map: { icon:"/icons/internal/map.svg", kicker:"지도 기반 탐색", title:"가까운 혜택을 지도에서 찾아보세요", desc:"현재 위치와 매장 위치를 기준으로 거리와 주변 혜택을 편하게 확인합니다.", chips:["현재 위치","거리 확인","길찾기"] },
-    all: { icon:"/icons/internal/all-menu.svg", kicker:"서비스 메뉴", title:"필요한 기능을 한 곳에서 이용하세요", desc:"하단 네비바에 모두 담기 어려운 기능을 전체 기능에서 빠르게 접근할 수 있습니다.", chips:["전체 기능","빠른 이동","서비스 확장"] },
-    notices: { icon:"/icons/internal/notice.svg", kicker:"입주민 안내", title:"중요한 공지사항을 확인하세요", desc:"관리자가 등록한 공지와 안내를 한눈에 확인하고 공유할 수 있습니다.", chips:["공지 확인","공유","QR 보기"] },
-    calendar: { icon:"/icons/internal/calendar.svg", kicker:"방문 예약 알림", title:"방문 일정을 놓치지 않게 관리하세요", desc:"혜택 매장 방문 일정을 등록하고 원하는 시간에 미리 알림을 받을 수 있습니다.", chips:["월간","주간","일간"] },
-    ai: { icon:"/icons/internal/ai-assistant.svg", kicker:"AI 생활 도우미", title:"지금 필요한 정보를 바로 도와드릴게요", desc:"생활, 혜택, 매장, 지도 정보를 대화형으로 편하게 물어보세요.", chips:["질문하기","혜택 추천","파일 분석"] }
+  const META = {
+    benefits:{icon:"/icons/internal/benefit.svg",kicker:"혜택 찾기",title:"입주민 혜택을 빠르게 찾아보세요",desc:"매장명, 카테고리, 조건으로 원하는 혜택을 검색하고 필터링할 수 있습니다.",chips:["혜택 검색","카테고리 필터","즐겨찾기"]},
+    favorites:{icon:"/icons/internal/favorite.svg",kicker:"자주 쓰는 혜택",title:"저장한 혜택을 바로 확인하세요",desc:"관심 있는 매장을 저장해 두고 필요할 때 빠르게 다시 확인할 수 있습니다.",chips:["내 관심 혜택","빠른 확인","계정 동기화"]},
+    popular:{icon:"/icons/internal/top5.svg",kicker:"실시간 인기",title:"지금 많이 찾는 매장을 확인하세요",desc:"조회, 클릭, 공유, 즐겨찾기 반응을 합산해 인기 매장을 보여드립니다.",chips:["실시간 집계","TOP5","입주민 반응"]},
+    map:{icon:"/icons/internal/map.svg",kicker:"지도 기반 탐색",title:"가까운 혜택을 지도에서 찾아보세요",desc:"현재 위치와 매장 위치를 기준으로 거리와 주변 혜택을 편하게 확인합니다.",chips:["현재 위치","거리 확인","길찾기"]},
+    all:{icon:"/icons/internal/all-menu.svg",kicker:"서비스 메뉴",title:"필요한 기능을 한 곳에서 이용하세요",desc:"하단 네비바에 모두 담기 어려운 기능을 전체 기능에서 빠르게 접근할 수 있습니다.",chips:["전체 기능","빠른 이동","서비스 확장"]},
+    notices:{icon:"/icons/internal/notice.svg",kicker:"입주민 안내",title:"중요한 공지사항을 확인하세요",desc:"관리자가 등록한 공지와 안내를 한눈에 확인하고 공유할 수 있습니다.",chips:["공지 확인","공유","QR 보기"]},
+    calendar:{icon:"/icons/internal/calendar.svg",kicker:"방문 예약 알림",title:"방문 일정을 놓치지 않게 관리하세요",desc:"혜택 매장 방문 일정을 등록하고 원하는 시간에 미리 알림을 받을 수 있습니다.",chips:["월간","주간","일간"]},
+    ai:{icon:"/icons/internal/ai-assistant.svg",kicker:"AI 생활 도우미",title:"지금 필요한 정보를 바로 도와드릴게요",desc:"생활, 혜택, 매장, 지도 정보를 대화형으로 편하게 물어보세요.",chips:["질문하기","혜택 추천","파일 분석"]}
   };
 
-  const VIEW_LABELS = {
-    home:"홈", benefits:"혜택", favorites:"즐겨찾기", popular:"TOP5",
-    map:"지도", all:"전체 기능", notices:"공지사항", calendar:"캘린더 예약", ai:"AI 생활 도우미"
-  };
-
-  let rafId = 0;
-
-  function createHero(key){
-    const meta = VIEW_META[key];
-    if(!meta) return null;
-    const box = document.createElement("section");
-    box.className = "upick-tab-premium-hero";
-    box.dataset.upickTabHero = key;
-    box.innerHTML = `
-      <div class="upick-tab-kicker">
-        <img src="${meta.icon}" alt="" onerror="this.style.display='none'">
-        <span>${meta.kicker}</span>
+  function commonHeader(){
+    const el = document.createElement("section");
+    el.className = "upick-tab-common-header";
+    el.innerHTML = `
+      <div class="upick-tab-brand-block">
+        <div class="upick-tab-brand-logo"><img src="/icons/internal/brand-symbol-real.png" alt=""></div>
+        <div class="upick-tab-brand-copy"><strong>더운정픽</strong><span>입주민 전용 혜택 웹앱</span></div>
       </div>
-      <h2>${meta.title}</h2>
-      <p>${meta.desc}</p>
-      <div class="upick-tab-mini-actions">
-        ${meta.chips.map(c=>`<span class="upick-tab-mini-chip">${c}</span>`).join("")}
-      </div>
+      <button class="upick-tab-header-btn ai" type="button" data-upick-go="ai" aria-label="AI 생활 도우미"><img src="/icons/internal/ai-assistant.svg" alt=""></button>
+      <button class="upick-tab-header-btn install" type="button" data-upick-install aria-label="앱으로 이용하기"><img src="/icons/internal/install.svg" alt=""></button>
+      <button class="upick-tab-header-btn" type="button" data-upick-open-gnb aria-label="전체 메뉴"><img src="/icons/internal/all-menu.svg" alt=""></button>
     `;
-    return box;
+    return el;
   }
 
-  function ensureHeroByKey(key){
-    const view = document.getElementById("view-" + key);
-    if(!view || !VIEW_META[key]) return;
+  function menuHero(key){
+    const m = META[key];
+    if(!m) return null;
+    const el = document.createElement("section");
+    el.className = "upick-tab-premium-hero";
+    el.dataset.upickTabHero = key;
+    el.innerHTML = `
+      <div class="upick-tab-kicker">
+        <img src="${m.icon}" alt="" onerror="this.style.display='none'">
+        <span>${m.kicker}</span>
+      </div>
+      <h2>${m.title}</h2>
+      <p>${m.desc}</p>
+      <div class="upick-tab-mini-actions">
+        ${m.chips.map(c=>`<span class="upick-tab-mini-chip">${c}</span>`).join("")}
+      </div>
+    `;
+    return el;
+  }
 
-    if(key === "ai" || key === "calendar"){
-      const ownHero = view.querySelector(".ai-view-hero,.calendar-hero");
-      if(ownHero) ownHero.classList.add("upick-tab-premium-hero-native");
-      return;
+  function hideDuplicatePanel(key, view){
+    if(!view) return;
+    if(!["benefits","favorites","all","notices"].includes(key)) return;
+    const panels = Array.from(view.children).filter(el => el.classList && el.classList.contains("panel"));
+    const firstPanel = panels[0];
+    if(firstPanel && !firstPanel.classList.contains("filter-sticky")){
+      firstPanel.classList.add("upick-duplicate-hidden");
+    }
+  }
+
+  function ensureForView(key){
+    const view = document.getElementById("view-" + key);
+    if(!view || !META[key]) return;
+
+    // 1) common header should be first
+    if(!view.querySelector(":scope > .upick-tab-common-header")){
+      view.insertBefore(commonHeader(), view.firstElementChild);
     }
 
-    if(view.querySelector(":scope > .upick-tab-premium-hero")) return;
-    const hero = createHero(key);
-    if(hero) view.insertBefore(hero, view.firstElementChild);
+    // 2) menu hero should follow common header
+    if(!view.querySelector(":scope > .upick-tab-premium-hero")){
+      const h = menuHero(key);
+      const header = view.querySelector(":scope > .upick-tab-common-header");
+      if(h && header){
+        view.insertBefore(h, header.nextSibling);
+      }
+    }
+
+    // 3) remove duplicated legacy explanation cards
+    hideDuplicatePanel(key, view);
   }
 
   function getActiveViewKey(){
@@ -25025,43 +25341,66 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
     return "home";
   }
 
-  function markActiveView(){
-    const key = getActiveViewKey();
-    document.body.dataset.upickActiveView = key;
-    const topbar = document.querySelector("header.topbar");
-    if(topbar){
-      topbar.classList.add("public-unified-header");
-      topbar.setAttribute("data-upick-current-view", VIEW_LABELS[key] || "");
-    }
-    if(VIEW_META[key]) ensureHeroByKey(key);
+  function ensureAll(){
+    Object.keys(META).forEach(ensureForView);
   }
 
-  function scheduleMark(){
-    if(rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(() => {
-      rafId = 0;
-      markActiveView();
-    });
+  function routeTo(key){
+    const candidates = [
+      `[data-view="${key}"]`,
+      `[data-view-link="${key}"]`,
+      `.nav-btn[data-view="${key}"]`,
+      `.nav-btn[data-view-link="${key}"]`
+    ];
+    for(const sel of candidates){
+      const btn = document.querySelector(sel);
+      if(btn){ btn.click(); return; }
+    }
+    const navs = Array.from(document.querySelectorAll(".nav-btn, .gnb-chip, .gnb-menu-item, .gnb-menu-subitem, .all-menu-card"));
+    const found = navs.find(b => (b.textContent || "").replace(/\s/g,"").includes(key === "ai" ? "AI생활도우미" : ""));
+    if(found) found.click();
+  }
+
+  function bindHeaderButtons(){
+    document.addEventListener("click", function(e){
+      const ai = e.target.closest("[data-upick-go='ai']");
+      if(ai){ e.preventDefault(); routeTo("ai"); return; }
+
+      const install = e.target.closest("[data-upick-install]");
+      if(install){
+        e.preventDefault();
+        const installBtn = document.querySelector("#installAppBtn,[data-install-app],.install-btn");
+        if(installBtn) installBtn.click();
+        return;
+      }
+
+      const gnb = e.target.closest("[data-upick-open-gnb]");
+      if(gnb){
+        e.preventDefault();
+        const gnbBtn = document.querySelector("#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,.gnb-wrap .icon-btn");
+        if(gnbBtn) gnbBtn.click();
+        return;
+      }
+    }, true);
   }
 
   function init(){
-    // One-time lightweight injection. No full-body MutationObserver.
-    Object.keys(VIEW_META).forEach(ensureHeroByKey);
-    markActiveView();
+    ensureAll();
+    bindHeaderButtons();
 
-    // Update only when the user is likely changing views.
+    // lightweight route update only, no full DOM observer
     document.addEventListener("click", function(e){
-      if(e.target.closest("[data-view],[data-view-link],[data-nav],[data-tab],.nav-btn,.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.all-menu-card")){
-        setTimeout(scheduleMark, 80);
+      if(e.target.closest("[data-view],[data-view-link],.nav-btn,.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.all-menu-card")){
+        setTimeout(function(){
+          const key = getActiveViewKey();
+          if(META[key]) ensureForView(key);
+        }, 80);
       }
     }, true);
-
-    window.addEventListener("hashchange", scheduleMark);
-    window.addEventListener("popstate", scheduleMark);
   }
 
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init, { once:true });
+    document.addEventListener("DOMContentLoaded", init, {once:true});
   }else{
     init();
   }
