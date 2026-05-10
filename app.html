@@ -12617,6 +12617,93 @@ body > .app > .shell{
 }
 </style>
 
+
+<style id="upick-public-v31-lighter-navy-shell">
+/* ===== 더운정픽 v31: 공개앱 네이비 쉘 색상 완화 =====
+   v30의 카드형 네이비 외곽 구조는 유지하고,
+   눈 피로도를 낮추기 위해 전체 네이비 색상만 조금 밝고 부드럽게 조정합니다.
+*/
+
+/* 바깥 배경은 로그인/회원가입처럼 밝은 블루그레이 유지 */
+html,
+body{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(191,219,254,.32), transparent 34%),
+    linear-gradient(180deg,#f9fbff 0%,#eef4ff 100%)!important;
+}
+
+/* 공개앱 외곽 네이비 쉘 색상 완화 */
+body > .app{
+  background:
+    radial-gradient(circle at 84px 78px, rgba(255,255,255,.105), transparent 28%),
+    radial-gradient(circle at 92% 10%, rgba(147,197,253,.20), transparent 30%),
+    radial-gradient(circle at 100% 76%, rgba(96,165,250,.16), transparent 42%),
+    linear-gradient(145deg,#102B5F 0%,#164081 48%,#2B63D8 100%)!important;
+  border-color:rgba(191,219,254,.30)!important;
+  box-shadow:
+    0 16px 38px rgba(11,31,77,.13),
+    inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+/* 외곽 장식도 조금 더 부드럽게 */
+body > .app::before{
+  background:rgba(255,255,255,.085)!important;
+}
+body > .app::after{
+  background:rgba(147,197,253,.055)!important;
+}
+
+/* 탭별 히어로도 기존보다 살짝 밝은 네이비로 맞춤 */
+.upick-home-hero-shell,
+.upick-tab-premium-hero{
+  background:
+    radial-gradient(circle at 88% 12%,rgba(147,197,253,.24),transparent 34%),
+    radial-gradient(circle at 100% 100%,rgba(96,165,250,.18),transparent 46%),
+    linear-gradient(135deg,#102B5F 0%,#164081 54%,#2B63D8 100%)!important;
+  box-shadow:
+    0 16px 36px rgba(11,31,77,.13),
+    inset 0 1px 0 rgba(255,255,255,.16)!important;
+  border-color:rgba(191,219,254,.28)!important;
+}
+
+/* 홈/비홈 공통 헤더 내부 네이비 블록도 살짝 부드럽게 */
+.upick-tab-premium-hero .upick-tab-brand-block,
+.upick-home-hero-shell .upick-header-brand,
+#view-home .upick-header-brand,
+header.public-unified-header .upick-header-brand{
+  background:rgba(16,43,95,.56)!important;
+  border-color:rgba(255,255,255,.24)!important;
+}
+
+/* 우측 유틸 버튼도 같은 완화 톤 */
+.upick-tab-premium-hero .upick-tab-header-btn,
+.upick-home-hero-shell .icon-btn,
+#view-home .icon-btn,
+header.public-unified-header .icon-btn{
+  background:rgba(16,43,95,.40)!important;
+  border-color:rgba(255,255,255,.24)!important;
+}
+
+/* 본문 카드 그림자도 살짝 약하게 */
+.panel,
+.card,
+.notice-item,
+.benefit-card,
+.all-menu-card,
+.calendar-board,
+.ai-chat-panel{
+  box-shadow:0 10px 24px rgba(11,31,77,.08)!important;
+}
+
+/* 하단 네비는 기존보다 아주 조금 부드러운 네이비 */
+.bottom-nav,
+nav.bottom-nav{
+  background:
+    radial-gradient(circle at 16% 8%,rgba(96,165,250,.18),transparent 34%),
+    linear-gradient(135deg,#0B244F 0%,#113A7C 58%,#174EA6 100%)!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
