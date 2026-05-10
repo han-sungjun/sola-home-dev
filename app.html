@@ -13153,288 +13153,217 @@ nav.bottom-nav{
 </style>
 
 
-<style id="upick-public-v36-proposal-header">
-/* ===== 더운정픽 v36: 공개앱 전체 헤더 제안서 스타일 통일 =====
-   - 홈/혜택/즐겨찾기/TOP5/전체/AI/캘린더/지도/공지 공통
-   - 제안서처럼 히어로 내부 상단에 반투명 브랜드 블록 + 유틸 버튼 3개 구성
-   - 기능/버튼 동작은 변경하지 않음
+<style id="upick-public-v37-proposal-glass-header">
+/* ===== 더운정픽 v37: 공개앱 공통 헤더를 제안서형 글래스 헤더로 보정 =====
+   - 흰 카드형 느낌 제거
+   - 제안서처럼 네이비/글래스 헤더 블록 적용
+   - 로고는 밝은 심볼 박스만 유지
+   - 우측 유틸 버튼도 유리 질감으로 통일
 */
-:root{
-  --upick-proposal-navy:#071A3D;
-  --upick-proposal-blue:#2563EB;
-  --upick-proposal-line:rgba(191,219,254,.30);
-  --upick-proposal-glass:rgba(255,255,255,.115);
-  --upick-proposal-glass-strong:rgba(255,255,255,.155);
-}
 
-/* 홈/서브탭 공통 헤더 위치와 형태 */
-.upick-home-hero-shell .topbar,
-.upick-tab-common-header{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) 48px 48px 48px!important;
-  align-items:center!important;
-  gap:10px!important;
-  width:100%!important;
-  margin:0!important;
-  padding:0!important;
-  background:transparent!important;
-  border:none!important;
-  box-shadow:none!important;
+/* 공개앱 공통 헤더의 브랜드 블록: 흰 카드형 -> 글래스 네이비 블록 */
+#view-home .upick-header-brand,
+#view-home .brand,
+#view-home .brand-block,
+#view-home .upick-tab-brand-block,
+#view-home .topbar .brand,
+#view-home .topbar .upick-header-brand,
+header.public-unified-header .upick-header-brand,
+header.public-unified-header .brand,
+header.public-unified-header .brand-block,
+header.public-unified-header .upick-tab-brand-block,
+.upick-tab-premium-hero .upick-header-brand,
+.upick-tab-premium-hero .brand,
+.upick-tab-premium-hero .brand-block,
+.upick-tab-premium-hero .upick-tab-brand-block{
   position:relative!important;
-  z-index:5!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg, rgba(18,52,112,.42) 0%, rgba(10,28,67,.34) 100%)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:
+    0 16px 36px rgba(2,8,23,.22),
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 -1px 0 rgba(255,255,255,.05)!important;
+  backdrop-filter:blur(18px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%)!important;
+  color:#fff!important;
 }
-
-/* 브랜드 블록: 제안서식 반투명 라운드 카드 */
-.upick-home-hero-shell .upick-header-brand,
-.upick-home-hero-shell .brand,
-.upick-tab-brand-block{
-  min-width:0!important;
-  display:flex!important;
-  align-items:center!important;
-  gap:10px!important;
-  height:64px!important;
-  padding:9px 14px 9px 10px!important;
-  border-radius:24px!important;
+#view-home .upick-header-brand::before,
+#view-home .brand::before,
+#view-home .brand-block::before,
+#view-home .upick-tab-brand-block::before,
+header.public-unified-header .upick-header-brand::before,
+header.public-unified-header .brand::before,
+header.public-unified-header .brand-block::before,
+header.public-unified-header .upick-tab-brand-block::before,
+.upick-tab-premium-hero .upick-header-brand::before,
+.upick-tab-premium-hero .brand::before,
+.upick-tab-premium-hero .brand-block::before,
+.upick-tab-premium-hero .upick-tab-brand-block::before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
   background:
-    linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.075))!important;
-  border:1px solid rgba(255,255,255,.24)!important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.22),
-    0 16px 34px rgba(2,8,23,.14)!important;
-  color:#fff!important;
-  backdrop-filter:blur(13px)!important;
-  -webkit-backdrop-filter:blur(13px)!important;
-  overflow:hidden!important;
+    linear-gradient(135deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.04) 34%, rgba(255,255,255,0) 56%),
+    radial-gradient(circle at 14% 12%, rgba(255,255,255,.12), transparent 32%);
+  pointer-events:none;
 }
 
-/* 브랜드 블록 내부 미세 하이라이트 */
-.upick-home-hero-shell .upick-header-brand::after,
-.upick-home-hero-shell .brand::after,
-.upick-tab-brand-block::after{
-  content:""!important;
-  position:absolute!important;
-  inset:0!important;
-  pointer-events:none!important;
-  border-radius:inherit!important;
-  background:linear-gradient(135deg,rgba(255,255,255,.20),rgba(255,255,255,0) 42%)!important;
-  opacity:.70!important;
-}
-
-/* 심볼 박스 */
-.upick-home-hero-shell .upick-header-brand .logo,
-.upick-home-hero-shell .brand .logo,
-.upick-tab-brand-logo{
+/* 브랜드 로고는 순수 심볼 박스로 유지 */
+#view-home .upick-header-logo,
+#view-home .brand-logo,
+#view-home .logo,
+#view-home .logo-box,
+#view-home .upick-tab-brand-logo,
+header.public-unified-header .upick-header-logo,
+header.public-unified-header .brand-logo,
+header.public-unified-header .logo,
+header.public-unified-header .logo-box,
+header.public-unified-header .upick-tab-brand-logo,
+.upick-tab-premium-hero .upick-header-logo,
+.upick-tab-premium-hero .brand-logo,
+.upick-tab-premium-hero .logo,
+.upick-tab-premium-hero .logo-box,
+.upick-tab-premium-hero .upick-tab-brand-logo{
   position:relative!important;
-  z-index:1!important;
-  width:46px!important;
-  height:46px!important;
-  flex:0 0 46px!important;
-  border-radius:17px!important;
-  display:grid!important;
-  place-items:center!important;
-  background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%)!important;
-  border:1px solid rgba(219,234,254,.90)!important;
+  background:linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(245,248,255,.92) 100%)!important;
+  border:1px solid rgba(255,255,255,.64)!important;
   box-shadow:
-    0 10px 22px rgba(2,8,23,.16),
+    0 10px 24px rgba(2,8,23,.16),
     inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+
+/* 브랜드 텍스트 톤: 순백 + 은은한 서브카피 */
+#view-home .upick-header-brand strong,
+#view-home .brand strong,
+#view-home .brand-block strong,
+#view-home .upick-tab-brand-copy strong,
+#view-home .topbar .brand strong,
+#view-home .topbar .upick-header-brand strong,
+header.public-unified-header .upick-header-brand strong,
+header.public-unified-header .brand strong,
+header.public-unified-header .brand-block strong,
+header.public-unified-header .upick-tab-brand-copy strong,
+.upick-tab-premium-hero .upick-header-brand strong,
+.upick-tab-premium-hero .brand strong,
+.upick-tab-premium-hero .brand-block strong,
+.upick-tab-premium-hero .upick-tab-brand-copy strong{
+  color:#fff!important;
+  text-shadow:0 2px 10px rgba(2,8,23,.24)!important;
+}
+#view-home .upick-header-brand span,
+#view-home .brand span,
+#view-home .brand-block span,
+#view-home .upick-tab-brand-copy span,
+#view-home .topbar .brand span,
+#view-home .topbar .upick-header-brand span,
+header.public-unified-header .upick-header-brand span,
+header.public-unified-header .brand span,
+header.public-unified-header .brand-block span,
+header.public-unified-header .upick-tab-brand-copy span,
+.upick-tab-premium-hero .upick-header-brand span,
+.upick-tab-premium-hero .brand span,
+.upick-tab-premium-hero .brand-block span,
+.upick-tab-premium-hero .upick-tab-brand-copy span{
+  color:rgba(255,255,255,.82)!important;
+}
+
+/* 우측 유틸 버튼: 더 유리 같은 느낌 */
+#view-home .upick-header-actions button,
+#view-home .upick-header-actions .icon-btn,
+#view-home .topbar-actions button,
+#view-home .topbar-actions .icon-btn,
+#view-home .utility-buttons button,
+#view-home .utility-buttons .icon-btn,
+#view-home .topbar button:not(.profile-card):not(.brand):not(.upick-header-brand),
+header.public-unified-header .topbar-actions button,
+header.public-unified-header .topbar-actions .icon-btn,
+header.public-unified-header .utility-buttons button,
+header.public-unified-header .utility-buttons .icon-btn,
+header.public-unified-header button.icon-btn,
+.upick-tab-premium-hero .upick-tab-header-btn,
+.upick-tab-premium-hero button.icon-btn{
+  position:relative!important;
   overflow:hidden!important;
-}
-.upick-home-hero-shell .upick-header-brand .logo::before,
-.upick-home-hero-shell .brand .logo::before{
-  content:none!important;
-  display:none!important;
-}
-.upick-home-hero-shell .upick-header-brand .logo img,
-.upick-home-hero-shell .brand .logo img,
-.upick-tab-brand-logo img{
-  display:block!important;
-  width:34px!important;
-  height:34px!important;
-  object-fit:contain!important;
-  opacity:1!important;
-  filter:none!important;
-}
-
-/* 브랜드 텍스트 */
-.upick-home-hero-shell .upick-brand-copy,
-.upick-tab-brand-copy{
-  position:relative!important;
-  z-index:1!important;
-  min-width:0!important;
-}
-.upick-home-hero-shell .upick-brand-copy h1,
-.upick-home-hero-shell .upick-header-brand strong,
-.upick-home-hero-shell .brand h1,
-.upick-tab-brand-copy strong{
-  display:block!important;
-  margin:0!important;
-  color:#fff!important;
-  font-size:23px!important;
-  line-height:1.06!important;
-  font-weight:1000!important;
-  letter-spacing:-.065em!important;
-  white-space:nowrap!important;
-  text-shadow:0 2px 10px rgba(2,8,23,.30)!important;
-}
-.upick-home-hero-shell .upick-brand-copy p,
-.upick-home-hero-shell .upick-header-brand span,
-.upick-home-hero-shell .brand p,
-.upick-tab-brand-copy span{
-  display:block!important;
-  margin:5px 0 0!important;
-  color:rgba(255,255,255,.80)!important;
-  font-size:12px!important;
-  line-height:1.15!important;
-  font-weight:850!important;
-  white-space:nowrap!important;
-  text-shadow:0 1px 8px rgba(2,8,23,.22)!important;
-}
-
-/* 우측 유틸 버튼: 제안서처럼 같은 톤의 글래스 버튼 */
-.upick-home-hero-shell .upick-header-utils,
-.upick-tab-common-header > .upick-tab-header-btn{
-  position:relative!important;
-  z-index:5!important;
-}
-.upick-home-hero-shell .upick-header-utils{
-  display:contents!important;
-}
-.upick-home-hero-shell .icon-btn,
-.upick-tab-header-btn{
-  width:48px!important;
-  height:48px!important;
-  min-width:48px!important;
-  flex:0 0 48px!important;
-  border-radius:18px!important;
-  background:rgba(255,255,255,.13)!important;
-  border:1px solid rgba(255,255,255,.22)!important;
-  color:#fff!important;
+  background:linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.08) 100%)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
   box-shadow:
-    0 14px 28px rgba(2,8,23,.15),
+    0 12px 28px rgba(2,8,23,.18),
     inset 0 1px 0 rgba(255,255,255,.18)!important;
-  backdrop-filter:blur(12px)!important;
-  -webkit-backdrop-filter:blur(12px)!important;
-  display:grid!important;
-  place-items:center!important;
+  color:#fff!important;
+  backdrop-filter:blur(16px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(145%)!important;
 }
-.upick-home-hero-shell .icon-btn img,
-.upick-home-hero-shell .icon-btn svg,
-.upick-tab-header-btn img,
-.upick-tab-header-btn svg{
-  width:22px!important;
-  height:22px!important;
-  object-fit:contain!important;
-  opacity:1!important;
-  filter:brightness(0) invert(1) drop-shadow(0 3px 8px rgba(2,8,23,.20))!important;
+#view-home .upick-header-actions button::before,
+#view-home .upick-header-actions .icon-btn::before,
+#view-home .topbar-actions button::before,
+#view-home .topbar-actions .icon-btn::before,
+#view-home .utility-buttons button::before,
+#view-home .utility-buttons .icon-btn::before,
+header.public-unified-header .topbar-actions button::before,
+header.public-unified-header .topbar-actions .icon-btn::before,
+header.public-unified-header .utility-buttons button::before,
+header.public-unified-header .utility-buttons .icon-btn::before,
+header.public-unified-header button.icon-btn::before,
+.upick-tab-premium-hero .upick-tab-header-btn::before,
+.upick-tab-premium-hero button.icon-btn::before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  background:linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 52%);
+  pointer-events:none;
+}
+#view-home .upick-header-actions img,
+#view-home .topbar-actions img,
+#view-home .utility-buttons img,
+#view-home .topbar button.icon-btn img,
+header.public-unified-header .topbar-actions img,
+header.public-unified-header .utility-buttons img,
+header.public-unified-header button.icon-btn img,
+.upick-tab-premium-hero .upick-tab-header-btn img,
+.upick-tab-premium-hero button.icon-btn img{
+  filter:brightness(0) invert(1)!important;
+  opacity:.96!important;
+}
+#view-home .upick-header-actions svg,
+#view-home .topbar-actions svg,
+#view-home .utility-buttons svg,
+#view-home .topbar button.icon-btn svg,
+header.public-unified-header .topbar-actions svg,
+header.public-unified-header .utility-buttons svg,
+header.public-unified-header button.icon-btn svg,
+.upick-tab-premium-hero .upick-tab-header-btn svg,
+.upick-tab-premium-hero button.icon-btn svg{
   color:#fff!important;
   stroke:#fff!important;
+  fill:none!important;
 }
 
-/* AI 활성 점 */
-.upick-home-hero-shell .ai-btn::after,
-.upick-tab-header-btn.ai::after{
-  content:""!important;
-  position:absolute!important;
-  top:7px!important;
-  right:8px!important;
-  width:7px!important;
-  height:7px!important;
-  border-radius:999px!important;
-  background:#22c55e!important;
-  border:2px solid rgba(255,255,255,.85)!important;
-  box-shadow:0 0 0 3px rgba(34,197,94,.12),0 0 10px rgba(34,197,94,.55)!important;
+/* 홈 헤더 자체도 탭 헤더 톤에 더 가깝게 */
+#view-home .upick-home-hero-shell .topbar,
+#view-home .upick-home-hero-shell .hero,
+#view-home .upick-home-hero-shell .upick-header-context{
+  background:transparent!important;
 }
 
-/* 홈탭에서 user-chip 등이 끼어들어 헤더가 깨지는 것 방지 */
-.upick-home-hero-shell .user-chip,
-.upick-home-hero-shell .topbar-userbar,
-.upick-home-hero-shell .logout-btn{
-  display:none!important;
-}
-
-/* 헤더가 들어간 히어로 전체는 제안서와 맞게 약간 여백 정리 */
-.upick-home-hero-shell,
-.upick-tab-premium-hero{
-  padding-top:14px!important;
-}
-
-@media(max-width:520px){
-  .upick-home-hero-shell .topbar,
-  .upick-tab-common-header{
-    grid-template-columns:minmax(0,1fr) 44px 44px 44px!important;
-    gap:8px!important;
-  }
-  .upick-home-hero-shell .upick-header-brand,
-  .upick-home-hero-shell .brand,
-  .upick-tab-brand-block{
-    height:58px!important;
-    padding:8px 11px 8px 8px!important;
-    border-radius:21px!important;
-    gap:8px!important;
-  }
-  .upick-home-hero-shell .upick-header-brand .logo,
-  .upick-home-hero-shell .brand .logo,
-  .upick-tab-brand-logo{
-    width:42px!important;
-    height:42px!important;
-    flex-basis:42px!important;
-    border-radius:15px!important;
-  }
-  .upick-home-hero-shell .upick-header-brand .logo img,
-  .upick-home-hero-shell .brand .logo img,
-  .upick-tab-brand-logo img{
-    width:30px!important;
-    height:30px!important;
-  }
-  .upick-home-hero-shell .upick-brand-copy h1,
-  .upick-home-hero-shell .upick-header-brand strong,
-  .upick-home-hero-shell .brand h1,
-  .upick-tab-brand-copy strong{
-    font-size:20px!important;
-  }
-  .upick-home-hero-shell .upick-brand-copy p,
-  .upick-home-hero-shell .upick-header-brand span,
-  .upick-home-hero-shell .brand p,
-  .upick-tab-brand-copy span{
-    font-size:10.5px!important;
-    margin-top:4px!important;
-  }
-  .upick-home-hero-shell .icon-btn,
-  .upick-tab-header-btn{
-    width:44px!important;
-    height:44px!important;
-    min-width:44px!important;
-    flex-basis:44px!important;
-    border-radius:16px!important;
-  }
-  .upick-home-hero-shell .icon-btn img,
-  .upick-tab-header-btn img{
-    width:20px!important;
-    height:20px!important;
-  }
-}
-
-@media(max-width:370px){
-  .upick-home-hero-shell .topbar,
-  .upick-tab-common-header{
-    grid-template-columns:minmax(0,1fr) 40px 40px 40px!important;
-    gap:7px!important;
-  }
-  .upick-home-hero-shell .upick-header-brand,
-  .upick-home-hero-shell .brand,
-  .upick-tab-brand-block{
-    height:54px!important;
-  }
-  .upick-home-hero-shell .upick-brand-copy h1,
-  .upick-tab-brand-copy strong{
-    font-size:18px!important;
-  }
-  .upick-home-hero-shell .icon-btn,
-  .upick-tab-header-btn{
-    width:40px!important;
-    height:40px!important;
-    min-width:40px!important;
-    flex-basis:40px!important;
+/* 모바일에서 카드 느낌보다 제안서처럼 슬림하게 */
+@media (max-width:520px){
+  #view-home .upick-header-brand,
+  #view-home .brand,
+  #view-home .brand-block,
+  #view-home .upick-tab-brand-block,
+  header.public-unified-header .upick-header-brand,
+  header.public-unified-header .brand,
+  header.public-unified-header .brand-block,
+  header.public-unified-header .upick-tab-brand-block,
+  .upick-tab-premium-hero .upick-header-brand,
+  .upick-tab-premium-hero .brand,
+  .upick-tab-premium-hero .brand-block,
+  .upick-tab-premium-hero .upick-tab-brand-block{
+    padding:10px 12px!important;
+    border-radius:22px!important;
   }
 }
 </style>
