@@ -14408,6 +14408,106 @@ img.brand-icon[src*="home.svg"],
 }
 </style>
 
+
+<style id="upick-v43-home-logo-transparent-override">
+/* ===== v43: 홈 탭 로고 카드감 제거 =====
+   문제: .logo 클래스 공통 스타일 영향으로 홈 탭/공개앱 헤더에서
+   로고 뒤에 작은 카드형 박스 느낌이 남아있음
+   처리: 공개앱 공통 헤더 / 홈 탭 / 탭형 프리미엄 헤더의 로고 래퍼를 완전 투명 처리
+*/
+#view-home .public-unified-header .upick-header-brand .logo,
+#view-home .public-unified-header .brand .logo,
+#view-home .upick-home-hero-shell .upick-header-brand .logo,
+#view-home .upick-home-hero-shell .brand .logo,
+#view-home .upick-home-hero-shell .logo,
+.upick-tab-premium-hero .upick-tab-brand-logo,
+.upick-tab-premium-hero .upick-header-brand .logo,
+.upick-tab-premium-hero .brand .logo,
+.public-unified-header .upick-header-brand .logo,
+.public-unified-header .brand .logo {
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  flex:0 0 42px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  overflow:visible!important;
+}
+
+#view-home .public-unified-header .upick-header-brand .logo::before,
+#view-home .public-unified-header .brand .logo::before,
+#view-home .upick-home-hero-shell .upick-header-brand .logo::before,
+#view-home .upick-home-hero-shell .brand .logo::before,
+#view-home .upick-home-hero-shell .logo::before,
+.upick-tab-premium-hero .upick-tab-brand-logo::before,
+.upick-tab-premium-hero .upick-header-brand .logo::before,
+.upick-tab-premium-hero .brand .logo::before,
+.public-unified-header .upick-header-brand .logo::before,
+.public-unified-header .brand .logo::before {
+  content:none!important;
+  display:none!important;
+}
+
+#view-home .public-unified-header .upick-header-brand .logo img,
+#view-home .public-unified-header .brand .logo img,
+#view-home .upick-home-hero-shell .upick-header-brand .logo img,
+#view-home .upick-home-hero-shell .brand .logo img,
+#view-home .upick-home-hero-shell .logo img,
+.upick-tab-premium-hero .upick-tab-brand-logo img,
+.upick-tab-premium-hero .upick-header-brand .logo img,
+.upick-tab-premium-hero .brand .logo img,
+.public-unified-header .upick-header-brand .logo img,
+.public-unified-header .brand .logo img {
+  width:42px!important;
+  height:42px!important;
+  display:block!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 2px 6px rgba(2,8,23,.12))!important;
+}
+
+@media (max-width:430px){
+  #view-home .public-unified-header .upick-header-brand .logo,
+  #view-home .public-unified-header .brand .logo,
+  #view-home .upick-home-hero-shell .upick-header-brand .logo,
+  #view-home .upick-home-hero-shell .brand .logo,
+  #view-home .upick-home-hero-shell .logo,
+  .upick-tab-premium-hero .upick-tab-brand-logo,
+  .upick-tab-premium-hero .upick-header-brand .logo,
+  .upick-tab-premium-hero .brand .logo,
+  .public-unified-header .upick-header-brand .logo,
+  .public-unified-header .brand .logo {
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    flex-basis:38px!important;
+  }
+  #view-home .public-unified-header .upick-header-brand .logo img,
+  #view-home .public-unified-header .brand .logo img,
+  #view-home .upick-home-hero-shell .upick-header-brand .logo img,
+  #view-home .upick-home-hero-shell .brand .logo img,
+  #view-home .upick-home-hero-shell .logo img,
+  .upick-tab-premium-hero .upick-tab-brand-logo img,
+  .upick-tab-premium-hero .upick-header-brand .logo img,
+  .upick-tab-premium-hero .brand .logo img,
+  .public-unified-header .upick-header-brand .logo img,
+  .public-unified-header .brand .logo img {
+    width:38px!important;
+    height:38px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
