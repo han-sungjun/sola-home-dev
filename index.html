@@ -4236,6 +4236,77 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v59: 로그인 로딩 로고 외곽 회전 하이라이트 ===== -->
+<style id="upick-v59-loader-orbit-highlight">
+/* 상단 분리형 캡슐바 제거 -> 로고 외곽을 따라 흐르는 하이라이트 */
+#pageLoader .loader-mark{
+  overflow:visible !important;
+  isolation:isolate !important;
+}
+
+#pageLoader .loader-mark::before{
+  z-index:0 !important;
+}
+
+#pageLoader .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:-4px !important;
+  left:-4px !important;
+  right:-4px !important;
+  top:-4px !important;
+  bottom:-4px !important;
+  width:auto !important;
+  height:auto !important;
+  transform:none !important;
+  border:0 !important;
+  border-radius:32px !important;
+  padding:2px !important;
+  z-index:1 !important;
+  pointer-events:none !important;
+  background:
+    conic-gradient(from 0deg,
+      transparent 0deg,
+      transparent 46deg,
+      rgba(147,197,253,.10) 58deg,
+      rgba(125,190,255,.92) 76deg,
+      rgba(37,99,235,.82) 88deg,
+      rgba(147,197,253,.10) 108deg,
+      transparent 124deg,
+      transparent 360deg
+    ) !important;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite:xor !important;
+  mask-composite:exclude !important;
+  box-shadow:
+    0 0 16px rgba(96,165,250,.18),
+    0 0 26px rgba(37,99,235,.10) !important;
+  animation:upickV59OrbitHighlight 1.85s linear infinite !important;
+}
+
+#pageLoader .loader-mark img{
+  z-index:3 !important;
+}
+
+@keyframes upickV59OrbitHighlight{
+  to{ transform:rotate(360deg) }
+}
+
+@media (max-width:430px){
+  #pageLoader .loader-mark::after{
+    inset:-4px !important;
+    left:-4px !important;
+    right:-4px !important;
+    top:-4px !important;
+    bottom:-4px !important;
+    border-radius:31px !important;
+  }
+}
+</style>
+
 <script id="upick-v58-loader-message-script">
 (function(){
   const phases = [
