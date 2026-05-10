@@ -905,10 +905,30 @@ button.primary,.btn-primary,.login-btn,.signup-submit{background:linear-gradient
 }
 
 </style>
+
+<style id="upick-blue-premium-v15-login-header">
+.login-premium-hero-shell{position:relative!important;display:grid!important;gap:16px!important;padding:18px!important;border-radius:34px!important;background:radial-gradient(circle at 90% 0%,rgba(96,165,250,.24),transparent 40%),linear-gradient(135deg,#061A3D,#0B2A60 54%,#2563EB)!important;box-shadow:0 24px 60px rgba(11,31,77,.18)!important;}
+.login-unified-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;}
+.login-brand-block{display:flex!important;align-items:center!important;gap:12px!important;padding:12px 15px!important;border-radius:24px!important;background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.26)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;color:#fff!important;}
+.login-brand-block .logo{width:52px!important;height:52px!important;border-radius:18px!important;background:rgba(255,255,255,.92)!important;display:grid!important;place-items:center!important;border:1px solid rgba(191,219,254,.86)!important;}
+.login-brand-block .logo img{width:38px!important;height:38px!important;object-fit:contain!important;}
+.login-brand-block strong{display:block;font-size:22px;font-weight:1000;letter-spacing:-.06em;color:#fff;}
+.login-brand-block span{display:block;margin-top:4px;font-size:12px;font-weight:800;color:rgba(255,255,255,.78);}
+.login-premium-hero-shell>.hero{margin:0!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(191,219,254,.20)!important;box-shadow:none!important;}
+.login-premium-hero-shell>.panel{margin:0!important;}
+@media(max-width:430px){.login-premium-hero-shell{padding:14px!important;border-radius:30px!important}.login-brand-block{padding:10px 12px!important}.login-brand-block .logo{width:48px!important;height:48px!important}.login-brand-block strong{font-size:21px}}
+</style>
+
 </head>
 <body>
     <div class="wrap">
     <section class="login-premium-hero-shell login-premium-hero-shell-structural">
+    <header class="login-unified-header">
+      <div class="login-brand-block">
+        <div class="logo"><img src="/icons/internal/brand-symbol-real.png" alt="더운정픽" loading="lazy"></div>
+        <div><strong>더운정픽</strong><span>입주민 전용 혜택 앱</span></div>
+      </div>
+    </header>
     <section class="hero">
       <div class="eyebrow"><img class="eyebrow-icon" src="/icons/internal/lock.svg" alt="" loading="lazy"> 입주민 전용 로그인</div>
       <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
