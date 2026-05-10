@@ -12284,6 +12284,131 @@ header.public-unified-header .utility-buttons img{
 }
 </style>
 
+
+<style id="upick-public-v27-home-header-match">
+/* ===== 더운정픽 v27: 홈 탭 헤더를 비홈 탭 네이비 헤더와 통일 ===== */
+
+/* 홈 탭/기존 공통 헤더의 브랜드 블록을 네이비 글래스 톤으로 통일 */
+#view-home .upick-header-brand,
+#view-home .brand,
+#view-home .brand-block,
+#view-home .upick-tab-brand-block,
+#view-home .topbar .brand,
+#view-home .topbar .upick-header-brand,
+header.public-unified-header .upick-header-brand,
+header.public-unified-header .brand,
+header.public-unified-header .brand-block,
+header.public-unified-header .upick-tab-brand-block{
+  background:rgba(7,26,61,.62)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.20),
+    inset 0 1px 0 rgba(255,255,255,.16)!important;
+  color:#fff!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* 홈 탭 브랜드 텍스트 흰색 통일 */
+#view-home .upick-header-brand strong,
+#view-home .brand strong,
+#view-home .brand-block strong,
+#view-home .upick-tab-brand-copy strong,
+#view-home .topbar .brand strong,
+#view-home .topbar .upick-header-brand strong,
+header.public-unified-header .upick-header-brand strong,
+header.public-unified-header .brand strong,
+header.public-unified-header .brand-block strong,
+header.public-unified-header .upick-tab-brand-copy strong{
+  color:#fff!important;
+  text-shadow:0 2px 10px rgba(2,8,23,.30)!important;
+}
+
+#view-home .upick-header-brand span,
+#view-home .brand span,
+#view-home .brand-block span,
+#view-home .upick-tab-brand-copy span,
+#view-home .topbar .brand span,
+#view-home .topbar .upick-header-brand span,
+header.public-unified-header .upick-header-brand span,
+header.public-unified-header .brand span,
+header.public-unified-header .brand-block span,
+header.public-unified-header .upick-tab-brand-copy span{
+  color:rgba(255,255,255,.78)!important;
+}
+
+/* 홈 탭 로고 박스는 밝은 심볼 박스로 유지 */
+#view-home .upick-header-logo,
+#view-home .brand-logo,
+#view-home .logo-box,
+#view-home .upick-tab-brand-logo,
+#view-home .topbar .brand-logo,
+#view-home .topbar .upick-header-logo,
+header.public-unified-header .upick-header-logo,
+header.public-unified-header .brand-logo,
+header.public-unified-header .logo-box,
+header.public-unified-header .upick-tab-brand-logo{
+  background:rgba(255,255,255,.92)!important;
+  border:1px solid rgba(255,255,255,.52)!important;
+  box-shadow:0 10px 22px rgba(2,8,23,.18)!important;
+}
+
+/* 홈 탭 우측 3개 버튼도 네이비 글래스 톤으로 통일 */
+#view-home .upick-header-actions button,
+#view-home .upick-header-actions .icon-btn,
+#view-home .topbar-actions button,
+#view-home .topbar-actions .icon-btn,
+#view-home .utility-buttons button,
+#view-home .utility-buttons .icon-btn,
+#view-home .topbar button:not(.profile-card):not(.brand):not(.upick-header-brand),
+header.public-unified-header .topbar-actions button,
+header.public-unified-header .topbar-actions .icon-btn,
+header.public-unified-header .utility-buttons button,
+header.public-unified-header .utility-buttons .icon-btn,
+header.public-unified-header button.icon-btn{
+  background:rgba(7,26,61,.42)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:
+    0 12px 28px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.14)!important;
+  color:#fff!important;
+}
+
+/* 홈 탭 우측 버튼 아이콘 가시성 */
+#view-home .upick-header-actions img,
+#view-home .topbar-actions img,
+#view-home .utility-buttons img,
+#view-home .topbar button.icon-btn img,
+header.public-unified-header .topbar-actions img,
+header.public-unified-header .utility-buttons img,
+header.public-unified-header button.icon-btn img{
+  filter:brightness(0) invert(1)!important;
+  opacity:1!important;
+}
+
+/* SVG inline 아이콘 대응 */
+#view-home .upick-header-actions svg,
+#view-home .topbar-actions svg,
+#view-home .utility-buttons svg,
+#view-home .topbar button.icon-btn svg,
+header.public-unified-header .topbar-actions svg,
+header.public-unified-header .utility-buttons svg,
+header.public-unified-header button.icon-btn svg{
+  color:#fff!important;
+  stroke:#fff!important;
+  fill:none!important;
+  opacity:1!important;
+}
+
+/* 혹시 홈 헤더가 히어로 내부에 있는 경우에도 동일 적용 */
+#view-home .hero .upick-header-brand,
+#view-home .hero .brand,
+#view-home .hero .brand-block{
+  background:rgba(7,26,61,.62)!important;
+  border-color:rgba(255,255,255,.22)!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
