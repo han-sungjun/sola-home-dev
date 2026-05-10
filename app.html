@@ -6364,8 +6364,7 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
 .ai-quick-btn{
   letter-spacing:-.025em;
 }
-.btn-primary,
-.nav-btn.active{
+.btn-primary{
   background:linear-gradient(135deg,var(--upick-navy),var(--upick-navy-2)) !important;
 }
 
@@ -6387,8 +6386,8 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   height:28px;
 }
 .bottom-nav .nav-btn.active{
-  background:rgba(255,255,255,.12) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  background:transparent !important;
+  box-shadow:none !important;
 }
 .bottom-nav .nav-btn.active .nav-icon{
   filter:drop-shadow(0 6px 10px rgba(200,175,135,.26));
@@ -6676,8 +6675,25 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
 }
 
 
+/* 더운정픽 하단 네비 선택 외곽/아이콘 배경 완전 제거 */
+.bottom-nav .nav-btn,
+.bottom-nav .nav-btn.active,
+.bottom-nav .nav-btn:focus,
+.bottom-nav .nav-btn:focus-visible{
+  background:transparent !important;
+  box-shadow:none !important;
+  outline:none !important;
+}
+.bottom-nav .nav-icon,
+.bottom-nav .nav-icon .upick-svg-icon{
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
 
-/* ===== 더운정픽 하단 네비 아이콘 배경 최종 제거 ===== */
+
+
+/* 더운정픽 하단 네비 SVG 외곽/캔버스 제거 최종 보정 */
 .bottom-nav .nav-btn,
 .bottom-nav .nav-btn.active,
 .bottom-nav .nav-btn:hover,
@@ -6686,6 +6702,7 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   background:transparent !important;
   box-shadow:none !important;
   outline:none !important;
+  -webkit-tap-highlight-color:transparent !important;
 }
 .bottom-nav .nav-btn::before,
 .bottom-nav .nav-btn::after,
@@ -6694,27 +6711,37 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   content:none !important;
   display:none !important;
 }
-.bottom-nav .nav-btn .nav-icon{
+.bottom-nav .nav-icon{
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
   background:transparent !important;
   box-shadow:none !important;
-  border:none !important;
-  border-radius:0 !important;
-}
-.bottom-nav .nav-btn .nav-icon img,
-.bottom-nav .nav-btn .upick-svg-icon{
-  background:transparent !important;
-  box-shadow:none !important;
-  border:none !important;
-  border-radius:0 !important;
-  display:block !important;
-}
-.bottom-nav .nav-btn.active .nav-icon{
   filter:none !important;
 }
-.bottom-nav .nav-btn.active .upick-svg-icon{
-  filter:drop-shadow(0 4px 8px rgba(200,175,135,.22)) !important;
+.bottom-nav .nav-icon .upick-svg-icon{
+  display:block !important;
+  width:22px !important;
+  height:22px !important;
+  padding:0 !important;
+  margin:0 auto !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  filter:none !important;
 }
-
+.bottom-nav .nav-btn.active .nav-icon,
+.bottom-nav .nav-btn.active .upick-svg-icon{
+  background:transparent !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
