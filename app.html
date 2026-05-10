@@ -27491,4 +27491,74 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v48: 로딩 심볼 카드형 제거 ===== -->
+<style id="upick-v48-loader-symbol-fix">
+/* 로딩 중앙 심볼 카드형 제거 */
+.page-loader .loader-mark,
+.global-loading .loader-mark,
+#pageLoader .loader-mark,
+.page-loader .loader-logo-wrap,
+.global-loading .loader-logo-wrap,
+#pageLoader .loader-logo-wrap{
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border:none !important;
+  outline:none !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+/* pseudo 카드 제거 */
+.page-loader .loader-mark::before,
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::before,
+.global-loading .loader-mark::after,
+#pageLoader .loader-mark::before,
+#pageLoader .loader-mark::after,
+.page-loader .loader-logo-wrap::before,
+.page-loader .loader-logo-wrap::after,
+.global-loading .loader-logo-wrap::before,
+.global-loading .loader-logo-wrap::after,
+#pageLoader .loader-logo-wrap::before,
+#pageLoader .loader-logo-wrap::after{
+  background:none !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+/* 심볼만 남기기 */
+.page-loader .loader-mark img,
+.global-loading .loader-mark img,
+#pageLoader .loader-mark img,
+.page-loader .loader-logo-wrap img,
+.global-loading .loader-logo-wrap img,
+#pageLoader .loader-logo-wrap img{
+  content:url('/icons/internal/brand-symbol-real.png') !important;
+  width:78px !important;
+  height:78px !important;
+  object-fit:contain !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  filter:
+    drop-shadow(0 2px 8px rgba(2,8,23,.12))
+    drop-shadow(0 10px 24px rgba(2,8,23,.18)) !important;
+}
+
+/* 캡슐형 로딩바만 유지 */
+.page-loader .loader-progress,
+.global-loading .loader-progress,
+#pageLoader .loader-progress{
+  background:rgba(255,255,255,.12) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12) !important;
+  backdrop-filter:blur(8px) !important;
+}
+</style>
+
 </body></html>
