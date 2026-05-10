@@ -4457,6 +4457,95 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v60: 로그인 로딩 회전 하이라이트 최종 보정 ===== -->
+<style id="upick-v60-loader-orbit-final-fix">
+/* 이전 분리형 캡슐바/중앙 가로선 스타일을 최종 차단 */
+#pageLoader .loader-mark{
+  position:relative !important;
+  isolation:isolate !important;
+  overflow:visible !important;
+}
+
+/* 글래스 본체 내부 광택만 유지 */
+#pageLoader .loader-mark::before{
+  content:"" !important;
+  position:absolute !important;
+  z-index:1 !important;
+  inset:1px !important;
+  width:auto !important;
+  height:auto !important;
+  border-radius:inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.045) 48%, transparent 74%),
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,.18), transparent 34%) !important;
+  border:0 !important;
+  box-shadow:none !important;
+  filter:none !important;
+  pointer-events:none !important;
+}
+
+/* 로고 외곽을 도는 짧은 빛 조각: 중앙을 가로지르지 않도록 작은 캡슐만 회전 */
+#pageLoader .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  z-index:4 !important;
+  left:50% !important;
+  top:-8px !important;
+  right:auto !important;
+  bottom:auto !important;
+  inset:auto auto auto 50% !important;
+  width:26px !important;
+  height:6px !important;
+  margin-left:-13px !important;
+  border:1px solid rgba(255,255,255,.36) !important;
+  border-radius:999px !important;
+  background:
+    linear-gradient(90deg, rgba(191,219,254,.10), rgba(125,190,255,.98), rgba(37,99,235,.82), rgba(191,219,254,.10)) !important;
+  box-shadow:
+    0 0 12px rgba(96,165,250,.30),
+    0 0 22px rgba(37,99,235,.16),
+    inset 0 1px 0 rgba(255,255,255,.42) !important;
+  opacity:.95 !important;
+  transform:rotate(0deg) !important;
+  transform-origin:13px 54px !important;
+  animation:upickV60OrbitSpark 1.85s linear infinite !important;
+  pointer-events:none !important;
+}
+
+#pageLoader .loader-mark > img,
+#pageLoader .loader-mark .loader-symbol-img{
+  position:relative !important;
+  z-index:3 !important;
+  display:block !important;
+  width:54px !important;
+  height:54px !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
+@keyframes upickV60OrbitSpark{
+  0%{transform:rotate(0deg); opacity:.72}
+  25%{opacity:1}
+  50%{opacity:.86}
+  75%{opacity:1}
+  100%{transform:rotate(360deg); opacity:.72}
+}
+
+@media (max-width:430px){
+  #pageLoader .loader-mark::after{
+    top:-8px !important;
+    width:24px !important;
+    height:5px !important;
+    margin-left:-12px !important;
+    transform-origin:12px 51px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
