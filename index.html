@@ -5146,6 +5146,47 @@ body {
 }
 </style>
 
+
+
+<!-- Upick v68 loader logo restore: CSS-only background-layer fix -->
+<style id="upick-v68-loader-logo-restore">
+/* 로딩 로고가 pseudo-element 충돌로 사라지는 현상 방지: 로고를 loader-mark 배경 레이어로 고정 */
+.global-loading.upick-loader-enhanced .loader-mark,
+.page-loader.upick-loader-enhanced .loader-mark,
+.global-loading.upick-admin-loader-enhanced .loader-mark,
+.page-loader.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
+#pageLoader.page-loader.upick-loader-enhanced .loader-mark{
+  background:
+    url('/icons/internal/brand-symbol-real.png') center/64px 64px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::before,
+.page-loader.upick-loader-enhanced .loader-mark::before,
+.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.page-loader.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark::before,
+#pageLoader.page-loader.upick-loader-enhanced .loader-mark::before{
+  content:none!important;
+  display:none!important;
+}
+@media(max-width:430px){
+  .global-loading.upick-loader-enhanced .loader-mark,
+  .page-loader.upick-loader-enhanced .loader-mark,
+  .global-loading.upick-admin-loader-enhanced .loader-mark,
+  .page-loader.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
+  #pageLoader.page-loader.upick-loader-enhanced .loader-mark{
+    background:
+      url('/icons/internal/brand-symbol-real.png') center/61px 61px no-repeat,
+      linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+  }
+}
+</style>
+
 </body>
 
 </html>
