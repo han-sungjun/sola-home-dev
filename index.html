@@ -3118,12 +3118,19 @@ img.brand-icon[src*="home.svg"],
 
 
   <div id="pageLoader" class="page-loader" aria-hidden="true">
-    <div class="loader-mark" aria-label="로딩 중" role="status">
-      <span class="arm top"></span>
-      <span class="arm left"></span>
-      <span class="arm mid"></span>
-      <span class="arm bot"></span>
-      <span class="arm bot2"></span>
+    <div class="loader-content" role="status" aria-live="polite">
+      <div class="loader-mark" aria-label="로딩 중">
+        <img src="/icons/internal/brand-symbol-real.png" alt="" aria-hidden="true" />
+        <span class="arm top"></span>
+        <span class="arm left"></span>
+        <span class="arm mid"></span>
+        <span class="arm bot"></span>
+        <span class="arm bot2"></span>
+      </div>
+      <div class="loader-copy" aria-hidden="true">
+        <p id="loaderMessage" class="loader-message">입주민 전용 서비스를 연결하고 있어요</p>
+        <p id="loaderSubMessage" class="loader-sub-message">잠시만 기다려주세요</p>
+      </div>
     </div>
   </div>
 
@@ -4071,314 +4078,231 @@ body {
 </style>
 
 
-<!-- ===== 더운정픽 UI v58: 로그인 로딩바 최종 캡슐형 보정 ===== -->
-<style id="upick-v58-login-loader-final-capsule">
-/* 마지막 로딩 스타일 우선순위 보정: 카드형 glass 제거 + 공개앱 느낌의 캡슐형 로딩바 */
-#pageLoader.page-loader,
-.page-loader{
+<!-- ===== 더운정픽 UI v58: 로그인 로딩 안내 문구 + 공개앱형 캡슐 보정 ===== -->
+<style id="upick-v58-loader-message-capsule">
+#pageLoader.page-loader{
   background:
-    linear-gradient(180deg, rgba(10,22,54,.26), rgba(10,22,54,.16)),
-    rgba(236,242,250,.18) !important;
-  backdrop-filter:blur(18px) saturate(110%) !important;
-  -webkit-backdrop-filter:blur(18px) saturate(110%) !important;
+    radial-gradient(circle at 50% 38%, rgba(96,165,250,.30), transparent 30%),
+    linear-gradient(180deg, rgba(7,26,61,.32), rgba(236,242,250,.42) 58%, rgba(245,239,228,.42)) !important;
+  backdrop-filter: blur(18px) saturate(112%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(112%) !important;
 }
 
-#pageLoader .loader-mark,
-.page-loader .loader-mark{
+#pageLoader .loader-content{
   position:relative !important;
-  width:96px !important;
-  height:96px !important;
-  min-width:96px !important;
+  z-index:2 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:26px !important;
+  transform:translateY(-6px) !important;
+  text-align:center !important;
+}
+
+#pageLoader .loader-mark{
+  position:relative !important;
+  width:92px !important;
+  height:92px !important;
+  min-width:92px !important;
   display:grid !important;
   place-items:center !important;
-  padding:0 !important;
-  margin:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  background-color:transparent !important;
-  background-image:none !important;
-  border:none !important;
-  outline:none !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
+  border-radius:28px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.055)) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  box-shadow:
+    0 18px 42px rgba(2,8,23,.14),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(255,255,255,.08) !important;
+  backdrop-filter:blur(14px) saturate(124%) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(124%) !important;
   overflow:visible !important;
-  filter:drop-shadow(0 10px 24px rgba(2,8,23,.16)) !important;
+  animation:upickV58LoaderFloat 1.35s ease-in-out infinite !important;
 }
 
-#pageLoader .loader-mark .arm,
-.page-loader .loader-mark .arm,
-#pageLoader .loader-mark span,
-.page-loader .loader-mark span{
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-}
-
-/* 로고 심볼은 카드 없이 단독 표시 */
-#pageLoader .loader-mark::before,
-.page-loader .loader-mark::before{
+#pageLoader .loader-mark::before{
   content:"" !important;
-  position:static !important;
-  inset:auto !important;
-  width:76px !important;
-  height:76px !important;
-  display:block !important;
-  border-radius:0 !important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
-  border:none !important;
-  box-shadow:none !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.20))
-    drop-shadow(0 8px 18px rgba(2,8,23,.16)) !important;
+  position:absolute !important;
+  inset:1px !important;
+  width:auto !important;
+  height:auto !important;
+  border-radius:inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.035) 48%, transparent 74%) !important;
+  filter:none !important;
+  pointer-events:none !important;
 }
 
-/* 공개앱 느낌의 하단 캡슐형 로딩바 */
-#pageLoader .loader-mark::after,
-.page-loader .loader-mark::after{
+#pageLoader .loader-mark::after{
   content:"" !important;
   position:absolute !important;
   left:50% !important;
-  top:auto !important;
-  bottom:-14px !important;
-  width:86px !important;
-  height:8px !important;
+  top:-10px !important;
+  bottom:auto !important;
+  right:auto !important;
+  inset:auto !important;
   transform:translateX(-50%) !important;
+  width:44px !important;
+  height:6px !important;
+  border:none !important;
   border-radius:999px !important;
   background:
-    linear-gradient(90deg,
-      rgba(147,197,253,.14) 0%,
-      rgba(96,165,250,.34) 22%,
-      rgba(96,165,250,.98) 50%,
-      rgba(96,165,250,.34) 78%,
-      rgba(147,197,253,.14) 100%
-    ) !important;
+    linear-gradient(90deg, rgba(147,197,253,.18), rgba(96,165,250,.96), rgba(147,197,253,.18)) !important;
   box-shadow:
-    0 0 14px rgba(96,165,250,.24),
+    0 0 12px rgba(96,165,250,.22),
     inset 0 1px 0 rgba(255,255,255,.22) !important;
-  animation:upickV58LoaderCapsulePulse 1.15s ease-in-out infinite !important;
+  animation:upickV58CapsulePulse 1.15s ease-in-out infinite !important;
 }
 
-@keyframes upickV58LoaderCapsulePulse{
-  0%,100%{opacity:.46;width:64px}
-  50%{opacity:1;width:96px}
-}
-
-@media(max-width:430px){
-  #pageLoader .loader-mark,
-  .page-loader .loader-mark{
-    width:88px !important;
-    height:88px !important;
-    min-width:88px !important;
-  }
-  #pageLoader .loader-mark::before,
-  .page-loader .loader-mark::before{
-    width:70px !important;
-    height:70px !important;
-  }
-}
-</style>
-
-
-
-<!-- ===== 더운정픽 UI v59: 로그인 로딩 공개앱 캡슐형 최종 보정 ===== -->
-<style id="upick-v59-login-loader-public-capsule">
-/* 로그인 페이지 로딩: 공개앱과 동일한 상단 캡슐바 + 소프트 글래스 심볼 */
-.top-loader,
-.top-progress,
-.loading-bar,
-#topLoader,
-#topLoadingBar,
-.browser-loading-bar,
-.app-top-loading{
-  display:none !important;
-  height:0 !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-
-#pageLoader,
-.page-loader,
-.global-loading{
-  position:fixed !important;
-  inset:0 !important;
-  width:100vw !important;
-  height:100dvh !important;
-  min-height:100dvh !important;
-  align-items:center !important;
-  justify-content:center !important;
-  background:
-    linear-gradient(180deg, rgba(10,22,54,.30), rgba(10,22,54,.16)),
-    rgba(236,242,250,.18) !important;
-  backdrop-filter:blur(18px) saturate(112%) !important;
-  -webkit-backdrop-filter:blur(18px) saturate(112%) !important;
-  z-index:2147483000 !important;
-  overflow:hidden !important;
-}
-#pageLoader.show,
-.page-loader.show,
-.global-loading.show{display:flex !important;}
-
-#pageLoader::before,
-.page-loader::before,
-.global-loading::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(96,165,250,.20), transparent 34%),
-    radial-gradient(circle at 50% 56%, rgba(255,255,255,.16), transparent 38%) !important;
-  pointer-events:none !important;
-}
-
-#pageLoader .loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark,
-#pageLoader .loader-logo-wrap,
-.page-loader .loader-logo-wrap,
-.global-loading .loader-logo-wrap{
-  position:relative !important;
-  width:96px !important;
-  height:96px !important;
-  min-width:96px !important;
-  display:grid !important;
-  place-items:center !important;
-  border-radius:30px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.06)) !important;
-  border:1px solid rgba(255,255,255,.20) !important;
-  box-shadow:
-    0 16px 36px rgba(2,8,23,.16),
-    inset 0 1px 0 rgba(255,255,255,.26),
-    inset 0 -1px 0 rgba(255,255,255,.06) !important;
-  backdrop-filter:blur(14px) saturate(128%) !important;
-  -webkit-backdrop-filter:blur(14px) saturate(128%) !important;
-  overflow:visible !important;
-  transform:none !important;
-  animation:upickV59LoaderFloat 1.25s ease-in-out infinite !important;
-}
-
-/* 심볼 */
-#pageLoader .loader-mark::before,
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before,
-#pageLoader .loader-logo-wrap::before,
-.page-loader .loader-logo-wrap::before,
-.global-loading .loader-logo-wrap::before{
-  content:"" !important;
-  position:static !important;
-  inset:auto !important;
-  width:74px !important;
-  height:74px !important;
+#pageLoader .loader-mark img{
   display:block !important;
-  border-radius:0 !important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  position:relative !important;
+  z-index:2 !important;
+  width:54px !important;
+  height:54px !important;
+  object-fit:contain !important;
+  opacity:1 !important;
+  background:transparent !important;
   border:none !important;
   box-shadow:none !important;
   filter:
     drop-shadow(0 1px 0 rgba(255,255,255,.22))
-    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
-  z-index:2 !important;
+    drop-shadow(0 7px 16px rgba(2,8,23,.16)) !important;
 }
 
-/* 공개앱처럼 심볼 위에 떠 있는 짧은 캡슐바 */
-#pageLoader .loader-mark::after,
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after,
-#pageLoader .loader-logo-wrap::after,
-.page-loader .loader-logo-wrap::after,
-.global-loading .loader-logo-wrap::after{
-  content:"" !important;
-  position:absolute !important;
-  left:50% !important;
-  top:-11px !important;
-  bottom:auto !important;
-  width:82px !important;
-  height:7px !important;
-  transform:translateX(-50%) !important;
-  border-radius:999px !important;
-  border:none !important;
-  background:
-    linear-gradient(90deg,
-      rgba(147,197,253,.10) 0%,
-      rgba(147,197,253,.36) 20%,
-      rgba(96,165,250,.96) 50%,
-      rgba(147,197,253,.36) 80%,
-      rgba(147,197,253,.10) 100%) !important;
-  box-shadow:
-    0 0 14px rgba(96,165,250,.24),
-    inset 0 1px 0 rgba(255,255,255,.24) !important;
-  animation:upickV59LoaderCapsule 1.12s ease-in-out infinite !important;
-  pointer-events:none !important;
-}
-
-#pageLoader .loader-mark img,
-.page-loader .loader-mark img,
-.global-loading .loader-mark img,
-#pageLoader .loader-logo-wrap img,
-.page-loader .loader-logo-wrap img,
-.global-loading .loader-logo-wrap img{
-  display:none !important;
-}
-
-#pageLoader .loader-mark .arm,
-.page-loader .loader-mark .arm,
-.global-loading .loader-mark .arm,
-#pageLoader .loader-mark span,
-.page-loader .loader-mark span,
-.global-loading .loader-mark span,
-#pageLoader .loader-logo-wrap .arm,
-.page-loader .loader-logo-wrap .arm,
-.global-loading .loader-logo-wrap .arm{
+#pageLoader .loader-mark .arm{
   display:none !important;
   opacity:0 !important;
   visibility:hidden !important;
 }
 
-#pageLoader .loader-progress,
-.page-loader .loader-progress,
-.global-loading .loader-progress,
-#pageLoader .loader-progress-bar,
-.page-loader .loader-progress-bar,
-.global-loading .loader-progress-bar{
-  display:none !important;
+#pageLoader .loader-copy{
+  min-height:54px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  padding:0 18px !important;
+}
+
+#pageLoader .loader-message,
+#pageLoader .loader-sub-message{
+  margin:0 !important;
+  word-break:keep-all !important;
+  letter-spacing:-.045em !important;
+  text-align:center !important;
+  transition:opacity .24s ease, transform .24s ease !important;
+}
+
+#pageLoader .loader-message{
+  color:rgba(43,62,96,.74) !important;
+  font-size:21px !important;
+  line-height:1.34 !important;
+  font-weight:700 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.28) !important;
+}
+
+#pageLoader .loader-sub-message{
+  color:rgba(43,62,96,.58) !important;
+  font-size:15px !important;
+  line-height:1.45 !important;
+  font-weight:600 !important;
+}
+
+#pageLoader .loader-copy.is-changing .loader-message,
+#pageLoader .loader-copy.is-changing .loader-sub-message{
   opacity:0 !important;
-  visibility:hidden !important;
+  transform:translateY(4px) !important;
 }
 
-@keyframes upickV59LoaderFloat{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-3px)}
-}
-@keyframes upickV59LoaderCapsule{
-  0%,100%{opacity:.42;width:62px}
-  50%{opacity:1;width:90px}
+@keyframes upickV58LoaderFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-4px) scale(1.018)}
 }
 
-@media(max-width:430px){
-  #pageLoader .loader-mark,
-  .page-loader .loader-mark,
-  .global-loading .loader-mark,
-  #pageLoader .loader-logo-wrap,
-  .page-loader .loader-logo-wrap,
-  .global-loading .loader-logo-wrap{
-    width:92px !important;
-    height:92px !important;
-    min-width:92px !important;
-    border-radius:29px !important;
-  }
-  #pageLoader .loader-mark::before,
-  .page-loader .loader-mark::before,
-  .global-loading .loader-mark::before,
-  #pageLoader .loader-logo-wrap::before,
-  .page-loader .loader-logo-wrap::before,
-  .global-loading .loader-logo-wrap::before{
-    width:72px !important;
-    height:72px !important;
-  }
+@keyframes upickV58CapsulePulse{
+  0%,100%{opacity:.46;width:34px}
+  50%{opacity:1;width:54px}
+}
+
+@media (max-width:430px){
+  #pageLoader .loader-content{gap:24px;transform:translateY(-4px)}
+  #pageLoader .loader-mark{width:88px!important;height:88px!important;min-width:88px!important;border-radius:27px!important}
+  #pageLoader .loader-mark img{width:52px!important;height:52px!important}
+  #pageLoader .loader-message{font-size:19px!important}
+  #pageLoader .loader-sub-message{font-size:14px!important}
 }
 </style>
+
+<script id="upick-v58-loader-message-script">
+(function(){
+  const phases = [
+    { at: 0, main: '입주민 전용 서비스를 연결하고 있어요', sub: '잠시만 기다려주세요' },
+    { at: 1200, main: '필요한 혜택 정보를 정리하고 있어요', sub: '곧 더운정픽으로 이동합니다' },
+    { at: 3200, main: '네트워크 상태에 따라 조금 더 걸릴 수 있어요', sub: '안정적으로 불러오는 중입니다' },
+    { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+  ];
+
+  const loader = document.getElementById('pageLoader');
+  const main = document.getElementById('loaderMessage');
+  const sub = document.getElementById('loaderSubMessage');
+  const copy = loader ? loader.querySelector('.loader-copy') : null;
+  if (!loader || !main || !sub || !copy) return;
+
+  let timers = [];
+  let lastVisible = false;
+
+  function clearTimers(){
+    timers.forEach(clearTimeout);
+    timers = [];
+  }
+
+  function setMessage(phase, immediate){
+    if (immediate){
+      main.textContent = phase.main;
+      sub.textContent = phase.sub;
+      return;
+    }
+    copy.classList.add('is-changing');
+    timers.push(setTimeout(function(){
+      main.textContent = phase.main;
+      sub.textContent = phase.sub;
+      copy.classList.remove('is-changing');
+    }, 180));
+  }
+
+  function start(){
+    clearTimers();
+    setMessage(phases[0], true);
+    phases.slice(1).forEach(function(phase){
+      timers.push(setTimeout(function(){
+        if (loader.classList.contains('show')) setMessage(phase, false);
+      }, phase.at));
+    });
+  }
+
+  function stop(){
+    clearTimers();
+    copy.classList.remove('is-changing');
+  }
+
+  const observer = new MutationObserver(function(){
+    const visible = loader.classList.contains('show') || loader.getAttribute('aria-hidden') === 'false';
+    if (visible && !lastVisible) start();
+    if (!visible && lastVisible) stop();
+    lastVisible = visible;
+  });
+
+  observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden'] });
+
+  if (loader.classList.contains('show') || loader.getAttribute('aria-hidden') === 'false'){
+    lastVisible = true;
+    start();
+  }
+})();
+</script>
 
 </body>
 
