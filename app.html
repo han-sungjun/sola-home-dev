@@ -26063,4 +26063,109 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 })();
 </script>
 
+
+<script id="upick-public-v28-header-button-proxy">
+(function(){
+  function clickRealButton(id){
+    const btn = document.getElementById(id);
+    if(btn){
+      btn.click();
+      return true;
+    }
+    return false;
+  }
+
+  function fallbackShowView(viewId){
+    const view = document.getElementById(viewId);
+    if(!view) return false;
+    document.querySelectorAll("[id^='view-']").forEach(v => v.classList.add("hidden"));
+    view.classList.remove("hidden");
+    return true;
+  }
+
+  document.addEventListener("click", function(e){
+    const commonHeader = e.target.closest(".upick-tab-common-header");
+    if(!commonHeader) return;
+
+    const btn = e.target.closest(".upick-tab-header-btn");
+    if(!btn) return;
+
+    /* 비홈 탭 헤더 버튼은 홈 탭의 실제 작동 버튼으로 프록시 */
+    if(btn.classList.contains("ai") || btn.getAttribute("data-upick-go") === "ai"){
+      e.preventDefault();
+      e.stopPropagation();
+      if(!clickRealButton("aiQuickBtn")){
+        fallbackShowView("view-ai");
+      }
+      return;
+    }
+
+    if(btn.classList.contains("install") || btn.hasAttribute("data-upick-install")){
+      e.preventDefault();
+      e.stopPropagation();
+      if(!clickRealButton("installTopBtn")){
+        const msg = "브라우저 메뉴에서 홈 화면에 추가하거나 앱처럼 설치할 수 있습니다.";
+        const appAlert = document.getElementById("appAlert");
+        if(appAlert){
+          appAlert.textContent = msg;
+          appAlert.classList.remove("hidden");
+          appAlert.setAttribute("aria-hidden","false");
+          setTimeout(()=>appAlert.classList.add("hidden"), 2600);
+        }else{
+          alert(msg);
+        }
+      }
+      return;
+    }
+
+    if(btn.hasAttribute("data-upick-open-gnb")){
+      e.preventDefault();
+      e.stopPropagation();
+      if(!clickRealButton("gnbToggleBtn")){
+        document.body.classList.add("gnb-open");
+        const sheet = document.querySelector(".gnb-sheet,.gnb-panel,#gnbSheet,#gnbMenu");
+        if(sheet){
+          sheet.classList.remove("hidden");
+          sheet.setAttribute("aria-hidden","false");
+          sheet.style.display = "";
+        }
+      }
+      return;
+    }
+  }, true);
+
+  /* 혹시 기존 생성 버튼에 속성이 누락된 경우 순서 기준으로 보강 */
+  function normalizeHeaders(){
+    document.querySelectorAll(".upick-tab-common-header").forEach(header => {
+      const btns = Array.from(header.querySelectorAll(".upick-tab-header-btn"));
+      if(btns[0]){
+        btns[0].classList.add("ai");
+        btns[0].setAttribute("data-upick-go","ai");
+      }
+      if(btns[1]){
+        btns[1].classList.add("install");
+        btns[1].setAttribute("data-upick-install","");
+      }
+      if(btns[2]){
+        btns[2].setAttribute("data-upick-open-gnb","");
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", normalizeHeaders, {once:true});
+  }else{
+    normalizeHeaders();
+  }
+  setTimeout(normalizeHeaders, 300);
+  setTimeout(normalizeHeaders, 1000);
+
+  document.addEventListener("click", function(e){
+    if(e.target.closest("[data-view],[data-view-link],.nav-btn,.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.all-menu-card")){
+      setTimeout(normalizeHeaders, 120);
+    }
+  }, true);
+})();
+</script>
+
 </body></html>
