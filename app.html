@@ -10725,6 +10725,59 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 .gnb-menu-icon:not(:has(img))::before,.gnb-card-icon:not(:has(img))::before,.admin-all-card-icon:not(:has(img))::before,.all-icon:not(:has(img))::before{content:"";display:inline-block;width:24px;height:24px;background:url('/icons/internal/all-menu.svg') center/contain no-repeat;}
 </style>
 
+
+
+<style id="upick-blue-premium-v6-priority-fix">
+/* ===== v6: 공개앱 자동 로그아웃 UI 제거 / 기능 유지 ===== */
+.idle-timer-chip,
+[data-idle-timer-chip],
+.myhills-idle-widget,
+[data-myhills-idle-widget="true"],
+.topbar-left-titleline .idle-timer-chip,
+.topbar-left-titleline [data-idle-timer-chip],
+.topbar-left-titleline .myhills-idle-widget,
+.topbar-left-titleline [data-myhills-idle-widget="true"]{
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  min-width:0!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.topbar-left-titleline{
+  grid-template-columns:minmax(0,1fr)!important;
+}
+.topbar-left-titleline .brand{
+  width:100%!important;
+  max-width:100%!important;
+}
+/* GNB 심볼마크가 너무 작게 보이지 않도록 보정 */
+.logo::before,
+.brand .logo::before,
+.title-icon::before,
+.gnb-hero-emoji::before,
+.loader-mark::before{
+  background-size:contain!important;
+}
+.brand .logo::before,
+.logo::before{
+  inset:5px!important;
+}
+.gnb-hero-emoji::before{
+  width:78%!important;
+  height:78%!important;
+}
+.loader-mark::before{
+  width:68px!important;
+  height:68px!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">

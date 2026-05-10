@@ -2682,6 +2682,62 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 .gnb-menu-icon:not(:has(img))::before,.gnb-card-icon:not(:has(img))::before,.admin-all-card-icon:not(:has(img))::before,.all-icon:not(:has(img))::before{content:"";display:inline-block;width:24px;height:24px;background:url('/icons/internal/all-menu.svg') center/contain no-repeat;}
 </style>
 
+
+
+<style id="upick-blue-premium-v6-admin-fix">
+/* ===== v6: 관리자 자동 로그아웃 UI 표시 제거 / 기능 유지 ===== */
+#adminIdleTimerHost,
+#adminIdleTimerHost *,
+.admin-topbar [data-idle-timer-chip],
+.admin-topbar .idle-timer-chip{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+/* 관리자 우측 상단 공개앱 이동 아이콘: 집모양 대신 브랜드 심볼 */
+.admin-public-app-btn img{
+  width:27px!important;
+  height:27px!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+.admin-public-app-btn{
+  font-size:0!important;
+}
+/* 관리자 GNB는 운영 메뉴만 노출: 최근/신규 섹션 잔여 노출 방지 */
+#adminGnbSheet .gnb-title-badge.recent,
+#adminGnbSheet .gnb-title-badge.new{
+  display:none!important;
+}
+#adminGnbSheet .gnb-section:has(.gnb-title-badge.recent),
+#adminGnbSheet .gnb-section:has(.gnb-title-badge.new){
+  display:none!important;
+}
+#adminGnbSheet .gnb-body{
+  padding-top:18px!important;
+}
+#adminGnbSheet .gnb-menu-sublist{
+  margin-top:0!important;
+}
+/* 관리자 GNB 심볼마크 크기 보정 */
+#adminGnbSheet .gnb-hero-emoji::before{
+  width:78%!important;
+  height:78%!important;
+}
+#adminGnbSheet .gnb-hero-emoji img{
+  width:78%!important;
+  height:78%!important;
+  object-fit:contain!important;
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2700,7 +2756,7 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
           <div class="admin-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
           <div><strong id="adminTopUser">운영자 확인 중</strong><span id="adminTopStatus">로그인 필요</span></div>
         </div>
-        <button class="icon-btn" onclick="location.href='/'" title="공개 페이지">⌂</button>
+        <button class="icon-btn admin-public-app-btn" onclick="location.href='/'" title="입주민 앱"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="" loading="lazy"></button>
 <button class="icon-btn" id="adminGnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
       </div>
       <div class="admin-topbar-left admin-topbar-left-titleline">
@@ -6552,92 +6608,6 @@ function fillForm(item){
         <span>운영 업무를 한 곳에서 빠르게 처리하세요</span>
         <span>›</span>
       </div>
-
-      <section class="gnb-section">
-        <h3 class="gnb-section-title">
-          <span class="gnb-section-label">
-            <span class="gnb-title-badge recent"><img class="upick-svg-icon" src="/icons/internal/clock.svg" alt="" loading="lazy"></span>
-            <span class="gnb-section-text"><small>RECENT</small><strong>최근에 봤어요</strong></span>
-          </span>
-        </h3>
-        <div class="gnb-chip-row">
-          <button class="gnb-chip gnb-tone-dashboard" type="button" data-admin-view="dashboard"><span class="gnb-active-badge" hidden>ACTIVE</span>
-            <span class="gnb-card">
-              <span class="gnb-card-icon dashboard"><img class="upick-svg-icon" src="/icons/internal/dashboard.svg" alt="" loading="lazy"></span>
-              <span class="gnb-card-copy">
-                <strong>대시보드</strong>
-                <span>오늘 통계와 최근 등록 항목을 한눈에 확인</span>
-              </span>
-              <span class="gnb-card-arrow">›</span>
-            </span>
-          </button>
-        </div>
-      </section>
-
-      <section class="gnb-section">
-        <h3 class="gnb-section-title">
-          <span class="gnb-section-label">
-            <span class="gnb-title-badge new"><img class="upick-svg-icon" src="/icons/internal/pin-blue.svg" alt="" loading="lazy"></span>
-            <span class="gnb-section-text"><small>FEATURED</small><strong>새로 나왔어요</strong></span>
-          </span>
-        </h3>
-        <div class="gnb-new-section">
-          <div class="gnb-menu-list">
-            <button class="gnb-menu-item gnb-tone-benefits" type="button" data-admin-view="benefits"><span class="gnb-active-badge" hidden>ACTIVE</span>
-              <span class="gnb-card">
-                <span class="gnb-card-icon benefits"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span>
-                <span class="gnb-card-copy">
-                  <strong>혜택 관리</strong>
-                  <span>제휴 혜택 등록과 수정</span>
-                </span>
-                <span class="gnb-card-arrow">›</span>
-              </span>
-            </button>
-            <button class="gnb-menu-item gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community"><img class="upick-svg-icon" src="/icons/internal/chat.svg" alt="" loading="lazy"></span><span class="gnb-card-copy"><strong>커뮤니티 관리</strong><span>게시글·댓글·신고</span></span><span class="gnb-card-arrow">›</span></span></button>
-            <button class="gnb-menu-item gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></span><span class="gnb-card-copy"><strong>AI 생활 도우미</strong><span>FAQ·전자책·가이드·질문 로그</span></span><span class="gnb-card-arrow">›</span></span></button>
-            <button class="gnb-menu-item gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
-              <span class="gnb-card">
-                <span class="gnb-card-icon notices"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span>
-                <span class="gnb-card-copy">
-                  <strong>공지 관리</strong>
-                  <span>공지 작성과 푸시 작업 연결</span>
-                </span>
-                <span class="gnb-card-arrow">›</span>
-              </span>
-            </button>
-            <button class="gnb-menu-item gnb-tone-members" type="button" data-admin-view="members"><span class="gnb-active-badge" hidden>ACTIVE</span>
-              <span class="gnb-card">
-                <span class="gnb-card-icon members"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span>
-                <span class="gnb-card-copy">
-                  <strong>회원 관리</strong>
-                  <span>입주민 계정 확인</span>
-                </span>
-                <span class="gnb-card-arrow">›</span>
-              </span>
-            </button>
-            <button class="gnb-menu-item gnb-tone-data" type="button" data-admin-view="dashboard-data"><span class="gnb-active-badge" hidden>ACTIVE</span>
-              <span class="gnb-card">
-                <span class="gnb-card-icon data"><img class="upick-svg-icon" src="/icons/internal/data.svg" alt="" loading="lazy"></span>
-                <span class="gnb-card-copy">
-                  <strong>데이터 관리</strong>
-                  <span>내보내기와 기본 데이터 업로드</span>
-                </span>
-                <span class="gnb-card-arrow">›</span>
-              </span>
-            </button>
-            <button class="gnb-menu-item gnb-tone-all" type="button" data-admin-view="all"><span class="gnb-active-badge" hidden>ACTIVE</span>
-              <span class="gnb-card">
-                <span class="gnb-card-icon all"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></span>
-                <span class="gnb-card-copy">
-                  <strong>전체 기능</strong>
-                  <span>커뮤니티와 운영 메뉴 모아보기</span>
-                </span>
-                <span class="gnb-card-arrow">›</span>
-              </span>
-            </button>
-          </div>
-        </div>
-      </section>
 
       <section class="gnb-section">
         <h3 class="gnb-section-title">
