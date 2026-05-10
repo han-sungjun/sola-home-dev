@@ -4619,6 +4619,126 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v62: 로그인 로딩 오빗 하이라이트 가시성 보정 ===== -->
+<style id="upick-v62-loader-orbit-visible-final">
+/* v61의 mask 방식이 일부 환경에서 거의 안 보이는 문제를 피하기 위해,
+   외곽 전용 pseudo ring 방식으로 최종 보정합니다. */
+#pageLoader .loader-content{
+  position:relative !important;
+  z-index:2 !important;
+}
+
+#pageLoader .loader-mark{
+  position:relative !important;
+  overflow:visible !important;
+  isolation:isolate !important;
+  width:92px !important;
+  height:92px !important;
+  min-width:92px !important;
+  border-radius:29px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.78), rgba(220,236,255,.48)) !important;
+  border:1px solid rgba(255,255,255,.46) !important;
+  box-shadow:
+    0 22px 48px rgba(15,44,92,.18),
+    inset 0 1px 0 rgba(255,255,255,.72),
+    inset 0 -1px 0 rgba(96,165,250,.16) !important;
+  backdrop-filter:blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(150%) !important;
+}
+
+/* 기존 span orbit/mask 레이어는 끄고, 위치 안정적인 외곽 ring만 사용 */
+#pageLoader .loader-mark .loader-orbit{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+#pageLoader .loader-mark::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:inherit !important;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,.42), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0)) !important;
+  z-index:1 !important;
+  pointer-events:none !important;
+}
+
+#pageLoader .loader-mark::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  inset:-7px !important;
+  left:-7px !important;
+  right:-7px !important;
+  top:-7px !important;
+  bottom:-7px !important;
+  width:auto !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:0 !important;
+  border-radius:36px !important;
+  border:2px solid rgba(147,197,253,.16) !important;
+  border-top-color:rgba(125,190,255,1) !important;
+  border-right-color:rgba(37,99,235,.92) !important;
+  border-bottom-color:rgba(147,197,253,.08) !important;
+  border-left-color:rgba(191,219,254,.24) !important;
+  background:transparent !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.38),
+    0 0 28px rgba(37,99,235,.20),
+    inset 0 0 10px rgba(255,255,255,.18) !important;
+  opacity:.98 !important;
+  z-index:2 !important;
+  transform:none !important;
+  transform-origin:50% 50% !important;
+  animation:upickV62LoaderOrbitVisible 1.45s linear infinite !important;
+  pointer-events:none !important;
+}
+
+#pageLoader .loader-mark > img{
+  position:relative !important;
+  z-index:4 !important;
+  display:block !important;
+  width:54px !important;
+  height:54px !important;
+  object-fit:contain !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 7px 16px rgba(2,8,23,.16)) !important;
+}
+
+@keyframes upickV62LoaderOrbitVisible{
+  0%{ transform:rotate(0deg); opacity:.86; }
+  45%{ opacity:1; }
+  100%{ transform:rotate(360deg); opacity:.86; }
+}
+
+@media(max-width:430px){
+  #pageLoader .loader-mark{
+    width:88px !important;
+    height:88px !important;
+    min-width:88px !important;
+    border-radius:28px !important;
+  }
+  #pageLoader .loader-mark::after{
+    inset:-7px !important;
+    border-radius:35px !important;
+    border-width:2px !important;
+  }
+  #pageLoader .loader-mark > img{
+    width:52px !important;
+    height:52px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
