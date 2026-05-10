@@ -13152,6 +13152,293 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="upick-public-v36-proposal-header">
+/* ===== 더운정픽 v36: 공개앱 전체 헤더 제안서 스타일 통일 =====
+   - 홈/혜택/즐겨찾기/TOP5/전체/AI/캘린더/지도/공지 공통
+   - 제안서처럼 히어로 내부 상단에 반투명 브랜드 블록 + 유틸 버튼 3개 구성
+   - 기능/버튼 동작은 변경하지 않음
+*/
+:root{
+  --upick-proposal-navy:#071A3D;
+  --upick-proposal-blue:#2563EB;
+  --upick-proposal-line:rgba(191,219,254,.30);
+  --upick-proposal-glass:rgba(255,255,255,.115);
+  --upick-proposal-glass-strong:rgba(255,255,255,.155);
+}
+
+/* 홈/서브탭 공통 헤더 위치와 형태 */
+.upick-home-hero-shell .topbar,
+.upick-tab-common-header{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 48px 48px 48px!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  position:relative!important;
+  z-index:5!important;
+}
+
+/* 브랜드 블록: 제안서식 반투명 라운드 카드 */
+.upick-home-hero-shell .upick-header-brand,
+.upick-home-hero-shell .brand,
+.upick-tab-brand-block{
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  height:64px!important;
+  padding:9px 14px 9px 10px!important;
+  border-radius:24px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.075))!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 16px 34px rgba(2,8,23,.14)!important;
+  color:#fff!important;
+  backdrop-filter:blur(13px)!important;
+  -webkit-backdrop-filter:blur(13px)!important;
+  overflow:hidden!important;
+}
+
+/* 브랜드 블록 내부 미세 하이라이트 */
+.upick-home-hero-shell .upick-header-brand::after,
+.upick-home-hero-shell .brand::after,
+.upick-tab-brand-block::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  border-radius:inherit!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.20),rgba(255,255,255,0) 42%)!important;
+  opacity:.70!important;
+}
+
+/* 심볼 박스 */
+.upick-home-hero-shell .upick-header-brand .logo,
+.upick-home-hero-shell .brand .logo,
+.upick-tab-brand-logo{
+  position:relative!important;
+  z-index:1!important;
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+  border-radius:17px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%)!important;
+  border:1px solid rgba(219,234,254,.90)!important;
+  box-shadow:
+    0 10px 22px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.96)!important;
+  overflow:hidden!important;
+}
+.upick-home-hero-shell .upick-header-brand .logo::before,
+.upick-home-hero-shell .brand .logo::before{
+  content:none!important;
+  display:none!important;
+}
+.upick-home-hero-shell .upick-header-brand .logo img,
+.upick-home-hero-shell .brand .logo img,
+.upick-tab-brand-logo img{
+  display:block!important;
+  width:34px!important;
+  height:34px!important;
+  object-fit:contain!important;
+  opacity:1!important;
+  filter:none!important;
+}
+
+/* 브랜드 텍스트 */
+.upick-home-hero-shell .upick-brand-copy,
+.upick-tab-brand-copy{
+  position:relative!important;
+  z-index:1!important;
+  min-width:0!important;
+}
+.upick-home-hero-shell .upick-brand-copy h1,
+.upick-home-hero-shell .upick-header-brand strong,
+.upick-home-hero-shell .brand h1,
+.upick-tab-brand-copy strong{
+  display:block!important;
+  margin:0!important;
+  color:#fff!important;
+  font-size:23px!important;
+  line-height:1.06!important;
+  font-weight:1000!important;
+  letter-spacing:-.065em!important;
+  white-space:nowrap!important;
+  text-shadow:0 2px 10px rgba(2,8,23,.30)!important;
+}
+.upick-home-hero-shell .upick-brand-copy p,
+.upick-home-hero-shell .upick-header-brand span,
+.upick-home-hero-shell .brand p,
+.upick-tab-brand-copy span{
+  display:block!important;
+  margin:5px 0 0!important;
+  color:rgba(255,255,255,.80)!important;
+  font-size:12px!important;
+  line-height:1.15!important;
+  font-weight:850!important;
+  white-space:nowrap!important;
+  text-shadow:0 1px 8px rgba(2,8,23,.22)!important;
+}
+
+/* 우측 유틸 버튼: 제안서처럼 같은 톤의 글래스 버튼 */
+.upick-home-hero-shell .upick-header-utils,
+.upick-tab-common-header > .upick-tab-header-btn{
+  position:relative!important;
+  z-index:5!important;
+}
+.upick-home-hero-shell .upick-header-utils{
+  display:contents!important;
+}
+.upick-home-hero-shell .icon-btn,
+.upick-tab-header-btn{
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  flex:0 0 48px!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.13)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  color:#fff!important;
+  box-shadow:
+    0 14px 28px rgba(2,8,23,.15),
+    inset 0 1px 0 rgba(255,255,255,.18)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  display:grid!important;
+  place-items:center!important;
+}
+.upick-home-hero-shell .icon-btn img,
+.upick-home-hero-shell .icon-btn svg,
+.upick-tab-header-btn img,
+.upick-tab-header-btn svg{
+  width:22px!important;
+  height:22px!important;
+  object-fit:contain!important;
+  opacity:1!important;
+  filter:brightness(0) invert(1) drop-shadow(0 3px 8px rgba(2,8,23,.20))!important;
+  color:#fff!important;
+  stroke:#fff!important;
+}
+
+/* AI 활성 점 */
+.upick-home-hero-shell .ai-btn::after,
+.upick-tab-header-btn.ai::after{
+  content:""!important;
+  position:absolute!important;
+  top:7px!important;
+  right:8px!important;
+  width:7px!important;
+  height:7px!important;
+  border-radius:999px!important;
+  background:#22c55e!important;
+  border:2px solid rgba(255,255,255,.85)!important;
+  box-shadow:0 0 0 3px rgba(34,197,94,.12),0 0 10px rgba(34,197,94,.55)!important;
+}
+
+/* 홈탭에서 user-chip 등이 끼어들어 헤더가 깨지는 것 방지 */
+.upick-home-hero-shell .user-chip,
+.upick-home-hero-shell .topbar-userbar,
+.upick-home-hero-shell .logout-btn{
+  display:none!important;
+}
+
+/* 헤더가 들어간 히어로 전체는 제안서와 맞게 약간 여백 정리 */
+.upick-home-hero-shell,
+.upick-tab-premium-hero{
+  padding-top:14px!important;
+}
+
+@media(max-width:520px){
+  .upick-home-hero-shell .topbar,
+  .upick-tab-common-header{
+    grid-template-columns:minmax(0,1fr) 44px 44px 44px!important;
+    gap:8px!important;
+  }
+  .upick-home-hero-shell .upick-header-brand,
+  .upick-home-hero-shell .brand,
+  .upick-tab-brand-block{
+    height:58px!important;
+    padding:8px 11px 8px 8px!important;
+    border-radius:21px!important;
+    gap:8px!important;
+  }
+  .upick-home-hero-shell .upick-header-brand .logo,
+  .upick-home-hero-shell .brand .logo,
+  .upick-tab-brand-logo{
+    width:42px!important;
+    height:42px!important;
+    flex-basis:42px!important;
+    border-radius:15px!important;
+  }
+  .upick-home-hero-shell .upick-header-brand .logo img,
+  .upick-home-hero-shell .brand .logo img,
+  .upick-tab-brand-logo img{
+    width:30px!important;
+    height:30px!important;
+  }
+  .upick-home-hero-shell .upick-brand-copy h1,
+  .upick-home-hero-shell .upick-header-brand strong,
+  .upick-home-hero-shell .brand h1,
+  .upick-tab-brand-copy strong{
+    font-size:20px!important;
+  }
+  .upick-home-hero-shell .upick-brand-copy p,
+  .upick-home-hero-shell .upick-header-brand span,
+  .upick-home-hero-shell .brand p,
+  .upick-tab-brand-copy span{
+    font-size:10.5px!important;
+    margin-top:4px!important;
+  }
+  .upick-home-hero-shell .icon-btn,
+  .upick-tab-header-btn{
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    flex-basis:44px!important;
+    border-radius:16px!important;
+  }
+  .upick-home-hero-shell .icon-btn img,
+  .upick-tab-header-btn img{
+    width:20px!important;
+    height:20px!important;
+  }
+}
+
+@media(max-width:370px){
+  .upick-home-hero-shell .topbar,
+  .upick-tab-common-header{
+    grid-template-columns:minmax(0,1fr) 40px 40px 40px!important;
+    gap:7px!important;
+  }
+  .upick-home-hero-shell .upick-header-brand,
+  .upick-home-hero-shell .brand,
+  .upick-tab-brand-block{
+    height:54px!important;
+  }
+  .upick-home-hero-shell .upick-brand-copy h1,
+  .upick-tab-brand-copy strong{
+    font-size:18px!important;
+  }
+  .upick-home-hero-shell .icon-btn,
+  .upick-tab-header-btn{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    flex-basis:40px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
