@@ -3120,6 +3120,7 @@ img.brand-icon[src*="home.svg"],
   <div id="pageLoader" class="page-loader" aria-hidden="true">
     <div class="loader-content" role="status" aria-live="polite">
       <div class="loader-mark" aria-label="로딩 중">
+        <span class="loader-orbit" aria-hidden="true"></span>
         <img src="/icons/internal/brand-symbol-real.png" alt="" aria-hidden="true" />
         <span class="arm top"></span>
         <span class="arm left"></span>
@@ -4542,6 +4543,78 @@ body {
     height:5px !important;
     margin-left:-12px !important;
     transform-origin:12px 51px !important;
+  }
+}
+</style>
+
+
+<!-- ===== 더운정픽 UI v61: 로그인 로딩 외곽 오빗 하이라이트 재보정 ===== -->
+<style id="upick-v61-loader-orbit-border-only">
+/* 기존 ::after 방식은 내부 심볼을 침범할 수 있어 완전히 끄고, 별도 span으로 외곽 테두리만 회전 */
+#pageLoader .loader-mark::after{
+  content:none !important;
+  display:none !important;
+  animation:none !important;
+}
+
+#pageLoader .loader-mark{
+  position:relative !important;
+  overflow:visible !important;
+  isolation:isolate !important;
+}
+
+#pageLoader .loader-mark .loader-orbit{
+  display:block !important;
+  position:absolute !important;
+  z-index:2 !important;
+  inset:-5px !important;
+  width:auto !important;
+  height:auto !important;
+  border-radius:33px !important;
+  padding:2px !important;
+  pointer-events:none !important;
+  background:
+    conic-gradient(from 0deg,
+      transparent 0deg,
+      transparent 238deg,
+      rgba(191,219,254,.16) 252deg,
+      rgba(125,190,255,.98) 272deg,
+      rgba(37,99,235,.92) 290deg,
+      rgba(191,219,254,.16) 310deg,
+      transparent 326deg,
+      transparent 360deg
+    ) border-box !important;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite:xor !important;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0) !important;
+  mask-composite:exclude !important;
+  filter:drop-shadow(0 0 10px rgba(96,165,250,.28)) !important;
+  opacity:.95 !important;
+  animation:upickV61OrbitBorder 1.9s linear infinite !important;
+}
+
+#pageLoader .loader-mark > img{
+  position:relative !important;
+  z-index:4 !important;
+}
+
+#pageLoader .loader-mark::before{
+  z-index:1 !important;
+}
+
+@keyframes upickV61OrbitBorder{
+  to{transform:rotate(360deg)}
+}
+
+@media (max-width:430px){
+  #pageLoader .loader-mark .loader-orbit{
+    inset:-5px !important;
+    border-radius:32px !important;
+    padding:2px !important;
   }
 }
 </style>
