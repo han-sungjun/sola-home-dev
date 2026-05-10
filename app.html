@@ -24169,4 +24169,81 @@ dialog.app-alert[open],
 })();
 </script>
 
+
+
+<!-- ===== 더운정픽 UI v10: 구조 재구성 안정화 / 팝업 버튼 재보정 ===== -->
+<style id="upick-blue-premium-v10-restructure-fix">
+:root{
+  --upick-v10-navy:#061A3D;
+  --upick-v10-navy2:#0B2A60;
+  --upick-v10-blue:#2563EB;
+  --upick-v10-sky:#60A5FA;
+  --upick-v10-line:rgba(191,219,254,.72);
+  --upick-v10-shadow:0 22px 52px rgba(11,31,77,.14);
+}
+/* 공개앱 상단: 제안서 기준으로 겹침 없이 2단 안정 배치 */
+.public-unified-header.unified-topbar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:"brand utils" "context context"!important;
+  gap:12px!important;
+  align-items:center!important;
+  padding:16px 16px 6px!important;
+  margin:0 0 12px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:none!important;
+  overflow:visible!important;
+}
+.public-unified-header .upick-header-brand{grid-area:brand!important;min-width:0!important;max-width:100%!important;display:flex!important;align-items:center!important;gap:12px!important;padding:12px 14px!important;border-radius:24px!important;background:rgba(255,255,255,.92)!important;border:1px solid var(--upick-v10-line)!important;box-shadow:0 18px 42px rgba(11,31,77,.09),inset 0 1px 0 rgba(255,255,255,.95)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;}
+.public-unified-header .upick-header-brand .logo{width:56px!important;height:56px!important;flex:0 0 56px!important;border-radius:18px!important;overflow:hidden!important;display:grid!important;place-items:center!important;background:linear-gradient(180deg,#fff,#eef6ff)!important;border:1px solid rgba(191,219,254,.86)!important;}
+.public-unified-header .upick-header-brand .logo img{display:block!important;opacity:1!important;width:42px!important;height:42px!important;object-fit:contain!important;content:url('/icons/internal/brand-symbol-real.png')!important;}
+.public-unified-header .upick-header-brand .logo::before{content:none!important;display:none!important;}
+.public-unified-header .upick-header-brand h1{margin:0!important;color:#071A3D!important;font-size:clamp(22px,5vw,30px)!important;line-height:1.06!important;font-weight:1000!important;letter-spacing:-.07em!important;white-space:nowrap!important;}
+.public-unified-header .upick-header-brand p{margin:6px 0 0!important;color:#64748B!important;font-size:clamp(12px,2.7vw,14px)!important;line-height:1.2!important;font-weight:800!important;white-space:nowrap!important;}
+.public-unified-header .upick-header-utils{grid-area:utils!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;min-width:0!important;}
+.public-unified-header .upick-header-utils .icon-btn{width:56px!important;height:56px!important;min-width:56px!important;flex:0 0 56px!important;border-radius:20px!important;background:rgba(255,255,255,.92)!important;border:1px solid rgba(219,234,254,.86)!important;box-shadow:0 16px 34px rgba(11,31,77,.08)!important;color:#071A3D!important;display:grid!important;place-items:center!important;}
+.public-unified-header .upick-header-context{grid-area:context!important;width:100%!important;min-width:0!important;min-height:74px!important;border-radius:26px!important;padding:16px 20px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:14px!important;color:#fff!important;text-align:left!important;background:radial-gradient(circle at 88% 15%,rgba(96,165,250,.30),transparent 40%),linear-gradient(135deg,var(--upick-v10-navy) 0%,var(--upick-v10-navy2) 52%,var(--upick-v10-blue) 100%)!important;border:1px solid rgba(147,197,253,.26)!important;box-shadow:var(--upick-v10-shadow)!important;overflow:hidden!important;position:relative!important;}
+.public-unified-header .upick-context-icon{width:46px!important;height:46px!important;flex:0 0 46px!important;border-radius:999px!important;background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.18)!important;display:grid!important;place-items:center!important;}
+.public-unified-header .upick-context-icon img{width:23px!important;height:23px!important;filter:brightness(0) invert(1)!important;}
+.public-unified-header .upick-context-text{font-size:clamp(17px,4vw,22px)!important;font-weight:1000!important;line-height:1.25!important;letter-spacing:-.055em!important;}
+@media(max-width:430px){.public-unified-header.unified-topbar{grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;padding-left:12px!important;padding-right:12px!important}.public-unified-header .upick-header-brand{padding:10px 12px!important}.public-unified-header .upick-header-brand .logo{width:50px!important;height:50px!important;flex-basis:50px!important}.public-unified-header .upick-header-brand .logo img{width:37px!important;height:37px!important}.public-unified-header .upick-header-utils{gap:8px!important}.public-unified-header .upick-header-utils .icon-btn{width:50px!important;height:50px!important;min-width:50px!important;border-radius:18px!important}.public-unified-header .upick-header-context{min-height:66px!important;padding:14px 16px!important;border-radius:23px!important}}
+@media(max-width:370px){.public-unified-header .upick-header-utils .icon-btn{width:46px!important;height:46px!important;min-width:46px!important}.public-unified-header .upick-header-brand h1{font-size:21px!important}.public-unified-header .upick-header-brand p{font-size:11px!important}}
+/* 공개앱 히어로는 제안서 기준의 독립 메인 카드로 유지 */
+.hero{background:radial-gradient(circle at 84% 14%,rgba(96,165,250,.32),transparent 32%),linear-gradient(135deg,#071A3D 0%,#0B2A60 52%,#2563EB 100%)!important;border:1px solid rgba(147,197,253,.26)!important;box-shadow:0 24px 58px rgba(11,31,77,.18)!important;border-radius:32px!important;}
+/* 공지 상세: 깨짐 방지. 버튼은 항상 모달 내부 폭 안에서 안정적으로 표시 */
+#noticeModal{width:min(430px,calc(100vw - 28px))!important;max-width:430px!important;height:auto!important;max-height:min(84dvh,720px)!important;overflow:hidden!important;border-radius:28px!important;}
+#noticeModal[open]{display:flex!important;flex-direction:column!important;}
+#noticeModal .modal-head{flex:0 0 auto!important;position:sticky!important;top:0!important;z-index:5!important;padding:16px 18px 10px!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid rgba(226,232,240,.80)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;}
+#noticeModal .modal-body{flex:0 1 auto!important;min-height:0!important;max-height:calc(min(84dvh,720px) - 70px)!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;padding:16px 18px calc(18px + env(safe-area-inset-bottom,0px))!important;}
+#noticeModal .notice-detail-wrap{display:grid!important;gap:14px!important;min-width:0!important;min-height:0!important;}
+#noticeModal .notice-detail-panel{min-width:0!important;min-height:auto!important;margin:0!important;border-radius:22px!important;}
+#noticeModal .notice-detail-actions,#noticeModal .share-actions{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;width:100%!important;margin:4px 0 0!important;padding:0!important;min-width:0!important;}
+#noticeModal .notice-detail-actions .btn,#noticeModal .share-actions .btn{width:100%!important;min-width:0!important;max-width:100%!important;height:auto!important;min-height:50px!important;padding:13px 14px!important;border-radius:18px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1.2!important;}
+#noticeModal .notice-detail-actions .btn .upick-svg-icon,#noticeModal .share-actions .btn .upick-svg-icon{width:18px!important;height:18px!important;flex:0 0 18px!important;}
+@media(min-width:430px){#noticeModal .notice-detail-actions,#noticeModal .share-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important}#noticeModal .notice-detail-actions .btn,#noticeModal .share-actions .btn{font-size:12px!important;padding:12px 8px!important}}
+/* 혜택 상세/공지 상세/캘린더: 내부만 스크롤되도록 보강 */
+#detailModal,#noticeModal,#calendarDayModal{overscroll-behavior:contain!important;}
+#detailModal .modal-body{overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;}
+html.upick-modal-lock,body.upick-modal-lock{overflow:hidden!important;touch-action:none!important;overscroll-behavior:none!important;}
+body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!important;right:0!important;}
+</style>
+<script id="upick-v10-modal-scroll-lock">
+(function(){
+  var scrollY=0, locked=false;
+  var modalSelector=['#detailModal[open]','#noticeModal[open]','#calendarDayModal[open]','#calendarReservationModal[open]','#qrModal[open]','dialog.app-alert[open]','.app-alert.show'].join(',');
+  var allowedSelector=['#detailModal[open] .modal-body','#noticeModal[open] .modal-body','#calendarDayModal[open] .calendar-day-modal-list','#calendarDayModal[open] .calendar-day-modal-body','#calendarReservationModal[open] .modal-body','#qrModal[open] .modal-body','dialog.app-alert[open] .app-alert-card','.app-alert.show .app-alert-card'].join(',');
+  function isOpen(){return !!document.querySelector(modalSelector)}
+  function lock(){if(locked) return; locked=true; scrollY=window.scrollY||document.documentElement.scrollTop||0; document.documentElement.classList.add('upick-modal-lock'); document.body.classList.add('upick-modal-lock'); document.body.style.top='-'+scrollY+'px';}
+  function unlock(){if(!locked) return; locked=false; document.documentElement.classList.remove('upick-modal-lock'); document.body.classList.remove('upick-modal-lock'); document.body.style.top=''; window.scrollTo(0,scrollY||0);}
+  function sync(){isOpen()?lock():unlock();}
+  document.addEventListener('toggle',function(e){if(e.target&&e.target.matches&&e.target.matches('dialog')) setTimeout(sync,0)},true);
+  document.addEventListener('close',function(e){if(e.target&&e.target.matches&&e.target.matches('dialog')) setTimeout(sync,0)},true);
+  document.addEventListener('click',function(){setTimeout(sync,0)},true);
+  document.addEventListener('touchmove',function(e){if(!isOpen()) return; if(e.target&&e.target.closest&&e.target.closest(allowedSelector)) return; e.preventDefault();},{capture:true,passive:false});
+  document.addEventListener('wheel',function(e){if(!isOpen()) return; if(e.target&&e.target.closest&&e.target.closest(allowedSelector)) return; e.preventDefault();},{capture:true,passive:false});
+  document.addEventListener('DOMContentLoaded',function(){var mo=new MutationObserver(sync); mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','class']}); sync();});
+})();
+</script>
+
 </body></html>
