@@ -10616,6 +10616,27 @@ dialog:not(.app-alert)::before{
 /* ===== 더운정픽 UI 1차 보정: 상세 모달 포인트라인 기준점 ===== */
 dialog:not(.app-alert){position:relative!important;}
 </style>
+
+<style id="upick-blue-premium-v2-common-fix">
+/* ===== 더운정픽 블루 프리미엄 UI 2차 보정: 브랜드 블록/로고/SVG ===== */
+.upick-inline-icon{width:1.1em!important;height:1.1em!important;vertical-align:-.18em!important;object-fit:contain!important;display:inline-block!important;}
+.topbar-left-titleline .brand, header.topbar .brand, .page>.brand{display:inline-flex!important;width:auto!important;max-width:calc(100vw - 36px)!important;align-items:center!important;gap:12px!important;padding:10px 14px 10px 10px!important;border-radius:23px!important;background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(239,246,255,.66))!important;border:1px solid rgba(191,219,254,.78)!important;box-shadow:0 16px 36px rgba(11,31,77,.10),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;}
+.topbar-left-titleline .brand .logo, header.topbar .brand .logo, .page>.brand .logo, .brand .logo{width:44px!important;height:44px!important;border-radius:16px!important;flex:0 0 44px!important;background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,246,255,.78))!important;border:1px solid rgba(191,219,254,.86)!important;}
+.topbar-left-titleline .brand .logo::before, header.topbar .brand .logo::before, .page>.brand .logo::before, .brand .logo::before{inset:6px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;}
+.topbar-left-titleline .brand h1, header.topbar .brand h1, .page>.brand h1{color:#071A3D!important;letter-spacing:-.06em!important;}
+.topbar-left-titleline .brand p, header.topbar .brand p, .page>.brand p{color:#64748B!important;font-weight:700!important;}
+.gnb-hero-emoji{width:88px!important;height:88px!important;border-radius:28px!important;display:grid!important;place-items:center!important;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(239,246,255,.72))!important;border:1px solid rgba(191,219,254,.82)!important;box-shadow:0 18px 42px rgba(7,26,61,.22),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;font-size:0!important;}
+.gnb-hero-emoji .upick-svg-icon,.gnb-hero-emoji img{width:68px!important;height:68px!important;object-fit:contain!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.16))!important;}
+.gnb-icon-btn,.gnb-close{font-size:0!important;display:grid!important;place-items:center!important;}
+.gnb-icon-btn .upick-svg-icon,.gnb-close .upick-svg-icon{width:22px!important;height:22px!important;object-fit:contain!important;}
+.gnb-close{font-size:28px!important;color:#fff!important;line-height:1!important;}
+.gnb-admin-crown .upick-svg-icon,.gnb-card-icon .upick-svg-icon,.gnb-title-badge .upick-svg-icon,.admin-all-card-icon .upick-svg-icon,.nav-icon .upick-svg-icon{width:24px!important;height:24px!important;object-fit:contain!important;}
+.gnb-card-icon,.gnb-title-badge,.admin-all-card-icon{display:grid!important;place-items:center!important;font-size:0!important;}
+.app-alert-icon{font-size:0!important;position:relative!important;}
+.app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
+.app-alert-card{overflow:hidden!important;}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -10724,7 +10745,7 @@ dialog:not(.app-alert){position:relative!important;}
  <div class="distance-filter-help hidden" id="distanceFilterHelp"></div>
  </div><div class="benefit-view-switch" aria-label="혜택 보기 방식">
  <button type="button" class="view-mode-btn" id="benefitCardModeBtn" data-view-mode="card">▦ 카드형</button>
- <button type="button" class="view-mode-btn active" id="benefitListModeBtn" data-view-mode="list">☰ 리스트형</button>
+ <button type="button" class="view-mode-btn active" id="benefitListModeBtn" data-view-mode="list"><img class="upick-inline-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"> 리스트형</button>
  </div></div><div class="panel searchbox"><span><img class="upick-svg-icon" src="/icons/internal/search.svg" alt="" loading="lazy"></span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
  <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div></div>
  <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
@@ -21589,8 +21610,8 @@ document.addEventListener('keydown', (event) => {
  <aside class="gnb-sheet" id="gnbSheet" aria-hidden="true">
  <div class="gnb-top">
  <div class="gnb-icons"><button class="gnb-close" id="gnbCloseBtn" type="button" title="닫기">✕</button>
- <button class="gnb-icon-btn gnb-home-active" type="button" data-view-link="home" title="홈">⌂</button>
- <button class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃" aria-label="로그아웃"><span class="logout-exit-icon" aria-hidden="true">⇥</span><span class="gnb-tooltip">로그아웃</span></button>
+ <button class="gnb-icon-btn gnb-home-active" type="button" data-view-link="home" title="홈"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></button>
+ <button class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃" aria-label="로그아웃"><img class="upick-svg-icon logout-exit-icon" src="/icons/internal/logout.svg" alt="" loading="lazy"><span class="gnb-tooltip">로그아웃</span></button>
 
  </div>
  <div class="gnb-hero">
@@ -21598,7 +21619,7 @@ document.addEventListener('keydown', (event) => {
  <small>오늘은 어떤 혜택이 있을까?</small>
  <strong>입주민 혜택 서비스<br>전체보기</strong>
  </div>
- <div class="gnb-hero-emoji"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></div>
+ <div class="gnb-hero-emoji"><img class="upick-svg-icon" src="/icons/internal/brand-symbol.svg" alt="" loading="lazy"></div>
  </div>
  </div>
  <div class="gnb-body">
@@ -21638,11 +21659,11 @@ document.addEventListener('keydown', (event) => {
  <div class="gnb-admin-premium">
  <div class="gnb-admin-head">
  <div>
- <span class="gnb-admin-kicker">💎 관리자 전용</span>
+ <span class="gnb-admin-kicker"><img class="upick-inline-icon" src="/icons/internal/shield-check.svg" alt="" loading="lazy"> 관리자 전용</span>
  <h3 class="gnb-admin-title">운영 메뉴</h3>
  <p class="gnb-admin-desc">공유 흐름과 운영 지표는 관리자 계정에서만 확인할 수 있습니다.</p>
  </div>
- <div class="gnb-admin-crown">👑</div>
+ <div class="gnb-admin-crown"><img class="upick-svg-icon" src="/icons/internal/crown.svg" alt="" loading="lazy"></div>
  </div>
  <div class="gnb-admin-actions">
  <button class="gnb-menu-item" type="button" data-view-link="shareinsights">공유 인사이트</button>
@@ -21678,7 +21699,7 @@ document.addEventListener('keydown', (event) => {
  </div>
  <div class="gnb-account-card">
  <div class="gnb-account">
- <div class="gnb-account-avatar">👤</div>
+ <div class="gnb-account-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
  <div class="gnb-account-meta">
  <span class="gnb-account-label">계정</span>
  <strong class="gnb-account-name" id="gnbAccountName">로그인 확인 중</strong>
@@ -21777,7 +21798,7 @@ document.addEventListener('keydown', (event) => {
  </div>
  <div class="gnb-info-grid">
  <div class="gnb-info-item">
- <div class="gnb-info-icon">🛡️</div>
+ <div class="gnb-info-icon"><img class="upick-svg-icon" src="/icons/internal/shield-check.svg" alt="" loading="lazy"></div>
  <div class="gnb-info-copy">
  <strong>표시 정보 관리</strong>
  <p>앱 화면에 표시되는 닉네임 중심으로 계정 정보를 관리합니다.</p>
@@ -21861,7 +21882,7 @@ document.addEventListener('keydown', (event) => {
  <dialog class="app-alert" id="appAlert" aria-hidden="true">
  <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
  <div class="app-alert-head">
- <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+ <div class="app-alert-icon" id="appAlertIcon" aria-hidden="true"></div>
  <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
  </div>
  <p class="app-alert-message" id="appAlertMessage"></p>

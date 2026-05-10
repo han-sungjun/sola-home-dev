@@ -2546,6 +2546,27 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 .app-alert-icon{background:linear-gradient(180deg,#eff6ff,#dbeafe)!important;border-color:#bfdbfe!important;color:#1d4ed8!important;}
 
 </style>
+
+<style id="upick-blue-premium-v2-admin-fix">
+/* ===== 더운정픽 운영자 UI 2차 보정: 브랜드 블록/이모지 제거/상태 UI 정리 ===== */
+.upick-inline-icon{width:1.1em!important;height:1.1em!important;vertical-align:-.18em!important;object-fit:contain!important;display:inline-block!important;}
+.brand{display:inline-flex!important;width:auto!important;max-width:calc(100vw - 36px)!important;align-items:center!important;gap:12px!important;padding:10px 14px 10px 10px!important;border-radius:23px!important;background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(239,246,255,.66))!important;border:1px solid rgba(191,219,254,.78)!important;box-shadow:0 16px 36px rgba(11,31,77,.10),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;}
+.brand .logo{width:44px!important;height:44px!important;border-radius:16px!important;flex:0 0 44px!important;}
+.brand .logo::before{inset:6px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;}
+.brand h1{color:#071A3D!important;letter-spacing:-.06em!important;}
+.brand p{color:#64748B!important;font-weight:700!important;}
+.admin-avatar{font-size:0!important;display:grid!important;place-items:center!important;}
+.admin-avatar .upick-svg-icon{width:22px!important;height:22px!important;}
+.gnb-hero-emoji{width:82px!important;height:82px!important;border-radius:27px!important;display:grid!important;place-items:center!important;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(239,246,255,.72))!important;border:1px solid rgba(191,219,254,.82)!important;box-shadow:0 18px 42px rgba(7,26,61,.22),inset 0 1px 0 rgba(255,255,255,.94)!important;font-size:0!important;}
+.gnb-hero-emoji img{width:56px!important;height:56px!important;object-fit:contain!important;}
+.gnb-icon-btn{font-size:0!important;display:grid!important;place-items:center!important;}
+.gnb-icon-btn .upick-svg-icon,.gnb-close .upick-svg-icon{width:22px!important;height:22px!important;}
+.gnb-title-badge,.gnb-card-icon,.admin-all-card-icon,.nav-icon{display:grid!important;place-items:center!important;font-size:0!important;}
+.gnb-title-badge .upick-svg-icon,.gnb-card-icon .upick-svg-icon,.admin-all-card-icon .upick-svg-icon,.nav-icon .upick-svg-icon{width:24px!important;height:24px!important;object-fit:contain!important;}
+.app-alert-icon{font-size:0!important;position:relative!important;}
+.app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2561,7 +2582,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
     <header class="admin-topbar">
       <div class="admin-topbar-right">
         <div class="admin-userchip">
-          <div class="admin-avatar">👤</div>
+          <div class="admin-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></div>
           <div><strong id="adminTopUser">운영자 확인 중</strong><span id="adminTopStatus">로그인 필요</span></div>
         </div>
         <button class="icon-btn" onclick="location.href='/'" title="공개 페이지">⌂</button>
@@ -2579,7 +2600,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
         <div id="adminIdleTimerHost" class="hidden"></div>
       </div>
     </header>
-    <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 현황을 이 화면에서 편리하게 관리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
+    <div class="hero"><div class="eyebrow"><img class="upick-inline-icon" src="/icons/internal/lock.svg" alt="" loading="lazy"> 관리자 전용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 현황을 이 화면에서 편리하게 관리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
     <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
     
     <div class="admin-view active" id="view-dashboard">
@@ -2611,7 +2632,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
           <div id="adminStatsCards" class="summary-list"><div class="notice">관리자 로그인 후 통계를 볼 수 있습니다.</div></div>
         </div>
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">🚨 신고 누적 TOP 게시글</h3><small id="communityReportTopCount">상위 5건</small></div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;"><img class="upick-inline-icon" src="/icons/internal/alert.svg" alt="" loading="lazy"> 신고 누적 TOP 게시글</h3><small id="communityReportTopCount">상위 5건</small></div>
           <div id="communityReportTopList" class="community-report-top-list"><div class="notice">관리자 로그인 후 신고 누적 게시글을 볼 수 있습니다.</div></div>
         </div>
 
@@ -2632,7 +2653,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
         </div>
 
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">🚨 잘못된 URL 접근 통계</h3><small id="security404Count">최근 50건 기준</small></div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;"><img class="upick-inline-icon" src="/icons/internal/alert.svg" alt="" loading="lazy"> 잘못된 URL 접근 통계</h3><small id="security404Count">최근 50건 기준</small></div>
           <div id="security404Box" class="mini-list"><div class="notice">관리자 로그인 후 404 접근 통계를 볼 수 있습니다.</div></div>
         </div>
 
@@ -2826,12 +2847,12 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
           <div class="notice">하단 네비바는 핵심 메뉴만 두고, 커뮤니티/데이터/공개앱 이동은 전체 기능에서 빠르게 접근할 수 있습니다.</div>
         </div>
         <div class="admin-all-grid">
-          <button class="admin-all-card dashboard" type="button" data-admin-view="dashboard"><span class="admin-all-card-icon">📊</span><strong>대시보드</strong><span>운영 현황과 신고 누적 TOP 게시글을 확인합니다.</span></button>
+          <button class="admin-all-card dashboard" type="button" data-admin-view="dashboard"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/dashboard.svg" alt="" loading="lazy"></span><strong>대시보드</strong><span>운영 현황과 신고 누적 TOP 게시글을 확인합니다.</span></button>
           <button class="admin-all-card benefits" type="button" data-admin-view="benefits"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span><strong>혜택 관리</strong><span>제휴 혜택 등록, 수정, TOP5 가중치를 관리합니다.</span></button>
           <button class="admin-all-card notices" type="button" data-admin-view="notices"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span><strong>공지 관리</strong><span>공지 작성과 푸시 작업 생성을 처리합니다.</span></button>
-          <button class="admin-all-card members" type="button" data-admin-view="members"><span class="admin-all-card-icon">👥</span><strong>회원 관리</strong><span>이용 중인 회원과 탈퇴 상태를 확인합니다.</span></button>
-          <button class="admin-all-card community" type="button" data-admin-view="community"><span class="admin-all-card-icon">💬</span><strong>커뮤니티 관리</strong><span>게시글, 댓글, 신고, 숨김 처리를 관리합니다.</span></button>
-          <button class="admin-all-card data" type="button" data-admin-view="dashboard-data"><span class="admin-all-card-icon">🗂️</span><strong>데이터 관리</strong><span>JSON 내보내기와 기본 데이터 업로드를 실행합니다.</span></button>
+          <button class="admin-all-card members" type="button" data-admin-view="members"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span><strong>회원 관리</strong><span>이용 중인 회원과 탈퇴 상태를 확인합니다.</span></button>
+          <button class="admin-all-card community" type="button" data-admin-view="community"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/chat.svg" alt="" loading="lazy"></span><strong>커뮤니티 관리</strong><span>게시글, 댓글, 신고, 숨김 처리를 관리합니다.</span></button>
+          <button class="admin-all-card data" type="button" data-admin-view="dashboard-data"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/data.svg" alt="" loading="lazy"></span><strong>데이터 관리</strong><span>JSON 내보내기와 기본 데이터 업로드를 실행합니다.</span></button>
           <button class="admin-all-card ai" type="button" data-admin-view="ai"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></span><strong>AI 생활 도우미</strong><span>FAQ, 전자책, 가이드, 질문 로그를 관리합니다.</span></button>
           <button class="admin-all-card data" type="button" data-admin-view="menus"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/map.svg" alt="" loading="lazy"></span><strong>GNB 메뉴 관리</strong><span>공개앱 메뉴, 검색 키워드, 노출 구역과 권한을 관리합니다.</span></button>
           <button class="admin-all-card resident" type="button" onclick="location.href='/'"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></span><strong>입주민 앱</strong><span>공개 앱 화면으로 이동합니다.</span></button>
@@ -2843,10 +2864,10 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
   </div></div>
 
   <nav class="admin-bottom-nav">
-    <button class="admin-nav-btn active" data-admin-view="dashboard"><span class="nav-icon">📊</span><span class="nav-label">대시보드</span></button>
+    <button class="admin-nav-btn active" data-admin-view="dashboard"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/dashboard.svg" alt="" loading="lazy"></span><span class="nav-label">대시보드</span></button>
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span><span class="nav-label">공지</span></button>
-    <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
+    <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span><span class="nav-label">회원</span></button>
     <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></span><span class="nav-label">더보기</span></button>
   </nav>
 
@@ -6396,11 +6417,11 @@ function fillForm(item){
   <aside class="gnb-sheet" id="adminGnbSheet" aria-hidden="true">
     <div class="gnb-top">
       <div class="gnb-icons">
-        <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드">⌂</button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="community" title="커뮤니티 관리">💬</button>
+        <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></button>
+        <button class="gnb-icon-btn" type="button" data-admin-view="community" title="커뮤니티 관리"><img class="upick-svg-icon" src="/icons/internal/chat.svg" alt="" loading="lazy"></button>
         <button class="gnb-icon-btn" type="button" data-admin-view="ai" title="AI 생활 도우미"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="menus" title="GNB 메뉴 관리">🧭</button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="all" title="전체 기능">▦</button>
+        <button class="gnb-icon-btn" type="button" data-admin-view="menus" title="GNB 메뉴 관리"><img class="upick-svg-icon" src="/icons/internal/compass.svg" alt="" loading="lazy"></button>
+        <button class="gnb-icon-btn" type="button" data-admin-view="all" title="전체 기능"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
         <button class="gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
       </div>
       <div class="gnb-hero">
@@ -6420,14 +6441,14 @@ function fillForm(item){
       <section class="gnb-section">
         <h3 class="gnb-section-title">
           <span class="gnb-section-label">
-            <span class="gnb-title-badge recent">🕘</span>
+            <span class="gnb-title-badge recent"><img class="upick-svg-icon" src="/icons/internal/clock.svg" alt="" loading="lazy"></span>
             <span class="gnb-section-text"><small>RECENT</small><strong>최근에 봤어요</strong></span>
           </span>
         </h3>
         <div class="gnb-chip-row">
           <button class="gnb-chip gnb-tone-dashboard" type="button" data-admin-view="dashboard"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon dashboard">📊</span>
+              <span class="gnb-card-icon dashboard"><img class="upick-svg-icon" src="/icons/internal/dashboard.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>대시보드</strong>
                 <span>오늘 통계와 최근 등록 항목을 한눈에 확인</span>
@@ -6441,7 +6462,7 @@ function fillForm(item){
       <section class="gnb-section">
         <h3 class="gnb-section-title">
           <span class="gnb-section-label">
-            <span class="gnb-title-badge new">📌</span>
+            <span class="gnb-title-badge new"><img class="upick-svg-icon" src="/icons/internal/pin-blue.svg" alt="" loading="lazy"></span>
             <span class="gnb-section-text"><small>FEATURED</small><strong>새로 나왔어요</strong></span>
           </span>
         </h3>
@@ -6471,7 +6492,7 @@ function fillForm(item){
             </button>
             <button class="gnb-menu-item gnb-tone-members" type="button" data-admin-view="members"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
-                <span class="gnb-card-icon members">👥</span>
+                <span class="gnb-card-icon members"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span>
                 <span class="gnb-card-copy">
                   <strong>회원 관리</strong>
                   <span>입주민 계정 확인</span>
@@ -6481,7 +6502,7 @@ function fillForm(item){
             </button>
             <button class="gnb-menu-item gnb-tone-data" type="button" data-admin-view="dashboard-data"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
-                <span class="gnb-card-icon data">🗂️</span>
+                <span class="gnb-card-icon data"><img class="upick-svg-icon" src="/icons/internal/data.svg" alt="" loading="lazy"></span>
                 <span class="gnb-card-copy">
                   <strong>데이터 관리</strong>
                   <span>내보내기와 기본 데이터 업로드</span>
@@ -6506,14 +6527,14 @@ function fillForm(item){
       <section class="gnb-section">
         <h3 class="gnb-section-title">
           <span class="gnb-section-label">
-            <span class="gnb-title-badge manage">🛠️</span>
+            <span class="gnb-title-badge manage"><img class="upick-svg-icon" src="/icons/internal/settings.svg" alt="" loading="lazy"></span>
             <span class="gnb-section-text"><small>CONTROL CENTER</small><strong>더운정픽 운영</strong></span>
           </span>
         </h3>
         <div class="gnb-menu-sublist">
           <button class="gnb-menu-subitem gnb-tone-dashboard" type="button" data-admin-view="dashboard"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon dashboard">📊</span>
+              <span class="gnb-card-icon dashboard"><img class="upick-svg-icon" src="/icons/internal/dashboard.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>대시보드</strong>
                 <span>운영 현황, 최근 공지, 최근 혜택</span>
@@ -6545,7 +6566,7 @@ function fillForm(item){
           </button>
           <button class="gnb-menu-subitem gnb-tone-members" type="button" data-admin-view="members"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon members">👥</span>
+              <span class="gnb-card-icon members"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>회원</strong>
                 <span>간단 가입과 운영 준비 영역</span>
@@ -6555,7 +6576,7 @@ function fillForm(item){
           </button>
           <button class="gnb-menu-subitem gnb-tone-data" type="button" data-admin-view="dashboard-data"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon data">🗂️</span>
+              <span class="gnb-card-icon data"><img class="upick-svg-icon" src="/icons/internal/data.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>데이터</strong>
                 <span>JSON 내보내기와 푸시 작업 확인</span>
@@ -6593,7 +6614,7 @@ function fillForm(item){
   <div class="app-alert" id="appAlert" aria-hidden="true">
     <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
       <div class="app-alert-head">
-        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <div class="app-alert-icon" id="appAlertIcon" aria-hidden="true"></div>
         <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
       </div>
       <p class="app-alert-message" id="appAlertMessage"></p>

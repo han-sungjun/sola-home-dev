@@ -272,6 +272,25 @@ dialog:not(.app-alert)::before{
 /* ===== 더운정픽 UI 1차 보정: 상세 모달 포인트라인 기준점 ===== */
 dialog:not(.app-alert){position:relative!important;}
 </style>
+
+<style id="upick-blue-premium-v2-login-fix">
+/* ===== 더운정픽 블루 프리미엄 UI 2차 보정: 로그인 톤/브랜드/CTA ===== */
+:root{--accent:#2563EB!important;--primary:#071A3D!important;}
+.hero{background:radial-gradient(circle at 88% 16%,rgba(96,165,250,.35),transparent 32%),linear-gradient(135deg,#071A3D 0%,#0B2A60 54%,#2563EB 100%)!important;border:1px solid rgba(147,197,253,.24)!important;box-shadow:0 28px 68px rgba(7,26,61,.20)!important;}
+.hero::after{background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(96,165,250,.14))!important;}
+.panel>.brand{display:inline-flex!important;width:auto;max-width:100%;padding:10px 14px 10px 10px!important;margin-bottom:20px!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(239,246,255,.70))!important;border:1px solid rgba(191,219,254,.82)!important;box-shadow:0 16px 36px rgba(11,31,77,.10),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;}
+.panel>.brand .logo{width:48px!important;height:48px!important;border-radius:17px!important;box-shadow:none!important;}
+.panel>.brand h2{font-size:22px!important;letter-spacing:-.05em!important;color:#071A3D!important;}
+.panel>.brand p{color:#64748B!important;font-weight:700!important;}
+.btn-install{background:linear-gradient(135deg,#071A3D 0%,#0B2A60 56%,#2563EB 100%)!important;color:#fff!important;box-shadow:0 18px 36px rgba(37,99,235,.24)!important;border:1px solid rgba(147,197,253,.24)!important;}
+.btn-install:hover{filter:brightness(1.03);}
+.btn-install .btn-icon{filter:brightness(0) invert(1) drop-shadow(0 6px 10px rgba(0,0,0,.16))!important;}
+.app-alert-icon{font-size:0!important;position:relative!important;}
+.app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
+.app-alert-card{overflow:hidden!important;position:relative!important;}
+.app-alert-card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#60A5FA,#2563EB,#0B2A60)!important;}
+</style>
+
 </head>
 <body>
   <main class="page">
@@ -791,7 +810,7 @@ dialog:not(.app-alert){position:relative!important;}
   <div class="app-alert" id="appAlert" aria-hidden="true">
     <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
       <div class="app-alert-head">
-        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <div class="app-alert-icon" id="appAlertIcon" aria-hidden="true"></div>
         <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
       </div>
       <p class="app-alert-message" id="appAlertMessage"></p>
