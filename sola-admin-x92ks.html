@@ -9694,5 +9694,212 @@ function fillForm(item){
 }
 </style>
 
+
+
+<!-- ===== 더운정픽 v74: 관리자 헤더 확대 강제 적용 최종 보정 ===== -->
+<style id="upick-admin-v74-header-scale-force">
+/* v74: 가장 마지막에 배치하여 기존 관리자 헤더 스타일/미디어쿼리보다 우선 적용 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header.unified-topbar,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural header.admin-topbar.admin-unified-header{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+  width:100%!important;
+  min-width:0!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand.brand,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand{
+  flex:0 1 262px!important;
+  width:auto!important;
+  max-width:calc(100% - 102px)!important;
+  min-width:0!important;
+  height:50px!important;
+  padding:7px 11px!important;
+  gap:9px!important;
+  border-radius:19px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.075))!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px rgba(2,8,23,.10)!important;
+  backdrop-filter:blur(14px) saturate(135%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(135%)!important;
+}
+
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo{
+  width:33px!important;
+  height:33px!important;
+  min-width:33px!important;
+  flex:0 0 33px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  outline:0!important;
+  overflow:visible!important;
+  display:grid!important;
+  place-items:center!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo::after,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo::after,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo::after{
+  content:none!important;
+  display:none!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo img,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo img,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo img,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo img{
+  display:block!important;
+  width:33px!important;
+  height:33px!important;
+  min-width:33px!important;
+  opacity:1!important;
+  visibility:visible!important;
+  object-fit:contain!important;
+  content:url('/icons/internal/brand-symbol-real.png')!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.18))!important;
+}
+
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-brand-copy,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  display:block!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-brand-copy h1,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  font-size:16px!important;
+  line-height:1.04!important;
+  letter-spacing:-.055em!important;
+  color:#fff!important;
+  font-weight:1000!important;
+  text-shadow:0 2px 8px rgba(2,8,23,.22)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-brand-copy p,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:4px 0 0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  font-size:9.8px!important;
+  line-height:1.08!important;
+  color:rgba(255,255,255,.80)!important;
+  font-weight:850!important;
+}
+
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-utils,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils{
+  flex:0 0 auto!important;
+  margin-left:auto!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  min-width:92px!important;
+  width:auto!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .icon-btn{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  flex:0 0 42px!important;
+  padding:0!important;
+  border-radius:15px!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .upick-svg-icon,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils img.upick-svg-icon{
+  width:23px!important;
+  height:23px!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-avatar{
+  width:23px!important;
+  height:23px!important;
+}
+
+@media(max-width:430px){
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header.unified-topbar,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural header.admin-topbar.admin-unified-header{
+    gap:7px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand.brand,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand{
+    flex:0 1 250px!important;
+    max-width:calc(100% - 96px)!important;
+    height:48px!important;
+    padding:7px 10px!important;
+    gap:8px!important;
+    border-radius:18px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo{
+    width:31px!important;height:31px!important;min-width:31px!important;flex-basis:31px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo img,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo img,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo img,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo img{
+    width:31px!important;height:31px!important;min-width:31px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-brand-copy h1,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1{font-size:15px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-brand-copy p,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{font-size:9.2px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-utils,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils{min-width:88px!important;gap:6px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .icon-btn{
+    width:40px!important;height:40px!important;min-width:40px!important;flex-basis:40px!important;border-radius:14px!important;
+  }
+}
+</style>
+
 </body>
 </html>
