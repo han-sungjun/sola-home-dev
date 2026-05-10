@@ -3761,6 +3761,101 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v53: 로그인 logo 클래스 카드형 잔상 제거 ===== -->
+<style id="upick-v53-login-logo-class-card-remove">
+.login-premium-hero-shell .login-brand-block .logo,
+.login-premium-hero-shell > .panel > .brand .logo {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  flex: 0 0 42px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+.login-premium-hero-shell .login-brand-block .logo::before,
+.login-premium-hero-shell .login-brand-block .logo::after,
+.login-premium-hero-shell > .panel > .brand .logo::before,
+.login-premium-hero-shell > .panel > .brand .logo::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.login-premium-hero-shell .login-brand-block .logo img,
+.login-premium-hero-shell > .panel > .brand .logo img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  display: block !important;
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 4px 10px rgba(2,8,23,.16)) !important;
+}
+
+.login-premium-hero-shell > .panel > .brand {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+.login-premium-hero-shell .login-brand-block {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.075)),
+    linear-gradient(135deg, rgba(41,91,177,.28), rgba(8,31,76,.22)) !important;
+  border: 1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.26) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+}
+
+@media (max-width: 430px) {
+  .login-premium-hero-shell .login-brand-block .logo,
+  .login-premium-hero-shell > .panel > .brand .logo {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    flex-basis: 38px !important;
+  }
+
+  .login-premium-hero-shell .login-brand-block .logo img,
+  .login-premium-hero-shell > .panel > .brand .logo img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
