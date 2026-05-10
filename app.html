@@ -12539,6 +12539,84 @@ body > .app > .shell{
 }
 </style>
 
+<style id="upick-public-v30-login-like-shell">
+/* ===== 더운정픽 v30: 공개앱 외곽 쉘을 로그인/회원가입 페이지 톤으로 완화 =====
+   - 전체 공개앱은 유지하되, 바깥은 밝게 두고
+   - 안쪽 앱만 카드형 네이비 쉘로 감싸 눈 피로도를 줄입니다.
+   - 기존 기능/탭 전환/헤더/버튼 동작은 건드리지 않습니다.
+*/
+html,body{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(191,219,254,.38), transparent 34%),
+    linear-gradient(180deg,#f8fbff 0%,#edf3ff 100%)!important;
+}
+
+body > .app{
+  min-height:calc(100dvh - 28px)!important;
+  margin:14px auto!important;
+  padding:16px 14px calc(120px + env(safe-area-inset-bottom,0px))!important;
+  border-radius:36px!important;
+  background:
+    radial-gradient(circle at 84px 78px, rgba(255,255,255,.09), transparent 28%),
+    radial-gradient(circle at 92% 10%, rgba(147,197,253,.24), transparent 28%),
+    radial-gradient(circle at 100% 76%, rgba(37,99,235,.18), transparent 40%),
+    linear-gradient(145deg,#081c45 0%,#0c285e 48%,#2450c9 100%)!important;
+  border:1px solid rgba(147,197,253,.22)!important;
+  box-shadow:
+    0 18px 44px rgba(11,31,77,.16),
+    inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+
+body > .app::before{
+  right:-46px;
+  top:-34px;
+  width:154px;
+  height:154px;
+  border-radius:44px;
+  background:rgba(255,255,255,.08);
+}
+body > .app::after{
+  left:-42px;
+  bottom:84px;
+  width:136px;
+  height:136px;
+  background:rgba(96,165,250,.06);
+}
+
+body > .app > .shell{
+  gap:16px!important;
+}
+
+/* 내부 흰 패널이 네이비 쉘 위에서 더 편안하게 보이도록 */
+.panel,
+.card,
+.notice-item,
+.benefit-card,
+.all-menu-card,
+.calendar-board,
+.ai-chat-panel{
+  box-shadow:0 12px 28px rgba(2,8,23,.10)!important;
+}
+
+/* 모바일도 로그인/회원가입처럼 카드형 외곽을 유지 */
+@media(max-width:520px){
+  body > .app{
+    width:calc(100% - 22px)!important;
+    min-height:calc(100dvh - 22px)!important;
+    margin:11px auto!important;
+    border-radius:34px!important;
+    padding:14px 12px calc(118px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+
+/* 큰 화면에서는 기존 미리보기 폭 유지 */
+@media(min-width:521px){
+  body > .app{
+    max-width:468px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
