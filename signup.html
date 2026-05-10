@@ -83,6 +83,195 @@
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   </style>
 
+
+<style>
+/* ===== 더운정픽 블루 프리미엄 UI 1차 적용 ===== */
+:root{
+  --upick-navy:#071A3D;
+  --upick-navy-2:#0B2A60;
+  --upick-blue:#2563EB;
+  --upick-blue-2:#3B82F6;
+  --upick-sky:#60A5FA;
+  --upick-gold:#C8A15A;
+  --upick-glass:rgba(255,255,255,.82);
+  --upick-line:rgba(148,163,184,.26);
+  --upick-shadow:0 22px 52px rgba(11,31,77,.16);
+}
+html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 48%,#f8fafc 100%)!important;}
+.app,.page{background:transparent!important;}
+.topbar .brand,.page>.brand,.brand{
+  align-items:center;
+}
+.topbar .brand .logo,.page>.brand .logo,.brand .logo{
+  position:relative!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(239,246,255,.78))!important;
+  border:1px solid rgba(191,219,254,.88)!important;
+  box-shadow:0 16px 34px rgba(37,99,235,.12), inset 0 1px 0 rgba(255,255,255,.95)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+.topbar .brand .logo img,.page>.brand .logo img,.brand .logo img.brand-icon{
+  opacity:0!important;
+}
+.topbar .brand .logo::before,.page>.brand .logo::before,.brand .logo::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat;
+}
+.topbar-actions .icon-btn,.icon-btn,.user-chip{
+  background:rgba(255,255,255,.86)!important;
+  border:1px solid rgba(219,234,254,.74)!important;
+  box-shadow:0 12px 28px rgba(11,31,77,.08)!important;
+  backdrop-filter:blur(12px)!important;
+}
+.hero,
+.community-hero-panel,
+.ai-entry-card{
+  background:radial-gradient(circle at 88% 16%,rgba(96,165,250,.35),transparent 30%),linear-gradient(135deg,#071A3D 0%,#0B2A60 52%,#2563EB 100%)!important;
+  box-shadow:0 24px 60px rgba(11,31,77,.20)!important;
+  border:1px solid rgba(147,197,253,.22)!important;
+}
+.hero::after,.community-hero-panel::after,.ai-entry-card::after{
+  background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(96,165,250,.12))!important;
+}
+.eyebrow,.hero .eyebrow,.hero .pill{
+  background:rgba(255,255,255,.13)!important;
+  border:1px solid rgba(191,219,254,.24)!important;
+  color:#fff!important;
+  backdrop-filter:blur(12px)!important;
+}
+.stat,.stats .stat{
+  background:rgba(255,255,255,.13)!important;
+  border-color:rgba(191,219,254,.25)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+.btn-primary,.btn.block.btn-primary,.app-alert-confirm{
+  background:linear-gradient(135deg,#071A3D 0%,#0B2A60 52%,#2563EB 100%)!important;
+  color:#fff!important;
+  box-shadow:0 14px 30px rgba(37,99,235,.22)!important;
+}
+.btn-soft,.app-alert-cancel{
+  border-color:rgba(191,219,254,.9)!important;
+  background:rgba(255,255,255,.94)!important;
+}
+.panel,.card,.mini-map-card,.modal-body .panel{
+  border-color:rgba(219,234,254,.72)!important;
+  box-shadow:0 18px 42px rgba(11,31,77,.08)!important;
+}
+.bottom-nav,nav.bottom-nav{
+  background:radial-gradient(circle at 16% 8%,rgba(96,165,250,.28),transparent 34%),linear-gradient(135deg,#061631 0%,#08255A 55%,#0B3A88 100%)!important;
+  border:1px solid rgba(147,197,253,.22)!important;
+  border-bottom:none!important;
+  box-shadow:0 -18px 48px rgba(7,26,61,.24), inset 0 1px 0 rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  color:rgba(226,232,240,.86)!important;
+}
+.nav-btn{
+  border-radius:18px!important;
+  color:rgba(226,232,240,.82)!important;
+  min-width:0!important;
+}
+.nav-btn .nav-icon img,.admin-nav-btn .nav-icon img,.upick-svg-icon{
+  filter:drop-shadow(0 3px 7px rgba(0,0,0,.14));
+}
+.nav-btn.active{
+  color:#fff!important;
+  background:linear-gradient(180deg,rgba(96,165,250,.30),rgba(37,99,235,.18))!important;
+  box-shadow:0 10px 22px rgba(37,99,235,.28), inset 0 1px 0 rgba(255,255,255,.30)!important;
+  border:1px solid rgba(147,197,253,.34)!important;
+}
+.nav-btn.active .nav-icon{filter:drop-shadow(0 0 12px rgba(96,165,250,.42));}
+.nav-btn .nav-label{font-weight:900!important;font-size:12px!important;}
+.gnb-sheet{
+  background:#fff!important;
+  border:1px solid rgba(219,234,254,.85)!important;
+  box-shadow:0 28px 80px rgba(7,26,61,.28)!important;
+}
+.gnb-top,.gnb-hero{
+  background:radial-gradient(circle at 78% 18%,rgba(96,165,250,.30),transparent 34%),linear-gradient(135deg,#071A3D 0%,#0B2A60 54%,#174EA6 100%)!important;
+  border-bottom:1px solid rgba(147,197,253,.20)!important;
+}
+.gnb-hero-emoji{
+  opacity:.98!important;
+  filter:drop-shadow(0 14px 28px rgba(11,31,77,.25));
+}
+.gnb-hero-emoji img{
+  content:url('/icons/internal/brand-symbol.svg');
+}
+.gnb-icon-btn,.gnb-close{
+  background:rgba(255,255,255,.10)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(10px)!important;
+}
+.gnb-banner{
+  background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)!important;
+  border:1px solid rgba(191,219,254,.75)!important;
+  color:#0B2A60!important;
+}
+.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.all-menu-card{
+  border-color:rgba(219,234,254,.86)!important;
+  box-shadow:0 12px 28px rgba(11,31,77,.07)!important;
+}
+.gnb-section-title::after{background:linear-gradient(90deg,rgba(37,99,235,.26),rgba(37,99,235,0))!important;}
+dialog:not(.app-alert){
+  border:1px solid rgba(219,234,254,.8)!important;
+  box-shadow:0 28px 80px rgba(7,26,61,.26)!important;
+  border-radius:30px!important;
+  overflow:hidden!important;
+}
+dialog:not(.app-alert)::backdrop{
+  background:rgba(7,26,61,.44)!important;
+  backdrop-filter:blur(6px)!important;
+}
+dialog:not(.app-alert)::before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;height:4px;
+  background:linear-gradient(90deg,#60A5FA,#2563EB,#0B2A60);
+  z-index:3;
+}
+.modal-head,.modal-body{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;}
+.close-btn{
+  background:#f8fbff!important;
+  border:1px solid rgba(219,234,254,.76)!important;
+  color:#071A3D!important;
+}
+.pill,.tag,.status-chip{
+  border-color:rgba(191,219,254,.78)!important;
+}
+.pill.rec,.tag.rec,.badge.normal{
+  background:linear-gradient(180deg,#eff6ff,#dbeafe)!important;
+  color:#1d4ed8!important;
+}
+.app-alert{
+  background:rgba(7,26,61,.46)!important;
+  backdrop-filter:blur(7px)!important;
+}
+.app-alert-card{
+  border-radius:28px!important;
+  border:1px solid rgba(219,234,254,.82)!important;
+  box-shadow:0 30px 80px rgba(7,26,61,.30)!important;
+}
+.app-alert-card::before{
+  height:4px!important;
+  background:linear-gradient(90deg,#60A5FA,#2563EB,#0B2A60)!important;
+}
+.app-alert-icon{
+  background:linear-gradient(180deg,#eff6ff,#dbeafe)!important;
+  border-color:#bfdbfe!important;
+  color:#1d4ed8!important;
+}
+
+</style>
+
+<style>
+/* ===== 더운정픽 UI 1차 보정: 상세 모달 포인트라인 기준점 ===== */
+dialog:not(.app-alert){position:relative!important;}
+</style>
 </head>
 <body>
   <main class="page">
