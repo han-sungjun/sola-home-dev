@@ -7080,5 +7080,69 @@ function fillForm(item){
 })();
 </script>
 
+
+
+<!-- ===== 더운정픽 UI 고급화 v9: 관리자 헤더/히어로 제안서 정렬 ===== -->
+<style id="upick-admin-v9-header-hero-fix">
+/* 관리자: 상단 '운영 관리 업무를 한 번에' 중복 컨텍스트 배너 제거 */
+.admin-unified-header .upick-header-context{
+  display:none!important;
+}
+.admin-unified-header.unified-topbar{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:"brand utils"!important;
+  gap:12px!important;
+  align-items:center!important;
+  margin-bottom:0!important;
+  padding:16px 16px 0!important;
+  border-radius:32px 32px 0 0!important;
+  background:
+    radial-gradient(circle at 90% 20%,rgba(96,165,250,.28),transparent 44%),
+    linear-gradient(135deg,#061A3D 0%,#0B2A60 52%,#2563EB 100%)!important;
+  box-shadow:0 22px 46px rgba(11,31,77,.16)!important;
+}
+.admin-unified-header .upick-header-brand{
+  grid-area:brand!important;
+  background:rgba(255,255,255,.92)!important;
+  border:1px solid rgba(219,234,254,.86)!important;
+  box-shadow:0 16px 32px rgba(0,0,0,.10)!important;
+}
+.admin-unified-header .upick-header-utils{grid-area:utils!important;}
+.admin-unified-header + .hero{
+  margin-top:0!important;
+  border-radius:0 0 32px 32px!important;
+  padding-top:28px!important;
+  border-top:1px solid rgba(255,255,255,.14)!important;
+  background:
+    radial-gradient(circle at 86% 12%,rgba(147,197,253,.24),transparent 38%),
+    radial-gradient(circle at 100% 100%,rgba(37,99,235,.42),transparent 46%),
+    linear-gradient(135deg,#061A3D 0%,#0B2A60 52%,#2563EB 100%)!important;
+  box-shadow:0 24px 50px rgba(11,31,77,.17)!important;
+}
+.admin-unified-header + .hero h2{font-size:clamp(30px,7vw,44px)!important;line-height:1.15!important;max-width:100%!important;}
+.admin-unified-header + .hero p{font-size:clamp(15px,3.7vw,20px)!important;line-height:1.65!important;max-width:100%!important;}
+.admin-unified-header + .hero .stat{
+  background:rgba(255,255,255,.12)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+}
+@media(max-width:680px){
+  .admin-unified-header.unified-topbar{grid-template-columns:1fr auto!important;grid-template-areas:"brand utils"!important;padding:14px 14px 0!important;}
+  .admin-unified-header .upick-header-brand{min-width:0!important;}
+  .admin-unified-header .icon-btn{width:52px!important;height:52px!important;min-width:52px!important;}
+  .admin-unified-header + .hero{padding:26px 22px 24px!important;}
+}
+/* 관리자 GNB/상단 SVG 표시 강제 */
+.admin-unified-header .logo img,
+.admin-unified-header .upick-svg-icon,
+.gnb-sheet .upick-svg-icon,
+.admin-bottom-nav .upick-svg-icon{
+  display:block!important;
+  opacity:1!important;
+  visibility:visible!important;
+  object-fit:contain!important;
+}
+.gnb-sheet .upick-svg-icon{width:24px!important;height:24px!important;}
+</style>
+
 </body>
 </html>
