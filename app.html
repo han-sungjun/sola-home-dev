@@ -11796,114 +11796,25 @@ header.topbar.unified-topbar{
 </style>
 
 
-<style id="upick-public-tabs-blue-premium-v21">
-/* ===== 더운정픽 v21: 공개앱 전체 탭 공통 헤더 + 네이비 프리미엄 히어로 ===== */
+
+<style id="upick-public-tabs-blue-premium-v22">
+/* ===== 더운정픽 v22: 공통 헤더를 탭별 히어로 내부로 통합 ===== */
 :root{
-  --upick-v21-navy:#071A3D;
-  --upick-v21-navy2:#0B2A60;
-  --upick-v21-blue:#1D4ED8;
-  --upick-v21-sky:#60A5FA;
-  --upick-v21-line:rgba(191,219,254,.78);
+  --upick-v22-navy:#071A3D;
+  --upick-v22-navy2:#0B2A60;
+  --upick-v22-blue:#1D4ED8;
+  --upick-v22-line:rgba(191,219,254,.78);
 }
 
-/* 비홈 탭용 공통 브랜드 헤더 */
-.upick-tab-common-header{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto auto auto;
-  align-items:center;
-  gap:10px;
-  margin:0 0 12px;
-}
-.upick-tab-brand-block{
-  min-width:0;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:10px 13px 10px 10px;
-  border-radius:24px;
-  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,246,255,.74));
-  border:1px solid rgba(191,219,254,.86);
-  box-shadow:0 16px 34px rgba(11,31,77,.09), inset 0 1px 0 rgba(255,255,255,.94);
-}
-.upick-tab-brand-logo{
-  width:48px;
-  height:48px;
-  flex:0 0 48px;
-  border-radius:17px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(180deg,#fff,#eef6ff);
-  border:1px solid rgba(191,219,254,.84);
-  box-shadow:0 10px 22px rgba(37,99,235,.10);
-}
-.upick-tab-brand-logo img{
-  width:34px;
-  height:34px;
-  object-fit:contain;
-  display:block;
-}
-.upick-tab-brand-copy{
-  min-width:0;
-}
-.upick-tab-brand-copy strong{
-  display:block;
-  color:#071A3D;
-  font-size:24px;
-  line-height:1.08;
-  font-weight:1000;
-  letter-spacing:-.065em;
-  white-space:nowrap;
-}
-.upick-tab-brand-copy span{
-  display:block;
-  margin-top:5px;
-  color:#64748b;
-  font-size:12px;
-  line-height:1.2;
-  font-weight:800;
-  white-space:nowrap;
-}
-.upick-tab-header-btn{
-  width:50px;
-  height:50px;
-  border-radius:18px;
-  border:1px solid rgba(219,234,254,.86);
-  background:rgba(255,255,255,.88);
-  box-shadow:0 12px 28px rgba(11,31,77,.08);
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  color:#0B2A60;
-}
-.upick-tab-header-btn img{
-  width:24px;
-  height:24px;
-  object-fit:contain;
-}
-.upick-tab-header-btn.ai{
-  position:relative;
-}
-.upick-tab-header-btn.ai::after{
-  content:"";
-  position:absolute;
-  top:6px;
-  right:8px;
-  width:7px;
-  height:7px;
-  border-radius:999px;
-  background:#22c55e;
-  box-shadow:0 0 0 3px rgba(34,197,94,.12);
-}
-
-/* 메뉴별 네이비 프리미엄 히어로 */
+/* 탭별 히어로 전체 박스: 홈 탭처럼 공통 헤더까지 내부 포함 */
 .upick-tab-premium-hero{
   position:relative;
   overflow:hidden;
   display:grid;
-  gap:12px;
-  min-height:158px;
+  gap:14px;
+  min-height:260px;
   margin:0 0 16px;
-  padding:22px 22px 20px;
+  padding:18px 18px 22px;
   border-radius:30px;
   color:#fff;
   background:
@@ -11929,6 +11840,95 @@ header.topbar.unified-topbar{
   position:relative;
   z-index:1;
 }
+
+/* 공통 헤더는 이제 히어로 내부 최상단 */
+.upick-tab-common-header{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto auto;
+  align-items:center;
+  gap:10px;
+  margin:0 0 2px;
+}
+.upick-tab-brand-block{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 13px 10px 10px;
+  border-radius:24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(239,246,255,.68));
+  border:1px solid rgba(255,255,255,.42);
+  box-shadow:0 16px 34px rgba(2,8,23,.14), inset 0 1px 0 rgba(255,255,255,.90);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.upick-tab-brand-logo{
+  width:48px;
+  height:48px;
+  flex:0 0 48px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(180deg,#fff,#eef6ff);
+  border:1px solid rgba(191,219,254,.84);
+  box-shadow:0 10px 22px rgba(37,99,235,.10);
+}
+.upick-tab-brand-logo img{
+  width:34px;
+  height:34px;
+  object-fit:contain;
+  display:block;
+}
+.upick-tab-brand-copy{min-width:0;}
+.upick-tab-brand-copy strong{
+  display:block;
+  color:#071A3D;
+  font-size:24px;
+  line-height:1.08;
+  font-weight:1000;
+  letter-spacing:-.065em;
+  white-space:nowrap;
+}
+.upick-tab-brand-copy span{
+  display:block;
+  margin-top:5px;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:800;
+  white-space:nowrap;
+}
+.upick-tab-header-btn{
+  width:50px;
+  height:50px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.40);
+  background:rgba(255,255,255,.86);
+  box-shadow:0 12px 28px rgba(2,8,23,.14), inset 0 1px 0 rgba(255,255,255,.85);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  color:#0B2A60;
+}
+.upick-tab-header-btn img{
+  width:24px;
+  height:24px;
+  object-fit:contain;
+}
+.upick-tab-header-btn.ai{position:relative;}
+.upick-tab-header-btn.ai::after{
+  content:"";
+  position:absolute;
+  top:6px;
+  right:8px;
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.16);
+}
+
+/* 히어로 내부 컨텍스트 라인 */
 .upick-tab-kicker{
   width:max-content;
   max-width:100%;
@@ -11952,7 +11952,7 @@ header.topbar.unified-topbar{
 }
 .upick-tab-premium-hero h2{
   margin:0;
-  max-width:340px;
+  max-width:350px;
   color:#fff!important;
   font-size:clamp(25px,6.8vw,34px);
   line-height:1.18;
@@ -11961,7 +11961,7 @@ header.topbar.unified-topbar{
 }
 .upick-tab-premium-hero p{
   margin:0;
-  max-width:370px;
+  max-width:380px;
   color:rgba(255,255,255,.88)!important;
   font-size:14px;
   line-height:1.68;
@@ -11995,30 +11995,13 @@ header.topbar.unified-topbar{
   display:none!important;
 }
 
-/* AI/캘린더/지도/공지 기존 히어로가 있을 경우 네이비 톤 강제 */
-#view-ai .ai-view-hero,
-#view-calendar .calendar-hero,
-#view-map > .panel:first-of-type,
-#view-notices > .panel:first-of-type{
-  background:
-    radial-gradient(circle at 88% 12%,rgba(96,165,250,.30),transparent 34%),
-    radial-gradient(circle at 100% 100%,rgba(29,78,216,.26),transparent 46%),
-    linear-gradient(135deg,#071A3D 0%,#0B2A60 56%,#1D4ED8 100%)!important;
-  border:1px solid rgba(147,197,253,.24)!important;
-  box-shadow:0 18px 42px rgba(11,31,77,.15), inset 0 1px 0 rgba(255,255,255,.16)!important;
-  color:#fff!important;
-}
-#view-ai .ai-view-hero h1,#view-ai .ai-view-hero h2,#view-ai .ai-view-hero h3,#view-ai .ai-view-hero p,
-#view-calendar .calendar-hero h1,#view-calendar .calendar-hero h2,#view-calendar .calendar-hero h3,#view-calendar .calendar-hero p,
-#view-map > .panel:first-of-type h1,#view-map > .panel:first-of-type h2,#view-map > .panel:first-of-type h3,#view-map > .panel:first-of-type p,
-#view-notices > .panel:first-of-type h1,#view-notices > .panel:first-of-type h2,#view-notices > .panel:first-of-type h3,#view-notices > .panel:first-of-type p{
-  color:#fff!important;
+/* 기존 AI/캘린더 기본 히어로는 중복 느낌 방지 */
+#view-ai .ai-view-hero.upick-duplicate-hidden,
+#view-calendar .calendar-hero.upick-duplicate-hidden{
+  display:none!important;
 }
 
-/* 전체 기능 카드와 기타 카드 톤 안정화 */
-#view-all .all-menu-card{
-  border-color:rgba(219,234,254,.78)!important;
-}
+/* 카드 톤 안정화 */
 #view-benefits .card,
 #view-favorites .card,
 #view-popular .panel,
@@ -12032,6 +12015,12 @@ header.topbar.unified-topbar{
 
 /* 모바일 보정 */
 @media(max-width:520px){
+  .upick-tab-premium-hero{
+    min-height:250px;
+    margin-bottom:14px;
+    padding:16px 16px 20px;
+    border-radius:28px;
+  }
   .upick-tab-common-header{
     grid-template-columns:minmax(0,1fr) 48px 48px 48px;
     gap:8px;
@@ -12050,38 +12039,21 @@ header.topbar.unified-topbar{
     width:31px;
     height:31px;
   }
-  .upick-tab-brand-copy strong{
-    font-size:22px;
-  }
-  .upick-tab-brand-copy span{
-    font-size:11px;
-  }
+  .upick-tab-brand-copy strong{font-size:22px;}
+  .upick-tab-brand-copy span{font-size:11px;}
   .upick-tab-header-btn{
     width:48px;
     height:48px;
     border-radius:17px;
-  }
-  .upick-tab-premium-hero{
-    min-height:148px;
-    margin-bottom:14px;
-    padding:20px 18px 19px;
-    border-radius:28px;
   }
 }
 @media(max-width:380px){
   .upick-tab-common-header{
     grid-template-columns:minmax(0,1fr) 44px 44px;
   }
-  .upick-tab-header-btn.install{
-    display:none;
-  }
-  .upick-tab-header-btn{
-    width:44px;
-    height:44px;
-  }
-  .upick-tab-brand-copy strong{
-    font-size:20px;
-  }
+  .upick-tab-header-btn.install{display:none;}
+  .upick-tab-header-btn{width:44px;height:44px;}
+  .upick-tab-brand-copy strong{font-size:20px;}
 }
 </style>
 
@@ -25249,7 +25221,8 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 
 
 
-<script id="upick-public-tabs-blue-premium-v21-js">
+
+<script id="upick-public-tabs-blue-premium-v22-js">
 (function(){
   const META = {
     benefits:{icon:"/icons/internal/benefit.svg",kicker:"혜택 찾기",title:"입주민 혜택을 빠르게 찾아보세요",desc:"매장명, 카테고리, 조건으로 원하는 혜택을 검색하고 필터링할 수 있습니다.",chips:["혜택 검색","카테고리 필터","즐겨찾기"]},
@@ -25263,7 +25236,7 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   };
 
   function commonHeader(){
-    const el = document.createElement("section");
+    const el = document.createElement("div");
     el.className = "upick-tab-common-header";
     el.innerHTML = `
       <div class="upick-tab-brand-block">
@@ -25283,7 +25256,8 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
     const el = document.createElement("section");
     el.className = "upick-tab-premium-hero";
     el.dataset.upickTabHero = key;
-    el.innerHTML = `
+    el.appendChild(commonHeader());
+    el.insertAdjacentHTML("beforeend", `
       <div class="upick-tab-kicker">
         <img src="${m.icon}" alt="" onerror="this.style.display='none'">
         <span>${m.kicker}</span>
@@ -25293,72 +25267,59 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
       <div class="upick-tab-mini-actions">
         ${m.chips.map(c=>`<span class="upick-tab-mini-chip">${c}</span>`).join("")}
       </div>
-    `;
+    `);
     return el;
   }
 
   function hideDuplicatePanel(key, view){
     if(!view) return;
-    if(!["benefits","favorites","all","notices"].includes(key)) return;
-    const panels = Array.from(view.children).filter(el => el.classList && el.classList.contains("panel"));
-    const firstPanel = panels[0];
-    if(firstPanel && !firstPanel.classList.contains("filter-sticky")){
-      firstPanel.classList.add("upick-duplicate-hidden");
+    if(["benefits","favorites","all","notices"].includes(key)){
+      const panels = Array.from(view.children).filter(el => el.classList && el.classList.contains("panel"));
+      const firstPanel = panels[0];
+      if(firstPanel && !firstPanel.classList.contains("filter-sticky")){
+        firstPanel.classList.add("upick-duplicate-hidden");
+      }
     }
+    if(key === "ai"){
+      const old = view.querySelector(".ai-view-hero");
+      if(old) old.classList.add("upick-duplicate-hidden");
+    }
+    if(key === "calendar"){
+      const old = view.querySelector(".calendar-hero");
+      if(old) old.classList.add("upick-duplicate-hidden");
+    }
+  }
+
+  function removeOldSeparateHeader(view){
+    const old = view.querySelector(":scope > .upick-tab-common-header");
+    if(old) old.remove();
   }
 
   function ensureForView(key){
     const view = document.getElementById("view-" + key);
     if(!view || !META[key]) return;
 
-    // 1) common header should be first
-    if(!view.querySelector(":scope > .upick-tab-common-header")){
-      view.insertBefore(commonHeader(), view.firstElementChild);
-    }
+    removeOldSeparateHeader(view);
 
-    // 2) menu hero should follow common header
     if(!view.querySelector(":scope > .upick-tab-premium-hero")){
-      const h = menuHero(key);
-      const header = view.querySelector(":scope > .upick-tab-common-header");
-      if(h && header){
-        view.insertBefore(h, header.nextSibling);
+      const hero = menuHero(key);
+      if(hero) view.insertBefore(hero, view.firstElementChild);
+    }else{
+      const hero = view.querySelector(":scope > .upick-tab-premium-hero");
+      if(hero && !hero.querySelector(":scope > .upick-tab-common-header")){
+        hero.insertBefore(commonHeader(), hero.firstElementChild);
       }
     }
 
-    // 3) remove duplicated legacy explanation cards
     hideDuplicatePanel(key, view);
   }
 
-  function getActiveViewKey(){
-    const views = document.querySelectorAll('[id^="view-"]');
-    for(const v of views){
-      if(v.classList.contains("hidden")) continue;
-      const s = getComputedStyle(v);
-      if(s.display !== "none" && s.visibility !== "hidden"){
-        return v.id.replace(/^view-/,"");
-      }
-    }
-    return "home";
-  }
-
-  function ensureAll(){
-    Object.keys(META).forEach(ensureForView);
-  }
-
   function routeTo(key){
-    const candidates = [
-      `[data-view="${key}"]`,
-      `[data-view-link="${key}"]`,
-      `.nav-btn[data-view="${key}"]`,
-      `.nav-btn[data-view-link="${key}"]`
-    ];
-    for(const sel of candidates){
+    const selectors = [`[data-view="${key}"]`, `[data-view-link="${key}"]`, `.nav-btn[data-view="${key}"]`, `.nav-btn[data-view-link="${key}"]`];
+    for(const sel of selectors){
       const btn = document.querySelector(sel);
       if(btn){ btn.click(); return; }
     }
-    const navs = Array.from(document.querySelectorAll(".nav-btn, .gnb-chip, .gnb-menu-item, .gnb-menu-subitem, .all-menu-card"));
-    const found = navs.find(b => (b.textContent || "").replace(/\s/g,"").includes(key === "ai" ? "AI생활도우미" : ""));
-    if(found) found.click();
   }
 
   function bindHeaderButtons(){
@@ -25377,7 +25338,7 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
       const gnb = e.target.closest("[data-upick-open-gnb]");
       if(gnb){
         e.preventDefault();
-        const gnbBtn = document.querySelector("#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,.gnb-wrap .icon-btn");
+        const gnbBtn = document.querySelector("#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,.topbar [aria-label*='전체'],.topbar [aria-label*='메뉴']");
         if(gnbBtn) gnbBtn.click();
         return;
       }
@@ -25385,15 +25346,12 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   }
 
   function init(){
-    ensureAll();
+    Object.keys(META).forEach(ensureForView);
     bindHeaderButtons();
-
-    // lightweight route update only, no full DOM observer
     document.addEventListener("click", function(e){
       if(e.target.closest("[data-view],[data-view-link],.nav-btn,.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.all-menu-card")){
         setTimeout(function(){
-          const key = getActiveViewKey();
-          if(META[key]) ensureForView(key);
+          Object.keys(META).forEach(ensureForView);
         }, 80);
       }
     }, true);
