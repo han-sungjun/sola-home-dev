@@ -4304,6 +4304,88 @@ body {
 })();
 </script>
 
+
+
+<!-- ===== 더운정픽 UI v59: 로그인 로딩 상단 캡슐 하이라이트바 복구 ===== -->
+<style id="upick-v59-loader-capsule-bar-repair">
+#pageLoader .loader-mark{
+  isolation:isolate !important;
+}
+
+/* 내부 심볼은 실제 이미지로 고정해서 ::before/::after 충돌 방지 */
+#pageLoader .loader-mark .loader-symbol-img,
+#pageLoader .loader-mark > img{
+  display:block !important;
+  position:relative !important;
+  z-index:3 !important;
+  width:54px !important;
+  height:54px !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  opacity:1 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.16)) !important;
+}
+
+/* 글래스 본체의 은은한 내부 광택 */
+#pageLoader .loader-mark::before{
+  content:"" !important;
+  position:absolute !important;
+  z-index:1 !important;
+  inset:1px !important;
+  width:auto !important;
+  height:auto !important;
+  border-radius:inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.045) 48%, transparent 74%),
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,.18), transparent 34%) !important;
+  border:0 !important;
+  box-shadow:none !important;
+  filter:none !important;
+  pointer-events:none !important;
+}
+
+/* 위쪽 얇은 캡슐 하이라이트바 */
+#pageLoader .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  z-index:4 !important;
+  left:50% !important;
+  top:-14px !important;
+  right:auto !important;
+  bottom:auto !important;
+  inset:auto auto auto 50% !important;
+  transform:translateX(-50%) !important;
+  width:82px !important;
+  height:6px !important;
+  border:1px solid rgba(255,255,255,.30) !important;
+  border-radius:999px !important;
+  background:
+    linear-gradient(90deg, rgba(191,219,254,.24) 0%, rgba(147,197,253,.78) 34%, rgba(96,165,250,.96) 50%, rgba(147,197,253,.78) 66%, rgba(191,219,254,.24) 100%) !important;
+  background-size:190% 100% !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.26),
+    inset 0 1px 0 rgba(255,255,255,.38) !important;
+  opacity:.86 !important;
+  animation:upickV59CapsuleSweep 1.28s ease-in-out infinite !important;
+  pointer-events:none !important;
+}
+
+@keyframes upickV59CapsuleSweep{
+  0%,100%{background-position:0% 50%; opacity:.58; width:72px}
+  50%{background-position:100% 50%; opacity:1; width:86px}
+}
+
+@media (max-width:430px){
+  #pageLoader .loader-mark .loader-symbol-img,
+#pageLoader .loader-mark > img{width:52px!important;height:52px!important}
+  #pageLoader .loader-mark::after{top:-13px!important;height:5px!important}
+}
+</style>
+
 </body>
 
 </html>
