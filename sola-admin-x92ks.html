@@ -9133,5 +9133,219 @@ function fillForm(item){
 }
 </style>
 
+
+<!-- ===== 더운정픽 v70: 관리자 히어로 컴팩트 + 헤더 카드감 제거 ===== -->
+<style id="upick-admin-v70-compact-hero-header">
+/* 관리자 상단 전체: 기존 큰 카드형 헤더/히어로를 더 슬림한 프리미엄형으로 보정 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural{
+  gap:10px!important;
+  padding:12px!important;
+  border-radius:28px!important;
+  margin:0 0 14px!important;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(147,197,253,.22),transparent 34%),
+    linear-gradient(135deg,#061A3D 0%,#0B2A60 54%,#2563EB 100%)!important;
+  box-shadow:0 20px 46px rgba(11,31,77,.16)!important;
+}
+
+/* 헤더: 2번째 이미지처럼 작은 glass bar 느낌 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header.unified-topbar,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural header.admin-topbar.admin-unified-header{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:calc(100% - 98px)!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  padding:7px 10px!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.14)!important;
+  border:1px solid rgba(255,255,255,.20)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 10px 24px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo{
+  width:34px!important;
+  height:34px!important;
+  flex:0 0 34px!important;
+  border-radius:11px!important;
+  background:rgba(255,255,255,.94)!important;
+  border:1px solid rgba(219,234,254,.88)!important;
+  box-shadow:0 8px 18px rgba(0,0,0,.10)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo img{
+  width:25px!important;
+  height:25px!important;
+  object-fit:contain!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1{
+  margin:0!important;
+  color:#fff!important;
+  font-size:15px!important;
+  line-height:1.04!important;
+  font-weight:1000!important;
+  letter-spacing:-.055em!important;
+  text-shadow:0 2px 8px rgba(0,0,0,.18)!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{
+  margin:3px 0 0!important;
+  color:rgba(255,255,255,.78)!important;
+  font-size:9px!important;
+  line-height:1.1!important;
+  font-weight:800!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils{
+  flex:0 0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .icon-btn{
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  flex:0 0 38px!important;
+  border-radius:14px!important;
+  padding:0!important;
+  background:rgba(255,255,255,.14)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip div:not(.admin-avatar){display:none!important;}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-avatar{
+  width:22px!important;
+  height:22px!important;
+  background:transparent!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils img{
+  width:20px!important;
+  height:20px!important;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.14))!important;
+}
+
+/* 히어로: 기존 대비 약 절반 수준으로 축소 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .hero{
+  margin:0!important;
+  padding:16px 18px 16px!important;
+  border-radius:22px!important;
+  min-height:0!important;
+  background:rgba(255,255,255,.055)!important;
+  border:1px solid rgba(191,219,254,.18)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .hero::after{
+  width:86px!important;
+  height:86px!important;
+  right:-24px!important;
+  top:-22px!important;
+  opacity:.72!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .hero .eyebrow{
+  padding:6px 10px!important;
+  font-size:11px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.13)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .hero-env{
+  top:16px!important;
+  right:16px!important;
+  padding:6px 9px!important;
+  font-size:10px!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .hero h2{
+  margin:10px 0 6px!important;
+  font-size:clamp(23px,5.6vw,34px)!important;
+  line-height:1.12!important;
+  letter-spacing:-.07em!important;
+  max-width:100%!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .hero p{
+  max-width:100%!important;
+  font-size:clamp(13px,3.15vw,16px)!important;
+  line-height:1.5!important;
+  color:rgba(255,255,255,.92)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .stats{
+  gap:8px!important;
+  margin-top:14px!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .stat{
+  padding:10px 12px!important;
+  border-radius:15px!important;
+  background:rgba(255,255,255,.12)!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .stat strong{
+  font-size:clamp(18px,4.8vw,25px)!important;
+  line-height:1.05!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .stat span{
+  display:block!important;
+  margin-top:5px!important;
+  font-size:10px!important;
+  line-height:1.1!important;
+}
+
+@media(max-width:430px){
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural{
+    padding:10px!important;
+    gap:9px!important;
+    border-radius:25px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand{
+    max-width:calc(100% - 88px)!important;
+    padding:6px 8px!important;
+    border-radius:16px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo{
+    width:31px!important;height:31px!important;flex-basis:31px!important;border-radius:10px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo img{width:23px!important;height:23px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1{font-size:14px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{font-size:8.5px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils{gap:6px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .icon-btn{
+    width:35px!important;height:35px!important;min-width:35px!important;flex-basis:35px!important;border-radius:13px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .hero{
+    padding:14px 16px 15px!important;
+    border-radius:20px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .hero h2{
+    font-size:clamp(22px,7.4vw,30px)!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .hero p{
+    font-size:13px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .stat{padding:9px 10px!important;}
+}
+</style>
+
 </body>
 </html>
