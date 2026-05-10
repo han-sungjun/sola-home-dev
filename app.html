@@ -2486,7 +2486,7 @@ body.app-role-resident [data-view="shareinsights"]{
 
 /* ===== AI 생활 도우미: ChatGPT 스타일 UI + 타이핑 UX ===== */
 .ai-chat-window{min-height:380px;max-height:56dvh;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border-radius:26px;padding:16px 14px 18px;scroll-behavior:smooth}
-.ai-message{align-items:flex-start;gap:10px;animation:aiMsgIn .18s ease both}.ai-message.bot::before{content:"";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(180deg,#eef2ff 0%,#e0ecff 100%);border:1px solid #dbeafe;box-shadow:0 8px 18px rgba(37,99,235,.10);flex:0 0 auto}.ai-message.user::after{content:"👤";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;box-shadow:0 8px 18px rgba(15,23,42,.16);flex:0 0 auto}
+.ai-message{align-items:flex-start;gap:10px;animation:aiMsgIn .18s ease both}.ai-message.bot::before{content:"";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(180deg,#eef2ff 0%,#e0ecff 100%);border:1px solid #dbeafe;box-shadow:0 8px 18px rgba(37,99,235,.10);flex:0 0 auto}.ai-message.user::after{content:"";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;box-shadow:0 8px 18px rgba(15,23,42,.16);flex:0 0 auto}
 .ai-message.bot .ai-bubble{max-width:82%;border-radius:20px 20px 20px 8px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-message.user .ai-bubble{max-width:78%;border-radius:20px 20px 8px 20px;background:linear-gradient(135deg,#0f172a 0%,#172554 100%);box-shadow:0 14px 30px rgba(15,23,42,.16)}
 .ai-answer{white-space:normal}.ai-answer b{font-weight:1000;color:#0f172a}.ai-answer .ai-answer-line{display:block;margin:4px 0}.ai-answer .ai-answer-card{display:block;margin:9px 0;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
 .ai-typing-indicator{display:inline-flex;align-items:center;gap:5px;min-width:54px;min-height:24px}.ai-typing-indicator span{width:7px;height:7px;border-radius:999px;background:#94a3b8;animation:aiTypingDot 1s infinite ease-in-out}.ai-typing-indicator span:nth-child(2){animation-delay:.14s}.ai-typing-indicator span:nth-child(3){animation-delay:.28s}
@@ -10462,7 +10462,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 48%,#f8fafc 100%)
   content:"";
   position:absolute;
   inset:8px;
-  background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat;
 }
 .topbar-actions .icon-btn,.icon-btn,.user-chip{
   background:rgba(255,255,255,.86)!important;
@@ -10543,7 +10543,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 48%,#f8fafc 100%)
   filter:drop-shadow(0 14px 28px rgba(11,31,77,.25));
 }
 .gnb-hero-emoji img{
-  content:url('/icons/internal/brand-symbol.svg');
+  content:url('/icons/internal/brand-symbol-real.png');
 }
 .gnb-icon-btn,.gnb-close{
   background:rgba(255,255,255,.10)!important;
@@ -10622,7 +10622,7 @@ dialog:not(.app-alert){position:relative!important;}
 .upick-inline-icon{width:1.1em!important;height:1.1em!important;vertical-align:-.18em!important;object-fit:contain!important;display:inline-block!important;}
 .topbar-left-titleline .brand, header.topbar .brand, .page>.brand{display:inline-flex!important;width:auto!important;max-width:calc(100vw - 36px)!important;align-items:center!important;gap:12px!important;padding:10px 14px 10px 10px!important;border-radius:23px!important;background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(239,246,255,.66))!important;border:1px solid rgba(191,219,254,.78)!important;box-shadow:0 16px 36px rgba(11,31,77,.10),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;}
 .topbar-left-titleline .brand .logo, header.topbar .brand .logo, .page>.brand .logo, .brand .logo{width:44px!important;height:44px!important;border-radius:16px!important;flex:0 0 44px!important;background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,246,255,.78))!important;border:1px solid rgba(191,219,254,.86)!important;}
-.topbar-left-titleline .brand .logo::before, header.topbar .brand .logo::before, .page>.brand .logo::before, .brand .logo::before{inset:6px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;}
+.topbar-left-titleline .brand .logo::before, header.topbar .brand .logo::before, .page>.brand .logo::before, .brand .logo::before{inset:6px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;}
 .topbar-left-titleline .brand h1, header.topbar .brand h1, .page>.brand h1{color:#071A3D!important;letter-spacing:-.06em!important;}
 .topbar-left-titleline .brand p, header.topbar .brand p, .page>.brand p{color:#64748B!important;font-weight:700!important;}
 .gnb-hero-emoji{width:88px!important;height:88px!important;border-radius:28px!important;display:grid!important;place-items:center!important;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(239,246,255,.72))!important;border:1px solid rgba(191,219,254,.82)!important;box-shadow:0 18px 42px rgba(7,26,61,.22),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;font-size:0!important;}
@@ -10635,6 +10635,52 @@ dialog:not(.app-alert){position:relative!important;}
 .app-alert-icon{font-size:0!important;position:relative!important;}
 .app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
 .app-alert-card{overflow:hidden!important;}
+</style>
+
+
+<style id="upick-blue-premium-v4-priority-fix">
+/* ===== 더운정픽 UI v4: 1순위 결함 보정 ===== */
+:root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
+/* 1) 상단/잔여 로딩바 숨김 + 로딩은 중앙 오버레이로만 표시 */
+.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+.global-loading,.page-loader{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.54)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;z-index:2147483000!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+.global-loading.show,.page-loader.show{display:flex!important;}
+.global-loading[aria-hidden="true"]:not(.show),.page-loader[aria-hidden="true"]:not(.show){display:none!important;}
+.global-loading::before,.page-loader::before{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.20),transparent 34%),rgba(7,18,42,.20)!important;}
+.global-loading .loader-mark,.page-loader .loader-mark{width:104px!important;height:104px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.84))!important;border:1px solid rgba(191,219,254,.90)!important;box-shadow:0 28px 70px rgba(7,26,61,.34),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;overflow:visible!important;animation:upickLoaderFloat 1.25s ease-in-out infinite!important;}
+.global-loading .loader-mark::before,.page-loader .loader-mark::before{content:""!important;width:72px!important;height:72px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 10px 20px rgba(7,26,61,.14))!important;}
+.global-loading .loader-mark::after,.page-loader .loader-mark::after{content:""!important;position:absolute!important;inset:-9px!important;border-radius:40px!important;border:2px solid rgba(96,165,250,.26)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;animation:upickLoaderRing 1.05s linear infinite!important;box-shadow:0 0 24px rgba(37,99,235,.22)!important;}
+.global-loading .loader-mark .arm,.page-loader .loader-mark .arm{display:none!important;}
+@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
+@keyframes upickLoaderRing{to{transform:rotate(360deg)}}
+
+/* 2) 실제 심볼마크 통일 */
+.logo::before,.brand .logo::before,.topbar .brand .logo::before,.page>.brand .logo::before,.admin-brand .logo::before{background:var(--upick-real-symbol) center/contain no-repeat!important;}
+.logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"],.gnb-hero-emoji img,.loader-mark img{content:url('/icons/internal/brand-symbol-real.png')!important;object-fit:contain!important;}
+.gnb-hero-emoji{font-size:0!important;}
+.gnb-hero-emoji::before{content:"";width:72px;height:72px;background:var(--upick-real-symbol) center/contain no-repeat;display:block;filter:drop-shadow(0 10px 18px rgba(7,26,61,.16));}
+.gnb-hero-emoji img{display:none!important;}
+
+/* 3) GNB 스크롤 비침/외부 스크롤 차단 */
+body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;}
+.gnb-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147482000!important;overflow:hidden!important;background:rgba(7,18,42,.50)!important;overscroll-behavior:none!important;}
+.gnb-sheet{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;overscroll-behavior:none!important;}
+.gnb-sheet:not(.show){pointer-events:none!important;}
+.gnb-top{flex:0 0 auto!important;}
+.gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
+body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-bottom-nav,body.gnb-open nav.bottom-nav{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(18px)!important;}
+
+/* 4) 회원 탈퇴 레드톤 제거: 위험 액션은 기능 유지, 시각은 슬레이트/블루 */
+#withdrawBtn,.gnb-action-btn.danger,[data-member-action="withdraw"],.btn-danger{background:linear-gradient(180deg,#f8fafc,#eef5ff)!important;color:#334155!important;border:1px solid #cbd5e1!important;box-shadow:0 12px 26px rgba(15,23,42,.07)!important;}
+#withdrawBtn span:first-child,.gnb-action-btn.danger span:first-child{color:#1e3a8a!important;}
+.gnb-danger-note,.danger-note{background:#f8fafc!important;color:#64748b!important;border:1px solid #e2e8f0!important;border-radius:18px!important;}
+.hidden-tag,.tag.hidden-tag{background:#f1f5f9!important;color:#475569!important;border-color:#cbd5e1!important;}
+
+/* 5) 이모지 잔존 방지: 아이콘 영역은 이미지/SVG 기반으로 고정 */
+.gnb-menu-icon,.gnb-card-icon,.admin-all-card-icon,.nav-icon,.all-icon{font-size:0!important;}
+.gnb-menu-icon:not(:has(img))::before,.gnb-card-icon:not(:has(img))::before,.admin-all-card-icon:not(:has(img))::before,.all-icon:not(:has(img))::before{content:"";display:inline-block;width:24px;height:24px;background:url('/icons/internal/all-menu.svg') center/contain no-repeat;}
+.gnb-menu-label{gap:10px!important;}
+.gnb-chip,.gnb-menu-item,.gnb-menu-subitem{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif!important;}
 </style>
 
 </head>
@@ -10669,7 +10715,7 @@ dialog:not(.app-alert){position:relative!important;}
  </div>
  <div class="topbar-left topbar-left-titleline">
  <div class="brand">
- <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol.svg" alt="" loading="lazy"></div>
+ <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="" loading="lazy"></div>
  <div>
  <h1>더운정픽</h1>
  <p>입주민 전용 혜택 웹앱</p>
@@ -10704,7 +10750,7 @@ dialog:not(.app-alert){position:relative!important;}
  <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
  <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
  </div>
- <!-- 홈 탭에서는 AI 생활 도우미 카드를 노출하지 않습니다. 상단 🤖 아이콘 또는 전체 기능 메뉴에서 진입합니다. -->
+ <!-- 홈 탭에서는 AI 생활 도우미 카드를 노출하지 않습니다. 상단 AI 아이콘 또는 전체 기능 메뉴에서 진입합니다. -->
  </section>
  <section id="view-benefits" class="hidden">
  <div class="panel" style="margin-bottom:14px;">
@@ -10840,10 +10886,10 @@ dialog:not(.app-alert){position:relative!important;}
  </div>
  <div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
  <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
- <div class="ai-message bot"><div class="ai-bubble"> 지금 상황에 맞춰 먼저 도와드릴게요 😊
+ <div class="ai-message bot"><div class="ai-bubble"> 지금 상황에 맞춰 먼저 도와드릴게요 
 
-👉 시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
-👉 최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
+ 시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
+ 최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
 
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
  </div>
@@ -12300,7 +12346,7 @@ function setPushStatusUi(enabled){
  icon=''
  } = {}){
  alertFocusTarget = focusTarget;
- const resolvedIcon = icon || (mode === 'confirm' ? '❔' : 'ℹ️');
+ const resolvedIcon = icon || (mode === 'confirm' ? '' : '');
  alertTitleEl.textContent = title;
  alertMsgEl.textContent = message;
  alertIconEl.textContent = resolvedIcon;
@@ -12325,11 +12371,11 @@ function setPushStatusUi(enabled){
  }
 
  function openModalAlert(message, focusTarget=null, title='안내'){
- return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'ℹ️' });
+ return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'' });
  }
 
  function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
- return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❔' });
+ return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
  }
 
  // tracking.js 등 외부 모듈에서도 앱 내부 모달을 사용할 수 있도록 전역 연결
@@ -12386,20 +12432,20 @@ function setPushStatusUi(enabled){
  if(role === 'root'){
  return {
  role,
- label: '👑 최고 관리자',
+ label: '최고 관리자',
  chip: '최고 관리자 계정',
  className: 'role-root',
- avatar: '👑'
+ avatar: ''
  };
  }
 
  if(role === 'admin'){
  return {
  role,
- label: '🛡️ 일반 관리자',
+ label: '일반 관리자',
  chip: '일반 관리자 계정',
  className: 'role-admin',
- avatar: '🛡️'
+ avatar: ''
  };
  }
 
@@ -12408,7 +12454,7 @@ function setPushStatusUi(enabled){
  label: '입주민 계정',
  chip: '입주민 계정',
  className: 'role-resident',
- avatar: '👤'
+ avatar: ''
  };
  }
 
@@ -12445,7 +12491,7 @@ function setPushStatusUi(enabled){
  return;
  }
 
- target.textContent = roleMeta.avatar || '👤';
+ target.textContent = roleMeta.avatar || '';
  }
 
  function applyRoleClass(target, className){
@@ -12511,7 +12557,7 @@ function setPushStatusUi(enabled){
  preview.classList.toggle('has-photo', !!url);
  preview.innerHTML = url
  ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">${plusBtn}`
- : `${escapeHtml(roleMeta.avatar || '👤')}${plusBtn}`;
+ : `${escapeHtml(roleMeta.avatar || '')}${plusBtn}`;
  bindProfileUploadButton();
  }
 
@@ -13082,7 +13128,7 @@ async function refreshPushStatus(){
  await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.\n인기점수에 바로 반영됩니다.`);
  }catch(error){console.warn('입주민 반응 저장 실패', error); await openModalAlert('반응 저장 중 오류가 발생했습니다.');}
  }
- function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">🔥 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like">👍 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend">❤️ 추천</button><button type="button" class="reaction-btn" data-reaction="hot">🔥 HOT</button></div>`; }
+ function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">HOT 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like">좋아요 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend">❤️ 추천</button><button type="button" class="reaction-btn" data-reaction="hot">HOT HOT</button></div>`; }
  function bindResidentReactionButtons(item = {}){ qsa('.reaction-btn').forEach((btn) => { btn.onclick = async (event) => { event.preventDefault(); event.stopPropagation(); await handleResidentReaction(item.id, btn.dataset.reaction || 'like'); }; }); }
 
  const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
@@ -13632,12 +13678,12 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
  <div class="location-title"><strong>위치 안내</strong></div>
  <div class="location-address">${address || '등록된 주소가 없습니다.'}</div>
  ${renderStationAccessBadges(item)}
- ${directionText ? `<div class="location-guide">🧭 ${escapeHtml(directionText)}</div>` : ''}
+ ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
  <div class="detail-map-box">${pos ? '<div id="detailNaverMap" class="detail-map-canvas"></div>' : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}</div>
  <div class="location-distance muted" id="distanceText"${distanceAttr}>${distanceText}</div>
  <div class="location-actions">
  <a class="btn btn-soft block" id="mapBtn" href="${mapLink}" target="_blank" rel="noopener">📍 지도 보기</a>
- <a class="btn btn-primary block" id="directionBtn" href="${directionLink}" target="_blank" rel="noopener">🧭 네이버 길찾기</a>
+ <a class="btn btn-primary block" id="directionBtn" href="${directionLink}" target="_blank" rel="noopener">네이버 길찾기</a>
  </div>
  <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
  </div>`;
@@ -14121,7 +14167,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  const dateText = formatDateTime(item.updatedAt || item.createdAt);
  return `
  <div class="notice-meta">
- ${item.pinned ? '<span class="notice-badge pin">📌 중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
+ ${item.pinned ? '<span class="notice-badge pin">중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
  <span class="notice-badge">${item.category}</span>
  ${recentNewBadgeHtml(item)}
  ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
@@ -14399,7 +14445,7 @@ function getShareTrackingParams(){
 
  const lines = [];
 
- if(benefitLine) lines.push(`✅ ${benefitLine}`);
+ if(benefitLine) lines.push(`추천 ${benefitLine}`);
  if(categoryLine) lines.push(`🏷️ ${categoryLine}`);
  if(locationLine) lines.push(`📍 ${locationLine}`);
 
@@ -14637,7 +14683,7 @@ function getShareTrackingParams(){
  <div class="notice-detail-wrap">
  <div>
  <div class="notice-detail-meta">
- ${item.pinned ? '<span class="notice-badge pin">📌 중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
+ ${item.pinned ? '<span class="notice-badge pin">중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
  <span class="notice-badge">${escapeHtml(item.category || '일반')}</span>
  ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
  </div>
@@ -15575,15 +15621,15 @@ ${item.content || ''}`);
  row.innerHTML = `
  <div class="popular-rank-wrap">
  ${getRankBadge(rank)}
- ${rank === 1 ? '<span class="best-badge">👑 BEST</span>' : ''}
+ ${rank === 1 ? '<span class="best-badge"> BEST</span>' : ''}
  </div>
  <div class="popular-meta">
  <div class="popular-name-row">
  <div class="popular-name">${escapeHtml(item.name || '이름 없는 매장')}</div>
  ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
- ${item.isShareBest ? '<span class="share-best-badge">🔗 공유 BEST</span>' : ''}
+ ${item.isShareBest ? '<span class="share-best-badge">공유 공유 BEST</span>' : ''}
  </div>
- ${rank === 1 ? '<div class="top1-urgent">🔥 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
+ ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
  ${renderPopularDetail(item)}
  </div>
  <div class="popular-score">
@@ -16440,7 +16486,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">📅 방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -16514,7 +16560,7 @@ function renderCalendarDayModal(){
  return { ...item, benefit, distance, nearbyScore: Number(item.popularScore || item.score || 0) + distanceBonus };
  }).filter(Boolean).filter((item) => Number.isFinite(item.distance) && item.distance <= 500).sort((a,b) => b.nearbyScore - a.nearbyScore).slice(0,3);
  if(!candidates.length) return;
- setNearbyProximityStatus('🔥 근처 HOT: ' + candidates.map((item, index) => `${index + 1}. ${item.name} · ${formatDistance(item.distance)}`).join(' / '));
+ setNearbyProximityStatus('HOT 근처 HOT: ' + candidates.map((item, index) => `${index + 1}. ${item.name} · ${formatDistance(item.distance)}`).join(' / '));
  }
 
  function renderResidentRankings(items = []){
@@ -16546,7 +16592,7 @@ function renderCalendarDayModal(){
 
  function formatCommunityDate(value){ try{ const d = value?.toDate ? value.toDate() : (value ? new Date(value) : null); if(!d) return ''; const yyyy = d.getFullYear(); const mm = String(d.getMonth()+1).padStart(2,'0'); const dd = String(d.getDate()).padStart(2,'0'); return `${yyyy}.${mm}.${dd}`; }catch(_){ return ''; } }
  function getCommunityPostScore(post={}){ return (Number(post.likeCount||0)*6) + (Number(post.commentCount||0)*4) + Number(post.viewCount||0) + Number(post.reportCount||0); }
- function communityTopBadgeHtml(post={}){ const score = getCommunityPostScore(post); if(score < 10) return ''; const label = score >= 40 ? '🔥 인기글 TOP' : '🔥 인기글'; return `<span class="community-top-badge">${label}</span>`; }
+ function communityTopBadgeHtml(post={}){ const score = getCommunityPostScore(post); if(score < 10) return ''; const label = score >= 40 ? 'HOT 인기글 TOP' : 'HOT 인기글'; return `<span class="community-top-badge">${label}</span>`; }
  function communityTodayKey(){ const d=new Date(); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
  async function recordCommunityView(kind, postId, commentId=''){ const user=auth.currentUser; if(!user || !postId) return; const day=communityTodayKey(); const id = kind === 'comment' ? 'comment_'+postId+'_'+commentId+'_'+user.uid+'_'+day : 'post_'+postId+'_'+user.uid+'_'+day; try{ await setDoc(doc(db,'community_view_events',id), { kind, postId, commentId:commentId||null, uid:user.uid, day, createdAt:serverTimestamp() }, { merge:false }); }catch(_){ } }
  function commentLikeDocId(postId, commentId, uid){ return uid; }
@@ -16637,7 +16683,7 @@ function renderCalendarDayModal(){
  const imageUrl = getCommunityAuthorImage(data);
  const roleClass = isRoot ? 'is-root' : (isAdmin ? 'is-admin' : '');
  const avatar = imageUrl ? `<span class="community-author-avatar"><img src="${escapeAttr(imageUrl)}" alt="프로필 이미지" loading="lazy"></span>` : `<span class="community-author-avatar">${getCommunityAuthorInitial(name)}</span>`;
- const adminBadge = isRoot ? '<span class="community-author-badge root">👑 관리자</span>' : (isAdmin ? '<span class="community-author-badge admin">🛡 관리자</span>' : '');
+ const adminBadge = isRoot ? '<span class="community-author-badge root"> 관리자</span>' : (isAdmin ? '<span class="community-author-badge admin">🛡 관리자</span>' : '');
  const writerBadge = isWriter ? '<span class="community-author-badge writer">작성자</span>' : '';
  return `<span class="community-author-line ${roleClass}">${avatar}<span class="community-author-name">${escapeHtml(name)}</span>${adminBadge}${writerBadge}</span>`;
  }
@@ -17036,7 +17082,7 @@ function renderCalendarDayModal(){
  .map(v => v.name)
  .filter(Boolean);
  const topHint = topNames.length ? `\n오늘 많이 보는 혜택은 ${topNames.map(escapeHtml).join(' · ')} 쪽이에요.` : '';
- return `안녕하세요 😊
+ return `안녕하세요 
 현재는 ${escapeHtml(timePrompt.title)}이에요.${topHint}
 
 먼저 필요한 걸 골라보세요. 제가 바로 이어서 추천해드릴게요.
@@ -17240,12 +17286,12 @@ function getAiAttachmentIcon(attachment={}){
  const ext = getAiAttachmentExt(name);
  if(mime.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
  if(mime.includes('pdf') || ext === 'pdf') return '📕';
- if(['xls','xlsx','csv'].includes(ext)) return '📊';
+ if(['xls','xlsx','csv'].includes(ext)) return '';
  if(['doc','docx','hwp','hwpx'].includes(ext)) return '📄';
  if(['ppt','pptx'].includes(ext)) return '📽️';
  if(['zip','7z','rar'].includes(ext)) return '🗂️';
  if(['txt','md'].includes(ext)) return '📝';
- return '📎';
+ return '첨부';
 }
 
 function getAiAttachmentGuideText(attachments=[]){
@@ -17347,7 +17393,7 @@ function getAiAttachmentType(item={}){
  if(!unique.length) return '';
  const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
  const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
- const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this) : false;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this.closest('[data-ai-image-zoom]') || this) : false;"><span class="ai-attachment-zoom-badge" aria-hidden="true">🔍</span></button><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this) : false;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this.closest('[data-ai-image-zoom]') || this) : false;"><span class="ai-attachment-zoom-badge" aria-hidden="true"></span></button><div class="ai-attachment-caption">${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
  const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span><span class="ai-attachment-file-icon">${getAiAttachmentIcon(a)}</span>${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
  const guideText = getAiAttachmentGuideText(unique);
  const guideHtml = guideText ? `<div class="ai-attachment-guide">${escapeHtml(guideText)}</div>` : '';
@@ -17412,7 +17458,7 @@ function getAiAttachmentType(item={}){
  const source = `${question || ''} ${answerText || ''}`;
  if(/비|우천|장마|소나기|빗방울|강수/.test(source)) return '☔ 비오는날 추천';
  if(/눈|폭설|눈날림/.test(source)) return '❄️ 눈오는날 추천';
- if(/더운|폭염|무더위|기온|여름|실내/.test(source)) return '🔥 더운날 실내 추천';
+ if(/더운|폭염|무더위|기온|여름|실내/.test(source)) return 'HOT 더운날 실내 추천';
  if(/맑|날씨 좋|산책|야외/.test(source)) return '☀️ 날씨 기반 추천';
  return '';
  }
@@ -17924,7 +17970,7 @@ function getAiAttachmentType(item={}){
  <div class="location-title"><strong>위치 안내</strong></div>
  <div class="location-address">${escapeHtml(address)}</div>
  ${renderStationAccessBadges(item)}
- ${directionText ? `<div class="location-guide">🧭 ${escapeHtml(directionText)}</div>` : ''}
+ ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
  ${buildAiSocialHintHtml(item)}
  <div class="detail-map-box">
  ${pos ? `<div class="detail-map-canvas ai-location-map-canvas" data-ai-map-benefit-id="${escapeAttr(item.id || '')}"></div>` : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}
@@ -17933,7 +17979,7 @@ function getAiAttachmentType(item={}){
  <div class="location-actions">
  <button class="btn btn-soft block" type="button" data-ai-open-benefit-id="${escapeAttr(item.id || '')}">혜택 상세</button>
  <a class="btn btn-soft block" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">📍 지도 보기</a>
- <a class="btn btn-primary block" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">🧭 네이버 길찾기</a>
+ <a class="btn btn-primary block" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">네이버 길찾기</a>
  </div>
  <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
  </div>`;
@@ -18592,7 +18638,7 @@ async function playAiTtsFromButton(button){
    await currentAiTtsAudio.play();
    delete button.dataset.aiTtsLoading;
    button.disabled = false;
-   button.textContent = '🔊 재생 중';
+   button.textContent = '재생 중';
    button.classList.add('playing');
    const stopBtn = button.closest('[data-ai-tts-actions]')?.querySelector?.('[data-ai-tts-stop]');
    if(stopBtn) stopBtn.style.display = '';
@@ -19173,7 +19219,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <p class="ai-auto-card-desc">${escapeHtml(item.description)}</p>
 
  <div class="ai-auto-card-status-row">
- ${openKnown ? `<span class="ai-status-pill ${openClass}">${item.isOpenNow === true ? '🟢' : (item.isOpenNow === false ? '🔴' : 'ℹ️')} ${escapeHtml(openText)}</span>` : ''}
+ ${openKnown ? `<span class="ai-status-pill ${openClass}">${item.isOpenNow === true ? '🟢' : (item.isOpenNow === false ? '🔴' : '')} ${escapeHtml(openText)}</span>` : ''}
  ${item.todayOpenText ? `<span class="ai-status-pill">🕒 ${escapeHtml(item.todayOpenText)}</span>` : ''}
  ${item.distanceText ? `<span class="ai-status-pill">📍 ${escapeHtml(item.distanceText)}</span>` : ''}
  </div>
@@ -19473,10 +19519,10 @@ function getAiFileIcon(file={}){
  if(type.startsWith('audio/') || /\.(m4a|mp3|wav|aac|ogg|flac)$/i.test(name)) return '🎙️';
  if(type.includes('pdf') || name.endsWith('.pdf')) return '📄';
  if(name.endsWith('.doc') || name.endsWith('.docx')) return '📝';
- if(name.endsWith('.xls') || name.endsWith('.xlsx')) return '📊';
+ if(name.endsWith('.xls') || name.endsWith('.xlsx')) return '';
  if(name.endsWith('.ppt') || name.endsWith('.pptx')) return '📽️';
  if(name.endsWith('.txt')) return '📃';
- return '📎';
+ return '첨부';
 }
 
 function setAiAttachStatus(message='', type='info'){
@@ -21619,7 +21665,7 @@ document.addEventListener('keydown', (event) => {
  <small>오늘은 어떤 혜택이 있을까?</small>
  <strong>입주민 혜택 서비스<br>전체보기</strong>
  </div>
- <div class="gnb-hero-emoji"><img class="upick-svg-icon" src="/icons/internal/brand-symbol.svg" alt="" loading="lazy"></div>
+ <div class="gnb-hero-emoji"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="" loading="lazy"></div>
  </div>
  </div>
  <div class="gnb-body">
@@ -21852,7 +21898,7 @@ document.addEventListener('keydown', (event) => {
  <div class="account-edit-field">
  <label>프로필 이미지 <small style="color:#94a3b8">선택</small></label>
  <div class="profile-preview-row">
- <div class="profile-preview-avatar" id="accountProfilePreview">👤
+ <div class="profile-preview-avatar" id="accountProfilePreview">
  <button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>
  </div>
  <div class="profile-preview-copy">
@@ -23171,7 +23217,7 @@ if(window.MutationObserver){
 .top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
 .page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
 .page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
-.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
+.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
 .page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
 .page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
 @keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
@@ -23200,7 +23246,7 @@ body.gnb-open .shell,body.gnb-open .topbar,body.gnb-open .bottom-nav{filter:blur
 .gnb-danger-note{background:#f8fafc!important;border:1px solid #e2e8f0!important;border-radius:16px!important;padding:12px 14px!important;color:#64748b!important;}
 .gnb-settings-section:has(#withdrawBtn){border-color:#e2e8f0!important;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;}
 .gnb-hero-emoji{font-size:0!important;}
-.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol.svg')!important;}
+.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol-real.png')!important;}
 
 </style>
 

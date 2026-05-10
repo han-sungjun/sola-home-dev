@@ -2512,7 +2512,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 }
 .brand .logo img{opacity:0!important;}
 .brand .logo::before{
-  content:"";position:absolute;inset:8px;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat;
+  content:"";position:absolute;inset:8px;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat;
 }
 .icon-btn,.user-chip{background:rgba(255,255,255,.88)!important;border:1px solid rgba(219,234,254,.75)!important;box-shadow:0 12px 28px rgba(11,31,77,.08)!important;}
 .hero{
@@ -2552,7 +2552,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 .upick-inline-icon{width:1.1em!important;height:1.1em!important;vertical-align:-.18em!important;object-fit:contain!important;display:inline-block!important;}
 .brand{display:inline-flex!important;width:auto!important;max-width:calc(100vw - 36px)!important;align-items:center!important;gap:12px!important;padding:10px 14px 10px 10px!important;border-radius:23px!important;background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(239,246,255,.66))!important;border:1px solid rgba(191,219,254,.78)!important;box-shadow:0 16px 36px rgba(11,31,77,.10),inset 0 1px 0 rgba(255,255,255,.94)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;}
 .brand .logo{width:44px!important;height:44px!important;border-radius:16px!important;flex:0 0 44px!important;}
-.brand .logo::before{inset:6px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;}
+.brand .logo::before{inset:6px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;}
 .brand h1{color:#071A3D!important;letter-spacing:-.06em!important;}
 .brand p{color:#64748B!important;font-weight:700!important;}
 .admin-avatar{font-size:0!important;display:grid!important;place-items:center!important;}
@@ -2571,7 +2571,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 .top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
 .page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
 .page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
-.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
+.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
 .page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
 .page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
 @keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
@@ -2583,7 +2583,7 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 .gnb-top{flex:0 0 auto!important;background:radial-gradient(circle at 84% 12%,rgba(96,165,250,.34),transparent 28%),linear-gradient(135deg,#071a3d 0%,#0f2f67 58%,#1d4ed8 100%)!important;}
 .gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))!important;}
 body.gnb-open{overflow:hidden!important;touch-action:none!important;}
-.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol.svg')!important;}
+.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol-real.png')!important;}
 .gnb-card-icon{font-size:0!important;}
 .gnb-card-icon::before{content:"";display:block;width:28px;height:28px;background:url('/icons/internal/menu-default.svg') center/contain no-repeat;}
 .gnb-card-icon:has(img)::before{display:none;}
@@ -2592,6 +2592,52 @@ body.gnb-open{overflow:hidden!important;touch-action:none!important;}
 .gnb-card-icon.all::before{background-image:url('/icons/internal/all-menu.svg');}
 .menu-card-icon-img{width:24px!important;height:24px!important;object-fit:contain!important;}
 
+</style>
+
+
+<style id="upick-blue-premium-v4-priority-fix">
+/* ===== 더운정픽 UI v4: 1순위 결함 보정 ===== */
+:root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
+/* 1) 상단/잔여 로딩바 숨김 + 로딩은 중앙 오버레이로만 표시 */
+.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+.global-loading,.page-loader{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.54)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;z-index:2147483000!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+.global-loading.show,.page-loader.show{display:flex!important;}
+.global-loading[aria-hidden="true"]:not(.show),.page-loader[aria-hidden="true"]:not(.show){display:none!important;}
+.global-loading::before,.page-loader::before{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.20),transparent 34%),rgba(7,18,42,.20)!important;}
+.global-loading .loader-mark,.page-loader .loader-mark{width:104px!important;height:104px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.84))!important;border:1px solid rgba(191,219,254,.90)!important;box-shadow:0 28px 70px rgba(7,26,61,.34),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;overflow:visible!important;animation:upickLoaderFloat 1.25s ease-in-out infinite!important;}
+.global-loading .loader-mark::before,.page-loader .loader-mark::before{content:""!important;width:72px!important;height:72px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 10px 20px rgba(7,26,61,.14))!important;}
+.global-loading .loader-mark::after,.page-loader .loader-mark::after{content:""!important;position:absolute!important;inset:-9px!important;border-radius:40px!important;border:2px solid rgba(96,165,250,.26)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;animation:upickLoaderRing 1.05s linear infinite!important;box-shadow:0 0 24px rgba(37,99,235,.22)!important;}
+.global-loading .loader-mark .arm,.page-loader .loader-mark .arm{display:none!important;}
+@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
+@keyframes upickLoaderRing{to{transform:rotate(360deg)}}
+
+/* 2) 실제 심볼마크 통일 */
+.logo::before,.brand .logo::before,.topbar .brand .logo::before,.page>.brand .logo::before,.admin-brand .logo::before{background:var(--upick-real-symbol) center/contain no-repeat!important;}
+.logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"],.gnb-hero-emoji img,.loader-mark img{content:url('/icons/internal/brand-symbol-real.png')!important;object-fit:contain!important;}
+.gnb-hero-emoji{font-size:0!important;}
+.gnb-hero-emoji::before{content:"";width:72px;height:72px;background:var(--upick-real-symbol) center/contain no-repeat;display:block;filter:drop-shadow(0 10px 18px rgba(7,26,61,.16));}
+.gnb-hero-emoji img{display:none!important;}
+
+/* 3) GNB 스크롤 비침/외부 스크롤 차단 */
+body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;}
+.gnb-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147482000!important;overflow:hidden!important;background:rgba(7,18,42,.50)!important;overscroll-behavior:none!important;}
+.gnb-sheet{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;overscroll-behavior:none!important;}
+.gnb-sheet:not(.show){pointer-events:none!important;}
+.gnb-top{flex:0 0 auto!important;}
+.gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
+body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-bottom-nav,body.gnb-open nav.bottom-nav{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(18px)!important;}
+
+/* 4) 회원 탈퇴 레드톤 제거: 위험 액션은 기능 유지, 시각은 슬레이트/블루 */
+#withdrawBtn,.gnb-action-btn.danger,[data-member-action="withdraw"],.btn-danger{background:linear-gradient(180deg,#f8fafc,#eef5ff)!important;color:#334155!important;border:1px solid #cbd5e1!important;box-shadow:0 12px 26px rgba(15,23,42,.07)!important;}
+#withdrawBtn span:first-child,.gnb-action-btn.danger span:first-child{color:#1e3a8a!important;}
+.gnb-danger-note,.danger-note{background:#f8fafc!important;color:#64748b!important;border:1px solid #e2e8f0!important;border-radius:18px!important;}
+.hidden-tag,.tag.hidden-tag{background:#f1f5f9!important;color:#475569!important;border-color:#cbd5e1!important;}
+
+/* 5) 이모지 잔존 방지: 아이콘 영역은 이미지/SVG 기반으로 고정 */
+.gnb-menu-icon,.gnb-card-icon,.admin-all-card-icon,.nav-icon,.all-icon{font-size:0!important;}
+.gnb-menu-icon:not(:has(img))::before,.gnb-card-icon:not(:has(img))::before,.admin-all-card-icon:not(:has(img))::before,.all-icon:not(:has(img))::before{content:"";display:inline-block;width:24px;height:24px;background:url('/icons/internal/all-menu.svg') center/contain no-repeat;}
+.gnb-menu-label{gap:10px!important;}
+.gnb-chip,.gnb-menu-item,.gnb-menu-subitem{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif!important;}
 </style>
 
 </head>
@@ -2726,7 +2772,7 @@ body.gnb-open{overflow:hidden!important;touch-action:none!important;}
           <form id="menuForm" class="menu-admin-form" novalidate>
             <input type="hidden" id="menuEditId" value="" />
             <div class="grid-2"><div class="field"><label for="menuId">메뉴 ID</label><input id="menuId" placeholder="예: calendar" required /></div><div class="field"><label for="menuName">메뉴명</label><input id="menuName" placeholder="예: 캘린더 예약" required /></div></div>
-            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘 fallback</label><input id="menuIcon" placeholder="예: 📅 또는 icon:calendar" /><div class="admin-field-help">아이콘 URL이 없을 때만 보조로 사용됩니다.</div></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div><div class="field"><label for="menuIconUrl">아이콘 URL</label><input id="menuIconUrl" placeholder="/icons/internal/calendar.svg" /><div class="admin-field-help">Firestore에는 상대경로로 저장하는 것을 권장합니다. 예: /icons/internal/ai-assistant.svg</div><div class="menu-icon-preview" id="menuIconPreview"><span>아이콘 미리보기</span></div></div>
+            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘 fallback</label><input id="menuIcon" placeholder="예: icon:calendar" /><div class="admin-field-help">아이콘 URL이 없을 때만 보조로 사용됩니다.</div></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div><div class="field"><label for="menuIconUrl">아이콘 URL</label><input id="menuIconUrl" placeholder="/icons/internal/calendar.svg" /><div class="admin-field-help">Firestore에는 상대경로로 저장하는 것을 권장합니다. 예: /icons/internal/ai-assistant.svg</div><div class="menu-icon-preview" id="menuIconPreview"><span>아이콘 미리보기</span></div></div>
             <div class="field"><label for="menuKeywords">검색 키워드</label><input id="menuKeywords" placeholder="예약, 알림, 일정, 달력" /><div class="admin-field-help">쉼표로 구분합니다. GNB 검색과 AI 메뉴 안내에 같이 활용됩니다.</div></div>
             <div class="grid-2"><div class="field"><label for="menuOrder">정렬 순서</label><input id="menuOrder" type="number" value="100" /></div><div class="field"><label for="menuDescription">관리 메모</label><input id="menuDescription" placeholder="사용자에게 노출될 설명 또는 운영 메모" /></div></div>
             <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정픽</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="bottom"> 하단 네비 후보</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
@@ -3088,7 +3134,7 @@ body.gnb-open{overflow:hidden!important;touch-action:none!important;}
       mode='alert',
       confirmText='확인',
       cancelText='취소',
-      icon='⚠️'
+      icon=''
     } = {}){
       alertFocusTarget = focusTarget;
       alertTitleEl.textContent = title;
@@ -3108,11 +3154,11 @@ body.gnb-open{overflow:hidden!important;touch-action:none!important;}
     }
 
     function openModalAlert(message, focusTarget=null, title='안내'){
-      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'⚠️' });
+      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'' });
     }
 
     function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
-      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❓' });
+      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
     }
 
     function closeModal(result=false){
@@ -3647,7 +3693,7 @@ function fillForm(item){
       const createdText = formatAdminDate(item.createdAt);
       const updatedText = formatAdminDate(item.updatedAt);
       const dateLine = `등록 ${createdText} · 수정 ${updatedText}`;
-      const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">👁 ${item.viewCount||0}</span><span class="admin-metric-chip">⭐ ${item.favoriteCount||0}</span><span class="admin-metric-chip">🔗 ${item.shareCount||0}</span><span class="admin-metric-chip">👍 ${item.likeCount||0}</span><span class="admin-metric-chip">✅ 추천 ${item.recommendCount||0}</span><span class="admin-metric-chip">🔥 HOT ${item.hotCount||0}</span>${item.rankBoost?`<span class="admin-metric-chip">⚡ 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
+      const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">조회 ${item.viewCount||0}</span><span class="admin-metric-chip">즐겨찾기 ${item.favoriteCount||0}</span><span class="admin-metric-chip">공유 ${item.shareCount||0}</span><span class="admin-metric-chip">좋아요 ${item.likeCount||0}</span><span class="admin-metric-chip">추천 추천 ${item.recommendCount||0}</span><span class="admin-metric-chip">HOT HOT ${item.hotCount||0}</span>${item.rankBoost?`<span class="admin-metric-chip">가중치 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
       const storeStatus=normalizeAdminStoreStatus(item);const benefitStatus=normalizeAdminBenefitStatus(item);const storeMeta=STORE_STATUS_META[storeStatus]||STORE_STATUS_META.active;const benefitMeta=BENEFIT_STATUS_META[benefitStatus]||BENEFIT_STATUS_META.active;const storeReason=item.closedReason||item.storeStatusReason||'';const benefitReason=item.benefitStatusReason||item.statusReason||item.discountStatusReason||'';return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${adminStatusTagHtml(storeMeta)}${adminStatusTagHtml(benefitMeta)}</div>${(storeReason||item.closedAt)?`<div class="benefit-date-line">매장 상태 ${item.closedAt||'-'}${storeReason?' · '+storeReason:''}</div>`:''}${(benefitReason||item.benefitEndedAt)?`<div class="benefit-date-line">혜택 상태 ${item.benefitEndedAt||'-'}${benefitReason?' · '+benefitReason:''}</div>`:''}${metrics}</div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
     }
 
@@ -5160,7 +5206,7 @@ function fillForm(item){
         const size = formatAiAttachmentSize(a.size || a.sizeBytes);
         return `<div class="ai-attachment-item">
           <div class="ai-attachment-left">
-            ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
+            ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">첨부</span>`}
             <span class="ai-attachment-name"><span style="font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;">${escapeHtml(a.name || '첨부파일')}</span><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
           </div>
           <div class="ai-attachment-actions">${getAiAttachmentDownloadButtonHtml(a, isImage ? '이미지 저장' : '파일 받기')}</div>
@@ -5178,7 +5224,7 @@ function fillForm(item){
         const size = formatAiAttachmentSize(a.size || a.sizeBytes);
         return `<div class="ai-attachment-item">
           <div class="ai-attachment-left">
-            ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
+            ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">첨부</span>`}
             <span class="ai-attachment-name"><span style="font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;">${escapeHtml(a.name || '첨부파일')}</span><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
           </div>
           <div class="ai-attachment-actions">
@@ -5296,7 +5342,7 @@ function fillForm(item){
 
     function getAiAttachmentCountPill(d={}){
       const count = Array.isArray(d.attachments) ? d.attachments.length : Number(d.attachmentCount || 0);
-      return count > 0 ? `<span class="ai-code-pill">📎 ${count}개 첨부</span>` : '';
+      return count > 0 ? `<span class="ai-code-pill">첨부 ${count}개 첨부</span>` : '';
     }
 
     async function loadAiFaq(){
@@ -5593,7 +5639,7 @@ function fillForm(item){
         aiAdminTtsObjectUrl = null;
       }
       const btn = qs('#aiTtsPreviewBtn');
-      if(btn){ btn.disabled = false; btn.textContent = '🔊 미리 듣기'; }
+      if(btn){ btn.disabled = false; btn.textContent = '미리 듣기'; }
       const stopBtn = qs('#aiTtsStopBtn');
       if(stopBtn) stopBtn.disabled = true;
     }
@@ -5793,12 +5839,12 @@ function fillForm(item){
           stopAiVoicePreview();
         };
         await aiAdminTtsAudio.play();
-        if(btn) btn.textContent = '🔊 재생 중';
+        if(btn) btn.textContent = '재생 중';
         setAiVoiceTestStatus(`재생 중입니다. voice: ${payload.voice}, cache: ${cacheStatus || '-'}${dailyCount ? `, today: ${dailyCount}/${dailyLimit}` : ''}`, 'success');
       }catch(error){
         console.error('[AI TTS TEST] failed', error);
         setAiVoiceTestStatus(error?.message || '음성 테스트에 실패했습니다.', 'error');
-        if(btn){ btn.disabled = false; btn.textContent = '🔊 미리 듣기'; }
+        if(btn){ btn.disabled = false; btn.textContent = '미리 듣기'; }
         if(stopBtn) stopBtn.disabled = true;
       }
     }
@@ -5837,7 +5883,7 @@ function fillForm(item){
           </div>
           <div class="field"><label for="aiTtsText">테스트 문장</label><textarea id="aiTtsText" style="min-height:150px;" placeholder="테스트할 안내 문장을 입력하세요.">${escapeHtml(getAiVoiceTestSamples())}</textarea></div>
           <div class="grid-2">
-            <button class="btn btn-primary" type="submit" id="aiTtsPreviewBtn">🔊 미리 듣기</button>
+            <button class="btn btn-primary" type="submit" id="aiTtsPreviewBtn">미리 듣기</button>
             <button class="btn btn-soft" type="button" id="aiTtsStopBtn" disabled>⏹ 정지</button>
           </div>
           <div class="grid-2" style="margin-top:8px;">
