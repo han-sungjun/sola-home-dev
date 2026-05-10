@@ -13719,6 +13719,255 @@ img.brand-icon[src*="home.svg"],
 }
 </style>
 
+
+<style id="upick-v40-proposal-header-final">
+/* ===== 더운정픽 v40: 제안서형 헤더 최종 보정 =====
+   목적:
+   - 남아 있는 카드형 로고 박스/흰 배경/테두리 제거
+   - 공개앱/로그인/회원가입/관리자/GNB/로딩에 동일 기준 적용
+   - 심볼은 투명 PNG 그대로 표시
+*/
+
+/* 1) 모든 브랜드 로고 래퍼는 투명 처리 */
+.login-premium-hero-shell .logo,
+.login-premium-hero-shell .brand .logo,
+.login-premium-hero-shell .login-brand-block .logo,
+.signup-premium-hero-shell .logo,
+.signup-premium-hero-shell .brand .logo,
+.admin-premium-hero-shell .logo,
+.admin-premium-hero-shell .brand .logo,
+.admin-premium-hero-shell .upick-header-brand .logo,
+.public-unified-header .logo,
+.public-unified-header .brand .logo,
+.public-unified-header .upick-header-brand .logo,
+.upick-home-hero-shell .logo,
+.upick-home-hero-shell .brand .logo,
+.upick-home-hero-shell .upick-header-brand .logo,
+.upick-tab-premium-hero .logo,
+.upick-tab-premium-hero .brand .logo,
+.upick-tab-premium-hero .upick-tab-brand-logo,
+.upick-tab-premium-hero .upick-header-brand .logo,
+.gnb-hero-emoji,
+.loader-mark,
+.page-loader .loader-mark,
+.global-loading .loader-mark {
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:none!important;
+  outline:none!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+
+/* 2) 로고 래퍼의 가상 배경 제거 */
+.login-premium-hero-shell .logo::before,
+.login-premium-hero-shell .logo::after,
+.signup-premium-hero-shell .logo::before,
+.signup-premium-hero-shell .logo::after,
+.admin-premium-hero-shell .logo::before,
+.admin-premium-hero-shell .logo::after,
+.public-unified-header .logo::before,
+.public-unified-header .logo::after,
+.upick-home-hero-shell .logo::before,
+.upick-home-hero-shell .logo::after,
+.upick-tab-premium-hero .upick-tab-brand-logo::before,
+.upick-tab-premium-hero .upick-tab-brand-logo::after,
+.gnb-hero-emoji::before,
+.gnb-hero-emoji::after {
+  content:none!important;
+  display:none!important;
+}
+
+/* 3) 심볼 이미지는 투명 PNG만 사용 */
+.login-premium-hero-shell .logo img,
+.login-premium-hero-shell .brand .logo img,
+.login-premium-hero-shell .login-brand-block .logo img,
+.signup-premium-hero-shell .logo img,
+.signup-premium-hero-shell .brand .logo img,
+.admin-premium-hero-shell .logo img,
+.admin-premium-hero-shell .brand .logo img,
+.admin-premium-hero-shell .upick-header-brand .logo img,
+.public-unified-header .logo img,
+.public-unified-header .brand .logo img,
+.public-unified-header .upick-header-brand .logo img,
+.upick-home-hero-shell .logo img,
+.upick-home-hero-shell .brand .logo img,
+.upick-home-hero-shell .upick-header-brand .logo img,
+.upick-tab-premium-hero .logo img,
+.upick-tab-premium-hero .brand .logo img,
+.upick-tab-premium-hero .upick-tab-brand-logo img,
+.upick-tab-premium-hero .upick-header-brand .logo img,
+.gnb-hero-emoji img,
+.loader-mark img,
+.page-loader .loader-mark img,
+.global-loading .loader-mark img {
+  content:url('/icons/internal/brand-symbol-real.png')!important;
+  display:block!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+
+/* 4) 헤더 안에서는 심볼 크기 안정화 */
+.login-premium-hero-shell .login-brand-block .logo,
+.login-premium-hero-shell .brand .logo,
+.signup-premium-hero-shell .brand .logo,
+.admin-premium-hero-shell .upick-header-brand .logo,
+.public-unified-header .upick-header-brand .logo,
+.public-unified-header .brand .logo,
+.upick-home-hero-shell .upick-header-brand .logo,
+.upick-home-hero-shell .brand .logo,
+.upick-tab-premium-hero .upick-tab-brand-logo {
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  flex:0 0 42px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:0!important;
+}
+
+.login-premium-hero-shell .login-brand-block .logo img,
+.login-premium-hero-shell .brand .logo img,
+.signup-premium-hero-shell .brand .logo img,
+.admin-premium-hero-shell .upick-header-brand .logo img,
+.public-unified-header .upick-header-brand .logo img,
+.public-unified-header .brand .logo img,
+.upick-home-hero-shell .upick-header-brand .logo img,
+.upick-home-hero-shell .brand .logo img,
+.upick-tab-premium-hero .upick-tab-brand-logo img {
+  width:42px!important;
+  height:42px!important;
+  filter:drop-shadow(0 4px 10px rgba(2,8,23,.16))!important;
+}
+
+/* 5) 로그인/회원가입 내부 폼 제목의 작은 로고만 아주 옅은 미니박스 허용 */
+.login-premium-hero-shell .panel .brand .logo,
+.signup-premium-hero-shell .panel .brand .logo {
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  flex:0 0 44px!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.72)!important;
+  border:1px solid rgba(191,219,254,.48)!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.06)!important;
+}
+.login-premium-hero-shell .panel .brand .logo img,
+.signup-premium-hero-shell .panel .brand .logo img {
+  width:32px!important;
+  height:32px!important;
+}
+
+/* 6) 브랜드 블록은 제안서처럼 유리 질감 강화 */
+.login-premium-hero-shell .login-brand-block,
+.login-premium-hero-shell > .brand,
+.signup-premium-hero-shell > .brand,
+.admin-premium-hero-shell .upick-header-brand,
+.public-unified-header .upick-header-brand,
+.public-unified-header .brand,
+.upick-home-hero-shell .upick-header-brand,
+.upick-home-hero-shell .brand,
+.upick-tab-premium-hero .upick-tab-brand-block {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.045)),
+    linear-gradient(135deg, rgba(30,74,150,.38), rgba(7,26,61,.24))!important;
+  border:1px solid rgba(255,255,255,.19)!important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 -1px 0 rgba(255,255,255,.05)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+}
+
+/* 7) 텍스트는 제안서처럼 선명한 흰색 */
+.login-premium-hero-shell .login-brand-block strong,
+.signup-premium-hero-shell > .brand h1,
+.admin-premium-hero-shell .upick-header-brand h1,
+.public-unified-header .upick-header-brand h1,
+.public-unified-header .brand h1,
+.upick-home-hero-shell .upick-header-brand h1,
+.upick-home-hero-shell .brand h1,
+.upick-tab-premium-hero .upick-tab-brand-copy strong {
+  color:#fff!important;
+  text-shadow:0 2px 10px rgba(2,8,23,.28)!important;
+}
+.login-premium-hero-shell .login-brand-block span,
+.signup-premium-hero-shell > .brand p,
+.admin-premium-hero-shell .upick-header-brand p,
+.public-unified-header .upick-header-brand p,
+.public-unified-header .brand p,
+.upick-home-hero-shell .upick-header-brand p,
+.upick-home-hero-shell .brand p,
+.upick-tab-premium-hero .upick-tab-brand-copy span {
+  color:rgba(255,255,255,.80)!important;
+}
+
+/* 8) GNB 큰 심볼은 카드형 완전 제거 */
+.gnb-hero-emoji {
+  width:96px!important;
+  height:96px!important;
+  min-width:96px!important;
+  display:grid!important;
+  place-items:center!important;
+  filter:drop-shadow(0 14px 28px rgba(2,8,23,.20))!important;
+}
+.gnb-hero-emoji img {
+  width:94px!important;
+  height:94px!important;
+}
+
+/* 9) 로딩 심볼은 카드형 없이 심볼만 */
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before,
+#pageLoader .loader-mark::before {
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  border:none!important;
+  box-shadow:none!important;
+}
+
+/* 모바일 */
+@media(max-width:430px){
+  .login-premium-hero-shell .login-brand-block .logo,
+  .signup-premium-hero-shell > .brand .logo,
+  .admin-premium-hero-shell .upick-header-brand .logo,
+  .public-unified-header .upick-header-brand .logo,
+  .public-unified-header .brand .logo,
+  .upick-home-hero-shell .upick-header-brand .logo,
+  .upick-tab-premium-hero .upick-tab-brand-logo {
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    flex-basis:38px!important;
+  }
+
+  .login-premium-hero-shell .login-brand-block .logo img,
+  .signup-premium-hero-shell > .brand .logo img,
+  .admin-premium-hero-shell .upick-header-brand .logo img,
+  .public-unified-header .upick-header-brand .logo img,
+  .public-unified-header .brand .logo img,
+  .upick-home-hero-shell .upick-header-brand .logo img,
+  .upick-tab-premium-hero .upick-tab-brand-logo img {
+    width:38px!important;
+    height:38px!important;
+  }
+
+  .gnb-hero-emoji {
+    width:86px!important;
+    height:86px!important;
+    min-width:86px!important;
+  }
+  .gnb-hero-emoji img {
+    width:84px!important;
+    height:84px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
