@@ -27053,4 +27053,272 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v46: 로고 래퍼 카드형 제거 / 글라스는 브랜드 블록에만 적용 ===== -->
+<style id="upick-v46-logo-wrapper-unburied">
+/*
+  문제:
+  - 브랜드 블록은 glass 처리되었으나,
+  - 내부 .logo / .upick-tab-brand-logo 래퍼에 background, border, box-shadow가 남아
+    로고가 다시 카드형처럼 묻혀 보임.
+
+  방향:
+  - 글라스 효과는 브랜드 블록 전체에만 적용
+  - 로고 래퍼는 완전 투명
+  - 심볼 이미지만 선명하게 표시
+*/
+
+/* 1) 브랜드 블록 자체를 제안서형 밝은 글라스 캡슐로 유지 */
+.public-unified-header .upick-header-brand,
+.public-unified-header .brand,
+.upick-home-hero-shell .upick-header-brand,
+.upick-home-hero-shell .brand,
+.upick-tab-premium-hero .upick-tab-brand-block,
+#view-home .upick-header-brand,
+#view-home .brand,
+#view-benefits .upick-tab-brand-block,
+#view-favorites .upick-tab-brand-block,
+#view-popular .upick-tab-brand-block,
+#view-top5 .upick-tab-brand-block,
+#view-all .upick-tab-brand-block,
+#view-ai .upick-tab-brand-block,
+#view-calendar .upick-tab-brand-block,
+#view-map .upick-tab-brand-block,
+#view-notices .upick-tab-brand-block {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.24) 0%, rgba(255,255,255,.11) 54%, rgba(255,255,255,.06) 100%),
+    linear-gradient(135deg, rgba(43,96,190,.26), rgba(8,28,70,.18)) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  box-shadow:
+    0 14px 30px rgba(4,18,47,.16),
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 -1px 0 rgba(255,255,255,.06) !important;
+  backdrop-filter: blur(16px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(125%) !important;
+}
+
+/* 2) 브랜드 블록의 은은한 상단 하이라이트만 유지 */
+.public-unified-header .upick-header-brand::before,
+.public-unified-header .brand::before,
+.upick-home-hero-shell .upick-header-brand::before,
+.upick-home-hero-shell .brand::before,
+.upick-tab-premium-hero .upick-tab-brand-block::before,
+#view-home .upick-header-brand::before,
+#view-home .brand::before,
+#view-benefits .upick-tab-brand-block::before,
+#view-favorites .upick-tab-brand-block::before,
+#view-popular .upick-tab-brand-block::before,
+#view-top5 .upick-tab-brand-block::before,
+#view-all .upick-tab-brand-block::before,
+#view-ai .upick-tab-brand-block::before,
+#view-calendar .upick-tab-brand-block::before,
+#view-map .upick-tab-brand-block::before,
+#view-notices .upick-tab-brand-block::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 1px !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.04) 42%, rgba(255,255,255,0) 68%) !important;
+  pointer-events: none !important;
+}
+
+/* 3) 핵심: 로고 래퍼 카드형 CSS 완전 제거 */
+.public-unified-header .upick-header-brand .logo,
+.public-unified-header .brand .logo,
+.upick-home-hero-shell .upick-header-brand .logo,
+.upick-home-hero-shell .brand .logo,
+.upick-tab-premium-hero .upick-tab-brand-logo,
+.upick-tab-premium-hero .upick-header-brand .logo,
+.upick-tab-premium-hero .brand .logo,
+#view-home .upick-header-brand .logo,
+#view-home .brand .logo,
+#view-benefits .upick-tab-brand-logo,
+#view-favorites .upick-tab-brand-logo,
+#view-popular .upick-tab-brand-logo,
+#view-top5 .upick-tab-brand-logo,
+#view-all .upick-tab-brand-logo,
+#view-ai .upick-tab-brand-logo,
+#view-calendar .upick-tab-brand-logo,
+#view-map .upick-tab-brand-logo,
+#view-notices .upick-tab-brand-logo {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  flex: 0 0 42px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+/* 4) 로고 래퍼에 남아 있을 수 있는 pseudo 배경 제거 */
+.public-unified-header .upick-header-brand .logo::before,
+.public-unified-header .upick-header-brand .logo::after,
+.public-unified-header .brand .logo::before,
+.public-unified-header .brand .logo::after,
+.upick-home-hero-shell .upick-header-brand .logo::before,
+.upick-home-hero-shell .upick-header-brand .logo::after,
+.upick-home-hero-shell .brand .logo::before,
+.upick-home-hero-shell .brand .logo::after,
+.upick-tab-premium-hero .upick-tab-brand-logo::before,
+.upick-tab-premium-hero .upick-tab-brand-logo::after,
+#view-home .upick-header-brand .logo::before,
+#view-home .upick-header-brand .logo::after,
+#view-home .brand .logo::before,
+#view-home .brand .logo::after,
+#view-benefits .upick-tab-brand-logo::before,
+#view-benefits .upick-tab-brand-logo::after,
+#view-favorites .upick-tab-brand-logo::before,
+#view-favorites .upick-tab-brand-logo::after,
+#view-popular .upick-tab-brand-logo::before,
+#view-popular .upick-tab-brand-logo::after,
+#view-top5 .upick-tab-brand-logo::before,
+#view-top5 .upick-tab-brand-logo::after,
+#view-all .upick-tab-brand-logo::before,
+#view-all .upick-tab-brand-logo::after,
+#view-ai .upick-tab-brand-logo::before,
+#view-ai .upick-tab-brand-logo::after,
+#view-calendar .upick-tab-brand-logo::before,
+#view-calendar .upick-tab-brand-logo::after,
+#view-map .upick-tab-brand-logo::before,
+#view-map .upick-tab-brand-logo::after,
+#view-notices .upick-tab-brand-logo::before,
+#view-notices .upick-tab-brand-logo::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 5) 심볼 이미지만 선명하게 표시 */
+.public-unified-header .upick-header-brand .logo img,
+.public-unified-header .brand .logo img,
+.upick-home-hero-shell .upick-header-brand .logo img,
+.upick-home-hero-shell .brand .logo img,
+.upick-tab-premium-hero .upick-tab-brand-logo img,
+.upick-tab-premium-hero .upick-header-brand .logo img,
+.upick-tab-premium-hero .brand .logo img,
+#view-home .upick-header-brand .logo img,
+#view-home .brand .logo img,
+#view-benefits .upick-tab-brand-logo img,
+#view-favorites .upick-tab-brand-logo img,
+#view-popular .upick-tab-brand-logo img,
+#view-top5 .upick-tab-brand-logo img,
+#view-all .upick-tab-brand-logo img,
+#view-ai .upick-tab-brand-logo img,
+#view-calendar .upick-tab-brand-logo img,
+#view-map .upick-tab-brand-logo img,
+#view-notices .upick-tab-brand-logo img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  width: 42px !important;
+  height: 42px !important;
+  display: block !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.25))
+    drop-shadow(0 3px 8px rgba(2,8,23,.16)) !important;
+}
+
+/* 6) 텍스트 대비 유지 */
+.public-unified-header .upick-header-brand h1,
+.public-unified-header .brand h1,
+.upick-home-hero-shell .upick-header-brand h1,
+.upick-home-hero-shell .brand h1,
+.upick-tab-premium-hero .upick-tab-brand-copy strong {
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(2,8,23,.24) !important;
+}
+
+.public-unified-header .upick-header-brand p,
+.public-unified-header .brand p,
+.upick-home-hero-shell .upick-header-brand p,
+.upick-home-hero-shell .brand p,
+.upick-tab-premium-hero .upick-tab-brand-copy span {
+  color: rgba(255,255,255,.84) !important;
+}
+
+/* 7) 우측 버튼은 글라스 유지 */
+.public-unified-header .upick-header-utils .icon-btn,
+.upick-tab-premium-hero .upick-tab-header-btn,
+#view-home .upick-header-utils .icon-btn,
+#view-benefits .upick-tab-header-btn,
+#view-favorites .upick-tab-header-btn,
+#view-popular .upick-tab-header-btn,
+#view-top5 .upick-tab-header-btn,
+#view-all .upick-tab-header-btn,
+#view-ai .upick-tab-header-btn,
+#view-calendar .upick-tab-header-btn,
+#view-map .upick-tab-header-btn,
+#view-notices .upick-tab-header-btn {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.07) 100%) !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+  box-shadow:
+    0 10px 24px rgba(4,18,47,.14),
+    inset 0 1px 0 rgba(255,255,255,.18) !important;
+  backdrop-filter: blur(12px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
+}
+
+@media (max-width: 430px) {
+  .public-unified-header .upick-header-brand .logo,
+  .public-unified-header .brand .logo,
+  .upick-home-hero-shell .upick-header-brand .logo,
+  .upick-home-hero-shell .brand .logo,
+  .upick-tab-premium-hero .upick-tab-brand-logo,
+  #view-home .upick-header-brand .logo,
+  #view-home .brand .logo,
+  #view-benefits .upick-tab-brand-logo,
+  #view-favorites .upick-tab-brand-logo,
+  #view-popular .upick-tab-brand-logo,
+  #view-top5 .upick-tab-brand-logo,
+  #view-all .upick-tab-brand-logo,
+  #view-ai .upick-tab-brand-logo,
+  #view-calendar .upick-tab-brand-logo,
+  #view-map .upick-tab-brand-logo,
+  #view-notices .upick-tab-brand-logo {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    flex-basis: 38px !important;
+  }
+
+  .public-unified-header .upick-header-brand .logo img,
+  .public-unified-header .brand .logo img,
+  .upick-home-hero-shell .upick-header-brand .logo img,
+  .upick-home-hero-shell .brand .logo img,
+  .upick-tab-premium-hero .upick-tab-brand-logo img,
+  #view-home .upick-header-brand .logo img,
+  #view-home .brand .logo img,
+  #view-benefits .upick-tab-brand-logo img,
+  #view-favorites .upick-tab-brand-logo img,
+  #view-popular .upick-tab-brand-logo img,
+  #view-top5 .upick-tab-brand-logo img,
+  #view-all .upick-tab-brand-logo img,
+  #view-ai .upick-tab-brand-logo img,
+  #view-calendar .upick-tab-brand-logo img,
+  #view-map .upick-tab-brand-logo img,
+  #view-notices .upick-tab-brand-logo img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+</style>
+
 </body></html>
