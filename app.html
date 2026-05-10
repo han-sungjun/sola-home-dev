@@ -6364,7 +6364,8 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
 .ai-quick-btn{
   letter-spacing:-.025em;
 }
-.btn-primary{
+.btn-primary,
+.nav-btn.active{
   background:linear-gradient(135deg,var(--upick-navy),var(--upick-navy-2)) !important;
 }
 
@@ -6386,8 +6387,8 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   height:28px;
 }
 .bottom-nav .nav-btn.active{
-  background:transparent !important;
-  box-shadow:none !important;
+  background:rgba(255,255,255,.12) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
 }
 .bottom-nav .nav-btn.active .nav-icon{
   filter:drop-shadow(0 6px 10px rgba(200,175,135,.26));
@@ -6675,20 +6676,43 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
 }
 
 
-/* 더운정픽 하단 네비 선택 외곽/아이콘 배경 완전 제거 */
+
+/* ===== 더운정픽 하단 네비 아이콘 배경 최종 제거 ===== */
 .bottom-nav .nav-btn,
 .bottom-nav .nav-btn.active,
+.bottom-nav .nav-btn:hover,
 .bottom-nav .nav-btn:focus,
 .bottom-nav .nav-btn:focus-visible{
   background:transparent !important;
   box-shadow:none !important;
   outline:none !important;
 }
-.bottom-nav .nav-icon,
-.bottom-nav .nav-icon .upick-svg-icon{
+.bottom-nav .nav-btn::before,
+.bottom-nav .nav-btn::after,
+.bottom-nav .nav-icon::before,
+.bottom-nav .nav-icon::after{
+  content:none !important;
+  display:none !important;
+}
+.bottom-nav .nav-btn .nav-icon{
   background:transparent !important;
   box-shadow:none !important;
+  border:none !important;
   border-radius:0 !important;
+}
+.bottom-nav .nav-btn .nav-icon img,
+.bottom-nav .nav-btn .upick-svg-icon{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+  border-radius:0 !important;
+  display:block !important;
+}
+.bottom-nav .nav-btn.active .nav-icon{
+  filter:none !important;
+}
+.bottom-nav .nav-btn.active .upick-svg-icon{
+  filter:drop-shadow(0 4px 8px rgba(200,175,135,.22)) !important;
 }
 
 </style>
