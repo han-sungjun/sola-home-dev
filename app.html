@@ -27321,4 +27321,174 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v47: GNB 큰 심볼 카드형 제거 ===== -->
+<style id="upick-v47-gnb-symbol-unburied">
+/*
+  문제:
+  - GNB 우측 큰 심볼 영역에 흰 카드형 배경이 남아 있음.
+  - 원인: .gnb-hero-emoji / 내부 logo wrapper / pseudo-element 쪽 CSS가
+    흰 배경, border-radius, shadow를 다시 그리고 있음.
+
+  방향:
+  - GNB 큰 심볼은 카드형 박스 제거
+  - 필요 시 아주 약한 글라스 원형 배경만 허용
+  - 심볼 이미지만 떠 있는 느낌으로 표시
+*/
+
+/* 1) GNB 큰 심볼 래퍼 카드형 제거 */
+.gnb-hero-emoji,
+.gnb-hero-logo,
+.gnb-brand-symbol,
+.gnb-hero-symbol,
+.gnb-top .gnb-hero-emoji,
+.gnb-top .gnb-hero-logo,
+.gnb-top .gnb-brand-symbol,
+.gnb-top .gnb-hero-symbol {
+  width: 96px !important;
+  height: 96px !important;
+  min-width: 96px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 2) GNB 큰 심볼 래퍼의 pseudo 카드 제거 */
+.gnb-hero-emoji::before,
+.gnb-hero-emoji::after,
+.gnb-hero-logo::before,
+.gnb-hero-logo::after,
+.gnb-brand-symbol::before,
+.gnb-brand-symbol::after,
+.gnb-hero-symbol::before,
+.gnb-hero-symbol::after,
+.gnb-top .gnb-hero-emoji::before,
+.gnb-top .gnb-hero-emoji::after,
+.gnb-top .gnb-hero-logo::before,
+.gnb-top .gnb-hero-logo::after,
+.gnb-top .gnb-brand-symbol::before,
+.gnb-top .gnb-brand-symbol::after,
+.gnb-top .gnb-hero-symbol::before,
+.gnb-top .gnb-hero-symbol::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 3) 내부 이미지/아이콘도 카드형 제거 */
+.gnb-hero-emoji img,
+.gnb-hero-logo img,
+.gnb-brand-symbol img,
+.gnb-hero-symbol img,
+.gnb-top .gnb-hero-emoji img,
+.gnb-top .gnb-hero-logo img,
+.gnb-top .gnb-brand-symbol img,
+.gnb-top .gnb-hero-symbol img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  width: 88px !important;
+  height: 88px !important;
+  display: block !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  opacity: 1 !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.20))
+    drop-shadow(0 10px 22px rgba(2,8,23,.22)) !important;
+}
+
+/* 4) 혹시 div 자체에 텍스트/심볼로 그려지는 경우 대비 */
+.gnb-hero-emoji > *,
+.gnb-hero-logo > *,
+.gnb-brand-symbol > *,
+.gnb-hero-symbol > * {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 5) GNB 우측 심볼 위치가 너무 허전하지 않도록 상단 영역에만 은은한 유리 하이라이트 */
+.gnb-top {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.gnb-top::before {
+  content: "" !important;
+  position: absolute !important;
+  right: -42px !important;
+  top: 56px !important;
+  width: 190px !important;
+  height: 116px !important;
+  border-radius: 42px !important;
+  transform: rotate(0deg) !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,0)) !important;
+  border: 1px solid rgba(255,255,255,.06) !important;
+  pointer-events: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+/* 6) GNB 하단 라인/텍스트가 묻히지 않게 정리 */
+.gnb-copy,
+.gnb-top .gnb-copy {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.gnb-hero-emoji,
+.gnb-hero-logo,
+.gnb-brand-symbol,
+.gnb-hero-symbol {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* 모바일 */
+@media (max-width: 430px) {
+  .gnb-hero-emoji,
+  .gnb-hero-logo,
+  .gnb-brand-symbol,
+  .gnb-hero-symbol,
+  .gnb-top .gnb-hero-emoji,
+  .gnb-top .gnb-hero-logo,
+  .gnb-top .gnb-brand-symbol,
+  .gnb-top .gnb-hero-symbol {
+    width: 84px !important;
+    height: 84px !important;
+    min-width: 84px !important;
+  }
+
+  .gnb-hero-emoji img,
+  .gnb-hero-logo img,
+  .gnb-brand-symbol img,
+  .gnb-hero-symbol img,
+  .gnb-top .gnb-hero-emoji img,
+  .gnb-top .gnb-hero-logo img,
+  .gnb-top .gnb-brand-symbol img,
+  .gnb-top .gnb-hero-symbol img {
+    width: 78px !important;
+    height: 78px !important;
+  }
+}
+</style>
+
 </body></html>
