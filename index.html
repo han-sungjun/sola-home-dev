@@ -4739,6 +4739,73 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v63: 로그인 로딩 오빗 하이라이트 디자인 완화 ===== -->
+<style id="upick-v63-loader-orbit-soft-polish">
+/* v62에서 구현된 외곽 회전 링을 유지하되, 버튼 선택 테두리처럼 강해 보이지 않도록 프리미엄 로딩 느낌으로 완화 */
+#pageLoader .loader-mark{
+  width:92px !important;
+  height:92px !important;
+  min-width:92px !important;
+  border-radius:29px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.74), rgba(221,237,255,.46)) !important;
+  border:1px solid rgba(255,255,255,.50) !important;
+  box-shadow:
+    0 22px 50px rgba(15,44,92,.16),
+    inset 0 1px 0 rgba(255,255,255,.74),
+    inset 0 -1px 0 rgba(96,165,250,.12) !important;
+}
+
+#pageLoader .loader-mark::after{
+  inset:-6px !important;
+  left:-6px !important;
+  right:-6px !important;
+  top:-6px !important;
+  bottom:-6px !important;
+  border-radius:35px !important;
+  border-width:1.5px !important;
+  border-style:solid !important;
+  border-top-color:rgba(147,197,253,.82) !important;
+  border-right-color:rgba(59,130,246,.58) !important;
+  border-bottom-color:rgba(191,219,254,.055) !important;
+  border-left-color:rgba(191,219,254,.13) !important;
+  box-shadow:
+    0 0 18px rgba(96,165,250,.22),
+    0 0 34px rgba(37,99,235,.095) !important;
+  filter:blur(.15px) !important;
+  opacity:.74 !important;
+  animation:upickV63LoaderOrbitSoft 2.35s linear infinite !important;
+}
+
+#pageLoader .loader-mark > img{
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 7px 16px rgba(2,8,23,.14)) !important;
+}
+
+@keyframes upickV63LoaderOrbitSoft{
+  0%{ transform:rotate(0deg); opacity:.56; }
+  35%{ opacity:.82; }
+  70%{ opacity:.68; }
+  100%{ transform:rotate(360deg); opacity:.56; }
+}
+
+@media(max-width:430px){
+  #pageLoader .loader-mark{
+    width:88px !important;
+    height:88px !important;
+    min-width:88px !important;
+    border-radius:28px !important;
+  }
+  #pageLoader .loader-mark::after{
+    inset:-6px !important;
+    border-radius:34px !important;
+    border-width:1.5px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
