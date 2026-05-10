@@ -2286,5 +2286,118 @@ img.brand-icon[src*="home.svg"],
 .primary,.btn-primary,button[type="submit"]{background:linear-gradient(135deg,#061A3D 0%,#2563EB 100%)!important;color:#fff!important;border-color:transparent!important;}
 </style>
 
+
+<!-- ===== 더운정픽 UI v54: 회원가입 logo 클래스 카드형 잔상 제거 ===== -->
+<style id="upick-v54-signup-logo-class-card-remove">
+/*
+  회원가입 페이지의 .logo 공통 클래스 때문에 심볼 뒤에 카드형 느낌이 남는 문제 보정.
+  상단 브랜드 로고와 폼 내부 로고 모두 .logo 래퍼 배경/테두리/그림자 제거.
+*/
+
+/* 상단 브랜드 로고 + 회원가입 폼 내부 로고 */
+.signup-premium-hero-shell > .brand .logo,
+.signup-premium-hero-shell .panel .brand .logo,
+.signup-premium-hero-shell .brand .logo {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  flex: 0 0 42px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+/* .logo::before 로 그려지던 카드/심볼 배경 제거 */
+.signup-premium-hero-shell > .brand .logo::before,
+.signup-premium-hero-shell > .brand .logo::after,
+.signup-premium-hero-shell .panel .brand .logo::before,
+.signup-premium-hero-shell .panel .brand .logo::after,
+.signup-premium-hero-shell .brand .logo::before,
+.signup-premium-hero-shell .brand .logo::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 이미지 자체만 선명하게 표시 */
+.signup-premium-hero-shell > .brand .logo img,
+.signup-premium-hero-shell .panel .brand .logo img,
+.signup-premium-hero-shell .brand .logo img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  display: block !important;
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 4px 10px rgba(2,8,23,.16)) !important;
+}
+
+/* 상단 브랜드 블록은 글라스 캡슐 유지 */
+.signup-premium-hero-shell > .brand {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.075)),
+    linear-gradient(135deg, rgba(41,91,177,.28), rgba(8,31,76,.22)) !important;
+  border: 1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.26) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+}
+
+/* 회원가입 폼 내부 brand 캡슐도 과하면 텍스트 그룹만 남김 */
+.signup-premium-hero-shell .panel .brand {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+/* mobile */
+@media (max-width: 430px) {
+  .signup-premium-hero-shell > .brand .logo,
+  .signup-premium-hero-shell .panel .brand .logo,
+  .signup-premium-hero-shell .brand .logo {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    flex-basis: 38px !important;
+  }
+
+  .signup-premium-hero-shell > .brand .logo img,
+  .signup-premium-hero-shell .panel .brand .logo img,
+  .signup-premium-hero-shell .brand .logo img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+</style>
+
 </body>
 </html>
