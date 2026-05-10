@@ -11514,6 +11514,236 @@ dialog.app-alert .app-alert-card,
 }
 
 </style>
+
+<style id="upick-public-tabs-blue-premium-v19">
+/* ===== 더운정픽 v19: 현재 고급화 app.html 기준 공개앱 전체 탭 블루 프리미엄 확장 ===== */
+:root{
+  --upick-v19-navy:#071A3D;
+  --upick-v19-navy2:#0B2A60;
+  --upick-v19-blue:#2563EB;
+  --upick-v19-sky:#60A5FA;
+  --upick-v19-line:rgba(191,219,254,.76);
+  --upick-v19-glass:rgba(255,255,255,.14);
+}
+
+/* 홈에서 다른 탭으로 이동해도 공통 상단 헤더는 계속 보이도록 */
+header.topbar.public-unified-header,
+header.topbar.unified-topbar{
+  position:sticky!important;
+  top:0!important;
+  z-index:320!important;
+  background:linear-gradient(180deg,rgba(248,251,255,.98),rgba(248,251,255,.90) 78%,rgba(248,251,255,0))!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  padding-top:10px!important;
+  margin-bottom:14px!important;
+}
+
+/* GNB 오픈 중에는 기존 시트가 우선 */
+body.gnb-open header.topbar.public-unified-header,
+body.gnb-open header.topbar.unified-topbar{
+  position:relative!important;
+}
+
+/* 메뉴별 프리미엄 히어로 */
+.upick-tab-premium-hero{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  gap:12px;
+  min-height:158px;
+  margin:0 0 16px;
+  padding:22px 22px 20px;
+  border-radius:30px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(147,197,253,.32),transparent 34%),
+    radial-gradient(circle at 100% 100%,rgba(37,99,235,.30),transparent 46%),
+    linear-gradient(135deg,var(--upick-v19-navy) 0%,var(--upick-v19-navy2) 52%,var(--upick-v19-blue) 100%);
+  border:1px solid rgba(147,197,253,.24);
+  box-shadow:0 24px 60px rgba(11,31,77,.18), inset 0 1px 0 rgba(255,255,255,.16);
+}
+.upick-tab-premium-hero::after{
+  content:"";
+  position:absolute;
+  right:-30px;
+  top:-30px;
+  width:142px;
+  height:142px;
+  border-radius:42px;
+  transform:rotate(18deg);
+  background:rgba(255,255,255,.12);
+  pointer-events:none;
+}
+.upick-tab-premium-hero > *{
+  position:relative;
+  z-index:1;
+}
+.upick-tab-kicker{
+  width:max-content;
+  max-width:100%;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.20);
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.upick-tab-kicker img{
+  width:16px;
+  height:16px;
+  object-fit:contain;
+  filter:brightness(0) invert(1);
+  opacity:.95;
+}
+.upick-tab-premium-hero h2{
+  margin:0;
+  max-width:330px;
+  color:#fff!important;
+  font-size:clamp(25px,6.8vw,34px);
+  line-height:1.18;
+  letter-spacing:-.065em;
+  font-weight:1000;
+}
+.upick-tab-premium-hero p{
+  margin:0;
+  max-width:360px;
+  color:rgba(255,255,255,.88)!important;
+  font-size:14px;
+  line-height:1.68;
+  font-weight:700;
+}
+.upick-tab-mini-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:2px;
+}
+.upick-tab-mini-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:32px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* 기존 각 메뉴의 첫 안내 패널은 중복 히어로가 되지 않게 카드 톤으로 낮춤 */
+#view-benefits > .panel:first-child:not(.upick-tab-premium-hero),
+#view-favorites > .panel:first-child:not(.upick-tab-premium-hero),
+#view-popular > .panel:first-child:not(.upick-tab-premium-hero),
+#view-all > .panel:first-child:not(.upick-tab-premium-hero),
+#view-notices > .panel:first-child:not(.upick-tab-premium-hero),
+#view-map > .panel:first-child:not(.upick-tab-premium-hero){
+  border-top:0!important;
+  background:rgba(255,255,255,.86)!important;
+  color:#0f172a!important;
+}
+
+/* 기존 AI/캘린더 히어로도 같은 블루 계열로 통일 */
+#view-ai .ai-view-hero,
+#view-calendar .calendar-hero{
+  background:
+    radial-gradient(circle at 88% 12%,rgba(147,197,253,.32),transparent 34%),
+    radial-gradient(circle at 100% 100%,rgba(37,99,235,.30),transparent 46%),
+    linear-gradient(135deg,var(--upick-v19-navy) 0%,var(--upick-v19-navy2) 52%,var(--upick-v19-blue) 100%)!important;
+  border:1px solid rgba(147,197,253,.24)!important;
+  box-shadow:0 24px 60px rgba(11,31,77,.18), inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+
+/* 전체 기능 카드도 홈 톤과 조화되도록, 기존 세부 고급화는 유지 */
+#view-all .all-menu-card{
+  border-color:rgba(219,234,254,.78)!important;
+}
+#view-all .all-menu-card:first-of-type,
+#view-all .all-menu-card[data-view-link="ai"],
+#view-all .all-menu-card[data-view="ai"]{
+  background:
+    radial-gradient(circle at 72% 18%,rgba(96,165,250,.28),transparent 34%),
+    linear-gradient(135deg,#0B2A60,#2563EB)!important;
+  color:#fff!important;
+}
+#view-all .all-menu-card:first-of-type strong,
+#view-all .all-menu-card:first-of-type p,
+#view-all .all-menu-card[data-view-link="ai"] strong,
+#view-all .all-menu-card[data-view-link="ai"] p,
+#view-all .all-menu-card[data-view="ai"] strong,
+#view-all .all-menu-card[data-view="ai"] p{
+  color:#fff!important;
+}
+
+/* TOP5/공지/혜택/즐겨찾기/지도 카드 톤 정리 */
+#view-benefits .card,
+#view-favorites .card,
+#view-popular .panel,
+#view-notices .notice-item,
+#view-map .panel,
+#view-calendar .panel,
+#view-ai .panel{
+  border-color:rgba(219,234,254,.76)!important;
+  box-shadow:0 16px 36px rgba(11,31,77,.08)!important;
+}
+
+/* 상단 헤더의 메뉴별 현재 위치 문맥 표시 */
+header.topbar[data-upick-current-view]::after{
+  content:attr(data-upick-current-view);
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  margin-top:8px;
+  padding:7px 11px;
+  border-radius:999px;
+  color:#1d4ed8;
+  background:rgba(239,246,255,.86);
+  border:1px solid rgba(191,219,254,.76);
+  font-size:11px;
+  font-weight:1000;
+  line-height:1;
+}
+header.topbar[data-upick-current-view="홈"]::after{
+  display:none;
+}
+
+/* 메뉴별 기존 헤더와 새 헤더 사이 간격 */
+#view-benefits .filter-sticky{
+  margin-top:10px!important;
+}
+
+/* 모바일 최적화 */
+@media(max-width:520px){
+  .upick-tab-premium-hero{
+    min-height:148px;
+    margin-bottom:14px;
+    padding:20px 18px 19px;
+    border-radius:28px;
+  }
+  .upick-tab-premium-hero h2{
+    max-width:300px;
+    font-size:clamp(24px,7vw,32px);
+  }
+  .upick-tab-premium-hero p{
+    font-size:13px;
+  }
+  .upick-tab-mini-chip{
+    min-height:30px;
+    padding:6px 10px;
+    font-size:11px;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -24674,5 +24904,156 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   #noticeModal .notice-detail-actions .btn,#noticeModal .share-actions .btn,#noticeModal .notice-detail-actions button,#noticeModal .share-actions button{height:50px!important;font-size:14px!important;}
 }
 </style>
+
+
+<script id="upick-public-tabs-blue-premium-v19-js">
+(function(){
+  const VIEW_META = {
+    benefits: {
+      icon:"/icons/internal/benefit.svg",
+      kicker:"혜택 찾기",
+      title:"입주민 혜택을 빠르게 찾아보세요",
+      desc:"매장명, 카테고리, 조건으로 원하는 혜택을 검색하고 필터링할 수 있습니다.",
+      chips:["혜택 검색","카테고리 필터","즐겨찾기"]
+    },
+    favorites: {
+      icon:"/icons/internal/favorite.svg",
+      kicker:"자주 쓰는 혜택",
+      title:"저장한 혜택을 바로 확인하세요",
+      desc:"관심 있는 매장을 저장해 두고 필요할 때 빠르게 다시 확인할 수 있습니다.",
+      chips:["내 관심 혜택","빠른 확인","계정 동기화"]
+    },
+    popular: {
+      icon:"/icons/internal/top5.svg",
+      kicker:"실시간 인기",
+      title:"지금 많이 찾는 매장을 확인하세요",
+      desc:"조회, 클릭, 공유, 즐겨찾기 반응을 합산해 인기 매장을 보여드립니다.",
+      chips:["실시간 집계","TOP5","입주민 반응"]
+    },
+    map: {
+      icon:"/icons/internal/map.svg",
+      kicker:"지도 기반 탐색",
+      title:"가까운 혜택을 지도에서 찾아보세요",
+      desc:"현재 위치와 매장 위치를 기준으로 거리와 주변 혜택을 편하게 확인합니다.",
+      chips:["현재 위치","거리 확인","길찾기"]
+    },
+    all: {
+      icon:"/icons/internal/all-menu.svg",
+      kicker:"서비스 메뉴",
+      title:"필요한 기능을 한 곳에서 이용하세요",
+      desc:"하단 네비바에 모두 담기 어려운 기능을 전체 기능에서 빠르게 접근할 수 있습니다.",
+      chips:["전체 기능","빠른 이동","서비스 확장"]
+    },
+    notices: {
+      icon:"/icons/internal/notice.svg",
+      kicker:"입주민 안내",
+      title:"중요한 공지사항을 확인하세요",
+      desc:"관리자가 등록한 공지와 안내를 한눈에 확인하고 공유할 수 있습니다.",
+      chips:["공지 확인","공유","QR 보기"]
+    },
+    calendar: {
+      icon:"/icons/internal/calendar.svg",
+      kicker:"방문 예약 알림",
+      title:"방문 일정을 놓치지 않게 관리하세요",
+      desc:"혜택 매장 방문 일정을 등록하고 원하는 시간에 미리 알림을 받을 수 있습니다.",
+      chips:["월간","주간","일간"]
+    },
+    ai: {
+      icon:"/icons/internal/ai-assistant.svg",
+      kicker:"AI 생활 도우미",
+      title:"지금 필요한 정보를 바로 도와드릴게요",
+      desc:"생활, 혜택, 매장, 지도 정보를 대화형으로 편하게 물어보세요.",
+      chips:["질문하기","혜택 추천","파일 분석"]
+    }
+  };
+
+  const VIEW_LABELS = {
+    home:"홈",
+    benefits:"혜택",
+    favorites:"즐겨찾기",
+    popular:"TOP5",
+    map:"지도",
+    all:"전체 기능",
+    notices:"공지사항",
+    calendar:"캘린더 예약",
+    ai:"AI 생활 도우미"
+  };
+
+  function createHero(key){
+    const meta = VIEW_META[key];
+    if(!meta) return null;
+    const box = document.createElement("section");
+    box.className = "upick-tab-premium-hero";
+    box.dataset.upickTabHero = key;
+    box.innerHTML = `
+      <div class="upick-tab-kicker">
+        <img src="${meta.icon}" alt="" onerror="this.style.display='none'">
+        <span>${meta.kicker}</span>
+      </div>
+      <h2>${meta.title}</h2>
+      <p>${meta.desc}</p>
+      <div class="upick-tab-mini-actions">
+        ${meta.chips.map(c=>`<span class="upick-tab-mini-chip">${c}</span>`).join("")}
+      </div>
+    `;
+    return box;
+  }
+
+  function ensureHero(view, key){
+    if(!view || !VIEW_META[key]) return;
+    const existing = view.querySelector(":scope > .upick-tab-premium-hero");
+    if(existing) return;
+    const hero = createHero(key);
+    if(!hero) return;
+
+    // AI and calendar already have their own hero; keep them, do not duplicate.
+    if(key === "ai" || key === "calendar"){
+      const ownHero = view.querySelector(".ai-view-hero,.calendar-hero");
+      if(ownHero){
+        ownHero.classList.add("upick-tab-premium-hero-native");
+        return;
+      }
+    }
+
+    view.insertBefore(hero, view.firstElementChild);
+  }
+
+  function setup(){
+    Object.keys(VIEW_META).forEach(key=>{
+      const view = document.getElementById("view-" + key);
+      ensureHero(view, key);
+    });
+    markActiveView();
+  }
+
+  function getActiveViewKey(){
+    const views = Array.from(document.querySelectorAll('[id^="view-"]'));
+    const active = views.find(v => {
+      if(v.classList.contains("hidden")) return false;
+      const s = getComputedStyle(v);
+      return s.display !== "none" && s.visibility !== "hidden";
+    });
+    return active ? active.id.replace(/^view-/,"") : "home";
+  }
+
+  function markActiveView(){
+    const key = getActiveViewKey();
+    document.body.dataset.upickActiveView = key;
+    const topbar = document.querySelector("header.topbar");
+    if(topbar){
+      topbar.setAttribute("data-upick-current-view", VIEW_LABELS[key] || "");
+      topbar.classList.add("public-unified-header");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", setup);
+  document.addEventListener("click", () => setTimeout(markActiveView, 60), true);
+
+  const mo = new MutationObserver(() => requestAnimationFrame(markActiveView));
+  document.addEventListener("DOMContentLoaded", () => {
+    mo.observe(document.body, {subtree:true, attributes:true, attributeFilter:["class","style"]});
+  });
+})();
+</script>
 
 </body></html>
