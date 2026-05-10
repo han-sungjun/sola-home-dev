@@ -4179,6 +4179,207 @@ body {
 }
 </style>
 
+
+
+<!-- ===== 더운정픽 UI v59: 로그인 로딩 공개앱 캡슐형 최종 보정 ===== -->
+<style id="upick-v59-login-loader-public-capsule">
+/* 로그인 페이지 로딩: 공개앱과 동일한 상단 캡슐바 + 소프트 글래스 심볼 */
+.top-loader,
+.top-progress,
+.loading-bar,
+#topLoader,
+#topLoadingBar,
+.browser-loading-bar,
+.app-top-loading{
+  display:none !important;
+  height:0 !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+#pageLoader,
+.page-loader,
+.global-loading{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:
+    linear-gradient(180deg, rgba(10,22,54,.30), rgba(10,22,54,.16)),
+    rgba(236,242,250,.18) !important;
+  backdrop-filter:blur(18px) saturate(112%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(112%) !important;
+  z-index:2147483000 !important;
+  overflow:hidden !important;
+}
+#pageLoader.show,
+.page-loader.show,
+.global-loading.show{display:flex !important;}
+
+#pageLoader::before,
+.page-loader::before,
+.global-loading::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(96,165,250,.20), transparent 34%),
+    radial-gradient(circle at 50% 56%, rgba(255,255,255,.16), transparent 38%) !important;
+  pointer-events:none !important;
+}
+
+#pageLoader .loader-mark,
+.page-loader .loader-mark,
+.global-loading .loader-mark,
+#pageLoader .loader-logo-wrap,
+.page-loader .loader-logo-wrap,
+.global-loading .loader-logo-wrap{
+  position:relative !important;
+  width:96px !important;
+  height:96px !important;
+  min-width:96px !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:30px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.06)) !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+  box-shadow:
+    0 16px 36px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 -1px 0 rgba(255,255,255,.06) !important;
+  backdrop-filter:blur(14px) saturate(128%) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(128%) !important;
+  overflow:visible !important;
+  transform:none !important;
+  animation:upickV59LoaderFloat 1.25s ease-in-out infinite !important;
+}
+
+/* 심볼 */
+#pageLoader .loader-mark::before,
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before,
+#pageLoader .loader-logo-wrap::before,
+.page-loader .loader-logo-wrap::before,
+.global-loading .loader-logo-wrap::before{
+  content:"" !important;
+  position:static !important;
+  inset:auto !important;
+  width:74px !important;
+  height:74px !important;
+  display:block !important;
+  border-radius:0 !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  border:none !important;
+  box-shadow:none !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
+  z-index:2 !important;
+}
+
+/* 공개앱처럼 심볼 위에 떠 있는 짧은 캡슐바 */
+#pageLoader .loader-mark::after,
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::after,
+#pageLoader .loader-logo-wrap::after,
+.page-loader .loader-logo-wrap::after,
+.global-loading .loader-logo-wrap::after{
+  content:"" !important;
+  position:absolute !important;
+  left:50% !important;
+  top:-11px !important;
+  bottom:auto !important;
+  width:82px !important;
+  height:7px !important;
+  transform:translateX(-50%) !important;
+  border-radius:999px !important;
+  border:none !important;
+  background:
+    linear-gradient(90deg,
+      rgba(147,197,253,.10) 0%,
+      rgba(147,197,253,.36) 20%,
+      rgba(96,165,250,.96) 50%,
+      rgba(147,197,253,.36) 80%,
+      rgba(147,197,253,.10) 100%) !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.24),
+    inset 0 1px 0 rgba(255,255,255,.24) !important;
+  animation:upickV59LoaderCapsule 1.12s ease-in-out infinite !important;
+  pointer-events:none !important;
+}
+
+#pageLoader .loader-mark img,
+.page-loader .loader-mark img,
+.global-loading .loader-mark img,
+#pageLoader .loader-logo-wrap img,
+.page-loader .loader-logo-wrap img,
+.global-loading .loader-logo-wrap img{
+  display:none !important;
+}
+
+#pageLoader .loader-mark .arm,
+.page-loader .loader-mark .arm,
+.global-loading .loader-mark .arm,
+#pageLoader .loader-mark span,
+.page-loader .loader-mark span,
+.global-loading .loader-mark span,
+#pageLoader .loader-logo-wrap .arm,
+.page-loader .loader-logo-wrap .arm,
+.global-loading .loader-logo-wrap .arm{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+#pageLoader .loader-progress,
+.page-loader .loader-progress,
+.global-loading .loader-progress,
+#pageLoader .loader-progress-bar,
+.page-loader .loader-progress-bar,
+.global-loading .loader-progress-bar{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+@keyframes upickV59LoaderFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+@keyframes upickV59LoaderCapsule{
+  0%,100%{opacity:.42;width:62px}
+  50%{opacity:1;width:90px}
+}
+
+@media(max-width:430px){
+  #pageLoader .loader-mark,
+  .page-loader .loader-mark,
+  .global-loading .loader-mark,
+  #pageLoader .loader-logo-wrap,
+  .page-loader .loader-logo-wrap,
+  .global-loading .loader-logo-wrap{
+    width:92px !important;
+    height:92px !important;
+    min-width:92px !important;
+    border-radius:29px !important;
+  }
+  #pageLoader .loader-mark::before,
+  .page-loader .loader-mark::before,
+  .global-loading .loader-mark::before,
+  #pageLoader .loader-logo-wrap::before,
+  .page-loader .loader-logo-wrap::before,
+  .global-loading .loader-logo-wrap::before{
+    width:72px !important;
+    height:72px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
