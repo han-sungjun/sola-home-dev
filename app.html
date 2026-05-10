@@ -28060,4 +28060,151 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
+
+
+<!-- Upick v68 loader logo restore: CSS-only background-layer fix -->
+<style id="upick-v68-loader-logo-restore">
+/* 로딩 로고가 pseudo-element 충돌로 사라지는 현상 방지: 로고를 loader-mark 배경 레이어로 고정 */
+.global-loading.upick-loader-enhanced .loader-mark,
+.page-loader.upick-loader-enhanced .loader-mark,
+.global-loading.upick-admin-loader-enhanced .loader-mark,
+.page-loader.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
+#pageLoader.page-loader.upick-loader-enhanced .loader-mark{
+  background:
+    url('/icons/internal/brand-symbol-real.png') center/64px 64px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::before,
+.page-loader.upick-loader-enhanced .loader-mark::before,
+.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.page-loader.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark::before,
+#pageLoader.page-loader.upick-loader-enhanced .loader-mark::before{
+  content:none!important;
+  display:none!important;
+}
+@media(max-width:430px){
+  .global-loading.upick-loader-enhanced .loader-mark,
+  .page-loader.upick-loader-enhanced .loader-mark,
+  .global-loading.upick-admin-loader-enhanced .loader-mark,
+  .page-loader.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
+  #pageLoader.page-loader.upick-loader-enhanced .loader-mark{
+    background:
+      url('/icons/internal/brand-symbol-real.png') center/61px 61px no-repeat,
+      linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+  }
+}
+</style>
+
+
+<!-- Upick v75 loader ring hard-fix: separate symbol layer + masked outer ring -->
+<style id="upick-v75-loader-ring-hard-fix">
+/* 공개앱/로그인/회원가입/관리자 공통: 로고 레이어와 회전 링 레이어를 완전히 분리 */
+.global-loading.upick-loader-enhanced .loader-mark,
+.page-loader.upick-loader-enhanced .loader-mark,
+.global-loading.upick-admin-loader-enhanced .loader-mark,
+.page-loader.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading .loader-mark,
+#pageLoader.page-loader .loader-mark{
+  width:92px!important;
+  height:92px!important;
+  min-width:92px!important;
+  min-height:92px!important;
+  border-radius:29px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.80),rgba(221,237,255,.52))!important;
+  border:1px solid rgba(255,255,255,.58)!important;
+  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.82),inset 0 -1px 0 rgba(96,165,250,.12)!important;
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::before,
+.page-loader.upick-loader-enhanced .loader-mark::before,
+.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.page-loader.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading .loader-mark::before,
+#pageLoader.page-loader .loader-mark::before{
+  content:""!important;
+  display:block!important;
+  width:64px!important;
+  height:64px!important;
+  position:relative!important;
+  z-index:3!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
+  pointer-events:none!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::after,
+.page-loader.upick-loader-enhanced .loader-mark::after,
+.global-loading.upick-admin-loader-enhanced .loader-mark::after,
+.page-loader.upick-admin-loader-enhanced .loader-mark::after,
+#globalLoadingBar.global-loading .loader-mark::after,
+#pageLoader.page-loader .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-6px!important;
+  width:auto!important;
+  height:auto!important;
+  border:0!important;
+  border-radius:35px!important;
+  background:conic-gradient(from 0deg, rgba(96,165,250,0) 0deg, rgba(147,197,253,.20) 34deg, rgba(59,130,246,.62) 72deg, rgba(96,165,250,0) 116deg, rgba(96,165,250,0) 360deg)!important;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)!important;
+  -webkit-mask-composite:xor!important;
+  mask-composite:exclude!important;
+  padding:1.5px!important;
+  box-shadow:0 0 14px rgba(96,165,250,.13)!important;
+  filter:blur(.1px)!important;
+  opacity:.62!important;
+  z-index:1!important;
+  animation:upickV75LoaderOrbit 3.2s linear infinite!important;
+  pointer-events:none!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark > img,
+.page-loader.upick-loader-enhanced .loader-mark > img,
+.global-loading.upick-admin-loader-enhanced .loader-mark > img,
+.page-loader.upick-admin-loader-enhanced .loader-mark > img,
+#globalLoadingBar.global-loading .loader-mark > img,
+#pageLoader.page-loader .loader-mark > img,
+.global-loading.upick-loader-enhanced .loader-mark .arm,
+.page-loader.upick-loader-enhanced .loader-mark .arm,
+.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
+.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
+#globalLoadingBar.global-loading .loader-mark .arm,
+#pageLoader.page-loader .loader-mark .arm{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+@keyframes upickV75LoaderOrbit{to{transform:rotate(360deg)}}
+@media(max-width:430px){
+  .global-loading.upick-loader-enhanced .loader-mark,
+  .page-loader.upick-loader-enhanced .loader-mark,
+  .global-loading.upick-admin-loader-enhanced .loader-mark,
+  .page-loader.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading .loader-mark,
+  #pageLoader.page-loader .loader-mark{
+    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
+  }
+  .global-loading.upick-loader-enhanced .loader-mark::before,
+  .page-loader.upick-loader-enhanced .loader-mark::before,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
+  #globalLoadingBar.global-loading .loader-mark::before,
+  #pageLoader.page-loader .loader-mark::before{width:61px!important;height:61px!important;}
+  .global-loading.upick-loader-enhanced .loader-mark::after,
+  .page-loader.upick-loader-enhanced .loader-mark::after,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
+  #globalLoadingBar.global-loading .loader-mark::after,
+  #pageLoader.page-loader .loader-mark::after{border-radius:34px!important;}
+}
+</style>
+
 </body></html>
