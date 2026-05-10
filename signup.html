@@ -2646,147 +2646,98 @@ img.brand-icon[src*="home.svg"],
 </script>
 
 
-
-<!-- Upick v66 loader hard-fix: stable logo + outer orbit layer -->
-<style id="upick-v66-loader-hard-fix">
+<!-- Upick v67 loader safe rollback: CSS-only, no DOM mutation / no server-call impact -->
+<style id="upick-v67-loader-safe-css-only">
 .global-loading.upick-loader-enhanced .loader-mark,
 .page-loader.upick-loader-enhanced .loader-mark,
 .global-loading.upick-admin-loader-enhanced .loader-mark,
 .page-loader.upick-admin-loader-enhanced .loader-mark,
 #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark{
-  width:92px !important;
-  height:92px !important;
-  min-width:92px !important;
-  min-height:92px !important;
-  border-radius:29px !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.76), rgba(221,237,255,.48)) !important;
-  border:1px solid rgba(255,255,255,.54) !important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16), inset 0 1px 0 rgba(255,255,255,.78), inset 0 -1px 0 rgba(96,165,250,.13) !important;
-  display:grid !important;
-  place-items:center !important;
-  position:relative !important;
-  overflow:visible !important;
-  isolation:isolate !important;
+  width:92px!important;
+  height:92px!important;
+  min-width:92px!important;
+  min-height:92px!important;
+  border-radius:29px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
+  border:1px solid rgba(255,255,255,.56)!important;
+  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.80),inset 0 -1px 0 rgba(96,165,250,.13)!important;
+  display:grid!important;
+  place-items:center!important;
+  position:relative!important;
+  overflow:visible!important;
+  isolation:isolate!important;
 }
 .global-loading.upick-loader-enhanced .loader-mark::before,
 .page-loader.upick-loader-enhanced .loader-mark::before,
 .global-loading.upick-admin-loader-enhanced .loader-mark::before,
 .page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before{
+  content:""!important;
+  width:64px!important;
+  height:64px!important;
+  display:block!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
+  position:relative!important;
+  z-index:2!important;
+}
 .global-loading.upick-loader-enhanced .loader-mark::after,
 .page-loader.upick-loader-enhanced .loader-mark::after,
 .global-loading.upick-admin-loader-enhanced .loader-mark::after,
 .page-loader.upick-admin-loader-enhanced .loader-mark::after,
 #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after{
-  content:none !important;
-  display:none !important;
+  content:""!important;
+  position:absolute!important;
+  inset:-6px!important;
+  border-radius:35px!important;
+  border:1.25px solid transparent!important;
+  border-top-color:rgba(147,197,253,.56)!important;
+  border-right-color:rgba(59,130,246,.32)!important;
+  border-bottom-color:rgba(191,219,254,.04)!important;
+  border-left-color:rgba(191,219,254,.08)!important;
+  box-shadow:0 0 13px rgba(96,165,250,.14)!important;
+  opacity:.56!important;
+  background:transparent!important;
+  animation:upickV67LoaderOrbit 3s linear infinite!important;
+  z-index:1!important;
 }
-.global-loading.upick-loader-enhanced .loader-mark > :not(.loader-logo):not(.loader-orbit),
-.page-loader.upick-loader-enhanced .loader-mark > :not(.loader-logo):not(.loader-orbit),
-.global-loading.upick-admin-loader-enhanced .loader-mark > :not(.loader-logo):not(.loader-orbit),
-.page-loader.upick-admin-loader-enhanced .loader-mark > :not(.loader-logo):not(.loader-orbit),
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark > :not(.loader-logo):not(.loader-orbit){
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
+.global-loading.upick-loader-enhanced .loader-mark .arm,
+.page-loader.upick-loader-enhanced .loader-mark .arm,
+.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
+.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
+.global-loading.upick-loader-enhanced .loader-mark img,
+.page-loader.upick-loader-enhanced .loader-mark img,
+.global-loading.upick-admin-loader-enhanced .loader-mark img,
+.page-loader.upick-admin-loader-enhanced .loader-mark img,
+#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark img{
+  display:none!important;
 }
-.global-loading.upick-loader-enhanced .loader-logo,
-.page-loader.upick-loader-enhanced .loader-logo,
-.global-loading.upick-admin-loader-enhanced .loader-logo,
-.page-loader.upick-admin-loader-enhanced .loader-logo,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-logo{
-  width:64px !important;
-  height:64px !important;
-  object-fit:contain !important;
-  display:block !important;
-  position:relative !important;
-  z-index:2 !important;
-  background:transparent !important;
-  border:0 !important;
-  border-radius:0 !important;
-  box-shadow:none !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14)) !important;
-  pointer-events:none !important;
-}
-.global-loading.upick-loader-enhanced .loader-orbit,
-.page-loader.upick-loader-enhanced .loader-orbit,
-.global-loading.upick-admin-loader-enhanced .loader-orbit,
-.page-loader.upick-admin-loader-enhanced .loader-orbit,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-orbit{
-  position:absolute !important;
-  inset:-6px !important;
-  z-index:1 !important;
-  border-radius:35px !important;
-  border:1.35px solid transparent !important;
-  border-top-color:rgba(147,197,253,.68) !important;
-  border-right-color:rgba(59,130,246,.43) !important;
-  border-bottom-color:rgba(191,219,254,.06) !important;
-  border-left-color:rgba(191,219,254,.11) !important;
-  box-shadow:0 0 14px rgba(96,165,250,.18), 0 0 28px rgba(37,99,235,.075) !important;
-  filter:blur(.2px) !important;
-  opacity:.64 !important;
-  pointer-events:none !important;
-  transform-origin:center center !important;
-  animation:upickV66LoaderOrbit 2.75s linear infinite !important;
-  display:block !important;
-  visibility:visible !important;
-  background:transparent !important;
-}
-@keyframes upickV66LoaderOrbit{to{transform:rotate(360deg)}}
+@keyframes upickV67LoaderOrbit{to{transform:rotate(360deg)}}
 @media(max-width:430px){
   .global-loading.upick-loader-enhanced .loader-mark,
   .page-loader.upick-loader-enhanced .loader-mark,
   .global-loading.upick-admin-loader-enhanced .loader-mark,
   .page-loader.upick-admin-loader-enhanced .loader-mark,
   #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark{
-    width:88px !important;height:88px !important;min-width:88px !important;min-height:88px !important;border-radius:28px !important;
+    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
   }
-  .global-loading.upick-loader-enhanced .loader-logo,
-  .page-loader.upick-loader-enhanced .loader-logo,
-  .global-loading.upick-admin-loader-enhanced .loader-logo,
-  .page-loader.upick-admin-loader-enhanced .loader-logo,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-logo{
-    width:61px !important;height:61px !important;
+  .global-loading.upick-loader-enhanced .loader-mark::before,
+  .page-loader.upick-loader-enhanced .loader-mark::before,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before{
+    width:61px!important;height:61px!important;
   }
-  .global-loading.upick-loader-enhanced .loader-orbit,
-  .page-loader.upick-loader-enhanced .loader-orbit,
-  .global-loading.upick-admin-loader-enhanced .loader-orbit,
-  .page-loader.upick-admin-loader-enhanced .loader-orbit,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-orbit{
-    inset:-6px !important;border-radius:34px !important;
+  .global-loading.upick-loader-enhanced .loader-mark::after,
+  .page-loader.upick-loader-enhanced .loader-mark::after,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
+  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after{
+    border-radius:34px!important;
   }
 }
 </style>
-<script id="upick-v66-loader-hard-fix-script">
-(function(){
-  const ICON='/icons/internal/brand-symbol-real.png';
-  function hardFix(loader){
-    if(!loader) return;
-    const mark=loader.querySelector('.loader-mark');
-    if(!mark) return;
-    mark.querySelectorAll('.loader-logo,.loader-orbit').forEach(function(n){n.remove();});
-    const orbit=document.createElement('div');
-    orbit.className='loader-orbit';
-    orbit.setAttribute('aria-hidden','true');
-    const logo=document.createElement('img');
-    logo.className='loader-logo';
-    logo.src=ICON;
-    logo.alt='더운정픽';
-    logo.decoding='async';
-    mark.appendChild(orbit);
-    mark.appendChild(logo);
-  }
-  function run(){
-    document.querySelectorAll('.global-loading,.page-loader,#globalLoadingBar').forEach(hardFix);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();
-  window.addEventListener('load',run,{once:true});
-  const mo=new MutationObserver(run);
-  if(document.documentElement) mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','aria-hidden']});
-})();
-</script>
 
 </body>
 </html>
