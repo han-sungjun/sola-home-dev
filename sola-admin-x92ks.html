@@ -9496,5 +9496,203 @@ function fillForm(item){
 }
 </style>
 
+
+
+<!-- ===== 더운정픽 v72: 관리자 헤더 최종 정렬 + logo 카드형 완전 제거 ===== -->
+<style id="upick-admin-v72-header-final-inline-flat">
+/* 상단 헤더: 브랜드바 + 메뉴 버튼을 반드시 한 줄에 고정 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header.unified-topbar,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural header.admin-topbar.admin-unified-header{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  min-width:0!important;
+  gap:7px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+
+/* 브랜드바: 2번째 예시처럼 짧은 글래스바, 버튼이 아래로 밀리지 않도록 폭 제한 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand.brand,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand{
+  flex:0 1 238px!important;
+  width:auto!important;
+  max-width:calc(100% - 88px)!important;
+  min-width:0!important;
+  height:42px!important;
+  padding:5px 9px!important;
+  gap:7px!important;
+  border-radius:17px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07))!important;
+  border:1px solid rgba(255,255,255,.20)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 10px 22px rgba(2,8,23,.10)!important;
+  backdrop-filter:blur(14px) saturate(135%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(135%)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand::after{
+  pointer-events:none!important;
+}
+
+/* 핵심: .logo 전역 카드 배경/테두리/그림자를 관리자 헤더 안에서는 완전히 제거 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand.brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header .upick-header-brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural header.admin-topbar .upick-header-brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  flex:0 0 28px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  overflow:visible!important;
+  display:grid!important;
+  place-items:center!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo::after,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo::after,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo::before,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+  border:0!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo img,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo img,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo img{
+  display:block!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  opacity:1!important;
+  visibility:visible!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  content:url('/icons/internal/brand-symbol-real.png')!important;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.18))!important;
+}
+
+/* 문구: 한 줄 구조 유지, 내부 텍스트만 각각 1줄 말줄임 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  display:block!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1{
+  margin:0!important;
+  font-size:13.5px!important;
+  line-height:1.05!important;
+  letter-spacing:-.055em!important;
+  color:#fff!important;
+  font-weight:1000!important;
+  text-shadow:0 2px 8px rgba(2,8,23,.20)!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{
+  margin:3px 0 0!important;
+  font-size:8px!important;
+  line-height:1.08!important;
+  color:rgba(255,255,255,.76)!important;
+  font-weight:800!important;
+}
+
+/* 우측 메뉴 버튼: 같은 줄 오른쪽에 고정 */
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils{
+  flex:0 0 auto!important;
+  margin-left:auto!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:6px!important;
+  min-width:78px!important;
+  width:auto!important;
+}
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip,
+.admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .icon-btn{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  flex:0 0 36px!important;
+  padding:0!important;
+  border-radius:13px!important;
+}
+
+@media(max-width:430px){
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .admin-unified-header.unified-topbar,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural header.admin-topbar.admin-unified-header{
+    gap:6px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand.brand,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand{
+    flex:0 1 216px!important;
+    max-width:calc(100% - 82px)!important;
+    height:40px!important;
+    padding:5px 8px!important;
+    gap:6px!important;
+    border-radius:16px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo{
+    width:26px!important;height:26px!important;min-width:26px!important;flex-basis:26px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-brand .logo img,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .brand .logo img,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural div.logo img{
+    width:26px!important;height:26px!important;min-width:26px!important;
+  }
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy h1{font-size:12.5px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-brand-copy p{font-size:7.5px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils{min-width:76px!important;gap:5px!important;}
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .admin-userchip,
+  .admin-premium-hero-shell.admin-premium-hero-shell-structural .upick-header-utils .icon-btn{
+    width:35px!important;height:35px!important;min-width:35px!important;flex-basis:35px!important;border-radius:12px!important;
+  }
+}
+</style>
+
 </body>
 </html>
