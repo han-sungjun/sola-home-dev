@@ -14119,6 +14119,295 @@ img.brand-icon[src*="home.svg"],
 }
 </style>
 
+
+<style id="upick-v42-proposal-capsule-header">
+/* ===== 더운정픽 v42: 제안서형 글래스 캡슐 헤더 =====
+   기준 이미지처럼:
+   - 좌측 브랜드 블록은 글래스 캡슐
+   - 로고는 작은 글래스 심볼 박스
+   - 우측 유틸 버튼은 동일한 네이비 글래스 버튼
+*/
+
+/* 1) 브랜드 블록: 제안서형 유리 캡슐 */
+.login-premium-hero-shell .login-brand-block,
+.login-premium-hero-shell > .brand,
+.signup-premium-hero-shell > .brand,
+.admin-premium-hero-shell .upick-header-brand,
+.admin-premium-hero-shell .brand,
+.public-unified-header .upick-header-brand,
+.public-unified-header .brand,
+.upick-home-hero-shell .upick-header-brand,
+.upick-home-hero-shell .brand,
+.upick-tab-premium-hero .upick-tab-brand-block,
+.upick-tab-premium-hero .upick-header-brand,
+.upick-tab-premium-hero .brand {
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:11px!important;
+  min-height:58px!important;
+  padding:9px 15px 9px 10px!important;
+  border-radius:22px!important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.10) 44%, rgba(8,31,76,.24) 100%),
+    linear-gradient(135deg, rgba(255,255,255,.20) 0%, rgba(31,76,154,.25) 48%, rgba(5,20,52,.30) 100%)!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.20),
+    inset 0 1px 0 rgba(255,255,255,.40),
+    inset 0 -1px 0 rgba(255,255,255,.08)!important;
+  backdrop-filter:blur(18px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%)!important;
+}
+
+/* 상단 하이라이트 */
+.login-premium-hero-shell .login-brand-block::before,
+.login-premium-hero-shell > .brand::before,
+.signup-premium-hero-shell > .brand::before,
+.admin-premium-hero-shell .upick-header-brand::before,
+.admin-premium-hero-shell .brand::before,
+.public-unified-header .upick-header-brand::before,
+.public-unified-header .brand::before,
+.upick-home-hero-shell .upick-header-brand::before,
+.upick-home-hero-shell .brand::before,
+.upick-tab-premium-hero .upick-tab-brand-block::before,
+.upick-tab-premium-hero .upick-header-brand::before,
+.upick-tab-premium-hero .brand::before {
+  content:"";
+  position:absolute;
+  inset:1px;
+  z-index:-1;
+  border-radius:inherit;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.09) 28%, rgba(255,255,255,0) 58%),
+    radial-gradient(circle at 8% 10%, rgba(255,255,255,.26), transparent 30%);
+  pointer-events:none;
+}
+
+/* 2) 로고: 완전 투명 대신 작은 글래스 심볼 박스 */
+.login-premium-hero-shell .login-brand-block .logo,
+.login-premium-hero-shell > .brand .logo,
+.signup-premium-hero-shell > .brand .logo,
+.admin-premium-hero-shell .upick-header-brand .logo,
+.admin-premium-hero-shell .brand .logo,
+.public-unified-header .upick-header-brand .logo,
+.public-unified-header .brand .logo,
+.upick-home-hero-shell .upick-header-brand .logo,
+.upick-home-hero-shell .brand .logo,
+.upick-tab-premium-hero .upick-tab-brand-logo,
+.upick-tab-premium-hero .upick-header-brand .logo,
+.upick-tab-premium-hero .brand .logo {
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  flex:0 0 44px!important;
+  border-radius:14px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(238,246,255,.72))!important;
+  border:1px solid rgba(255,255,255,.58)!important;
+  box-shadow:
+    0 10px 22px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+
+/* 로고 이미지 */
+.login-premium-hero-shell .login-brand-block .logo img,
+.login-premium-hero-shell > .brand .logo img,
+.signup-premium-hero-shell > .brand .logo img,
+.admin-premium-hero-shell .upick-header-brand .logo img,
+.admin-premium-hero-shell .brand .logo img,
+.public-unified-header .upick-header-brand .logo img,
+.public-unified-header .brand .logo img,
+.upick-home-hero-shell .upick-header-brand .logo img,
+.upick-home-hero-shell .brand .logo img,
+.upick-tab-premium-hero .upick-tab-brand-logo img,
+.upick-tab-premium-hero .upick-header-brand .logo img,
+.upick-tab-premium-hero .brand .logo img {
+  content:url('/icons/internal/brand-symbol-real.png')!important;
+  width:34px!important;
+  height:34px!important;
+  display:block!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 2px 5px rgba(2,8,23,.12))!important;
+  opacity:1!important;
+}
+
+/* 3) 브랜드 텍스트 */
+.login-premium-hero-shell .login-brand-block strong,
+.login-premium-hero-shell > .brand h1,
+.signup-premium-hero-shell > .brand h1,
+.admin-premium-hero-shell .upick-header-brand h1,
+.admin-premium-hero-shell .brand h1,
+.public-unified-header .upick-header-brand h1,
+.public-unified-header .brand h1,
+.upick-home-hero-shell .upick-header-brand h1,
+.upick-home-hero-shell .brand h1,
+.upick-tab-premium-hero .upick-tab-brand-copy strong {
+  margin:0!important;
+  color:#fff!important;
+  font-weight:1000!important;
+  letter-spacing:-.065em!important;
+  text-shadow:0 2px 10px rgba(2,8,23,.30)!important;
+}
+
+.login-premium-hero-shell .login-brand-block span,
+.login-premium-hero-shell > .brand p,
+.signup-premium-hero-shell > .brand p,
+.admin-premium-hero-shell .upick-header-brand p,
+.admin-premium-hero-shell .brand p,
+.public-unified-header .upick-header-brand p,
+.public-unified-header .brand p,
+.upick-home-hero-shell .upick-header-brand p,
+.upick-home-hero-shell .brand p,
+.upick-tab-premium-hero .upick-tab-brand-copy span {
+  margin-top:4px!important;
+  color:rgba(255,255,255,.82)!important;
+  font-weight:850!important;
+  text-shadow:0 1px 8px rgba(2,8,23,.20)!important;
+}
+
+/* 4) 우측 유틸 버튼: 제안서형 글래스 */
+.upick-header-utils .icon-btn,
+.public-unified-header .upick-header-utils .icon-btn,
+.admin-premium-hero-shell .upick-header-utils .icon-btn,
+.upick-home-hero-shell .icon-btn,
+.upick-tab-premium-hero .upick-tab-header-btn,
+.upick-tab-premium-hero button.icon-btn,
+.gnb-icon-btn,
+.gnb-close {
+  position:relative!important;
+  overflow:hidden!important;
+  width:52px!important;
+  height:52px!important;
+  min-width:52px!important;
+  flex:0 0 52px!important;
+  border-radius:18px!important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.07))!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:
+    0 12px 26px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.22)!important;
+  backdrop-filter:blur(14px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(145%)!important;
+  color:#fff!important;
+}
+
+.upick-header-utils .icon-btn::before,
+.public-unified-header .upick-header-utils .icon-btn::before,
+.admin-premium-hero-shell .upick-header-utils .icon-btn::before,
+.upick-home-hero-shell .icon-btn::before,
+.upick-tab-premium-hero .upick-tab-header-btn::before,
+.upick-tab-premium-hero button.icon-btn::before,
+.gnb-icon-btn::before,
+.gnb-close::before {
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,0) 54%);
+  pointer-events:none;
+}
+
+.upick-header-utils .icon-btn img,
+.public-unified-header .upick-header-utils .icon-btn img,
+.admin-premium-hero-shell .upick-header-utils .icon-btn img,
+.upick-home-hero-shell .icon-btn img,
+.upick-tab-premium-hero .upick-tab-header-btn img,
+.upick-tab-premium-hero button.icon-btn img,
+.gnb-icon-btn img,
+.gnb-close img {
+  width:23px!important;
+  height:23px!important;
+  filter:brightness(0) invert(1)!important;
+  opacity:.96!important;
+}
+
+/* 5) 로그인/회원가입 폼 내부 계정 로고는 기존 미니카드 유지 */
+.login-premium-hero-shell .panel .brand .logo,
+.signup-premium-hero-shell .panel .brand .logo {
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  flex:0 0 44px!important;
+  border-radius:16px!important;
+  background:linear-gradient(180deg,#fff,#f4f8ff)!important;
+  border:1px solid rgba(191,219,254,.78)!important;
+  box-shadow:0 10px 22px rgba(37,99,235,.08)!important;
+}
+.login-premium-hero-shell .panel .brand .logo img,
+.signup-premium-hero-shell .panel .brand .logo img {
+  width:32px!important;
+  height:32px!important;
+}
+
+/* 모바일 */
+@media(max-width:430px){
+  .login-premium-hero-shell .login-brand-block,
+  .signup-premium-hero-shell > .brand,
+  .admin-premium-hero-shell .upick-header-brand,
+  .public-unified-header .upick-header-brand,
+  .public-unified-header .brand,
+  .upick-home-hero-shell .upick-header-brand,
+  .upick-home-hero-shell .brand,
+  .upick-tab-premium-hero .upick-tab-brand-block {
+    min-height:54px!important;
+    padding:8px 12px 8px 9px!important;
+    border-radius:20px!important;
+    gap:10px!important;
+  }
+
+  .login-premium-hero-shell .login-brand-block .logo,
+  .signup-premium-hero-shell > .brand .logo,
+  .admin-premium-hero-shell .upick-header-brand .logo,
+  .public-unified-header .upick-header-brand .logo,
+  .public-unified-header .brand .logo,
+  .upick-home-hero-shell .upick-header-brand .logo,
+  .upick-home-hero-shell .brand .logo,
+  .upick-tab-premium-hero .upick-tab-brand-logo {
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    flex-basis:40px!important;
+    border-radius:13px!important;
+  }
+
+  .login-premium-hero-shell .login-brand-block .logo img,
+  .signup-premium-hero-shell > .brand .logo img,
+  .admin-premium-hero-shell .upick-header-brand .logo img,
+  .public-unified-header .upick-header-brand .logo img,
+  .public-unified-header .brand .logo img,
+  .upick-home-hero-shell .upick-header-brand .logo img,
+  .upick-home-hero-shell .brand .logo img,
+  .upick-tab-premium-hero .upick-tab-brand-logo img {
+    width:31px!important;
+    height:31px!important;
+  }
+
+  .upick-header-utils .icon-btn,
+  .public-unified-header .upick-header-utils .icon-btn,
+  .admin-premium-hero-shell .upick-header-utils .icon-btn,
+  .upick-home-hero-shell .icon-btn,
+  .upick-tab-premium-hero .upick-tab-header-btn {
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    flex-basis:48px!important;
+    border-radius:17px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
