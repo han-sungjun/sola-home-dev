@@ -12097,6 +12097,193 @@ header.topbar.unified-topbar{
 }
 </style>
 
+
+<style id="upick-public-v26-navy-header-buttons">
+/* ===== 더운정픽 v26: 공통 헤더 네이비 통일 + 버튼/아이콘 가시성 보정 ===== */
+
+/* 1) 비홈 탭 공통 헤더를 홈 탭처럼 네이비 글래스 톤으로 통일 */
+.upick-tab-premium-hero .upick-tab-common-header,
+#view-benefits .upick-tab-common-header,
+#view-favorites .upick-tab-common-header,
+#view-popular .upick-tab-common-header,
+#view-top5 .upick-tab-common-header,
+#view-all .upick-tab-common-header,
+#view-ai .upick-tab-common-header,
+#view-calendar .upick-tab-common-header,
+#view-map .upick-tab-common-header,
+#view-notices .upick-tab-common-header{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto auto auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin:0 0 4px!important;
+}
+
+.upick-tab-premium-hero .upick-tab-brand-block,
+#view-benefits .upick-tab-brand-block,
+#view-favorites .upick-tab-brand-block,
+#view-popular .upick-tab-brand-block,
+#view-top5 .upick-tab-brand-block,
+#view-all .upick-tab-brand-block,
+#view-ai .upick-tab-brand-block,
+#view-calendar .upick-tab-brand-block,
+#view-map .upick-tab-brand-block,
+#view-notices .upick-tab-brand-block{
+  background:rgba(7,26,61,.62)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.20),
+    inset 0 1px 0 rgba(255,255,255,.16)!important;
+  color:#fff!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+.upick-tab-premium-hero .upick-tab-brand-copy strong,
+#view-benefits .upick-tab-brand-copy strong,
+#view-favorites .upick-tab-brand-copy strong,
+#view-popular .upick-tab-brand-copy strong,
+#view-top5 .upick-tab-brand-copy strong,
+#view-all .upick-tab-brand-copy strong,
+#view-ai .upick-tab-brand-copy strong,
+#view-calendar .upick-tab-brand-copy strong,
+#view-map .upick-tab-brand-copy strong,
+#view-notices .upick-tab-brand-copy strong{
+  color:#fff!important;
+  text-shadow:0 2px 10px rgba(2,8,23,.30)!important;
+}
+
+.upick-tab-premium-hero .upick-tab-brand-copy span,
+#view-benefits .upick-tab-brand-copy span,
+#view-favorites .upick-tab-brand-copy span,
+#view-popular .upick-tab-brand-copy span,
+#view-top5 .upick-tab-brand-copy span,
+#view-all .upick-tab-brand-copy span,
+#view-ai .upick-tab-brand-copy span,
+#view-calendar .upick-tab-brand-copy span,
+#view-map .upick-tab-brand-copy span,
+#view-notices .upick-tab-brand-copy span{
+  color:rgba(255,255,255,.78)!important;
+}
+
+.upick-tab-premium-hero .upick-tab-brand-logo,
+#view-benefits .upick-tab-brand-logo,
+#view-favorites .upick-tab-brand-logo,
+#view-popular .upick-tab-brand-logo,
+#view-top5 .upick-tab-brand-logo,
+#view-all .upick-tab-brand-logo,
+#view-ai .upick-tab-brand-logo,
+#view-calendar .upick-tab-brand-logo,
+#view-map .upick-tab-brand-logo,
+#view-notices .upick-tab-brand-logo{
+  background:rgba(255,255,255,.92)!important;
+  border:1px solid rgba(255,255,255,.52)!important;
+  box-shadow:0 10px 22px rgba(2,8,23,.18)!important;
+}
+
+/* 비홈 탭 우측 버튼도 네이비 반투명 버튼으로 통일 */
+.upick-tab-premium-hero .upick-tab-header-btn,
+#view-benefits .upick-tab-header-btn,
+#view-favorites .upick-tab-header-btn,
+#view-popular .upick-tab-header-btn,
+#view-top5 .upick-tab-header-btn,
+#view-all .upick-tab-header-btn,
+#view-ai .upick-tab-header-btn,
+#view-calendar .upick-tab-header-btn,
+#view-map .upick-tab-header-btn,
+#view-notices .upick-tab-header-btn{
+  background:rgba(7,26,61,.42)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:
+    0 12px 28px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.14)!important;
+  color:#fff!important;
+}
+
+/* 아이콘이 흐려지지 않도록 강제 */
+.upick-tab-premium-hero .upick-tab-header-btn img,
+#view-benefits .upick-tab-header-btn img,
+#view-favorites .upick-tab-header-btn img,
+#view-popular .upick-tab-header-btn img,
+#view-top5 .upick-tab-header-btn img,
+#view-all .upick-tab-header-btn img,
+#view-ai .upick-tab-header-btn img,
+#view-calendar .upick-tab-header-btn img,
+#view-map .upick-tab-header-btn img,
+#view-notices .upick-tab-header-btn img{
+  filter:brightness(0) invert(1)!important;
+  opacity:1!important;
+}
+
+/* 3) 홈 탭 상단 3개 버튼 아이콘 가시성 개선 */
+#view-home .upick-header-actions button,
+#view-home .upick-header-actions .icon-btn,
+#view-home .topbar-actions button,
+#view-home .topbar-actions .icon-btn,
+#view-home .utility-buttons button,
+#view-home .utility-buttons .icon-btn,
+header.public-unified-header .topbar-actions button,
+header.public-unified-header .topbar-actions .icon-btn,
+header.public-unified-header .utility-buttons button,
+header.public-unified-header .utility-buttons .icon-btn{
+  background:rgba(7,26,61,.46)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:
+    0 12px 28px rgba(2,8,23,.18),
+    inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+
+#view-home .upick-header-actions img,
+#view-home .topbar-actions img,
+#view-home .utility-buttons img,
+header.public-unified-header .topbar-actions img,
+header.public-unified-header .utility-buttons img{
+  filter:brightness(0) invert(1)!important;
+  opacity:1!important;
+}
+
+/* 버튼 내부가 비어 보이는 경우 최소 표시 보정 */
+.upick-tab-header-btn[data-upick-install]::before,
+.upick-tab-header-btn.install::before{
+  content:"";
+  width:18px;
+  height:22px;
+  border-radius:5px;
+  border:2px solid rgba(255,255,255,.96);
+  box-sizing:border-box;
+  display:none;
+}
+.upick-tab-header-btn[data-upick-open-gnb]::before{
+  content:"";
+  width:22px;
+  height:22px;
+  display:none;
+  background:
+    radial-gradient(circle,#fff 32%,transparent 34%) 0 0/11px 11px,
+    radial-gradient(circle,#fff 32%,transparent 34%) 11px 0/11px 11px,
+    radial-gradient(circle,#fff 32%,transparent 34%) 0 11px/11px 11px,
+    radial-gradient(circle,#fff 32%,transparent 34%) 11px 11px/11px 11px;
+}
+.upick-tab-header-btn[data-upick-install]:has(img[style*="display: none"])::before,
+.upick-tab-header-btn.install:has(img[style*="display: none"])::before,
+.upick-tab-header-btn[data-upick-open-gnb]:has(img[style*="display: none"])::before{
+  display:block;
+}
+
+/* :has 미지원 환경 대비: 이미지가 있어도 어두운 버튼 위에서 보이게 */
+.upick-tab-header-btn img[src=""],
+.upick-tab-header-btn img:not([src]){
+  display:none!important;
+}
+
+/* 모바일 */
+@media(max-width:520px){
+  .upick-tab-premium-hero .upick-tab-common-header{
+    grid-template-columns:minmax(0,1fr) 48px 48px 48px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -25601,6 +25788,153 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
       setTimeout(hideOnlyTwoCards, 120);
     }
   }, true);
+})();
+</script>
+
+
+<script id="upick-public-v26-button-actions">
+(function(){
+  function q(sel){ return document.querySelector(sel); }
+  function qa(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+  function clickFirst(selectors){
+    for(const sel of selectors){
+      const el = q(sel);
+      if(el && !el.disabled){
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function openGnbFallback(){
+    document.body.classList.add("gnb-open");
+    const candidates = [
+      "#gnbSheet", "#gnbMenu", "#globalNav", "#menuSheet",
+      ".gnb-sheet", ".gnb-panel", ".global-menu", ".menu-sheet"
+    ];
+    for(const sel of candidates){
+      const el = q(sel);
+      if(el){
+        el.classList.remove("hidden");
+        el.setAttribute("aria-hidden","false");
+        el.style.display = "";
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function openGnb(){
+    const ok = clickFirst([
+      "#gnbOpenBtn",
+      "#openGnbBtn",
+      "#openMenuBtn",
+      "#menuOpenBtn",
+      "[data-open-gnb]",
+      "[data-gnb-open]",
+      "[data-open-menu]",
+      ".gnb-open-btn",
+      ".open-gnb",
+      ".menu-open-btn",
+      "button[aria-label='전체 메뉴']",
+      "button[aria-label*='전체']",
+      "button[aria-label*='메뉴']"
+    ]);
+    if(!ok) openGnbFallback();
+  }
+
+  function triggerInstall(){
+    const ok = clickFirst([
+      "#installAppBtn",
+      "#pwaInstallBtn",
+      "#quickAppBtn",
+      "[data-install-app]",
+      "[data-pwa-install]",
+      "[data-app-install]",
+      ".install-btn",
+      ".pwa-install-btn",
+      ".quick-app-btn",
+      "button[aria-label*='앱으로']",
+      "button[aria-label*='설치']",
+      "button[aria-label*='빠르게']"
+    ]);
+
+    if(!ok){
+      const appAlert = q("#appAlert");
+      if(appAlert){
+        appAlert.textContent = "브라우저 메뉴에서 홈 화면에 추가하거나 앱으로 설치할 수 있습니다.";
+        appAlert.classList.remove("hidden");
+        appAlert.setAttribute("aria-hidden","false");
+        setTimeout(()=>appAlert.classList.add("hidden"), 2600);
+      }else{
+        alert("브라우저 메뉴에서 홈 화면에 추가하거나 앱으로 설치할 수 있습니다.");
+      }
+    }
+  }
+
+  function goAI(){
+    const ok = clickFirst([
+      "[data-view='ai']",
+      "[data-view-link='ai']",
+      ".nav-btn[data-view='ai']",
+      ".nav-btn[data-view-link='ai']",
+      "#goAiBtn",
+      "#aiMenuBtn"
+    ]);
+    if(!ok){
+      const view = q("#view-ai");
+      if(view){
+        qa("[id^='view-']").forEach(v=>v.classList.add("hidden"));
+        view.classList.remove("hidden");
+      }
+    }
+  }
+
+  document.addEventListener("click", function(e){
+    const install = e.target.closest("[data-upick-install], .upick-tab-header-btn.install");
+    if(install){
+      e.preventDefault();
+      e.stopPropagation();
+      triggerInstall();
+      return;
+    }
+
+    const gnb = e.target.closest("[data-upick-open-gnb]");
+    if(gnb){
+      e.preventDefault();
+      e.stopPropagation();
+      openGnb();
+      return;
+    }
+
+    const ai = e.target.closest("[data-upick-go='ai'], .upick-tab-header-btn.ai");
+    if(ai){
+      e.preventDefault();
+      e.stopPropagation();
+      goAI();
+      return;
+    }
+  }, true);
+
+  // 기존 패치에서 생성한 버튼에 명시적 속성이 누락된 경우 보강
+  function normalizeButtons(){
+    qa(".upick-tab-common-header").forEach(header=>{
+      const btns = qa.call ? Array.from(header.querySelectorAll(".upick-tab-header-btn")) : [];
+      if(btns[0] && !btns[0].hasAttribute("data-upick-go")) btns[0].setAttribute("data-upick-go","ai");
+      if(btns[1] && !btns[1].hasAttribute("data-upick-install")) btns[1].setAttribute("data-upick-install","");
+      if(btns[2] && !btns[2].hasAttribute("data-upick-open-gnb")) btns[2].setAttribute("data-upick-open-gnb","");
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", normalizeButtons, {once:true});
+  }else{
+    normalizeButtons();
+  }
+  setTimeout(normalizeButtons, 300);
+  setTimeout(normalizeButtons, 1000);
 })();
 </script>
 
