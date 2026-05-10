@@ -12409,6 +12409,136 @@ header.public-unified-header button.icon-btn svg{
 }
 </style>
 
+
+<style id="upick-public-v29-navy-app-shell">
+/* ===== 더운정픽 v29: 공개앱 전체 네이비 프리미엄 쉘 적용 =====
+   로그인 페이지처럼 공개앱 전체를 하나의 네이비 프리미엄 영역으로 감쌉니다.
+   내부 기능/버튼/하단 네비 동작은 변경하지 않습니다.
+*/
+
+/* 앱 바깥 배경 */
+html,
+body{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(191,219,254,.48), transparent 38%),
+    linear-gradient(180deg,#f8fbff 0%,#eaf2ff 100%)!important;
+}
+
+/* 공개앱 전체 외곽 네이비 쉘 */
+body > .app{
+  position:relative!important;
+  min-height:calc(100dvh - 18px)!important;
+  margin:9px auto!important;
+  padding:18px 16px calc(122px + env(safe-area-inset-bottom,0px))!important;
+  border-radius:34px!important;
+  background:
+    radial-gradient(circle at 86px 80px, rgba(255,255,255,.10), transparent 30%),
+    radial-gradient(circle at 92% 8%, rgba(96,165,250,.28), transparent 30%),
+    radial-gradient(circle at 100% 70%, rgba(37,99,235,.28), transparent 46%),
+    linear-gradient(145deg,#071A3D 0%,#0B2A60 52%,#1D4ED8 100%)!important;
+  border:1px solid rgba(147,197,253,.24)!important;
+  box-shadow:
+    0 26px 70px rgba(11,31,77,.20),
+    inset 0 1px 0 rgba(255,255,255,.18)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+
+/* 전체 쉘 내부 장식 */
+body > .app::before{
+  content:"";
+  position:absolute;
+  right:-42px;
+  top:-38px;
+  width:168px;
+  height:168px;
+  border-radius:48px;
+  transform:rotate(18deg);
+  background:rgba(255,255,255,.10);
+  pointer-events:none;
+  z-index:0;
+}
+body > .app::after{
+  content:"";
+  position:absolute;
+  left:-48px;
+  bottom:90px;
+  width:150px;
+  height:150px;
+  border-radius:999px;
+  background:rgba(96,165,250,.08);
+  pointer-events:none;
+  z-index:0;
+}
+
+body > .app > .shell{
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* 전체 네이비 쉘 안에서 기존 홈/탭 히어로가 과하게 겹쳐 보이지 않도록 */
+.upick-home-hero-shell,
+.upick-tab-premium-hero{
+  box-shadow:
+    0 18px 42px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.15)!important;
+}
+
+/* 일반 흰색 패널은 네이비 쉘 위에서 더 선명하게 */
+.panel,
+.card,
+.notice-item,
+.benefit-card,
+.all-menu-card,
+.calendar-board,
+.ai-chat-panel{
+  border-color:rgba(219,234,254,.82)!important;
+  box-shadow:0 16px 38px rgba(2,8,23,.12)!important;
+}
+
+/* 섹션 배경이 투명할 때 네이비와 어울리도록 */
+[id^="view-"]{
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* 하단 네비는 기존 톤 유지하되 전체 쉘과 이어지도록 */
+.bottom-nav,
+.navbar,
+.bottom-tabbar,
+#bottomNav{
+  box-shadow:
+    0 -14px 38px rgba(2,8,23,.22),
+    inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+
+/* 비홈 탭의 중복 설명 숨김은 유지 */
+#view-benefits > .panel.upick-duplicate-hidden,
+#view-favorites > .panel.upick-duplicate-hidden,
+#view-all > .panel.upick-duplicate-hidden,
+#view-notices > .panel.upick-duplicate-hidden,
+.upick-only-hide-duplicate-intro{
+  display:none!important;
+}
+
+/* 모바일에서는 외곽 여백 최소화 */
+@media(max-width:520px){
+  body > .app{
+    min-height:100dvh!important;
+    margin:0 auto!important;
+    border-radius:0!important;
+    padding:18px 16px calc(122px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+
+/* PC/태블릿 미리보기에서는 로그인 페이지처럼 카드형 외곽 유지 */
+@media(min-width:521px){
+  body > .app{
+    max-width:480px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
