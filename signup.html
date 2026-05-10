@@ -289,6 +289,18 @@ dialog:not(.app-alert){position:relative!important;}
 .app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
 .app-alert-card{overflow:hidden!important;position:relative!important;}
 .app-alert-card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#60A5FA,#2563EB,#0B2A60)!important;}
+
+
+/* ===== 더운정픽 UI v3: 브랜드 심볼 기반 블루 프리미엄 로딩 ===== */
+.top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
+.page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
+.page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
+.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
+.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
+.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
+@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
+@keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
+
 </style>
 
 </head>

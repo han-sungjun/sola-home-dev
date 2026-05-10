@@ -2565,6 +2565,33 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 .gnb-title-badge .upick-svg-icon,.gnb-card-icon .upick-svg-icon,.admin-all-card-icon .upick-svg-icon,.nav-icon .upick-svg-icon{width:24px!important;height:24px!important;object-fit:contain!important;}
 .app-alert-icon{font-size:0!important;position:relative!important;}
 .app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
+
+
+/* ===== 더운정픽 UI v3: 브랜드 심볼 기반 블루 프리미엄 로딩 ===== */
+.top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
+.page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
+.page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
+.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
+.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
+.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
+@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
+@keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
+
+
+/* ===== 더운정픽 UI v3: 관리자 GNB/심볼/스크롤 보정 ===== */
+.gnb-sheet{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;background:#fff!important;overscroll-behavior:contain!important;}
+.gnb-top{flex:0 0 auto!important;background:radial-gradient(circle at 84% 12%,rgba(96,165,250,.34),transparent 28%),linear-gradient(135deg,#071a3d 0%,#0f2f67 58%,#1d4ed8 100%)!important;}
+.gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))!important;}
+body.gnb-open{overflow:hidden!important;touch-action:none!important;}
+.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol.svg')!important;}
+.gnb-card-icon{font-size:0!important;}
+.gnb-card-icon::before{content:"";display:block;width:28px;height:28px;background:url('/icons/internal/menu-default.svg') center/contain no-repeat;}
+.gnb-card-icon:has(img)::before{display:none;}
+.gnb-card-icon.community::before{background-image:url('/icons/internal/chat.svg');}
+.gnb-card-icon.ai::before{background-image:url('/icons/internal/ai-assistant.svg');}
+.gnb-card-icon.all::before{background-image:url('/icons/internal/all-menu.svg');}
+.menu-card-icon-img{width:24px!important;height:24px!important;object-fit:contain!important;}
+
 </style>
 
 </head>
@@ -6220,7 +6247,7 @@ function fillForm(item){
       const src = keyMap[key];
       if(src) return `<img class="menu-card-icon-img" src="${src}" alt="" loading="lazy">`;
 
-      return escapeHtml(rawIcon || '•');
+      return `<img class="menu-card-icon-img" src="/icons/internal/all-menu.svg" alt="" loading="lazy">`;
     }
     function updateMenuIconPreview(){
       const box=qs('#menuIconPreview'); if(!box) return;
@@ -6229,7 +6256,7 @@ function fillForm(item){
       if(isSafeAdminIconUrl(iconUrl)){
         box.innerHTML=`<img src="${escapeHtml(iconUrl)}" alt=""><span>${escapeHtml(iconUrl)}</span>`;
       }else{
-        box.innerHTML=`<span style="font-size:24px;line-height:1">${escapeHtml(fallback)}</span><span>아이콘 URL이 없거나 허용 경로가 아닙니다.</span>`;
+        box.innerHTML=`<img src="/icons/internal/all-menu.svg" alt=""><span>아이콘 URL이 없으면 기본 메뉴 심볼로 표시됩니다.</span>`;
       }
     }
 
@@ -6478,8 +6505,8 @@ function fillForm(item){
                 <span class="gnb-card-arrow">›</span>
               </span>
             </button>
-            <button class="gnb-menu-item gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community">💬</span><span class="gnb-card-copy"><strong>커뮤니티 관리</strong><span>게시글·댓글·신고</span></span><span class="gnb-card-arrow">›</span></span></button>
-            <button class="gnb-menu-item gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai">🤖</span><span class="gnb-card-copy"><strong>AI 생활 도우미</strong><span>FAQ·전자책·가이드·질문 로그</span></span><span class="gnb-card-arrow">›</span></span></button>
+            <button class="gnb-menu-item gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community"><img class="upick-svg-icon" src="/icons/internal/chat.svg" alt="" loading="lazy"></span><span class="gnb-card-copy"><strong>커뮤니티 관리</strong><span>게시글·댓글·신고</span></span><span class="gnb-card-arrow">›</span></span></button>
+            <button class="gnb-menu-item gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></span><span class="gnb-card-copy"><strong>AI 생활 도우미</strong><span>FAQ·전자책·가이드·질문 로그</span></span><span class="gnb-card-arrow">›</span></span></button>
             <button class="gnb-menu-item gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
                 <span class="gnb-card-icon notices"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span>
@@ -6512,7 +6539,7 @@ function fillForm(item){
             </button>
             <button class="gnb-menu-item gnb-tone-all" type="button" data-admin-view="all"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
-                <span class="gnb-card-icon all">▦</span>
+                <span class="gnb-card-icon all"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></span>
                 <span class="gnb-card-copy">
                   <strong>전체 기능</strong>
                   <span>커뮤니티와 운영 메뉴 모아보기</span>
@@ -6552,8 +6579,8 @@ function fillForm(item){
               <span class="gnb-card-arrow">›</span>
             </span>
           </button>
-          <button class="gnb-menu-subitem gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community">💬</span><span class="gnb-card-copy"><strong>커뮤니티</strong><span>신고/숨김</span></span><span class="gnb-card-arrow">›</span></span></button>
-          <button class="gnb-menu-subitem gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai">🤖</span><span class="gnb-card-copy"><strong>AI</strong><span>생활 도우미 데이터 관리</span></span><span class="gnb-card-arrow">›</span></span></button>
+          <button class="gnb-menu-subitem gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community"><img class="upick-svg-icon" src="/icons/internal/chat.svg" alt="" loading="lazy"></span><span class="gnb-card-copy"><strong>커뮤니티</strong><span>신고/숨김</span></span><span class="gnb-card-arrow">›</span></span></button>
+          <button class="gnb-menu-subitem gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></span><span class="gnb-card-copy"><strong>AI</strong><span>생활 도우미 데이터 관리</span></span><span class="gnb-card-arrow">›</span></span></button>
           <button class="gnb-menu-subitem gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
               <span class="gnb-card-icon notices"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span>
@@ -6586,7 +6613,7 @@ function fillForm(item){
           </button>
           <button class="gnb-menu-subitem gnb-tone-all" type="button" data-admin-view="all"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon all">▦</span>
+              <span class="gnb-card-icon all"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>전체</strong>
                 <span>모든 운영 기능 모아보기</span>

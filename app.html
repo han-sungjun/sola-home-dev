@@ -10669,7 +10669,7 @@ dialog:not(.app-alert){position:relative!important;}
  </div>
  <div class="topbar-left topbar-left-titleline">
  <div class="brand">
- <div class="logo"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></div>
+ <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol.svg" alt="" loading="lazy"></div>
  <div>
  <h1>더운정픽</h1>
  <p>입주민 전용 혜택 웹앱</p>
@@ -20284,8 +20284,8 @@ async function askAiAssistant(rawQuestion=''){
     return upickIconHtml(key, alt);
   }
 
-  // 4) 매핑이 없는 메뉴만 기존 이모지 fallback
-  return escapeHtml(rawIcon || fallback || '•');
+  // 4) 매핑이 없는 메뉴도 이모지 대신 기본 SVG 심볼 사용
+  return upickIconHtml('all', alt || fallback || '메뉴');
  }
 
  function menuIconKeyFromAny(menu = {}){
@@ -20328,8 +20328,7 @@ async function askAiAssistant(rawQuestion=''){
   if(UPICK_ICON_PATHS[key]){
     return `<img class="upick-svg-icon upick-menu-icon-img" src="${UPICK_ICON_PATHS[key]}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
   }
-  const rawIcon = String(menu.icon || '').trim();
-  return escapeHtml(rawIcon || fallback || '•');
+  return `<img class="upick-svg-icon upick-menu-icon-img" src="/icons/internal/all-menu.svg" alt="${escapeHtml(alt || fallback || '메뉴')}" loading="lazy" decoding="async">`;
  }
 
 
@@ -20342,7 +20341,8 @@ function renderIconToken(icon='', fallback=''){
     if(src) return `<img class="upick-link-icon" src="${src}" alt="" loading="lazy" decoding="async">`;
     return '';
   }
-  return escapeHtml(raw);
+  // 이모지/문자 아이콘은 UI v3에서 사용하지 않고 기본 메뉴 SVG로 대체
+  return `<img class="upick-link-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy" decoding="async">`;
 }
 
 
@@ -21629,13 +21629,13 @@ document.addEventListener('keydown', (event) => {
  </div>
 
  <section class="gnb-section gnb-search-section">
- <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🔎</span><span class="title-text">메뉴 검색</span></h3>
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon"><img class="upick-svg-icon" src="/icons/internal/search.svg" alt="" loading="lazy"></span><span class="title-text">메뉴 검색</span></h3>
  <div class="gnb-search-box"><input id="gnbMenuSearchInput" type="search" placeholder="메뉴 통합검색, 인기메뉴, 최근메뉴" autocomplete="off" /></div>
  <div class="gnb-menu-search-results hidden" id="gnbMenuSearchResults"></div>
  </section>
 
  <section class="gnb-section">
- <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🕘</span><span class="title-text">최근에 봤어요</span></h3>
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon"><img class="upick-svg-icon" src="/icons/internal/clock.svg" alt="" loading="lazy"></span><span class="title-text">최근에 봤어요</span></h3>
  <div class="gnb-chip-row" id="gnbRecentMenus"><div class="gnb-empty">최근 방문 메뉴를 불러오는 중입니다.</div></div>
  </section>
 
@@ -21646,7 +21646,7 @@ document.addEventListener('keydown', (event) => {
 
  <section class="gnb-section">
  <div class="gnb-menu-group">
- <h4 class="gnb-menu-group-title">📌 새로 나왔어요</h4>
+ <h4 class="gnb-menu-group-title"><img class="upick-inline-icon" src="/icons/internal/pin-blue.svg" alt="" loading="lazy"> 새로 나왔어요</h4>
  <div class="gnb-new-section"><div class="gnb-menu-list" id="gnbNewMenus"><div class="gnb-empty">새 메뉴를 불러오는 중입니다.</div></div></div>
  </div>
  <div class="gnb-menu-group">
@@ -21670,7 +21670,7 @@ document.addEventListener('keydown', (event) => {
  <button class="gnb-menu-item" type="button" id="openAdminPageFromGnbBtn">관리자 페이지</button>
  </div>
  <div class="gnb-root-panel root-only-panel" aria-label="Root 전용 숨겨진 기능 패널">
- <h4>👑 Root 전용 숨겨진 기능 패널</h4>
+ <h4><img class="upick-inline-icon" src="/icons/internal/crown.svg" alt="" loading="lazy"> Root 전용 숨겨진 기능 패널</h4>
  <p>최고 관리자 계정에서만 보이는 운영 보조 영역입니다.</p>
  <div class="gnb-root-actions">
  <button class="gnb-action-btn primary" type="button" id="rootOpenAdminBtn">
@@ -21695,7 +21695,7 @@ document.addEventListener('keydown', (event) => {
  <h4 class="gnb-settings-section-title">계정 요약</h4>
  <p class="gnb-settings-section-desc">현재 로그인한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.</p>
  </div>
- <div class="gnb-status-pill" id="gnbPushStatusPill">🔔 상태 확인 중</div>
+ <div class="gnb-status-pill" id="gnbPushStatusPill">상태 확인 중</div>
  </div>
  <div class="gnb-account-card">
  <div class="gnb-account">
@@ -23165,6 +23165,43 @@ if(window.MutationObserver){
   cursor:pointer;
 }
 .ai-error-retry-btn:active{ transform:translateY(1px); }
+
+
+/* ===== 더운정픽 UI v3: 브랜드 심볼 기반 블루 프리미엄 로딩 ===== */
+.top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
+.page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
+.page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
+.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol.svg') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
+.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
+.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
+@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
+@keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
+
+
+/* ===== 더운정픽 UI v3: GNB/회원탈퇴/심볼 통일 보정 ===== */
+.brand .logo img[src*="home.svg"],.brand .logo .upick-svg-icon{width:42px!important;height:42px!important;}
+.brand .logo{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(239,246,255,.78))!important;border:1px solid rgba(191,219,254,.72)!important;box-shadow:0 12px 30px rgba(37,99,235,.08)!important;}
+.gnb-sheet{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;background:#fff!important;overscroll-behavior:contain!important;}
+.gnb-sheet.show{display:flex!important;}
+.gnb-top{flex:0 0 auto!important;background:radial-gradient(circle at 84% 12%,rgba(96,165,250,.34),transparent 28%),linear-gradient(135deg,#071a3d 0%,#0f2f67 58%,#1d4ed8 100%)!important;}
+.gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))!important;}
+body.gnb-open{overflow:hidden!important;touch-action:none!important;}
+body.gnb-open .shell,body.gnb-open .topbar,body.gnb-open .bottom-nav{filter:blur(.7px)!important;}
+.gnb-menu-group-title .upick-inline-icon,.gnb-section-title .title-icon .upick-svg-icon{width:22px!important;height:22px!important;margin-right:7px!important;}
+.gnb-section-title .title-icon{font-size:0!important;width:28px;height:28px;display:inline-grid!important;place-items:center;border-radius:11px;background:#eff6ff;border:1px solid #dbeafe;vertical-align:middle;margin-right:8px;}
+.gnb-section-title .title-icon::before{content:"";display:block;width:18px;height:18px;background:url('/icons/internal/search.svg') center/contain no-repeat;}
+.gnb-section-title .title-icon:has(img)::before{display:none;}
+.gnb-menu-group-title{display:flex!important;align-items:center!important;gap:6px!important;}
+.gnb-menu-group-title::first-letter{font-size:inherit;}
+.gnb-status-pill{display:inline-flex;align-items:center;gap:6px;}
+.gnb-status-pill::before{content:"";display:inline-block;width:16px;height:16px;background:url('/icons/internal/notification.svg') center/contain no-repeat;flex:0 0 16px;}
+.gnb-action-btn.danger{background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%)!important;color:#334155!important;border:1px solid #cbd5e1!important;box-shadow:0 10px 22px rgba(15,23,42,.06)!important;}
+.gnb-action-btn.danger .desc{color:#64748b!important;opacity:1!important;}
+.gnb-danger-note{background:#f8fafc!important;border:1px solid #e2e8f0!important;border-radius:16px!important;padding:12px 14px!important;color:#64748b!important;}
+.gnb-settings-section:has(#withdrawBtn){border-color:#e2e8f0!important;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;}
+.gnb-hero-emoji{font-size:0!important;}
+.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol.svg')!important;}
+
 </style>
 
 <script id="ai-error-retry-patch-v1">
