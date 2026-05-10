@@ -4229,6 +4229,10 @@ img.brand-icon[src*="home.svg"],
       <span class="arm bot"></span>
       <span class="arm bot2"></span>
     </div>
+    <div class="loader-copy" aria-hidden="true">
+      <p class="loader-message">입주민 전용 서비스를 연결하고 있어요</p>
+      <p class="loader-sub-message">잠시만 기다려주세요</p>
+    </div>
   </div>
   <div class="app"><div class="shell">
 
@@ -9901,5 +9905,326 @@ function fillForm(item){
 }
 </style>
 
+
+
+<!-- Upick v76 loader stability fix: remove orbit line artifact -->
+<style id="upick-v76-loader-stability-fix">
+/*
+  회전 링이 일부 브라우저/배포 캐시 조합에서 로고 내부 선처럼 비치는 문제 방지.
+  서버 응답/JS에는 영향 없는 CSS-only 보정입니다.
+*/
+.global-loading .loader-mark::after,
+.page-loader .loader-mark::after,
+#globalLoadingBar.global-loading .loader-mark::after,
+#pageLoader.page-loader .loader-mark::after{
+  content:none!important;
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  animation:none!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.global-loading .loader-mark,
+.page-loader .loader-mark,
+#globalLoadingBar.global-loading .loader-mark,
+#pageLoader.page-loader .loader-mark{
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 34% 22%,rgba(255,255,255,.96),rgba(255,255,255,0) 34%),
+    linear-gradient(180deg,rgba(255,255,255,.86),rgba(221,237,255,.58))!important;
+  border:1px solid rgba(255,255,255,.66)!important;
+  box-shadow:
+    0 22px 52px rgba(15,44,92,.16),
+    0 0 0 1px rgba(147,197,253,.28),
+    inset 0 1px 0 rgba(255,255,255,.88),
+    inset 0 -1px 0 rgba(96,165,250,.10)!important;
+}
+.global-loading .loader-mark::before,
+.page-loader .loader-mark::before,
+#globalLoadingBar.global-loading .loader-mark::before,
+#pageLoader.page-loader .loader-mark::before{
+  content:""!important;
+  display:block!important;
+  width:64px!important;
+  height:64px!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  position:relative!important;
+  z-index:2!important;
+}
+@media(max-width:430px){
+  .global-loading .loader-mark::before,
+  .page-loader .loader-mark::before,
+  #globalLoadingBar.global-loading .loader-mark::before,
+  #pageLoader.page-loader .loader-mark::before{
+    width:61px!important;
+    height:61px!important;
+  }
+}
+</style>
+
+
+
+<!-- ===== 더운정픽 공통 안정형 로딩바 v78 ===== -->
+<style id="upick-common-stable-loader-v78">
+:root{--upick-loader-symbol:url('/icons/internal/brand-symbol-real.png');}
+#pageLoader.page-loader,
+#globalLoadingBar.global-loading,
+.page-loader,
+.global-loading{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;
+  display:none!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:18px!important;
+  background:rgba(7,18,42,.46)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
+  z-index:2147483000!important;overflow:hidden!important;pointer-events:auto!important;
+}
+#pageLoader.page-loader.show,
+#globalLoadingBar.global-loading.show,
+.global-loading.is-visible,
+.global-loading[aria-hidden="false"],
+.page-loader[aria-hidden="false"]{display:flex!important;}
+#pageLoader.page-loader::before,
+#globalLoadingBar.global-loading::before,
+.page-loader::before,
+.global-loading::before{
+  content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;
+  background:radial-gradient(circle at 50% 43%,rgba(96,165,250,.18),transparent 34%),radial-gradient(circle at 50% 58%,rgba(255,255,255,.08),transparent 30%)!important;
+}
+#pageLoader .loader-content,
+#globalLoadingBar .loader-content,
+.page-loader .loader-content,
+.global-loading .loader-content{
+  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:18px!important;
+}
+#pageLoader .loader-mark,
+#globalLoadingBar .loader-mark,
+.page-loader .loader-mark,
+.global-loading .loader-mark{
+  width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;
+  border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
+  border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.94),0 0 0 1px rgba(255,255,255,.28)!important;
+  display:grid!important;place-items:center!important;position:relative!important;overflow:hidden!important;padding:0!important;margin:0!important;transform:none!important;
+  animation:upickCommonLoaderFloatV78 1.35s ease-in-out infinite!important;
+}
+#pageLoader .loader-mark::before,
+#globalLoadingBar .loader-mark::before,
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before{
+  content:""!important;width:76px!important;height:76px!important;display:block!important;background:var(--upick-loader-symbol) center/contain no-repeat!important;
+  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;position:relative!important;z-index:2!important;
+}
+#pageLoader .loader-mark::after,
+#globalLoadingBar .loader-mark::after,
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::after{
+  content:""!important;position:absolute!important;left:22px!important;right:22px!important;bottom:12px!important;height:4px!important;border:0!important;border-radius:999px!important;
+  background:linear-gradient(90deg,rgba(96,165,250,.04),rgba(96,165,250,.28),rgba(37,99,235,.38),rgba(96,165,250,.04))!important;
+  box-shadow:0 0 18px rgba(37,99,235,.16)!important;animation:upickCommonLoaderLineV78 1.4s ease-in-out infinite!important;opacity:.72!important;transform:none!important;inset:auto 22px 12px 22px!important;
+}
+#pageLoader .loader-mark .arm,
+#globalLoadingBar .loader-mark .arm,
+.page-loader .loader-mark .arm,
+.global-loading .loader-mark .arm,
+#pageLoader .loader-mark > img,
+#globalLoadingBar .loader-mark > img,
+.page-loader .loader-mark > img,
+.global-loading .loader-mark > img,
+#pageLoader .loader-mark .loader-orbit,
+#globalLoadingBar .loader-mark .loader-orbit,
+.page-loader .loader-mark .loader-orbit,
+.global-loading .loader-mark .loader-orbit{
+  display:none!important;opacity:0!important;visibility:hidden!important;width:0!important;height:0!important;pointer-events:none!important;
+}
+#pageLoader .loader-copy,
+#globalLoadingBar .loader-copy,
+.page-loader .loader-copy,
+.global-loading .loader-copy{
+  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:5px!important;
+  padding:0 24px!important;margin:0!important;color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.20)!important;transition:opacity .18s ease,transform .18s ease!important;
+}
+#pageLoader .loader-message,
+#globalLoadingBar .loader-message,
+.page-loader .loader-message,
+.global-loading .loader-message{
+  margin:0!important;font-size:15px!important;line-height:1.45!important;font-weight:800!important;letter-spacing:-.02em!important;color:rgba(255,255,255,.96)!important;
+}
+#pageLoader .loader-sub-message,
+#globalLoadingBar .loader-sub-message,
+.page-loader .loader-sub-message,
+.global-loading .loader-sub-message{
+  margin:0!important;font-size:12.5px!important;line-height:1.45!important;font-weight:650!important;letter-spacing:-.02em!important;color:rgba(219,234,254,.84)!important;
+}
+#pageLoader .loader-copy.is-changing,
+#globalLoadingBar .loader-copy.is-changing,
+.page-loader .loader-copy.is-changing,
+.global-loading .loader-copy.is-changing{opacity:.35!important;transform:translateY(2px)!important;}
+@keyframes upickCommonLoaderFloatV78{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes upickCommonLoaderLineV78{0%,100%{opacity:.34;transform:scaleX(.72)}50%{opacity:.82;transform:scaleX(1)}}
+@media (max-width:480px){
+  #pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important;border-radius:32px!important;}
+  #pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before{width:70px!important;height:70px!important;}
+  #pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}
+}
+</style>
+<script id="upick-common-stable-loader-message-v78">
+(function(){
+  const steps=[
+    {at:0,main:'입주민 전용 서비스를 연결하고 있어요',sub:'잠시만 기다려주세요'},
+    {at:1200,main:'편리한 혜택 정보를 준비하고 있어요',sub:'곧 이용하실 수 있어요'},
+    {at:3200,main:'안전하게 데이터를 확인하고 있어요',sub:'네트워크 상태에 따라 조금 더 걸릴 수 있어요'},
+    {at:5600,main:'거의 준비가 완료되었어요',sub:'잠시 후 자동으로 연결됩니다'}
+  ];
+  function ensureCopy(root){
+    if(!root) return null;
+    let copy=root.querySelector('.loader-copy');
+    if(!copy){
+      copy=document.createElement('div');
+      copy.className='loader-copy';
+      copy.setAttribute('aria-hidden','true');
+      copy.innerHTML='<p class="loader-message">입주민 전용 서비스를 연결하고 있어요</p><p class="loader-sub-message">잠시만 기다려주세요</p>';
+      const mark=root.querySelector('.loader-mark');
+      if(mark && mark.parentNode){
+        if(mark.parentNode.classList && mark.parentNode.classList.contains('loader-content')) mark.parentNode.appendChild(copy);
+        else root.appendChild(copy);
+      }else root.appendChild(copy);
+    }
+    return copy;
+  }
+  function bind(root){
+    if(!root || root.dataset.upickCommonLoaderBound==='1') return;
+    root.dataset.upickCommonLoaderBound='1';
+    const copy=ensureCopy(root);
+    let timers=[];
+    const setStep=(step)=>{
+      if(!copy) return;
+      const main=copy.querySelector('.loader-message');
+      const sub=copy.querySelector('.loader-sub-message');
+      copy.classList.add('is-changing');
+      setTimeout(()=>{
+        if(main) main.textContent=step.main;
+        if(sub) sub.textContent=step.sub;
+        copy.classList.remove('is-changing');
+      },140);
+    };
+    const clear=()=>{timers.forEach(clearTimeout);timers=[];};
+    const start=()=>{clear();steps.forEach(step=>timers.push(setTimeout(()=>setStep(step),step.at)));};
+    const stop=()=>clear();
+    const obs=new MutationObserver(()=>{
+      const visible=root.classList.contains('show') || root.classList.contains('is-visible') || root.getAttribute('aria-hidden')==='false';
+      visible ? start() : stop();
+    });
+    obs.observe(root,{attributes:true,attributeFilter:['class','aria-hidden']});
+    if(root.classList.contains('show') || root.classList.contains('is-visible') || root.getAttribute('aria-hidden')==='false') start();
+  }
+  function init(){document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(bind);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+})();
+</script>
+
 </body>
 </html>
+
+<!-- Upick v75 loader ring hard-fix: separate symbol layer + masked outer ring -->
+<style id="upick-v75-loader-ring-hard-fix">
+/* 공개앱/로그인/회원가입/관리자 공통: 로고 레이어와 회전 링 레이어를 완전히 분리 */
+.global-loading.upick-loader-enhanced .loader-mark,
+.page-loader.upick-loader-enhanced .loader-mark,
+.global-loading.upick-admin-loader-enhanced .loader-mark,
+.page-loader.upick-admin-loader-enhanced .loader-mark,
+#globalLoadingBar.global-loading .loader-mark,
+#pageLoader.page-loader .loader-mark{
+  width:92px!important;
+  height:92px!important;
+  min-width:92px!important;
+  min-height:92px!important;
+  border-radius:29px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.80),rgba(221,237,255,.52))!important;
+  border:1px solid rgba(255,255,255,.58)!important;
+  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.82),inset 0 -1px 0 rgba(96,165,250,.12)!important;
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::before,
+.page-loader.upick-loader-enhanced .loader-mark::before,
+.global-loading.upick-admin-loader-enhanced .loader-mark::before,
+.page-loader.upick-admin-loader-enhanced .loader-mark::before,
+#globalLoadingBar.global-loading .loader-mark::before,
+#pageLoader.page-loader .loader-mark::before{
+  content:""!important;
+  display:block!important;
+  width:64px!important;
+  height:64px!important;
+  position:relative!important;
+  z-index:3!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
+  pointer-events:none!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark::after,
+.page-loader.upick-loader-enhanced .loader-mark::after,
+.global-loading.upick-admin-loader-enhanced .loader-mark::after,
+.page-loader.upick-admin-loader-enhanced .loader-mark::after,
+#globalLoadingBar.global-loading .loader-mark::after,
+#pageLoader.page-loader .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-6px!important;
+  width:auto!important;
+  height:auto!important;
+  border:0!important;
+  border-radius:35px!important;
+  background:conic-gradient(from 0deg, rgba(96,165,250,0) 0deg, rgba(147,197,253,.20) 34deg, rgba(59,130,246,.62) 72deg, rgba(96,165,250,0) 116deg, rgba(96,165,250,0) 360deg)!important;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)!important;
+  -webkit-mask-composite:xor!important;
+  mask-composite:exclude!important;
+  padding:1.5px!important;
+  box-shadow:0 0 14px rgba(96,165,250,.13)!important;
+  filter:blur(.1px)!important;
+  opacity:.62!important;
+  z-index:1!important;
+  animation:upickV75LoaderOrbit 3.2s linear infinite!important;
+  pointer-events:none!important;
+}
+.global-loading.upick-loader-enhanced .loader-mark > img,
+.page-loader.upick-loader-enhanced .loader-mark > img,
+.global-loading.upick-admin-loader-enhanced .loader-mark > img,
+.page-loader.upick-admin-loader-enhanced .loader-mark > img,
+#globalLoadingBar.global-loading .loader-mark > img,
+#pageLoader.page-loader .loader-mark > img,
+.global-loading.upick-loader-enhanced .loader-mark .arm,
+.page-loader.upick-loader-enhanced .loader-mark .arm,
+.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
+.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
+#globalLoadingBar.global-loading .loader-mark .arm,
+#pageLoader.page-loader .loader-mark .arm{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+@keyframes upickV75LoaderOrbit{to{transform:rotate(360deg)}}
+@media(max-width:430px){
+  .global-loading.upick-loader-enhanced .loader-mark,
+  .page-loader.upick-loader-enhanced .loader-mark,
+  .global-loading.upick-admin-loader-enhanced .loader-mark,
+  .page-loader.upick-admin-loader-enhanced .loader-mark,
+  #globalLoadingBar.global-loading .loader-mark,
+  #pageLoader.page-loader .loader-mark{
+    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
+  }
+  .global-loading.upick-loader-enhanced .loader-mark::before,
+  .page-loader.upick-loader-enhanced .loader-mark::before,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
+  #globalLoadingBar.global-loading .loader-mark::before,
+  #pageLoader.page-loader .loader-mark::before{width:61px!important;height:61px!important;}
+  .global-loading.upick-loader-enhanced .loader-mark::after,
+  .page-loader.upick-loader-enhanced .loader-mark::after,
+  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
+  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
+  #globalLoadingBar.global-loading .loader-mark::after,
+  #pageLoader.page-loader .loader-mark::after{border-radius:34px!important;}
+}
+</style>
