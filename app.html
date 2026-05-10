@@ -6742,6 +6742,35 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   box-shadow:none !important;
   filter:none !important;
 }
+
+
+/* ===== 더운정픽 하단 네비 균형 보정
+   - SVG 아이콘 자체 배경은 투명 유지
+   - 선택된 메뉴만 은은한 pill 배경 복구
+===== */
+.bottom-nav .nav-btn.active{
+  background:rgba(255,255,255,.12) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 0 10px 22px rgba(15,23,42,.18) !important;
+  border-radius:18px !important;
+  color:#fff !important;
+}
+.bottom-nav .nav-btn.active .nav-icon,
+.bottom-nav .nav-btn.active .nav-icon .upick-svg-icon,
+.bottom-nav .nav-icon,
+.bottom-nav .nav-icon .upick-svg-icon{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+}
+.bottom-nav .nav-icon .upick-svg-icon{
+  width:24px !important;
+  height:24px !important;
+}
+.bottom-nav .nav-btn:not(.active){
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
