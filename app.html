@@ -13153,217 +13153,171 @@ nav.bottom-nav{
 </style>
 
 
-<style id="upick-public-v37-proposal-glass-header">
-/* ===== 더운정픽 v37: 공개앱 공통 헤더를 제안서형 글래스 헤더로 보정 =====
-   - 흰 카드형 느낌 제거
-   - 제안서처럼 네이비/글래스 헤더 블록 적용
-   - 로고는 밝은 심볼 박스만 유지
-   - 우측 유틸 버튼도 유리 질감으로 통일
+<style id="upick-public-v38-symbol-only-glass-header">
+/* ===== 더운정픽 v38: 공개앱 헤더를 제안서형 글래스 + 심볼 단독 노출로 보정 =====
+   핵심:
+   1) 브랜드 블록을 카드형이 아닌 글래스형으로
+   2) 로고 래퍼의 흰 박스/테두리/그림자 제거
+   3) /icons/internal/brand-symbol-real.png 가 투명 심볼 이미지라는 전제로 순수 심볼만 노출
 */
 
-/* 공개앱 공통 헤더의 브랜드 블록: 흰 카드형 -> 글래스 네이비 블록 */
-#view-home .upick-header-brand,
-#view-home .brand,
-#view-home .brand-block,
-#view-home .upick-tab-brand-block,
-#view-home .topbar .brand,
-#view-home .topbar .upick-header-brand,
-header.public-unified-header .upick-header-brand,
-header.public-unified-header .brand,
-header.public-unified-header .brand-block,
-header.public-unified-header .upick-tab-brand-block,
+:root{
+  --upick-v38-glass-bg:linear-gradient(180deg, rgba(83,133,215,.22) 0%, rgba(18,48,103,.18) 100%);
+  --upick-v38-glass-border:rgba(255,255,255,.18);
+  --upick-v38-glass-shadow:0 18px 34px rgba(2,8,23,.16), inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+/* 브랜드 헤더 블록: 제안서처럼 반투명 유리 느낌 */
+.public-unified-header .upick-header-brand,
+.public-unified-header .brand,
+#view-home .public-unified-header .upick-header-brand,
+#view-home .public-unified-header .brand,
 .upick-tab-premium-hero .upick-header-brand,
-.upick-tab-premium-hero .brand,
-.upick-tab-premium-hero .brand-block,
-.upick-tab-premium-hero .upick-tab-brand-block{
+.upick-tab-premium-hero .brand{
   position:relative!important;
   overflow:hidden!important;
-  background:linear-gradient(180deg, rgba(18,52,112,.42) 0%, rgba(10,28,67,.34) 100%)!important;
-  border:1px solid rgba(255,255,255,.18)!important;
-  box-shadow:
-    0 16px 36px rgba(2,8,23,.22),
-    inset 0 1px 0 rgba(255,255,255,.20),
-    inset 0 -1px 0 rgba(255,255,255,.05)!important;
-  backdrop-filter:blur(18px) saturate(150%)!important;
-  -webkit-backdrop-filter:blur(18px) saturate(150%)!important;
-  color:#fff!important;
+  background:var(--upick-v38-glass-bg)!important;
+  border:1px solid var(--upick-v38-glass-border)!important;
+  box-shadow:var(--upick-v38-glass-shadow)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
 }
-#view-home .upick-header-brand::before,
-#view-home .brand::before,
-#view-home .brand-block::before,
-#view-home .upick-tab-brand-block::before,
-header.public-unified-header .upick-header-brand::before,
-header.public-unified-header .brand::before,
-header.public-unified-header .brand-block::before,
-header.public-unified-header .upick-tab-brand-block::before,
+.public-unified-header .upick-header-brand::before,
+.public-unified-header .brand::before,
 .upick-tab-premium-hero .upick-header-brand::before,
-.upick-tab-premium-hero .brand::before,
-.upick-tab-premium-hero .brand-block::before,
-.upick-tab-premium-hero .upick-tab-brand-block::before{
+.upick-tab-premium-hero .brand::before{
   content:"";
   position:absolute;
   inset:1px;
   border-radius:inherit;
   background:
-    linear-gradient(135deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.04) 34%, rgba(255,255,255,0) 56%),
-    radial-gradient(circle at 14% 12%, rgba(255,255,255,.12), transparent 32%);
+    linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.02) 38%, rgba(255,255,255,0) 60%),
+    radial-gradient(circle at 100% 0%, rgba(255,255,255,.10), transparent 38%);
   pointer-events:none;
 }
 
-/* 브랜드 로고는 순수 심볼 박스로 유지 */
-#view-home .upick-header-logo,
-#view-home .brand-logo,
-#view-home .logo,
-#view-home .logo-box,
-#view-home .upick-tab-brand-logo,
-header.public-unified-header .upick-header-logo,
-header.public-unified-header .brand-logo,
-header.public-unified-header .logo,
-header.public-unified-header .logo-box,
-header.public-unified-header .upick-tab-brand-logo,
-.upick-tab-premium-hero .upick-header-logo,
-.upick-tab-premium-hero .brand-logo,
-.upick-tab-premium-hero .logo,
-.upick-tab-premium-hero .logo-box,
-.upick-tab-premium-hero .upick-tab-brand-logo{
-  position:relative!important;
-  background:linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(245,248,255,.92) 100%)!important;
-  border:1px solid rgba(255,255,255,.64)!important;
-  box-shadow:
-    0 10px 24px rgba(2,8,23,.16),
-    inset 0 1px 0 rgba(255,255,255,.96)!important;
+/* 로고 박스 제거: 순수 심볼만 보이도록 */
+.public-unified-header .upick-header-brand .logo,
+.public-unified-header .brand .logo,
+.upick-tab-premium-hero .upick-header-brand .logo,
+.upick-tab-premium-hero .brand .logo,
+#view-home .public-unified-header .upick-header-brand .logo,
+#view-home .public-unified-header .brand .logo{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  flex:0 0 42px!important;
+  border-radius:0!important;
+  overflow:visible!important;
+  display:grid!important;
+  place-items:center!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+.public-unified-header .upick-header-brand .logo::before,
+.public-unified-header .brand .logo::before,
+.upick-tab-premium-hero .upick-header-brand .logo::before,
+.upick-tab-premium-hero .brand .logo::before{
+  content:none!important;
+  display:none!important;
+}
+.public-unified-header .upick-header-brand .logo img,
+.public-unified-header .brand .logo img,
+.upick-tab-premium-hero .upick-header-brand .logo img,
+.upick-tab-premium-hero .brand .logo img,
+#view-home .public-unified-header .upick-header-brand .logo img,
+#view-home .public-unified-header .brand .logo img{
+  width:42px!important;
+  height:42px!important;
+  display:block!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 4px 10px rgba(255,255,255,.06))!important;
+  content:url('/icons/internal/brand-symbol-real.png')!important;
 }
 
-/* 브랜드 텍스트 톤: 순백 + 은은한 서브카피 */
-#view-home .upick-header-brand strong,
-#view-home .brand strong,
-#view-home .brand-block strong,
-#view-home .upick-tab-brand-copy strong,
-#view-home .topbar .brand strong,
-#view-home .topbar .upick-header-brand strong,
-header.public-unified-header .upick-header-brand strong,
-header.public-unified-header .brand strong,
-header.public-unified-header .brand-block strong,
-header.public-unified-header .upick-tab-brand-copy strong,
-.upick-tab-premium-hero .upick-header-brand strong,
-.upick-tab-premium-hero .brand strong,
-.upick-tab-premium-hero .brand-block strong,
-.upick-tab-premium-hero .upick-tab-brand-copy strong{
+/* 브랜드 타이포도 카드형보다 제안서 톤으로 */
+.public-unified-header h1,
+.public-unified-header .upick-header-brand h1,
+.public-unified-header .brand h1,
+.upick-tab-premium-hero h1,
+.upick-tab-premium-hero .upick-header-brand h1,
+.upick-tab-premium-hero .brand h1{
   color:#fff!important;
-  text-shadow:0 2px 10px rgba(2,8,23,.24)!important;
+  text-shadow:0 2px 12px rgba(2,8,23,.20)!important;
 }
-#view-home .upick-header-brand span,
-#view-home .brand span,
-#view-home .brand-block span,
-#view-home .upick-tab-brand-copy span,
-#view-home .topbar .brand span,
-#view-home .topbar .upick-header-brand span,
-header.public-unified-header .upick-header-brand span,
-header.public-unified-header .brand span,
-header.public-unified-header .brand-block span,
-header.public-unified-header .upick-tab-brand-copy span,
-.upick-tab-premium-hero .upick-header-brand span,
-.upick-tab-premium-hero .brand span,
-.upick-tab-premium-hero .brand-block span,
-.upick-tab-premium-hero .upick-tab-brand-copy span{
-  color:rgba(255,255,255,.82)!important;
+.public-unified-header p,
+.public-unified-header .upick-header-brand p,
+.public-unified-header .brand p,
+.upick-tab-premium-hero p,
+.upick-tab-premium-hero .upick-header-brand p,
+.upick-tab-premium-hero .brand p{
+  color:rgba(255,255,255,.78)!important;
 }
 
-/* 우측 유틸 버튼: 더 유리 같은 느낌 */
-#view-home .upick-header-actions button,
-#view-home .upick-header-actions .icon-btn,
-#view-home .topbar-actions button,
-#view-home .topbar-actions .icon-btn,
-#view-home .utility-buttons button,
-#view-home .utility-buttons .icon-btn,
-#view-home .topbar button:not(.profile-card):not(.brand):not(.upick-header-brand),
-header.public-unified-header .topbar-actions button,
-header.public-unified-header .topbar-actions .icon-btn,
-header.public-unified-header .utility-buttons button,
-header.public-unified-header .utility-buttons .icon-btn,
-header.public-unified-header button.icon-btn,
-.upick-tab-premium-hero .upick-tab-header-btn,
+/* 우측 유틸 버튼: 홈탭 느낌의 유리 버튼 */
+.public-unified-header .upick-header-utils .icon-btn,
+.upick-tab-premium-hero .upick-header-utils .icon-btn,
 .upick-tab-premium-hero button.icon-btn{
   position:relative!important;
   overflow:hidden!important;
-  background:linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.08) 100%)!important;
+  background:linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.07) 100%)!important;
   border:1px solid rgba(255,255,255,.18)!important;
-  box-shadow:
-    0 12px 28px rgba(2,8,23,.18),
-    inset 0 1px 0 rgba(255,255,255,.18)!important;
-  color:#fff!important;
-  backdrop-filter:blur(16px) saturate(145%)!important;
-  -webkit-backdrop-filter:blur(16px) saturate(145%)!important;
+  box-shadow:0 14px 28px rgba(2,8,23,.16), inset 0 1px 0 rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(14px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(140%)!important;
 }
-#view-home .upick-header-actions button::before,
-#view-home .upick-header-actions .icon-btn::before,
-#view-home .topbar-actions button::before,
-#view-home .topbar-actions .icon-btn::before,
-#view-home .utility-buttons button::before,
-#view-home .utility-buttons .icon-btn::before,
-header.public-unified-header .topbar-actions button::before,
-header.public-unified-header .topbar-actions .icon-btn::before,
-header.public-unified-header .utility-buttons button::before,
-header.public-unified-header .utility-buttons .icon-btn::before,
-header.public-unified-header button.icon-btn::before,
-.upick-tab-premium-hero .upick-tab-header-btn::before,
+.public-unified-header .upick-header-utils .icon-btn::before,
+.upick-tab-premium-hero .upick-header-utils .icon-btn::before,
 .upick-tab-premium-hero button.icon-btn::before{
   content:"";
   position:absolute;
   inset:1px;
   border-radius:inherit;
-  background:linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 52%);
+  background:linear-gradient(135deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 48%);
   pointer-events:none;
 }
-#view-home .upick-header-actions img,
-#view-home .topbar-actions img,
-#view-home .utility-buttons img,
-#view-home .topbar button.icon-btn img,
-header.public-unified-header .topbar-actions img,
-header.public-unified-header .utility-buttons img,
-header.public-unified-header button.icon-btn img,
-.upick-tab-premium-hero .upick-tab-header-btn img,
+.public-unified-header .upick-header-utils .icon-btn img,
+.upick-tab-premium-hero .upick-header-utils .icon-btn img,
 .upick-tab-premium-hero button.icon-btn img{
   filter:brightness(0) invert(1)!important;
-  opacity:.96!important;
 }
-#view-home .upick-header-actions svg,
-#view-home .topbar-actions svg,
-#view-home .utility-buttons svg,
-#view-home .topbar button.icon-btn svg,
-header.public-unified-header .topbar-actions svg,
-header.public-unified-header .utility-buttons svg,
-header.public-unified-header button.icon-btn svg,
-.upick-tab-premium-hero .upick-tab-header-btn svg,
+.public-unified-header .upick-header-utils .icon-btn svg,
+.upick-tab-premium-hero .upick-header-utils .icon-btn svg,
 .upick-tab-premium-hero button.icon-btn svg{
   color:#fff!important;
   stroke:#fff!important;
-  fill:none!important;
 }
 
-/* 홈 헤더 자체도 탭 헤더 톤에 더 가깝게 */
-#view-home .upick-home-hero-shell .topbar,
-#view-home .upick-home-hero-shell .hero,
-#view-home .upick-home-hero-shell .upick-header-context{
-  background:transparent!important;
-}
-
-/* 모바일에서 카드 느낌보다 제안서처럼 슬림하게 */
-@media (max-width:520px){
-  #view-home .upick-header-brand,
-  #view-home .brand,
-  #view-home .brand-block,
-  #view-home .upick-tab-brand-block,
-  header.public-unified-header .upick-header-brand,
-  header.public-unified-header .brand,
-  header.public-unified-header .brand-block,
-  header.public-unified-header .upick-tab-brand-block,
+/* 모바일 미세 보정 */
+@media(max-width:430px){
+  .public-unified-header .upick-header-brand,
+  .public-unified-header .brand,
   .upick-tab-premium-hero .upick-header-brand,
-  .upick-tab-premium-hero .brand,
-  .upick-tab-premium-hero .brand-block,
-  .upick-tab-premium-hero .upick-tab-brand-block{
-    padding:10px 12px!important;
+  .upick-tab-premium-hero .brand{
+    padding:10px 14px!important;
+    gap:11px!important;
     border-radius:22px!important;
+  }
+  .public-unified-header .upick-header-brand .logo,
+  .public-unified-header .brand .logo,
+  .upick-tab-premium-hero .upick-header-brand .logo,
+  .upick-tab-premium-hero .brand .logo{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    flex-basis:38px!important;
+  }
+  .public-unified-header .upick-header-brand .logo img,
+  .public-unified-header .brand .logo img,
+  .upick-tab-premium-hero .upick-header-brand .logo img,
+  .upick-tab-premium-hero .brand .logo img{
+    width:38px!important;
+    height:38px!important;
   }
 }
 </style>
