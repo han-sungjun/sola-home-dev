@@ -3248,6 +3248,519 @@ img.brand-icon[src*="home.svg"],
 .primary,.btn-primary,button[type="submit"]{background:linear-gradient(135deg,#061A3D 0%,#2563EB 100%)!important;color:#fff!important;border-color:transparent!important;}
 </style>
 
+
+<!-- ===== 더운정픽 UI v52: 업로드 index 기준 로그인 고급화 복구 ===== -->
+<style id="upick-v52-login-premium-restore-from-uploaded">
+/*
+  목적:
+  - 업로드해주신 index.html 기준으로 로그인 페이지 고급화 복구
+  - 누적된 예전 CSS(red/black fallback, 과한 카드형, 캡슐 충돌)를 마지막 우선순위에서 정리
+  - 로그인 페이지는 네이비/블루 프리미엄 톤 유지
+*/
+
+/* 0) 페이지 배경 */
+html,
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(219,234,254,.52), transparent 34%),
+    linear-gradient(180deg, #F8FBFF 0%, #EFF6FF 52%, #F8FAFC 100%) !important;
+}
+
+body {
+  min-height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+}
+
+.wrap {
+  width: min(100%, 430px) !important;
+}
+
+/* 1) 로그인 전체 쉘: 네이비/블루 프리미엄 복구 */
+.login-premium-hero-shell {
+  position: relative !important;
+  display: grid !important;
+  gap: 16px !important;
+  padding: 18px !important;
+  border-radius: 34px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 88% 3%, rgba(147,197,253,.25), transparent 34%),
+    radial-gradient(circle at 104% 88%, rgba(37,99,235,.34), transparent 36%),
+    linear-gradient(135deg, #061A3D 0%, #0B2A60 54%, #2563EB 100%) !important;
+  border: 1px solid rgba(147,197,253,.26) !important;
+  box-shadow:
+    0 26px 66px rgba(11,31,77,.22),
+    inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+
+.login-premium-hero-shell::after {
+  content: "" !important;
+  position: absolute !important;
+  right: -36px !important;
+  top: -42px !important;
+  width: 170px !important;
+  height: 170px !important;
+  border-radius: 46px !important;
+  background: rgba(255,255,255,.10) !important;
+  transform: rotate(18deg) !important;
+  pointer-events: none !important;
+}
+
+.login-premium-hero-shell > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 2) 상단 브랜드 헤더: 고급화 유지, 과한 흰 카드 방지 */
+.login-unified-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.login-brand-block {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 11px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 58px !important;
+  padding: 9px 15px 9px 10px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.075)),
+    linear-gradient(135deg, rgba(41,91,177,.28), rgba(8,31,76,.22)) !important;
+  border: 1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    0 16px 34px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.26) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+  color: #fff !important;
+}
+
+.login-brand-block::before,
+.login-brand-block::after {
+  content: "" !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+.login-brand-block::before {
+  inset: 1px !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.03) 48%, transparent 72%) !important;
+}
+
+.login-brand-block .logo {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  flex: 0 0 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.94), rgba(239,246,255,.82)) !important;
+  border: 1px solid rgba(255,255,255,.58) !important;
+  box-shadow:
+    0 10px 22px rgba(2,8,23,.14),
+    inset 0 1px 0 rgba(255,255,255,.94) !important;
+  overflow: hidden !important;
+}
+
+.login-brand-block .logo::before,
+.login-brand-block .logo::after {
+  content: none !important;
+  display: none !important;
+}
+
+.login-brand-block .logo img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  display: block !important;
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 2px 5px rgba(2,8,23,.10)) !important;
+}
+
+.login-brand-block strong {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 22px !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.065em !important;
+  line-height: 1.05 !important;
+  text-shadow: 0 2px 10px rgba(2,8,23,.24) !important;
+}
+
+.login-brand-block span {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  margin-top: 5px !important;
+  color: rgba(255,255,255,.82) !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+}
+
+/* 3) 히어로: red/black fallback 제거 */
+.login-premium-hero-shell > .hero {
+  position: relative !important;
+  margin: 0 !important;
+  padding: 28px 24px !important;
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  color: #fff !important;
+  background:
+    radial-gradient(circle at 90% 8%, rgba(255,255,255,.17), transparent 30%),
+    linear-gradient(135deg, rgba(6,26,61,.76) 0%, rgba(11,42,96,.62) 52%, rgba(37,99,235,.48) 100%) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 16px 34px rgba(2,8,23,.10) !important;
+}
+
+.login-premium-hero-shell > .hero::after {
+  content: "" !important;
+  position: absolute !important;
+  right: -34px !important;
+  top: -26px !important;
+  width: 138px !important;
+  height: 138px !important;
+  border-radius: 38px !important;
+  background: rgba(255,255,255,.10) !important;
+  transform: rotate(18deg) !important;
+  pointer-events: none !important;
+}
+
+.login-premium-hero-shell > .hero .eyebrow {
+  position: relative !important;
+  z-index: 2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+  color: rgba(255,255,255,.94) !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.login-premium-hero-shell > .hero h1 {
+  position: relative !important;
+  z-index: 2 !important;
+  margin: 14px 0 8px !important;
+  color: #fff !important;
+  font-size: 30px !important;
+  line-height: 1.13 !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.07em !important;
+  text-shadow: 0 2px 12px rgba(2,8,23,.22) !important;
+}
+
+.login-premium-hero-shell > .hero p {
+  position: relative !important;
+  z-index: 2 !important;
+  margin: 0 !important;
+  color: rgba(255,255,255,.88) !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  font-weight: 700 !important;
+}
+
+.hero-env {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 3 !important;
+  background: rgba(255,255,255,.18) !important;
+  border: 1px solid rgba(255,255,255,.38) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* 4) 로그인 폼 패널 복구 */
+.login-premium-hero-shell > .panel {
+  margin: 0 !important;
+  padding: 22px !important;
+  border-radius: 30px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,251,255,.92)) !important;
+  border: 1px solid rgba(219,234,254,.72) !important;
+  box-shadow:
+    0 24px 52px rgba(30,64,175,.12),
+    inset 0 1px 0 rgba(255,255,255,.90) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+/* 5) 계정 로그인 제목 캡슐: 고급화 유지하되 과하지 않게 */
+.login-premium-hero-shell > .panel > .brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  padding: 10px 14px 10px 10px !important;
+  margin-bottom: 20px !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.86), rgba(239,246,255,.68)) !important;
+  border: 1px solid rgba(191,219,254,.72) !important;
+  box-shadow:
+    0 14px 30px rgba(37,99,235,.08),
+    inset 0 1px 0 rgba(255,255,255,.88) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+.login-premium-hero-shell > .panel > .brand .logo {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  flex: 0 0 46px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, #fff, #F4F8FF) !important;
+  border: 1px solid rgba(191,219,254,.78) !important;
+  box-shadow: 0 10px 22px rgba(37,99,235,.08) !important;
+  overflow: hidden !important;
+}
+
+.login-premium-hero-shell > .panel > .brand .logo::before,
+.login-premium-hero-shell > .panel > .brand .logo::after {
+  content: none !important;
+  display: none !important;
+}
+
+.login-premium-hero-shell > .panel > .brand .logo img {
+  content: url('/icons/internal/brand-symbol-real.png') !important;
+  width: 32px !important;
+  height: 32px !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+}
+
+.login-premium-hero-shell > .panel > .brand h2 {
+  margin: 0 !important;
+  color: #071A3D !important;
+  font-size: 22px !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.055em !important;
+  line-height: 1.15 !important;
+}
+
+.login-premium-hero-shell > .panel > .brand p {
+  margin: 4px 0 0 !important;
+  color: #64748B !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+}
+
+/* 6) 입력창 */
+.login-premium-hero-shell .field label {
+  color: #64748B !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+.login-premium-hero-shell .input {
+  background: #EAF2FF !important;
+  border: 1px solid rgba(191,219,254,.64) !important;
+  color: #071A3D !important;
+  border-radius: 18px !important;
+  padding: 15px 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.60) !important;
+}
+
+.login-premium-hero-shell .input:focus {
+  border-color: rgba(96,165,250,.95) !important;
+  box-shadow:
+    0 0 0 4px rgba(96,165,250,.18),
+    inset 0 1px 0 rgba(255,255,255,.70) !important;
+}
+
+.login-premium-hero-shell .helper {
+  color: #64748B !important;
+}
+
+/* 7) 버튼 */
+.login-premium-hero-shell .btn-primary,
+.login-premium-hero-shell #loginBtn {
+  background:
+    linear-gradient(135deg, #071A3D 0%, #0B2A60 48%, #2563EB 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 14px 30px rgba(37,99,235,.23) !important;
+}
+
+.login-premium-hero-shell .btn-soft,
+.login-premium-hero-shell #signupBtn {
+  background: #fff !important;
+  color: #071A3D !important;
+  border: 1px solid rgba(191,219,254,.85) !important;
+  box-shadow: none !important;
+}
+
+.login-premium-hero-shell .btn-install,
+.login-premium-hero-shell #installAppBtn {
+  background:
+    linear-gradient(135deg, #071A3D 0%, #0B2A60 48%, #2563EB 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(147,197,253,.24) !important;
+  box-shadow: 0 18px 36px rgba(37,99,235,.25) !important;
+}
+
+.login-premium-hero-shell .btn-install .btn-icon,
+.login-premium-hero-shell #installAppBtn .btn-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 6px 10px rgba(0,0,0,.16)) !important;
+}
+
+/* 8) 로딩은 마지막에 안정화 */
+.page-loader {
+  background:
+    linear-gradient(180deg, rgba(10,22,54,.30), rgba(10,22,54,.18)),
+    rgba(236,242,250,.20) !important;
+  backdrop-filter: blur(18px) saturate(110%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(110%) !important;
+}
+
+.page-loader .loader-mark {
+  position: relative !important;
+  width: 96px !important;
+  height: 96px !important;
+  min-width: 96px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 30px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.055)) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow:
+    0 14px 34px rgba(2,8,23,.16),
+    inset 0 1px 0 rgba(255,255,255,.22) !important;
+  backdrop-filter: blur(14px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(125%) !important;
+  overflow: visible !important;
+}
+
+.page-loader .loader-mark .arm {
+  display: none !important;
+}
+
+.page-loader .loader-mark::before {
+  content: "" !important;
+  width: 74px !important;
+  height: 74px !important;
+  display: block !important;
+  background: url('/icons/internal/brand-symbol-real.png') center / contain no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.22))
+    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
+}
+
+.page-loader .loader-mark::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -16px !important;
+  width: 82px !important;
+  height: 8px !important;
+  transform: translateX(-50%) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(147,197,253,.18), rgba(96,165,250,.95), rgba(147,197,253,.18)) !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.22),
+    inset 0 1px 0 rgba(255,255,255,.24) !important;
+  animation: upickV52LoaderPulse 1.15s ease-in-out infinite !important;
+}
+
+@keyframes upickV52LoaderPulse {
+  0%,100% { opacity: .44; width: 62px; }
+  50% { opacity: 1; width: 96px; }
+}
+
+/* 9) 모바일 */
+@media (max-width: 430px) {
+  body {
+    padding: 16px !important;
+  }
+
+  .login-premium-hero-shell {
+    padding: 14px !important;
+    border-radius: 30px !important;
+    gap: 14px !important;
+  }
+
+  .login-brand-block {
+    min-height: 54px !important;
+    padding: 8px 12px 8px 9px !important;
+    border-radius: 20px !important;
+  }
+
+  .login-brand-block .logo {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    flex-basis: 40px !important;
+  }
+
+  .login-brand-block .logo img {
+    width: 31px !important;
+    height: 31px !important;
+  }
+
+  .login-brand-block strong {
+    font-size: 21px !important;
+  }
+
+  .login-premium-hero-shell > .hero {
+    padding: 24px 20px !important;
+    border-radius: 26px !important;
+  }
+
+  .login-premium-hero-shell > .hero h1 {
+    font-size: 28px !important;
+  }
+
+  .login-premium-hero-shell > .panel {
+    padding: 20px !important;
+    border-radius: 28px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
