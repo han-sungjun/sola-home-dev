@@ -12704,6 +12704,73 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="upick-public-v32-beige-shell">
+/* ===== 더운정픽 v32: 앱 카드형 쉘을 베이지 밝은 톤으로 변경 =====
+   - 안쪽 앱 카드형 쉘만 네이비 → 베이지 밝은 톤으로 변경
+   - 히어로/헤더/버튼/기능 구조는 유지
+*/
+
+html,
+body{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(191,219,254,.22), transparent 34%),
+    linear-gradient(180deg,#fbfcff 0%,#f3f6fb 100%)!important;
+}
+
+/* 앱 외곽 카드형 쉘: 베이지 톤 */
+body > .app{
+  background:
+    radial-gradient(circle at 88px 82px, rgba(255,255,255,.56), transparent 28%),
+    radial-gradient(circle at 92% 10%, rgba(255,244,214,.44), transparent 30%),
+    radial-gradient(circle at 100% 76%, rgba(245,223,187,.36), transparent 42%),
+    linear-gradient(145deg,#F6EFE3 0%, #EFE5D6 48%, #E7D9C4 100%)!important;
+  border:1px solid rgba(221,203,178,.72)!important;
+  box-shadow:
+    0 16px 38px rgba(91,72,44,.10),
+    inset 0 1px 0 rgba(255,255,255,.72)!important;
+}
+
+/* 장식도 베이지 계열로 완화 */
+body > .app::before{
+  background:rgba(255,255,255,.42)!important;
+}
+body > .app::after{
+  background:rgba(226,198,150,.14)!important;
+}
+
+/* 내부 흰색 카드와 구분감만 부드럽게 유지 */
+.panel,
+.card,
+.notice-item,
+.benefit-card,
+.all-menu-card,
+.calendar-board,
+.ai-chat-panel{
+  box-shadow:0 10px 24px rgba(91,72,44,.07)!important;
+}
+
+/* 하단 네비/히어로는 기존 프리미엄 톤 유지, 
+   단 전체 쉘과 어울리도록 그림자만 살짝 완화 */
+.bottom-nav,
+nav.bottom-nav{
+  box-shadow:
+    0 -12px 26px rgba(11,31,77,.14),
+    inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+
+/* 모바일에서도 카드형 베이지 쉘 유지 */
+@media(max-width:520px){
+  body > .app{
+    width:calc(100% - 22px)!important;
+    min-height:calc(100dvh - 22px)!important;
+    margin:11px auto!important;
+    border-radius:34px!important;
+    padding:14px 12px calc(118px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
