@@ -518,6 +518,11 @@
       display:none!important;
     }
 
+    .brand-icon,.eyebrow-icon,.btn-icon{width:1.2em;height:1.2em;display:inline-block;vertical-align:-.2em;object-fit:contain;flex:0 0 auto}
+    .logo .brand-icon{width:30px;height:30px}
+    .eyebrow .eyebrow-icon{filter:drop-shadow(0 6px 12px rgba(15,23,42,.18))}
+    .btn .btn-icon{margin-right:7px;filter:drop-shadow(0 6px 10px rgba(15,23,42,.14))}
+
   </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -537,7 +542,7 @@
 <body>
     <div class="wrap">
     <section class="hero">
-      <div class="eyebrow">🏠 입주민 전용 로그인</div>
+      <div class="eyebrow"><img class="eyebrow-icon" src="/icons/internal/home.svg" alt="" loading="lazy"> 입주민 전용 로그인</div>
       <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
       <h1>더운정픽<br>로그인</h1>
       <p>입주민 전용 서비스 이용을 위해 로그인해 주세요.</p>
@@ -545,7 +550,7 @@
 
     <section class="panel">
       <div class="brand">
-        <div class="logo">🔐</div>
+        <div class="logo"><img class="brand-icon" src="/icons/internal/login.svg" alt="" loading="lazy"></div>
         <div>
           <h2>계정 로그인</h2>
           <p>입주민 전용 서비스 로그인</p>
@@ -571,7 +576,7 @@
           <button id="signupBtn" class="btn btn-soft" type="button" onclick="if(window.__LOGIN_SAFE_SIGNUP__ && !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}">회원가입</button>
         </div>
         <button id="installAppBtn" class="btn btn-install" type="button" hidden>
-          📱 앱으로 빠르게 이용하기
+          <img class="btn-icon" src="/icons/internal/install.svg" alt="" loading="lazy">앱으로 빠르게 이용하기
         </button>
 
       </form>

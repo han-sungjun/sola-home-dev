@@ -68,7 +68,7 @@
     @keyframes loaderFloat{0%,100%{ transform:translateY(0) scale(1);}50%{ transform:translateY(-3px) scale(1.03);}}
     @keyframes loaderPulse{0%{ opacity:.88;}50%{ opacity:1;}100%{ opacity:.9;}}
 
-  </style>
+  .brand-icon,.eyebrow-icon{width:1.2em;height:1.2em;display:inline-block;vertical-align:-.2em;object-fit:contain;flex:0 0 auto}.logo .brand-icon{width:30px;height:30px}.eyebrow .eyebrow-icon{filter:drop-shadow(0 6px 12px rgba(15,23,42,.18))}</style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
     @supports (padding-top: constant(safe-area-inset-top)){
@@ -86,9 +86,9 @@
 </head>
 <body>
   <main class="page">
-    <div class="brand"><div class="logo">🏠</div><div><h1>더운정픽</h1><p>입주민 전용 혜택 웹앱</p></div></div>
+    <div class="brand"><div class="logo"><img class="brand-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></div><div><h1>더운정픽</h1><p>입주민 전용 혜택 웹앱</p></div></div>
     <section class="hero">
-      <div class="eyebrow">🔐 간단 확인 후 입장</div>
+      <div class="eyebrow"><img class="eyebrow-icon" src="/icons/internal/signup.svg" alt="" loading="lazy"> 간단 확인 후 입장</div>
       <h2>복잡한 절차 없이<br>바로 시작하세요</h2>
       <p>입주민 혜택 이용에 필요한 계정 정보만 간단하게 입력하면 됩니다.</p>
       <div class="safe-row"><span class="safe-chip">간단 입장</span><span class="safe-chip">가벼운 확인</span><span class="safe-chip">바로 이용</span></div>
