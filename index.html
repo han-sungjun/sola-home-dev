@@ -4070,6 +4070,115 @@ body {
 }
 </style>
 
+
+<!-- ===== 더운정픽 UI v58: 로그인 로딩바 최종 캡슐형 보정 ===== -->
+<style id="upick-v58-login-loader-final-capsule">
+/* 마지막 로딩 스타일 우선순위 보정: 카드형 glass 제거 + 공개앱 느낌의 캡슐형 로딩바 */
+#pageLoader.page-loader,
+.page-loader{
+  background:
+    linear-gradient(180deg, rgba(10,22,54,.26), rgba(10,22,54,.16)),
+    rgba(236,242,250,.18) !important;
+  backdrop-filter:blur(18px) saturate(110%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(110%) !important;
+}
+
+#pageLoader .loader-mark,
+.page-loader .loader-mark{
+  position:relative !important;
+  width:96px !important;
+  height:96px !important;
+  min-width:96px !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:0 !important;
+  margin:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border:none !important;
+  outline:none !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  overflow:visible !important;
+  filter:drop-shadow(0 10px 24px rgba(2,8,23,.16)) !important;
+}
+
+#pageLoader .loader-mark .arm,
+.page-loader .loader-mark .arm,
+#pageLoader .loader-mark span,
+.page-loader .loader-mark span{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+/* 로고 심볼은 카드 없이 단독 표시 */
+#pageLoader .loader-mark::before,
+.page-loader .loader-mark::before{
+  content:"" !important;
+  position:static !important;
+  inset:auto !important;
+  width:76px !important;
+  height:76px !important;
+  display:block !important;
+  border-radius:0 !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  border:none !important;
+  box-shadow:none !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.20))
+    drop-shadow(0 8px 18px rgba(2,8,23,.16)) !important;
+}
+
+/* 공개앱 느낌의 하단 캡슐형 로딩바 */
+#pageLoader .loader-mark::after,
+.page-loader .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  left:50% !important;
+  top:auto !important;
+  bottom:-14px !important;
+  width:86px !important;
+  height:8px !important;
+  transform:translateX(-50%) !important;
+  border-radius:999px !important;
+  background:
+    linear-gradient(90deg,
+      rgba(147,197,253,.14) 0%,
+      rgba(96,165,250,.34) 22%,
+      rgba(96,165,250,.98) 50%,
+      rgba(96,165,250,.34) 78%,
+      rgba(147,197,253,.14) 100%
+    ) !important;
+  box-shadow:
+    0 0 14px rgba(96,165,250,.24),
+    inset 0 1px 0 rgba(255,255,255,.22) !important;
+  animation:upickV58LoaderCapsulePulse 1.15s ease-in-out infinite !important;
+}
+
+@keyframes upickV58LoaderCapsulePulse{
+  0%,100%{opacity:.46;width:64px}
+  50%{opacity:1;width:96px}
+}
+
+@media(max-width:430px){
+  #pageLoader .loader-mark,
+  .page-loader .loader-mark{
+    width:88px !important;
+    height:88px !important;
+    min-width:88px !important;
+  }
+  #pageLoader .loader-mark::before,
+  .page-loader .loader-mark::before{
+    width:70px !important;
+    height:70px !important;
+  }
+}
+</style>
+
 </body>
 
 </html>
