@@ -23728,22 +23728,7 @@ function markAiRecoShownToday(){
  }
 
 
- function refreshBottomNavMiniTrendBadges(){
-  qsa('.bottom-nav [data-view-link]').forEach(btn => {
-    btn.querySelectorAll('.nav-mini-trend,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
-    const menu = findMenuByView(btn.dataset.viewLink);
-    if(!menu) return;
-    const flags = getMenuTrendFlags(menu);
-    let label = '';
-    let cls = '';
-    // 하단 네비바는 공간이 작으므로 HOT 우선, 그다음 NEW만 표시
-    if(flags.isPopular || flags.isHot){ label = 'HOT'; cls = 'hot'; }
-    else if(flags.isNew){ label = 'NEW'; cls = 'new'; }
-    if(label){
-      btn.insertAdjacentHTML('afterbegin', `<span class="nav-mini-trend ${cls}">${label}</span>`);
-    }
-  });
- }
+ function refreshBottomNavMiniTrendBadges(){ window.__upickStableBottomBadge?.(); }
 
  function refreshBottomTrendUi(){
   refreshStaticNavTrendBadges?.();
@@ -24223,29 +24208,7 @@ function getBottomNavPopularTopId(){
 function bottomNavMenuIsNew(menu){
   try{ return isMenuNew(menu); }catch(_){ return Array.isArray(menu?.sections) && menu.sections.includes('new'); }
 }
-function syncBottomNavTrendBadgesFinal(){
-  const popularId = getBottomNavPopularTopId();
-  const popularMenu = popularId ? getBottomNavTrendMenuByKey(popularId) : null;
-  const popularKeys = popularMenu ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean) : [];
-
-  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
-    btn.querySelectorAll('.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
-
-    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
-    const menu = getBottomNavTrendMenuByKey(viewKey);
-
-    let type = '';
-    if(popularKeys.includes(viewKey)){
-      type = 'hot';
-    }else if(bottomNavMenuIsNew(menu)){
-      type = 'new';
-    }
-
-    if(type){
-      btn.insertAdjacentHTML('afterbegin', `<span class="nav-robot-trend-badge ${type}" aria-hidden="true"></span>`);
-    }
-  });
-}
+function syncBottomNavTrendBadgesFinal(){ window.__upickStableBottomBadge?.(); }
 window.syncBottomNavTrendBadgesFinal = syncBottomNavTrendBadgesFinal;
 document.addEventListener('click', () => setTimeout(syncBottomNavTrendBadgesFinal, 80), true);
 window.addEventListener('load', () => {
@@ -24293,14 +24256,7 @@ function makeTrendBadgeHtmlForView(menu, mode='nav'){
   if(flags.new) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} new">NEW</span>`;
   return '';
 }
-function refreshBottomNavFinalTrendBadges(){
-  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
-    btn.querySelectorAll('.nav-final-trend-badge,.nav-mini-trend,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
-    const menu = findTrendMenuByView(btn.dataset.viewLink);
-    const html = makeTrendBadgeHtmlForView(menu, 'nav');
-    if(html) btn.insertAdjacentHTML('afterbegin', html);
-  });
-}
+function refreshBottomNavFinalTrendBadges(){ window.__upickStableBottomBadge?.(); }
 function getCurrentVisibleViewKey(){
   const activeNav = document.querySelector('.bottom-nav .nav-btn.active[data-view-link]');
   if(activeNav?.dataset?.viewLink) return normalizeTrendViewKey(activeNav.dataset.viewLink);
@@ -29652,8 +29608,8 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 <!-- upick-v102-admin-badge-final-js removed: consolidated by upick-v108-stable-inline-badge -->
 
 
-<!-- ===== 더운정픽 v108: 배지 즉시 렌더 + 재렌더 깜빡임 방지 ===== -->
-<script id="upick-v109-stable-badge-source">
+<!-- ===== 더운정픽 v111: 하단 배지 유지 + 중복 재렌더 최소화 ===== -->
+<script id="upick-v111-stable-bottom-badge-source">
 (function(){
   'use strict';
   const rafState = { id:0 };
@@ -29799,19 +29755,33 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
     }else if(wrap){ wrap.remove(); }
   }
   function decorateAll(){ qsa('#allMenuGrid .all-menu-card').forEach(decorateAllCard); }
+  function navBadgeStateForView(view){
+    const f = flagsForView(view);
+    if(f.hot) return { label:'', cls:'hot' };
+    if(f.new) return { label:'', cls:'new' };
+    return { label:'', cls:'' };
+  }
+  function upsertNavDot(btn, cls){
+    const existing = btn.querySelector(':scope > .nav-robot-trend-badge, :scope > .nav-badge-dot, :scope > .nav-final-trend-badge, :scope > .nav-mini-trend');
+    const nextState = cls || '';
+    if(btn.__upickBottomBadgeState === nextState && existing) return;
+    btn.__upickBottomBadgeState = nextState;
+    btn.querySelectorAll(':scope > .nav-robot-trend-badge, :scope > .nav-badge-dot, :scope > .nav-final-trend-badge, :scope > .nav-mini-trend, :scope > .menu-trend-ribbon, :scope > .menu-trend-badge-wrap').forEach(el => el.remove());
+    if(!cls) return;
+    const dot = document.createElement('span');
+    dot.className = 'nav-robot-trend-badge ' + cls;
+    dot.setAttribute('aria-hidden','true');
+    btn.insertAdjacentElement('afterbegin', dot);
+  }
   function decorateBottom(){
-    qsa('.bottom-nav [data-view-link],.bottom-nav [data-view]').forEach(btn => {
-      const k = keysOfEl(btn)[0];
-      let dot = btn.querySelector(':scope > .nav-robot-trend-badge, :scope > .nav-badge-dot, :scope > .nav-final-trend-badge, :scope > .nav-mini-trend');
-      if(!k || fixed(k)){ if(dot) dot.remove(); return; }
-      const f = flagsForView(k);
-      const type = f.hot ? 'hot' : (f.new ? 'new' : '');
-      if(type){
-        if(!dot){ dot=document.createElement('span'); dot.setAttribute('aria-hidden','true'); btn.insertAdjacentElement('afterbegin', dot); }
-        ensureClass(dot, 'nav-robot-trend-badge ' + type);
-      }else if(dot){ dot.remove(); }
+    qsa('.bottom-nav [data-view-link], .bottom-nav [data-view]').forEach(btn => {
+      const view = norm(btn.dataset?.viewLink || btn.dataset?.view || '');
+      if(!view || fixed(view)) { upsertNavDot(btn, ''); return; }
+      const st = navBadgeStateForView(view);
+      upsertNavDot(btn, st.cls);
     });
   }
+  window.__upickStableBottomBadge = decorateBottom;
   function decorateHero(view){
     const hero = qs('#upickGlobalHero');
     if(!hero) return;
@@ -29876,7 +29846,6 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
       const wrapped = function(nextView){
         const r = oldChangeView.apply(this, arguments);
         schedule(nextView || currentView());
-        setTimeout(() => schedule(nextView || currentView()), 60);
         return r;
       };
       wrapped.__upickV109 = true;
@@ -29890,7 +29859,6 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
     if(!t) return;
     const v = t.dataset && (t.dataset.viewLink || t.dataset.view || t.dataset.gnbDynamicMenu);
     schedule(v || currentView());
-    setTimeout(() => schedule(v || currentView()), 80);
   }, true);
 
   document.addEventListener('upick:view-change', e => schedule((e.detail && e.detail.view) || currentView()));
