@@ -23796,14 +23796,17 @@ function isFixedNavigationMenuId(value){
 const gnbVisitLastTrackedAt = new Map();
 let gnbMenuRefreshTimer = null;
 function scheduleGnbMenuLightRefresh(delay = 900){
+  // v109: 메뉴 클릭 직후 통계 재조회가 전체 기능 DOM을 다시 그리며 깜빡임을 만들 수 있어
+  // 즉시 재렌더링하지 않고 충분히 지연된 1회 동기화만 수행합니다.
   if(gnbMenuRefreshTimer) return;
+  const safeDelay = Math.max(Number(delay || 0), 8000);
   gnbMenuRefreshTimer = setTimeout(() => {
    gnbMenuRefreshTimer = null;
-   loadRecentGnbMenus();
-   loadPopularGnbMenus();
-   scheduleTrendFinalDisplay?.();
-   syncBottomNavDotBadgesFinal?.();
-  }, delay);
+   Promise.allSettled([loadRecentGnbMenus?.(), loadPopularGnbMenus?.()]).finally(() => {
+     window.upickFinalBadgeSync?.();
+     syncBottomNavDotBadgesFinal?.();
+   });
+  }, safeDelay);
 }
 async function trackGnbMenuVisitByView(view){
   if(isFixedNavigationMenuId(view)) return;
@@ -24344,12 +24347,7 @@ document.addEventListener('click', (event) => {
   }
 }, true);
 window.addEventListener('load', scheduleTrendFinalDisplay);
-try{
-  const trendObserver = new MutationObserver(() => scheduleTrendFinalDisplay());
-  const trendTargets = [document.querySelector('.bottom-nav'), document.querySelector('#gnbSheet'), document.querySelector('#allMenuGrid')].filter(Boolean);
-  trendTargets.forEach(target => trendObserver.observe(target, { childList:true, subtree:true }));
-}catch(_){}
-
+// v109: MutationObserver 기반 배지 재동기화는 탭 이동 시 깜빡임/반복 렌더를 만들 수 있어 제거합니다.
 scheduleTrendFinalDisplay();
 
 // AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
@@ -29655,27 +29653,28 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 
 
 <!-- ===== 더운정픽 v108: 배지 즉시 렌더 + 재렌더 깜빡임 방지 ===== -->
-<script id="upick-v108-stable-inline-badge">
+<script id="upick-v109-stable-badge-source">
 (function(){
   'use strict';
+  const rafState = { id:0 };
+  const cache = { newSet:new Set(), hotKey:'', popularKey:'', recentKey:'', stamp:0 };
   function qs(sel, root){ return (root || document).querySelector(sel); }
   function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function key(v){ return String(v || '').replace(/^#|^\//,'').trim(); }
-  function norm(v){ return key(v).toLowerCase(); }
-  function isFixed(v){ v = norm(v); return v === 'home' || v === 'all'; }
+  function norm(v){ return String(v || '').replace(/^#|^\//,'').trim().toLowerCase(); }
+  function fixed(k){ k=norm(k); return k === 'home' || k === 'all'; }
   function splitTokens(v){
     const out=[];
-    if(v === undefined || v === null || v === false) return out;
-    if(Array.isArray(v)) v.forEach(x => out.push.apply(out, splitTokens(x)));
-    else if(typeof v === 'object') Object.keys(v).forEach(k => { if(v[k]) out.push(k); });
-    else String(v).split(/[\s,|/]+/).forEach(x => { x=norm(x); if(x) out.push(x); });
+    if(v == null || v === false) return out;
+    if(Array.isArray(v)){ v.forEach(x => out.push(...splitTokens(x))); return out; }
+    if(typeof v === 'object'){ Object.keys(v).forEach(k => { if(v[k]) out.push(norm(k)); }); return out; }
+    String(v).split(/[\s,|/]+/).forEach(x => { x=norm(x); if(x) out.push(x); });
     return out;
   }
-  function menuKeys(menu){
+  function keysOf(menu){
     if(!menu) return [];
-    return [menu.menuId, menu.view, menu.route, menu.id, menu.key, menu.slug].map(norm).filter(Boolean);
+    return [menu.menuId, menu.id, menu.view, menu.route, menu.key, menu.slug].map(norm).filter(Boolean);
   }
-  function elKeys(el){
+  function keysOfEl(el){
     if(!el) return [];
     return [
       el.dataset && el.dataset.viewLink,
@@ -29686,135 +29685,137 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
       el.getAttribute && el.getAttribute('data-gnb-dynamic-menu')
     ].map(norm).filter(Boolean);
   }
-  function menuTokens(menu){
+  function tokensOf(menu){
     const fields = ['sections','section','tags','tag','menuSections','menuSection','placements','placement','areas','area','showIn','targets','target','badge','badges','menuBadge','statusBadge','ribbon','ribbonType','displayBadge','featureBadge','trendBadge'];
     const out=[];
-    fields.forEach(k => out.push.apply(out, splitTokens(menu && menu[k])));
+    fields.forEach(f => out.push(...splitTokens(menu && menu[f])));
     return out;
   }
+  function findMenu(k){
+    k=norm(k);
+    try{
+      const menus = Array.isArray(gnbMenuCache) ? gnbMenuCache : (Array.isArray(window.gnbMenuCache) ? window.gnbMenuCache : []);
+      return menus.find(m => keysOf(m).includes(k)) || null;
+    }catch(_){ return null; }
+  }
   function currentView(){
-    try{ if(window.state && window.state.view) return key(window.state.view); }catch(_){ }
-    return key(qs('.bottom-nav [data-view-link].active')?.dataset?.viewLink || qs('.bottom-nav [data-view].active')?.dataset?.view || qs('.view.active')?.id?.replace(/^view-/,'') || 'home');
+    try{ if(window.state && window.state.view) return norm(window.state.view); }catch(_){ }
+    const active = qs('.bottom-nav [data-view-link].active,.bottom-nav [data-view].active');
+    return norm(active?.dataset?.viewLink || active?.dataset?.view || 'home');
   }
-  function renderedSet(selector){
-    const set = new Set();
-    qsa(selector).forEach(el => elKeys(el).forEach(k => { if(k && !isFixed(k)) set.add(k); }));
-    return set;
-  }
-  function renderedFirst(selector){
+  function firstRendered(selector){
     for(const el of qsa(selector)){
-      const k = elKeys(el).find(x => x && !isFixed(x));
+      const k = keysOfEl(el).find(x => x && !fixed(x));
       if(k) return k;
     }
     return '';
   }
-  function sourceFromDb(){
+  function readSources(){
     const newSet = new Set();
+    let hotKey = '';
+    let recentKey = '';
+
     try{
-      const menus = (typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)) ? gnbMenuCache : (Array.isArray(window.gnbMenuCache) ? window.gnbMenuCache : []);
+      const menus = Array.isArray(gnbMenuCache) ? gnbMenuCache : (Array.isArray(window.gnbMenuCache) ? window.gnbMenuCache : []);
       menus.forEach(m => {
-        const tokens = menuTokens(m);
-        if(tokens.includes('new')) menuKeys(m).forEach(k => { if(!isFixed(k)) newSet.add(k); });
+        const t = tokensOf(m);
+        if(t.includes('new')) keysOf(m).forEach(k => { if(!fixed(k)) newSet.add(k); });
       });
     }catch(_){ }
-    let popularKey='';
+
+    // GNB의 "새로 나왔어요" 렌더 결과도 보조 소스로 사용합니다. 단, source가 비어있을 때만 보정합니다.
+    qsa('#gnbNewMenus [data-view-link],#gnbNewMenus [data-gnb-dynamic-menu]').forEach(el => {
+      keysOfEl(el).forEach(k => { if(!fixed(k)) newSet.add(k); });
+    });
+
     try{
-      const m = (typeof popularGnbStatsMap !== 'undefined') ? popularGnbStatsMap : window.popularGnbStatsMap;
-      if(m && typeof m.forEach === 'function'){
-        let best=null;
-        m.forEach((stat,id) => {
-          const k = norm((stat && (stat.menuId || stat.id || stat.view)) || id);
-          const c = Number((stat && (stat.totalClickCount || stat.clickCount || clicks || stat.count || stat.viewCount)) || 0);
-          if(k && !isFixed(k) && c > 0 && (!best || c > best.count)) best = {key:k,count:c};
+      const stats = (typeof popularGnbStatsMap !== 'undefined') ? popularGnbStatsMap : window.popularGnbStatsMap;
+      if(stats && typeof stats.forEach === 'function'){
+        let best = null;
+        stats.forEach((stat, id) => {
+          const k = norm((stat && (stat.menuId || stat.id || stat.view || stat.route)) || id);
+          const c = Number((stat && (stat.totalClickCount || stat.clickCount || stat.count || stat.viewCount || stat.cardClickCount)) || 0);
+          if(k && !fixed(k) && c > 0 && (!best || c > best.count)) best = { key:k, count:c };
         });
-        if(best) popularKey=best.key;
+        if(best) hotKey = best.key;
       }
     }catch(_){ }
-    try{
-      if(!popularKey){
-        const s = (typeof popularGnbMenuIdSet !== 'undefined') ? popularGnbMenuIdSet : window.popularGnbMenuIdSet;
-        if(s) popularKey = Array.from(s).map(norm).find(k => k && !isFixed(k)) || '';
-      }
-    }catch(_){ }
-    return {newSet, popularKey};
-  }
-  const cache = { newSet:new Set(), popularKey:'', recentKey:'', ready:false };
-  function refreshSource(){
-    const db = sourceFromDb();
-    const renderedNew = renderedSet('#gnbNewMenus [data-view-link],#gnbNewMenus [data-gnb-dynamic-menu]');
-    renderedNew.forEach(k => db.newSet.add(k));
-    const popularRendered = renderedFirst('#gnbPopularMenus [data-view-link],#gnbPopularMenus [data-gnb-dynamic-menu]');
-    const recentRendered = renderedFirst('#gnbRecentMenus [data-view-link],#gnbRecentMenus [data-gnb-dynamic-menu]');
-    if(db.newSet.size || renderedNew.size) cache.newSet = db.newSet;
-    if(db.popularKey || popularRendered) cache.popularKey = popularRendered || db.popularKey;
-    if(recentRendered) cache.recentKey = recentRendered;
-    cache.ready = true;
+    if(!hotKey){
+      try{
+        const set = (typeof popularGnbMenuIdSet !== 'undefined') ? popularGnbMenuIdSet : window.popularGnbMenuIdSet;
+        hotKey = Array.from(set || []).map(norm).find(k => k && !fixed(k)) || '';
+      }catch(_){ }
+    }
+    // GNB 인기 메뉴에 실제로 보이는 1순위가 있으면 최종 화면 기준으로 우선합니다.
+    hotKey = firstRendered('#gnbPopularMenus [data-view-link],#gnbPopularMenus [data-gnb-dynamic-menu]') || hotKey;
+    recentKey = firstRendered('#gnbRecentMenus [data-view-link],#gnbRecentMenus [data-gnb-dynamic-menu]') || '';
+
+    cache.newSet = newSet;
+    cache.hotKey = hotKey;
+    cache.popularKey = hotKey;
+    cache.recentKey = recentKey;
+    cache.stamp = Date.now();
     return cache;
   }
-  function flagsForKeys(keys){
-    const src = refreshSource();
+  function flags(keys){
+    const src = readSources();
     keys = (Array.isArray(keys) ? keys : [keys]).map(norm).filter(Boolean);
-    const has = k => keys.includes(k);
     return {
       new: keys.some(k => src.newSet.has(k)),
-      hot: !!src.popularKey && has(src.popularKey),
-      popular: !!src.popularKey && has(src.popularKey),
-      recent: !!src.recentKey && has(src.recentKey)
+      hot: !!src.hotKey && keys.includes(src.hotKey),
+      popular: !!src.popularKey && keys.includes(src.popularKey),
+      recent: !!src.recentKey && keys.includes(src.recentKey)
     };
   }
-  function flagsForView(v){ return flagsForKeys([v]); }
-  function flagsForMenu(menu){ return flagsForKeys(menuKeys(menu)); }
-  function setHtml(el, html){ if(el && el.__upickBadgeHtml !== html){ el.innerHTML = html; el.__upickBadgeHtml = html; } }
+  function flagsForMenu(menu){ return flags(keysOf(menu)); }
+  function flagsForView(v){
+    const k = norm(v);
+    const menu = findMenu(k);
+    return flags(menu ? keysOf(menu) : [k]);
+  }
+  function ensureText(el, text){ if(el && el.textContent !== text) el.textContent = text; }
+  function ensureClass(el, cls){ if(el && el.className !== cls) el.className = cls; }
+  function setHtml(el, html){ if(el && el.__upickV109Html !== html){ el.innerHTML = html; el.__upickV109Html = html; } }
 
-  function ribbonHtml(f, baseClass){
-    if(f.hot) return '<span class="'+(baseClass||'all-menu-ribbon')+' new-source-trending">HOT</span>';
-    if(f.new) return '<span class="'+(baseClass||'all-menu-ribbon')+' new-source-manual">NEW</span>';
-    return '';
-  }
-  function sideHtml(f){
-    let h='';
-    if(f.popular) h += '<span class="all-menu-badge popular">인기</span>';
-    if(f.recent) h += '<span class="all-menu-badge recent">최근</span>';
-    return h;
-  }
-  function decorateCard(card){
-    if(!card) return;
-    const k = elKeys(card)[0] || norm(card.dataset && (card.dataset.viewLink || card.dataset.gnbDynamicMenu));
+  function decorateAllCard(card){
+    const k = keysOfEl(card)[0];
     if(!k) return;
     const f = flagsForView(k);
     let ribbon = card.querySelector(':scope > .all-menu-ribbon, :scope > .menu-trend-ribbon');
-    const rText = f.hot ? 'HOT' : (f.new ? 'NEW' : '');
-    if(rText){
+    const label = f.hot ? 'HOT' : (f.new ? 'NEW' : '');
+    if(label){
       if(!ribbon){ ribbon=document.createElement('span'); card.insertAdjacentElement('afterbegin', ribbon); }
-      const cls = 'all-menu-ribbon ' + (f.hot ? 'new-source-trending' : 'new-source-manual');
-      if(ribbon.className !== cls) ribbon.className = cls;
-      if(ribbon.textContent !== rText) ribbon.textContent = rText;
+      ensureClass(ribbon, 'all-menu-ribbon ' + (f.hot ? 'new-source-trending' : 'new-source-manual'));
+      ensureText(ribbon, label);
     }else if(ribbon){ ribbon.remove(); }
+
     let wrap = card.querySelector(':scope > .all-menu-badge-wrap, :scope > .menu-trend-badge-wrap');
-    const side = sideHtml(f);
-    if(side){
+    let html = '';
+    if(f.popular) html += '<span class="all-menu-badge popular">인기</span>';
+    if(f.recent) html += '<span class="all-menu-badge recent">최근</span>';
+    if(html){
       if(!wrap){ wrap=document.createElement('span'); wrap.className='all-menu-badge-wrap'; card.insertAdjacentElement('afterbegin', wrap); }
-      setHtml(wrap, side);
+      setHtml(wrap, html);
     }else if(wrap){ wrap.remove(); }
   }
-  function decorateAll(){ qsa('#allMenuGrid .all-menu-card').forEach(decorateCard); }
+  function decorateAll(){ qsa('#allMenuGrid .all-menu-card').forEach(decorateAllCard); }
   function decorateBottom(){
     qsa('.bottom-nav [data-view-link],.bottom-nav [data-view]').forEach(btn => {
-      const k = elKeys(btn)[0];
+      const k = keysOfEl(btn)[0];
       let dot = btn.querySelector(':scope > .nav-robot-trend-badge, :scope > .nav-badge-dot, :scope > .nav-final-trend-badge, :scope > .nav-mini-trend');
-      if(!k || isFixed(k)){ if(dot) dot.remove(); return; }
+      if(!k || fixed(k)){ if(dot) dot.remove(); return; }
       const f = flagsForView(k);
       const type = f.hot ? 'hot' : (f.new ? 'new' : '');
       if(type){
         if(!dot){ dot=document.createElement('span'); dot.setAttribute('aria-hidden','true'); btn.insertAdjacentElement('afterbegin', dot); }
-        const cls='nav-robot-trend-badge '+type;
-        if(dot.className !== cls) dot.className = cls;
+        ensureClass(dot, 'nav-robot-trend-badge ' + type);
       }else if(dot){ dot.remove(); }
     });
   }
-  function decorateHero(){
-    const hero = qs('#upickGlobalHero'); if(!hero) return;
-    const f = flagsForView(currentView());
+  function decorateHero(view){
+    const hero = qs('#upickGlobalHero');
+    if(!hero) return;
+    const f = flagsForView(view || currentView());
     const parts=[];
     if(f.hot) parts.push('<span class="global-hero-trend-badge hot">HOT</span>');
     else if(f.new) parts.push('<span class="global-hero-trend-badge new">NEW</span>');
@@ -29824,74 +29825,78 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
     const html = parts.join('');
     if(html){
       if(!wrap){
-        wrap=document.createElement('span'); wrap.className='global-hero-trend-badges';
-        const target = qs('#globalHeroKicker', hero) || qs('.eyebrow', hero);
+        wrap=document.createElement('span');
+        wrap.className='global-hero-trend-badges';
+        const target=qs('#globalHeroKicker', hero) || qs('.eyebrow', hero);
         if(target) target.insertAdjacentElement('afterend', wrap);
       }
       setHtml(wrap, html);
     }else if(wrap){ wrap.remove(); }
   }
-  function syncGlobalProfile(){
-    const hero = qs('#upickGlobalHero'); if(!hero) return;
-    const img = qs('#globalUserChip .user-avatar img', hero); if(!img) return;
-    let src = '';
-    try{ if(typeof window.getProfileImageUrl === 'function') src = window.getProfileImageUrl() || ''; }catch(_){ }
-    try{ const p = window.state && window.state.currentUserProfile; src = src || (p && (p.profileImageUrl || p.photoUrl || p.avatarUrl)) || ''; }catch(_){ }
-    const sourceImg = qs('#userChip .user-avatar img');
-    src = src || (sourceImg && sourceImg.getAttribute('src')) || '/icons/internal/user.svg';
+  function syncProfile(){
+    const hero=qs('#upickGlobalHero'); if(!hero) return;
+    const img=qs('#globalUserChip .user-avatar img', hero); if(!img) return;
+    let src='';
+    try{ const p=window.state && window.state.currentUserProfile; src = (p && (p.profileImageUrl || p.photoUrl || p.avatarUrl)) || ''; }catch(_){ }
+    const source=qs('#userChip .user-avatar img');
+    src = src || source?.getAttribute('src') || '/icons/internal/user.svg';
     if(img.getAttribute('src') !== src) img.setAttribute('src', src);
-    const av = qs('#globalUserChip .user-avatar', hero);
-    if(av) av.classList.toggle('has-photo', !/user\.svg|avatar-default|default/i.test(src));
+    qs('#globalUserChip .user-avatar', hero)?.classList.toggle('has-photo', !/user\.svg|avatar-default|default/i.test(src));
   }
-  function syncGlobalStats(){
-    try{
-      const hero = qs('#upickGlobalHero'); if(!hero) return;
-      const max = qs('#statMaxDiscount')?.textContent || qs('#globalStatMax')?.textContent;
-      const count = qs('#statBenefitCount')?.textContent || qs('#globalStatCount')?.textContent;
-      const cat = qs('#statCategoryCount')?.textContent || qs('#globalStatCat')?.textContent;
-      if(max && qs('#globalStatMax', hero)) qs('#globalStatMax', hero).textContent = max;
-      if(count && qs('#globalStatCount', hero)) qs('#globalStatCount', hero).textContent = count;
-      if(cat && qs('#globalStatCat', hero)) qs('#globalStatCat', hero).textContent = cat;
-    }catch(_){ }
+  function syncStats(){
+    const hero=qs('#upickGlobalHero'); if(!hero) return;
+    const pairs=[['#globalStatMax','#statMax,#statMaxDiscount'],['#globalStatCount','#statCount,#statBenefitCount'],['#globalStatCat','#statCat,#statCategoryCount']];
+    pairs.forEach(([a,b])=>{ const dest=qs(a,hero); const src=qs(b); if(dest && src && src.textContent && dest.textContent !== src.textContent) dest.textContent=src.textContent; });
   }
-  function applyAll(){ syncGlobalProfile(); syncGlobalStats(); decorateAll(); decorateBottom(); decorateHero(); }
-  let raf=0;
-  function schedule(){ if(raf) return; raf=requestAnimationFrame(() => { raf=0; applyAll(); }); }
+  function apply(view){ syncProfile(); syncStats(); decorateAll(); decorateBottom(); decorateHero(view); }
+  function schedule(view){
+    window.__upickLastBadgeView = view || window.__upickLastBadgeView || currentView();
+    if(rafState.id) return;
+    rafState.id = requestAnimationFrame(() => {
+      rafState.id = 0;
+      apply(window.__upickLastBadgeView || currentView());
+    });
+  }
 
-  // render 단계에서 바로 배지 HTML이 포함되도록 전역 helper를 먼저 고정한다.
-  try{ window.isMenuNew = isMenuNew = menu => !!flagsForMenu(menu).new; }catch(_){ window.isMenuNew = menu => !!flagsForMenu(menu).new; }
-  try{ window.isTrendingMenu = isTrendingMenu = menu => !!flagsForMenu(menu).hot; }catch(_){ window.isTrendingMenu = menu => !!flagsForMenu(menu).hot; }
-  try{ window.getMenuTrendFlags = getMenuTrendFlags = menu => { const f=flagsForMenu(menu); return {isNew:f.new,isHot:f.hot,isPopular:f.popular,isRecent:f.recent}; }; }catch(_){ window.getMenuTrendFlags = menu => { const f=flagsForMenu(menu); return {isNew:f.new,isHot:f.hot,isPopular:f.popular,isRecent:f.recent}; }; }
-  try{ window.makeNewRibbonHtml = makeNewRibbonHtml = (baseClass, menu) => ribbonHtml(flagsForMenu(menu), baseClass); }catch(_){ window.makeNewRibbonHtml = (baseClass, menu) => ribbonHtml(flagsForMenu(menu), baseClass); }
-  try{ window.getAllMenuBadge = getAllMenuBadge = menu => { const f=flagsForMenu(menu), a=[]; if(f.popular)a.push({label:'인기',className:'popular'}); if(f.recent)a.push({label:'최근',className:'recent'}); return a; }; }catch(_){ window.getAllMenuBadge = menu => { const f=flagsForMenu(menu), a=[]; if(f.popular)a.push({label:'인기',className:'popular'}); if(f.recent)a.push({label:'최근',className:'recent'}); return a; }; }
-
-  function wrap(name, afterAsync){
-    try{
-      const old = window[name] || eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
-      if(typeof old !== 'function' || old.__upickV108) return;
-      const wrapped = function(){
-        const r = old.apply(this, arguments);
-        if(afterAsync && r && typeof r.then === 'function') return r.then(v => { schedule(); return v; });
-        schedule();
-        return r;
-      };
-      wrapped.__upickV108 = true;
-      try{ eval(name+' = wrapped'); }catch(_){ }
-      window[name] = wrapped;
-    }catch(_){ }
-  }
-  ['renderDynamicAllMenus','renderDynamicBottomNav','renderDynamicGnbMenus','renderAll','updateCommonHero','updateGlobalHero','updateBottomNavActiveState','changeView'].forEach(n => wrap(n, false));
-  ['loadGnbMenusFromDb','loadPopularGnbMenus','loadRecentGnbMenus'].forEach(n => wrap(n, true));
-  document.addEventListener('click', e => {
-    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem')) schedule();
-  }, true);
-  document.addEventListener('upick:view-change', schedule);
+  // 렌더 함수에서 바로 동일한 기준을 쓰도록 helper를 고정합니다.
+  window.isMenuNew = function(menu){ return !!flagsForMenu(menu).new; };
+  window.isTrendingMenu = function(menu){ return !!flagsForMenu(menu).hot; };
+  window.getMenuTrendFlags = function(menu){ const f=flagsForMenu(menu); return {isNew:f.new,isHot:f.hot,isPopular:f.popular,isRecent:f.recent}; };
+  window.makeNewRibbonHtml = function(baseClass, menu){ const f=flagsForMenu(menu); if(f.hot) return '<span class="'+(baseClass||'all-menu-ribbon')+' new-source-trending">HOT</span>'; if(f.new) return '<span class="'+(baseClass||'all-menu-ribbon')+' new-source-manual">NEW</span>'; return ''; };
+  window.getAllMenuBadge = function(menu){ const f=flagsForMenu(menu), a=[]; if(f.popular)a.push({label:'인기',className:'popular'}); if(f.recent)a.push({label:'최근',className:'recent'}); return a; };
   window.upickFinalBadgeSync = schedule;
   window.decorateAllMenuCards = decorateAll;
   window.syncBottomNavDotBadgesFinal = decorateBottom;
   window.syncBottomNavTrendBadgesFinal = decorateBottom;
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
+
+  // changeView 이후 현재 view 기준으로 히어로/하단/전체 메뉴 배지를 즉시 동기화합니다.
+  try{
+    const oldChangeView = window.changeView || (typeof changeView !== 'undefined' ? changeView : null);
+    if(typeof oldChangeView === 'function' && !oldChangeView.__upickV109){
+      const wrapped = function(nextView){
+        const r = oldChangeView.apply(this, arguments);
+        schedule(nextView || currentView());
+        setTimeout(() => schedule(nextView || currentView()), 60);
+        return r;
+      };
+      wrapped.__upickV109 = true;
+      try{ changeView = wrapped; }catch(_){ }
+      window.changeView = wrapped;
+    }
+  }catch(_){ }
+
+  document.addEventListener('click', function(e){
+    const t = e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem,.gnb-chip');
+    if(!t) return;
+    const v = t.dataset && (t.dataset.viewLink || t.dataset.view || t.dataset.gnbDynamicMenu);
+    schedule(v || currentView());
+    setTimeout(() => schedule(v || currentView()), 80);
+  }, true);
+
+  document.addEventListener('upick:view-change', e => schedule((e.detail && e.detail.view) || currentView()));
+  window.addEventListener('load', () => { schedule(currentView()); setTimeout(() => schedule(currentView()), 900); }, {once:true});
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => schedule(currentView()), {once:true});
+  else schedule(currentView());
 })();
 </script>
 
