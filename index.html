@@ -2191,6 +2191,163 @@ body{
 }
 </style>
 
+
+<style id="upick-v41-logo-loader-motion">
+/* ===== 더운정픽 v41: 로딩바 중앙 로고 모션 강화 =====
+   - 기존 로딩 구조는 유지
+   - 중앙 심볼에 float + breathe + subtle rotate 적용
+   - 하단 캡슐 로딩바는 왕복 shimmer
+*/
+.page-loader,
+.global-loading,
+#pageLoader{
+  background:
+    radial-gradient(circle at 50% 45%, rgba(96,165,250,.18), transparent 34%),
+    linear-gradient(180deg, rgba(7,18,42,.36), rgba(7,18,42,.22)) !important;
+  backdrop-filter:blur(18px) saturate(130%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(130%) !important;
+}
+
+.page-loader .loader-mark,
+.global-loading .loader-mark,
+#pageLoader .loader-mark{
+  position:relative !important;
+  width:104px !important;
+  height:104px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+  transform-origin:center center !important;
+  animation:upickLoaderMarkFloatV41 1.25s ease-in-out infinite !important;
+  filter:drop-shadow(0 18px 34px rgba(2,8,23,.20)) !important;
+}
+
+/* 기존 막대형 arm 잔상 제거 */
+.page-loader .loader-mark .arm,
+.global-loading .loader-mark .arm,
+#pageLoader .loader-mark .arm{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+/* 중앙 로고 자체가 살아 움직이는 느낌 */
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before,
+#pageLoader .loader-mark::before{
+  content:"" !important;
+  width:78px !important;
+  height:78px !important;
+  display:block !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  border:none !important;
+  box-shadow:none !important;
+  transform-origin:center center !important;
+  animation:
+    upickLoaderLogoBreatheV41 1.25s ease-in-out infinite,
+    upickLoaderLogoTiltV41 2.8s ease-in-out infinite !important;
+  filter:
+    drop-shadow(0 8px 16px rgba(7,26,61,.16))
+    drop-shadow(0 0 18px rgba(96,165,250,.14)) !important;
+}
+
+/* 로고 뒤쪽 은은한 빛 */
+.page-loader .loader-mark .loader-glow,
+.global-loading .loader-mark .loader-glow,
+#pageLoader .loader-mark .loader-glow{
+  display:none !important;
+}
+.page-loader .loader-mark::selection,
+.global-loading .loader-mark::selection,
+#pageLoader .loader-mark::selection{
+  background:transparent;
+}
+
+/* 하단 캡슐 로딩바 */
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::after,
+#pageLoader .loader-mark::after{
+  content:"" !important;
+  position:absolute !important;
+  left:50% !important;
+  bottom:-12px !important;
+  width:86px !important;
+  height:8px !important;
+  border-radius:999px !important;
+  transform:translateX(-50%) !important;
+  background:
+    linear-gradient(90deg,
+      rgba(147,197,253,.12) 0%,
+      rgba(147,197,253,.34) 18%,
+      rgba(96,165,250,.98) 50%,
+      rgba(37,99,235,.52) 68%,
+      rgba(147,197,253,.14) 100%) !important;
+  background-size:220% 100% !important;
+  box-shadow:
+    0 0 18px rgba(96,165,250,.36),
+    inset 0 1px 0 rgba(255,255,255,.24) !important;
+  animation:upickLoaderBarSweepV41 1.05s ease-in-out infinite !important;
+}
+
+/* 실제 img 방식으로 들어간 경우도 동일 적용 */
+.page-loader .loader-mark img,
+.global-loading .loader-mark img,
+#pageLoader .loader-mark img{
+  content:url('/icons/internal/brand-symbol-real.png') !important;
+  width:78px !important;
+  height:78px !important;
+  object-fit:contain !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  animation:
+    upickLoaderLogoBreatheV41 1.25s ease-in-out infinite,
+    upickLoaderLogoTiltV41 2.8s ease-in-out infinite !important;
+  filter:
+    drop-shadow(0 8px 16px rgba(7,26,61,.16))
+    drop-shadow(0 0 18px rgba(96,165,250,.14)) !important;
+}
+
+@keyframes upickLoaderMarkFloatV41{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-5px) scale(1.018); }
+}
+@keyframes upickLoaderLogoBreatheV41{
+  0%,100%{ opacity:.94; transform:scale(1); }
+  50%{ opacity:1; transform:scale(1.075); }
+}
+@keyframes upickLoaderLogoTiltV41{
+  0%,100%{ rotate:0deg; }
+  25%{ rotate:-2.5deg; }
+  75%{ rotate:2.5deg; }
+}
+@keyframes upickLoaderBarSweepV41{
+  0%{ width:64px; opacity:.52; background-position:0% 50%; }
+  50%{ width:98px; opacity:1; background-position:100% 50%; }
+  100%{ width:64px; opacity:.52; background-position:0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .page-loader .loader-mark,
+  .global-loading .loader-mark,
+  #pageLoader .loader-mark,
+  .page-loader .loader-mark::before,
+  .global-loading .loader-mark::before,
+  #pageLoader .loader-mark::before,
+  .page-loader .loader-mark::after,
+  .global-loading .loader-mark::after,
+  #pageLoader .loader-mark::after,
+  .page-loader .loader-mark img,
+  .global-loading .loader-mark img,
+  #pageLoader .loader-mark img{
+    animation:none !important;
+  }
+}
+</style>
+
 </head>
 <body>
     <div class="wrap">
