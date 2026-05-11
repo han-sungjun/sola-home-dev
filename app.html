@@ -48,7 +48,7 @@
  .filter-sticky{position:sticky;top:0;z-index:10;display:flex;flex-direction:column;gap:12px;padding:12px 0 14px;margin-bottom:10px;background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,1) 82%,rgba(248,250,252,.98) 100%);backdrop-filter:blur(10px)}.searchbox{display:flex;align-items:center;gap:12px;padding:16px 18px}.searchbox input{border:none;outline:none;background:transparent;flex:1;color:var(--text)}.chips{display:flex;flex-wrap:nowrap;gap:10px;padding:6px 2px 4px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-x}.chips.expanded{max-height:none}.chips::-webkit-scrollbar{display:none}.chips.dragging{cursor:grabbing;scroll-behavior:auto}.chips.dragging .chip{pointer-events:none}.chips-toggle{display:none;text-align:center;margin-top:2px;margin-bottom:2px}.chips-toggle-btn{font-size:12px;padding:8px 14px}.chip{white-space:nowrap;border:none;border-radius:999px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--muted);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}.chip.active{background:var(--primary);color:#fff;font-weight:700}.chip-icon{font-size:13px;line-height:1;display:inline-flex;align-items:center}
  .section-head{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 2px}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.list{display:grid;gap:14px}.card{background:#fff;border:1px solid var(--line-soft);border-radius:24px;padding:18px;box-shadow:var(--shadow);transition:transform .15s ease;cursor:pointer}.card:hover{transform:translateY(-1px)}.card-top{display:flex;gap:12px;align-items:flex-start}.badge{min-width:72px;padding:12px 10px;border-radius:18px;text-align:center;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));flex:0 0 auto}.badge.service{background:linear-gradient(135deg,#22c55e,#0f766e);font-size:14px}.badge.hot{background:linear-gradient(135deg,#ef4444,#f97316)}.badge.mid{background:linear-gradient(135deg,#f97316,#f59e0b)}.badge.normal{background:linear-gradient(135deg,#2563eb,#06b6d4)}.badge.low{background:linear-gradient(135deg,#64748b,#334155)}.card h4{margin:0 0 6px;font-size:18px;letter-spacing:-.03em}.meta{color:var(--muted);font-size:13px;line-height:1.45}
  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}
-.benefit-status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.status-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border-radius:999px;border:1px solid var(--line);font-size:11px;font-weight:900;line-height:1.1}.status-chip.compact-status{width:24px;height:24px;padding:0;justify-content:center;font-size:0}.status-chip.compact-status::before{font-size:12px;line-height:1}.status-chip.compact-store-preparing::before{content:'🛠️'}.status-chip.compact-store-active::before{content:'🏪'}.status-chip.compact-store-paused::before{content:'⏸️'}.status-chip.compact-store-closed::before{content:'🌙'}.status-chip.compact-store-shutdown::before{content:'🚫'}.status-chip.compact-store-reopened::before{content:'🎉'}.status-chip.compact-store-hidden::before{content:'🙈'}.status-chip.compact-benefit-preparing::before{content:'🔜'}.status-chip.compact-benefit-active::before{content:'✅'}.status-chip.compact-benefit-ended::before{content:'🏁'}.status-chip.compact-benefit-none::before{content:'➖'}.status-chip.compact-benefit-resumed::before{content:'🔄'}.status-store-preparing{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}.status-store-active{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}.status-store-paused{background:#fffbeb;border-color:#fde68a;color:#92400e}.status-store-closed{background:#f8fafc;border-color:#cbd5e1;color:#475569}.status-store-shutdown{background:#111827;border-color:#111827;color:#fff}.status-store-reopened{background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9;box-shadow:0 0 0 3px rgba(124,58,237,.08)}.status-benefit-preparing{background:#f0f9ff;border-color:#bae6fd;color:#0369a1}.status-benefit-active{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}.status-benefit-ended{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.status-benefit-none{background:#f1f5f9;border-color:#cbd5e1;color:#475569}.status-benefit-resumed{background:#f0fdf4;border-color:#86efac;color:#166534;box-shadow:0 0 0 3px rgba(34,197,94,.10)}.card.status-muted{opacity:.86}.card.status-shutdown{filter:grayscale(.28)}.status-reason-line{margin-top:7px;color:#64748b;font-size:12px;line-height:1.45}
+.benefit-status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.status-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border-radius:999px;border:1px solid var(--line);font-size:11px;font-weight:900;line-height:1.1}.status-chip.compact-status{width:24px;height:24px;padding:0;justify-content:center;font-size:0}.status-chip.compact-status::before{content:'';display:block;width:13px;height:13px;background:currentColor;-webkit-mask:var(--status-icon) center/contain no-repeat;mask:var(--status-icon) center/contain no-repeat}.status-chip.compact-store-preparing{--status-icon:url('/icons/internal/wrench.svg')}.status-chip.compact-store-active{--status-icon:url('/icons/internal/store.svg')}.status-chip.compact-store-paused{--status-icon:url('/icons/internal/pause.svg')}.status-chip.compact-store-closed{--status-icon:url('/icons/internal/moon.svg')}.status-chip.compact-store-shutdown{--status-icon:url('/icons/internal/close-circle.svg')}.status-chip.compact-store-reopened{--status-icon:url('/icons/internal/party.svg')}.status-chip.compact-store-hidden{--status-icon:url('/icons/internal/eye-off.svg')}.status-chip.compact-benefit-preparing{--status-icon:url('/icons/internal/arrow-soon.svg')}.status-chip.compact-benefit-active{--status-icon:url('/icons/internal/check-circle.svg')}.status-chip.compact-benefit-ended{--status-icon:url('/icons/internal/flag.svg')}.status-chip.compact-benefit-none{--status-icon:url('/icons/internal/minus.svg')}.status-chip.compact-benefit-resumed{--status-icon:url('/icons/internal/refresh.svg')}.status-store-preparing{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}.status-store-active{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}.status-store-paused{background:#fffbeb;border-color:#fde68a;color:#92400e}.status-store-closed{background:#f8fafc;border-color:#cbd5e1;color:#475569}.status-store-shutdown{background:#111827;border-color:#111827;color:#fff}.status-store-reopened{background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9;box-shadow:0 0 0 3px rgba(124,58,237,.08)}.status-benefit-preparing{background:#f0f9ff;border-color:#bae6fd;color:#0369a1}.status-benefit-active{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}.status-benefit-ended{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.status-benefit-none{background:#f1f5f9;border-color:#cbd5e1;color:#475569}.status-benefit-resumed{background:#f0fdf4;border-color:#86efac;color:#166534;box-shadow:0 0 0 3px rgba(34,197,94,.10)}.card.status-muted{opacity:.86}.card.status-shutdown{filter:grayscale(.28)}.status-reason-line{margin-top:7px;color:#64748b;font-size:12px;line-height:1.45}
 .tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}.actions{display:flex;gap:10px;margin-top:16px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
  .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:100;width:100%;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;background:rgba(15,23,42,.92);color:#cbd5e1;box-shadow:0 10px 30px rgba(15,23,42,.18);backdrop-filter:blur(18px)}.nav-btn{border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .18s ease, background-color .18s ease, color .18s ease}.nav-btn .nav-icon{font-size:18px;line-height:1;display:block;transition:transform .22s ease, filter .22s ease, opacity .18s ease}.nav-btn .nav-label{font-size:14px;font-weight:700;letter-spacing:-.02em}.nav-btn:hover .nav-icon{transform:translateY(-1px)}.nav-btn.active{background:transparent;color:#fff;transform:translateY(-1px);box-shadow:none}.nav-btn.active .nav-icon{animation:navPop .25s ease}.nav-btn:active{transform:scale(.98)}@keyframes navPop{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1)}}.empty,.loading{text-align:center;color:var(--muted);padding:24px 14px}
@@ -1031,6 +1031,7 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 .distance-tag{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;font-weight:900}
 @media (max-width:370px){.distance-filter-row{grid-template-columns:1fr}}
 
+.upick-fav-icon-img{width:22px;height:22px;display:block;object-fit:contain;filter:none}.fav-icon-btn .upick-fav-icon-img{width:24px;height:24px}.actions .fav-btn .upick-fav-icon-img{width:18px;height:18px;margin:auto}.upick-inline-icon{width:15px;height:15px;vertical-align:-2px;margin-right:4px}.upick-contact-icon{width:16px;height:16px;vertical-align:-3px;margin-right:6px}.location-transit .upick-inline-icon{width:14px;height:14px;margin-right:4px;filter:none}.benefit-extra-links .upick-link-icon,.ai-social-links .upick-link-icon{width:14px;height:14px;display:inline-block;object-fit:contain}
 /* 위치 안내: 혜택 상세 지도/네이버 길찾기/거리 표시 */
 .location-panel{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.07)}
 .location-panel .location-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
@@ -3355,11 +3356,7 @@ html, body{overflow-x:hidden;}
  font-size:0;
  background:#fff;
 }
-#cardList.view-list .actions .fav-btn::before{
- content:"☆";
- font-size:18px;
- color:#f59e0b;
-}
+#cardList.view-list .actions .fav-btn::before{content:none!important;}
 #cardList.view-list .card[class*="top-rank"]::after{
  content:"TOP";
  position:absolute;
@@ -3506,11 +3503,7 @@ html, body{overflow-x:hidden;}
  color:#f59e0b;
  border:1px solid #e2e8f0;
 }
-#cardList.view-list .actions .fav-btn::before{
- content:"☆";
- font-size:18px;
- line-height:1;
-}
+#cardList.view-list .actions .fav-btn::before{content:none!important;}
 #cardList.view-list .top-badge,
 #cardList.view-list [class*="top-badge"],
 #cardList.view-list .benefit-top-badge{
@@ -4409,7 +4402,7 @@ nav.bottom-nav{
  display:none !important;
 }
 
-/* 모바일: TOP 배지와 별을 세로로 [TOP][★] 배치 */
+/* 모바일: TOP 배지와 즐겨찾기를 세로 배치 */
 @media(max-width:480px){
  #cardList.view-card .card,
  #favoriteList .card{
@@ -7134,11 +7127,7 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
  font-size:0;
  background:#fff;
 }
-#cardList.view-list .actions .fav-btn::before{
- content:"☆";
- font-size:18px;
- color:#f59e0b;
-}
+#cardList.view-list .actions .fav-btn::before{content:none!important;}
 #cardList.view-list .card[class*="top-rank"]::after{
  content:"TOP";
  position:absolute;
@@ -7285,11 +7274,7 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
  color:#f59e0b;
  border:1px solid #e2e8f0;
 }
-#cardList.view-list .actions .fav-btn::before{
- content:"☆";
- font-size:18px;
- line-height:1;
-}
+#cardList.view-list .actions .fav-btn::before{content:none!important;}
 #cardList.view-list .top-badge,
 #cardList.view-list [class*="top-badge"],
 #cardList.view-list .benefit-top-badge{
@@ -8188,7 +8173,7 @@ nav.bottom-nav{
  display:none !important;
 }
 
-/* 모바일: TOP 배지와 별을 세로로 [TOP][★] 배치 */
+/* 모바일: TOP 배지와 즐겨찾기를 세로 배치 */
 @media(max-width:480px){
  #cardList.view-card .card,
  #favoriteList .card{
@@ -16633,13 +16618,13 @@ function formatTravelDuration(minutes){
  }
 
  const SOCIAL_LINK_DEFS = [
- { key:'homepage', field:'homepageUrl', label:'홈페이지', icon:'', statField:'homepageClickCount' },
- { key:'blog', field:'blogUrl', label:'블로그', icon:'', statField:'blogClickCount' },
- { key:'instagram', field:'instagramUrl', label:'인스타그램', icon:'', statField:'instagramClickCount' },
- { key:'youtube', field:'youtubeUrl', label:'유튜브', icon:'▶️', statField:'youtubeClickCount' },
- { key:'facebook', field:'facebookUrl', label:'페이스북', icon:'f', statField:'facebookClickCount' },
- { key:'smartstore', field:'smartstoreUrl', label:'스마트스토어', icon:'', statField:'smartstoreClickCount' },
- { key:'band', field:'bandUrl', label:'밴드', icon:'icon:notices', statField:'bandClickCount' }
+ { key:'homepage', field:'homepageUrl', label:'홈페이지', icon:'icon:homepage', statField:'homepageClickCount' },
+ { key:'blog', field:'blogUrl', label:'블로그', icon:'icon:blog', statField:'blogClickCount' },
+ { key:'instagram', field:'instagramUrl', label:'인스타그램', icon:'icon:instagram', statField:'instagramClickCount' },
+ { key:'youtube', field:'youtubeUrl', label:'유튜브', icon:'icon:youtube', statField:'youtubeClickCount' },
+ { key:'facebook', field:'facebookUrl', label:'페이스북', icon:'icon:facebook', statField:'facebookClickCount' },
+ { key:'smartstore', field:'smartstoreUrl', label:'스마트스토어', icon:'icon:smartstore', statField:'smartstoreClickCount' },
+ { key:'band', field:'bandUrl', label:'밴드', icon:'icon:band', statField:'bandClickCount' }
  ];
 
  function getBenefitSocialLinks(item = {}){
@@ -16714,7 +16699,7 @@ function getBenefitStations(item={}){
 function renderStationAccessBadges(item={}){
  const stations=getBenefitStations(item);
  if(!stations.length) return '';
- return `<div class="location-transit-wrap">${stations.map(st=>`<div class="location-transit">${escapeHtml(formatStationAccessText(st))}</div>`).join('')}</div>`;
+ return `<div class="location-transit-wrap">${stations.map(st=>`<div class="location-transit"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/location-pin.svg" alt="" loading="lazy" decoding="async">${escapeHtml(formatStationAccessText(st))}</div>`).join('')}</div>`;
 }
 
  function locationPanelHtml(item = {}){
@@ -18796,7 +18781,7 @@ ${item.content || ''}`);
  const distance = getItemDistance(item);
  const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag"><img class="upick-svg-icon" src="/icons/internal/walk.svg" alt="" loading="lazy"> ${formatDistance(distance)}</span>` : '';
  const categoryIcon = getCategoryIcon(item.category);
- const favIcon = isFavorite ? '★' : '☆';
+ const favIcon = `<img class="upick-fav-icon-img" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">`;
  const fullAddress = getBenefitDisplayAddress(item);
  const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
  return `${benefitTopBadgeHtml(item)}
@@ -19530,8 +19515,8 @@ function renderCalendarDayModal(){
  const phone = String(item.phone || item.contact?.phone || '').trim();
  const emergency = String(item.emergencyPhone || item.contact?.emergency || '').trim();
  const rows = [];
- if(phone) rows.push(`<div>📞 ${escapeHtml(phone)}</div>`);
- if(emergency) rows.push(`<div style="margin-top:6px;color:#dc2626;font-weight:800;">🚨 비상연락처: ${escapeHtml(emergency)}</div>`);
+ if(phone) rows.push(`<div><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async">${escapeHtml(phone)}</div>`);
+ if(emergency) rows.push(`<div style="margin-top:6px;color:#dc2626;font-weight:800;"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async">비상연락처: ${escapeHtml(emergency)}</div>`);
  return rows.length ? rows.join('') : '등록된 전화번호가 없습니다.';
  }
  function openDetail(item, options = {}){
@@ -19540,7 +19525,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -19561,7 +19546,7 @@ function renderCalendarDayModal(){
  qs('#modalFavBtn').onclick=async ()=>{
  const isFavorite = await toggleFavorite(item.id, item.name);
  const btn = qs('#modalFavBtn');
- if (btn) btn.textContent = isFavorite ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가';
+ if (btn) btn.innerHTML = `<img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}`;
  };
  qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
  qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
@@ -21018,7 +21003,7 @@ function getAiAttachmentType(item={}){
  const pos = typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
  const distanceText = pos
  ? '현재 위치 기준 거리를 준비 중입니다.'
- : '📍 매장 좌표가 아직 등록되지 않아 주소 기준으로 안내합니다.';
+ : '매장 좌표가 아직 등록되지 않아 주소 기준으로 안내합니다.';
  return `
  <div class="ai-location-detail-card" data-ai-location-benefit-id="${escapeAttr(item.id || '')}">
  <div class="location-title"><strong>위치 안내</strong></div>
@@ -21151,7 +21136,7 @@ function getAiAttachmentType(item={}){
  distanceEl.classList.add('muted');
  return;
  }
- distanceEl.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
+ distanceEl.textContent = `현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
  distanceEl.classList.remove('muted');
  };
 
@@ -23328,7 +23313,18 @@ async function askAiAssistant(rawQuestion=''){
   notice:'/icons/internal/notice.svg',
   settings:'/icons/internal/settings.svg',
   notification:'/icons/internal/notification.svg',
-  push:'/icons/internal/notification.svg'
+  push:'/icons/internal/notification.svg',
+  homepage:'/icons/internal/homepage.svg',
+  blog:'/icons/internal/blog.svg',
+  instagram:'/icons/internal/instagram.svg',
+  youtube:'/icons/internal/youtube.svg',
+  facebook:'/icons/internal/facebook.svg',
+  smartstore:'/icons/internal/store.svg',
+  band:'/icons/internal/notice.svg',
+  phone:'/icons/internal/phone.svg',
+  location:'/icons/internal/location-pin.svg',
+  starFill:'/icons/internal/star-fill.svg',
+  starOutline:'/icons/internal/star-outline.svg'
  };
  function isSafeIconUrl(url=''){
   const value = String(url || '').trim();
