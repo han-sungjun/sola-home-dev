@@ -29628,6 +29628,125 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
+
+
+<!-- ===== v96: HOT/NEW badge stable source + all route sync ===== -->
+<style id="upick-v96-stable-badge-style">
+#upickGlobalHero .global-hero-trend-badges{display:inline-flex!important;align-items:center!important;gap:5px!important;margin-left:6px!important;vertical-align:middle!important;}
+#allMenuGrid .all-menu-card .all-menu-ribbon{pointer-events:none!important;}
+</style>
+<script id="upick-v96-stable-badge-js">
+(function(){
+  'use strict';
+  var timers=[];
+  var DEFAULT_NEW_VIEWS={ai:true,benefits:true,favorite:true,favorites:true,notices:true,calendar:true,top5:true};
+  function qs(sel,root){return (root||document).querySelector(sel);}
+  function qsa(sel,root){return Array.prototype.slice.call((root||document).querySelectorAll(sel));}
+  function key(v){return String(v||'').replace(/^#|^\//,'').trim();}
+  function esc(v){try{return CSS.escape(String(v||''));}catch(_){return String(v||'').replace(/"/g,'\\"');}}
+  function norm(v){v=key(v); return v==='favorites'?'favorite':v;}
+  function visibleView(){
+    var sec=qsa('section[id^="view-"]').find(function(el){return !el.classList.contains('hidden') && getComputedStyle(el).display!=='none';});
+    if(sec && sec.id) return norm(sec.id.replace(/^view-/,''));
+    if(window.state && window.state.view) return norm(window.state.view);
+    var active=qs('.bottom-nav .nav-btn.active');
+    return norm((active&&((active.dataset&&active.dataset.viewLink)||(active.dataset&&active.dataset.view)))||'home');
+  }
+  function menuFor(view){
+    view=norm(view);
+    var m=null;
+    try{ if(typeof window.findMenuByView==='function') m=window.findMenuByView(view); }catch(_){ }
+    try{ if(!m && typeof window.getMenuByIdOrFallback==='function') m=window.getMenuByIdOrFallback(view); }catch(_){ }
+    try{
+      if(!m && Array.isArray(window.gnbMenuCache)){
+        m=window.gnbMenuCache.find(function(x){return [x.menuId,x.view,x.route].map(norm).indexOf(view)>-1;});
+      }
+    }catch(_){ }
+    return m;
+  }
+  function sectionHasNew(view){
+    view=norm(view);
+    if(qs('#gnbNewMenus [data-view-link="'+esc(view)+'"], #gnbNewMenus [data-gnb-dynamic-menu="'+esc(view)+'"]')) return true;
+    var card=qs('#allMenuGrid [data-view-link="'+esc(view)+'"], #allMenuGrid [data-gnb-dynamic-menu="'+esc(view)+'"], #allMenuGrid [data-view="'+esc(view)+'"]');
+    if(card && card.closest && card.closest('[data-section="new"],.new-menu-section,.gnb-new-section')) return true;
+    return false;
+  }
+  function stableFlags(view){
+    view=norm(view||visibleView());
+    var f={hot:false,new:false,popular:false,recent:false};
+    var menu=menuFor(view);
+    if(menu){
+      var sections=Array.isArray(menu.sections)?menu.sections.map(function(x){return String(x).trim();}):[];
+      f.new = sections.indexOf('new')>-1;
+      try{ f.hot = !!(typeof window.isTrendingMenu==='function' && window.isTrendingMenu(menu)); }catch(_){ }
+      try{ var id=String(menu.menuId||view); f.popular=!!(window.popularGnbMenuIdSet && window.popularGnbMenuIdSet.has && window.popularGnbMenuIdSet.has(id)); if(f.popular) f.hot=true; }catch(_){ }
+      try{ var id2=String(menu.menuId||view); f.recent=!!(window.recentGnbMenuIdSet && window.recentGnbMenuIdSet.has && window.recentGnbMenuIdSet.has(id2)); }catch(_){ }
+      try{ var g=typeof window.getMenuTrendFlags==='function' ? window.getMenuTrendFlags(menu) : null; if(g){ f.hot=!!(f.hot||g.isHot||g.hot||g.isPopular||g.popular); f.popular=!!(f.popular||g.isPopular||g.popular); f.recent=!!(f.recent||g.isRecent||g.recent); f.new=!!(f.new||g.isNew||g.new); } }catch(_){ }
+    }
+    // 관리자 NEW 섹션은 날짜와 관계없이 NEW로 고정합니다.
+    if(sectionHasNew(view) || DEFAULT_NEW_VIEWS[view]) f.new=true;
+    // DOM의 기존 HOT 표시는 보조 신호로만 사용합니다. NEW는 자기 자신 ribbon을 읽어 토글되지 않게 소스 기준으로만 계산합니다.
+    qsa('.bottom-nav [data-view-link="'+esc(view)+'"], #gnbSheet [data-view-link="'+esc(view)+'"], [data-gnb-dynamic-menu="'+esc(view)+'"]').forEach(function(el){
+      var txt=(el.textContent||'').toUpperCase();
+      if(txt.indexOf('HOT')>-1 || el.querySelector('.hot,.new-source-trending,.nav-final-trend-badge.hot,.nav-mini-trend.hot')) f.hot=true;
+      if((el.textContent||'').indexOf('인기')>-1 || el.querySelector('.popular')) f.popular=true;
+      if((el.textContent||'').indexOf('최근')>-1 || el.querySelector('.recent')) f.recent=true;
+    });
+    return f;
+  }
+  function heroBadgeHtml(f){
+    var out=[];
+    if(f.hot) out.push('<span class="global-hero-trend-badge hot">HOT</span>');
+    if(f.new) out.push('<span class="global-hero-trend-badge new">NEW</span>');
+    if(f.popular) out.push('<span class="global-hero-trend-badge popular">인기</span>');
+    if(f.recent) out.push('<span class="global-hero-trend-badge recent">최근</span>');
+    return out.join('');
+  }
+  function syncHero(){
+    var hero=qs('#upickGlobalHero'); if(!hero) return;
+    var eyebrow=qs('.eyebrow',hero); if(!eyebrow) return;
+    qsa('.global-hero-trend-badges',hero).forEach(function(el){el.remove();});
+    var html=heroBadgeHtml(stableFlags(visibleView()));
+    if(html) eyebrow.insertAdjacentHTML('beforeend','<span class="global-hero-trend-badges">'+html+'</span>');
+  }
+  function cardKey(card){
+    return norm((card.dataset&& (card.dataset.viewLink||card.dataset.gnbDynamicMenu||card.dataset.view)) || card.getAttribute('data-view-link') || card.getAttribute('data-gnb-dynamic-menu') || card.getAttribute('data-view') || '');
+  }
+  function syncAllCards(){
+    var grid=qs('#allMenuGrid'); if(!grid) return;
+    qsa('.all-menu-card',grid).forEach(function(card){
+      var v=cardKey(card); if(!v) return;
+      qsa(':scope > .all-menu-ribbon, :scope > .menu-trend-ribbon',card).forEach(function(el){el.remove();});
+      var f=stableFlags(v);
+      if(f.hot){card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon new-source-trending">HOT</span>');}
+      else if(f.new){card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon new-source-manual">NEW</span>');}
+    });
+  }
+  function refresh(){syncHero();syncAllCards();}
+  function schedule(){
+    timers.forEach(clearTimeout); timers=[];
+    [0,60,180,420].forEach(function(ms){timers.push(setTimeout(refresh,ms));});
+  }
+  ['click','touchend','keyup'].forEach(function(type){
+    document.addEventListener(type,function(e){
+      if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem,.bottom-nav,#gnbSheet')) schedule();
+    },true);
+  });
+  ['upick:view-change','upick:menu-rendered','upick:gnb-rendered'].forEach(function(ev){document.addEventListener(ev,schedule);});
+  ['changeView','updateView','renderAll','renderDynamicAllMenus','renderDynamicGnbMenus','renderDynamicBottomNav','refreshTrendFinalDisplay','refreshBottomNavFinalTrendBadges'].forEach(function(name){
+    var fn=window[name];
+    if(typeof fn==='function' && !fn.__upickV96StableBadge){
+      window[name]=function(){var r=fn.apply(this,arguments); schedule(); return r;};
+      window[name].__upickV96StableBadge=true;
+    }
+  });
+  window.upickSyncStableBadges=refresh;
+  document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  if(document.readyState!=='loading') schedule();
+  window.addEventListener('load',schedule,{once:true});
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
