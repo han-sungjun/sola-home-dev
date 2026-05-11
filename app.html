@@ -30595,7 +30595,7 @@ section[id^="view-"] > .upick-tab-common-header{
     window.renderDynamicAllMenus.__upickV94Wrapped=true;
   }
   document.addEventListener('click',function(e){
-    if(e.target.closest('[data-view],[data-view-link],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem]')) setTimeout(refreshAll,80);
+    if(e.target.closest('[data-view],[data-view-link],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem')) setTimeout(refreshAll,80);
   },true);
   document.addEventListener('upick:view-change',function(){setTimeout(refreshAll,0)});
   document.addEventListener('DOMContentLoaded',function(){
