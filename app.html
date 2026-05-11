@@ -29651,96 +29651,247 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 .nav-badge-dot.hot,.nav-badge-dot.new{position:absolute!important;right:26%!important;top:10px!important;width:7px!important;height:7px!important;border-radius:999px!important;z-index:5!important;box-shadow:0 0 0 3px rgba(255,255,255,.22)!important;}
 .nav-badge-dot.hot{background:#f97316!important;}.nav-badge-dot.new{background:#3b82f6!important;}
 </style>
-<script id="upick-v102-admin-badge-final-js">
+<!-- upick-v102-admin-badge-final-js removed: consolidated by upick-v108-stable-inline-badge -->
+
+
+<!-- ===== 더운정픽 v108: 배지 즉시 렌더 + 재렌더 깜빡임 방지 ===== -->
+<script id="upick-v108-stable-inline-badge">
 (function(){
   'use strict';
-  function qs(sel, root){return (root||document).querySelector(sel);}
-  function qsa(sel, root){return Array.prototype.slice.call((root||document).querySelectorAll(sel));}
-  function clean(v){return String(v==null?'':v).replace(/^#|^\//,'').trim();}
-  function lower(v){return clean(v).toLowerCase();}
-  function uniq(a){return Array.from(new Set((a||[]).filter(Boolean)));}
-  function isFixed(id){id=lower(id);return id==='home'||id==='all';}
-  function getMenus(){try{return Array.isArray(gnbMenuCache)?gnbMenuCache:[]}catch(_){return [];}}
-  function splitTokens(value){
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+  function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function key(v){ return String(v || '').replace(/^#|^\//,'').trim(); }
+  function norm(v){ return key(v).toLowerCase(); }
+  function isFixed(v){ v = norm(v); return v === 'home' || v === 'all'; }
+  function splitTokens(v){
     const out=[];
-    function add(v){
-      if(v==null||v===false)return;
-      if(Array.isArray(v)){v.forEach(add);return;}
-      if(typeof v==='object'){
-        Object.keys(v).forEach(k=>{const val=v[k]; if(val===true||val==='true'||val===1||val==='1') add(k); else if(typeof val==='string'||typeof val==='number') add(val);});
-        return;
+    if(v === undefined || v === null || v === false) return out;
+    if(Array.isArray(v)) v.forEach(x => out.push.apply(out, splitTokens(x)));
+    else if(typeof v === 'object') Object.keys(v).forEach(k => { if(v[k]) out.push(k); });
+    else String(v).split(/[\s,|/]+/).forEach(x => { x=norm(x); if(x) out.push(x); });
+    return out;
+  }
+  function menuKeys(menu){
+    if(!menu) return [];
+    return [menu.menuId, menu.view, menu.route, menu.id, menu.key, menu.slug].map(norm).filter(Boolean);
+  }
+  function elKeys(el){
+    if(!el) return [];
+    return [
+      el.dataset && el.dataset.viewLink,
+      el.dataset && el.dataset.view,
+      el.dataset && el.dataset.gnbDynamicMenu,
+      el.getAttribute && el.getAttribute('data-view-link'),
+      el.getAttribute && el.getAttribute('data-view'),
+      el.getAttribute && el.getAttribute('data-gnb-dynamic-menu')
+    ].map(norm).filter(Boolean);
+  }
+  function menuTokens(menu){
+    const fields = ['sections','section','tags','tag','menuSections','menuSection','placements','placement','areas','area','showIn','targets','target','badge','badges','menuBadge','statusBadge','ribbon','ribbonType','displayBadge','featureBadge','trendBadge'];
+    const out=[];
+    fields.forEach(k => out.push.apply(out, splitTokens(menu && menu[k])));
+    return out;
+  }
+  function currentView(){
+    try{ if(window.state && window.state.view) return key(window.state.view); }catch(_){ }
+    return key(qs('.bottom-nav [data-view-link].active')?.dataset?.viewLink || qs('.bottom-nav [data-view].active')?.dataset?.view || qs('.view.active')?.id?.replace(/^view-/,'') || 'home');
+  }
+  function renderedSet(selector){
+    const set = new Set();
+    qsa(selector).forEach(el => elKeys(el).forEach(k => { if(k && !isFixed(k)) set.add(k); }));
+    return set;
+  }
+  function renderedFirst(selector){
+    for(const el of qsa(selector)){
+      const k = elKeys(el).find(x => x && !isFixed(x));
+      if(k) return k;
+    }
+    return '';
+  }
+  function sourceFromDb(){
+    const newSet = new Set();
+    try{
+      const menus = (typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)) ? gnbMenuCache : (Array.isArray(window.gnbMenuCache) ? window.gnbMenuCache : []);
+      menus.forEach(m => {
+        const tokens = menuTokens(m);
+        if(tokens.includes('new')) menuKeys(m).forEach(k => { if(!isFixed(k)) newSet.add(k); });
+      });
+    }catch(_){ }
+    let popularKey='';
+    try{
+      const m = (typeof popularGnbStatsMap !== 'undefined') ? popularGnbStatsMap : window.popularGnbStatsMap;
+      if(m && typeof m.forEach === 'function'){
+        let best=null;
+        m.forEach((stat,id) => {
+          const k = norm((stat && (stat.menuId || stat.id || stat.view)) || id);
+          const c = Number((stat && (stat.totalClickCount || stat.clickCount || clicks || stat.count || stat.viewCount)) || 0);
+          if(k && !isFixed(k) && c > 0 && (!best || c > best.count)) best = {key:k,count:c};
+        });
+        if(best) popularKey=best.key;
       }
-      String(v).split(/[\s,|/]+/).forEach(x=>{x=lower(x); if(x) out.push(x);});
-    }
-    add(value);return uniq(out);
+    }catch(_){ }
+    try{
+      if(!popularKey){
+        const s = (typeof popularGnbMenuIdSet !== 'undefined') ? popularGnbMenuIdSet : window.popularGnbMenuIdSet;
+        if(s) popularKey = Array.from(s).map(norm).find(k => k && !isFixed(k)) || '';
+      }
+    }catch(_){ }
+    return {newSet, popularKey};
   }
-  function menuKeys(m){return m?uniq([m.menuId,m.id,m.view,m.route,m.path,m.link].map(clean)):[];}
-  function sameMenu(m,key){key=clean(key);return !!m&&!!key&&menuKeys(m).includes(key);}
-  function normalizeTitle(t){return String(t||'').replace(/NEW|HOT|인기|최근/g,'').replace(/[\s\u00a0]+/g,'').trim();}
-  function getViewFromElement(el){return clean(el?.dataset?.viewLink||el?.dataset?.gnbDynamicMenu||el?.dataset?.view||el?.getAttribute?.('data-view-link')||el?.getAttribute?.('data-gnb-dynamic-menu')||el?.getAttribute?.('data-view')||'');}
-  function findMenu(key, el){
-    key=clean(key); const menus=getMenus();
-    if(key){
-      const direct=menus.find(m=>sameMenu(m,key)); if(direct)return direct;
-      try{if(typeof findMenuByView==='function'){const f=findMenuByView(key); if(f&&sameMenu(f,key))return f;}}catch(_){ }
-      try{if(typeof getMenuByIdOrFallback==='function'){const f=getMenuByIdOrFallback(key); if(f&&sameMenu(f,key)&&menus.some(m=>sameMenu(m,key)))return f;}}catch(_){ }
-    }
-    if(el&&el.closest){
-      const card=el.closest('#allMenuGrid .all-menu-card');
-      if(card){const title=normalizeTitle((qs('strong,h3,h4,.all-menu-title,.menu-title',card)||{}).textContent||card.textContent||''); if(title){const f=menus.find(m=>normalizeTitle(m.name||m.title||m.label||m.menuName)===title); if(f)return f;}}
-    }
-    return null;
+  const cache = { newSet:new Set(), popularKey:'', recentKey:'', ready:false };
+  function refreshSource(){
+    const db = sourceFromDb();
+    const renderedNew = renderedSet('#gnbNewMenus [data-view-link],#gnbNewMenus [data-gnb-dynamic-menu]');
+    renderedNew.forEach(k => db.newSet.add(k));
+    const popularRendered = renderedFirst('#gnbPopularMenus [data-view-link],#gnbPopularMenus [data-gnb-dynamic-menu]');
+    const recentRendered = renderedFirst('#gnbRecentMenus [data-view-link],#gnbRecentMenus [data-gnb-dynamic-menu]');
+    if(db.newSet.size || renderedNew.size) cache.newSet = db.newSet;
+    if(db.popularKey || popularRendered) cache.popularKey = popularRendered || db.popularKey;
+    if(recentRendered) cache.recentKey = recentRendered;
+    cache.ready = true;
+    return cache;
   }
-  function adminTokens(m){
-    if(!m)return [];
-    return splitTokens([m.sections,m.section,m.tags,m.tag,m.badge,m.badges,m.menuBadge,m.statusBadge,m.trendBadge,m.featureBadge,m.ribbon,m.new,m.isNew,m.is_new,m.showNew,m.newBadge,m.isNewBadge]);
+  function flagsForKeys(keys){
+    const src = refreshSource();
+    keys = (Array.isArray(keys) ? keys : [keys]).map(norm).filter(Boolean);
+    const has = k => keys.includes(k);
+    return {
+      new: keys.some(k => src.newSet.has(k)),
+      hot: !!src.popularKey && has(src.popularKey),
+      popular: !!src.popularKey && has(src.popularKey),
+      recent: !!src.recentKey && has(src.recentKey)
+    };
   }
-  function isAdminNew(m){
-    const id=clean(m?.menuId||m?.id||m?.view||m?.route); if(!m||!id||isFixed(id))return false;
-    return adminTokens(m).includes('new');
+  function flagsForView(v){ return flagsForKeys([v]); }
+  function flagsForMenu(menu){ return flagsForKeys(menuKeys(menu)); }
+  function setHtml(el, html){ if(el && el.__upickBadgeHtml !== html){ el.innerHTML = html; el.__upickBadgeHtml = html; } }
+
+  function ribbonHtml(f, baseClass){
+    if(f.hot) return '<span class="'+(baseClass||'all-menu-ribbon')+' new-source-trending">HOT</span>';
+    if(f.new) return '<span class="'+(baseClass||'all-menu-ribbon')+' new-source-manual">NEW</span>';
+    return '';
   }
-  function clickScore(m){return Number(m?.totalClickCount||m?.menuClickCount||m?.clickCount||m?.visitCount||m?.count||0)||0;}
-  function timeValue(m){try{const r=m?.lastClickedAt||m?.lastVisitedAt||m?.updatedAt||m?.createdAt; if(r&&typeof r.toDate==='function')return r.toDate().getTime(); if(r&&typeof r.seconds==='number')return r.seconds*1000; if(r)return new Date(r).getTime()||0;}catch(_){ } return 0;}
-  function topHotId(){
-    let best={id:'',score:0,last:0};
-    function consider(m){const id=clean(m?.menuId||m?.id||m?.view||m?.route); if(!id||isFixed(id))return; const score=clickScore(m); const last=timeValue(m); if(score>best.score||(score===best.score&&score>0&&last>best.last))best={id,score,last};}
-    try{if(popularGnbStatsMap&&popularGnbStatsMap.forEach)popularGnbStatsMap.forEach(consider);}catch(_){ }
-    getMenus().forEach(consider);
-    return best.score>0?best.id:'';
+  function sideHtml(f){
+    let h='';
+    if(f.popular) h += '<span class="all-menu-badge popular">인기</span>';
+    if(f.recent) h += '<span class="all-menu-badge recent">최근</span>';
+    return h;
   }
-  function isHot(m){const id=topHotId();return !!m&&!!id&&sameMenu(m,id);}
-  function isRecent(m){try{const ids=menuKeys(m).map(String); return !!m&&!!recentGnbMenuIdSet&&ids.some(id=>recentGnbMenuIdSet.has(id));}catch(_){return false;}}
-  function flags(m){const hot=isHot(m); return {new:isAdminNew(m),hot:hot,popular:hot,recent:isRecent(m)};}
-  function currentView(){try{if(state&&state.view)return clean(state.view);}catch(_){ } const active=qs('.bottom-nav .nav-btn.active'); const v=getViewFromElement(active); if(v)return v; const sec=qsa('section[id^="view-"]').find(s=>!s.classList.contains('hidden')); return sec?clean(sec.id.replace(/^view-/,'')):'home';}
-  function flagsByView(view){return flags(findMenu(view));}
-  function clearBadges(root){qsa('.all-menu-ribbon,.menu-trend-ribbon,.all-menu-badge-wrap,.menu-trend-badge-wrap,.global-hero-trend-badges,.view-final-trend-badges,.view-title-trend-badges,.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge',root||document).forEach(el=>el.remove());}
-  function syncAllMenu(){
-    qsa('#allMenuGrid .all-menu-card').forEach(card=>{
-      qsa('.all-menu-ribbon,.menu-trend-ribbon,.all-menu-badge-wrap,.menu-trend-badge-wrap',card).forEach(el=>el.remove());
-      const m=findMenu(getViewFromElement(card),card); if(!m)return; const f=flags(m);
-      if(f.hot)card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon new-source-trending">HOT</span>');
-      else if(f.new)card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon new-source-manual">NEW</span>');
-      const side=[]; if(f.popular)side.push('<span class="all-menu-badge popular">인기</span>'); if(f.recent)side.push('<span class="all-menu-badge recent">최근</span>');
-      if(side.length)card.insertAdjacentHTML('afterbegin','<span class="all-menu-badge-wrap">'+side.join('')+'</span>');
+  function decorateCard(card){
+    if(!card) return;
+    const k = elKeys(card)[0] || norm(card.dataset && (card.dataset.viewLink || card.dataset.gnbDynamicMenu));
+    if(!k) return;
+    const f = flagsForView(k);
+    let ribbon = card.querySelector(':scope > .all-menu-ribbon, :scope > .menu-trend-ribbon');
+    const rText = f.hot ? 'HOT' : (f.new ? 'NEW' : '');
+    if(rText){
+      if(!ribbon){ ribbon=document.createElement('span'); card.insertAdjacentElement('afterbegin', ribbon); }
+      const cls = 'all-menu-ribbon ' + (f.hot ? 'new-source-trending' : 'new-source-manual');
+      if(ribbon.className !== cls) ribbon.className = cls;
+      if(ribbon.textContent !== rText) ribbon.textContent = rText;
+    }else if(ribbon){ ribbon.remove(); }
+    let wrap = card.querySelector(':scope > .all-menu-badge-wrap, :scope > .menu-trend-badge-wrap');
+    const side = sideHtml(f);
+    if(side){
+      if(!wrap){ wrap=document.createElement('span'); wrap.className='all-menu-badge-wrap'; card.insertAdjacentElement('afterbegin', wrap); }
+      setHtml(wrap, side);
+    }else if(wrap){ wrap.remove(); }
+  }
+  function decorateAll(){ qsa('#allMenuGrid .all-menu-card').forEach(decorateCard); }
+  function decorateBottom(){
+    qsa('.bottom-nav [data-view-link],.bottom-nav [data-view]').forEach(btn => {
+      const k = elKeys(btn)[0];
+      let dot = btn.querySelector(':scope > .nav-robot-trend-badge, :scope > .nav-badge-dot, :scope > .nav-final-trend-badge, :scope > .nav-mini-trend');
+      if(!k || isFixed(k)){ if(dot) dot.remove(); return; }
+      const f = flagsForView(k);
+      const type = f.hot ? 'hot' : (f.new ? 'new' : '');
+      if(type){
+        if(!dot){ dot=document.createElement('span'); dot.setAttribute('aria-hidden','true'); btn.insertAdjacentElement('afterbegin', dot); }
+        const cls='nav-robot-trend-badge '+type;
+        if(dot.className !== cls) dot.className = cls;
+      }else if(dot){ dot.remove(); }
     });
   }
-  function syncBottom(){qsa('.bottom-nav [data-view],.bottom-nav [data-view-link]').forEach(btn=>{qsa('.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge',btn).forEach(el=>el.remove()); const f=flagsByView(getViewFromElement(btn)); if(f.hot)btn.insertAdjacentHTML('afterbegin','<span class="nav-badge-dot hot" aria-hidden="true"></span>'); else if(f.new)btn.insertAdjacentHTML('afterbegin','<span class="nav-badge-dot new" aria-hidden="true"></span>');});}
-  function syncHero(){const hero=qs('#upickGlobalHero'); if(!hero)return; qsa('.global-hero-trend-badges,.view-final-trend-badges,.view-title-trend-badges',hero).forEach(el=>el.remove()); const target=qs('.eyebrow',hero)||qs('#globalHeroKicker',hero); if(!target)return; const f=flagsByView(currentView()); const parts=[]; if(f.hot)parts.push('<span class="global-hero-trend-badge hot">HOT</span>'); if(f.new)parts.push('<span class="global-hero-trend-badge new">NEW</span>'); if(f.popular)parts.push('<span class="global-hero-trend-badge popular">인기</span>'); if(f.recent)parts.push('<span class="global-hero-trend-badge recent">최근</span>'); if(parts.length)target.insertAdjacentHTML('beforeend','<span class="global-hero-trend-badges">'+parts.join('')+'</span>');}
-  function syncTitle(){qsa('.view-final-trend-badges,.view-title-trend-badges').forEach(el=>el.remove()); const v=currentView(); const f=flagsByView(v); const parts=[]; if(f.hot)parts.push('<span class="view-final-trend-badge hot">HOT</span>'); if(f.new)parts.push('<span class="view-final-trend-badge new">NEW</span>'); if(!parts.length)return; let section; try{section=qs('#view-'+CSS.escape(v));}catch(_){section=qs('#view-'+v);} const title=section&&(qs('.section-head h3',section)||qs('h3',section)); if(title)title.insertAdjacentHTML('afterbegin','<span class="view-final-trend-badges">'+parts.join('')+'</span>');}
-  function sync(){syncAllMenu();syncBottom();syncHero();syncTitle();}
-  window.isMenuNew=isAdminNew; try{isMenuNew=isAdminNew;}catch(_){ }
-  window.isTrendingMenu=isHot; try{isTrendingMenu=isHot;}catch(_){ }
-  window.getMenuTrendFlags=function(m){const f=flags(m);return {isNew:f.new,isHot:f.hot,isPopular:f.popular,isRecent:f.recent};};
-  window.getNewRibbonSource=function(m){if(isHot(m))return 'trending'; if(isAdminNew(m))return 'manual'; return '';};
-  window.shouldShowNewRibbon=function(m){return !!window.getNewRibbonSource(m);};
-  window.makeNewRibbonHtml=function(baseClass,m){const src=window.getNewRibbonSource(m);return src?'<span class="'+(baseClass||'all-menu-ribbon')+' new-source-'+src+'">'+(src==='trending'?'HOT':'NEW')+'</span>':'';};
-  window.getAllMenuBadge=function(m){const f=flags(m);const a=[]; if(f.popular)a.push({label:'인기',className:'popular'}); if(f.recent)a.push({label:'최근',className:'recent'}); return a;};
-  window.upickFinalBadgeSync=sync; window.decorateAllMenuCards=syncAllMenu; window.syncBottomNavDotBadgesFinal=syncBottom; window.syncBottomNavTrendBadgesFinal=syncBottom;
-  function schedule(){[0,80,240,700,1400].forEach(ms=>setTimeout(sync,ms));}
-  document.addEventListener('click',e=>{if(e.target?.closest?.('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn'))schedule();},true);
-  ['renderDynamicAllMenus','renderDynamicGnbMenus','renderDynamicBottomNav','refreshBottomTrendUi','updateBottomNavActiveState','updateCommonHero','updateGlobalHero'].forEach(name=>{try{const old=window[name]||(eval('typeof '+name+'!=="undefined"?'+name+':undefined')); if(typeof old==='function'&&!old.__upickV102Badge){const w=function(){const r=old.apply(this,arguments); schedule(); return r;}; w.__upickV102Badge=true; try{window[name]=w;}catch(_){ } try{eval(name+'=w');}catch(_){ }}}catch(_){ }});
-  try{const old=loadGnbMenusFromDb;if(typeof old==='function'&&!old.__upickV102Badge){loadGnbMenusFromDb=async function(){const r=await old.apply(this,arguments); schedule(); return r;}; loadGnbMenusFromDb.__upickV102Badge=true;}}catch(_){ }
-  window.addEventListener('load',schedule); if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true}); else schedule();
+  function decorateHero(){
+    const hero = qs('#upickGlobalHero'); if(!hero) return;
+    const f = flagsForView(currentView());
+    const parts=[];
+    if(f.hot) parts.push('<span class="global-hero-trend-badge hot">HOT</span>');
+    else if(f.new) parts.push('<span class="global-hero-trend-badge new">NEW</span>');
+    if(f.popular) parts.push('<span class="global-hero-trend-badge popular">인기</span>');
+    if(f.recent) parts.push('<span class="global-hero-trend-badge recent">최근</span>');
+    let wrap = qs('.global-hero-trend-badges', hero);
+    const html = parts.join('');
+    if(html){
+      if(!wrap){
+        wrap=document.createElement('span'); wrap.className='global-hero-trend-badges';
+        const target = qs('#globalHeroKicker', hero) || qs('.eyebrow', hero);
+        if(target) target.insertAdjacentElement('afterend', wrap);
+      }
+      setHtml(wrap, html);
+    }else if(wrap){ wrap.remove(); }
+  }
+  function syncGlobalProfile(){
+    const hero = qs('#upickGlobalHero'); if(!hero) return;
+    const img = qs('#globalUserChip .user-avatar img', hero); if(!img) return;
+    let src = '';
+    try{ if(typeof window.getProfileImageUrl === 'function') src = window.getProfileImageUrl() || ''; }catch(_){ }
+    try{ const p = window.state && window.state.currentUserProfile; src = src || (p && (p.profileImageUrl || p.photoUrl || p.avatarUrl)) || ''; }catch(_){ }
+    const sourceImg = qs('#userChip .user-avatar img');
+    src = src || (sourceImg && sourceImg.getAttribute('src')) || '/icons/internal/user.svg';
+    if(img.getAttribute('src') !== src) img.setAttribute('src', src);
+    const av = qs('#globalUserChip .user-avatar', hero);
+    if(av) av.classList.toggle('has-photo', !/user\.svg|avatar-default|default/i.test(src));
+  }
+  function syncGlobalStats(){
+    try{
+      const hero = qs('#upickGlobalHero'); if(!hero) return;
+      const max = qs('#statMaxDiscount')?.textContent || qs('#globalStatMax')?.textContent;
+      const count = qs('#statBenefitCount')?.textContent || qs('#globalStatCount')?.textContent;
+      const cat = qs('#statCategoryCount')?.textContent || qs('#globalStatCat')?.textContent;
+      if(max && qs('#globalStatMax', hero)) qs('#globalStatMax', hero).textContent = max;
+      if(count && qs('#globalStatCount', hero)) qs('#globalStatCount', hero).textContent = count;
+      if(cat && qs('#globalStatCat', hero)) qs('#globalStatCat', hero).textContent = cat;
+    }catch(_){ }
+  }
+  function applyAll(){ syncGlobalProfile(); syncGlobalStats(); decorateAll(); decorateBottom(); decorateHero(); }
+  let raf=0;
+  function schedule(){ if(raf) return; raf=requestAnimationFrame(() => { raf=0; applyAll(); }); }
+
+  // render 단계에서 바로 배지 HTML이 포함되도록 전역 helper를 먼저 고정한다.
+  try{ window.isMenuNew = isMenuNew = menu => !!flagsForMenu(menu).new; }catch(_){ window.isMenuNew = menu => !!flagsForMenu(menu).new; }
+  try{ window.isTrendingMenu = isTrendingMenu = menu => !!flagsForMenu(menu).hot; }catch(_){ window.isTrendingMenu = menu => !!flagsForMenu(menu).hot; }
+  try{ window.getMenuTrendFlags = getMenuTrendFlags = menu => { const f=flagsForMenu(menu); return {isNew:f.new,isHot:f.hot,isPopular:f.popular,isRecent:f.recent}; }; }catch(_){ window.getMenuTrendFlags = menu => { const f=flagsForMenu(menu); return {isNew:f.new,isHot:f.hot,isPopular:f.popular,isRecent:f.recent}; }; }
+  try{ window.makeNewRibbonHtml = makeNewRibbonHtml = (baseClass, menu) => ribbonHtml(flagsForMenu(menu), baseClass); }catch(_){ window.makeNewRibbonHtml = (baseClass, menu) => ribbonHtml(flagsForMenu(menu), baseClass); }
+  try{ window.getAllMenuBadge = getAllMenuBadge = menu => { const f=flagsForMenu(menu), a=[]; if(f.popular)a.push({label:'인기',className:'popular'}); if(f.recent)a.push({label:'최근',className:'recent'}); return a; }; }catch(_){ window.getAllMenuBadge = menu => { const f=flagsForMenu(menu), a=[]; if(f.popular)a.push({label:'인기',className:'popular'}); if(f.recent)a.push({label:'최근',className:'recent'}); return a; }; }
+
+  function wrap(name, afterAsync){
+    try{
+      const old = window[name] || eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
+      if(typeof old !== 'function' || old.__upickV108) return;
+      const wrapped = function(){
+        const r = old.apply(this, arguments);
+        if(afterAsync && r && typeof r.then === 'function') return r.then(v => { schedule(); return v; });
+        schedule();
+        return r;
+      };
+      wrapped.__upickV108 = true;
+      try{ eval(name+' = wrapped'); }catch(_){ }
+      window[name] = wrapped;
+    }catch(_){ }
+  }
+  ['renderDynamicAllMenus','renderDynamicBottomNav','renderDynamicGnbMenus','renderAll','updateCommonHero','updateGlobalHero','updateBottomNavActiveState','changeView'].forEach(n => wrap(n, false));
+  ['loadGnbMenusFromDb','loadPopularGnbMenus','loadRecentGnbMenus'].forEach(n => wrap(n, true));
+  document.addEventListener('click', e => {
+    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem')) schedule();
+  }, true);
+  document.addEventListener('upick:view-change', schedule);
+  window.upickFinalBadgeSync = schedule;
+  window.decorateAllMenuCards = decorateAll;
+  window.syncBottomNavDotBadgesFinal = decorateBottom;
+  window.syncBottomNavTrendBadgesFinal = decorateBottom;
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
 })();
 </script>
 
@@ -30485,618 +30636,6 @@ section[id^="view-"] > .upick-tab-common-header{
 .all-menu-card .all-menu-badge.popular,.all-menu-card .menu-trend-badge.popular{border-color:#fed7aa!important;color:#c2410c!important;background:#fff7ed!important;}
 @media(max-width:430px){.global-hero-trend-badges{gap:4px;margin-left:5px}.global-hero-trend-badge{font-size:8.5px;padding:3px 6px}.shell > .upick-global-hero-shell #globalUserChip .user-avatar{width:28px!important;height:28px!important;}}
 </style>
-<script id="upick-global-hero-v94-fix-js">
-(function(){
-  'use strict';
-  function qs(sel,root){return (root||document).querySelector(sel)}
-  function qsa(sel,root){return Array.prototype.slice.call((root||document).querySelectorAll(sel))}
-  function cleanKey(v){return String(v||'').replace(/^#|^\//,'').trim()}
-  function getHero(){return qs('#upickGlobalHero')}
-  function getCurrentView(){return cleanKey((window.state&&window.state.view)||qs('.bottom-nav .nav-btn.active')?.dataset?.view||qs('.bottom-nav .nav-btn.active')?.dataset?.viewLink||'home')}
-  function getProfileSrc(){
-    try{
-      if(typeof window.getProfileImageUrl==='function'){var u=window.getProfileImageUrl(); if(u) return u;}
-      var p=window.state&&window.state.currentUserProfile;
-      var raw=p&&(p.profileImageUrl||p.photoUrl||p.avatarUrl);
-      if(raw) return String(raw);
-    }catch(_){}
-    var img=qs('#userChip .user-avatar img');
-    return (img&&img.getAttribute('src'))||'/icons/internal/user.svg';
-  }
-  function syncGlobalProfile(){
-    var hero=getHero(); if(!hero) return;
-    var src=getProfileSrc()||'/icons/internal/user.svg';
-    var img=qs('#globalUserChip .user-avatar img',hero);
-    var av=qs('#globalUserChip .user-avatar',hero);
-    if(!img) return;
-    if(img.getAttribute('src')!==src) img.setAttribute('src',src);
-    var hasPhoto=!/user\.svg(?:$|[?#])/.test(src);
-    if(av) av.classList.toggle('has-photo',hasPhoto);
-    img.style.filter='none'; img.style.opacity='1';
-  }
-  function syncGlobalStats(){
-    var hero=getHero(); if(!hero) return;
-    var visible=[];
-    try{
-      if(typeof window.getVisibleBenefits==='function') visible=window.getVisibleBenefits()||[];
-      else if(window.state&&Array.isArray(window.state.benefits)) visible=window.state.benefits.filter(function(v){return v&&v.visible!==false});
-    }catch(_){}
-    var count=visible.length;
-    var max=0, cats=new Set();
-    visible.forEach(function(v){
-      var n=Number(v.discountValue||String(v.discountText||'').match(/\d+/)?.[0]||0);
-      if(Number.isFinite(n)) max=Math.max(max,n);
-      if(v.category) cats.add(v.category);
-    });
-    var map={globalStatCount:String(count||qs('#statCount')?.textContent||'0'),globalStatMax:(count?String(max)+'%':(qs('#statMax')?.textContent||'0%')),globalStatCat:String((count?cats.size:qs('#statCat')?.textContent)||'0')};
-    Object.keys(map).forEach(function(id){var el=qs('#'+id,hero); if(el&&map[id]&&el.textContent!==map[id]) el.textContent=map[id];});
-  }
-  function menuForView(view){
-    view=cleanKey(view||getCurrentView());
-    try{
-      if(typeof window.findMenuByView==='function') return window.findMenuByView(view);
-      var cache=window.gnbMenuCache||[];
-      return cache.find(function(m){return [m.view,m.route,m.menuId].map(cleanKey).includes(view)});
-    }catch(_){return null}
-  }
-  function isSectionsNew(menu){return Array.isArray(menu&&menu.sections)&&menu.sections.includes('new')}
-  function flagsFor(menu){
-    var f={new:false,hot:false,popular:false,recent:false};
-    if(!menu) return f;
-    try{
-      if(typeof window.getMenuTrendFlags==='function'){var g=window.getMenuTrendFlags(menu)||{}; Object.assign(f,{new:!!g.isNew,hot:!!g.isHot,popular:!!g.isPopular,recent:!!g.isRecent});}
-      if(typeof window.isTrendingMenu==='function') f.hot=!!window.isTrendingMenu(menu)||f.hot;
-    }catch(_){}
-    if(isSectionsNew(menu)) f.new=true;
-    return f;
-  }
-  function syncHeroTrendBadges(view){
-    var hero=getHero(); if(!hero) return;
-    var kicker=qs('#globalHeroKicker',hero); if(!kicker) return;
-    var old=qs('.global-hero-trend-badges',hero); if(old) old.remove();
-    var menu=menuForView(view);
-    var f=flagsFor(menu);
-    var parts=[];
-    if(f.hot) parts.push('<span class="global-hero-trend-badge hot">HOT</span>');
-    else if(f.new) parts.push('<span class="global-hero-trend-badge new">NEW</span>');
-    if(f.popular) parts.push('<span class="global-hero-trend-badge popular">인기</span>');
-    if(f.recent) parts.push('<span class="global-hero-trend-badge recent">최근</span>');
-    if(parts.length) kicker.insertAdjacentHTML('afterend','<span class="global-hero-trend-badges">'+parts.join('')+'</span>');
-  }
-  function decorateAllMenuCards(){
-    var grid=qs('#allMenuGrid'); if(!grid) return;
-    qsa('.all-menu-card',grid).forEach(function(card){
-      var key=cleanKey(card.dataset.viewLink||card.dataset.gnbDynamicMenu);
-      var menu=menuForView(key); if(!menu) return;
-      var f=flagsFor(menu);
-      if((f.new||f.hot)&&!card.querySelector('.all-menu-ribbon,.menu-trend-ribbon')){
-        card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon '+(f.hot?'new-source-trending':'new-source-manual')+'">'+(f.hot?'HOT':'NEW')+'</span>');
-      }
-      if((f.popular||f.recent)&&!card.querySelector('.all-menu-badge-wrap,.menu-trend-badge-wrap')){
-        var html='<span class="all-menu-badge-wrap">'+(f.popular?'<span class="all-menu-badge popular">인기</span>':'')+(f.recent?'<span class="all-menu-badge recent">최근</span>':'')+'</span>';
-        card.insertAdjacentHTML('afterbegin',html);
-      }
-    });
-  }
-  function refreshAll(){syncGlobalProfile();syncGlobalStats();syncHeroTrendBadges(getCurrentView());decorateAllMenuCards();}
-  var oldRenderStats=window.renderStats;
-  if(typeof oldRenderStats==='function'&&!oldRenderStats.__upickV94Wrapped){
-    window.renderStats=function(){var r=oldRenderStats.apply(this,arguments); setTimeout(syncGlobalStats,0); return r;};
-    window.renderStats.__upickV94Wrapped=true;
-  }
-  var oldRenderAll=window.renderAll;
-  if(typeof oldRenderAll==='function'&&!oldRenderAll.__upickV94Wrapped){
-    window.renderAll=function(){var r=oldRenderAll.apply(this,arguments); setTimeout(refreshAll,0); return r;};
-    window.renderAll.__upickV94Wrapped=true;
-  }
-  var oldAll=window.renderDynamicAllMenus;
-  if(typeof oldAll==='function'&&!oldAll.__upickV94Wrapped){
-    window.renderDynamicAllMenus=function(){var r=oldAll.apply(this,arguments); setTimeout(decorateAllMenuCards,0); return r;};
-    window.renderDynamicAllMenus.__upickV94Wrapped=true;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target.closest('[data-view],[data-view-link],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem')) setTimeout(refreshAll,80);
-  },true);
-  document.addEventListener('upick:view-change',function(){setTimeout(refreshAll,0)});
-  document.addEventListener('DOMContentLoaded',function(){
-    refreshAll();
-    var img=qs('#userChip .user-avatar img');
-    if(img&&window.MutationObserver){new MutationObserver(syncGlobalProfile).observe(img,{attributes:true,attributeFilter:['src']});}
-    [120,450,900,1600,2600,4200].forEach(function(ms){setTimeout(refreshAll,ms)});
-  },{once:true});
-  if(document.readyState!=='loading'){refreshAll();[120,450,900,1600,2600,4200].forEach(function(ms){setTimeout(refreshAll,ms)});}
-})();
-</script>
-
-
-
-
-<!-- ===== v103: 운영계 배지 렌더링 기준 재정렬 - 관리자 태그/클릭수 기반 ===== -->
-<script id="upick-v103-admin-tag-popular-badge-fix">
-(function(){
-  'use strict';
-  const NEW_KEYS = ['new'];
-  const HOT_KEYS = ['hot','popular','trending'];
-  function qs(sel, root){ return (root || document).querySelector(sel); }
-  function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function clean(v){ return String(v || '').replace(/^#|^\//,'').trim(); }
-  function norm(v){ return clean(v).toLowerCase(); }
-  function uniq(arr){ return Array.from(new Set((arr || []).map(v => norm(v)).filter(Boolean))); }
-  function fieldValues(raw){
-    const values = [];
-    ['sections','section','tags','tag','badges','badge','menuBadge','statusBadge','ribbon','ribbonType','labelType','displayBadge','type'].forEach(k => {
-      const v = raw && raw[k];
-      if(Array.isArray(v)) values.push(...v);
-      else if(v !== undefined && v !== null) String(v).split(',').forEach(x => values.push(x));
-    });
-    return uniq(values);
-  }
-  function menuKeys(menu){
-    return uniq([menu && menu.menuId, menu && menu.view, menu && menu.route, menu && menu.id]);
-  }
-  function isFixed(id){
-    id = norm(id);
-    return id === 'home' || id === 'all';
-  }
-
-  /* DB normalize 단계에서 관리자 태그(tags/new/all/bottom/gnb 등)를 sections에 합칩니다. */
-  try{
-    if(typeof normalizeGnbMenu === 'function' && !normalizeGnbMenu.__upickV103){
-      const originalNormalize = normalizeGnbMenu;
-      normalizeGnbMenu = function(raw, fallbackId){
-        const menu = originalNormalize.apply(this, arguments) || {};
-        const merged = uniq([...(Array.isArray(menu.sections) ? menu.sections : []), ...fieldValues(raw), ...fieldValues(menu)]);
-        menu.sections = merged.length ? merged : (Array.isArray(menu.sections) ? menu.sections : []);
-        return menu;
-      };
-      normalizeGnbMenu.__upickV103 = true;
-    }
-  }catch(_){ }
-
-  function hasAdminNew(menu){
-    if(!menu || isFixed(menu.menuId)) return false;
-    const values = uniq([...(Array.isArray(menu.sections) ? menu.sections : []), ...fieldValues(menu)]);
-    return values.some(v => NEW_KEYS.includes(v));
-  }
-  function isPopularMenu(menu){
-    if(!menu || isFixed(menu.menuId)) return false;
-    const keys = menuKeys(menu);
-    try{
-      if(typeof popularGnbMenuIdSet !== 'undefined' && popularGnbMenuIdSet){
-        for(const key of keys){ if(popularGnbMenuIdSet.has(key)) return true; }
-      }
-    }catch(_){ }
-    try{
-      if(typeof popularGnbStatsMap !== 'undefined' && popularGnbStatsMap){
-        for(const key of keys){
-          const stat = popularGnbStatsMap.get(key);
-          if(stat && Number(stat.totalClickCount || stat.clickCount || 0) > 0) return true;
-        }
-      }
-    }catch(_){ }
-    const values = uniq([...(Array.isArray(menu.sections) ? menu.sections : []), ...fieldValues(menu)]);
-    return values.some(v => HOT_KEYS.includes(v));
-  }
-  function isRecentMenu(menu){
-    if(!menu || isFixed(menu.menuId)) return false;
-    const keys = menuKeys(menu);
-    try{
-      if(typeof recentGnbMenuIdSet !== 'undefined' && recentGnbMenuIdSet){
-        for(const key of keys){ if(recentGnbMenuIdSet.has(key)) return true; }
-      }
-    }catch(_){ }
-    return false;
-  }
-  function findMenu(view){
-    const key = norm(view || (window.state && window.state.view) || 'home');
-    try{ if(typeof findMenuByView === 'function') return findMenuByView(key); }catch(_){ }
-    try{
-      if(typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)){
-        return gnbMenuCache.find(m => menuKeys(m).includes(key)) || null;
-      }
-    }catch(_){ }
-    return null;
-  }
-
-  try{ isMenuNew = function(menu){ return hasAdminNew(menu); }; }catch(_){ }
-  try{ isTrendingMenu = function(menu){ return isPopularMenu(menu); }; }catch(_){ }
-  try{
-    getMenuTrendFlags = function(menu){
-      return {
-        isNew: hasAdminNew(menu),
-        isHot: isPopularMenu(menu),
-        isPopular: isPopularMenu(menu),
-        isRecent: isRecentMenu(menu)
-      };
-    };
-  }catch(_){ }
-  try{
-    getNewRibbonSource = function(menu){
-      if(isPopularMenu(menu)) return 'trending';
-      if(hasAdminNew(menu)) return 'manual';
-      return '';
-    };
-    makeNewRibbonHtml = function(baseClass, menu){
-      const source = getNewRibbonSource(menu);
-      if(!source) return '';
-      const label = source === 'trending' ? 'HOT' : 'NEW';
-      return `<span class="${baseClass || 'all-menu-ribbon'} new-source-${source}">${label}</span>`;
-    };
-  }catch(_){ }
-
-  function badgePieces(menu){
-    const pieces = [];
-    if(isPopularMenu(menu)) pieces.push({label:'HOT', className:'hot ribbon'});
-    else if(hasAdminNew(menu)) pieces.push({label:'NEW', className:'new ribbon'});
-    if(isPopularMenu(menu)) pieces.push({label:'인기', className:'popular'});
-    if(isRecentMenu(menu)) pieces.push({label:'최근', className:'recent'});
-    return pieces;
-  }
-  function decorateAllMenusStrict(){
-    const grid = qs('#allMenuGrid');
-    if(!grid) return;
-    qsa('.all-menu-card', grid).forEach(card => {
-      card.querySelectorAll('.all-menu-ribbon,.menu-trend-ribbon,.all-menu-badge-wrap,.menu-trend-badge-wrap,.all-menu-badge,.menu-trend-badge').forEach(el => el.remove());
-      const key = clean(card.dataset.viewLink || card.dataset.gnbDynamicMenu || card.getAttribute('data-view-link'));
-      const menu = findMenu(key);
-      if(!menu) return;
-      const pieces = badgePieces(menu);
-      const ribbon = pieces.find(p => p.className.includes('ribbon'));
-      const side = pieces.filter(p => !p.className.includes('ribbon'));
-      if(ribbon){
-        card.insertAdjacentHTML('afterbegin', `<span class="all-menu-ribbon ${ribbon.label === 'HOT' ? 'new-source-trending' : 'new-source-manual'}">${ribbon.label}</span>`);
-      }
-      if(side.length){
-        card.insertAdjacentHTML('afterbegin', `<span class="all-menu-badge-wrap">${side.map(p => `<span class="all-menu-badge ${p.className}">${p.label}</span>`).join('')}</span>`);
-      }
-    });
-  }
-  function decorateHeroStrict(){
-    const hero = qs('#upickGlobalHero');
-    if(!hero) return;
-    hero.querySelectorAll('.global-hero-trend-badges').forEach(el => el.remove());
-    const view = clean((window.state && window.state.view) || qs('.bottom-nav .nav-btn.active')?.dataset?.viewLink || qs('.bottom-nav .nav-btn.active')?.dataset?.view || 'home');
-    const menu = findMenu(view);
-    const pieces = badgePieces(menu);
-    const html = pieces.map(p => `<span class="global-hero-trend-badge ${p.label === 'HOT' ? 'hot' : p.label === 'NEW' ? 'new' : p.className}">${p.label}</span>`).join('');
-    const kicker = qs('#globalHeroKicker', hero);
-    if(kicker && html) kicker.insertAdjacentHTML('afterend', `<span class="global-hero-trend-badges">${html}</span>`);
-  }
-  function decorateBottomStrict(){
-    qsa('.bottom-nav [data-view-link], .bottom-nav [data-view]').forEach(btn => {
-      btn.querySelectorAll('.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
-      const key = clean(btn.dataset.viewLink || btn.dataset.view);
-      const menu = findMenu(key);
-      if(!menu || isFixed(key)) return;
-      let type = '';
-      if(isPopularMenu(menu)) type = 'hot';
-      else if(hasAdminNew(menu)) type = 'new';
-      if(type){
-        const dot = document.createElement('span');
-        dot.className = `nav-badge-dot ${type}`;
-        dot.setAttribute('aria-hidden','true');
-        btn.insertAdjacentElement('afterbegin', dot);
-      }
-    });
-  }
-  function refreshStrict(){
-    decorateAllMenusStrict();
-    decorateHeroStrict();
-    decorateBottomStrict();
-  }
-  function schedule(){ [0,80,240,700,1400].forEach(ms => setTimeout(refreshStrict, ms)); }
-
-  ['renderDynamicAllMenus','renderDynamicBottomNav','renderAll','updateBottomNavActiveState','refreshBottomTrendUi'].forEach(name => {
-    try{
-      const old = eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
-      if(typeof old === 'function' && !old.__upickV103){
-        const wrapped = function(){ const r = old.apply(this, arguments); schedule(); return r; };
-        wrapped.__upickV103 = true;
-        eval(name+' = wrapped');
-        try{ window[name] = wrapped; }catch(_){ }
-      }
-    }catch(_){ }
-  });
-  try{
-    if(typeof loadGnbMenusFromDb === 'function' && !loadGnbMenusFromDb.__upickV103){
-      const oldLoad = loadGnbMenusFromDb;
-      loadGnbMenusFromDb = async function(){ const r = await oldLoad.apply(this, arguments); schedule(); return r; };
-      loadGnbMenusFromDb.__upickV103 = true;
-    }
-  }catch(_){ }
-  try{
-    if(typeof loadPopularGnbMenus === 'function' && !loadPopularGnbMenus.__upickV103){
-      const oldPopular = loadPopularGnbMenus;
-      loadPopularGnbMenus = async function(){ const r = await oldPopular.apply(this, arguments); schedule(); return r; };
-      loadPopularGnbMenus.__upickV103 = true;
-    }
-  }catch(_){ }
-
-  document.addEventListener('click', e => {
-    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) scheduleAfterData();
-  }, true);
-  window.addEventListener('load', schedule);
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
-  else schedule();
-})();
-</script>
-
-<!-- ===== 더운정픽 v107: 전체 탭 렌더 이후 배지 유지 동기화 ===== -->
-<script id="upick-v107-stable-badge-render">
-(function(){
-  'use strict';
-  function qs(sel, root){ return (root || document).querySelector(sel); }
-  function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function key(v){ return String(v || '').replace(/^#|^\//,'').trim(); }
-  function norm(v){ return key(v).toLowerCase(); }
-  function isFixed(v){ v = norm(v); return v === 'home' || v === 'all'; }
-  function keysFromEl(el){
-    if(!el) return [];
-    return [el.dataset?.viewLink, el.dataset?.view, el.dataset?.gnbDynamicMenu, el.getAttribute('data-view-link'), el.getAttribute('data-gnb-dynamic-menu')]
-      .map(key).filter(Boolean);
-  }
-  function keysFromMenu(menu){
-    if(!menu) return [];
-    return [menu.menuId, menu.view, menu.route, menu.id, menu.key].map(key).filter(Boolean);
-  }
-  function menuTokenValues(menu){
-    const out = [];
-    const fields = [
-      'sections','section','tags','tag','menuSections','menuSection','displaySections','displaySection',
-      'visibleSections','visibleSection','placements','placement','areas','area','expose','exposes',
-      'showIn','showInSections','targets','target','badge','badges','menuBadge','statusBadge',
-      'label','labelType','ribbon','ribbonType','displayBadge','featureBadge','trendBadge'
-    ];
-    fields.forEach(function(name){
-      const v = menu && menu[name];
-      if(v === undefined || v === null || v === false) return;
-      if(Array.isArray(v)) out.push.apply(out, v);
-      else if(typeof v === 'object') Object.keys(v).forEach(function(k){ if(v[k]) out.push(k); });
-      else String(v).split(',').forEach(function(x){ out.push(x); });
-    });
-    return out.map(norm).filter(Boolean);
-  }
-  function sameKey(a, b){
-    const aa = (Array.isArray(a) ? a : [a]).map(norm).filter(Boolean);
-    const bb = (Array.isArray(b) ? b : [b]).map(norm).filter(Boolean);
-    return aa.some(x => bb.includes(x));
-  }
-  function getRenderedSet(selector){
-    const set = new Set();
-    qsa(selector).forEach(function(el){ keysFromEl(el).forEach(function(k){ if(!isFixed(k)) set.add(norm(k)); }); });
-    return set;
-  }
-  function getRenderedFirst(selector){
-    const el = qs(selector);
-    const list = keysFromEl(el).filter(k => !isFixed(k));
-    return list.length ? norm(list[0]) : '';
-  }
-  function fallbackNewSet(){
-    const set = new Set();
-    try{
-      if(typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)){
-        gnbMenuCache.forEach(function(m){
-          if(isFixed(m && m.menuId)) return;
-          if(menuTokenValues(m).includes('new')) keysFromMenu(m).forEach(k => set.add(norm(k)));
-        });
-      }
-    }catch(_){ }
-    return set;
-  }
-  function fallbackPopularKey(){
-    try{
-      if(typeof popularGnbMenuIdSet !== 'undefined' && popularGnbMenuIdSet){
-        const first = Array.from(popularGnbMenuIdSet).map(norm).find(v => v && !isFixed(v));
-        if(first) return first;
-      }
-    }catch(_){ }
-    try{
-      if(typeof popularGnbStatsMap !== 'undefined' && popularGnbStatsMap){
-        let best = null;
-        popularGnbStatsMap.forEach(function(stat, id){
-          const count = Number(stat?.totalClickCount || stat?.clickCount || stat?.count || 0);
-          const k = norm(stat?.menuId || id);
-          if(!k || isFixed(k) || count <= 0) return;
-          if(!best || count > best.count) best = { key:k, count:count };
-        });
-        if(best) return best.key;
-      }
-    }catch(_){ }
-    return '';
-  }
-  function badgeSource(){
-    const newSet = getRenderedSet('#gnbNewMenus [data-view-link],#gnbNewMenus [data-gnb-dynamic-menu]');
-    fallbackNewSet().forEach(v => newSet.add(v));
-    const popularRendered = getRenderedFirst('#gnbPopularMenus [data-view-link],#gnbPopularMenus [data-gnb-dynamic-menu]');
-    const popularKey = popularRendered || fallbackPopularKey();
-    const recentRendered = getRenderedFirst('#gnbRecentMenus [data-view-link],#gnbRecentMenus [data-gnb-dynamic-menu]');
-    return { newSet:newSet, popularKey:popularKey, recentKey:recentRendered };
-  }
-  function flagsForView(view){
-    const k = norm(view);
-    const src = badgeSource();
-    return {
-      new: !!k && src.newSet.has(k),
-      hot: !!k && !!src.popularKey && k === src.popularKey,
-      popular: !!k && !!src.popularKey && k === src.popularKey,
-      recent: !!k && !!src.recentKey && k === src.recentKey
-    };
-  }
-  function flagsForMenu(menu){
-    const src = badgeSource();
-    const keys = keysFromMenu(menu).map(norm);
-    return {
-      new: keys.some(k => src.newSet.has(k)),
-      hot: !!src.popularKey && keys.includes(src.popularKey),
-      popular: !!src.popularKey && keys.includes(src.popularKey),
-      recent: !!src.recentKey && keys.includes(src.recentKey)
-    };
-  }
-  function currentView(){
-    try{ if(window.state && window.state.view) return key(window.state.view); }catch(_){ }
-    return key(qs('.bottom-nav [data-view-link].active')?.dataset?.viewLink || qs('.bottom-nav [data-view].active')?.dataset?.view || 'home');
-  }
-  function setHtml(el, html){
-    if(!el) return;
-    if(el.__upickLastHtml === html && el.innerHTML === html) return;
-    el.innerHTML = html;
-    el.__upickLastHtml = html;
-  }
-  function upsertCardBadges(card, f){
-    if(!card) return;
-    let ribbon = card.querySelector(':scope > .all-menu-ribbon, :scope > .menu-trend-ribbon');
-    const ribbonHtml = f.hot ? 'HOT' : (f.new ? 'NEW' : '');
-    const ribbonClass = f.hot ? 'all-menu-ribbon new-source-trending' : 'all-menu-ribbon new-source-manual';
-    if(ribbonHtml){
-      if(!ribbon){ ribbon = document.createElement('span'); card.insertAdjacentElement('afterbegin', ribbon); }
-      if(ribbon.className !== ribbonClass) ribbon.className = ribbonClass;
-      if(ribbon.textContent !== ribbonHtml) ribbon.textContent = ribbonHtml;
-    }else if(ribbon){ ribbon.remove(); }
-
-    let wrap = card.querySelector(':scope > .all-menu-badge-wrap, :scope > .menu-trend-badge-wrap');
-    const side = [];
-    if(f.popular) side.push('<span class="all-menu-badge popular">인기</span>');
-    if(f.recent) side.push('<span class="all-menu-badge recent">최근</span>');
-    const sideHtml = side.join('');
-    if(sideHtml){
-      if(!wrap){ wrap = document.createElement('span'); wrap.className = 'all-menu-badge-wrap'; card.insertAdjacentElement('afterbegin', wrap); }
-      setHtml(wrap, sideHtml);
-    }else if(wrap){ wrap.remove(); }
-  }
-  function upsertBottomBadge(btn, f){
-    if(!btn) return;
-    let dot = btn.querySelector(':scope > .nav-robot-trend-badge, :scope > .nav-badge-dot, :scope > .nav-final-trend-badge, :scope > .nav-mini-trend');
-    const type = f.hot ? 'hot' : (f.new ? 'new' : '');
-    if(type){
-      const cls = 'nav-robot-trend-badge ' + type;
-      if(!dot){ dot = document.createElement('span'); dot.setAttribute('aria-hidden','true'); btn.insertAdjacentElement('afterbegin', dot); }
-      if(dot.className !== cls) dot.className = cls;
-    }else if(dot){ dot.remove(); }
-  }
-  function decorateAll(){
-    const grid = qs('#allMenuGrid');
-    if(!grid) return;
-    qsa('.all-menu-card', grid).forEach(function(card){
-      const k = key(card.dataset.viewLink || card.dataset.gnbDynamicMenu || card.getAttribute('data-view-link'));
-      upsertCardBadges(card, flagsForView(k));
-    });
-  }
-  function decorateBottom(){
-    qsa('.bottom-nav [data-view-link],.bottom-nav [data-view]').forEach(function(btn){
-      const k = key(btn.dataset.viewLink || btn.dataset.view);
-      if(isFixed(k)) return upsertBottomBadge(btn, {hot:false,new:false});
-      upsertBottomBadge(btn, flagsForView(k));
-    });
-  }
-  function decorateHero(){
-    const hero = qs('#upickGlobalHero');
-    if(!hero) return;
-    let wrap = qs('.global-hero-trend-badges', hero);
-    const f = flagsForView(currentView());
-    const parts = [];
-    if(f.hot) parts.push('<span class="global-hero-trend-badge hot">HOT</span>');
-    else if(f.new) parts.push('<span class="global-hero-trend-badge new">NEW</span>');
-    if(f.popular) parts.push('<span class="global-hero-trend-badge popular">인기</span>');
-    if(f.recent) parts.push('<span class="global-hero-trend-badge recent">최근</span>');
-    const html = parts.join('');
-    if(html){
-      if(!wrap){
-        wrap = document.createElement('span');
-        wrap.className = 'global-hero-trend-badges';
-        const target = qs('#globalHeroKicker', hero) || qs('.eyebrow', hero);
-        if(target) target.insertAdjacentElement('afterend', wrap);
-      }
-      setHtml(wrap, html);
-    }else if(wrap){ wrap.remove(); }
-  }
-
-  function watchBadgeRoots(){
-    if(!window.MutationObserver || watchBadgeRoots._done) return;
-    watchBadgeRoots._done = true;
-    let lock = false;
-    const safeSchedule = function(){
-      if(lock) return;
-      lock = true;
-      requestAnimationFrame(function(){ lock = false; schedule(); });
-    };
-    ['#allMenuGrid','.bottom-nav','#upickGlobalHero','#gnbSheet','.gnb-sheet'].forEach(function(sel){
-      const el = qs(sel);
-      if(!el) return;
-      try{
-        new MutationObserver(function(muts){
-          for(const m of muts){
-            if(m.type === 'childList' || (m.type === 'attributes' && /^data-|class$/.test(m.attributeName || ''))){
-              safeSchedule();
-              return;
-            }
-          }
-        }).observe(el,{childList:true,subtree:true,attributes:true,attributeFilter:['class','data-view-link','data-gnb-dynamic-menu','data-view']});
-      }catch(_){ }
-    });
-  }
-  function refresh(){ decorateAll(); decorateBottom(); decorateHero(); watchBadgeRoots(); }
-  let raf = 0;
-  function schedule(){
-    if(raf) return;
-    raf = requestAnimationFrame(function(){ raf = 0; refresh(); });
-  }
-  function scheduleAfterData(){
-    schedule();
-    clearTimeout(scheduleAfterData._t1);
-    clearTimeout(scheduleAfterData._t2);
-    scheduleAfterData._t1 = setTimeout(schedule, 180);
-    scheduleAfterData._t2 = setTimeout(schedule, 700);
-  }
-
-  try{ isMenuNew = function(menu){ return !!flagsForMenu(menu).new; }; }catch(_){ }
-  try{ isTrendingMenu = function(menu){ return !!flagsForMenu(menu).hot; }; }catch(_){ }
-  try{ getMenuTrendFlags = function(menu){ const f = flagsForMenu(menu); return { isNew:f.new, isHot:f.hot, isPopular:f.popular, isRecent:f.recent }; }; }catch(_){ }
-  try{ getNewRibbonSource = function(menu){ const f = flagsForMenu(menu); if(f.hot) return 'trending'; if(f.new) return 'manual'; return ''; }; }catch(_){ }
-  try{ makeNewRibbonHtml = function(baseClass, menu){ const f = flagsForMenu(menu); if(f.hot) return '<span class="'+(baseClass || 'all-menu-ribbon')+' new-source-trending">HOT</span>'; if(f.new) return '<span class="'+(baseClass || 'all-menu-ribbon')+' new-source-manual">NEW</span>'; return ''; }; }catch(_){ }
-  try{ getAllMenuBadge = function(menu){ const f = flagsForMenu(menu); const a=[]; if(f.popular) a.push({label:'인기',className:'popular'}); if(f.recent) a.push({label:'최근',className:'recent'}); return a; }; }catch(_){ }
-
-  ['renderDynamicGnbMenus','renderDynamicAllMenus','renderDynamicBottomNav','renderAll','refreshBottomTrendUi','updateBottomNavActiveState','changeView'].forEach(function(name){
-    try{
-      const old = eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
-      if(typeof old === 'function' && !old.__upickV107){
-        const wrapped = function(){ const r = old.apply(this, arguments); scheduleAfterData(); return r; };
-        wrapped.__upickV107 = true;
-        eval(name+' = wrapped');
-        try{ window[name] = wrapped; }catch(_){ }
-      }
-    }catch(_){ }
-  });
-  try{
-    if(typeof loadGnbMenusFromDb === 'function' && !loadGnbMenusFromDb.__upickV107){
-      const oldLoad = loadGnbMenusFromDb;
-      loadGnbMenusFromDb = async function(){ const r = await oldLoad.apply(this, arguments); scheduleAfterData(); return r; };
-      loadGnbMenusFromDb.__upickV107 = true;
-    }
-  }catch(_){ }
-  try{
-    if(typeof loadPopularGnbMenus === 'function' && !loadPopularGnbMenus.__upickV107){
-      const oldPopular = loadPopularGnbMenus;
-      loadPopularGnbMenus = async function(){ const r = await oldPopular.apply(this, arguments); scheduleAfterData(); return r; };
-      loadPopularGnbMenus.__upickV107 = true;
-    }
-  }catch(_){ }
-  try{
-    if(typeof loadRecentGnbMenus === 'function' && !loadRecentGnbMenus.__upickV107){
-      const oldRecent = loadRecentGnbMenus;
-      loadRecentGnbMenus = async function(){ const r = await oldRecent.apply(this, arguments); scheduleAfterData(); return r; };
-      loadRecentGnbMenus.__upickV107 = true;
-    }
-  }catch(_){ }
-
-  document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) scheduleAfterData();
-  }, true);
-  window.upickFinalBadgeSync = schedule;
-  window.decorateAllMenuCards = decorateAll;
-  window.syncBottomNavDotBadgesFinal = decorateBottom;
-  window.syncBottomNavTrendBadgesFinal = decorateBottom;
-  window.addEventListener('load', scheduleAfterData);
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleAfterData, {once:true});
-  else scheduleAfterData();
-})();
-</script>
+<!-- upick-global-hero-v94-fix-js removed: consolidated by upick-v108-stable-inline-badge -->
+<!-- upick-v103-admin-tag-popular-badge-fix removed: consolidated by upick-v108-stable-inline-badge -->
+<!-- upick-v107-stable-badge-render removed: consolidated by upick-v108-stable-inline-badge -->
