@@ -30610,3 +30610,213 @@ section[id^="view-"] > .upick-tab-common-header{
 
 
 
+
+<!-- ===== v103: 운영계 배지 렌더링 기준 재정렬 - 관리자 태그/클릭수 기반 ===== -->
+<script id="upick-v103-admin-tag-popular-badge-fix">
+(function(){
+  'use strict';
+  const NEW_KEYS = ['new'];
+  const HOT_KEYS = ['hot','popular','trending'];
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+  function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function clean(v){ return String(v || '').replace(/^#|^\//,'').trim(); }
+  function norm(v){ return clean(v).toLowerCase(); }
+  function uniq(arr){ return Array.from(new Set((arr || []).map(v => norm(v)).filter(Boolean))); }
+  function fieldValues(raw){
+    const values = [];
+    ['sections','section','tags','tag','badges','badge','menuBadge','statusBadge','ribbon','ribbonType','labelType','displayBadge','type'].forEach(k => {
+      const v = raw && raw[k];
+      if(Array.isArray(v)) values.push(...v);
+      else if(v !== undefined && v !== null) String(v).split(',').forEach(x => values.push(x));
+    });
+    return uniq(values);
+  }
+  function menuKeys(menu){
+    return uniq([menu && menu.menuId, menu && menu.view, menu && menu.route, menu && menu.id]);
+  }
+  function isFixed(id){
+    id = norm(id);
+    return id === 'home' || id === 'all';
+  }
+
+  /* DB normalize 단계에서 관리자 태그(tags/new/all/bottom/gnb 등)를 sections에 합칩니다. */
+  try{
+    if(typeof normalizeGnbMenu === 'function' && !normalizeGnbMenu.__upickV103){
+      const originalNormalize = normalizeGnbMenu;
+      normalizeGnbMenu = function(raw, fallbackId){
+        const menu = originalNormalize.apply(this, arguments) || {};
+        const merged = uniq([...(Array.isArray(menu.sections) ? menu.sections : []), ...fieldValues(raw), ...fieldValues(menu)]);
+        menu.sections = merged.length ? merged : (Array.isArray(menu.sections) ? menu.sections : []);
+        return menu;
+      };
+      normalizeGnbMenu.__upickV103 = true;
+    }
+  }catch(_){ }
+
+  function hasAdminNew(menu){
+    if(!menu || isFixed(menu.menuId)) return false;
+    const values = uniq([...(Array.isArray(menu.sections) ? menu.sections : []), ...fieldValues(menu)]);
+    return values.some(v => NEW_KEYS.includes(v));
+  }
+  function isPopularMenu(menu){
+    if(!menu || isFixed(menu.menuId)) return false;
+    const keys = menuKeys(menu);
+    try{
+      if(typeof popularGnbMenuIdSet !== 'undefined' && popularGnbMenuIdSet){
+        for(const key of keys){ if(popularGnbMenuIdSet.has(key)) return true; }
+      }
+    }catch(_){ }
+    try{
+      if(typeof popularGnbStatsMap !== 'undefined' && popularGnbStatsMap){
+        for(const key of keys){
+          const stat = popularGnbStatsMap.get(key);
+          if(stat && Number(stat.totalClickCount || stat.clickCount || 0) > 0) return true;
+        }
+      }
+    }catch(_){ }
+    const values = uniq([...(Array.isArray(menu.sections) ? menu.sections : []), ...fieldValues(menu)]);
+    return values.some(v => HOT_KEYS.includes(v));
+  }
+  function isRecentMenu(menu){
+    if(!menu || isFixed(menu.menuId)) return false;
+    const keys = menuKeys(menu);
+    try{
+      if(typeof recentGnbMenuIdSet !== 'undefined' && recentGnbMenuIdSet){
+        for(const key of keys){ if(recentGnbMenuIdSet.has(key)) return true; }
+      }
+    }catch(_){ }
+    return false;
+  }
+  function findMenu(view){
+    const key = norm(view || (window.state && window.state.view) || 'home');
+    try{ if(typeof findMenuByView === 'function') return findMenuByView(key); }catch(_){ }
+    try{
+      if(typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)){
+        return gnbMenuCache.find(m => menuKeys(m).includes(key)) || null;
+      }
+    }catch(_){ }
+    return null;
+  }
+
+  try{ isMenuNew = function(menu){ return hasAdminNew(menu); }; }catch(_){ }
+  try{ isTrendingMenu = function(menu){ return isPopularMenu(menu); }; }catch(_){ }
+  try{
+    getMenuTrendFlags = function(menu){
+      return {
+        isNew: hasAdminNew(menu),
+        isHot: isPopularMenu(menu),
+        isPopular: isPopularMenu(menu),
+        isRecent: isRecentMenu(menu)
+      };
+    };
+  }catch(_){ }
+  try{
+    getNewRibbonSource = function(menu){
+      if(isPopularMenu(menu)) return 'trending';
+      if(hasAdminNew(menu)) return 'manual';
+      return '';
+    };
+    makeNewRibbonHtml = function(baseClass, menu){
+      const source = getNewRibbonSource(menu);
+      if(!source) return '';
+      const label = source === 'trending' ? 'HOT' : 'NEW';
+      return `<span class="${baseClass || 'all-menu-ribbon'} new-source-${source}">${label}</span>`;
+    };
+  }catch(_){ }
+
+  function badgePieces(menu){
+    const pieces = [];
+    if(isPopularMenu(menu)) pieces.push({label:'HOT', className:'hot ribbon'});
+    else if(hasAdminNew(menu)) pieces.push({label:'NEW', className:'new ribbon'});
+    if(isPopularMenu(menu)) pieces.push({label:'인기', className:'popular'});
+    if(isRecentMenu(menu)) pieces.push({label:'최근', className:'recent'});
+    return pieces;
+  }
+  function decorateAllMenusStrict(){
+    const grid = qs('#allMenuGrid');
+    if(!grid) return;
+    qsa('.all-menu-card', grid).forEach(card => {
+      card.querySelectorAll('.all-menu-ribbon,.menu-trend-ribbon,.all-menu-badge-wrap,.menu-trend-badge-wrap,.all-menu-badge,.menu-trend-badge').forEach(el => el.remove());
+      const key = clean(card.dataset.viewLink || card.dataset.gnbDynamicMenu || card.getAttribute('data-view-link'));
+      const menu = findMenu(key);
+      if(!menu) return;
+      const pieces = badgePieces(menu);
+      const ribbon = pieces.find(p => p.className.includes('ribbon'));
+      const side = pieces.filter(p => !p.className.includes('ribbon'));
+      if(ribbon){
+        card.insertAdjacentHTML('afterbegin', `<span class="all-menu-ribbon ${ribbon.label === 'HOT' ? 'new-source-trending' : 'new-source-manual'}">${ribbon.label}</span>`);
+      }
+      if(side.length){
+        card.insertAdjacentHTML('afterbegin', `<span class="all-menu-badge-wrap">${side.map(p => `<span class="all-menu-badge ${p.className}">${p.label}</span>`).join('')}</span>`);
+      }
+    });
+  }
+  function decorateHeroStrict(){
+    const hero = qs('#upickGlobalHero');
+    if(!hero) return;
+    hero.querySelectorAll('.global-hero-trend-badges').forEach(el => el.remove());
+    const view = clean((window.state && window.state.view) || qs('.bottom-nav .nav-btn.active')?.dataset?.viewLink || qs('.bottom-nav .nav-btn.active')?.dataset?.view || 'home');
+    const menu = findMenu(view);
+    const pieces = badgePieces(menu);
+    const html = pieces.map(p => `<span class="global-hero-trend-badge ${p.label === 'HOT' ? 'hot' : p.label === 'NEW' ? 'new' : p.className}">${p.label}</span>`).join('');
+    const kicker = qs('#globalHeroKicker', hero);
+    if(kicker && html) kicker.insertAdjacentHTML('afterend', `<span class="global-hero-trend-badges">${html}</span>`);
+  }
+  function decorateBottomStrict(){
+    qsa('.bottom-nav [data-view-link], .bottom-nav [data-view]').forEach(btn => {
+      btn.querySelectorAll('.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+      const key = clean(btn.dataset.viewLink || btn.dataset.view);
+      const menu = findMenu(key);
+      if(!menu || isFixed(key)) return;
+      let type = '';
+      if(isPopularMenu(menu)) type = 'hot';
+      else if(hasAdminNew(menu)) type = 'new';
+      if(type){
+        const dot = document.createElement('span');
+        dot.className = `nav-badge-dot ${type}`;
+        dot.setAttribute('aria-hidden','true');
+        btn.insertAdjacentElement('afterbegin', dot);
+      }
+    });
+  }
+  function refreshStrict(){
+    decorateAllMenusStrict();
+    decorateHeroStrict();
+    decorateBottomStrict();
+  }
+  function schedule(){ [0,80,240,700,1400].forEach(ms => setTimeout(refreshStrict, ms)); }
+
+  ['renderDynamicAllMenus','renderDynamicBottomNav','renderAll','updateBottomNavActiveState','refreshBottomTrendUi'].forEach(name => {
+    try{
+      const old = eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
+      if(typeof old === 'function' && !old.__upickV103){
+        const wrapped = function(){ const r = old.apply(this, arguments); schedule(); return r; };
+        wrapped.__upickV103 = true;
+        eval(name+' = wrapped');
+        try{ window[name] = wrapped; }catch(_){ }
+      }
+    }catch(_){ }
+  });
+  try{
+    if(typeof loadGnbMenusFromDb === 'function' && !loadGnbMenusFromDb.__upickV103){
+      const oldLoad = loadGnbMenusFromDb;
+      loadGnbMenusFromDb = async function(){ const r = await oldLoad.apply(this, arguments); schedule(); return r; };
+      loadGnbMenusFromDb.__upickV103 = true;
+    }
+  }catch(_){ }
+  try{
+    if(typeof loadPopularGnbMenus === 'function' && !loadPopularGnbMenus.__upickV103){
+      const oldPopular = loadPopularGnbMenus;
+      loadPopularGnbMenus = async function(){ const r = await oldPopular.apply(this, arguments); schedule(); return r; };
+      loadPopularGnbMenus.__upickV103 = true;
+    }
+  }catch(_){ }
+
+  document.addEventListener('click', e => {
+    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) schedule();
+  }, true);
+  window.addEventListener('load', schedule);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+})();
+</script>
