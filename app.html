@@ -13743,6 +13743,209 @@ nav.bottom-nav{
 }
 </style>
 
+
+<!-- ===== UPICK FINAL PATCH: public header alignment + hero watermark v13 ===== -->
+<style id="upick-public-header-align-watermark-v13">
+/* 공개앱 상단: 브랜드 + 우측 3개 버튼을 한 줄 중앙 정렬로 고정 */
+#upickGlobalHero .public-unified-header,
+#upickGlobalHero header.topbar.public-unified-header,
+header.topbar.public-unified-header{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) max-content !important;
+  align-items:center !important;
+  justify-content:stretch !important;
+  gap:10px !important;
+  width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+#upickGlobalHero .public-unified-header .upick-header-brand,
+header.topbar.public-unified-header .upick-header-brand{
+  grid-column:1 !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  align-self:center !important;
+}
+
+#upickGlobalHero .public-unified-header .upick-header-utils,
+header.topbar.public-unified-header .upick-header-utils{
+  grid-column:2 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:8px !important;
+  width:max-content !important;
+  min-width:max-content !important;
+  max-width:none !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  padding:0 !important;
+  transform:translateY(-1px) !important;
+  overflow:visible !important;
+}
+
+#upickGlobalHero .public-unified-header .upick-header-utils > *,
+header.topbar.public-unified-header .upick-header-utils > *{
+  flex:0 0 auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+
+#upickGlobalHero .public-unified-header .upick-header-utils .icon-btn,
+#upickGlobalHero .public-unified-header .upick-header-utils button,
+#upickGlobalHero .public-unified-header .gnb-wrap .icon-btn,
+header.topbar.public-unified-header .upick-header-utils .icon-btn,
+header.topbar.public-unified-header .upick-header-utils button,
+header.topbar.public-unified-header .gnb-wrap .icon-btn{
+  position:relative !important;
+  inset:auto !important;
+  display:grid !important;
+  place-items:center !important;
+  width:44px !important;
+  height:44px !important;
+  min-width:44px !important;
+  max-width:44px !important;
+  min-height:44px !important;
+  max-height:44px !important;
+  flex:0 0 44px !important;
+  border-radius:17px !important;
+  margin:0 !important;
+  padding:0 !important;
+  transform:none !important;
+}
+
+#upickGlobalHero .public-unified-header .gnb-wrap,
+header.topbar.public-unified-header .gnb-wrap{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:44px !important;
+  min-width:44px !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  padding:0 !important;
+  position:relative !important;
+  flex:0 0 44px !important;
+}
+
+/* AI 버튼 녹색 점이 버튼 밖으로 밀리지 않도록 위치 고정 */
+#upickGlobalHero .public-unified-header .ai-btn::after,
+header.topbar.public-unified-header .ai-btn::after{
+  top:6px !important;
+  right:7px !important;
+}
+
+/* 히어로 내부에만 은은한 브랜드 워터마크 적용 */
+#upickGlobalHero .hero{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+#upickGlobalHero .hero::before{
+  content:"" !important;
+  position:absolute !important;
+  right:18px !important;
+  top:48% !important;
+  width:150px !important;
+  height:150px !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  opacity:.055 !important;
+  filter:blur(.2px) saturate(.85) brightness(1.25) !important;
+  transform:translateY(-50%) rotate(-13deg) !important;
+  pointer-events:none !important;
+  z-index:0 !important;
+}
+
+#upickGlobalHero .hero > *{
+  position:relative !important;
+  z-index:1 !important;
+}
+
+/* 좁은 화면에서도 한 줄 유지 */
+@media(max-width:420px){
+  #upickGlobalHero .public-unified-header,
+  header.topbar.public-unified-header{
+    gap:7px !important;
+  }
+
+  #upickGlobalHero .public-unified-header .upick-header-utils,
+  header.topbar.public-unified-header .upick-header-utils{
+    gap:7px !important;
+    height:42px !important;
+    min-height:42px !important;
+  }
+
+  #upickGlobalHero .public-unified-header .upick-header-utils .icon-btn,
+  #upickGlobalHero .public-unified-header .upick-header-utils button,
+  #upickGlobalHero .public-unified-header .gnb-wrap .icon-btn,
+  header.topbar.public-unified-header .upick-header-utils .icon-btn,
+  header.topbar.public-unified-header .upick-header-utils button,
+  header.topbar.public-unified-header .gnb-wrap .icon-btn{
+    width:42px !important;
+    height:42px !important;
+    min-width:42px !important;
+    max-width:42px !important;
+    min-height:42px !important;
+    max-height:42px !important;
+    flex-basis:42px !important;
+    border-radius:16px !important;
+  }
+
+  #upickGlobalHero .public-unified-header .gnb-wrap,
+  header.topbar.public-unified-header .gnb-wrap{
+    width:42px !important;
+    min-width:42px !important;
+    height:42px !important;
+    min-height:42px !important;
+    flex-basis:42px !important;
+  }
+
+  #upickGlobalHero .hero::before{
+    right:10px !important;
+    width:128px !important;
+    height:128px !important;
+    opacity:.055 !important;
+  }
+}
+
+@media(max-width:370px){
+  #upickGlobalHero .public-unified-header .upick-header-utils,
+  header.topbar.public-unified-header .upick-header-utils{
+    gap:6px !important;
+  }
+
+  #upickGlobalHero .public-unified-header .upick-header-utils .icon-btn,
+  #upickGlobalHero .public-unified-header .upick-header-utils button,
+  #upickGlobalHero .public-unified-header .gnb-wrap .icon-btn,
+  header.topbar.public-unified-header .upick-header-utils .icon-btn,
+  header.topbar.public-unified-header .upick-header-utils button,
+  header.topbar.public-unified-header .gnb-wrap .icon-btn{
+    width:40px !important;
+    height:40px !important;
+    min-width:40px !important;
+    max-width:40px !important;
+    min-height:40px !important;
+    max-height:40px !important;
+    flex-basis:40px !important;
+  }
+
+  #upickGlobalHero .public-unified-header .gnb-wrap,
+  header.topbar.public-unified-header .gnb-wrap{
+    width:40px !important;
+    min-width:40px !important;
+    height:40px !important;
+    min-height:40px !important;
+    flex-basis:40px !important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -31409,178 +31612,5 @@ section[id^="view-"] > .upick-tab-common-header{
   .upick-header-profile-avatar.has-photo img,
   .upick-tab-common-header [data-upick-profile] img,
   .upick-tab-common-header .profile img{width:30px!important;height:30px!important;}
-}
-</style>
-
-<style id="upick-hero-watermark-header-row-v11-final">
-/* v11 final: 히어로 워터마크는 hero 내부에만, 상단 유틸 3버튼은 한 줄 고정 */
-.public-unified-header,
-header.public-unified-header,
-.upick-home-hero-shell > .public-unified-header,
-.upick-home-hero-shell header.public-unified-header{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) max-content!important;
-  grid-template-areas:"brand utils"!important;
-  align-items:start!important;
-  column-gap:8px!important;
-  row-gap:0!important;
-  width:100%!important;
-  overflow:visible!important;
-  position:relative!important;
-  z-index:30!important;
-}
-.public-unified-header .upick-header-brand,
-.public-unified-header .brand{
-  grid-area:brand!important;
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  flex:1 1 auto!important;
-  align-self:start!important;
-}
-.public-unified-header .upick-header-utils{
-  grid-area:utils!important;
-  display:flex!important;
-  flex-direction:row!important;
-  flex-wrap:nowrap!important;
-  align-items:center!important;
-  justify-content:flex-end!important;
-  gap:6px!important;
-  width:max-content!important;
-  min-width:max-content!important;
-  max-width:none!important;
-  height:auto!important;
-  overflow:visible!important;
-  position:static!important;
-  transform:none!important;
-  margin:0!important;
-  padding:0!important;
-  align-self:start!important;
-  z-index:40!important;
-}
-.public-unified-header .upick-header-utils > *,
-.public-unified-header .upick-header-utils button,
-.public-unified-header .upick-header-utils .icon-btn,
-.public-unified-header .upick-header-utils .gnb-wrap{
-  position:static!important;
-  transform:none!important;
-  flex:0 0 auto!important;
-  float:none!important;
-  margin:0!important;
-}
-.public-unified-header #userChip,
-.public-unified-header .upick-header-utils .icon-btn,
-.public-unified-header .gnb-wrap .icon-btn,
-.public-unified-header button.icon-btn{
-  width:38px!important;
-  height:38px!important;
-  min-width:38px!important;
-  max-width:38px!important;
-  flex-basis:38px!important;
-  border-radius:15px!important;
-  padding:0!important;
-  display:grid!important;
-  place-items:center!important;
-  overflow:hidden!important;
-}
-.public-unified-header #userChip .user-meta{display:none!important;}
-.public-unified-header #userChip .user-avatar{
-  width:100%!important;
-  height:100%!important;
-  border-radius:inherit!important;
-  display:grid!important;
-  place-items:center!important;
-  margin:0!important;
-}
-.public-unified-header .gnb-wrap{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:38px!important;
-  min-width:38px!important;
-  height:38px!important;
-  overflow:visible!important;
-}
-.public-unified-header #globalInstallBtn[hidden],
-.public-unified-header #installTopBtn[hidden]{
-  display:none!important;
-}
-/* 브랜드 영역이 너무 넓어져 버튼을 밀어내지 않게 모바일에서 약간 압축 */
-@media(max-width:460px){
-  .public-unified-header,
-  header.public-unified-header{
-    column-gap:7px!important;
-  }
-  .public-unified-header .upick-header-brand,
-  .public-unified-header .brand{
-    padding:8px 10px!important;
-    border-radius:21px!important;
-  }
-  .public-unified-header .upick-header-brand .logo,
-  .public-unified-header .brand .logo{
-    width:38px!important;
-    height:38px!important;
-    flex-basis:38px!important;
-    border-radius:14px!important;
-  }
-  .public-unified-header .upick-header-brand .logo img,
-  .public-unified-header .brand .logo img{
-    width:29px!important;
-    height:29px!important;
-  }
-  .public-unified-header .upick-brand-copy h1{
-    font-size:20px!important;
-    line-height:1.02!important;
-  }
-  .public-unified-header .upick-brand-copy p{
-    font-size:10px!important;
-    line-height:1.1!important;
-  }
-}
-@media(max-width:390px){
-  .public-unified-header #userChip,
-  .public-unified-header .upick-header-utils .icon-btn,
-  .public-unified-header .gnb-wrap,
-  .public-unified-header .gnb-wrap .icon-btn,
-  .public-unified-header button.icon-btn{
-    width:35px!important;
-    height:35px!important;
-    min-width:35px!important;
-    max-width:35px!important;
-    flex-basis:35px!important;
-    border-radius:14px!important;
-  }
-  .public-unified-header .upick-header-utils{gap:5px!important;}
-}
-/* 워터마크: 헤더가 아닌 히어로 카드 내부에만 제한 */
-.upick-home-hero-shell .hero{
-  position:relative!important;
-  overflow:hidden!important;
-}
-.upick-home-hero-shell .hero > *{
-  position:relative!important;
-  z-index:2!important;
-}
-.upick-home-hero-shell .hero::before{
-  content:""!important;
-  position:absolute!important;
-  right:18px!important;
-  top:50%!important;
-  width:148px!important;
-  height:148px!important;
-  transform:translateY(-50%) rotate(14deg)!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  opacity:.075!important;
-  filter:grayscale(1) brightness(2.6) blur(.2px)!important;
-  pointer-events:none!important;
-  z-index:1!important;
-}
-@media(max-width:460px){
-  .upick-home-hero-shell .hero::before{
-    width:126px!important;
-    height:126px!important;
-    right:12px!important;
-    opacity:.07!important;
-  }
 }
 </style>
