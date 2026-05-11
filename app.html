@@ -29068,76 +29068,25 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   border-radius:16px!important;
 }
 </style>
-<script id="upick-v83-public-header-stable-normalizer">
+<script id="upick-v84-public-header-actions-only">
 (function(){
-  var pending=false;
-  function avatarSrc(){
-    try{
-      if(typeof getProfileImageUrl==='function'){
-        var u=getProfileImageUrl(); if(u) return u;
-      }
-    }catch(_){ }
-    var sels=['#userChip .user-avatar img','.user-chip .user-avatar img','#gnbSettingsAccountSummary .gnb-account-avatar img','.gnb-account-avatar img','#accountProfilePreview img'];
-    for(var i=0;i<sels.length;i++){
-      var img=document.querySelector(sels[i]);
-      var src=img && img.getAttribute('src');
-      if(src) return src;
-    }
-    return '/icons/internal/user.svg';
-  }
-  function normalizeHeader(header){
-    if(!header) return;
-    var brand=header.querySelector('.upick-tab-brand-block');
-    var buttons=Array.from(header.querySelectorAll('.upick-tab-header-btn'));
-    var profile=header.querySelector('[data-upick-profile]') || header.querySelector('.upick-header-profile-btn') || buttons[0];
-    var ai=header.querySelector('[data-upick-go="ai"]') || header.querySelector('.upick-tab-header-btn.ai') || buttons.find(function(b){return /ai-assistant|AI/i.test(b.innerHTML);}) || buttons[1];
-    var install=header.querySelector('[data-upick-install]') || header.querySelector('.upick-tab-header-btn.install') || buttons.find(function(b){return /install|phone|mobile/i.test(b.innerHTML);}) || buttons[2];
-    var gnb=header.querySelector('[data-upick-open-gnb]') || buttons.find(function(b){return b!==profile && b!==ai && b!==install && !b.classList.contains('profile') && !b.classList.contains('ai') && !b.classList.contains('install');}) || buttons[3];
-    [profile,ai,install,gnb].forEach(function(btn){ if(btn){btn.classList.add('upick-tab-header-btn');} });
-    if(profile){
-      profile.classList.add('profile','upick-header-profile-btn');
-      profile.classList.remove('ai','install');
-      profile.setAttribute('data-upick-profile','');
-      profile.removeAttribute('data-upick-go'); profile.removeAttribute('data-upick-install'); profile.removeAttribute('data-upick-open-gnb');
-      profile.setAttribute('aria-label','계정 정보');
-      var av=profile.querySelector('.upick-header-profile-avatar');
-      if(!av){ profile.innerHTML='<span class="upick-header-profile-avatar"><img src="/icons/internal/user.svg" alt=""></span>'; av=profile.querySelector('.upick-header-profile-avatar'); }
-      var img=av.querySelector('img') || document.createElement('img');
-      if(!img.parentNode) av.appendChild(img);
-      img.alt=''; img.src=avatarSrc();
-    }
-    if(ai){
-      ai.classList.add('ai'); ai.classList.remove('profile','install','upick-header-profile-btn');
-      ai.setAttribute('data-upick-go','ai');
-      ai.removeAttribute('data-upick-profile'); ai.removeAttribute('data-upick-install'); ai.removeAttribute('data-upick-open-gnb');
-      ai.setAttribute('aria-label','AI 생활 도우미');
-    }
-    if(install){
-      install.classList.add('install'); install.classList.remove('profile','ai','upick-header-profile-btn');
-      install.setAttribute('data-upick-install','');
-      install.removeAttribute('data-upick-profile'); install.removeAttribute('data-upick-go'); install.removeAttribute('data-upick-open-gnb');
-      install.setAttribute('aria-label','앱으로 이용하기');
-    }
-    if(gnb){
-      gnb.classList.remove('profile','ai','install','upick-header-profile-btn');
-      gnb.setAttribute('data-upick-open-gnb','');
-      gnb.removeAttribute('data-upick-profile'); gnb.removeAttribute('data-upick-go'); gnb.removeAttribute('data-upick-install');
-      gnb.setAttribute('aria-label','전체 메뉴');
-    }
-    [brand,profile,ai,install,gnb].forEach(function(node){ if(node && node.parentNode===header) header.appendChild(node); });
-  }
-  function normalizeAll(){
-    document.querySelectorAll('.upick-tab-common-header').forEach(normalizeHeader);
-    var src=avatarSrc();
-    document.querySelectorAll('.upick-header-profile-avatar img').forEach(function(img){ if(img.getAttribute('src')!==src) img.setAttribute('src', src); });
-  }
-  function schedule(){ if(pending) return; pending=true; requestAnimationFrame(function(){ pending=false; normalizeAll(); }); }
   function routeTo(view){
     var btn=document.querySelector('[data-view="'+view+'"],[data-view-link="'+view+'"],.nav-btn[data-view="'+view+'"],.nav-btn[data-view-link="'+view+'"]');
-    if(btn){btn.click(); return true;}
+    if(btn){ btn.click(); return true; }
     var section=document.getElementById('view-'+view);
-    if(section){document.querySelectorAll('[id^="view-"]').forEach(function(el){el.hidden=true;el.classList.remove('active','show');}); section.hidden=false; section.classList.add('active','show'); return true;}
+    if(section){
+      document.querySelectorAll('[id^="view-"]').forEach(function(el){ el.classList.add('hidden'); });
+      section.classList.remove('hidden');
+      return true;
+    }
     return false;
+  }
+  function syncProfileImages(){
+    var srcEl=document.querySelector('#userChip .user-avatar img');
+    var src=(srcEl && srcEl.getAttribute('src')) || '/icons/internal/user.svg';
+    document.querySelectorAll('.upick-header-profile-avatar img').forEach(function(img){
+      if(img.getAttribute('src')!==src) img.setAttribute('src',src);
+    });
   }
   document.addEventListener('click',function(e){
     var profile=e.target.closest('[data-upick-profile]');
@@ -29147,10 +29096,10 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
     var install=e.target.closest('[data-upick-install]');
     if(install){ e.preventDefault(); e.stopPropagation(); var b=document.querySelector('#installAppBtn,[data-install-app],.install-btn,#pwaInstallBtn'); if(b && b!==install) b.click(); return; }
     var gnb=e.target.closest('[data-upick-open-gnb]');
-    if(gnb){ e.preventDefault(); e.stopPropagation(); var b=document.querySelector('#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,.topbar [aria-label*="전체"],.topbar [aria-label*="메뉴"]'); if(b && b!==gnb) b.click(); return; }
+    if(gnb){ e.preventDefault(); e.stopPropagation(); var b=document.querySelector('#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,#gnbToggleBtn'); if(b && b!==gnb) b.click(); return; }
   },true);
-  function boot(){ normalizeAll(); setTimeout(normalizeAll,80); setTimeout(normalizeAll,350); var mo=new MutationObserver(schedule); mo.observe(document.body,{childList:true,subtree:true}); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncProfileImages,{once:true}); else syncProfileImages();
+  window.addEventListener('load',syncProfileImages,{once:true});
 })();
 </script>
 
@@ -29240,6 +29189,95 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   .upick-tab-common-header .upick-tab-brand-logo img{width:23px!important;height:23px!important;}
   .upick-tab-common-header .upick-tab-brand-copy strong{font-size:17px!important;}
   .upick-tab-common-header .upick-tab-brand-copy span{font-size:9px!important;}
+}
+</style>
+
+<style id="upick-v84-public-header-grid-final">
+/* v84: JS 재계산 제거 후 CSS grid 고정. [헤더][계정][AI][설치][GNB] */
+.upick-tab-common-header,
+.upick-tab-premium-hero .upick-tab-common-header{
+  --upick-action-size:42px!important;
+  --upick-action-gap:7px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) repeat(4,var(--upick-action-size))!important;
+  align-items:center!important;
+  column-gap:var(--upick-action-gap)!important;
+  row-gap:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.upick-tab-common-header .upick-tab-brand-block{
+  grid-column:1!important;
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:58px!important;
+  min-height:58px!important;
+  max-height:58px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:9px 11px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.upick-tab-common-header .upick-tab-brand-logo{
+  flex:0 0 38px!important;
+  width:38px!important;
+  min-width:38px!important;
+  height:38px!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+}
+.upick-tab-common-header .upick-tab-brand-logo img{width:27px!important;height:27px!important;object-fit:contain!important;display:block!important;}
+.upick-tab-common-header .upick-tab-brand-copy{min-width:0!important;flex:1 1 auto!important;overflow:hidden!important;}
+.upick-tab-common-header .upick-tab-brand-copy strong,
+.upick-tab-common-header .upick-tab-brand-copy span{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;}
+.upick-tab-common-header .upick-tab-brand-copy strong{font-size:20px!important;line-height:1.05!important;letter-spacing:-.06em!important;}
+.upick-tab-common-header .upick-tab-brand-copy span{font-size:10px!important;line-height:1.12!important;margin-top:4px!important;letter-spacing:-.035em!important;}
+.upick-tab-common-header .upick-tab-header-btn,
+.upick-tab-common-header button.upick-tab-header-btn{
+  width:var(--upick-action-size)!important;
+  height:var(--upick-action-size)!important;
+  min-width:var(--upick-action-size)!important;
+  max-width:var(--upick-action-size)!important;
+  min-height:var(--upick-action-size)!important;
+  max-height:var(--upick-action-size)!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:16px!important;
+  box-sizing:border-box!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  overflow:hidden!important;
+}
+.upick-tab-common-header .upick-tab-header-btn.profile{grid-column:2!important;order:0!important;}
+.upick-tab-common-header .upick-tab-header-btn.ai{grid-column:3!important;order:0!important;}
+.upick-tab-common-header .upick-tab-header-btn.install{grid-column:4!important;order:0!important;}
+.upick-tab-common-header .upick-tab-header-btn:not(.profile):not(.ai):not(.install){grid-column:5!important;order:0!important;}
+.upick-tab-common-header .upick-tab-header-btn img,
+.upick-tab-common-header .upick-tab-header-btn svg{width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;object-fit:contain!important;display:block!important;pointer-events:none!important;}
+.upick-tab-common-header .upick-header-profile-avatar{width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;max-width:26px!important;max-height:26px!important;border-radius:999px!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:rgba(255,255,255,.88)!important;}
+.upick-tab-common-header .upick-header-profile-avatar img{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;filter:none!important;transform:none!important;display:block!important;}
+.upick-tab-common-header .upick-header-profile-avatar img[src$="user.svg"]{width:18px!important;height:18px!important;object-fit:contain!important;}
+@media(max-width:390px){
+  .upick-tab-common-header,.upick-tab-premium-hero .upick-tab-common-header{--upick-action-size:36px!important;--upick-action-gap:5px!important;}
+  .upick-tab-common-header .upick-tab-brand-block{height:52px!important;min-height:52px!important;max-height:52px!important;padding:8px 9px!important;gap:7px!important;}
+  .upick-tab-common-header .upick-tab-brand-logo{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important;}
+  .upick-tab-common-header .upick-tab-brand-logo img{width:23px!important;height:23px!important;}
+  .upick-tab-common-header .upick-tab-brand-copy strong{font-size:17px!important;}
+  .upick-tab-common-header .upick-tab-brand-copy span{font-size:9px!important;}
+}
+@media(max-width:350px){
+  .upick-tab-common-header,.upick-tab-premium-hero .upick-tab-common-header{--upick-action-size:34px!important;--upick-action-gap:4px!important;}
+  .upick-tab-common-header .upick-tab-brand-copy span{display:none!important;}
+  .upick-tab-common-header .upick-tab-brand-copy strong{font-size:16px!important;}
 }
 </style>
 </body></html>
