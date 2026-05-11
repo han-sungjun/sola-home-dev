@@ -13561,6 +13561,188 @@ nav.bottom-nav{
 }
 </style>
 
+
+
+<!-- ===== 더운정픽 홈 히어로 로고 워터마크 + 상단 아이콘 정렬 보정 ===== -->
+<style id="upick-home-hero-logo-header-fix-20260511">
+/* 1) 공개앱 홈 히어로 우측에 은은한 브랜드 로고 추가 */
+#view-home .upick-home-hero-shell .hero{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+}
+#view-home .upick-home-hero-shell .hero::before{
+  content:""!important;
+  position:absolute!important;
+  right:18px!important;
+  top:22px!important;
+  width:132px!important;
+  height:132px!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  opacity:.105!important;
+  filter:drop-shadow(0 18px 28px rgba(255,255,255,.12)) saturate(1.08)!important;
+  transform:rotate(-6deg)!important;
+  z-index:0!important;
+  pointer-events:none!important;
+}
+#view-home .upick-home-hero-shell .hero > *{
+  position:relative!important;
+  z-index:1!important;
+}
+#view-home .upick-home-hero-shell .hero h2,
+#view-home .upick-home-hero-shell .hero p{
+  max-width:330px!important;
+}
+
+/* 2) 상단 아이콘이 아래로 떨어지지 않도록 헤더를 1줄 고정 */
+#view-home .public-unified-header.unified-topbar{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  flex-wrap:nowrap!important;
+  gap:8px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow:visible!important;
+  margin:0 0 12px!important;
+  padding:0!important;
+}
+#view-home .public-unified-header .upick-header-brand{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:60px!important;
+  min-height:60px!important;
+  padding:8px 10px!important;
+  gap:9px!important;
+  border-radius:21px!important;
+  overflow:hidden!important;
+}
+#view-home .public-unified-header .upick-header-brand .logo{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  flex:0 0 42px!important;
+  border-radius:14px!important;
+}
+#view-home .public-unified-header .upick-header-brand .logo img{
+  width:30px!important;
+  height:30px!important;
+}
+#view-home .public-unified-header .upick-brand-copy{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#view-home .public-unified-header .upick-brand-copy h1{
+  font-size:21px!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#view-home .public-unified-header .upick-brand-copy p{
+  font-size:10.5px!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#view-home .public-unified-header .upick-header-utils{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:auto!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:6px!important;
+  overflow:visible!important;
+}
+#view-home .public-unified-header .upick-header-utils .gnb-wrap{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0!important;
+}
+#view-home .public-unified-header #userChip,
+#view-home .public-unified-header .upick-header-utils > .icon-btn,
+#view-home .public-unified-header .gnb-wrap > .icon-btn{
+  width:39px!important;
+  height:39px!important;
+  min-width:39px!important;
+  max-width:39px!important;
+  flex:0 0 39px!important;
+  border-radius:15px!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  transform:none!important;
+}
+#view-home .public-unified-header #userChip .user-meta{
+  display:none!important;
+}
+#view-home .public-unified-header #userChip .user-avatar{
+  width:100%!important;
+  height:100%!important;
+  border-radius:inherit!important;
+  display:grid!important;
+  place-items:center!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+}
+#view-home .public-unified-header #userChip .user-avatar img,
+#view-home .public-unified-header .upick-header-utils .icon-btn img,
+#view-home .public-unified-header .gnb-wrap .icon-btn img{
+  width:20px!important;
+  height:20px!important;
+  object-fit:contain!important;
+}
+
+@media(max-width:390px){
+  #view-home .public-unified-header.unified-topbar{gap:6px!important;}
+  #view-home .public-unified-header .upick-header-brand{
+    height:56px!important;
+    min-height:56px!important;
+    padding:7px 9px!important;
+    gap:8px!important;
+  }
+  #view-home .public-unified-header .upick-header-brand .logo{
+    width:39px!important;
+    height:39px!important;
+    min-width:39px!important;
+    flex-basis:39px!important;
+  }
+  #view-home .public-unified-header .upick-brand-copy h1{font-size:19px!important;}
+  #view-home .public-unified-header .upick-brand-copy p{font-size:9.5px!important;}
+  #view-home .public-unified-header .upick-header-utils{gap:5px!important;}
+  #view-home .public-unified-header #userChip,
+  #view-home .public-unified-header .upick-header-utils > .icon-btn,
+  #view-home .public-unified-header .gnb-wrap > .icon-btn{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    flex-basis:36px!important;
+    border-radius:14px!important;
+  }
+  #view-home .upick-home-hero-shell .hero::before{
+    right:-2px!important;
+    top:26px!important;
+    width:116px!important;
+    height:116px!important;
+    opacity:.095!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
