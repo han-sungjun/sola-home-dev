@@ -30857,6 +30857,295 @@ header.public-unified-header.unified-topbar + .hero,
 }
 </style>
 
+
+
+<!-- ===== v118: 공개앱 히어로 헤더 우측 아이콘 가로 고정 + 통계 재동기화 ===== -->
+<style id="upick-public-global-hero-icons-v118-row-stable">
+/* 이전 absolute/grid 보정들을 마지막에서 무력화하고, 헤더를 브랜드 + 우측 3버튼 가로형으로 고정 */
+#upickGlobalHero header.public-unified-header,
+.shell > .upick-global-hero-shell header.public-unified-header,
+header.public-unified-header:has(#globalUserChip){
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:"brand utils"!important;
+  align-items:start!important;
+  justify-content:stretch!important;
+  column-gap:8px!important;
+  row-gap:0!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow:visible!important;
+  position:relative!important;
+}
+
+#upickGlobalHero header.public-unified-header .upick-header-brand,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-brand,
+header.public-unified-header:has(#globalUserChip) .upick-header-brand{
+  grid-area:brand!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+
+#upickGlobalHero header.public-unified-header .upick-header-utils,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils,
+header.public-unified-header:has(#globalUserChip) .upick-header-utils{
+  grid-area:utils!important;
+  grid-column:2!important;
+  grid-row:1!important;
+  position:static!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:flex-start!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+  transform:none!important;
+  flex:0 0 auto!important;
+}
+
+/* 설치 버튼은 헤더에서 계속 제외 */
+#upickGlobalHero #globalInstallBtn,
+.shell > .upick-global-hero-shell #globalInstallBtn,
+header.public-unified-header #globalInstallBtn{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  pointer-events:none!important;
+}
+
+/* 프사 / AI / GNB를 같은 행의 독립 버튼으로 고정 */
+#upickGlobalHero header.public-unified-header .upick-header-utils > #globalUserChip,
+#upickGlobalHero header.public-unified-header .upick-header-utils > #globalAiBtn,
+#upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > #globalUserChip,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > #globalAiBtn,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > .gnb-wrap,
+header.public-unified-header:has(#globalUserChip) .upick-header-utils > #globalUserChip,
+header.public-unified-header:has(#globalUserChip) .upick-header-utils > #globalAiBtn,
+header.public-unified-header:has(#globalUserChip) .upick-header-utils > .gnb-wrap{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  order:initial!important;
+  flex:0 0 40px!important;
+  width:40px!important;
+  min-width:40px!important;
+  max-width:40px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+
+#upickGlobalHero header.public-unified-header .upick-header-utils > #globalUserChip{order:1!important;}
+#upickGlobalHero header.public-unified-header .upick-header-utils > #globalAiBtn{order:2!important;}
+#upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap{order:3!important;background:transparent!important;border:0!important;box-shadow:none!important;}
+
+#upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+header.public-unified-header:has(#globalUserChip) .upick-header-utils > .gnb-wrap > #globalGnbBtn{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  display:grid!important;
+  place-items:center!important;
+  width:40px!important;
+  min-width:40px!important;
+  max-width:40px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:15px!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+#upickGlobalHero header.public-unified-header #globalUserChip,
+#upickGlobalHero header.public-unified-header #globalAiBtn,
+#upickGlobalHero header.public-unified-header #globalGnbBtn,
+.shell > .upick-global-hero-shell header.public-unified-header #globalUserChip,
+.shell > .upick-global-hero-shell header.public-unified-header #globalAiBtn,
+.shell > .upick-global-hero-shell header.public-unified-header #globalGnbBtn{
+  border-radius:15px!important;
+  background:rgba(255,255,255,.17)!important;
+  border:1px solid rgba(255,255,255,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 12px 24px rgba(15,23,42,.14)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+
+#upickGlobalHero header.public-unified-header #globalAiBtn img,
+#upickGlobalHero header.public-unified-header #globalGnbBtn img,
+#upickGlobalHero header.public-unified-header #globalAiBtn .upick-svg-icon,
+#upickGlobalHero header.public-unified-header #globalGnbBtn .upick-svg-icon,
+.shell > .upick-global-hero-shell header.public-unified-header #globalAiBtn img,
+.shell > .upick-global-hero-shell header.public-unified-header #globalGnbBtn img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  object-fit:contain!important;
+  filter:brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,.18))!important;
+  transform:none!important;
+}
+
+#upickGlobalHero header.public-unified-header #globalUserChip .user-avatar,
+.shell > .upick-global-hero-shell header.public-unified-header #globalUserChip .user-avatar{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  margin:0!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+#upickGlobalHero header.public-unified-header #globalUserChip .user-meta,
+.shell > .upick-global-hero-shell header.public-unified-header #globalUserChip .user-meta{display:none!important;}
+
+@media(max-width:430px){
+  #upickGlobalHero header.public-unified-header,
+  .shell > .upick-global-hero-shell header.public-unified-header,
+  header.public-unified-header:has(#globalUserChip){column-gap:6px!important;}
+  #upickGlobalHero header.public-unified-header .upick-header-utils,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils,
+  header.public-unified-header:has(#globalUserChip) .upick-header-utils{gap:6px!important;}
+  #upickGlobalHero header.public-unified-header .upick-header-utils > #globalUserChip,
+  #upickGlobalHero header.public-unified-header .upick-header-utils > #globalAiBtn,
+  #upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap,
+  #upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > #globalUserChip,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > #globalAiBtn,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > .gnb-wrap,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn{
+    flex-basis:38px!important;
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    border-radius:14px!important;
+  }
+}
+
+@media(max-width:370px){
+  #upickGlobalHero header.public-unified-header .upick-header-utils,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils,
+  header.public-unified-header:has(#globalUserChip) .upick-header-utils{gap:5px!important;}
+  #upickGlobalHero header.public-unified-header .upick-header-utils > #globalUserChip,
+  #upickGlobalHero header.public-unified-header .upick-header-utils > #globalAiBtn,
+  #upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap,
+  #upickGlobalHero header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > #globalUserChip,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > #globalAiBtn,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > .gnb-wrap,
+  .shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn{
+    flex-basis:36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    border-radius:13px!important;
+  }
+}
+</style>
+<script id="upick-public-global-hero-stats-v118-sync">
+(function(){
+  'use strict';
+  function qs(s,r){return (r||document).querySelector(s);}
+  function num(v){var n=Number(v); return Number.isFinite(n) ? n : 0;}
+  function text(el, v){ if(el && String(el.textContent).trim() !== String(v)) el.textContent = v; }
+  function visibleBenefits(){
+    try{
+      var arr = (window.state && Array.isArray(window.state.benefits)) ? window.state.benefits : [];
+      return arr.filter(function(b){ return b && b.visible !== false && b.hidden !== true; });
+    }catch(_){ return []; }
+  }
+  function syncFromState(){
+    var hero = qs('#upickGlobalHero');
+    if(!hero) return false;
+    var items = visibleBenefits();
+    if(!items.length) return false;
+    var max = Math.max(0, ...items.map(function(v){ return num(v.discountValue || v.discount || v.maxDiscount || v.benefitValue); }));
+    var cats = new Set(items.map(function(v){ return (v.category || v.categoryName || '').trim(); }).filter(Boolean)).size;
+    text(qs('#globalStatMax', hero), max + '%');
+    text(qs('#globalStatCount', hero), items.length);
+    text(qs('#globalStatCat', hero), cats);
+    return true;
+  }
+  function syncFromDom(){
+    var hero = qs('#upickGlobalHero');
+    if(!hero) return false;
+    var pairs = [
+      ['#globalStatMax', '#statMax,#statMaxDiscount'],
+      ['#globalStatCount', '#statCount,#statBenefitCount'],
+      ['#globalStatCat', '#statCat,#statCategoryCount']
+    ];
+    var changed = false;
+    pairs.forEach(function(p){
+      var dest = qs(p[0], hero), src = qs(p[1]);
+      if(dest && src && String(src.textContent).trim()){
+        if(String(dest.textContent).trim() !== String(src.textContent).trim()) changed = true;
+        text(dest, String(src.textContent).trim());
+      }
+    });
+    return changed;
+  }
+  function sync(){ syncFromState() || syncFromDom(); }
+  window.upickSyncGlobalHeroStats = sync;
+  document.addEventListener('DOMContentLoaded', function(){ sync(); setTimeout(sync,300); setTimeout(sync,900); setTimeout(sync,1800); }, {once:true});
+  window.addEventListener('load', function(){ sync(); setTimeout(sync,500); setTimeout(sync,1500); }, {once:true});
+  try{
+    new MutationObserver(function(){ sync(); }).observe(document.documentElement, {childList:true, subtree:true, characterData:true});
+  }catch(_){ }
+  setInterval(sync, 1200);
+})();
+</script>
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
