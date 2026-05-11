@@ -30318,3 +30318,235 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   }, true);
 })();
 </script>
+
+<style id="upick-global-hero-v92-css">
+/* v92: 공개앱 헤더/히어로를 탭별 중복 렌더링이 아닌 단일 공통 영역으로 고정 */
+.shell > .upick-global-hero-shell{
+  display:flex!important;
+  flex-direction:column!important;
+  margin:0 0 14px!important;
+  padding:10px!important;
+  border-radius:26px!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+.shell > .upick-global-hero-shell.hidden{display:none!important;}
+.shell > .upick-global-hero-shell .public-unified-header{
+  position:relative!important;
+  z-index:4!important;
+  display:flex!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  gap:8px!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+}
+.shell > .upick-global-hero-shell .upick-header-brand{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  height:62px!important;
+  padding:9px 12px!important;
+  border-radius:22px!important;
+}
+.shell > .upick-global-hero-shell .upick-header-utils{
+  display:flex!important;
+  align-items:center!important;
+  flex:0 0 auto!important;
+  gap:7px!important;
+  min-width:0!important;
+}
+.shell > .upick-global-hero-shell .icon-btn,
+.shell > .upick-global-hero-shell .user-chip{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  flex:0 0 44px!important;
+  padding:0!important;
+  border-radius:17px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+}
+.shell > .upick-global-hero-shell #globalInstallBtn{display:none!important;}
+.shell > .upick-global-hero-shell .user-chip .user-meta{display:none!important;}
+.shell > .upick-global-hero-shell .user-avatar{
+  width:30px!important;
+  height:30px!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(255,255,255,.18)!important;
+}
+.shell > .upick-global-hero-shell .user-avatar img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  filter:none!important;
+  opacity:1!important;
+}
+.shell > .upick-global-hero-shell .icon-btn img{
+  width:22px!important;
+  height:22px!important;
+  object-fit:contain!important;
+}
+.shell > .upick-global-hero-shell .gnb-wrap{display:contents!important;}
+.shell > .upick-global-hero-shell .hero{
+  position:relative!important;
+  z-index:3!important;
+}
+.shell > .upick-global-hero-shell .hero h2{
+  white-space:normal!important;
+}
+.shell > .upick-global-hero-shell .stats.is-hidden{display:none!important;}
+/* 탭별로 따로 삽입되던 구형/실험형 헤더와 히어로는 숨김 처리 */
+#view-home > .upick-home-hero-shell,
+section[id^="view-"] > .upick-tab-premium-hero,
+section[id^="view-"] > .upick-tab-common-header{
+  display:none!important;
+}
+/* 구형 intro panel은 이미 숨김 클래스가 붙어 있는 경우 유지 */
+.upick-duplicate-hidden,
+.upick-only-hide-duplicate-intro{display:none!important;}
+@media(max-width:430px){
+  .shell > .upick-global-hero-shell{padding:8px!important;border-radius:24px!important;}
+  .shell > .upick-global-hero-shell .public-unified-header{gap:6px!important;}
+  .shell > .upick-global-hero-shell .upick-header-brand{height:58px!important;padding:8px 10px!important;border-radius:21px!important;}
+  .shell > .upick-global-hero-shell .icon-btn,
+  .shell > .upick-global-hero-shell .user-chip{width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;flex-basis:40px!important;border-radius:16px!important;}
+  .shell > .upick-global-hero-shell .user-avatar{width:28px!important;height:28px!important;}
+}
+@media(max-width:370px){
+  .shell > .upick-global-hero-shell .public-unified-header{gap:5px!important;}
+  .shell > .upick-global-hero-shell .icon-btn,
+  .shell > .upick-global-hero-shell .user-chip{width:36px!important;height:36px!important;min-width:36px!important;max-width:36px!important;flex-basis:36px!important;border-radius:14px!important;}
+  .shell > .upick-global-hero-shell .user-avatar{width:26px!important;height:26px!important;}
+  .shell > .upick-global-hero-shell .upick-header-brand{height:56px!important;}
+}
+</style>
+<script id="upick-global-hero-v92-js">
+(function(){
+  const HERO_META = {
+    home:{kickerIcon:'/icons/internal/lock.svg',kicker:'간단 확인 후 입주민 혜택',title:'간단한 확인만으로\n입주민 혜택을 깔끔하게',desc:'부담되는 입력 절차는 줄이고, 필요한 혜택과 공지만 앱처럼 편하게 확인해보세요.',chips:['간단 입장','가벼운 확인','혜택 바로 확인'],stats:true},
+    benefits:{kickerIcon:'/icons/internal/benefit.svg',kicker:'혜택 찾기',title:'입주민 혜택을 빠르게\n찾아보세요',desc:'매장명, 카테고리, 조건으로 원하는 혜택을 검색하고 필터링할 수 있습니다.',chips:['혜택 검색','카테고리 필터','즐겨찾기'],stats:false},
+    favorite:{kickerIcon:'/icons/internal/favorite.svg',kicker:'자주 쓰는 혜택',title:'저장한 혜택을 바로 확인하세요',desc:'관심 있는 매장을 저장해 두고 필요할 때 빠르게 다시 확인할 수 있습니다.',chips:['내 관심 혜택','빠른 확인','계정 동기화'],stats:false},
+    favorites:{kickerIcon:'/icons/internal/favorite.svg',kicker:'자주 쓰는 혜택',title:'저장한 혜택을 바로 확인하세요',desc:'관심 있는 매장을 저장해 두고 필요할 때 빠르게 다시 확인할 수 있습니다.',chips:['내 관심 혜택','빠른 확인','계정 동기화'],stats:false},
+    top5:{kickerIcon:'/icons/internal/top5.svg',kicker:'실시간 인기',title:'지금 많이 찾는 매장을\n확인하세요',desc:'조회, 클릭, 공유, 즐겨찾기 반응을 합산해 인기 매장을 보여드립니다.',chips:['실시간 집계','TOP5','입주민 반응'],stats:false},
+    popular:{kickerIcon:'/icons/internal/top5.svg',kicker:'실시간 인기',title:'지금 많이 찾는 매장을\n확인하세요',desc:'조회, 클릭, 공유, 즐겨찾기 반응을 합산해 인기 매장을 보여드립니다.',chips:['실시간 집계','TOP5','입주민 반응'],stats:false},
+    notices:{kickerIcon:'/icons/internal/notice.svg',kicker:'입주민 안내',title:'중요한 공지사항을\n확인하세요',desc:'관리자가 등록한 공지와 안내를 한눈에 확인하고 공유할 수 있습니다.',chips:['공지 확인','공유','QR 보기'],stats:false},
+    map:{kickerIcon:'/icons/internal/map.svg',kicker:'지도 기반 탐색',title:'가까운 혜택을 지도에서\n찾아보세요',desc:'현재 위치와 매장 위치를 기준으로 거리와 주변 혜택을 편하게 확인합니다.',chips:['현재 위치','거리 확인','길찾기'],stats:false},
+    calendar:{kickerIcon:'/icons/internal/calendar.svg',kicker:'방문 예약 알림',title:'방문 일정을 놓치지 않게\n관리하세요',desc:'혜택 매장 방문 일정을 등록하고 원하는 시간에 미리 알림을 받을 수 있습니다.',chips:['월간','주간','일간'],stats:false},
+    all:{kickerIcon:'/icons/internal/all-menu.svg',kicker:'서비스 메뉴',title:'필요한 기능을 한 곳에서\n이용하세요',desc:'하단 네비바에 모두 담기 어려운 기능을 전체 기능에서 빠르게 접근할 수 있습니다.',chips:['전체 기능','빠른 이동','서비스 확장'],stats:false},
+    ai:{kickerIcon:'/icons/internal/ai-assistant.svg',kicker:'AI 생활 도우미',title:'지금 필요한 정보를\n바로 도와드릴게요',desc:'생활, 혜택, 매장, 지도 정보를 대화형으로 편하게 물어보세요.',chips:['질문하기','혜택 추천','파일 분석'],stats:false}
+  };
+  function $(sel, root=document){return root.querySelector(sel);}
+  function getCurrentView(){
+    return (window.state && window.state.view) || $('.bottom-nav .nav-btn.active')?.dataset?.view || $('.bottom-nav .nav-btn.active')?.dataset?.viewLink || 'home';
+  }
+  function createGlobalHero(){
+    const shell = $('.shell');
+    if(!shell) return null;
+    let el = $('#upickGlobalHero');
+    if(el) return el;
+    el = document.createElement('div');
+    el.id = 'upickGlobalHero';
+    el.className = 'upick-home-hero-shell upick-global-hero-shell';
+    el.innerHTML = `
+      <header class="topbar unified-topbar public-unified-header" aria-label="더운정픽 공통 헤더">
+        <div class="upick-header-brand brand">
+          <div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="더운정픽" loading="lazy"></div>
+          <div class="upick-brand-copy"><h1>더운정픽</h1><p>입주민 전용 혜택 웹앱</p></div>
+        </div>
+        <div class="upick-header-utils">
+          <button class="user-chip" id="globalUserChip" title="계정 정보" type="button" aria-label="계정 정보">
+            <span class="user-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span>
+          </button>
+          <button class="icon-btn ai-btn" id="globalAiBtn" type="button" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button>
+          <button class="icon-btn" id="globalInstallBtn" type="button" title="앱처럼 설치" aria-label="앱처럼 설치"><img class="upick-svg-icon" src="/icons/internal/install.svg" alt="" loading="lazy"></button>
+          <div class="gnb-wrap"><button class="icon-btn" id="globalGnbBtn" type="button" title="메뉴" aria-label="전체 메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button></div>
+        </div>
+      </header>
+      <div class="hero">
+        <div class="eyebrow"><img class="upick-svg-icon upick-inline-icon" id="globalHeroKickerIcon" src="/icons/internal/lock.svg" alt="" loading="lazy"> <span id="globalHeroKicker">간단 확인 후 입주민 혜택</span></div>
+        <div class="env-badge hero-env" id="globalEnvBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
+        <h2 id="globalHeroTitle">간단한 확인만으로<br>입주민 혜택을 깔끔하게</h2>
+        <p id="globalHeroDesc">부담되는 입력 절차는 줄이고, 필요한 혜택과 공지만 앱처럼 편하게 확인해보세요.</p>
+        <div class="trust-hero-badges" id="globalHeroChips" aria-label="탭 안내"></div>
+        <div class="stats" id="globalHeroStats"><div class="stat"><strong id="globalStatMax">0%</strong><span>최대 할인</span></div><div class="stat"><strong id="globalStatCount">0</strong><span>전체 제휴</span></div><div class="stat"><strong id="globalStatCat">0</strong><span>카테고리</span></div></div>
+      </div>`;
+    shell.insertBefore(el, shell.firstElementChild);
+    $('#globalAiBtn', el)?.addEventListener('click', function(e){e.preventDefault(); routeTo('ai');});
+    $('#globalGnbBtn', el)?.addEventListener('click', function(e){
+      e.preventDefault();
+      const original = $('#gnbToggleBtn') || $('#gnbOpenBtn') || $('#openGnbBtn') || $('[data-open-gnb]') || $('.gnb-open-btn');
+      if(original && original !== e.currentTarget) original.click();
+    });
+    $('#globalUserChip', el)?.addEventListener('click', function(e){
+      e.preventDefault();
+      const original = $('#userChip');
+      if(original && original !== e.currentTarget) original.click();
+    });
+    return el;
+  }
+  function routeTo(view){
+    const btn = document.querySelector(`[data-view="${view}"], [data-view-link="${view}"], .nav-btn[data-view="${view}"], .nav-btn[data-view-link="${view}"]`);
+    if(btn) btn.click();
+    else if(typeof window.changeView === 'function') window.changeView(view);
+  }
+  function syncProfile(){
+    const hero = $('#upickGlobalHero'); if(!hero) return;
+    const dest = $('#globalUserChip .user-avatar img', hero); if(!dest) return;
+    const candidates = Array.from(document.querySelectorAll('#userChip .user-avatar img, .upick-header-profile-avatar.has-photo img, .upick-header-profile-avatar img, .user-avatar img'))
+      .filter(img => img && img !== dest && img.getAttribute('src') && !String(img.getAttribute('src')).includes('/icons/internal/user.svg'));
+    const src = candidates[0]?.getAttribute('src');
+    if(src){ dest.src = src; dest.alt = '프로필 이미지'; dest.parentElement?.classList.add('has-photo'); }
+  }
+  function mirrorStats(){
+    const map = [['#globalStatMax','#statMax'],['#globalStatCount','#statCount'],['#globalStatCat','#statCat']];
+    map.forEach(([to,from])=>{ const a=$(to), b=$(from); if(a && b && b.textContent) a.textContent = b.textContent; });
+  }
+  function applyHero(view){
+    const hero = createGlobalHero(); if(!hero) return;
+    view = view || getCurrentView();
+    const meta = HERO_META[view] || HERO_META[String(view||'').replace(/^view-/,'')] || HERO_META.home;
+    const icon = $('#globalHeroKickerIcon', hero);
+    if(icon) icon.src = meta.kickerIcon;
+    const kicker = $('#globalHeroKicker', hero); if(kicker) kicker.textContent = meta.kicker;
+    const title = $('#globalHeroTitle', hero); if(title) title.innerHTML = String(meta.title).split('\n').map(s=>s.trim()).join('<br>');
+    const desc = $('#globalHeroDesc', hero); if(desc) desc.textContent = meta.desc;
+    const chips = $('#globalHeroChips', hero); if(chips) chips.innerHTML = (meta.chips||[]).map(c=>`<span class="trust-hero-badge">${c}</span>`).join('');
+    const stats = $('#globalHeroStats', hero); if(stats) stats.classList.toggle('is-hidden', !meta.stats);
+    mirrorStats();
+    syncProfile();
+    const env = $('#globalEnvBadge', hero);
+    if(env){
+      const original = $('#envBadge');
+      env.classList.toggle('show', !!original?.classList?.contains('show') || document.body.classList.contains('env-dev'));
+    }
+  }
+  function init(){
+    createGlobalHero();
+    applyHero();
+    setTimeout(()=>applyHero(), 100);
+    setTimeout(()=>applyHero(), 700);
+    document.addEventListener('click', function(e){
+      if(e.target.closest('[data-view],[data-view-link],.nav-btn,.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.all-menu-card')){
+        setTimeout(()=>applyHero(), 30);
+        setTimeout(()=>applyHero(), 140);
+      }
+    }, true);
+    window.addEventListener('resize', ()=>applyHero(), {passive:true});
+    try{
+      const mo = new MutationObserver(()=>{ syncProfile(); mirrorStats(); });
+      mo.observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:['src','class']});
+    }catch(_){ }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+})();
+</script>
