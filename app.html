@@ -30498,6 +30498,153 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 </style>
 <!-- build: upick-public-v114-global-glass-header-fix -->
 
+
+
+<!-- ===== v16: hero watermark isolated + global stats resync ===== -->
+<style id="upick-v16-watermark-stats-fix">
+/* 워터마크는 히어로 카드 내부에만 존재하도록 완전 분리 */
+#upickGlobalHero .public-unified-header{
+  position:relative!important;
+  z-index:30!important;
+}
+#upickGlobalHero .hero{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+#upickGlobalHero .hero > *:not(.upick-hero-watermark){
+  position:relative!important;
+  z-index:2!important;
+}
+#upickGlobalHero .upick-hero-watermark{
+  position:absolute!important;
+  right:24px!important;
+  top:50%!important;
+  width:150px!important;
+  height:150px!important;
+  transform:translateY(-50%) rotate(-10deg)!important;
+  opacity:.075!important;
+  z-index:0!important;
+  pointer-events:none!important;
+  user-select:none!important;
+  object-fit:contain!important;
+  filter:grayscale(1) brightness(1.85) contrast(.9) blur(.15px)!important;
+  mix-blend-mode:screen!important;
+}
+@media(max-width:480px){
+  #upickGlobalHero .upick-hero-watermark{
+    right:18px!important;
+    width:128px!important;
+    height:128px!important;
+    opacity:.07!important;
+  }
+}
+</style>
+<script id="upick-v16-watermark-stats-fix-script">
+(function(){
+  function qs(s,r){return (r||document).querySelector(s)}
+  function qsa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+  function toNumber(v){
+    var n=Number(v);
+    return Number.isFinite(n)?n:0;
+  }
+  function visibleBenefits(){
+    try{
+      if(typeof window.getVisibleBenefits === 'function') return window.getVisibleBenefits() || [];
+    }catch(_){ }
+    try{
+      if(window.state && Array.isArray(window.state.benefits)){
+        return window.state.benefits.filter(function(v){ return v && v.visible !== false && v.hidden !== true; });
+      }
+    }catch(_){ }
+    try{
+      if(Array.isArray(window.benefits)) return window.benefits.filter(function(v){return v && v.visible !== false && v.hidden !== true;});
+    }catch(_){ }
+    return [];
+  }
+  function calcStats(){
+    var items=visibleBenefits();
+    var max=0;
+    var cats=new Set();
+    items.forEach(function(v){
+      var d=toNumber(v.discountValue || v.discount || v.discountRate || v.maxDiscount || 0);
+      if(d>max) max=d;
+      var c=(v.category || v.mainCategory || v.type || '').toString().trim();
+      if(c) cats.add(c);
+    });
+    return {max:max, count:items.length, cat:cats.size};
+  }
+  function setText(sel,val){ var el=qs(sel); if(el && el.textContent!==String(val)) el.textContent=String(val); }
+  function ensureWatermark(){
+    var hero=qs('#upickGlobalHero .hero');
+    if(!hero) return;
+    var wm=qs('.upick-hero-watermark', hero);
+    if(!wm){
+      wm=document.createElement('img');
+      wm.className='upick-hero-watermark';
+      wm.src='/icons/internal/brand-symbol-real.png';
+      wm.alt='';
+      wm.setAttribute('aria-hidden','true');
+      wm.loading='lazy';
+      hero.insertBefore(wm, hero.firstChild);
+    }
+  }
+  function syncStats(){
+    var s=calcStats();
+    if(s.count>0 || s.max>0 || s.cat>0){
+      setText('#globalStatMax', s.max + '%');
+      setText('#globalStatCount', s.count);
+      setText('#globalStatCat', s.cat);
+      setText('#statMax', s.max + '%');
+      setText('#statCount', s.count);
+      setText('#statCat', s.cat);
+    }else{
+      var pairs=[['#globalStatMax','#statMax,#statMaxDiscount'],['#globalStatCount','#statCount,#statBenefitCount'],['#globalStatCat','#statCat,#statCategoryCount']];
+      pairs.forEach(function(p){
+        var dest=qs(p[0]), src=qs(p[1]);
+        if(dest && src && src.textContent && src.textContent.trim()) dest.textContent=src.textContent;
+      });
+    }
+  }
+  function apply(){ ensureWatermark(); syncStats(); }
+  window.upickSyncHeroStatsAndWatermark=apply;
+  document.addEventListener('DOMContentLoaded', function(){
+    apply();
+    setTimeout(apply, 100);
+    setTimeout(apply, 400);
+    setTimeout(apply, 1000);
+    setTimeout(apply, 1800);
+  });
+  window.addEventListener('load', function(){ setTimeout(apply,80); setTimeout(apply,700); });
+  var oldRender=window.renderStats;
+  if(typeof oldRender === 'function'){
+    window.renderStats=function(){
+      var r=oldRender.apply(this, arguments);
+      try{ apply(); }catch(_){ }
+      return r;
+    };
+  }
+  var oldRenderAll=window.renderAll;
+  if(typeof oldRenderAll === 'function'){
+    window.renderAll=function(){
+      var r=oldRenderAll.apply(this, arguments);
+      try{ setTimeout(apply,0); }catch(_){ }
+      return r;
+    };
+  }
+  var mo=new MutationObserver(function(){
+    if(!document.__upickV16Pending){
+      document.__upickV16Pending=true;
+      requestAnimationFrame(function(){document.__upickV16Pending=false; apply();});
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    var root=qs('#upickGlobalHero') || document.body;
+    try{ mo.observe(root,{childList:true,subtree:true,characterData:true}); }catch(_){ }
+  });
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
