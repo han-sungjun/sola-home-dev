@@ -13743,276 +13743,6 @@ nav.bottom-nav{
 }
 </style>
 
-
-
-<style id="upick-hero-watermark-header-final-v14">
-/* ===== v14: 히어로 워터마크 레이어 분리 + 공개앱 헤더 아이콘 가라앉음 최종 보정 ===== */
-#upickGlobalHero,
-.upick-global-hero-shell,
-.upick-home-hero-shell{
-  position:relative!important;
-  overflow:hidden!important;
-}
-
-/* 헤더는 워터마크/히어로 레이어보다 항상 위에 독립 배치 */
-#upickGlobalHero header.public-unified-header,
-#upickGlobalHero .public-unified-header,
-.upick-global-hero-shell header.public-unified-header,
-.upick-global-hero-shell .public-unified-header,
-.upick-home-hero-shell header.public-unified-header,
-.upick-home-hero-shell .public-unified-header{
-  position:relative!important;
-  z-index:40!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  flex-wrap:nowrap!important;
-  gap:8px!important;
-  width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-  padding:0!important;
-  transform:none!important;
-  grid-template-columns:none!important;
-  overflow:visible!important;
-}
-
-#upickGlobalHero .public-unified-header .upick-header-brand,
-#upickGlobalHero .public-unified-header .brand,
-.upick-global-hero-shell .public-unified-header .upick-header-brand,
-.upick-global-hero-shell .public-unified-header .brand,
-.upick-home-hero-shell .public-unified-header .upick-header-brand,
-.upick-home-hero-shell .public-unified-header .brand{
-  flex:1 1 auto!important;
-  min-width:0!important;
-  max-width:none!important;
-  align-self:center!important;
-  margin:0!important;
-}
-
-#upickGlobalHero .public-unified-header .upick-header-utils,
-.upick-global-hero-shell .public-unified-header .upick-header-utils,
-.upick-home-hero-shell .public-unified-header .upick-header-utils{
-  position:relative!important;
-  z-index:42!important;
-  flex:0 0 auto!important;
-  display:flex!important;
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:flex-end!important;
-  flex-wrap:nowrap!important;
-  gap:8px!important;
-  width:auto!important;
-  min-width:max-content!important;
-  height:44px!important;
-  min-height:44px!important;
-  margin:0!important;
-  padding:0!important;
-  transform:none!important;
-  align-self:center!important;
-  line-height:1!important;
-  overflow:visible!important;
-}
-
-#upickGlobalHero .public-unified-header .upick-header-utils > *,
-.upick-global-hero-shell .public-unified-header .upick-header-utils > *,
-.upick-home-hero-shell .public-unified-header .upick-header-utils > *{
-  flex:0 0 auto!important;
-  align-self:center!important;
-  margin:0!important;
-  transform:none!important;
-  line-height:1!important;
-}
-
-#upickGlobalHero .public-unified-header #userChip,
-#upickGlobalHero .public-unified-header .ai-btn,
-#upickGlobalHero .public-unified-header #globalAiBtn,
-#upickGlobalHero .public-unified-header #globalInstallBtn,
-#upickGlobalHero .public-unified-header .gnb-wrap,
-#upickGlobalHero .public-unified-header .gnb-wrap .icon-btn,
-.upick-global-hero-shell .public-unified-header #userChip,
-.upick-global-hero-shell .public-unified-header .ai-btn,
-.upick-global-hero-shell .public-unified-header #globalAiBtn,
-.upick-global-hero-shell .public-unified-header #globalInstallBtn,
-.upick-global-hero-shell .public-unified-header .gnb-wrap,
-.upick-global-hero-shell .public-unified-header .gnb-wrap .icon-btn,
-.upick-home-hero-shell .public-unified-header #userChip,
-.upick-home-hero-shell .public-unified-header .ai-btn,
-.upick-home-hero-shell .public-unified-header #globalAiBtn,
-.upick-home-hero-shell .public-unified-header #globalInstallBtn,
-.upick-home-hero-shell .public-unified-header .gnb-wrap,
-.upick-home-hero-shell .public-unified-header .gnb-wrap .icon-btn{
-  width:44px!important;
-  height:44px!important;
-  min-width:44px!important;
-  min-height:44px!important;
-  flex:0 0 44px!important;
-  border-radius:16px!important;
-  padding:0!important;
-  display:grid!important;
-  place-items:center!important;
-  align-self:center!important;
-  margin:0!important;
-  transform:none!important;
-  line-height:1!important;
-  box-sizing:border-box!important;
-}
-
-#upickGlobalHero .public-unified-header #globalInstallBtn[hidden],
-.upick-global-hero-shell .public-unified-header #globalInstallBtn[hidden],
-.upick-home-hero-shell .public-unified-header #globalInstallBtn[hidden]{
-  display:none!important;
-}
-
-#upickGlobalHero .public-unified-header #userChip .user-meta,
-.upick-global-hero-shell .public-unified-header #userChip .user-meta,
-.upick-home-hero-shell .public-unified-header #userChip .user-meta{
-  display:none!important;
-}
-
-#upickGlobalHero .public-unified-header #userChip .user-avatar,
-.upick-global-hero-shell .public-unified-header #userChip .user-avatar,
-.upick-home-hero-shell .public-unified-header #userChip .user-avatar{
-  width:100%!important;
-  height:100%!important;
-  border-radius:inherit!important;
-  margin:0!important;
-  display:grid!important;
-  place-items:center!important;
-}
-
-/* 워터마크는 hero 내부에서만 작동하도록 완전 분리 */
-#upickGlobalHero .hero,
-.upick-global-hero-shell .hero,
-.upick-home-hero-shell .hero{
-  position:relative!important;
-  z-index:1!important;
-  overflow:hidden!important;
-  isolation:isolate!important;
-}
-
-#upickGlobalHero .hero::before,
-.upick-global-hero-shell .hero::before,
-.upick-home-hero-shell .hero::before{
-  content:""!important;
-  position:absolute!important;
-  right:24px!important;
-  top:50%!important;
-  width:158px!important;
-  height:158px!important;
-  transform:translateY(-50%) rotate(-10deg)!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  opacity:.055!important;
-  filter:grayscale(1) brightness(1.95) contrast(1.04)!important;
-  z-index:0!important;
-  pointer-events:none!important;
-}
-
-#upickGlobalHero .hero .hero-watermark,
-.upick-global-hero-shell .hero .hero-watermark,
-.upick-home-hero-shell .hero .hero-watermark,
-#upickGlobalHero .hero .upick-hero-watermark,
-.upick-global-hero-shell .hero .upick-hero-watermark,
-.upick-home-hero-shell .hero .upick-hero-watermark{
-  position:absolute!important;
-  right:24px!important;
-  top:50%!important;
-  width:158px!important;
-  height:158px!important;
-  transform:translateY(-50%) rotate(-10deg)!important;
-  opacity:.055!important;
-  z-index:0!important;
-  pointer-events:none!important;
-}
-
-#upickGlobalHero .hero > *,
-.upick-global-hero-shell .hero > *,
-.upick-home-hero-shell .hero > *{
-  position:relative!important;
-  z-index:1!important;
-}
-
-@media(max-width:430px){
-  #upickGlobalHero .public-unified-header,
-  .upick-global-hero-shell .public-unified-header,
-  .upick-home-hero-shell .public-unified-header{
-    gap:7px!important;
-  }
-  #upickGlobalHero .public-unified-header .upick-header-utils,
-  .upick-global-hero-shell .public-unified-header .upick-header-utils,
-  .upick-home-hero-shell .public-unified-header .upick-header-utils{
-    gap:7px!important;
-    height:42px!important;
-    min-height:42px!important;
-  }
-  #upickGlobalHero .public-unified-header #userChip,
-  #upickGlobalHero .public-unified-header .ai-btn,
-  #upickGlobalHero .public-unified-header #globalAiBtn,
-  #upickGlobalHero .public-unified-header #globalInstallBtn,
-  #upickGlobalHero .public-unified-header .gnb-wrap,
-  #upickGlobalHero .public-unified-header .gnb-wrap .icon-btn,
-  .upick-global-hero-shell .public-unified-header #userChip,
-  .upick-global-hero-shell .public-unified-header .ai-btn,
-  .upick-global-hero-shell .public-unified-header #globalAiBtn,
-  .upick-global-hero-shell .public-unified-header #globalInstallBtn,
-  .upick-global-hero-shell .public-unified-header .gnb-wrap,
-  .upick-global-hero-shell .public-unified-header .gnb-wrap .icon-btn,
-  .upick-home-hero-shell .public-unified-header #userChip,
-  .upick-home-hero-shell .public-unified-header .ai-btn,
-  .upick-home-hero-shell .public-unified-header #globalAiBtn,
-  .upick-home-hero-shell .public-unified-header #globalInstallBtn,
-  .upick-home-hero-shell .public-unified-header .gnb-wrap,
-  .upick-home-hero-shell .public-unified-header .gnb-wrap .icon-btn{
-    width:42px!important;
-    height:42px!important;
-    min-width:42px!important;
-    min-height:42px!important;
-    flex-basis:42px!important;
-    border-radius:15px!important;
-  }
-  #upickGlobalHero .hero::before,
-  .upick-global-hero-shell .hero::before,
-  .upick-home-hero-shell .hero::before{
-    right:12px!important;
-    width:138px!important;
-    height:138px!important;
-    opacity:.052!important;
-  }
-}
-
-@media(max-width:375px){
-  #upickGlobalHero .public-unified-header .upick-header-utils,
-  .upick-global-hero-shell .public-unified-header .upick-header-utils,
-  .upick-home-hero-shell .public-unified-header .upick-header-utils{
-    gap:6px!important;
-  }
-  #upickGlobalHero .public-unified-header #userChip,
-  #upickGlobalHero .public-unified-header .ai-btn,
-  #upickGlobalHero .public-unified-header #globalAiBtn,
-  #upickGlobalHero .public-unified-header #globalInstallBtn,
-  #upickGlobalHero .public-unified-header .gnb-wrap,
-  #upickGlobalHero .public-unified-header .gnb-wrap .icon-btn,
-  .upick-global-hero-shell .public-unified-header #userChip,
-  .upick-global-hero-shell .public-unified-header .ai-btn,
-  .upick-global-hero-shell .public-unified-header #globalAiBtn,
-  .upick-global-hero-shell .public-unified-header #globalInstallBtn,
-  .upick-global-hero-shell .public-unified-header .gnb-wrap,
-  .upick-global-hero-shell .public-unified-header .gnb-wrap .icon-btn,
-  .upick-home-hero-shell .public-unified-header #userChip,
-  .upick-home-hero-shell .public-unified-header .ai-btn,
-  .upick-home-hero-shell .public-unified-header #globalAiBtn,
-  .upick-home-hero-shell .public-unified-header #globalInstallBtn,
-  .upick-home-hero-shell .public-unified-header .gnb-wrap,
-  .upick-home-hero-shell .public-unified-header .gnb-wrap .icon-btn{
-    width:39px!important;
-    height:39px!important;
-    min-width:39px!important;
-    min-height:39px!important;
-    flex-basis:39px!important;
-  }
-}
-</style>
-
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -31427,7 +31157,7 @@ section[id^="view-"] > .upick-tab-common-header{
     hero.className='upick-home-hero-shell upick-global-hero-shell';
     hero.innerHTML='<header class="topbar unified-topbar public-unified-header" aria-label="더운정픽 공통 헤더">'+
       '<div class="upick-header-brand brand"><div class="logo"><img class="upick-svg-icon" src="/icons/internal/brand-symbol-real.png" alt="더운정픽" loading="lazy"></div><div class="upick-brand-copy"><h1>더운정픽</h1><p>입주민 전용 혜택 웹앱</p></div></div>'+
-      '<div class="upick-header-utils"><button class="user-chip" id="globalUserChip" title="계정 정보" type="button" aria-label="계정 정보"><span class="user-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span></button><button class="icon-btn ai-btn" id="globalAiBtn" type="button" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button><button class="icon-btn" id="globalInstallBtn" type="button" hidden aria-hidden="true"><img class="upick-svg-icon" src="/icons/internal/install.svg" alt="" loading="lazy"></button><div class="gnb-wrap"><button class="icon-btn" id="globalGnbBtn" type="button" title="메뉴" aria-label="전체 메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button></div></div></header>'+
+      '<div class="upick-header-utils"><div class="global-user-wrap"><button class="user-chip" id="globalUserChip" title="계정 정보" type="button" aria-label="계정 정보"><span class="user-avatar"><img class="upick-svg-icon" src="/icons/internal/user.svg" alt="" loading="lazy"></span></button></div><div class="global-ai-wrap"><button class="icon-btn ai-btn" id="globalAiBtn" type="button" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button></div><div class="global-install-wrap"><button class="icon-btn" id="globalInstallBtn" type="button" hidden aria-hidden="true"><img class="upick-svg-icon" src="/icons/internal/install.svg" alt="" loading="lazy"></button></div><div class="gnb-wrap"><button class="icon-btn" id="globalGnbBtn" type="button" title="메뉴" aria-label="전체 메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button></div></div></header>'+
       '<div class="hero"><div class="eyebrow"><img class="upick-svg-icon upick-inline-icon" id="globalHeroKickerIcon" src="/icons/internal/lock.svg" alt="" loading="lazy"> <span id="globalHeroKicker"></span></div><div class="env-badge hero-env" id="globalEnvBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2 id="globalHeroTitle"></h2><p id="globalHeroDesc"></p><div class="trust-hero-badges" id="globalHeroChips" aria-label="탭 안내"></div><div class="stats" id="globalHeroStats"><div class="stat"><strong id="globalStatMax">0%</strong><span>최대 할인</span></div><div class="stat"><strong id="globalStatCount">0</strong><span>전체 제휴</span></div><div class="stat"><strong id="globalStatCat">0</strong><span>카테고리</span></div></div></div>';
     shell.insertBefore(hero,shell.firstElementChild);
     qs('#globalAiBtn',hero).addEventListener('click',function(e){e.preventDefault();routeTo('ai')});
@@ -31679,5 +31409,158 @@ section[id^="view-"] > .upick-tab-common-header{
   .upick-header-profile-avatar.has-photo img,
   .upick-tab-common-header [data-upick-profile] img,
   .upick-tab-common-header .profile img{width:30px!important;height:30px!important;}
+}
+</style>
+
+
+<style id="upick-global-header-dom-wrap-v15-final">
+/* ===== v15: 공통 히어로 헤더 우측 버튼 DOM 분리 고정 =====
+   - GNB처럼 계정/AI 버튼도 각각 wrapper DOM을 갖게 하여 baseline/grid 충돌 차단
+   - 워터마크는 hero 내부 레이어에만 유지
+*/
+#upickGlobalHero.upick-global-hero-shell{
+  position:relative!important;
+  overflow:hidden!important;
+}
+#upickGlobalHero.upick-global-hero-shell .public-unified-header{
+  position:relative!important;
+  z-index:40!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 44px 44px 44px!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+#upickGlobalHero.upick-global-hero-shell .upick-header-utils{
+  display:contents!important;
+}
+#upickGlobalHero.upick-global-hero-shell .global-user-wrap,
+#upickGlobalHero.upick-global-hero-shell .global-ai-wrap,
+#upickGlobalHero.upick-global-hero-shell .global-install-wrap,
+#upickGlobalHero.upick-global-hero-shell .gnb-wrap{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  align-self:center!important;
+  justify-self:center!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:0!important;
+  position:relative!important;
+  z-index:42!important;
+  transform:none!important;
+}
+#upickGlobalHero.upick-global-hero-shell .global-user-wrap{grid-column:2!important;}
+#upickGlobalHero.upick-global-hero-shell .global-ai-wrap{grid-column:3!important;}
+#upickGlobalHero.upick-global-hero-shell .global-install-wrap{display:none!important;}
+#upickGlobalHero.upick-global-hero-shell .gnb-wrap{grid-column:4!important;}
+#upickGlobalHero.upick-global-hero-shell #globalUserChip,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn,
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn{
+  position:static!important;
+  inset:auto!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  align-self:center!important;
+  justify-self:center!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  line-height:0!important;
+  vertical-align:middle!important;
+  border-radius:17px!important;
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 12px 26px rgba(2,8,23,.15)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  overflow:hidden!important;
+}
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn::after{
+  top:5px!important;
+  right:6px!important;
+  width:6px!important;
+  height:6px!important;
+  z-index:3!important;
+}
+#upickGlobalHero.upick-global-hero-shell #globalUserChip .user-avatar{
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  max-width:30px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:999px!important;
+}
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn img,
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn img{
+  width:21px!important;
+  height:21px!important;
+  max-width:21px!important;
+  max-height:21px!important;
+  display:block!important;
+  object-fit:contain!important;
+  margin:0!important;
+}
+#upickGlobalHero.upick-global-hero-shell .hero{
+  position:relative!important;
+  z-index:1!important;
+  overflow:hidden!important;
+}
+#upickGlobalHero.upick-global-hero-shell .hero::before,
+#upickGlobalHero.upick-global-hero-shell .hero::after{
+  pointer-events:none!important;
+}
+#upickGlobalHero.upick-global-hero-shell .hero > *{
+  position:relative!important;
+  z-index:2!important;
+}
+@media(max-width:430px){
+  #upickGlobalHero.upick-global-hero-shell .public-unified-header{
+    grid-template-columns:minmax(0,1fr) 40px 40px 40px!important;
+    gap:7px!important;
+  }
+  #upickGlobalHero.upick-global-hero-shell .global-user-wrap,
+  #upickGlobalHero.upick-global-hero-shell .global-ai-wrap,
+  #upickGlobalHero.upick-global-hero-shell .gnb-wrap,
+  #upickGlobalHero.upick-global-hero-shell #globalUserChip,
+  #upickGlobalHero.upick-global-hero-shell #globalAiBtn,
+  #upickGlobalHero.upick-global-hero-shell #globalGnbBtn{
+    width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;min-height:40px!important;max-height:40px!important;border-radius:16px!important;
+  }
+  #upickGlobalHero.upick-global-hero-shell #globalUserChip .user-avatar{width:28px!important;height:28px!important;min-width:28px!important;max-width:28px!important;}
+  #upickGlobalHero.upick-global-hero-shell #globalAiBtn img,
+  #upickGlobalHero.upick-global-hero-shell #globalGnbBtn img{width:20px!important;height:20px!important;}
+}
+@media(max-width:370px){
+  #upickGlobalHero.upick-global-hero-shell .public-unified-header{
+    grid-template-columns:minmax(0,1fr) 36px 36px 36px!important;
+    gap:6px!important;
+  }
+  #upickGlobalHero.upick-global-hero-shell .global-user-wrap,
+  #upickGlobalHero.upick-global-hero-shell .global-ai-wrap,
+  #upickGlobalHero.upick-global-hero-shell .gnb-wrap,
+  #upickGlobalHero.upick-global-hero-shell #globalUserChip,
+  #upickGlobalHero.upick-global-hero-shell #globalAiBtn,
+  #upickGlobalHero.upick-global-hero-shell #globalGnbBtn{
+    width:36px!important;height:36px!important;min-width:36px!important;max-width:36px!important;min-height:36px!important;max-height:36px!important;border-radius:14px!important;
+  }
+  #upickGlobalHero.upick-global-hero-shell #globalUserChip .user-avatar{width:26px!important;height:26px!important;min-width:26px!important;max-width:26px!important;}
 }
 </style>
