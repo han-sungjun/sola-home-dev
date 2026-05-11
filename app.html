@@ -30630,6 +30630,233 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 })();
 </script>
 
+
+
+<!-- ===== header-icons-v6-flex-stable: 우측 아이콘 3개 겹침/흐트러짐 최종 보정 ===== -->
+<style id="header-icons-v6-flex-stable">
+/* absolute 좌표 방식 제거: 브랜드 / 우측버튼 / 히어로를 안정적인 grid/flex로 고정 */
+#upickGlobalHero header.public-unified-header,
+.shell > .upick-global-hero-shell header.public-unified-header,
+header.public-unified-header.unified-topbar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:"brand utils" "hero hero"!important;
+  align-items:start!important;
+  gap:10px!important;
+  position:relative!important;
+  overflow:visible!important;
+}
+
+#upickGlobalHero header.public-unified-header .upick-header-brand,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-brand,
+header.public-unified-header.unified-topbar .upick-header-brand{
+  grid-area:brand!important;
+  width:auto!important;
+  max-width:100%!important;
+  min-width:0!important;
+  position:relative!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;
+}
+
+#upickGlobalHero header.public-unified-header .upick-header-utils,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils,
+header.public-unified-header.unified-topbar .upick-header-utils{
+  grid-area:utils!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  padding:0!important;
+  margin:0!important;
+  position:relative!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;
+  overflow:visible!important;
+  z-index:5!important;
+}
+
+/* 기존 v5 absolute left/top 강제값 완전 무력화 */
+#upickGlobalHero header.public-unified-header .upick-header-utils > *,
+.shell > .upick-global-hero-shell header.public-unified-header .upick-header-utils > *,
+header.public-unified-header.unified-topbar .upick-header-utils > *,
+#upickGlobalHero header.public-unified-header #globalUserChip,
+#upickGlobalHero header.public-unified-header #globalAiBtn,
+#upickGlobalHero header.public-unified-header #globalGnbBtn,
+#upickGlobalHero header.public-unified-header .gnb-wrap,
+.shell > .upick-global-hero-shell header.public-unified-header #globalUserChip,
+.shell > .upick-global-hero-shell header.public-unified-header #globalAiBtn,
+.shell > .upick-global-hero-shell header.public-unified-header #globalGnbBtn,
+.shell > .upick-global-hero-shell header.public-unified-header .gnb-wrap,
+header.public-unified-header.unified-topbar #globalUserChip,
+header.public-unified-header.unified-topbar #globalAiBtn,
+header.public-unified-header.unified-topbar #globalGnbBtn,
+header.public-unified-header.unified-topbar .gnb-wrap{
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  float:none!important;
+}
+
+/* 설치 버튼은 hidden이면 자리도 차지하지 않음 */
+header.public-unified-header #globalInstallBtn[hidden],
+header.public-unified-header #globalInstallBtn[aria-hidden="true"]{
+  display:none!important;
+}
+
+/* 우측 버튼 3개: 프사 / AI / GNB 각각 독립 박스 */
+header.public-unified-header .upick-header-utils > #globalUserChip,
+header.public-unified-header .upick-header-utils > #globalAiBtn,
+header.public-unified-header .upick-header-utils > .gnb-wrap,
+header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+header.public-unified-header #globalGnbBtn{
+  flex:0 0 44px!important;
+  width:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  height:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  padding:0!important;
+  border-radius:16px!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  place-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  overflow:hidden!important;
+}
+
+header.public-unified-header .upick-header-utils > .gnb-wrap{
+  overflow:visible!important;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+header.public-unified-header #globalAiBtn,
+header.public-unified-header #globalUserChip{
+  background:rgba(255,255,255,.18)!important;
+  border:1px solid rgba(255,255,255,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px rgba(15,23,42,.14)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+
+/* 아이콘 중앙 정렬 */
+header.public-unified-header #globalAiBtn img,
+header.public-unified-header #globalGnbBtn img,
+header.public-unified-header #globalAiBtn svg,
+header.public-unified-header #globalGnbBtn svg,
+header.public-unified-header #globalAiBtn .upick-svg-icon,
+header.public-unified-header #globalGnbBtn .upick-svg-icon{
+  display:block!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  object-fit:contain!important;
+  opacity:1!important;
+  visibility:visible!important;
+  margin:0!important;
+  filter:brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,.18))!important;
+}
+
+header.public-unified-header #globalUserChip .user-avatar{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  margin:0!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+header.public-unified-header #globalUserChip .user-meta{display:none!important;}
+
+/* 히어로 본문은 반드시 다음 줄 전체 폭 */
+#upickGlobalHero header.public-unified-header + .hero,
+.shell > .upick-global-hero-shell header.public-unified-header + .hero,
+header.public-unified-header.unified-topbar + .hero,
+#upickGlobalHero .hero{
+  grid-area:hero!important;
+  width:100%!important;
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* 좁은 화면에서도 브랜드가 버튼 영역을 침범하지 않도록 */
+@media(max-width:430px){
+  #upickGlobalHero header.public-unified-header,
+  .shell > .upick-global-hero-shell header.public-unified-header,
+  header.public-unified-header.unified-topbar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    column-gap:8px!important;
+  }
+  header.public-unified-header .upick-header-brand{
+    min-width:0!important;
+    padding:9px 10px!important;
+  }
+  header.public-unified-header .upick-header-brand .logo{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    flex-basis:42px!important;
+  }
+  header.public-unified-header .upick-header-brand h1{font-size:21px!important;}
+  header.public-unified-header .upick-header-brand p{font-size:10.5px!important;}
+  header.public-unified-header .upick-header-utils{gap:6px!important;}
+  header.public-unified-header .upick-header-utils > #globalUserChip,
+  header.public-unified-header .upick-header-utils > #globalAiBtn,
+  header.public-unified-header .upick-header-utils > .gnb-wrap,
+  header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+  header.public-unified-header #globalGnbBtn{
+    flex-basis:40px!important;
+    width:40px!important;
+    min-width:40px!important;
+    max-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    border-radius:15px!important;
+  }
+}
+
+@media(max-width:370px){
+  header.public-unified-header .upick-header-utils{gap:5px!important;}
+  header.public-unified-header .upick-header-utils > #globalUserChip,
+  header.public-unified-header .upick-header-utils > #globalAiBtn,
+  header.public-unified-header .upick-header-utils > .gnb-wrap,
+  header.public-unified-header .upick-header-utils > .gnb-wrap > #globalGnbBtn,
+  header.public-unified-header #globalGnbBtn{
+    flex-basis:37px!important;
+    width:37px!important;
+    min-width:37px!important;
+    max-width:37px!important;
+    height:37px!important;
+    min-height:37px!important;
+    max-height:37px!important;
+    border-radius:14px!important;
+  }
+}
+</style>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
