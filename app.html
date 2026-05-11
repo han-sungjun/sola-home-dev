@@ -30498,6 +30498,138 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 </style>
 <!-- build: upick-public-v114-global-glass-header-fix -->
 
+
+
+<!-- ===== v96: 공개앱 히어로 GNB 아이콘 hidden 복구 최종 보정 ===== -->
+<style id="upick-global-hero-v96-gnb-visible-fix">
+/* 기존 보정 과정에서 GNB wrapper/button/img가 hidden 또는 0px로 눌리는 경우를 최종 레이어에서 강제 복구 */
+#upickGlobalHero .public-unified-header .upick-header-utils{
+  grid-template-columns:repeat(3,42px)!important;
+  width:140px!important;
+  min-width:140px!important;
+  max-width:140px!important;
+  gap:7px!important;
+}
+#upickGlobalHero .public-unified-header .gnb-wrap,
+.shell > .upick-global-hero-shell .public-unified-header .gnb-wrap{
+  grid-column:3!important;
+  grid-row:1!important;
+  display:grid!important;
+  place-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  max-width:42px!important;
+  max-height:42px!important;
+  overflow:visible!important;
+  pointer-events:auto!important;
+  z-index:5!important;
+}
+#upickGlobalHero #globalGnbBtn,
+.shell > .upick-global-hero-shell #globalGnbBtn{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  place-items:center!important;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  max-width:42px!important;
+  max-height:42px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:15px!important;
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 24px rgba(7,26,61,.16)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  pointer-events:auto!important;
+  overflow:hidden!important;
+}
+#upickGlobalHero #globalGnbBtn img,
+.shell > .upick-global-hero-shell #globalGnbBtn img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  object-fit:contain!important;
+  filter:brightness(0) invert(1) drop-shadow(0 3px 8px rgba(7,26,61,.18))!important;
+}
+/* 설치 버튼은 숨기되, GNB 위치 계산에 영향을 주지 않도록 완전 제외 */
+#upickGlobalHero #globalInstallBtn,
+.shell > .upick-global-hero-shell #globalInstallBtn{
+  display:none!important;
+}
+@media(max-width:370px){
+  #upickGlobalHero .public-unified-header .upick-header-utils{
+    grid-template-columns:repeat(3,38px)!important;
+    width:124px!important;
+    min-width:124px!important;
+    max-width:124px!important;
+    gap:5px!important;
+  }
+  #upickGlobalHero .public-unified-header .gnb-wrap,
+  .shell > .upick-global-hero-shell .public-unified-header .gnb-wrap,
+  #upickGlobalHero #globalGnbBtn,
+  .shell > .upick-global-hero-shell #globalGnbBtn{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    min-height:38px!important;
+    max-width:38px!important;
+    max-height:38px!important;
+    border-radius:14px!important;
+  }
+  #upickGlobalHero #globalGnbBtn img,
+  .shell > .upick-global-hero-shell #globalGnbBtn img{
+    width:20px!important;
+    height:20px!important;
+    min-width:20px!important;
+    min-height:20px!important;
+  }
+}
+</style>
+<script id="upick-global-hero-v96-gnb-visible-script">
+(function(){
+  function restoreGlobalGnb(){
+    var wrap=document.querySelector('#upickGlobalHero .public-unified-header .gnb-wrap');
+    var btn=document.getElementById('globalGnbBtn');
+    if(wrap){
+      wrap.hidden=false;
+      wrap.removeAttribute('hidden');
+      wrap.removeAttribute('aria-hidden');
+      wrap.style.display='grid';
+      wrap.style.visibility='visible';
+      wrap.style.opacity='1';
+    }
+    if(btn){
+      btn.hidden=false;
+      btn.removeAttribute('hidden');
+      btn.removeAttribute('aria-hidden');
+      btn.style.display='grid';
+      btn.style.visibility='visible';
+      btn.style.opacity='1';
+      if(!btn.querySelector('img')){
+        btn.innerHTML='<img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy">';
+      }
+    }
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',restoreGlobalGnb,{once:true});
+  }else{restoreGlobalGnb();}
+  setTimeout(restoreGlobalGnb,80);
+  setTimeout(restoreGlobalGnb,300);
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
