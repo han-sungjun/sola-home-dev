@@ -2189,17 +2189,6 @@ body{
   .login-header-btn{width:36px!important;height:36px!important;min-width:36px!important;}
   .hero-ghost-logo{width:66px!important;height:66px!important;}
 }
-/* ===== 로그인 페이지 전용: 우측 헤더 아이콘 제거 ===== */
-.login-unified-header{
-  justify-content:flex-start !important;
-}
-
-.login-unified-header .upick-header-utils,
-.login-unified-header .header-actions,
-.login-unified-header .topbar-actions,
-.login-unified-header .icon-group{
-  display:none !important;
-}
 </style>
 
 </head>
@@ -2210,11 +2199,6 @@ body{
       <div class="login-brand-block">
         <div class="logo"><img src="/icons/internal/brand-symbol-real.png" alt="더운정픽" loading="lazy"></div>
         <div><strong>더운정픽</strong><span>입주민 전용 혜택 앱</span></div>
-      </div>
-      <div class="login-header-actions" aria-label="빠른 메뉴">
-        <button class="login-header-btn" type="button" aria-label="홈" onclick="location.href='/'"><img src="/icons/internal/home.svg" alt="" loading="lazy"></button>
-        <button class="login-header-btn" type="button" aria-label="즐겨찾기" onclick="location.href='/app#favorites'"><img src="/icons/internal/star.svg" alt="" loading="lazy"></button>
-        <button class="login-header-btn" type="button" aria-label="전체 메뉴" onclick="location.href='/app#all'"><img src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
       </div>
     </header>
     <section class="hero">
@@ -5598,6 +5582,17 @@ body {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 })();
 </script>
+
+
+<!-- ===== 더운정픽 v80: 로그인 페이지 우측 3개 아이콘만 제거 ===== -->
+<style id="upick-v80-login-header-icons-only-remove">
+.login-unified-header{
+  justify-content:flex-start !important;
+}
+.login-unified-header .login-header-actions{
+  display:none !important;
+}
+</style>
 
 </body>
 
