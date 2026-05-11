@@ -13745,52 +13745,143 @@ nav.bottom-nav{
 
 
 
-<!-- ===== 더운정픽 공개앱 히어로 우측 은은한 로고 워터마크 v9 ===== -->
-<style id="upick-public-hero-watermark-v9">
-/* 실제 렌더링되는 글로벌 홈 히어로에 적용 */
-#upickGlobalHero.upick-global-hero-shell .hero{
+<!-- ===== 공개앱 히어로 워터마크 + 헤더 아이콘 정렬 안정화 v10 ===== -->
+<style id="upick-public-hero-watermark-v10-fixed">
+/* 헤더 우측 3개 버튼은 워터마크와 무관하게 항상 가로 고정 */
+.shell > .upick-global-hero-shell .public-unified-header{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.shell > .upick-global-hero-shell .upick-header-brand{
+  grid-column:1!important;
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+.shell > .upick-global-hero-shell .upick-header-utils{
+  grid-column:2!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,44px)!important;
+  grid-auto-flow:column!important;
+  align-items:center!important;
+  justify-content:end!important;
+  gap:7px!important;
+  width:auto!important;
+  min-width:calc((44px * 3) + (7px * 2))!important;
+  max-width:calc((44px * 3) + (7px * 2))!important;
+  overflow:visible!important;
+}
+.shell > .upick-global-hero-shell #globalUserChip,
+.shell > .upick-global-hero-shell #globalAiBtn,
+.shell > .upick-global-hero-shell .gnb-wrap,
+.shell > .upick-global-hero-shell #globalGnbBtn{
   position:relative!important;
-  isolation:isolate!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  flex:0 0 44px!important;
+  display:grid!important;
+  place-items:center!important;
+  box-sizing:border-box!important;
   overflow:hidden!important;
 }
-#upickGlobalHero.upick-global-hero-shell .hero::before{
-  content:""!important;
-  position:absolute!important;
-  right:18px!important;
-  top:50%!important;
-  width:154px!important;
-  height:154px!important;
-  transform:translateY(-50%) rotate(-8deg)!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  opacity:.072!important;
-  filter:grayscale(1) brightness(1.85) drop-shadow(0 18px 30px rgba(147,197,253,.16))!important;
-  z-index:0!important;
-  pointer-events:none!important;
+.shell > .upick-global-hero-shell #globalUserChip{grid-column:1!important;}
+.shell > .upick-global-hero-shell #globalAiBtn{grid-column:2!important;}
+.shell > .upick-global-hero-shell .gnb-wrap{grid-column:3!important;}
+.shell > .upick-global-hero-shell #globalInstallBtn{display:none!important;}
+.shell > .upick-global-hero-shell .gnb-wrap{display:grid!important;}
+.shell > .upick-global-hero-shell .gnb-wrap > .icon-btn{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
 }
-#upickGlobalHero.upick-global-hero-shell .hero > *{
+
+/* 히어로 내부에만 심볼 워터마크를 추가하고, 헤더에는 영향 주지 않음 */
+.shell > .upick-global-hero-shell .hero{
   position:relative!important;
-  z-index:1!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
 }
-#upickGlobalHero.upick-global-hero-shell .hero h2,
-#upickGlobalHero.upick-global-hero-shell .hero p{
+.shell > .upick-global-hero-shell .hero::before{
+  content:"";
+  position:absolute;
+  right:-8px;
+  top:45%;
+  width:154px;
+  height:154px;
+  transform:translateY(-50%) rotate(13deg);
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat;
+  opacity:.075;
+  filter:brightness(1.25) saturate(.9) blur(.15px);
+  mix-blend-mode:screen;
+  pointer-events:none;
+  z-index:0;
+}
+.shell > .upick-global-hero-shell .hero > *{
   position:relative!important;
   z-index:2!important;
 }
+.shell > .upick-global-hero-shell .hero .hero-env{z-index:3!important;}
+
 @media(max-width:430px){
-  #upickGlobalHero.upick-global-hero-shell .hero::before{
-    right:-4px!important;
-    top:48%!important;
-    width:132px!important;
-    height:132px!important;
-    opacity:.066!important;
+  .shell > .upick-global-hero-shell .public-unified-header{gap:6px!important;}
+  .shell > .upick-global-hero-shell .upick-header-utils{
+    grid-template-columns:repeat(3,40px)!important;
+    gap:6px!important;
+    min-width:calc((40px * 3) + (6px * 2))!important;
+    max-width:calc((40px * 3) + (6px * 2))!important;
+  }
+  .shell > .upick-global-hero-shell #globalUserChip,
+  .shell > .upick-global-hero-shell #globalAiBtn,
+  .shell > .upick-global-hero-shell .gnb-wrap,
+  .shell > .upick-global-hero-shell #globalGnbBtn,
+  .shell > .upick-global-hero-shell .gnb-wrap > .icon-btn{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    max-width:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    flex-basis:40px!important;
+  }
+  .shell > .upick-global-hero-shell .hero::before{
+    width:140px;
+    height:140px;
+    right:-16px;
+    top:44%;
+    opacity:.07;
   }
 }
 @media(max-width:370px){
-  #upickGlobalHero.upick-global-hero-shell .hero::before{
-    right:-18px!important;
-    width:118px!important;
-    height:118px!important;
-    opacity:.058!important;
+  .shell > .upick-global-hero-shell .upick-header-utils{
+    grid-template-columns:repeat(3,36px)!important;
+    gap:5px!important;
+    min-width:calc((36px * 3) + (5px * 2))!important;
+    max-width:calc((36px * 3) + (5px * 2))!important;
+  }
+  .shell > .upick-global-hero-shell #globalUserChip,
+  .shell > .upick-global-hero-shell #globalAiBtn,
+  .shell > .upick-global-hero-shell .gnb-wrap,
+  .shell > .upick-global-hero-shell #globalGnbBtn,
+  .shell > .upick-global-hero-shell .gnb-wrap > .icon-btn{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    flex-basis:36px!important;
   }
 }
 </style>
