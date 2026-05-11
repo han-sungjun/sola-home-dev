@@ -132,11 +132,27 @@
 .popular-item.rank-1 .popular-name{
  color:#92400e;
 }
+
 .popular-rank.medal{
  background:#fff;
- font-size:22px;
+ font-size:0;
  color:#0f172a;
 }
+.popular-rank.medal .rank-medal-svg,
+.resident-rank-medal .rank-medal-svg{
+ width:26px;
+ height:26px;
+ display:block;
+ filter:drop-shadow(0 6px 10px rgba(15,23,42,.12));
+}
+.resident-rank-medal.has-svg{
+ background:#fff;
+ border:1px solid rgba(226,232,240,.95);
+ box-shadow:0 10px 22px rgba(15,23,42,.08);
+}
+.resident-rank-medal.has-svg.gold{border-color:rgba(251,191,36,.42);}
+.resident-rank-medal.has-svg.silver{border-color:rgba(148,163,184,.42);}
+.resident-rank-medal.has-svg.bronze{border-color:rgba(249,115,22,.34);}
 .popular-rank.gold{
  box-shadow:0 10px 24px rgba(245,158,11,.25);
  border:1px solid rgba(251,191,36,.35);
@@ -18012,10 +18028,31 @@ ${item.content || ''}`);
  });
  }
 
+
+ function getRankMedalSvg(rank){
+ const config = {
+  1: { cls:'gold', main:'#F59E0B', light:'#FDE68A', ribbon:'#2563EB', text:'#92400E' },
+  2: { cls:'silver', main:'#94A3B8', light:'#E2E8F0', ribbon:'#7C3AED', text:'#475569' },
+  3: { cls:'bronze', main:'#F97316', light:'#FED7AA', ribbon:'#EA580C', text:'#9A3412' }
+ }[rank];
+ if(!config) return String(rank);
+ return `<svg class="rank-medal-svg" viewBox="0 0 64 64" role="img" aria-label="${rank}위 메달" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 6h10l5 18H25L20 6Z" fill="${config.ribbon}" opacity=".92"/>
+  <path d="M44 6H34l-5 18h10L44 6Z" fill="#38BDF8" opacity=".92"/>
+  <circle cx="32" cy="36" r="20" fill="${config.light}"/>
+  <circle cx="32" cy="36" r="16" fill="${config.main}"/>
+  <circle cx="25" cy="27" r="5" fill="#fff" opacity=".52"/>
+  <text x="32" y="43" text-anchor="middle" font-size="20" font-weight="900" font-family="Arial, sans-serif" fill="#fff">${rank}</text>
+  <circle cx="32" cy="36" r="19" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/>
+ </svg>`;
+ }
+
+ function getRankMedalClass(rank){
+  return rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+ }
+
  function getRankBadge(rank){
- if(rank === 1) return '<div class="popular-rank medal gold" aria-label="1위">🥇</div>';
- if(rank === 2) return '<div class="popular-rank medal silver" aria-label="2위">🥈</div>';
- if(rank === 3) return '<div class="popular-rank medal bronze" aria-label="3위">🥉</div>';
+ if(rank >= 1 && rank <= 3) return `<div class="popular-rank medal ${getRankMedalClass(rank)}" aria-label="${rank}위">${getRankMedalSvg(rank)}</div>`;
  return `<div class="popular-rank" aria-label="${rank}위">${rank}</div>`;
  }
 
@@ -19606,8 +19643,8 @@ function renderCalendarDayModal(){
  const list = qs('#residentRankList'); if(!list) return;
  if(!items.length){ list.innerHTML = '<div class="notice-empty">아직 활동 랭킹 정보가 없습니다.</div>'; return; }
  list.innerHTML = items.map((item, index) => {
- const rank = index + 1; const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
- return `<div class="resident-rank-row"><div class="resident-rank-left"><div class="resident-rank-medal">${medal}</div><div class="resident-rank-copy"><div class="resident-rank-name">${escapeHtml(item.nickname || item.loginId || '입주민')}</div><div class="resident-rank-sub">활동 ${Number(item.activityCount || 0).toLocaleString('ko-KR')}회 · 최근 ${escapeHtml(item.lastActivityType || 'activity')}</div></div></div><div class="resident-rank-score"><strong>${Number(item.score || 0).toLocaleString('ko-KR')}</strong><span>점수</span></div></div>`;
+ const rank = index + 1; const medal = rank <= 3 ? getRankMedalSvg(rank) : rank; const medalClass = rank <= 3 ? `has-svg ${getRankMedalClass(rank)}` : '';
+ return `<div class="resident-rank-row"><div class="resident-rank-left"><div class="resident-rank-medal ${medalClass}" aria-label="${rank}위">${medal}</div><div class="resident-rank-copy"><div class="resident-rank-name">${escapeHtml(item.nickname || item.loginId || '입주민')}</div><div class="resident-rank-sub">활동 ${Number(item.activityCount || 0).toLocaleString('ko-KR')}회 · 최근 ${escapeHtml(item.lastActivityType || 'activity')}</div></div></div><div class="resident-rank-score"><strong>${Number(item.score || 0).toLocaleString('ko-KR')}</strong><span>점수</span></div></div>`;
  }).join('');
  }
 
