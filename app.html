@@ -30491,3 +30491,192 @@ section[id^="view-"] > .upick-tab-common-header{
   if(document.readyState!=='loading'){refreshAll();[120,450,900,1600,2600,4200].forEach(function(ms){setTimeout(refreshAll,ms)});}
 })();
 </script>
+
+<!-- ===== v95: 공통 히어로/전체기능 HOT·NEW 조건 보강 ===== -->
+<style id="upick-global-hero-v95-trend-style">
+#upickGlobalHero .eyebrow{
+  display:inline-flex!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+}
+#upickGlobalHero .global-hero-trend-badges{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-left:4px!important;
+  flex:0 0 auto!important;
+}
+#upickGlobalHero .global-hero-trend-badge{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:19px!important;
+  padding:4px 8px!important;
+  border-radius:999px!important;
+  font-size:9px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  letter-spacing:.02em!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.14)!important;
+}
+#upickGlobalHero .global-hero-trend-badge.hot{
+  background:linear-gradient(135deg,#ff5b35,#ff8a00)!important;
+  color:#fff!important;
+}
+#upickGlobalHero .global-hero-trend-badge.new{
+  background:linear-gradient(135deg,#60a5fa,#2563eb)!important;
+  color:#fff!important;
+}
+#upickGlobalHero .global-hero-trend-badge.popular{
+  background:#fff7ed!important;
+  border-color:#fed7aa!important;
+  color:#c2410c!important;
+}
+#upickGlobalHero .global-hero-trend-badge.recent{
+  background:#eff6ff!important;
+  border-color:#bfdbfe!important;
+  color:#1d4ed8!important;
+}
+#allMenuGrid .all-menu-card{position:relative!important;overflow:hidden!important;}
+#allMenuGrid .all-menu-card .all-menu-ribbon,
+#allMenuGrid .all-menu-card .menu-trend-ribbon{
+  display:inline-flex!important;
+  position:absolute!important;
+  left:14px!important;
+  top:12px!important;
+  z-index:20!important;
+  min-height:20px!important;
+  padding:4px 8px!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  color:#fff!important;
+  background:linear-gradient(135deg,#60a5fa,#2563eb)!important;
+  transform:none!important;
+}
+#allMenuGrid .all-menu-card .all-menu-ribbon.new-source-trending,
+#allMenuGrid .all-menu-card .menu-trend-ribbon.new-source-trending{
+  background:linear-gradient(135deg,#ff5b35,#ff8a00)!important;
+}
+</style>
+<script id="upick-global-hero-v95-trend-js">
+(function(){
+  'use strict';
+  var runTimer=0;
+  function qs(sel,root){return (root||document).querySelector(sel);}
+  function qsa(sel,root){return Array.prototype.slice.call((root||document).querySelectorAll(sel));}
+  function cleanKey(v){return String(v||'').replace(/^#|^\//,'').trim();}
+  function esc(v){try{return CSS.escape(String(v||''));}catch(_){return String(v||'').replace(/"/g,'\\"');}}
+  function currentView(){
+    return cleanKey((window.state&&window.state.view) || qs('.bottom-nav .nav-btn.active')?.dataset?.viewLink || qs('.bottom-nav .nav-btn.active')?.dataset?.view || 'home');
+  }
+  function findMenu(view){
+    view=cleanKey(view||currentView());
+    try{ if(typeof window.findMenuByView==='function'){ var m=window.findMenuByView(view); if(m) return m; } }catch(_){ }
+    try{ if(typeof window.getMenuByIdOrFallback==='function'){ var f=window.getMenuByIdOrFallback(view); if(f) return f; } }catch(_){ }
+    return null;
+  }
+  function readDomFlags(view){
+    view=cleanKey(view||currentView());
+    var f={hot:false,new:false,popular:false,recent:false};
+    var selectors=[
+      '.bottom-nav [data-view-link="'+esc(view)+'"]',
+      '#allMenuGrid [data-view-link="'+esc(view)+'"]',
+      '#gnbSheet [data-view-link="'+esc(view)+'"]',
+      '#gnbNewMenus [data-view-link="'+esc(view)+'"]',
+      '[data-gnb-dynamic-menu="'+esc(view)+'"]'
+    ];
+    selectors.forEach(function(sel){
+      qsa(sel).forEach(function(el){
+        var txt=(el.textContent||'').toUpperCase();
+        if(txt.indexOf('HOT')>-1) f.hot=true;
+        if(txt.indexOf('NEW')>-1) f.new=true;
+        if((el.closest&&el.closest('#gnbNewMenus')) || el.querySelector('.new-source-manual,.new,.nav-final-trend-badge.new,.nav-mini-trend.new')) f.new=true;
+        if(el.querySelector('.new-source-trending,.hot,.nav-final-trend-badge.hot,.nav-mini-trend.hot')) f.hot=true;
+        if((el.textContent||'').indexOf('인기')>-1 || el.querySelector('.popular')) f.popular=true;
+        if((el.textContent||'').indexOf('최근')>-1 || el.querySelector('.recent')) f.recent=true;
+      });
+    });
+    return f;
+  }
+  function calcFlags(view){
+    var f=readDomFlags(view);
+    var menu=findMenu(view);
+    if(menu){
+      try{
+        if(typeof window.getMenuTrendFlags==='function'){
+          var g=window.getMenuTrendFlags(menu)||{};
+          f.hot=!!(f.hot||g.isHot||g.hot);
+          f.new=!!(f.new||g.isNew||g.new);
+          f.popular=!!(f.popular||g.isPopular||g.popular);
+          f.recent=!!(f.recent||g.isRecent||g.recent);
+        }
+      }catch(_){ }
+      try{ if(typeof window.isTrendingMenu==='function') f.hot=!!(f.hot||window.isTrendingMenu(menu)); }catch(_){ }
+      // 관리자에서 'new' 구역에 넣은 메뉴는 전체 기능/히어로에서도 NEW로 표시합니다.
+      if(Array.isArray(menu.sections) && menu.sections.includes('new')) f.new=true;
+    }
+    // DOM상 '새 메뉴' 그룹에 있으면 createdAt 날짜와 무관하게 NEW 유지
+    if(qs('#gnbNewMenus [data-view-link="'+esc(cleanKey(view))+'"]')) f.new=true;
+    return f;
+  }
+  function trendHtml(flags){
+    var parts=[];
+    if(flags.hot) parts.push('<span class="global-hero-trend-badge hot">HOT</span>');
+    else if(flags.new) parts.push('<span class="global-hero-trend-badge new">NEW</span>');
+    if(flags.popular) parts.push('<span class="global-hero-trend-badge popular">인기</span>');
+    if(flags.recent) parts.push('<span class="global-hero-trend-badge recent">최근</span>');
+    return parts.join('');
+  }
+  function syncHeroBadge(){
+    var hero=qs('#upickGlobalHero'); if(!hero) return;
+    var eyebrow=qs('.eyebrow',hero); if(!eyebrow) return;
+    qsa('.global-hero-trend-badges',hero).forEach(function(el){el.remove();});
+    var html=trendHtml(calcFlags(currentView()));
+    if(html) eyebrow.insertAdjacentHTML('beforeend','<span class="global-hero-trend-badges">'+html+'</span>');
+  }
+  function decorateAllCards(){
+    var grid=qs('#allMenuGrid'); if(!grid) return;
+    qsa('.all-menu-card',grid).forEach(function(card){
+      var key=cleanKey(card.dataset.viewLink || card.dataset.gnbDynamicMenu || card.getAttribute('data-view') || '');
+      if(!key) return;
+      var flags=calcFlags(key);
+      var ribbon=card.querySelector('.all-menu-ribbon,.menu-trend-ribbon');
+      if(flags.hot || flags.new){
+        var label=flags.hot?'HOT':'NEW';
+        var cls=flags.hot?'new-source-trending':'new-source-manual';
+        if(!ribbon){
+          card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon '+cls+'">'+label+'</span>');
+        }else{
+          ribbon.textContent=label;
+          ribbon.classList.toggle('new-source-trending',flags.hot);
+          ribbon.classList.toggle('new-source-manual',!flags.hot);
+        }
+      }
+    });
+  }
+  function refresh(){ syncHeroBadge(); decorateAllCards(); }
+  function schedule(delay){ clearTimeout(runTimer); runTimer=setTimeout(refresh, delay||0); }
+  ['click','keyup'].forEach(function(type){
+    document.addEventListener(type,function(e){
+      if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],.nav-btn,.all-menu-card,.gnb-menu-item,.gnb-menu-subitem,.bottom-nav')){
+        schedule(70);
+      }
+    },true);
+  });
+  document.addEventListener('upick:view-change',function(){schedule(0);});
+  var wrapNames=['renderDynamicAllMenus','renderDynamicGnbMenus','renderDynamicBottomNav','refreshBottomTrendUi','syncBottomNavTrendBadgesFinal','scheduleTrendFinalDisplay'];
+  wrapNames.forEach(function(name){
+    var fn=window[name];
+    if(typeof fn==='function' && !fn.__upickV95Wrapped){
+      window[name]=function(){ var r=fn.apply(this,arguments); setTimeout(refresh,0); setTimeout(refresh,120); return r; };
+      window[name].__upickV95Wrapped=true;
+    }
+  });
+  document.addEventListener('DOMContentLoaded',function(){[0,120,500,1200,2500].forEach(function(ms){setTimeout(refresh,ms);});},{once:true});
+  if(document.readyState!=='loading'){[0,120,500,1200,2500].forEach(function(ms){setTimeout(refresh,ms);});}
+})();
+</script>
