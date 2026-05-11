@@ -29338,4 +29338,120 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   setTimeout(ensureProfileImage,1200);
 })();
 </script>
+
+
+<style id="upick-v86-profile-sync-all-tabs">
+/* v86: 모든 공개앱 탭 헤더의 계정 프사 표시 통일 */
+.upick-tab-common-header .upick-tab-header-btn.profile,
+.upick-tab-common-header button[data-upick-profile]{
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 24px rgba(3,15,43,.12)!important;
+}
+.upick-tab-common-header .upick-header-profile-avatar{
+  width:26px!important;
+  height:26px!important;
+  min-width:26px!important;
+  min-height:26px!important;
+  max-width:26px!important;
+  max-height:26px!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  background:rgba(255,255,255,.94)!important;
+  border:1px solid rgba(255,255,255,.52)!important;
+  box-shadow:none!important;
+}
+.upick-tab-common-header .upick-header-profile-avatar img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:cover!important;
+  filter:none!important;
+  transform:none!important;
+}
+.upick-tab-common-header .upick-header-profile-avatar:not(.has-photo) img,
+.upick-tab-common-header .upick-header-profile-avatar img[src$="user.svg"]{
+  width:18px!important;
+  height:18px!important;
+  max-width:18px!important;
+  max-height:18px!important;
+  object-fit:contain!important;
+}
+</style>
+<script id="upick-v86-profile-sync-all-tabs-script">
+(function(){
+  var lastRun=0;
+  function getSource(){
+    var avatar=document.querySelector('#userChip .user-avatar');
+    var img=avatar && avatar.querySelector('img');
+    var src=(img && img.getAttribute('src')) || '/icons/internal/user.svg';
+    var hasPhoto=!!(avatar && avatar.classList.contains('has-photo') && src && !/user\.svg(?:$|[?#])/.test(src));
+    return {src:src, hasPhoto:hasPhoto};
+  }
+  function normalizeProfileButtons(){
+    document.querySelectorAll('.upick-tab-common-header').forEach(function(header){
+      var btns=Array.from(header.querySelectorAll('.upick-tab-header-btn'));
+      var profile=header.querySelector('[data-upick-profile]') || btns[0];
+      if(!profile) return;
+      profile.classList.add('profile','upick-header-profile-btn');
+      profile.classList.remove('ai','install');
+      profile.setAttribute('data-upick-profile','');
+      profile.setAttribute('aria-label','계정 정보');
+      profile.removeAttribute('data-upick-go');
+      profile.removeAttribute('data-upick-install');
+      profile.removeAttribute('data-upick-open-gnb');
+      var box=profile.querySelector('.upick-header-profile-avatar');
+      if(!box){
+        profile.textContent='';
+        box=document.createElement('span');
+        box.className='upick-header-profile-avatar';
+        profile.appendChild(box);
+      }
+      if(!box.querySelector('img')){
+        box.innerHTML='<img src="/icons/internal/user.svg" alt="계정" loading="lazy">';
+      }
+    });
+  }
+  function sync(){
+    lastRun=Date.now();
+    normalizeProfileButtons();
+    var source=getSource();
+    document.querySelectorAll('.upick-header-profile-avatar').forEach(function(box){
+      var img=box.querySelector('img');
+      if(!img){
+        img=document.createElement('img');
+        img.alt='계정';
+        img.loading='lazy';
+        box.appendChild(img);
+      }
+      box.classList.toggle('has-photo', source.hasPhoto);
+      if(img.getAttribute('src')!==source.src) img.setAttribute('src', source.src);
+      img.alt=source.hasPhoto ? '프로필 이미지' : '계정';
+    });
+  }
+  function schedule(){
+    if(Date.now()-lastRun<120) return;
+    requestAnimationFrame(sync);
+  }
+  document.addEventListener('click',function(e){
+    if(e.target.closest('[data-view],[data-view-link],.nav-btn,.gnb-menu-item,.all-menu-card,.gnb-chip')) setTimeout(sync,80);
+  },true);
+  document.addEventListener('error',function(e){
+    var img=e.target;
+    if(img && img.tagName==='IMG' && img.closest && img.closest('.upick-header-profile-avatar')){
+      img.src='/icons/internal/user.svg';
+      img.closest('.upick-header-profile-avatar').classList.remove('has-photo');
+    }
+  },true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',sync,{once:true}); else sync();
+  window.addEventListener('load',sync,{once:true});
+  new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','src']});
+  [150,500,1200,2500].forEach(function(ms){setTimeout(sync,ms);});
+})();
+</script>
+
 </body></html>
