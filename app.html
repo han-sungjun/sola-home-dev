@@ -144,7 +144,9 @@
  height:26px;
  display:block;
  filter:drop-shadow(0 6px 10px rgba(15,23,42,.12));
+ object-fit:contain;
 }
+
 .resident-rank-medal.has-svg{
  background:#fff;
  border:1px solid rgba(226,232,240,.95);
@@ -18030,21 +18032,9 @@ ${item.content || ''}`);
 
 
  function getRankMedalSvg(rank){
- const config = {
-  1: { cls:'gold', main:'#F59E0B', light:'#FDE68A', ribbon:'#2563EB', text:'#92400E' },
-  2: { cls:'silver', main:'#94A3B8', light:'#E2E8F0', ribbon:'#7C3AED', text:'#475569' },
-  3: { cls:'bronze', main:'#F97316', light:'#FED7AA', ribbon:'#EA580C', text:'#9A3412' }
- }[rank];
- if(!config) return String(rank);
- return `<svg class="rank-medal-svg" viewBox="0 0 64 64" role="img" aria-label="${rank}위 메달" xmlns="http://www.w3.org/2000/svg">
-  <path d="M20 6h10l5 18H25L20 6Z" fill="${config.ribbon}" opacity=".92"/>
-  <path d="M44 6H34l-5 18h10L44 6Z" fill="#38BDF8" opacity=".92"/>
-  <circle cx="32" cy="36" r="20" fill="${config.light}"/>
-  <circle cx="32" cy="36" r="16" fill="${config.main}"/>
-  <circle cx="25" cy="27" r="5" fill="#fff" opacity=".52"/>
-  <text x="32" y="43" text-anchor="middle" font-size="20" font-weight="900" font-family="Arial, sans-serif" fill="#fff">${rank}</text>
-  <circle cx="32" cy="36" r="19" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/>
- </svg>`;
+ const safeRank = Number(rank);
+ if(safeRank < 1 || safeRank > 3) return String(rank);
+ return `<img class="rank-medal-svg" src="/icons/internal/top5-medal-${safeRank}.svg" alt="${safeRank}위 메달" loading="lazy" decoding="async">`;
  }
 
  function getRankMedalClass(rank){
