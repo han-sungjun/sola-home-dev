@@ -13445,54 +13445,7 @@ nav.bottom-nav{
   .public-unified-header .upick-brand-copy h1,.upick-tab-common-header .upick-tab-brand-copy strong{font-size:17px!important;}
 }
 </style>
-<script id="upick-v82-header-button-map-fix">
-(function(){
-  function normalize(){
-    document.querySelectorAll('.upick-tab-common-header').forEach(function(header){
-      var btns = Array.from(header.querySelectorAll('.upick-tab-header-btn'));
-      if(btns[0]){
-        btns[0].classList.add('profile','upick-header-profile-btn');
-        btns[0].classList.remove('ai','install');
-        btns[0].setAttribute('data-upick-profile','');
-        btns[0].removeAttribute('data-upick-go');
-        btns[0].removeAttribute('data-upick-install');
-        btns[0].removeAttribute('data-upick-open-gnb');
-      }
-      if(btns[1]){
-        btns[1].classList.add('ai');
-        btns[1].classList.remove('profile','install','upick-header-profile-btn');
-        btns[1].setAttribute('data-upick-go','ai');
-        btns[1].removeAttribute('data-upick-profile');
-        btns[1].removeAttribute('data-upick-install');
-        btns[1].removeAttribute('data-upick-open-gnb');
-      }
-      if(btns[2]){
-        btns[2].classList.add('install');
-        btns[2].classList.remove('profile','ai','upick-header-profile-btn');
-        btns[2].setAttribute('data-upick-install','');
-        btns[2].removeAttribute('data-upick-profile');
-        btns[2].removeAttribute('data-upick-go');
-        btns[2].removeAttribute('data-upick-open-gnb');
-      }
-      if(btns[3]){
-        btns[3].classList.remove('profile','ai','install','upick-header-profile-btn');
-        btns[3].setAttribute('data-upick-open-gnb','');
-        btns[3].removeAttribute('data-upick-profile');
-        btns[3].removeAttribute('data-upick-go');
-        btns[3].removeAttribute('data-upick-install');
-      }
-    });
-  }
-  function boot(){
-    normalize();
-    setTimeout(normalize,120);
-    setTimeout(normalize,400);
-    setTimeout(normalize,1200);
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
-  document.addEventListener('click', function(){ setTimeout(normalize, 60); }, true);
-})();
-</script>
+<script id="upick-v82-header-button-map-fix">/* disabled in v83: merged into stable header normalizer */</script>
 
 </head>
 <body>
@@ -29115,123 +29068,178 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
   border-radius:16px!important;
 }
 </style>
-<script id="upick-v81-public-header-click-and-avatar-fix">
+<script id="upick-v83-public-header-stable-normalizer">
 (function(){
-  function getHeaderAvatarSrc(){
+  var pending=false;
+  function avatarSrc(){
     try{
-      if(typeof getProfileImageUrl === 'function'){
-        var url = getProfileImageUrl();
-        if(url) return url;
+      if(typeof getProfileImageUrl==='function'){
+        var u=getProfileImageUrl(); if(u) return u;
       }
     }catch(_){ }
-    var candidates = [
-      '#userChip .user-avatar img',
-      '.user-chip .user-avatar img',
-      '#gnbSettingsAccountSummary .gnb-account-avatar img',
-      '.gnb-account-avatar img',
-      '#accountProfilePreview img'
-    ];
-    for(var i=0;i<candidates.length;i++){
-      var img = document.querySelector(candidates[i]);
-      var src = img && img.getAttribute('src');
+    var sels=['#userChip .user-avatar img','.user-chip .user-avatar img','#gnbSettingsAccountSummary .gnb-account-avatar img','.gnb-account-avatar img','#accountProfilePreview img'];
+    for(var i=0;i<sels.length;i++){
+      var img=document.querySelector(sels[i]);
+      var src=img && img.getAttribute('src');
       if(src) return src;
     }
     return '/icons/internal/user.svg';
   }
-
   function normalizeHeader(header){
-    if(!header || header.dataset.v81Fixed === '1') return;
-    var brand = header.querySelector('.upick-tab-brand-block');
-    var profile = header.querySelector('[data-upick-profile]') || header.querySelector('.upick-header-profile-btn');
-    var ai = header.querySelector('[data-upick-go="ai"]') || header.querySelector('.upick-tab-header-btn.ai');
-    var install = header.querySelector('[data-upick-install]') || header.querySelector('.upick-tab-header-btn.install');
-    var gnb = header.querySelector('[data-upick-open-gnb]') || Array.from(header.querySelectorAll('.upick-tab-header-btn')).find(function(btn){return !btn.matches('.profile,.ai,.install');});
-    [brand, profile, ai, install, gnb].forEach(function(node){ if(node && node.parentNode === header) header.appendChild(node); });
+    if(!header) return;
+    var brand=header.querySelector('.upick-tab-brand-block');
+    var buttons=Array.from(header.querySelectorAll('.upick-tab-header-btn'));
+    var profile=header.querySelector('[data-upick-profile]') || header.querySelector('.upick-header-profile-btn') || buttons[0];
+    var ai=header.querySelector('[data-upick-go="ai"]') || header.querySelector('.upick-tab-header-btn.ai') || buttons.find(function(b){return /ai-assistant|AI/i.test(b.innerHTML);}) || buttons[1];
+    var install=header.querySelector('[data-upick-install]') || header.querySelector('.upick-tab-header-btn.install') || buttons.find(function(b){return /install|phone|mobile/i.test(b.innerHTML);}) || buttons[2];
+    var gnb=header.querySelector('[data-upick-open-gnb]') || buttons.find(function(b){return b!==profile && b!==ai && b!==install && !b.classList.contains('profile') && !b.classList.contains('ai') && !b.classList.contains('install');}) || buttons[3];
+    [profile,ai,install,gnb].forEach(function(btn){ if(btn){btn.classList.add('upick-tab-header-btn');} });
     if(profile){
       profile.classList.add('profile','upick-header-profile-btn');
+      profile.classList.remove('ai','install');
       profile.setAttribute('data-upick-profile','');
+      profile.removeAttribute('data-upick-go'); profile.removeAttribute('data-upick-install'); profile.removeAttribute('data-upick-open-gnb');
       profile.setAttribute('aria-label','계정 정보');
-      var av = profile.querySelector('.upick-header-profile-avatar');
-      if(!av){
-        profile.innerHTML = '<span class="upick-header-profile-avatar"><img src="/icons/internal/user.svg" alt=""></span>';
-        av = profile.querySelector('.upick-header-profile-avatar');
-      }
-      var img = av.querySelector('img') || document.createElement('img');
+      var av=profile.querySelector('.upick-header-profile-avatar');
+      if(!av){ profile.innerHTML='<span class="upick-header-profile-avatar"><img src="/icons/internal/user.svg" alt=""></span>'; av=profile.querySelector('.upick-header-profile-avatar'); }
+      var img=av.querySelector('img') || document.createElement('img');
       if(!img.parentNode) av.appendChild(img);
-      img.alt = '';
-      img.setAttribute('src', getHeaderAvatarSrc());
+      img.alt=''; img.src=avatarSrc();
     }
-    if(ai){ ai.classList.add('ai'); ai.setAttribute('data-upick-go','ai'); ai.setAttribute('aria-label','AI 생활 도우미'); }
-    if(install){ install.classList.add('install'); install.setAttribute('data-upick-install',''); install.setAttribute('aria-label','앱으로 이용하기'); }
-    if(gnb){ gnb.setAttribute('data-upick-open-gnb',''); gnb.setAttribute('aria-label','전체 메뉴'); }
-    header.dataset.v81Fixed = '1';
+    if(ai){
+      ai.classList.add('ai'); ai.classList.remove('profile','install','upick-header-profile-btn');
+      ai.setAttribute('data-upick-go','ai');
+      ai.removeAttribute('data-upick-profile'); ai.removeAttribute('data-upick-install'); ai.removeAttribute('data-upick-open-gnb');
+      ai.setAttribute('aria-label','AI 생활 도우미');
+    }
+    if(install){
+      install.classList.add('install'); install.classList.remove('profile','ai','upick-header-profile-btn');
+      install.setAttribute('data-upick-install','');
+      install.removeAttribute('data-upick-profile'); install.removeAttribute('data-upick-go'); install.removeAttribute('data-upick-open-gnb');
+      install.setAttribute('aria-label','앱으로 이용하기');
+    }
+    if(gnb){
+      gnb.classList.remove('profile','ai','install','upick-header-profile-btn');
+      gnb.setAttribute('data-upick-open-gnb','');
+      gnb.removeAttribute('data-upick-profile'); gnb.removeAttribute('data-upick-go'); gnb.removeAttribute('data-upick-install');
+      gnb.setAttribute('aria-label','전체 메뉴');
+    }
+    [brand,profile,ai,install,gnb].forEach(function(node){ if(node && node.parentNode===header) header.appendChild(node); });
   }
-
   function normalizeAll(){
-    document.querySelectorAll('.upick-tab-common-header').forEach(function(header){
-      header.dataset.v81Fixed = '';
-      normalizeHeader(header);
-    });
+    document.querySelectorAll('.upick-tab-common-header').forEach(normalizeHeader);
+    var src=avatarSrc();
+    document.querySelectorAll('.upick-header-profile-avatar img').forEach(function(img){ if(img.getAttribute('src')!==src) img.setAttribute('src', src); });
   }
-
-  function syncAvatars(){
-    var src = getHeaderAvatarSrc();
-    document.querySelectorAll('.upick-header-profile-avatar img').forEach(function(img){
-      if(img.getAttribute('src') !== src) img.setAttribute('src', src);
-    });
-  }
-
+  function schedule(){ if(pending) return; pending=true; requestAnimationFrame(function(){ pending=false; normalizeAll(); }); }
   function routeTo(view){
-    var btn = document.querySelector('[data-view="'+view+'"],[data-view-link="'+view+'"],.nav-btn[data-view="'+view+'"],.nav-btn[data-view-link="'+view+'"]');
-    if(btn){ btn.click(); return true; }
-    var section = document.getElementById('view-'+view);
-    if(section){
-      document.querySelectorAll('[id^="view-"]').forEach(function(el){el.hidden = true; el.classList.remove('active','show');});
-      section.hidden = false; section.classList.add('active','show');
-      return true;
-    }
+    var btn=document.querySelector('[data-view="'+view+'"],[data-view-link="'+view+'"],.nav-btn[data-view="'+view+'"],.nav-btn[data-view-link="'+view+'"]');
+    if(btn){btn.click(); return true;}
+    var section=document.getElementById('view-'+view);
+    if(section){document.querySelectorAll('[id^="view-"]').forEach(function(el){el.hidden=true;el.classList.remove('active','show');}); section.hidden=false; section.classList.add('active','show'); return true;}
     return false;
   }
-
-  document.addEventListener('click', function(e){
-    var profile = e.target.closest('[data-upick-profile]');
-    if(profile){
-      e.preventDefault(); e.stopPropagation();
-      var userChip = document.getElementById('userChip') || document.querySelector('.user-chip');
-      if(userChip) userChip.click();
-      return;
-    }
-    var ai = e.target.closest('[data-upick-go="ai"]');
-    if(ai){
-      e.preventDefault(); e.stopPropagation();
-      routeTo('ai');
-      return;
-    }
-    var install = e.target.closest('[data-upick-install]');
-    if(install){
-      e.preventDefault(); e.stopPropagation();
-      var installBtn = document.querySelector('#installAppBtn,[data-install-app],.install-btn,#pwaInstallBtn');
-      if(installBtn && installBtn !== install) installBtn.click();
-      return;
-    }
-    var gnb = e.target.closest('[data-upick-open-gnb]');
-    if(gnb){
-      e.preventDefault(); e.stopPropagation();
-      var gnbBtn = document.querySelector('#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,.topbar [aria-label*="전체"],.topbar [aria-label*="메뉴"]');
-      if(gnbBtn && gnbBtn !== gnb) gnbBtn.click();
-      return;
-    }
-  }, true);
-
-  function boot(){
-    normalizeAll();
-    syncAvatars();
-    setInterval(function(){ normalizeAll(); syncAvatars(); }, 1000);
-    var mo = new MutationObserver(function(){ setTimeout(function(){ normalizeAll(); syncAvatars(); }, 30); });
-    mo.observe(document.body, {childList:true, subtree:true});
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
+  document.addEventListener('click',function(e){
+    var profile=e.target.closest('[data-upick-profile]');
+    if(profile){ e.preventDefault(); e.stopPropagation(); var chip=document.getElementById('userChip')||document.querySelector('.user-chip'); if(chip) chip.click(); return; }
+    var ai=e.target.closest('[data-upick-go="ai"]');
+    if(ai){ e.preventDefault(); e.stopPropagation(); routeTo('ai'); return; }
+    var install=e.target.closest('[data-upick-install]');
+    if(install){ e.preventDefault(); e.stopPropagation(); var b=document.querySelector('#installAppBtn,[data-install-app],.install-btn,#pwaInstallBtn'); if(b && b!==install) b.click(); return; }
+    var gnb=e.target.closest('[data-upick-open-gnb]');
+    if(gnb){ e.preventDefault(); e.stopPropagation(); var b=document.querySelector('#gnbOpenBtn,#openGnbBtn,[data-open-gnb],.gnb-open-btn,.topbar [aria-label*="전체"],.topbar [aria-label*="메뉴"]'); if(b && b!==gnb) b.click(); return; }
+  },true);
+  function boot(){ normalizeAll(); setTimeout(normalizeAll,80); setTimeout(normalizeAll,350); var mo=new MutationObserver(schedule); mo.observe(document.body,{childList:true,subtree:true}); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 })();
 </script>
 
+
+<style id="upick-v83-header-ratio-stable-final">
+/* v83: 공개앱 히어로 헤더 비율 고정 - 브랜드 + 아이콘 4개 한 줄 안정화 */
+.upick-tab-common-header,
+.upick-tab-premium-hero .upick-tab-common-header{
+  --upick-action-size:clamp(38px,9.3vw,44px);
+  --upick-action-gap:clamp(5px,1.45vw,8px);
+  width:100%!important;
+  max-width:100%!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:var(--upick-action-gap)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+  contain:layout style!important;
+}
+.upick-tab-common-header .upick-tab-brand-block{
+  flex:1 1 0!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:58px!important;
+  min-height:58px!important;
+  max-height:58px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:9px 11px!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  box-sizing:border-box!important;
+}
+.upick-tab-common-header .upick-tab-brand-logo{
+  flex:0 0 38px!important;
+  width:38px!important;
+  min-width:38px!important;
+  height:38px!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+}
+.upick-tab-common-header .upick-tab-brand-logo img{width:27px!important;height:27px!important;object-fit:contain!important;display:block!important;}
+.upick-tab-common-header .upick-tab-brand-copy{min-width:0!important;flex:1 1 auto!important;overflow:hidden!important;}
+.upick-tab-common-header .upick-tab-brand-copy strong,
+.upick-tab-common-header .upick-tab-brand-copy span{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;}
+.upick-tab-common-header .upick-tab-brand-copy strong{font-size:20px!important;line-height:1.05!important;letter-spacing:-.06em!important;}
+.upick-tab-common-header .upick-tab-brand-copy span{font-size:10px!important;line-height:1.12!important;margin-top:4px!important;letter-spacing:-.035em!important;}
+.upick-tab-common-header .upick-tab-header-btn,
+.upick-tab-common-header button.upick-tab-header-btn{
+  flex:0 0 var(--upick-action-size)!important;
+  width:var(--upick-action-size)!important;
+  min-width:var(--upick-action-size)!important;
+  max-width:var(--upick-action-size)!important;
+  height:var(--upick-action-size)!important;
+  min-height:var(--upick-action-size)!important;
+  max-height:var(--upick-action-size)!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:clamp(13px,3.3vw,16px)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  position:relative!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;
+}
+.upick-tab-common-header .upick-tab-header-btn.profile{order:2!important;}
+.upick-tab-common-header .upick-tab-header-btn.ai{order:3!important;}
+.upick-tab-common-header .upick-tab-header-btn.install{order:4!important;}
+.upick-tab-common-header .upick-tab-header-btn:not(.profile):not(.ai):not(.install){order:5!important;}
+.upick-tab-common-header .upick-tab-header-btn img,
+.upick-tab-common-header .upick-tab-header-btn svg{width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;object-fit:contain!important;display:block!important;pointer-events:none!important;}
+.upick-tab-common-header .upick-header-profile-avatar{width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;max-width:26px!important;max-height:26px!important;border-radius:999px!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:rgba(255,255,255,.88)!important;}
+.upick-tab-common-header .upick-header-profile-avatar img{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;filter:none!important;transform:none!important;display:block!important;}
+.upick-tab-common-header .upick-header-profile-avatar img[src$="user.svg"]{width:18px!important;height:18px!important;object-fit:contain!important;}
+@media(max-width:390px){
+  .upick-tab-common-header,.upick-tab-premium-hero .upick-tab-common-header{--upick-action-size:36px;--upick-action-gap:5px;}
+  .upick-tab-common-header .upick-tab-brand-block{height:52px!important;min-height:52px!important;max-height:52px!important;padding:8px 9px!important;gap:7px!important;}
+  .upick-tab-common-header .upick-tab-brand-logo{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important;}
+  .upick-tab-common-header .upick-tab-brand-logo img{width:23px!important;height:23px!important;}
+  .upick-tab-common-header .upick-tab-brand-copy strong{font-size:17px!important;}
+  .upick-tab-common-header .upick-tab-brand-copy span{font-size:9px!important;}
+}
+</style>
 </body></html>
