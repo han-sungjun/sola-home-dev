@@ -30829,3 +30829,172 @@ section[id^="view-"] > .upick-tab-common-header{
 <!-- upick-global-hero-v94-fix-js removed: consolidated by upick-v108-stable-inline-badge -->
 <!-- upick-v103-admin-tag-popular-badge-fix removed: consolidated by upick-v108-stable-inline-badge -->
 <!-- upick-v107-stable-badge-render removed: consolidated by upick-v108-stable-inline-badge -->
+
+<style id="upick-public-v113-force-glass-common-header">
+/* ===== v113: 공통 히어로 헤더 glass 강제 통일 ===== */
+/* logo 클래스가 기존 카드형 스타일을 가져가는 문제 차단 */
+.upick-tab-premium-hero .upick-tab-brand-logo,
+.upick-tab-premium-hero .upick-tab-brand-logo.logo,
+.upick-tab-premium-hero .upick-tab-brand-block .logo,
+.upick-tab-common-header .upick-tab-brand-logo,
+.upick-tab-common-header .upick-tab-brand-logo.logo,
+.upick-tab-common-header .upick-tab-brand-block .logo{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  flex:0 0 44px!important;
+  border-radius:16px!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24), 0 10px 24px rgba(2,8,23,.16)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  overflow:hidden!important;
+}
+.upick-tab-premium-hero .upick-tab-brand-logo::before,
+.upick-tab-premium-hero .upick-tab-brand-logo.logo::before,
+.upick-tab-premium-hero .upick-tab-brand-block .logo::before,
+.upick-tab-common-header .upick-tab-brand-logo::before,
+.upick-tab-common-header .upick-tab-brand-logo.logo::before,
+.upick-tab-common-header .upick-tab-brand-block .logo::before{
+  content:none!important;
+  display:none!important;
+}
+.upick-tab-premium-hero .upick-tab-brand-logo img,
+.upick-tab-premium-hero .upick-tab-brand-block .logo img,
+.upick-tab-common-header .upick-tab-brand-logo img,
+.upick-tab-common-header .upick-tab-brand-block .logo img{
+  width:31px!important;
+  height:31px!important;
+  max-width:31px!important;
+  max-height:31px!important;
+  object-fit:contain!important;
+  display:block!important;
+  filter:none!important;
+  opacity:1!important;
+}
+
+/* 브랜드 헤더 자체를 카드형이 아닌 glass bar로 통일 */
+.upick-tab-premium-hero .upick-tab-brand-block,
+.upick-tab-common-header .upick-tab-brand-block{
+  min-width:0!important;
+  height:64px!important;
+  padding:9px 14px 9px 10px!important;
+  border-radius:24px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.08))!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 16px 34px rgba(2,8,23,.14)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  overflow:hidden!important;
+}
+
+/* 헤더 레이아웃: 브랜드는 남은 폭, GNB는 항상 맨 오른쪽 */
+.upick-tab-premium-hero .upick-tab-common-header,
+.upick-tab-common-header{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 50px 50px 50px!important;
+  align-items:center!important;
+  column-gap:8px!important;
+  row-gap:0!important;
+  margin:0 0 8px!important;
+}
+.upick-tab-common-header [data-upick-open-gnb],
+.upick-tab-common-header .upick-header-gnb-btn,
+.upick-tab-common-header .upick-tab-header-btn.gnb{
+  grid-column:4!important;
+  justify-self:end!important;
+}
+
+/* 프사는 오른쪽 액션 아이콘과 동일 규격 */
+.upick-tab-header-btn.profile,
+.upick-tab-header-btn.profile-btn,
+.upick-tab-header-btn.upick-header-profile-btn,
+.upick-header-profile-btn,
+.upick-tab-common-header [data-upick-profile]{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  max-width:50px!important;
+  flex:0 0 50px!important;
+  padding:0!important;
+  border-radius:18px!important;
+  overflow:hidden!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px rgba(2,8,23,.16)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+.upick-tab-header-btn,
+.upick-tab-common-header .upick-tab-header-btn{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  max-width:50px!important;
+  border-radius:18px!important;
+}
+.upick-header-profile-avatar,
+.upick-header-profile-avatar.has-photo,
+.upick-header-profile-avatar.has-photo img,
+.upick-tab-common-header [data-upick-profile] img,
+.upick-tab-common-header .profile img{
+  width:34px!important;
+  height:34px!important;
+  max-width:34px!important;
+  max-height:34px!important;
+  border-radius:999px!important;
+  object-fit:cover!important;
+  display:block!important;
+  filter:none!important;
+}
+
+@media(max-width:520px){
+  .upick-tab-premium-hero .upick-tab-common-header,
+  .upick-tab-common-header{
+    grid-template-columns:minmax(0,1fr) 44px 44px 44px!important;
+    gap:7px!important;
+  }
+  .upick-tab-premium-hero .upick-tab-brand-block,
+  .upick-tab-common-header .upick-tab-brand-block{
+    height:60px!important;
+    border-radius:22px!important;
+    padding:8px 11px 8px 8px!important;
+  }
+  .upick-tab-premium-hero .upick-tab-brand-logo,
+  .upick-tab-premium-hero .upick-tab-brand-logo.logo,
+  .upick-tab-premium-hero .upick-tab-brand-block .logo,
+  .upick-tab-common-header .upick-tab-brand-logo,
+  .upick-tab-common-header .upick-tab-brand-logo.logo,
+  .upick-tab-common-header .upick-tab-brand-block .logo{
+    width:42px!important;height:42px!important;min-width:42px!important;max-width:42px!important;flex-basis:42px!important;border-radius:15px!important;
+  }
+  .upick-tab-premium-hero .upick-tab-brand-logo img,
+  .upick-tab-common-header .upick-tab-brand-logo img{width:29px!important;height:29px!important;}
+  .upick-tab-header-btn,
+  .upick-tab-common-header .upick-tab-header-btn,
+  .upick-tab-header-btn.profile,
+  .upick-tab-header-btn.profile-btn,
+  .upick-tab-header-btn.upick-header-profile-btn,
+  .upick-header-profile-btn,
+  .upick-tab-common-header [data-upick-profile]{
+    width:44px!important;height:44px!important;min-width:44px!important;max-width:44px!important;flex-basis:44px!important;border-radius:16px!important;
+  }
+  .upick-header-profile-avatar,
+  .upick-header-profile-avatar.has-photo,
+  .upick-header-profile-avatar.has-photo img,
+  .upick-tab-common-header [data-upick-profile] img,
+  .upick-tab-common-header .profile img{width:30px!important;height:30px!important;}
+}
+</style>
