@@ -23745,7 +23745,7 @@ async function loadGnbMenusFromDb(){
   const mainMenus = gnbMenuCache.filter(m => m.sections.includes('main') || m.sections.includes('gnb'));
   const newEl = qs('#gnbNewMenus');
   const mainEl = qs('#gnbMainMenus');
-  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item','', 'new')).join('') : '<div class="gnb-empty">관리자 메뉴에서 새 메뉴를 등록하면 여기에 표시됩니다.</div>';
+  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item','', 'new')).join('') : '<div class="gnb-empty">새로운 혜택과 기능이 여기에 표시됩니다.</div>';
   if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
  }
 
