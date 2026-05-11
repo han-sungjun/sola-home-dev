@@ -30813,7 +30813,7 @@ section[id^="view-"] > .upick-tab-common-header{
   }catch(_){ }
 
   document.addEventListener('click', e => {
-    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) schedule();
+    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) scheduleAfterData();
   }, true);
   window.addEventListener('load', schedule);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
@@ -30821,8 +30821,8 @@ section[id^="view-"] > .upick-tab-common-header{
 })();
 </script>
 
-<!-- ===== 더운정픽 v105: GNB 렌더링 결과 기준 배지 최종 동기화 ===== -->
-<script id="upick-v106-stable-badge-render">
+<!-- ===== 더운정픽 v107: 전체 탭 렌더 이후 배지 유지 동기화 ===== -->
+<script id="upick-v107-stable-badge-render">
 (function(){
   'use strict';
   function qs(sel, root){ return (root || document).querySelector(sel); }
@@ -31009,7 +31009,32 @@ section[id^="view-"] > .upick-tab-common-header{
       setHtml(wrap, html);
     }else if(wrap){ wrap.remove(); }
   }
-  function refresh(){ decorateAll(); decorateBottom(); decorateHero(); }
+
+  function watchBadgeRoots(){
+    if(!window.MutationObserver || watchBadgeRoots._done) return;
+    watchBadgeRoots._done = true;
+    let lock = false;
+    const safeSchedule = function(){
+      if(lock) return;
+      lock = true;
+      requestAnimationFrame(function(){ lock = false; schedule(); });
+    };
+    ['#allMenuGrid','.bottom-nav','#upickGlobalHero','#gnbSheet','.gnb-sheet'].forEach(function(sel){
+      const el = qs(sel);
+      if(!el) return;
+      try{
+        new MutationObserver(function(muts){
+          for(const m of muts){
+            if(m.type === 'childList' || (m.type === 'attributes' && /^data-|class$/.test(m.attributeName || ''))){
+              safeSchedule();
+              return;
+            }
+          }
+        }).observe(el,{childList:true,subtree:true,attributes:true,attributeFilter:['class','data-view-link','data-gnb-dynamic-menu','data-view']});
+      }catch(_){ }
+    });
+  }
+  function refresh(){ decorateAll(); decorateBottom(); decorateHero(); watchBadgeRoots(); }
   let raf = 0;
   function schedule(){
     if(raf) return;
@@ -31033,38 +31058,38 @@ section[id^="view-"] > .upick-tab-common-header{
   ['renderDynamicGnbMenus','renderDynamicAllMenus','renderDynamicBottomNav','renderAll','refreshBottomTrendUi','updateBottomNavActiveState','changeView'].forEach(function(name){
     try{
       const old = eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
-      if(typeof old === 'function' && !old.__upickV106){
-        const wrapped = function(){ const r = old.apply(this, arguments); schedule(); return r; };
-        wrapped.__upickV106 = true;
+      if(typeof old === 'function' && !old.__upickV107){
+        const wrapped = function(){ const r = old.apply(this, arguments); scheduleAfterData(); return r; };
+        wrapped.__upickV107 = true;
         eval(name+' = wrapped');
         try{ window[name] = wrapped; }catch(_){ }
       }
     }catch(_){ }
   });
   try{
-    if(typeof loadGnbMenusFromDb === 'function' && !loadGnbMenusFromDb.__upickV106){
+    if(typeof loadGnbMenusFromDb === 'function' && !loadGnbMenusFromDb.__upickV107){
       const oldLoad = loadGnbMenusFromDb;
       loadGnbMenusFromDb = async function(){ const r = await oldLoad.apply(this, arguments); scheduleAfterData(); return r; };
-      loadGnbMenusFromDb.__upickV106 = true;
+      loadGnbMenusFromDb.__upickV107 = true;
     }
   }catch(_){ }
   try{
-    if(typeof loadPopularGnbMenus === 'function' && !loadPopularGnbMenus.__upickV106){
+    if(typeof loadPopularGnbMenus === 'function' && !loadPopularGnbMenus.__upickV107){
       const oldPopular = loadPopularGnbMenus;
       loadPopularGnbMenus = async function(){ const r = await oldPopular.apply(this, arguments); scheduleAfterData(); return r; };
-      loadPopularGnbMenus.__upickV106 = true;
+      loadPopularGnbMenus.__upickV107 = true;
     }
   }catch(_){ }
   try{
-    if(typeof loadRecentGnbMenus === 'function' && !loadRecentGnbMenus.__upickV106){
+    if(typeof loadRecentGnbMenus === 'function' && !loadRecentGnbMenus.__upickV107){
       const oldRecent = loadRecentGnbMenus;
       loadRecentGnbMenus = async function(){ const r = await oldRecent.apply(this, arguments); scheduleAfterData(); return r; };
-      loadRecentGnbMenus.__upickV106 = true;
+      loadRecentGnbMenus.__upickV107 = true;
     }
   }catch(_){ }
 
   document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) schedule();
+    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) scheduleAfterData();
   }, true);
   window.upickFinalBadgeSync = schedule;
   window.decorateAllMenuCards = decorateAll;
