@@ -30820,3 +30820,229 @@ section[id^="view-"] > .upick-tab-common-header{
   else schedule();
 })();
 </script>
+
+<!-- ===== 더운정픽 v105: GNB 렌더링 결과 기준 배지 최종 동기화 ===== -->
+<script id="upick-v105-gnb-rendered-source-badges">
+(function(){
+  'use strict';
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+  function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function key(v){ return String(v || '').replace(/^#|^\//,'').trim(); }
+  function norm(v){ return key(v).toLowerCase(); }
+  function isFixed(v){ v = norm(v); return v === 'home' || v === 'all'; }
+  function keysFromEl(el){
+    if(!el) return [];
+    return [el.dataset?.viewLink, el.dataset?.view, el.dataset?.gnbDynamicMenu, el.getAttribute('data-view-link'), el.getAttribute('data-gnb-dynamic-menu')]
+      .map(key).filter(Boolean);
+  }
+  function keysFromMenu(menu){
+    if(!menu) return [];
+    return [menu.menuId, menu.view, menu.route, menu.id, menu.key].map(key).filter(Boolean);
+  }
+  function menuTokenValues(menu){
+    const out = [];
+    const fields = [
+      'sections','section','tags','tag','menuSections','menuSection','displaySections','displaySection',
+      'visibleSections','visibleSection','placements','placement','areas','area','expose','exposes',
+      'showIn','showInSections','targets','target','badge','badges','menuBadge','statusBadge',
+      'label','labelType','ribbon','ribbonType','displayBadge','featureBadge','trendBadge'
+    ];
+    fields.forEach(function(name){
+      const v = menu && menu[name];
+      if(v === undefined || v === null || v === false) return;
+      if(Array.isArray(v)) out.push.apply(out, v);
+      else if(typeof v === 'object') Object.keys(v).forEach(function(k){ if(v[k]) out.push(k); });
+      else String(v).split(',').forEach(function(x){ out.push(x); });
+    });
+    return out.map(norm).filter(Boolean);
+  }
+  function sameKey(a, b){
+    const aa = (Array.isArray(a) ? a : [a]).map(norm).filter(Boolean);
+    const bb = (Array.isArray(b) ? b : [b]).map(norm).filter(Boolean);
+    return aa.some(x => bb.includes(x));
+  }
+  function findMenu(view){
+    const k = norm(view);
+    try{ if(typeof findMenuByView === 'function'){ const m = findMenuByView(k); if(m) return m; } }catch(_){ }
+    try{
+      if(typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)){
+        return gnbMenuCache.find(m => sameKey(keysFromMenu(m), k)) || null;
+      }
+    }catch(_){ }
+    return null;
+  }
+  function getRenderedSet(selector){
+    const set = new Set();
+    qsa(selector).forEach(function(el){
+      keysFromEl(el).forEach(function(k){ if(!isFixed(k)) set.add(norm(k)); });
+    });
+    return set;
+  }
+  function getRenderedFirst(selector){
+    const el = qs(selector);
+    const list = keysFromEl(el).filter(k => !isFixed(k));
+    return list.length ? norm(list[0]) : '';
+  }
+  function fallbackNewSet(){
+    const set = new Set();
+    try{
+      if(typeof gnbMenuCache !== 'undefined' && Array.isArray(gnbMenuCache)){
+        gnbMenuCache.forEach(function(m){
+          if(isFixed(m && m.menuId)) return;
+          if(menuTokenValues(m).includes('new')) keysFromMenu(m).forEach(k => set.add(norm(k)));
+        });
+      }
+    }catch(_){ }
+    return set;
+  }
+  function fallbackPopularKey(){
+    try{
+      if(typeof popularGnbMenuIdSet !== 'undefined' && popularGnbMenuIdSet){
+        const first = Array.from(popularGnbMenuIdSet).map(norm).find(v => v && !isFixed(v));
+        if(first) return first;
+      }
+    }catch(_){ }
+    try{
+      if(typeof popularGnbStatsMap !== 'undefined' && popularGnbStatsMap){
+        let best = null;
+        popularGnbStatsMap.forEach(function(stat, id){
+          const count = Number(stat?.totalClickCount || stat?.clickCount || stat?.count || 0);
+          const k = norm(stat?.menuId || id);
+          if(!k || isFixed(k) || count <= 0) return;
+          if(!best || count > best.count) best = { key:k, count:count };
+        });
+        if(best) return best.key;
+      }
+    }catch(_){ }
+    return '';
+  }
+  function badgeSource(){
+    const newSet = getRenderedSet('#gnbNewMenus [data-view-link],#gnbNewMenus [data-gnb-dynamic-menu]');
+    const fallback = fallbackNewSet();
+    fallback.forEach(v => newSet.add(v));
+
+    const popularRendered = getRenderedFirst('#gnbPopularMenus [data-view-link],#gnbPopularMenus [data-gnb-dynamic-menu]');
+    const popularKey = popularRendered || fallbackPopularKey();
+
+    const recentRendered = getRenderedFirst('#gnbRecentMenus [data-view-link],#gnbRecentMenus [data-gnb-dynamic-menu]');
+    return { newSet:newSet, popularKey:popularKey, recentKey:recentRendered };
+  }
+  function flagsForView(view){
+    const k = norm(view);
+    const src = badgeSource();
+    return {
+      new: !!k && src.newSet.has(k),
+      hot: !!k && !!src.popularKey && k === src.popularKey,
+      popular: !!k && !!src.popularKey && k === src.popularKey,
+      recent: !!k && !!src.recentKey && k === src.recentKey
+    };
+  }
+  function flagsForMenu(menu){
+    const src = badgeSource();
+    const keys = keysFromMenu(menu).map(norm);
+    return {
+      new: keys.some(k => src.newSet.has(k)),
+      hot: !!src.popularKey && keys.includes(src.popularKey),
+      popular: !!src.popularKey && keys.includes(src.popularKey),
+      recent: !!src.recentKey && keys.includes(src.recentKey)
+    };
+  }
+
+  /* 기존 함수도 같은 기준으로 맞춥니다. */
+  try{ isMenuNew = function(menu){ return !!flagsForMenu(menu).new; }; }catch(_){ }
+  try{ isTrendingMenu = function(menu){ return !!flagsForMenu(menu).hot; }; }catch(_){ }
+  try{ getMenuTrendFlags = function(menu){ const f = flagsForMenu(menu); return { isNew:f.new, isHot:f.hot, isPopular:f.popular, isRecent:f.recent }; }; }catch(_){ }
+  try{ getNewRibbonSource = function(menu){ const f = flagsForMenu(menu); if(f.hot) return 'trending'; if(f.new) return 'manual'; return ''; }; }catch(_){ }
+  try{ makeNewRibbonHtml = function(baseClass, menu){ const f = flagsForMenu(menu); if(f.hot) return '<span class="'+(baseClass || 'all-menu-ribbon')+' new-source-trending">HOT</span>'; if(f.new) return '<span class="'+(baseClass || 'all-menu-ribbon')+' new-source-manual">NEW</span>'; return ''; }; }catch(_){ }
+  try{ getAllMenuBadge = function(menu){ const f = flagsForMenu(menu); const a=[]; if(f.popular) a.push({label:'인기',className:'popular'}); if(f.recent) a.push({label:'최근',className:'recent'}); return a; }; }catch(_){ }
+
+  function currentView(){
+    try{ if(window.state && window.state.view) return key(window.state.view); }catch(_){ }
+    return key(qs('.bottom-nav [data-view-link].active')?.dataset?.viewLink || qs('.bottom-nav [data-view].active')?.dataset?.view || 'home');
+  }
+  function clearBadges(root){
+    if(!root) return;
+    qsa('.all-menu-ribbon,.menu-trend-ribbon,.all-menu-badge-wrap,.menu-trend-badge-wrap,.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge', root).forEach(el => el.remove());
+  }
+  function decorateAll(){
+    const grid = qs('#allMenuGrid');
+    if(!grid) return;
+    qsa('.all-menu-card', grid).forEach(function(card){
+      clearBadges(card);
+      const k = key(card.dataset.viewLink || card.dataset.gnbDynamicMenu || card.getAttribute('data-view-link'));
+      const f = flagsForView(k);
+      if(f.hot){ card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon new-source-trending">HOT</span>'); }
+      else if(f.new){ card.insertAdjacentHTML('afterbegin','<span class="all-menu-ribbon new-source-manual">NEW</span>'); }
+      const side = [];
+      if(f.popular) side.push('<span class="all-menu-badge popular">인기</span>');
+      if(f.recent) side.push('<span class="all-menu-badge recent">최근</span>');
+      if(side.length) card.insertAdjacentHTML('afterbegin','<span class="all-menu-badge-wrap">'+side.join('')+'</span>');
+    });
+  }
+  function decorateBottom(){
+    qsa('.bottom-nav [data-view-link],.bottom-nav [data-view]').forEach(function(btn){
+      clearBadges(btn);
+      const k = key(btn.dataset.viewLink || btn.dataset.view);
+      if(isFixed(k)) return;
+      const f = flagsForView(k);
+      if(f.hot) btn.insertAdjacentHTML('afterbegin','<span class="nav-robot-trend-badge hot" aria-hidden="true"></span>');
+      else if(f.new) btn.insertAdjacentHTML('afterbegin','<span class="nav-robot-trend-badge new" aria-hidden="true"></span>');
+    });
+  }
+  function decorateHero(){
+    const hero = qs('#upickGlobalHero');
+    if(!hero) return;
+    qsa('.global-hero-trend-badges', hero).forEach(el => el.remove());
+    const f = flagsForView(currentView());
+    const parts = [];
+    if(f.hot) parts.push('<span class="global-hero-trend-badge hot">HOT</span>');
+    else if(f.new) parts.push('<span class="global-hero-trend-badge new">NEW</span>');
+    if(f.popular) parts.push('<span class="global-hero-trend-badge popular">인기</span>');
+    if(f.recent) parts.push('<span class="global-hero-trend-badge recent">최근</span>');
+    const kicker = qs('#globalHeroKicker', hero) || qs('.eyebrow', hero);
+    if(kicker && parts.length) kicker.insertAdjacentHTML('afterend','<span class="global-hero-trend-badges">'+parts.join('')+'</span>');
+  }
+  function refresh(){ decorateAll(); decorateBottom(); decorateHero(); }
+  function schedule(){ [0,60,180,420,900,1600,2600].forEach(ms => setTimeout(refresh, ms)); }
+
+  ['renderDynamicGnbMenus','renderDynamicAllMenus','renderDynamicBottomNav','renderAll','refreshBottomTrendUi','updateBottomNavActiveState','changeView'].forEach(function(name){
+    try{
+      const old = eval('typeof '+name+'!=="undefined" ? '+name+' : undefined');
+      if(typeof old === 'function' && !old.__upickV105){
+        const wrapped = function(){ const r = old.apply(this, arguments); schedule(); return r; };
+        wrapped.__upickV105 = true;
+        eval(name+' = wrapped');
+        try{ window[name] = wrapped; }catch(_){ }
+      }
+    }catch(_){ }
+  });
+  try{
+    if(typeof loadGnbMenusFromDb === 'function' && !loadGnbMenusFromDb.__upickV105){
+      const oldLoad = loadGnbMenusFromDb;
+      loadGnbMenusFromDb = async function(){ const r = await oldLoad.apply(this, arguments); schedule(); return r; };
+      loadGnbMenusFromDb.__upickV105 = true;
+    }
+  }catch(_){ }
+  try{
+    if(typeof loadPopularGnbMenus === 'function' && !loadPopularGnbMenus.__upickV105){
+      const oldPopular = loadPopularGnbMenus;
+      loadPopularGnbMenus = async function(){ const r = await oldPopular.apply(this, arguments); schedule(); return r; };
+      loadPopularGnbMenus.__upickV105 = true;
+    }
+  }catch(_){ }
+  try{
+    if(typeof loadRecentGnbMenus === 'function' && !loadRecentGnbMenus.__upickV105){
+      const oldRecent = loadRecentGnbMenus;
+      loadRecentGnbMenus = async function(){ const r = await oldRecent.apply(this, arguments); schedule(); return r; };
+      loadRecentGnbMenus.__upickV105 = true;
+    }
+  }catch(_){ }
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-view],[data-view-link],[data-gnb-dynamic-menu],.nav-btn,.all-menu-card,#allMenuGrid,#gnbSheet,.gnb-sheet,#aiQuickBtn')) schedule();
+  }, true);
+  window.addEventListener('load', schedule);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, {once:true});
+  else schedule();
+})();
+</script>
