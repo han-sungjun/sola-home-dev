@@ -31818,3 +31818,241 @@ section[id^="view-"] > .upick-tab-common-header{
   #upickGlobalHero .public-unified-header .upick-brand-copy h1{font-size:18px!important;}
 }
 </style>
+
+<!-- ===== v96: 공개앱 히어로 헤더 아이콘 겹침 최종 보정 ===== -->
+<style id="upick-global-hero-v96-header-icons-no-overlap">
+/* 1) 우측 유틸 영역을 프사 / AI / GNB 3칸으로 명확히 분리 */
+#upickGlobalHero .public-unified-header .upick-header-utils,
+.shell > .upick-global-hero-shell .public-unified-header .upick-header-utils{
+  display:grid!important;
+  grid-template-columns:40px 40px 40px!important;
+  grid-template-rows:40px!important;
+  grid-auto-flow:unset!important;
+  align-items:center!important;
+  justify-items:center!important;
+  justify-content:end!important;
+  gap:7px!important;
+  width:134px!important;
+  min-width:134px!important;
+  max-width:134px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+  position:relative!important;
+}
+
+/* 2) 설치 버튼은 완전히 제외해서 빈 칸/겹침을 만들지 않음 */
+#upickGlobalHero #globalInstallBtn,
+.shell > .upick-global-hero-shell #globalInstallBtn{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  width:0!important;
+  min-width:0!important;
+  max-width:0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  pointer-events:none!important;
+  grid-column:auto!important;
+}
+
+/* 3) 각 버튼을 고유 grid-column에 고정 */
+#upickGlobalHero #globalUserChip,
+.shell > .upick-global-hero-shell #globalUserChip{
+  grid-column:1!important;
+  grid-row:1!important;
+}
+#upickGlobalHero #globalAiBtn,
+.shell > .upick-global-hero-shell #globalAiBtn{
+  grid-column:2!important;
+  grid-row:1!important;
+}
+#upickGlobalHero .public-unified-header .gnb-wrap,
+.shell > .upick-global-hero-shell .public-unified-header .gnb-wrap{
+  grid-column:3!important;
+  grid-row:1!important;
+}
+
+/* 4) 버튼/gnb-wrap 모두 같은 크기. hidden/0px 영향 강제 복구 */
+#upickGlobalHero #globalUserChip,
+#upickGlobalHero #globalAiBtn,
+#upickGlobalHero .public-unified-header .gnb-wrap,
+#upickGlobalHero #globalGnbBtn,
+.shell > .upick-global-hero-shell #globalUserChip,
+.shell > .upick-global-hero-shell #globalAiBtn,
+.shell > .upick-global-hero-shell .public-unified-header .gnb-wrap,
+.shell > .upick-global-hero-shell #globalGnbBtn{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:relative!important;
+  width:40px!important;
+  min-width:40px!important;
+  max-width:40px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:15px!important;
+  place-items:center!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  flex:none!important;
+  transform:none!important;
+}
+
+/* gnb-wrap은 버튼 껍데기 역할만 하도록 */
+#upickGlobalHero .public-unified-header .gnb-wrap,
+.shell > .upick-global-hero-shell .public-unified-header .gnb-wrap{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  pointer-events:auto!important;
+  z-index:3!important;
+}
+#upickGlobalHero #globalUserChip{z-index:1!important;}
+#upickGlobalHero #globalAiBtn{z-index:2!important;}
+#upickGlobalHero #globalGnbBtn{z-index:3!important;}
+
+/* 5) AI 아이콘이 프사/설치/GNB에 묻히지 않도록 아이콘 자체를 선명하게 고정 */
+#upickGlobalHero #globalAiBtn,
+.shell > .upick-global-hero-shell #globalAiBtn{
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 24px rgba(15,23,42,.14)!important;
+}
+#upickGlobalHero #globalAiBtn img,
+.shell > .upick-global-hero-shell #globalAiBtn img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  object-fit:contain!important;
+  filter:brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,.18))!important;
+  transform:none!important;
+}
+#upickGlobalHero #globalGnbBtn img,
+.shell > .upick-global-hero-shell #globalGnbBtn img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:22px!important;
+  height:22px!important;
+  object-fit:contain!important;
+  filter:brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,.18))!important;
+}
+#upickGlobalHero #globalUserChip .user-avatar,
+.shell > .upick-global-hero-shell #globalUserChip .user-avatar{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+
+/* 6) 브랜드와 우측 아이콘 간 폭 계산을 안정화 */
+#upickGlobalHero .public-unified-header,
+.shell > .upick-global-hero-shell .public-unified-header{
+  grid-template-columns:minmax(0,1fr) 134px!important;
+  column-gap:8px!important;
+}
+#upickGlobalHero .public-unified-header .upick-header-brand,
+.shell > .upick-global-hero-shell .public-unified-header .upick-header-brand{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+
+@media(max-width:430px){
+  #upickGlobalHero .public-unified-header .upick-header-utils,
+  .shell > .upick-global-hero-shell .public-unified-header .upick-header-utils{
+    grid-template-columns:38px 38px 38px!important;
+    grid-template-rows:38px!important;
+    width:128px!important;
+    min-width:128px!important;
+    max-width:128px!important;
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    gap:7px!important;
+  }
+  #upickGlobalHero #globalUserChip,
+  #upickGlobalHero #globalAiBtn,
+  #upickGlobalHero .public-unified-header .gnb-wrap,
+  #upickGlobalHero #globalGnbBtn,
+  .shell > .upick-global-hero-shell #globalUserChip,
+  .shell > .upick-global-hero-shell #globalAiBtn,
+  .shell > .upick-global-hero-shell .public-unified-header .gnb-wrap,
+  .shell > .upick-global-hero-shell #globalGnbBtn{
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    border-radius:14px!important;
+  }
+  #upickGlobalHero .public-unified-header,
+  .shell > .upick-global-hero-shell .public-unified-header{
+    grid-template-columns:minmax(0,1fr) 128px!important;
+    column-gap:7px!important;
+  }
+  #upickGlobalHero #globalAiBtn img,
+  #upickGlobalHero #globalGnbBtn img,
+  .shell > .upick-global-hero-shell #globalAiBtn img,
+  .shell > .upick-global-hero-shell #globalGnbBtn img{
+    width:21px!important;
+    height:21px!important;
+  }
+}
+
+@media(max-width:370px){
+  #upickGlobalHero .public-unified-header .upick-header-utils,
+  .shell > .upick-global-hero-shell .public-unified-header .upick-header-utils{
+    grid-template-columns:36px 36px 36px!important;
+    grid-template-rows:36px!important;
+    width:116px!important;
+    min-width:116px!important;
+    max-width:116px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    gap:4px!important;
+  }
+  #upickGlobalHero #globalUserChip,
+  #upickGlobalHero #globalAiBtn,
+  #upickGlobalHero .public-unified-header .gnb-wrap,
+  #upickGlobalHero #globalGnbBtn,
+  .shell > .upick-global-hero-shell #globalUserChip,
+  .shell > .upick-global-hero-shell #globalAiBtn,
+  .shell > .upick-global-hero-shell .public-unified-header .gnb-wrap,
+  .shell > .upick-global-hero-shell #globalGnbBtn{
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    border-radius:13px!important;
+  }
+  #upickGlobalHero .public-unified-header,
+  .shell > .upick-global-hero-shell .public-unified-header{
+    grid-template-columns:minmax(0,1fr) 116px!important;
+    column-gap:6px!important;
+  }
+}
+</style>
