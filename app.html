@@ -13856,6 +13856,71 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="ai-life-helper-svg-dnd-fix-v1">
+/* AI 생활 도우미: 질문자/돋보기/첨부파일 SVG 보정 + 드래그 앤 드롭 */
+.ai-message.user::after{
+  content:""!important;
+  background:#0f172a url('/icons/internal/ai-user-person.svg') center/70% no-repeat!important;
+}
+.ai-message.bot::before{
+  content:""!important;
+  background:linear-gradient(180deg,#eef2ff 0%,#e0ecff 100%), url('/icons/internal/ai-assistant.svg') center/72% no-repeat!important;
+  background-blend-mode:normal!important;
+}
+.ai-attachment-zoom-badge::before{
+  content:"";
+  width:20px;
+  height:20px;
+  display:block;
+  background:url('/icons/internal/ai-search.svg') center/contain no-repeat;
+}
+.ai-attach-icon{
+  font-size:0!important;
+  background:#fff!important;
+  border:1px solid #dbeafe!important;
+  overflow:hidden;
+}
+.ai-attach-icon-img{
+  width:22px;
+  height:22px;
+  display:block;
+  object-fit:contain;
+}
+.ai-composer-row{position:relative!important;}
+.ai-composer-row.ai-drag-over,
+.ai-attach-panel.ai-drag-over{
+  border-color:#2563eb!important;
+  background:#eff6ff!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.12),0 16px 34px rgba(37,99,235,.14)!important;
+}
+.ai-composer-row.ai-drag-over::after{
+  content:"파일을 여기에 놓으면 첨부됩니다";
+  position:absolute;
+  inset:6px;
+  border:2px dashed #60a5fa;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  background:rgba(239,246,255,.88);
+  color:#1d4ed8;
+  font-size:13px;
+  font-weight:1000;
+  z-index:20;
+  pointer-events:none;
+}
+.ai-attach-drop-hint{
+  margin-top:8px;
+  padding:9px 11px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px dashed #bfdbfe;
+  color:#64748b;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.45;
+}
+</style>
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -14064,6 +14129,7 @@ nav.bottom-nav{
  <div class="ai-attach-status" id="aiAttachStatus"></div>
  <div class="ai-attach-list" id="aiAttachList"></div>
  <button class="ai-attach-clear" type="button" id="aiAttachClearBtn">첨부 모두 지우기</button>
+ <div class="ai-attach-drop-hint">파일은 버튼 선택뿐 아니라 이 입력창으로 드래그 앤 드롭해도 첨부됩니다.</div>
  </div>
  <div class="ai-input-row ai-composer-row" id="aiComposerRow">
  <button class="ai-composer-icon ai-attach-btn" type="button" id="aiAttachBtn" title="사진/파일/영상 첨부" aria-label="사진, 파일, 영상 첨부"><img class="upick-svg-icon" src="/icons/internal/attach.svg" alt="" loading="lazy"></button>
@@ -22750,15 +22816,16 @@ function formatAiFileSize(bytes=0){
 function getAiFileIcon(file={}){
  const type = String(file.type || '').toLowerCase();
  const name = String(file.name || '').toLowerCase();
- if(type.startsWith('image/')) return '🖼️';
- if(type.startsWith('video/')) return '🎥';
- if(type.startsWith('audio/') || /\.(m4a|mp3|wav|aac|ogg|flac)$/i.test(name)) return '🎙️';
- if(type.includes('pdf') || name.endsWith('.pdf')) return '📄';
- if(name.endsWith('.doc') || name.endsWith('.docx')) return '📝';
- if(name.endsWith('.xls') || name.endsWith('.xlsx')) return '';
- if(name.endsWith('.ppt') || name.endsWith('.pptx')) return '📽️';
- if(name.endsWith('.txt')) return '📃';
- return '첨부';
+ let icon = 'file-attach.svg';
+ if(type.startsWith('image/')) icon = 'file-image.svg';
+ else if(type.startsWith('video/')) icon = 'file-video.svg';
+ else if(type.startsWith('audio/') || /\.(m4a|mp3|wav|aac|ogg|flac)$/i.test(name)) icon = 'file-audio.svg';
+ else if(type.includes('pdf') || name.endsWith('.pdf')) icon = 'file-pdf.svg';
+ else if(name.endsWith('.doc') || name.endsWith('.docx')) icon = 'file-doc.svg';
+ else if(name.endsWith('.xls') || name.endsWith('.xlsx')) icon = 'file-sheet.svg';
+ else if(name.endsWith('.ppt') || name.endsWith('.pptx')) icon = 'file-ppt.svg';
+ else if(name.endsWith('.txt')) icon = 'file-text.svg';
+ return `<img class="ai-attach-icon-img" src="/icons/internal/${icon}" alt="" loading="lazy" decoding="async">`;
 }
 
 function setAiAttachStatus(message='', type='info'){
@@ -23111,6 +23178,61 @@ function bindAiQuestionComposer(){
      if(!guardAiAssistantBusy()) askAiAssistant();
    }
  });
+}
+
+function getAiDroppedFiles(event){
+ const dt = event?.dataTransfer;
+ if(!dt) return [];
+ return Array.from(dt.files || []).filter(Boolean);
+}
+
+function isAiFileDragEvent(event){
+ const types = Array.from(event?.dataTransfer?.types || []);
+ return types.includes('Files');
+}
+
+function setAiDragOverState(active){
+ qsa('#aiComposerRow, #aiAttachPanel').forEach(el => el?.classList?.toggle('ai-drag-over', !!active));
+}
+
+function bindAiDragAndDropUpload(){
+ const targets = [qs('#aiComposerRow'), qs('#aiAttachPanel'), qs('#aiChatWindow')].filter(Boolean);
+ if(!targets.length || window.__aiDragDropBound === true) return;
+ window.__aiDragDropBound = true;
+ let dragDepth = 0;
+ targets.forEach(target => {
+   ['dragenter','dragover'].forEach(type => {
+     target.addEventListener(type, (event) => {
+       if(!isAiFileDragEvent(event)) return;
+       event.preventDefault();
+       event.stopPropagation();
+       if(type === 'dragenter') dragDepth += 1;
+       setAiDragOverState(true);
+       try{ event.dataTransfer.dropEffect = 'copy'; }catch(_error){}
+     });
+   });
+   target.addEventListener('dragleave', (event) => {
+     if(!isAiFileDragEvent(event)) return;
+     event.preventDefault();
+     event.stopPropagation();
+     dragDepth = Math.max(0, dragDepth - 1);
+     if(dragDepth === 0) setAiDragOverState(false);
+   });
+   target.addEventListener('drop', (event) => {
+     if(!isAiFileDragEvent(event)) return;
+     event.preventDefault();
+     event.stopPropagation();
+     dragDepth = 0;
+     setAiDragOverState(false);
+     const files = getAiDroppedFiles(event);
+     if(!files.length) return;
+     addAiSelectedFiles(files);
+     setAiAttachStatus(`드래그 앤 드롭으로 ${files.length}개 파일을 첨부했습니다.`, 'info');
+     qs('#aiQuestionInput')?.focus?.();
+   });
+ });
+ window.addEventListener('dragend', () => { dragDepth = 0; setAiDragOverState(false); });
+ window.addEventListener('drop', () => { dragDepth = 0; setAiDragOverState(false); });
 }
 
 function bindAiAttachmentPicker(){
@@ -24733,6 +24855,7 @@ document.addEventListener('keydown', (event) => {
  resetAiChatWindow();
  bindAiAttachmentPicker();
  bindAiQuestionComposer();
+ bindAiDragAndDropUpload();
  qs('#aiAskBtn')?.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(); });
  qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
  qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
