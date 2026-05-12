@@ -7029,30 +7029,6 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   word-break:keep-all !important;
 }
 
-
-/* ===== AI 아이콘 가시성 보정 ===== */
-.ai-icon svg,
-.ai-entry-icon svg,
-.ai-entry-icon .upick-svg-icon{
-  color:#0B2A60 !important;
-  stroke:#0B2A60 !important;
-  fill:#0B2A60 !important;
-  opacity:1 !important;
-  filter:none !important;
-}
-
-/* ===== AI 카드 설명 글씨 보정 ===== */
-.ai-entry-card p,
-.all-menu-card.ai p,
-.all-menu-card[data-view-link="ai"] p,
-.all-menu-card[data-view="ai"] p{
-  color:rgba(255,255,255,.92) !important;
-  text-shadow:0 1px 2px rgba(0,0,0,.18);
-  font-weight:700 !important;
-  line-height:1.55 !important;
-  word-break:keep-all !important;
-}
-
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -13969,6 +13945,72 @@ nav.bottom-nav{
   line-height:1.45;
 }
 </style>
+
+<style id="upick-ai-visible-attach-count-real-fix-v3">
+/* ===== AI 생활도우미 카드 설명 글씨 최종 가독성 보정 ===== */
+#view-all .all-menu-card[data-view-link="ai"] > span:last-child,
+#view-all .all-menu-card.ai-entry-card > span:last-child,
+.all-menu-card[data-view-link="ai"] > span:last-child,
+.all-menu-card[data-view="ai"] > span:last-child,
+.all-menu-card.ai-entry-card > span:last-child,
+.ai-entry-card .ai-entry-copy p,
+.ai-entry-card p{
+  color:rgba(255,255,255,.94)!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.22)!important;
+  font-weight:800!important;
+  line-height:1.55!important;
+  word-break:keep-all!important;
+}
+
+/* ===== AI 말풍선 왼쪽 아이콘: gradient가 SVG를 덮는 문제 제거 ===== */
+.ai-message.bot::before{
+  content:""!important;
+  background:#eef2ff url('/icons/internal/ai-assistant.svg') center/74% no-repeat!important;
+  background-image:url('/icons/internal/ai-assistant.svg')!important;
+  background-color:#eef2ff!important;
+  background-size:74%!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-blend-mode:normal!important;
+  border:1px solid #dbeafe!important;
+  opacity:1!important;
+  filter:none!important;
+}
+
+/* ===== 전체 기능 AI 카드 아이콘도 명확하게 표시 ===== */
+.ai-entry-icon,
+.all-menu-card[data-view-link="ai"] .all-icon,
+.all-menu-card.ai-entry-card .all-icon{
+  font-size:0!important;
+  background:rgba(255,255,255,.92) url('/icons/internal/ai-assistant.svg') center/72% no-repeat!important;
+  border:1px solid rgba(255,255,255,.56)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 10px 24px rgba(0,0,0,.16)!important;
+}
+.ai-entry-icon img,
+.ai-entry-icon .upick-svg-icon,
+.all-menu-card[data-view-link="ai"] .all-icon img,
+.all-menu-card.ai-entry-card .all-icon img{
+  opacity:0!important;
+}
+
+/* ===== 첨부 버튼: 첨부파일이 있을 때 아이콘 대신 '첨부 N' 표시 ===== */
+.ai-composer-row.has-ai-files #aiAttachBtn,
+#aiAttachBtn.has-ai-files{
+  width:auto!important;
+  min-width:58px!important;
+  padding:0 11px!important;
+  font-size:12px!important;
+  font-weight:1000!important;
+  color:#1d4ed8!important;
+  background:#eff6ff!important;
+  border-color:#bfdbfe!important;
+}
+.ai-composer-row.has-ai-files #aiAttachBtn img,
+#aiAttachBtn.has-ai-files img{
+  display:none!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -22886,24 +22928,82 @@ function setAiAttachStatus(message='', type='info'){
  el.style.color = type === 'error' ? '#b91c1c' : '#1d4ed8';
 }
 
+function getAiAttachSourceLabel(source=''){
+ const value = String(source || '').toLowerCase();
+ if(value === 'dragdrop') return '드래그 앤 드롭';
+ if(value === 'picker') return '첨부 파일 버튼';
+ if(value === 'clipboard') return '클립보드 이미지';
+ return '첨부';
+}
+
+function markAiAttachSource(file, source='picker'){
+ try{
+   Object.defineProperty(file, '__aiAttachSource', {
+     value: source || 'picker',
+     writable: true,
+     configurable: true
+   });
+ }catch(_error){
+   try{ file.__aiAttachSource = source || 'picker'; }catch(_e){}
+ }
+ return file;
+}
+
+function buildAiAttachStatusMessage(){
+ if(!aiSelectedFiles.length) return '';
+ const counts = aiSelectedFiles.reduce((acc, file) => {
+   const source = String(file?.__aiAttachSource || 'picker').toLowerCase();
+   acc[source] = (acc[source] || 0) + 1;
+   return acc;
+ }, {});
+ const parts = [];
+ if(counts.dragdrop) parts.push(`드래그 앤 드롭으로 ${counts.dragdrop}개 파일을`);
+ if(counts.picker) parts.push(`첨부 파일 버튼으로 ${counts.picker}개 파일을`);
+ if(counts.clipboard) parts.push(`클립보드 이미지 ${counts.clipboard}개를`);
+ Object.keys(counts).forEach((key) => {
+   if(['dragdrop','picker','clipboard'].includes(key)) return;
+   if(counts[key]) parts.push(`${getAiAttachSourceLabel(key)}로 ${counts[key]}개 파일을`);
+ });
+ return parts.length ? `${parts.join(', ')} 첨부했습니다.` : `첨부 ${aiSelectedFiles.length}개 파일을 첨부했습니다.`;
+}
+
+function updateAiAttachButtonState(){
+ const btn = qs('#aiAttachBtn');
+ const row = qs('#aiComposerRow');
+ const count = aiSelectedFiles.length;
+ if(row) row.classList.toggle('has-ai-files', count > 0);
+ if(!btn) return;
+ btn.classList.toggle('has-ai-files', count > 0);
+ if(count > 0){
+   btn.dataset.originalLabel = btn.dataset.originalLabel || btn.getAttribute('aria-label') || '사진, 파일, 영상 첨부';
+   btn.innerHTML = `<span class="ai-attach-count-label">첨부 ${count}</span>`;
+   btn.setAttribute('aria-label', `첨부파일 ${count}개`);
+   btn.setAttribute('title', `첨부파일 ${count}개`);
+ }else{
+   btn.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/attach.svg" alt="" loading="lazy">`;
+   btn.setAttribute('aria-label', btn.dataset.originalLabel || '사진, 파일, 영상 첨부');
+   btn.setAttribute('title', '사진/파일/영상 첨부');
+ }
+}
+
 function renderAiSelectedFiles(){
  const panel = qs('#aiAttachPanel');
  const list = qs('#aiAttachList');
  if(panel) panel.classList.toggle('has-files', aiSelectedFiles.length > 0);
+ updateAiAttachButtonState();
  if(!list) return;
  if(!aiSelectedFiles.length){
  list.innerHTML = '';
  setAiAttachStatus('', 'info');
  return;
  }
- const total = aiSelectedFiles.reduce((sum, file) => sum + Number(file.size || 0), 0);
- setAiAttachStatus(`첨부 ${aiSelectedFiles.length}개 · 전체 ${formatAiFileSize(total)} · 영상은 분석 시간이 조금 더 걸릴 수 있습니다.`, 'info');
+ setAiAttachStatus(buildAiAttachStatusMessage(), 'info');
  list.innerHTML = aiSelectedFiles.map((file, index) => `
  <div class="ai-attach-item">
  <span class="ai-attach-icon">${getAiFileIcon(file)}</span>
  <div style="min-width:0">
  <div class="ai-attach-name">${escapeHtml(file.name || `file-${index + 1}`)}</div>
- <div class="ai-attach-meta">${escapeHtml(file.type || '파일')} · ${formatAiFileSize(file.size)}</div>
+ <div class="ai-attach-meta">${escapeHtml(file.type || '파일')} · ${formatAiFileSize(file.size)} · ${escapeHtml(getAiAttachSourceLabel(file.__aiAttachSource || 'picker'))}</div>
  </div>
  <button class="ai-attach-remove" type="button" data-ai-remove-file-index="${index}" aria-label="첨부 삭제">×</button>
  </div>`).join('');
@@ -22916,7 +23016,7 @@ function renderAiSelectedFiles(){
  });
 }
 
-function addAiSelectedFiles(fileList){
+function addAiSelectedFiles(fileList, source='picker'){
  const incoming = Array.from(fileList || []);
  if(!incoming.length) return;
  const merged = [...aiSelectedFiles];
@@ -22926,7 +23026,7 @@ function addAiSelectedFiles(fileList){
  break;
  }
  const duplicate = merged.some(v => v.name === file.name && v.size === file.size && v.lastModified === file.lastModified);
- if(!duplicate) merged.push(file);
+ if(!duplicate) merged.push(markAiAttachSource(file, source));
  }
  const total = merged.reduce((sum, file) => sum + Number(file.size || 0), 0);
  if(total > AI_MAX_ATTACH_TOTAL_BYTES){
@@ -23214,8 +23314,7 @@ function bindAiQuestionComposer(){
    const files = extractClipboardImageFiles(event);
    if(!files.length) return;
    event.preventDefault();
-   addAiSelectedFiles(files);
-   setAiAttachStatus(`클립보드 이미지 ${files.length}개를 첨부했습니다.`, 'info');
+   addAiSelectedFiles(files, 'clipboard');
    requestAnimationFrame(() => input.focus?.());
  });
  input.addEventListener('keydown', (event) => {
@@ -23274,8 +23373,7 @@ function bindAiDragAndDropUpload(){
      setAiDragOverState(false);
      const files = getAiDroppedFiles(event);
      if(!files.length) return;
-     addAiSelectedFiles(files);
-     setAiAttachStatus(`드래그 앤 드롭으로 ${files.length}개 파일을 첨부했습니다.`, 'info');
+     addAiSelectedFiles(files, 'dragdrop');
      qs('#aiQuestionInput')?.focus?.();
    });
  });
@@ -23290,7 +23388,7 @@ function bindAiAttachmentPicker(){
  if(btn && input && btn.dataset.bound !== 'true'){
  btn.dataset.bound = 'true';
  btn.addEventListener('click', () => input.click());
- input.addEventListener('change', () => addAiSelectedFiles(input.files));
+ input.addEventListener('change', () => addAiSelectedFiles(input.files, 'picker'));
  }
  if(clearBtn && clearBtn.dataset.bound !== 'true'){
  clearBtn.dataset.bound = 'true';
@@ -31112,37 +31210,8 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 }
 </style>
 
-<script>
-/* ===== 첨부 출처별 개수 실시간 표시 ===== */
-window.__upickAttachStats = window.__upickAttachStats || {
-  dragdrop: 0,
-  picker: 0
-};
 
-window.updateAttachStatusText = function(){
-  const stats = window.__upickAttachStats;
-  const parts = [];
-
-  if(stats.dragdrop > 0){
-    parts.push(`드래그 앤 드롭으로 ${stats.dragdrop}개 파일을`);
-  }
-
-  if(stats.picker > 0){
-    parts.push(`첨부 파일 버튼으로 ${stats.picker}개 파일을`);
-  }
-
-  const el = document.querySelector('.ai-attach-status');
-
-  if(!el) return;
-
-  if(parts.length === 0){
-    el.textContent = '파일을 버튼 선택 뿐 아니라 이 입력창으로 드래그 앤 드롭해도 첨부됩니다.';
-    return;
-  }
-
-  el.textContent = parts.join(', ') + ' 첨부했습니다.';
-};
-</script>
+<!-- upick-ai-visible-attach-count-real-fix-v3-20260512 -->
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
