@@ -2,6 +2,8 @@ const host = window.location.hostname;
 const origin = window.location.origin;
 
 const DEV_HOSTS = new Set([
+  "www.theunjeongpick.com",
+  "theunjeongpick.com",
   "localhost",
   "127.0.0.1",
   "www.sola-home-dev.kr",
@@ -9,6 +11,8 @@ const DEV_HOSTS = new Set([
 ]);
 
 const PROD_HOSTS = new Set([
+  "www.theunjeongpick.com",
+  "theunjeongpick.com",
   "www.sola-home.kr",
   "sola-home.kr"
 ]);
@@ -79,7 +83,7 @@ export const APP_ORIGIN = {
   dev: host === "localhost" || host === "127.0.0.1"
     ? origin
     : "https://www.sola-home-dev.kr",
-  prod: "https://www.sola-home.kr"
+  prod: "https://www.theunjeongpick.com"
 };
 
 export const TTS_SERVICE_URL = {
