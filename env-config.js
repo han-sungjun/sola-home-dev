@@ -2,8 +2,6 @@ const host = window.location.hostname;
 const origin = window.location.origin;
 
 const DEV_HOSTS = new Set([
-  "www.theunjeongpick.com",
-  "theunjeongpick.com",
   "localhost",
   "127.0.0.1",
   "www.sola-home-dev.kr",
