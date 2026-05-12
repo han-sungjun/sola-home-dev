@@ -13921,6 +13921,67 @@ nav.bottom-nav{
   line-height:1.45;
 }
 </style>
+
+
+<style id="ai-life-helper-icon-attach-state-final-v2">
+/* AI 생활 도우미: 좌측 AI 아이콘 표시 보정 + 첨부 상태 버튼 텍스트화 */
+.ai-message.bot::before{
+  content:""!important;
+  background-color:#eff6ff!important;
+  background-image:url('/icons/internal/ai-assistant.svg')!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:74%!important;
+  border:1px solid #dbeafe!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.10)!important;
+}
+.ai-message.user::after{
+  content:""!important;
+  background-color:#0f172a!important;
+  background-image:url('/icons/internal/ai-user-person.svg')!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:100%!important;
+}
+.ai-composer-row .ai-attach-btn.has-ai-files{
+  width:auto!important;
+  min-width:62px!important;
+  padding:0 11px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  color:#1d4ed8!important;
+  font-size:12px!important;
+  font-weight:1000!important;
+  letter-spacing:-.03em!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.10)!important;
+}
+.ai-composer-row .ai-attach-btn.has-ai-files::before{
+  content:"";
+  width:15px;
+  height:15px;
+  display:inline-block;
+  background:url('/icons/internal/file-attach.svg') center/contain no-repeat;
+  flex:0 0 auto;
+}
+.ai-composer-row .ai-attach-btn.has-ai-files img{display:none!important;}
+.ai-composer-row .ai-attach-btn.has-ai-files .ai-attach-count-text{
+  display:inline-block;
+  white-space:nowrap;
+  line-height:1;
+}
+@media(max-width:420px){
+  .ai-composer-row .ai-attach-btn.has-ai-files{
+    min-width:56px!important;
+    padding:0 9px!important;
+    font-size:11px!important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -22838,10 +22899,27 @@ function setAiAttachStatus(message='', type='info'){
  el.style.color = type === 'error' ? '#b91c1c' : '#1d4ed8';
 }
 
+function updateAiAttachButtonState(){
+ const btn = qs('#aiAttachBtn');
+ if(!btn) return;
+ const count = Array.isArray(aiSelectedFiles) ? aiSelectedFiles.length : 0;
+ btn.classList.toggle('has-ai-files', count > 0);
+ if(count > 0){
+   btn.innerHTML = `<span class="ai-attach-count-text">첨부 ${count}</span>`;
+   btn.title = `첨부파일 ${count}개 선택됨`;
+   btn.setAttribute('aria-label', `첨부파일 ${count}개 선택됨. 파일 추가 선택`);
+ }else{
+   btn.innerHTML = '<img class="upick-svg-icon" src="/icons/internal/attach.svg" alt="" loading="lazy">';
+   btn.title = '사진/파일/영상 첨부';
+   btn.setAttribute('aria-label', '사진, 파일, 영상 첨부');
+ }
+}
+
 function renderAiSelectedFiles(){
  const panel = qs('#aiAttachPanel');
  const list = qs('#aiAttachList');
  if(panel) panel.classList.toggle('has-files', aiSelectedFiles.length > 0);
+ updateAiAttachButtonState();
  if(!list) return;
  if(!aiSelectedFiles.length){
  list.innerHTML = '';
