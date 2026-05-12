@@ -13921,67 +13921,6 @@ nav.bottom-nav{
   line-height:1.45;
 }
 </style>
-
-
-<style id="ai-life-helper-icon-attach-state-final-v2">
-/* AI 생활 도우미: 좌측 AI 아이콘 표시 보정 + 첨부 상태 버튼 텍스트화 */
-.ai-message.bot::before{
-  content:""!important;
-  background-color:#eff6ff!important;
-  background-image:url('/icons/internal/ai-assistant.svg')!important;
-  background-repeat:no-repeat!important;
-  background-position:center!important;
-  background-size:74%!important;
-  border:1px solid #dbeafe!important;
-  box-shadow:0 8px 18px rgba(37,99,235,.10)!important;
-}
-.ai-message.user::after{
-  content:""!important;
-  background-color:#0f172a!important;
-  background-image:url('/icons/internal/ai-user-person.svg')!important;
-  background-repeat:no-repeat!important;
-  background-position:center!important;
-  background-size:100%!important;
-}
-.ai-composer-row .ai-attach-btn.has-ai-files{
-  width:auto!important;
-  min-width:62px!important;
-  padding:0 11px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:5px!important;
-  background:#eff6ff!important;
-  border-color:#93c5fd!important;
-  color:#1d4ed8!important;
-  font-size:12px!important;
-  font-weight:1000!important;
-  letter-spacing:-.03em!important;
-  box-shadow:0 8px 18px rgba(37,99,235,.10)!important;
-}
-.ai-composer-row .ai-attach-btn.has-ai-files::before{
-  content:"";
-  width:15px;
-  height:15px;
-  display:inline-block;
-  background:url('/icons/internal/file-attach.svg') center/contain no-repeat;
-  flex:0 0 auto;
-}
-.ai-composer-row .ai-attach-btn.has-ai-files img{display:none!important;}
-.ai-composer-row .ai-attach-btn.has-ai-files .ai-attach-count-text{
-  display:inline-block;
-  white-space:nowrap;
-  line-height:1;
-}
-@media(max-width:420px){
-  .ai-composer-row .ai-attach-btn.has-ai-files{
-    min-width:56px!important;
-    padding:0 9px!important;
-    font-size:11px!important;
-  }
-}
-</style>
-
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -22789,6 +22728,25 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
 const AI_MAX_ATTACH_FILES = 5;
 const AI_MAX_ATTACH_TOTAL_BYTES = 50 * 1024 * 1024;
 let aiSelectedFiles = [];
+let aiAttachSourceByKey = new Map();
+
+function getAiFileIdentityKey(file={}){
+ return [file.name || '', file.size || 0, file.lastModified || 0, file.type || ''].join('::');
+}
+
+function getAiAttachSourceSummary(){
+ const counts = { drop:0, picker:0, clipboard:0 };
+ (aiSelectedFiles || []).forEach(file => {
+   const source = aiAttachSourceByKey.get(getAiFileIdentityKey(file)) || 'picker';
+   counts[source] = (counts[source] || 0) + 1;
+ });
+ const parts = [];
+ if(counts.drop) parts.push(`드래그 앤 드롭으로 ${counts.drop}개 파일`);
+ if(counts.picker) parts.push(`첨부 파일 버튼으로 ${counts.picker}개 파일`);
+ if(counts.clipboard) parts.push(`클립보드 이미지로 ${counts.clipboard}개 파일`);
+ if(!parts.length) return '';
+ return `${parts.join('을, ')}을 첨부했습니다.`;
+}
 
 function getAiAnalyzeFilesUrl(){
  if(!AI_STREAM_SERVER_BASE_URL) return '';
@@ -22899,27 +22857,10 @@ function setAiAttachStatus(message='', type='info'){
  el.style.color = type === 'error' ? '#b91c1c' : '#1d4ed8';
 }
 
-function updateAiAttachButtonState(){
- const btn = qs('#aiAttachBtn');
- if(!btn) return;
- const count = Array.isArray(aiSelectedFiles) ? aiSelectedFiles.length : 0;
- btn.classList.toggle('has-ai-files', count > 0);
- if(count > 0){
-   btn.innerHTML = `<span class="ai-attach-count-text">첨부 ${count}</span>`;
-   btn.title = `첨부파일 ${count}개 선택됨`;
-   btn.setAttribute('aria-label', `첨부파일 ${count}개 선택됨. 파일 추가 선택`);
- }else{
-   btn.innerHTML = '<img class="upick-svg-icon" src="/icons/internal/attach.svg" alt="" loading="lazy">';
-   btn.title = '사진/파일/영상 첨부';
-   btn.setAttribute('aria-label', '사진, 파일, 영상 첨부');
- }
-}
-
 function renderAiSelectedFiles(){
  const panel = qs('#aiAttachPanel');
  const list = qs('#aiAttachList');
  if(panel) panel.classList.toggle('has-files', aiSelectedFiles.length > 0);
- updateAiAttachButtonState();
  if(!list) return;
  if(!aiSelectedFiles.length){
  list.innerHTML = '';
@@ -22927,7 +22868,8 @@ function renderAiSelectedFiles(){
  return;
  }
  const total = aiSelectedFiles.reduce((sum, file) => sum + Number(file.size || 0), 0);
- setAiAttachStatus(`첨부 ${aiSelectedFiles.length}개 · 전체 ${formatAiFileSize(total)} · 영상은 분석 시간이 조금 더 걸릴 수 있습니다.`, 'info');
+ const sourceSummary = getAiAttachSourceSummary();
+ setAiAttachStatus(sourceSummary || `첨부 ${aiSelectedFiles.length}개 · 전체 ${formatAiFileSize(total)} · 영상은 분석 시간이 조금 더 걸릴 수 있습니다.`, 'info');
  list.innerHTML = aiSelectedFiles.map((file, index) => `
  <div class="ai-attach-item">
  <span class="ai-attach-icon">${getAiFileIcon(file)}</span>
@@ -22940,14 +22882,19 @@ function renderAiSelectedFiles(){
  list.querySelectorAll('[data-ai-remove-file-index]').forEach(btn => {
  btn.addEventListener('click', () => {
  const idx = Number(btn.dataset.aiRemoveFileIndex || -1);
- if(idx >= 0) aiSelectedFiles.splice(idx, 1);
+ if(idx >= 0){
+   const removed = aiSelectedFiles[idx];
+   if(removed) aiAttachSourceByKey.delete(getAiFileIdentityKey(removed));
+   aiSelectedFiles.splice(idx, 1);
+ }
  renderAiSelectedFiles();
  });
  });
 }
 
-function addAiSelectedFiles(fileList){
+function addAiSelectedFiles(fileList, source='picker'){
  const incoming = Array.from(fileList || []);
+ const normalizedSource = ['drop','picker','clipboard'].includes(source) ? source : 'picker';
  if(!incoming.length) return;
  const merged = [...aiSelectedFiles];
  for(const file of incoming){
@@ -22956,7 +22903,10 @@ function addAiSelectedFiles(fileList){
  break;
  }
  const duplicate = merged.some(v => v.name === file.name && v.size === file.size && v.lastModified === file.lastModified);
- if(!duplicate) merged.push(file);
+ if(!duplicate){
+   merged.push(file);
+   aiAttachSourceByKey.set(getAiFileIdentityKey(file), normalizedSource);
+ }
  }
  const total = merged.reduce((sum, file) => sum + Number(file.size || 0), 0);
  if(total > AI_MAX_ATTACH_TOTAL_BYTES){
@@ -22964,11 +22914,14 @@ function addAiSelectedFiles(fileList){
  return;
  }
  aiSelectedFiles = merged.slice(0, AI_MAX_ATTACH_FILES);
+ const activeKeys = new Set(aiSelectedFiles.map(getAiFileIdentityKey));
+ Array.from(aiAttachSourceByKey.keys()).forEach(key => { if(!activeKeys.has(key)) aiAttachSourceByKey.delete(key); });
  renderAiSelectedFiles();
 }
 
 function clearAiSelectedFiles(){
  aiSelectedFiles = [];
+ aiAttachSourceByKey.clear();
  const input = qs('#aiFileInput');
  if(input) input.value = '';
  renderAiSelectedFiles();
@@ -23244,8 +23197,7 @@ function bindAiQuestionComposer(){
    const files = extractClipboardImageFiles(event);
    if(!files.length) return;
    event.preventDefault();
-   addAiSelectedFiles(files);
-   setAiAttachStatus(`클립보드 이미지 ${files.length}개를 첨부했습니다.`, 'info');
+   addAiSelectedFiles(files, 'clipboard');
    requestAnimationFrame(() => input.focus?.());
  });
  input.addEventListener('keydown', (event) => {
@@ -23304,8 +23256,7 @@ function bindAiDragAndDropUpload(){
      setAiDragOverState(false);
      const files = getAiDroppedFiles(event);
      if(!files.length) return;
-     addAiSelectedFiles(files);
-     setAiAttachStatus(`드래그 앤 드롭으로 ${files.length}개 파일을 첨부했습니다.`, 'info');
+     addAiSelectedFiles(files, 'drop');
      qs('#aiQuestionInput')?.focus?.();
    });
  });
@@ -23320,7 +23271,7 @@ function bindAiAttachmentPicker(){
  if(btn && input && btn.dataset.bound !== 'true'){
  btn.dataset.bound = 'true';
  btn.addEventListener('click', () => input.click());
- input.addEventListener('change', () => addAiSelectedFiles(input.files));
+ input.addEventListener('change', () => { addAiSelectedFiles(input.files, 'picker'); input.value = ''; });
  }
  if(clearBtn && clearBtn.dataset.bound !== 'true'){
  clearBtn.dataset.bound = 'true';
