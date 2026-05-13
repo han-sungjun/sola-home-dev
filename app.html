@@ -31972,6 +31972,84 @@ html body #view-benefits .filter-sticky [data-dropdown]{
 }
 </style>
 
+
+<style id="upick-filter-sticky-radius-icon-v13">
+/* ===== 혜택 필터 radius 완화 + 전체 칩 아이콘 보정 ===== */
+
+/* 스와이프 시 끝부분 잘림이 덜 보이도록 radius 완화 */
+html body #view-benefits .filter-sticky{
+  border-radius:18px !important;
+}
+
+/* 내부 요소도 너무 둥글지 않게 완화 */
+html body #view-benefits .filter-sticky .panel-filter-top-row,
+html body #view-benefits .filter-sticky .panel-searchbox,
+html body #view-benefits .filter-sticky .chips-scroll-bound,
+html body #view-benefits .filter-sticky .chips{
+  border-radius:14px !important;
+}
+
+/* 칩 영역 좌우 여백을 살짝 확보해서 스와이프 시 가장자리 먹힘 완화 */
+html body #view-benefits .filter-sticky .chips{
+  padding-inline:2px !important;
+  scroll-padding-inline:8px !important;
+}
+
+/* 전체 칩 사람 아이콘 */
+html body #view-benefits .filter-sticky .chip-all-resident-icon{
+  width:14px !important;
+  height:14px !important;
+  flex:0 0 14px !important;
+  display:inline-block !important;
+  vertical-align:-2px !important;
+  margin-right:4px !important;
+}
+</style>
+
+
+<script id="upick-filter-sticky-radius-icon-v13-js">
+(function(){
+  const PERSON_ICON = '/icons/internal/person.svg';
+
+  function addAllChipPersonIcon(){
+    const root = document.querySelector('#view-benefits .filter-sticky');
+    if(!root) return;
+
+    const chips = root.querySelectorAll('.chips button, .chips .chip, .chips [role="button"]');
+    chips.forEach((chip) => {
+      const text = (chip.textContent || '').replace(/\s+/g, ' ').trim();
+      if(!/^전체(\s|\d|$)/.test(text)) return;
+      if(chip.querySelector('.chip-all-resident-icon')) return;
+
+      const img = document.createElement('img');
+      img.className = 'chip-all-resident-icon';
+      img.src = PERSON_ICON;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      chip.insertBefore(img, chip.firstChild);
+    });
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(addAllChipPersonIcon, 0);
+    setTimeout(addAllChipPersonIcon, 150);
+  }, true);
+
+  const observer = new MutationObserver(addAllChipPersonIcon);
+  if(document.body){
+    observer.observe(document.body, { childList:true, subtree:true });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', addAllChipPersonIcon);
+  }else{
+    addAllChipPersonIcon();
+  }
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
