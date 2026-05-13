@@ -32050,6 +32050,111 @@ html body #view-benefits .filter-sticky .chip-all-resident-icon{
 })();
 </script>
 
+
+<style id="upick-distance-person-icon-v14">
+/* ===== 거리 태그 사람 아이콘 ===== */
+.distance-tag .distance-person-icon{
+  width:13px !important;
+  height:13px !important;
+  flex:0 0 13px !important;
+  margin-right:4px !important;
+  vertical-align:-2px !important;
+  display:inline-block !important;
+}
+</style>
+
+<script id="upick-distance-person-icon-v14-js">
+(function(){
+  const PERSON_ICON = '/icons/internal/person.svg';
+
+  function applyDistancePersonIcon(){
+    document.querySelectorAll('.distance-tag').forEach((tag) => {
+      if(tag.querySelector('.distance-person-icon')) return;
+
+      const img = document.createElement('img');
+      img.className = 'distance-person-icon';
+      img.src = PERSON_ICON;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      tag.insertBefore(img, tag.firstChild);
+    });
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(applyDistancePersonIcon, 0);
+    setTimeout(applyDistancePersonIcon, 120);
+  }, true);
+
+  const observer = new MutationObserver(applyDistancePersonIcon);
+  if(document.body){
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyDistancePersonIcon);
+  }else{
+    applyDistancePersonIcon();
+  }
+})();
+</script>
+
+
+<style id="upick-all-chip-person-icon-v15">
+/* ===== 전체 칩 사람 아이콘 ===== */
+.chips .chip-all-person-icon{
+  width:13px !important;
+  height:13px !important;
+  flex:0 0 13px !important;
+  margin-right:4px !important;
+  vertical-align:-2px !important;
+  display:inline-block !important;
+}
+</style>
+
+<script id="upick-all-chip-person-icon-v15-js">
+(function(){
+  const PERSON_ICON = '/icons/internal/person.svg';
+
+  function applyAllChipPersonIcon(){
+    document.querySelectorAll('.chips button, .chips .chip, .chips [role="button"]').forEach((chip) => {
+      const text = (chip.textContent || '').replace(/\s+/g, ' ').trim();
+
+      // "전체", "전체 30" 등 대응
+      if(!/^전체(\s|\d|$)/.test(text)) return;
+
+      if(chip.querySelector('.chip-all-person-icon')) return;
+
+      const img = document.createElement('img');
+      img.className = 'chip-all-person-icon';
+      img.src = PERSON_ICON;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      chip.insertBefore(img, chip.firstChild);
+    });
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(applyAllChipPersonIcon, 0);
+    setTimeout(applyAllChipPersonIcon, 120);
+  }, true);
+
+  const observer = new MutationObserver(applyAllChipPersonIcon);
+  if(document.body){
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAllChipPersonIcon);
+  }else{
+    applyAllChipPersonIcon();
+  }
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
