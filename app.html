@@ -32305,6 +32305,319 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 .gnb-inline-badge.up{background:rgba(16,185,129,.86);color:#fff;border-color:rgba(167,243,208,.55)}
 .gnb-inline-badge.deprecated{background:rgba(100,116,139,.86);color:#fff;border-color:rgba(203,213,225,.62)}
 </style>
+
+<style id="upick-benefit-detail-photo-v2">
+/* ===== 혜택 상세 상단 대표 사진 v2: 라벨 제거 + 돋보기 + 클릭 확대 ===== */
+.benefit-detail-hero{
+  position:relative !important;
+  min-height:122px !important;
+  padding-right:132px !important;
+}
+
+.benefit-detail-photo-wrap{
+  position:absolute !important;
+  top:16px !important;
+  right:18px !important;
+  width:112px !important;
+  height:92px !important;
+  border-radius:24px !important;
+  overflow:hidden !important;
+  border:1px solid rgba(219,234,254,.92) !important;
+  background:#f8fafc !important;
+  box-shadow:0 16px 34px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.88) !important;
+  cursor:zoom-in !important;
+  padding:0 !important;
+  display:block !important;
+  -webkit-tap-highlight-color:transparent !important;
+}
+
+.benefit-detail-photo-wrap:active{
+  transform:scale(.985);
+}
+
+.benefit-detail-photo-wrap img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+}
+
+/* 기존 대표 사진 라벨은 제거 */
+.benefit-detail-photo-label,
+.benefit-detail-photo-caption,
+.benefit-detail-photo-wrap .photo-label,
+.benefit-detail-photo-wrap .represent-label{
+  display:none !important;
+}
+
+/* 우측 하단 돋보기 아이콘 */
+.benefit-detail-photo-zoom{
+  position:absolute !important;
+  right:8px !important;
+  bottom:8px !important;
+  width:30px !important;
+  height:30px !important;
+  border-radius:999px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:rgba(15,23,42,.88) !important;
+  border:1px solid rgba(255,255,255,.36) !important;
+  box-shadow:0 8px 18px rgba(15,23,42,.24) !important;
+  pointer-events:none !important;
+}
+
+.benefit-detail-photo-zoom::before{
+  content:"" !important;
+  width:16px !important;
+  height:16px !important;
+  display:block !important;
+  background:url('/icons/internal/search.svg') center/contain no-repeat !important;
+  filter:brightness(0) invert(1) !important;
+}
+
+/* 사진 확대 팝업 */
+.benefit-photo-viewer{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:2147483100 !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:18px !important;
+  background:rgba(7,18,42,.78) !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+}
+
+.benefit-photo-viewer.show{
+  display:flex !important;
+}
+
+.benefit-photo-viewer-card{
+  position:relative !important;
+  width:min(100%,460px) !important;
+  max-height:92dvh !important;
+  border-radius:28px !important;
+  background:rgba(255,255,255,.98) !important;
+  border:1px solid rgba(219,234,254,.92) !important;
+  box-shadow:0 30px 80px rgba(7,26,61,.34) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.benefit-photo-viewer-head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  padding:14px 14px 10px !important;
+  border-bottom:1px solid rgba(226,232,240,.86) !important;
+}
+
+.benefit-photo-viewer-title{
+  min-width:0 !important;
+  flex:1 !important;
+  font-size:14px !important;
+  font-weight:1000 !important;
+  color:#0f172a !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+.benefit-photo-viewer-close{
+  width:40px !important;
+  height:40px !important;
+  border:none !important;
+  border-radius:15px !important;
+  background:#0f172a !important;
+  color:#fff !important;
+  font-size:22px !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+  display:grid !important;
+  place-items:center !important;
+}
+
+.benefit-photo-viewer-body{
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:12px !important;
+  background:#f8fafc !important;
+  display:grid !important;
+  place-items:center !important;
+}
+
+.benefit-photo-viewer-body img{
+  width:100% !important;
+  height:auto !important;
+  max-height:calc(92dvh - 92px) !important;
+  object-fit:contain !important;
+  border-radius:20px !important;
+  background:#fff !important;
+}
+
+@media(max-width:390px){
+  .benefit-detail-hero{
+    padding-right:118px !important;
+  }
+  .benefit-detail-photo-wrap{
+    width:98px !important;
+    height:82px !important;
+    right:16px !important;
+    border-radius:22px !important;
+  }
+}
+</style>
+
+
+<script id="upick-benefit-detail-photo-v2-js">
+(function(){
+  function getPhotoUrlFromBenefit(benefit){
+    if(!benefit) return '';
+    return benefit.kakaoThumbnailUrl ||
+      benefit.shareThumbnailUrl ||
+      benefit.thumbnailUrl ||
+      benefit.mainPhotoUrl ||
+      benefit.representativePhotoUrl ||
+      benefit.photoUrl ||
+      benefit.imageUrl ||
+      benefit.ogImage ||
+      benefit.ogImageUrl ||
+      '';
+  }
+
+  function ensurePhotoViewer(){
+    let viewer = document.getElementById('benefitPhotoViewer');
+    if(viewer) return viewer;
+
+    viewer = document.createElement('div');
+    viewer.id = 'benefitPhotoViewer';
+    viewer.className = 'benefit-photo-viewer';
+    viewer.innerHTML = [
+      '<div class="benefit-photo-viewer-card" role="dialog" aria-modal="true" aria-label="대표 사진 확대 보기">',
+        '<div class="benefit-photo-viewer-head">',
+          '<div class="benefit-photo-viewer-title" id="benefitPhotoViewerTitle">대표 사진</div>',
+          '<button type="button" class="benefit-photo-viewer-close" aria-label="닫기">×</button>',
+        '</div>',
+        '<div class="benefit-photo-viewer-body">',
+          '<img id="benefitPhotoViewerImg" alt="대표 사진 확대 보기">',
+        '</div>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(viewer);
+
+    viewer.addEventListener('click', function(e){
+      if(e.target === viewer || e.target.closest('.benefit-photo-viewer-close')){
+        closePhotoViewer();
+      }
+    });
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closePhotoViewer();
+    });
+
+    return viewer;
+  }
+
+  function openPhotoViewer(src, title){
+    if(!src) return;
+    const viewer = ensurePhotoViewer();
+    const img = viewer.querySelector('#benefitPhotoViewerImg');
+    const titleEl = viewer.querySelector('#benefitPhotoViewerTitle');
+
+    img.src = src;
+    img.alt = (title || '대표 사진') + ' 대표 사진';
+    titleEl.textContent = title ? title + ' 대표 사진' : '대표 사진';
+
+    viewer.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePhotoViewer(){
+    const viewer = document.getElementById('benefitPhotoViewer');
+    if(!viewer) return;
+    viewer.classList.remove('show');
+    const img = viewer.querySelector('#benefitPhotoViewerImg');
+    if(img) img.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+
+  function normalizeDetailPhoto(){
+    const modal = document.getElementById('detailModal');
+    if(!modal) return;
+
+    const wrap = modal.querySelector('.benefit-detail-photo-wrap');
+    if(!wrap) return;
+
+    // 텍스트 라벨 제거
+    wrap.querySelectorAll('.benefit-detail-photo-label,.benefit-detail-photo-caption,.photo-label,.represent-label').forEach((el) => el.remove());
+
+    // 돋보기 없으면 추가
+    if(!wrap.querySelector('.benefit-detail-photo-zoom')){
+      const z = document.createElement('span');
+      z.className = 'benefit-detail-photo-zoom';
+      z.setAttribute('aria-hidden', 'true');
+      wrap.appendChild(z);
+    }
+
+    // 버튼 속성 보정
+    if(wrap.tagName !== 'BUTTON'){
+      wrap.setAttribute('role', 'button');
+      wrap.setAttribute('tabindex', '0');
+    }
+    wrap.setAttribute('aria-label', '대표 사진 확대 보기');
+  }
+
+  document.addEventListener('click', function(e){
+    const wrap = e.target && e.target.closest ? e.target.closest('.benefit-detail-photo-wrap') : null;
+    if(!wrap) return;
+
+    const img = wrap.querySelector('img');
+    if(!img || !img.src) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const titleEl = document.querySelector('#detailModal .benefit-detail-hero h2, #detailModal .benefit-detail-hero h3, #detailModal h2, #detailModal h3');
+    openPhotoViewer(img.src, titleEl ? titleEl.textContent.trim() : '');
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    const wrap = e.target && e.target.closest ? e.target.closest('.benefit-detail-photo-wrap') : null;
+    if(!wrap) return;
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+
+    const img = wrap.querySelector('img');
+    if(!img || !img.src) return;
+
+    e.preventDefault();
+    const titleEl = document.querySelector('#detailModal .benefit-detail-hero h2, #detailModal .benefit-detail-hero h3, #detailModal h2, #detailModal h3');
+    openPhotoViewer(img.src, titleEl ? titleEl.textContent.trim() : '');
+  }, true);
+
+  const mo = new MutationObserver(function(){
+    normalizeDetailPhoto();
+  });
+
+  if(document.body){
+    mo.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', normalizeDetailPhoto);
+  }else{
+    normalizeDetailPhoto();
+  }
+
+  window.openBenefitPhotoViewer = openPhotoViewer;
+  window.closeBenefitPhotoViewer = closePhotoViewer;
+  window.getBenefitDetailPhotoUrl = getPhotoUrlFromBenefit;
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
