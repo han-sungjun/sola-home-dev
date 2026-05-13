@@ -31911,11 +31911,13 @@ html body #noticeModal .share-actions > .btn .upick-svg-icon{
 })();
 </script>
 
-<style id="upick-filter-sticky-rounded-v10">
-/* ===== 혜택 필터 sticky 영역: CSS 전용 경량 라운드 보정 ===== */
+<style id="upick-filter-sticky-rounded-v12">
+/* ===== 혜택 filter-sticky 최종 보정 ===== */
+
+/* 겉 패널만 둥글게 */
 html body #view-benefits .filter-sticky{
   border-radius:26px !important;
-  overflow:hidden !important;
+  overflow:visible !important; /* 팝오버/드롭다운 안 잘리게 */
   background:rgba(255,255,255,.78) !important;
   border:1px solid rgba(191,219,254,.48) !important;
   box-shadow:
@@ -31923,67 +31925,50 @@ html body #view-benefits .filter-sticky{
     inset 0 1px 0 rgba(255,255,255,.72) !important;
   backdrop-filter:blur(18px) saturate(1.12) !important;
   -webkit-backdrop-filter:blur(18px) saturate(1.12) !important;
+  position:relative !important;
+  z-index:5 !important;
 }
 
+/* 내부 박스만 부드럽게 */
 html body #view-benefits .filter-sticky .panel-filter-top-row,
-html body #view-benefits .filter-sticky .panel-searchbox,
-html body #view-benefits .filter-sticky .chips,
-html body #view-benefits .filter-sticky .chips-scroll-bound{
+html body #view-benefits .filter-sticky .panel-searchbox{
   border-radius:18px !important;
 }
 
-html body #view-benefits .filter-sticky .chips{
-  overflow:hidden !important;
-}
-</style>
-
-
-<style id="upick-category-chip-scroll-v11">
-/* ===== 혜택 카테고리 칩 모바일 가로 스와이프 복구 ===== */
-
-/* 겉 패널 라운드는 유지 */
-html body #view-benefits .filter-sticky{
-  overflow:hidden !important;
-}
-
-/* 칩을 감싸는 실제 스크롤 영역은 가로 스와이프 허용 */
+/* 칩 스크롤 유지 */
 html body #view-benefits .filter-sticky .chips-scroll-bound,
 html body #view-benefits .filter-sticky .chips{
   overflow-x:auto !important;
-  overflow-y:hidden !important;
+  overflow-y:visible !important;
   -webkit-overflow-scrolling:touch !important;
   touch-action:pan-x !important;
   overscroll-behavior-x:contain !important;
-  scroll-behavior:smooth !important;
+  scrollbar-width:none !important;
 }
 
-/* flex/grid 줄바꿈으로 인해 스와이프가 막히지 않도록 고정 */
-html body #view-benefits .filter-sticky .chips{
-  display:flex !important;
-  flex-wrap:nowrap !important;
-  gap:8px !important;
-  white-space:nowrap !important;
-  width:100% !important;
-  max-width:100% !important;
-}
-
-/* 칩 버튼은 줄어들지 않고 옆으로 이어지게 */
-html body #view-benefits .filter-sticky .chips > *,
-html body #view-benefits .filter-sticky .chips button,
-html body #view-benefits .filter-sticky .chips .chip{
-  flex:0 0 auto !important;
-  white-space:nowrap !important;
-}
-
-/* 모바일에서 스크롤바는 숨기되 스와이프는 유지 */
 html body #view-benefits .filter-sticky .chips-scroll-bound::-webkit-scrollbar,
 html body #view-benefits .filter-sticky .chips::-webkit-scrollbar{
   display:none !important;
 }
 
-html body #view-benefits .filter-sticky .chips-scroll-bound,
 html body #view-benefits .filter-sticky .chips{
-  scrollbar-width:none !important;
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  white-space:nowrap !important;
+}
+
+html body #view-benefits .filter-sticky .chips > *{
+  flex:0 0 auto !important;
+}
+
+/* 팝오버/드롭다운이 위로 뜨도록 */
+html body #view-benefits .filter-sticky .popover,
+html body #view-benefits .filter-sticky .dropdown,
+html body #view-benefits .filter-sticky [role="listbox"],
+html body #view-benefits .filter-sticky [data-popover],
+html body #view-benefits .filter-sticky [data-dropdown]{
+  z-index:9999 !important;
 }
 </style>
 
