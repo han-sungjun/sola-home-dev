@@ -14226,56 +14226,6 @@ nav.bottom-nav{
   }
 }
 </style>
-
-
-<style id="upick-benefit-filter-panel-v7">
-/* ===== 혜택 필터 패널 Rounded Glass 보정 ===== */
-
-/* 혜택 상단 필터/검색 패널 */
-.benefit-filter-wrap,
-.benefit-toolbar,
-.benefit-controls,
-.benefit-search-wrap,
-.benefit-filter-panel,
-.filter-panel,
-.list-filter-wrap{
-  border-radius:24px !important;
-  overflow:hidden !important;
-  background:rgba(255,255,255,.76) !important;
-  backdrop-filter:blur(18px) saturate(1.15) !important;
-  -webkit-backdrop-filter:blur(18px) saturate(1.15) !important;
-  border:1px solid rgba(191,219,254,.42) !important;
-  box-shadow:
-    0 10px 28px rgba(15,23,42,.06),
-    inset 0 1px 0 rgba(255,255,255,.72) !important;
-}
-
-/* 내부 영역도 자연스럽게 */
-.benefit-filter-wrap > *,
-.benefit-toolbar > *,
-.benefit-controls > *,
-.benefit-search-wrap > *,
-.benefit-filter-panel > *,
-.filter-panel > *,
-.list-filter-wrap > *{
-  border-radius:18px !important;
-}
-
-/* 모바일에서는 살짝 더 부드럽게 */
-@media(max-width:768px){
-  .benefit-filter-wrap,
-  .benefit-toolbar,
-  .benefit-controls,
-  .benefit-search-wrap,
-  .benefit-filter-panel,
-  .filter-panel,
-  .list-filter-wrap{
-    border-radius:26px !important;
-    padding:14px !important;
-  }
-}
-</style>
-
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -31961,158 +31911,10 @@ html body #noticeModal .share-actions > .btn .upick-svg-icon{
 })();
 </script>
 
-
-<style id="upick-benefit-filter-panel-v8">
-/* ===== 혜택 상단 필터 박스 최종 라운드 보정 ===== */
-
-/* 혜택 목록 상단: 추천/전체 + 카드형/리스트형 + 검색 + 카테고리칩을 담는 실제 패널 후보 */
-html body #benefitsPage .benefit-list-controls,
-html body #benefitsPage .benefit-list-toolbar,
-html body #benefitsPage .benefit-list-header,
-html body #benefitsPage .benefit-filter-area,
-html body #benefitsPage .benefit-filter-box,
-html body #benefitsPage .benefit-top-filter,
-html body #benefitsPage .benefit-search-area,
-html body #benefitsPage .benefit-search-section,
-html body #benefitsPage .category-filter-wrap,
-html body #benefitsPage .benefit-category-wrap,
-html body #benefitsPage .filter-row-wrap,
-html body #benefitsPage .list-mode-toolbar,
-html body #benefitsPage [class*="filter"],
-html body #benefitsPage [class*="search"]{
+<style id="upick-filter-sticky-rounded-v10">
+/* ===== 혜택 필터 sticky 영역: CSS 전용 경량 라운드 보정 ===== */
+html body #view-benefits .filter-sticky{
   border-radius:26px !important;
-}
-
-/* 실제 화면에서 흰색 사각 패널이 section/div로 잡힌 경우 */
-html body #benefitsPage section:has(.search-input),
-html body #benefitsPage div:has(> .benefit-search-row),
-html body #benefitsPage div:has(> .category-scroll),
-html body #benefitsPage div:has(> .category-chip-row),
-html body #benefitsPage div:has(.view-toggle),
-html body #benefitsPage div:has(.benefit-view-toggle),
-html body #benefitsPage div:has(button[data-view]){
-  border-radius:26px !important;
-  overflow:hidden !important;
-  background:rgba(255,255,255,.78) !important;
-  border:1px solid rgba(191,219,254,.46) !important;
-  box-shadow:
-    0 10px 28px rgba(15,23,42,.06),
-    inset 0 1px 0 rgba(255,255,255,.72) !important;
-}
-
-/* 혹시 id가 다를 때도 혜택 화면 내부에서 검색창/카테고리칩 주변 패널을 보정 */
-html body .page-benefits section:has(.search-input),
-html body .page-benefits div:has(> .benefit-search-row),
-html body .page-benefits div:has(> .category-scroll),
-html body .page-benefits div:has(> .category-chip-row),
-html body .benefits-section section:has(.search-input),
-html body .benefits-section div:has(> .benefit-search-row),
-html body .benefits-section div:has(> .category-scroll),
-html body .benefits-section div:has(> .category-chip-row){
-  border-radius:26px !important;
-  overflow:hidden !important;
-  background:rgba(255,255,255,.78) !important;
-  border:1px solid rgba(191,219,254,.46) !important;
-  box-shadow:
-    0 10px 28px rgba(15,23,42,.06),
-    inset 0 1px 0 rgba(255,255,255,.72) !important;
-}
-
-/* 각이 보이는 하얀 바탕을 직접 둥글게 */
-html body .benefit-tab-content > div:first-child,
-html body .benefits-list-section > div:first-child,
-html body .benefits-content > div:first-child,
-html body .benefit-content > div:first-child{
-  border-radius:26px !important;
-  overflow:hidden !important;
-}
-
-@supports not selector(:has(*)){
-  html body #benefitsPage [class*="filter"],
-  html body #benefitsPage [class*="search"],
-  html body .page-benefits [class*="filter"],
-  html body .page-benefits [class*="search"]{
-    border-radius:26px !important;
-    overflow:hidden !important;
-  }
-}
-</style>
-
-
-<script id="upick-benefit-filter-panel-v8-js">
-(function(){
-  function hasBenefitFilterContent(el){
-    if(!el || el.nodeType !== 1) return false;
-    const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    const hasSearch = !!el.querySelector('input[placeholder*="매장명"], input[placeholder*="카테고리"], input[placeholder*="검색"]');
-    const hasViewToggle = txt.includes('카드형') && txt.includes('리스트형');
-    const hasRecommend = txt.includes('추천') && txt.includes('전체');
-    const hasChips = txt.includes('전체 30') || txt.includes('금속가공제품') || txt.includes('디저트') || txt.includes('떡카페');
-    return hasSearch || hasViewToggle || hasRecommend || hasChips;
-  }
-
-  function applyRoundedFilterPanel(){
-    const candidates = Array.from(document.querySelectorAll('main div, main section, #app div, #app section, .app div, .app section'));
-    candidates.forEach((el) => {
-      if(!hasBenefitFilterContent(el)) return;
-
-      const rect = el.getBoundingClientRect();
-      if(rect.width < 250 || rect.height < 42 || rect.height > 260) return;
-
-      // 너무 큰 페이지 래퍼는 제외
-      const childCount = el.children ? el.children.length : 0;
-      if(rect.height > 220 && childCount > 8) return;
-
-      el.classList.add('upick-rounded-filter-panel');
-      el.style.setProperty('border-radius', '26px', 'important');
-      el.style.setProperty('overflow', 'hidden', 'important');
-
-      const bg = getComputedStyle(el).backgroundColor;
-      if(!bg || bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent'){
-        el.style.setProperty('background', 'rgba(255,255,255,.78)', 'important');
-      }
-      el.style.setProperty('border', '1px solid rgba(191,219,254,.46)', 'important');
-      el.style.setProperty('box-shadow', '0 10px 28px rgba(15,23,42,.06), inset 0 1px 0 rgba(255,255,255,.72)', 'important');
-    });
-  }
-
-  const style = document.createElement('style');
-  style.textContent = `
-    .upick-rounded-filter-panel{
-      border-radius:26px !important;
-      overflow:hidden !important;
-      background:rgba(255,255,255,.78) !important;
-      border:1px solid rgba(191,219,254,.46) !important;
-      box-shadow:0 10px 28px rgba(15,23,42,.06), inset 0 1px 0 rgba(255,255,255,.72) !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  document.addEventListener('click', () => {
-    setTimeout(applyRoundedFilterPanel, 0);
-    setTimeout(applyRoundedFilterPanel, 120);
-    setTimeout(applyRoundedFilterPanel, 400);
-  }, true);
-
-  const observer = new MutationObserver(applyRoundedFilterPanel);
-  if(document.body){
-    observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style'] });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyRoundedFilterPanel);
-  }else{
-    applyRoundedFilterPanel();
-  }
-})();
-</script>
-
-
-<style id="upick-filter-sticky-rounded-v9">
-/* ===== 혜택 필터 sticky 영역 라운드 보정 ===== */
-html body #view-benefits .filter-sticky,
-html body .filter-sticky{
-  border-radius:24px !important;
   overflow:hidden !important;
   background:rgba(255,255,255,.78) !important;
   border:1px solid rgba(191,219,254,.48) !important;
@@ -32123,30 +31925,15 @@ html body .filter-sticky{
   -webkit-backdrop-filter:blur(18px) saturate(1.12) !important;
 }
 
-/* 내부 줄도 사각 느낌이 나지 않도록 보정 */
 html body #view-benefits .filter-sticky .panel-filter-top-row,
 html body #view-benefits .filter-sticky .panel-searchbox,
 html body #view-benefits .filter-sticky .chips,
-html body #view-benefits .filter-sticky .chips-scroll-bound,
-html body .filter-sticky .panel-filter-top-row,
-html body .filter-sticky .panel-searchbox,
-html body .filter-sticky .chips,
-html body .filter-sticky .chips-scroll-bound{
+html body #view-benefits .filter-sticky .chips-scroll-bound{
   border-radius:18px !important;
 }
 
-/* 맨 위/아래가 잘려 각져 보이는 것 방지 */
-html body #view-benefits .filter-sticky .chips,
-html body .filter-sticky .chips{
+html body #view-benefits .filter-sticky .chips{
   overflow:hidden !important;
-}
-
-/* 모바일에서는 조금 더 둥글게 */
-@media(max-width:768px){
-  html body #view-benefits .filter-sticky,
-  html body .filter-sticky{
-    border-radius:26px !important;
-  }
 }
 </style>
 
