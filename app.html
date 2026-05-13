@@ -31937,6 +31937,56 @@ html body #view-benefits .filter-sticky .chips{
 }
 </style>
 
+
+<style id="upick-category-chip-scroll-v11">
+/* ===== 혜택 카테고리 칩 모바일 가로 스와이프 복구 ===== */
+
+/* 겉 패널 라운드는 유지 */
+html body #view-benefits .filter-sticky{
+  overflow:hidden !important;
+}
+
+/* 칩을 감싸는 실제 스크롤 영역은 가로 스와이프 허용 */
+html body #view-benefits .filter-sticky .chips-scroll-bound,
+html body #view-benefits .filter-sticky .chips{
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-x !important;
+  overscroll-behavior-x:contain !important;
+  scroll-behavior:smooth !important;
+}
+
+/* flex/grid 줄바꿈으로 인해 스와이프가 막히지 않도록 고정 */
+html body #view-benefits .filter-sticky .chips{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  white-space:nowrap !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+
+/* 칩 버튼은 줄어들지 않고 옆으로 이어지게 */
+html body #view-benefits .filter-sticky .chips > *,
+html body #view-benefits .filter-sticky .chips button,
+html body #view-benefits .filter-sticky .chips .chip{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+
+/* 모바일에서 스크롤바는 숨기되 스와이프는 유지 */
+html body #view-benefits .filter-sticky .chips-scroll-bound::-webkit-scrollbar,
+html body #view-benefits .filter-sticky .chips::-webkit-scrollbar{
+  display:none !important;
+}
+
+html body #view-benefits .filter-sticky .chips-scroll-bound,
+html body #view-benefits .filter-sticky .chips{
+  scrollbar-width:none !important;
+}
+</style>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
