@@ -1,6 +1,7 @@
 const LOGIN_STORAGE_KEY = 'loginUser';
 const DEFAULT_PING_INTERVAL_MS = 5 * 60 * 1000;
 const ADMIN_PING_INTERVAL_MS = 3 * 60 * 1000;
+let forcedLogoutProcessing = false;
 
 export function getStoredLoginUser(){
   try{
@@ -98,14 +99,22 @@ export function getSessionInvalidMessage(reason = ''){
 }
 
 export async function handleInvalidSession({ auth, api, reason, signOutFn, redirectTo = '/', alertFn } = {}){
+  if (forcedLogoutProcessing) return false;
+  forcedLogoutProcessing = true;
+
   const message = getSessionInvalidMessage(reason);
-  clearLoginSession();
-  try{ if (typeof signOutFn === 'function') await signOutFn(auth); }catch(_e){}
+
+  // 보안 세션 종료는 사용자가 갑자기 튕겼다고 느끼지 않도록 먼저 안내합니다.
+  // 확인 버튼, 바깥 영역 클릭, ESC 등으로 모달이 닫히면 그 다음 단계에서 무조건 로그아웃합니다.
   if (typeof alertFn === 'function') {
     try{ await alertFn(message); }catch(_e){}
   } else if (typeof window !== 'undefined') {
     alert(message);
   }
+
+  clearLoginSession();
+  try{ if (typeof signOutFn === 'function') await signOutFn(auth); }catch(_e){}
+
   if (redirectTo) window.location.replace(redirectTo);
   return false;
 }
@@ -164,18 +173,29 @@ export function startSessionKeepAlive({
     }
   }
 
-  const timer = window.setInterval(() => tick(false), checkEveryMs);
-  document.addEventListener('visibilitychange', () => {
+  // checkTimer: 중복 로그인/강제 만료 감지용. DB 업데이트 없이 activeSessionId만 확인합니다.
+  // pingTimer: 실제 사용 중인 세션 유지용. 활동이 있었고 최소 간격이 지났을 때만 DB를 갱신합니다.
+  const safeCheckMs = Math.max(30 * 1000, Number(checkEveryMs || 60 * 1000));
+  const checkTimer = window.setInterval(() => tick(true), safeCheckMs);
+  const pingTimer = window.setInterval(() => tick(false), 60 * 1000);
+
+  const onVisibilityChange = () => {
     if (!document.hidden) {
       hasActivity = true;
       tick(true);
     }
-  });
-  window.addEventListener('pageshow', () => tick(true));
+  };
+  const onPageShow = () => tick(true);
+
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  window.addEventListener('pageshow', onPageShow);
   tick(true);
 
   return () => {
     disposed = true;
-    window.clearInterval(timer);
+    window.clearInterval(checkTimer);
+    window.clearInterval(pingTimer);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+    window.removeEventListener('pageshow', onPageShow);
   };
 }
