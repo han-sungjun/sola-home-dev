@@ -14227,6 +14227,55 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="upick-benefit-filter-panel-v7">
+/* ===== 혜택 필터 패널 Rounded Glass 보정 ===== */
+
+/* 혜택 상단 필터/검색 패널 */
+.benefit-filter-wrap,
+.benefit-toolbar,
+.benefit-controls,
+.benefit-search-wrap,
+.benefit-filter-panel,
+.filter-panel,
+.list-filter-wrap{
+  border-radius:24px !important;
+  overflow:hidden !important;
+  background:rgba(255,255,255,.76) !important;
+  backdrop-filter:blur(18px) saturate(1.15) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.15) !important;
+  border:1px solid rgba(191,219,254,.42) !important;
+  box-shadow:
+    0 10px 28px rgba(15,23,42,.06),
+    inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+/* 내부 영역도 자연스럽게 */
+.benefit-filter-wrap > *,
+.benefit-toolbar > *,
+.benefit-controls > *,
+.benefit-search-wrap > *,
+.benefit-filter-panel > *,
+.filter-panel > *,
+.list-filter-wrap > *{
+  border-radius:18px !important;
+}
+
+/* 모바일에서는 살짝 더 부드럽게 */
+@media(max-width:768px){
+  .benefit-filter-wrap,
+  .benefit-toolbar,
+  .benefit-controls,
+  .benefit-search-wrap,
+  .benefit-filter-panel,
+  .filter-panel,
+  .list-filter-wrap{
+    border-radius:26px !important;
+    padding:14px !important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
