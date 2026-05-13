@@ -1,0 +1,181 @@
+const LOGIN_STORAGE_KEY = 'loginUser';
+const DEFAULT_PING_INTERVAL_MS = 5 * 60 * 1000;
+const ADMIN_PING_INTERVAL_MS = 3 * 60 * 1000;
+
+export function getStoredLoginUser(){
+  try{
+    return JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY) || '{}') || {};
+  }catch(_){
+    return {};
+  }
+}
+
+export function saveLoginSession(userLike = {}, sessionId = ''){
+  const current = getStoredLoginUser();
+  const next = {
+    ...current,
+    uid: userLike.uid || current.uid || '',
+    loginId: userLike.loginId || current.loginId || '',
+    nickname: userLike.nickname || current.nickname || '',
+    role: userLike.role || userLike.userRole || current.role || 'resident',
+    approvalStatus: userLike.approvalStatus || current.approvalStatus || 'approved',
+    phoneVerified: userLike.phoneVerified ?? current.phoneVerified ?? true,
+    accountStatus: userLike.accountStatus || current.accountStatus || 'active',
+    sessionId: sessionId || userLike.sessionId || current.sessionId || '',
+  };
+  localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(next));
+  return next;
+}
+
+export function clearLoginSession(){
+  try{ localStorage.removeItem(LOGIN_STORAGE_KEY); }catch(_e){}
+}
+
+export function getLocalSessionId(){
+  return String(getStoredLoginUser().sessionId || '').trim();
+}
+
+function getApiUrl(api = {}, kind = 'check'){
+  if (kind === 'ping') return api.pingSession || api.sessionPing || '';
+  if (kind === 'logout') return api.logoutSession || api.sessionLogout || '';
+  return api.checkSession || api.sessionCheck || '';
+}
+
+async function getIdToken(auth){
+  const user = auth?.currentUser;
+  if (!user) return '';
+  return await user.getIdToken(false);
+}
+
+export async function requestServerSession(auth, api = {}, kind = 'check'){
+  const url = getApiUrl(api, kind);
+  const sessionId = getLocalSessionId();
+  const token = await getIdToken(auth);
+
+  if (!url) {
+    return { ok:false, valid:false, reason:'missing_session_api', message:'세션 API 주소가 설정되지 않았습니다.' };
+  }
+  if (!token || !sessionId) {
+    return { ok:false, valid:false, reason: !token ? 'missing_token' : 'missing_session_id', message:'세션 정보가 없습니다.' };
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ sessionId })
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok && !data.reason) data.reason = `http_${res.status}`;
+  return data;
+}
+
+export async function logoutServerSession(auth, api = {}){
+  try{
+    const data = await requestServerSession(auth, api, 'logout');
+    clearLoginSession();
+    return data;
+  }catch(error){
+    clearLoginSession();
+    return { ok:false, valid:false, reason:'logout_request_failed', message:error?.message || String(error) };
+  }
+}
+
+export function getSessionInvalidMessage(reason = ''){
+  if (reason === 'duplicated_login') {
+    return '다른 기기 또는 브라우저에서 로그인되어 현재 세션이 종료되었습니다.\n계속 이용하시려면 다시 로그인해 주세요.';
+  }
+  if (reason === 'session_expired') {
+    return '장시간 활동이 없어 자동 로그아웃되었습니다.\n계속 이용하시려면 다시 로그인해 주세요.';
+  }
+  if (reason === 'logged_out') {
+    return '로그아웃된 세션입니다.\n다시 로그인해 주세요.';
+  }
+  return '세션이 만료되었습니다.\n다시 로그인해 주세요.';
+}
+
+export async function handleInvalidSession({ auth, api, reason, signOutFn, redirectTo = '/', alertFn } = {}){
+  const message = getSessionInvalidMessage(reason);
+  clearLoginSession();
+  try{ if (typeof signOutFn === 'function') await signOutFn(auth); }catch(_e){}
+  if (typeof alertFn === 'function') {
+    try{ await alertFn(message); }catch(_e){}
+  } else if (typeof window !== 'undefined') {
+    alert(message);
+  }
+  if (redirectTo) window.location.replace(redirectTo);
+  return false;
+}
+
+export async function checkServerSessionOrLogout({ auth, api, signOutFn, redirectTo = '/', alertFn } = {}){
+  const data = await requestServerSession(auth, api, 'check');
+  if (data?.valid) return data;
+  await handleInvalidSession({ auth, api, reason:data?.reason, signOutFn, redirectTo, alertFn });
+  return data;
+}
+
+export function startSessionKeepAlive({
+  auth,
+  api,
+  signOutFn,
+  redirectTo = '/',
+  alertFn,
+  intervalMs = DEFAULT_PING_INTERVAL_MS,
+  checkEveryMs = 60 * 1000,
+  requireActivity = true,
+  adminMode = false,
+} = {}){
+  let disposed = false;
+  let lastPingAt = 0;
+  let hasActivity = true;
+  let running = false;
+  const minPingMs = Number(intervalMs || (adminMode ? ADMIN_PING_INTERVAL_MS : DEFAULT_PING_INTERVAL_MS));
+
+  const markActivity = () => { hasActivity = true; };
+  ['click', 'touchstart', 'keydown', 'scroll', 'pointerdown'].forEach((eventName) => {
+    window.addEventListener(eventName, markActivity, { passive:true });
+  });
+
+  async function tick(forceCheck = false){
+    if (disposed || running) return;
+    if (document.hidden) return;
+    if (!auth?.currentUser) return;
+    const now = Date.now();
+    if (!forceCheck && now - lastPingAt < minPingMs) return;
+    if (requireActivity && !hasActivity && !forceCheck) return;
+
+    running = true;
+    try{
+      const data = await requestServerSession(auth, api, forceCheck ? 'check' : 'ping');
+      if (!data?.valid) {
+        disposed = true;
+        await handleInvalidSession({ auth, api, reason:data?.reason, signOutFn, redirectTo, alertFn });
+        return;
+      }
+      lastPingAt = now;
+      hasActivity = false;
+    }catch(error){
+      console.warn('[session] keep-alive skipped', error);
+    }finally{
+      running = false;
+    }
+  }
+
+  const timer = window.setInterval(() => tick(false), checkEveryMs);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      hasActivity = true;
+      tick(true);
+    }
+  });
+  window.addEventListener('pageshow', () => tick(true));
+  tick(true);
+
+  return () => {
+    disposed = true;
+    window.clearInterval(timer);
+  };
+}

@@ -14782,7 +14782,8 @@ button.share-opening{
  })();
  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
- const { ENV, FIREBASE_CONFIG, TTS_SERVICE_URL } = await import(__solaNoCache('/env-config.js'));
+ const { ENV, FIREBASE_CONFIG, API_URL, TTS_SERVICE_URL } = await import(__solaNoCache('/env-config.js'));
+ const { checkServerSessionOrLogout, startSessionKeepAlive, logoutServerSession } = await import(__solaNoCache('/session-client.js'));
 
  const envBadge = document.getElementById('envBadge');
  const globalEnvBadge = document.getElementById('globalEnvBadge');
@@ -16788,11 +16789,23 @@ async function refreshPushStatus(){
  return;
  }
 
+ const sessionResult = await checkServerSessionOrLogout({
+ auth,
+ api: API_URL[ENV],
+ signOutFn: async (authInstance) => signOut(authInstance),
+ redirectTo: '/',
+ alertFn: (message) => openModalAlert(message)
+ });
+ if(!sessionResult?.valid){
+ resolve(false);
+ return;
+ }
+
  const stored = getStoredLoginUser();
  const localSessionId = stored.sessionId || '';
  const serverSessionId = state.currentUserProfile.activeSessionId || '';
 
- if(serverSessionId && localSessionId && localSessionId !== serverSessionId){
+ if(serverSessionId && (!localSessionId || localSessionId !== serverSessionId)){
  await writeSecurityLog('SESSION_CONFLICT', {
  localSessionId,
  serverSessionId
@@ -16851,6 +16864,18 @@ async function refreshPushStatus(){
  }
 
  saveVerifiedLoginUser(user, state.currentUserProfile, localSessionId || serverSessionId);
+
+ if(!window.__THEUNJEONGPICK_SESSION_KEEPALIVE__){
+ window.__THEUNJEONGPICK_SESSION_KEEPALIVE__ = startSessionKeepAlive({
+ auth,
+ api: API_URL[ENV],
+ signOutFn: async (authInstance) => signOut(authInstance),
+ redirectTo: '/',
+ alertFn: (message) => openModalAlert(message),
+ intervalMs: 5 * 60 * 1000,
+ requireActivity: true
+ });
+ }
 
  updateUserChip();
  await refreshPushStatus();
@@ -25905,7 +25930,7 @@ document.addEventListener('keydown', (event) => {
  });
  qs('#withdrawBtn')?.addEventListener('click', withdrawCurrentUser);
 
- qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
+ qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await logoutServerSession(auth, API_URL[ENV]); await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
  bindGlobalLoadingTriggers();
 

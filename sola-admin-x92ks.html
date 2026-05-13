@@ -4616,6 +4616,7 @@ img.brand-icon[src*="home.svg"],
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
     const { mountIdleTimer } = await import(__solaNoCache("./tracking.js"));
     const { ENV, FIREBASE_CONFIG, API_URL, TTS_SERVICE_URL } = await import(__solaNoCache("./env-config.js"));
+    const { checkServerSessionOrLogout, startSessionKeepAlive, logoutServerSession } = await import(__solaNoCache("./session-client.js"));
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -4719,7 +4720,7 @@ img.brand-icon[src*="home.svg"],
     async function secureAdminSignOut(){
       resetAdminSensitiveUI();
       try{
-        if(auth) await signOut(auth);
+        if(auth) { await logoutServerSession(auth, API_URL[ENV]); await signOut(auth); }
       }catch(error){
         console.warn('Firebase signOut skip', error);
       }
@@ -6578,11 +6579,25 @@ function fillForm(item){
           const userData = userSnap.exists() ? (userSnap.data() || {}) : {};
           state.adminProfile = userData;
 
+          const sessionResult = await checkServerSessionOrLogout({
+            auth,
+            api: API_URL[ENV],
+            signOutFn: async (authInstance) => signOut(authInstance),
+            redirectTo: '/',
+            alertFn: (message) => openModalAlert(message, qs('#adminLoginId'))
+          });
+          if(!sessionResult?.valid){
+            resetAdminSensitiveUI();
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            return;
+          }
+
           const stored = getStoredLoginUser();
           const localSessionId = stored.sessionId || '';
           const serverSessionId = userData.activeSessionId || '';
 
-          if(serverSessionId && localSessionId && localSessionId !== serverSessionId){
+          if(serverSessionId && (!localSessionId || localSessionId !== serverSessionId)){
             await writeSecurityLog('SESSION_CONFLICT', { localSessionId, serverSessionId });
             qs('#authStatusText').textContent='중복 로그인 감지';
             updateAdminHeader(user);

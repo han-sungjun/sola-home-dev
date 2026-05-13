@@ -2410,6 +2410,7 @@ body{
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
     await import(__solaNoCache('./firebase-config.js'));
     const { ENV, API_URL } = await import(__solaNoCache('./env-config.js'));
+    const { saveLoginSession, checkServerSessionOrLogout } = await import(__solaNoCache('./session-client.js'));
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -3225,6 +3226,7 @@ body{
         }
 
         const credential = await signInWithCustomToken(auth, result.token);
+        saveLoginSession({ ...(result.user || {}), uid: credential.user?.uid || result.user?.uid || '' }, result.sessionId || result.user?.sessionId || '');
 
         const accessResult = await enforceAccessPolicy(credential.user, {
           shouldRedirectOnApproved: false,
@@ -3315,6 +3317,14 @@ body{
 
       if (user) {
         startLoading();
+        const sessionResult = await checkServerSessionOrLogout({
+          auth,
+          api: API_URL[ENV],
+          signOutFn: async (authInstance) => signOut(authInstance),
+          redirectTo: '/',
+          alertFn: (message) => openModalAlert(message, loginIdEl)
+        });
+        if (!sessionResult?.valid) return;
         await enforceAccessPolicy(user, {
           shouldRedirectOnApproved: true,
           showBlockedMessage: true
