@@ -16851,7 +16851,46 @@ async function refreshPushStatus(){
  });
  }
  
- function formatKoreanDate(value){
+ 
+ function toDateFromFirestore(value){
+   if(!value) return null;
+   if(value instanceof Date) return value;
+   if(typeof value.toDate === 'function') return value.toDate();
+
+   if(typeof value === 'number'){
+     const date = new Date(value);
+     return Number.isNaN(date.getTime()) ? null : date;
+   }
+
+   if(typeof value === 'string'){
+     const raw = value.trim();
+     if(!raw) return null;
+
+     // "2026. 5. 5.", "2026-05-05", "2026/05/05" 모두 대응
+     const normalized = raw
+       .replace(/\.$/, '')
+       .replace(/\s+/g, '')
+       .replace(/[./]/g, '-');
+
+     const date = new Date(normalized);
+     return Number.isNaN(date.getTime()) ? null : date;
+   }
+
+   if(typeof value === 'object'){
+     if(typeof value.seconds === 'number'){
+       const date = new Date(value.seconds * 1000);
+       return Number.isNaN(date.getTime()) ? null : date;
+     }
+     if(typeof value._seconds === 'number'){
+       const date = new Date(value._seconds * 1000);
+       return Number.isNaN(date.getTime()) ? null : date;
+     }
+   }
+
+   return null;
+ }
+
+function formatKoreanDate(value){
  const date = toDateFromFirestore(value);
  if(!date) return '';
  return new Intl.DateTimeFormat('ko-KR', {
