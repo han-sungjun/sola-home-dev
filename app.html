@@ -16849,11 +16849,8 @@ async function refreshPushStatus(){
      }
    };
  });
- }catch(_){
- return null;
  }
- }
-
+ 
  function formatKoreanDate(value){
  const date = toDateFromFirestore(value);
  if(!date) return '';
