@@ -14011,6 +14011,48 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="kakao-share-click-feedback-v1">
+/* ===== 카카오 공유 클릭 즉시 반응 UX ===== */
+.share-actions .btn.share-loading,
+.share-actions .btn.is-share-loading,
+#benefitKakaoShareBtn.share-loading,
+#noticeKakaoShareBtn.share-loading{
+  position:relative!important;
+  pointer-events:none!important;
+  opacity:.86!important;
+  filter:saturate(.92)!important;
+}
+.share-actions .btn.share-loading::before,
+.share-actions .btn.is-share-loading::before,
+#benefitKakaoShareBtn.share-loading::before,
+#noticeKakaoShareBtn.share-loading::before{
+  content:""!important;
+  width:14px!important;
+  height:14px!important;
+  border-radius:999px!important;
+  border:2px solid rgba(255,255,255,.44)!important;
+  border-top-color:#fff!important;
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  animation:kakaoShareSpin .72s linear infinite!important;
+}
+.share-actions .btn.btn-soft.share-loading::before,
+.share-actions .btn.btn-soft.is-share-loading::before,
+#benefitKakaoShareBtn.btn-soft.share-loading::before,
+#noticeKakaoShareBtn.btn-soft.share-loading::before{
+  border-color:rgba(29,78,216,.18)!important;
+  border-top-color:#1d4ed8!important;
+}
+.share-actions .btn.share-loading img,
+.share-actions .btn.is-share-loading img,
+#benefitKakaoShareBtn.share-loading img,
+#noticeKakaoShareBtn.share-loading img{
+  display:none!important;
+}
+@keyframes kakaoShareSpin{to{transform:rotate(360deg)}}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -17783,12 +17825,70 @@ function getShareTrackingParams(){
 
  if(!window.Kakao.isInitialized()){
  window.Kakao.init(KAKAO_JS_KEY);
+ window.__upickKakaoReady = true;
+ document.documentElement.classList.add('kakao-sdk-ready');
  }
 
  return window.Kakao.isInitialized();
  }catch(error){
  console.warn('카카오 SDK 초기화 실패', error);
  return false;
+ }
+ }
+
+ function prewarmKakaoShareSdk(){
+ try{
+ if(window.__upickKakaoReady) return true;
+ const ready = ensureKakaoReady();
+ window.__upickKakaoReady = !!ready;
+ return ready;
+ }catch(error){
+ console.warn('카카오 SDK 사전 초기화 실패', error);
+ return false;
+ }
+ }
+
+ const kakaoPrewarmSchedule = () => {
+ const run = () => prewarmKakaoShareSdk();
+ if('requestIdleCallback' in window){
+ window.requestIdleCallback(run, { timeout: 1800 });
+ }else{
+ setTimeout(run, 500);
+ }
+ };
+ if(document.readyState === 'loading'){
+ document.addEventListener('DOMContentLoaded', kakaoPrewarmSchedule, { once:true });
+ }else{
+ kakaoPrewarmSchedule();
+ }
+
+ function getShareButtonText(type){
+ return type === 'notice' ? '공지 공유 준비 중...' : '혜택 공유 준비 중...';
+ }
+
+ async function withShareButtonFeedback(button, type, task){
+ if(!button || button.dataset.shareBusy === '1'){
+ return;
+ }
+
+ const originalHtml = button.innerHTML;
+ const originalDisabled = button.disabled;
+ button.dataset.shareBusy = '1';
+ button.disabled = true;
+ button.setAttribute('aria-busy', 'true');
+ button.classList.add('share-loading', 'is-share-loading');
+ button.innerHTML = getShareButtonText(type);
+
+ try{
+ return await task();
+ }finally{
+ setTimeout(() => {
+ button.innerHTML = originalHtml;
+ button.disabled = originalDisabled;
+ button.removeAttribute('aria-busy');
+ button.classList.remove('share-loading', 'is-share-loading');
+ delete button.dataset.shareBusy;
+ }, 650);
  }
  }
 
@@ -18119,7 +18219,7 @@ ${item.content || ''}`);
  }
 
  qs('#noticeCopyShareBtn')?.addEventListener('click', () => copyShareUrl('notice', item));
- qs('#noticeKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('notice', item));
+ qs('#noticeKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'notice', () => shareKakaoItem('notice', item)));
  qs('#noticeQrShareBtn')?.addEventListener('click', () => showQrCode('notice', item));
  }
 
@@ -19895,7 +19995,7 @@ function renderCalendarDayModal(){
  modal.showModal();
  qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
- qs('#benefitKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('benefit', item));
+ qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
  updateDistanceText(item);
