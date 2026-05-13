@@ -31983,51 +31983,19 @@ html body #view-benefits .filter-sticky [data-dropdown]{
 }
 </style>
 
-<script id="upick-distance-person-icon-v14-js">
-(function(){
-  const PERSON_ICON = '/icons/internal/person.svg';
+<style id="upick-distance-clean-css-only-v19">
+/* ===== 거리 태그 잔상 제거: CSS 전용 경량 처리 ===== */
 
-  function applyDistancePersonIcon(){
-    document.querySelectorAll('.distance-tag').forEach((tag) => {
-      if(tag.querySelector('.distance-person-icon')) return;
-
-      const img = document.createElement('img');
-      img.className = 'distance-person-icon';
-      img.src = PERSON_ICON;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.decoding = 'async';
-
-      tag.insertBefore(img, tag.firstChild);
-    });
-  }
-
-  document.addEventListener('click', () => {
-    setTimeout(applyDistancePersonIcon, 0);
-    setTimeout(applyDistancePersonIcon, 120);
-  }, true);
-
-  const observer = new MutationObserver(applyDistancePersonIcon);
-  if(document.body){
-    observer.observe(document.body, {childList:true, subtree:true});
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyDistancePersonIcon);
-  }else{
-    applyDistancePersonIcon();
-  }
-})();
-</script>
-
-<style id="upick-distance-clean-v18">
-/* 거리 태그 중복 아이콘/잔상 제거 */
+/* 거리 태그 안의 person.svg 잔상은 숨김 */
 .distance-tag img[src*="person.svg"],
 .distance-tag .distance-person-icon,
 .distance-tag .chip-all-person-icon,
 .distance-tag .chip-all-resident-icon{
   display:none !important;
 }
+
+/* 기존 walk.svg 또는 거리 아이콘은 정상 표시 */
+.distance-tag img[src*="walk.svg"],
 .distance-tag .distance-filter-walk-icon{
   width:13px !important;
   height:13px !important;
@@ -32036,54 +32004,18 @@ html body #view-benefits .filter-sticky [data-dropdown]{
   vertical-align:-2px !important;
   display:inline-block !important;
 }
+
+/* 거리 필터 드롭다운 아이콘도 CSS만 보정 */
+.filter-all-walk-icon,
+.distance-filter-walk-icon{
+  width:13px !important;
+  height:13px !important;
+  flex:0 0 13px !important;
+  margin-right:4px !important;
+  vertical-align:-2px !important;
+  display:inline-block !important;
+}
 </style>
-
-<script id="upick-distance-clean-v18-js">
-(function(){
-  const WALK_ICON = '/icons/internal/walk.svg';
-
-  function cleanupDistanceTags(){
-    document.querySelectorAll('.distance-tag').forEach((tag) => {
-
-      // 기존 person.svg 제거
-      tag.querySelectorAll('img').forEach((img) => {
-        const src = img.getAttribute('src') || '';
-        if(src.includes('person.svg')){
-          img.remove();
-        }
-      });
-
-      // walk.svg 없으면 추가
-      if(!tag.querySelector('.distance-filter-walk-icon')){
-        const img = document.createElement('img');
-        img.className = 'distance-filter-walk-icon';
-        img.src = WALK_ICON;
-        img.alt = '';
-        img.loading = 'lazy';
-        img.decoding = 'async';
-
-        tag.insertBefore(img, tag.firstChild);
-      }
-    });
-  }
-
-  document.addEventListener('click', () => {
-    setTimeout(cleanupDistanceTags, 0);
-    setTimeout(cleanupDistanceTags, 120);
-  }, true);
-
-  const observer = new MutationObserver(cleanupDistanceTags);
-  if(document.body){
-    observer.observe(document.body, {childList:true, subtree:true});
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', cleanupDistanceTags);
-  }else{
-    cleanupDistanceTags();
-  }
-})();
-</script>
 
 </body></html>
 <style id="upick-v87-profile-filter-fix">
