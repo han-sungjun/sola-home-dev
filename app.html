@@ -32100,10 +32100,9 @@ html body #view-benefits .filter-sticky .chip-all-resident-icon{
 })();
 </script>
 
-
-<style id="upick-all-chip-person-icon-v15">
-/* ===== 전체 칩 사람 아이콘 ===== */
-.chips .chip-all-person-icon{
+<style id="upick-filter-all-icon-v16">
+/* ===== 추천 옆 전체 필터 아이콘 ===== */
+.filter-all-walk-icon{
   width:13px !important;
   height:13px !important;
   flex:0 0 13px !important;
@@ -32113,44 +32112,57 @@ html body #view-benefits .filter-sticky .chip-all-resident-icon{
 }
 </style>
 
-<script id="upick-all-chip-person-icon-v15-js">
+<script id="upick-filter-all-icon-v16-js">
 (function(){
-  const PERSON_ICON = '/icons/internal/person.svg';
+  const WALK_ICON = '/icons/internal/walk.svg';
 
-  function applyAllChipPersonIcon(){
-    document.querySelectorAll('.chips button, .chips .chip, .chips [role="button"]').forEach((chip) => {
-      const text = (chip.textContent || '').replace(/\s+/g, ' ').trim();
+  function removeOldAllIcons(){
+    document.querySelectorAll('.chip-all-person-icon').forEach(el => el.remove());
+  }
 
-      // "전체", "전체 30" 등 대응
-      if(!/^전체(\s|\d|$)/.test(text)) return;
+  function applyFilterAllIcon(){
+    // 추천/전체 상단 필터 버튼
+    document.querySelectorAll('button, .chip, [role="button"]').forEach((btn) => {
+      const text = (btn.textContent || '').replace(/\s+/g, ' ').trim();
 
-      if(chip.querySelector('.chip-all-person-icon')) return;
+      // 상단 필터의 "전체"만
+      if(text !== '전체') return;
+
+      // chips 내부 전체30 제외
+      if(btn.closest('.chips')) return;
+
+      if(btn.querySelector('.filter-all-walk-icon')) return;
 
       const img = document.createElement('img');
-      img.className = 'chip-all-person-icon';
-      img.src = PERSON_ICON;
+      img.className = 'filter-all-walk-icon';
+      img.src = WALK_ICON;
       img.alt = '';
       img.loading = 'lazy';
       img.decoding = 'async';
 
-      chip.insertBefore(img, chip.firstChild);
+      btn.insertBefore(img, btn.firstChild);
     });
   }
 
+  function run(){
+    removeOldAllIcons();
+    applyFilterAllIcon();
+  }
+
   document.addEventListener('click', () => {
-    setTimeout(applyAllChipPersonIcon, 0);
-    setTimeout(applyAllChipPersonIcon, 120);
+    setTimeout(run, 0);
+    setTimeout(run, 120);
   }, true);
 
-  const observer = new MutationObserver(applyAllChipPersonIcon);
+  const observer = new MutationObserver(run);
   if(document.body){
     observer.observe(document.body, {childList:true, subtree:true});
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyAllChipPersonIcon);
+    document.addEventListener('DOMContentLoaded', run);
   }else{
-    applyAllChipPersonIcon();
+    run();
   }
 })();
 </script>
