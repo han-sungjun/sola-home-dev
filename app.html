@@ -31744,6 +31744,174 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 })();
 </script>
 
+
+<style id="upick-notice-share-one-line-v6">
+/* ===== 공지 상세 공유 버튼 모바일 3열 최종 고정 ===== */
+html body #noticeModal .notice-detail-actions{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:12px 0 0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+}
+
+html body #noticeModal .notice-detail-actions > .share-actions,
+html body #noticeModal .share-actions{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  grid-auto-flow:column !important;
+  grid-auto-columns:minmax(0, 1fr) !important;
+  gap:8px !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+  align-items:stretch !important;
+}
+
+html body #noticeModal .notice-detail-actions > .share-actions > button,
+html body #noticeModal .notice-detail-actions > .share-actions > .btn,
+html body #noticeModal .share-actions > button,
+html body #noticeModal .share-actions > .btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:initial !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  height:46px !important;
+  min-height:46px !important;
+  max-height:46px !important;
+  padding:0 5px !important;
+  box-sizing:border-box !important;
+  border-radius:16px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.05em !important;
+  gap:4px !important;
+}
+
+html body #noticeModal .notice-detail-actions > .share-actions > button .upick-svg-icon,
+html body #noticeModal .notice-detail-actions > .share-actions > .btn .upick-svg-icon,
+html body #noticeModal .share-actions > button .upick-svg-icon,
+html body #noticeModal .share-actions > .btn .upick-svg-icon{
+  width:15px !important;
+  height:15px !important;
+  flex:0 0 15px !important;
+  margin:0 2px 0 0 !important;
+}
+
+@media(max-width:430px){
+  html body #noticeModal .notice-detail-actions > .share-actions,
+  html body #noticeModal .share-actions{
+    display:grid !important;
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+    gap:7px !important;
+  }
+
+  html body #noticeModal .notice-detail-actions > .share-actions > button,
+  html body #noticeModal .notice-detail-actions > .share-actions > .btn,
+  html body #noticeModal .share-actions > button,
+  html body #noticeModal .share-actions > .btn{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:44px !important;
+    min-height:44px !important;
+    max-height:44px !important;
+    padding:0 4px !important;
+    font-size:11px !important;
+  }
+}
+</style>
+
+
+<script id="upick-notice-share-one-line-v6-js">
+(function(){
+  function forceNoticeShareOneLine(){
+    const modal = document.querySelector('#noticeModal');
+    if(!modal) return;
+
+    const wrappers = modal.querySelectorAll('.notice-detail-actions');
+    wrappers.forEach((wrap) => {
+      wrap.style.setProperty('display', 'block', 'important');
+      wrap.style.setProperty('width', '100%', 'important');
+      wrap.style.setProperty('max-width', '100%', 'important');
+      wrap.style.setProperty('min-width', '0', 'important');
+      wrap.style.setProperty('margin', '12px 0 0', 'important');
+      wrap.style.setProperty('padding', '0', 'important');
+      wrap.style.setProperty('overflow', 'visible', 'important');
+    });
+
+    const groups = modal.querySelectorAll('.notice-detail-actions > .share-actions, .share-actions');
+    groups.forEach((group) => {
+      group.style.setProperty('display', 'grid', 'important');
+      group.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))', 'important');
+      group.style.setProperty('gap', '7px', 'important');
+      group.style.setProperty('width', '100%', 'important');
+      group.style.setProperty('max-width', '100%', 'important');
+      group.style.setProperty('min-width', '0', 'important');
+      group.style.setProperty('margin', '0', 'important');
+      group.style.setProperty('padding', '0', 'important');
+      group.style.setProperty('overflow', 'visible', 'important');
+      group.style.setProperty('align-items', 'stretch', 'important');
+
+      Array.from(group.children).forEach((btn) => {
+        btn.style.setProperty('display', 'flex', 'important');
+        btn.style.setProperty('align-items', 'center', 'important');
+        btn.style.setProperty('justify-content', 'center', 'important');
+        btn.style.setProperty('width', '100%', 'important');
+        btn.style.setProperty('max-width', '100%', 'important');
+        btn.style.setProperty('min-width', '0', 'important');
+        btn.style.setProperty('height', '44px', 'important');
+        btn.style.setProperty('min-height', '44px', 'important');
+        btn.style.setProperty('max-height', '44px', 'important');
+        btn.style.setProperty('padding', '0 4px', 'important');
+        btn.style.setProperty('box-sizing', 'border-box', 'important');
+        btn.style.setProperty('border-radius', '16px', 'important');
+        btn.style.setProperty('white-space', 'nowrap', 'important');
+        btn.style.setProperty('overflow', 'hidden', 'important');
+        btn.style.setProperty('text-overflow', 'ellipsis', 'important');
+        btn.style.setProperty('font-size', '11px', 'important');
+        btn.style.setProperty('font-weight', '900', 'important');
+        btn.style.setProperty('line-height', '1', 'important');
+        btn.style.setProperty('letter-spacing', '-.05em', 'important');
+        btn.style.setProperty('gap', '4px', 'important');
+      });
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    if(e.target.closest('[data-notice-id], .notice-card, .notice-item, #noticeList, #noticeModal')){
+      setTimeout(forceNoticeShareOneLine, 0);
+      setTimeout(forceNoticeShareOneLine, 80);
+      setTimeout(forceNoticeShareOneLine, 200);
+      setTimeout(forceNoticeShareOneLine, 500);
+    }
+  }, true);
+
+  const observer = new MutationObserver(forceNoticeShareOneLine);
+  if(document.body){
+    observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['open', 'class', 'style'] });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', forceNoticeShareOneLine);
+  }else{
+    forceNoticeShareOneLine();
+  }
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
