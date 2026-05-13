@@ -1,3 +1,7 @@
+// 더운정픽 공개앱 메인 스크립트
+// v7: app.html 내부 메인 module script를 외부 파일로 완전 분리
+// app.html에는 <script type="module" src="/app_script.js">만 남깁니다.
+
 
  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 
