@@ -32020,31 +32020,15 @@ html body #view-benefits .filter-sticky [data-dropdown]{
 })();
 </script>
 
-<style id="upick-distance-filter-walk-v17">
-/* ===== 혜택 필터 radius 완화 + 거리 필터 walk 아이콘 ===== */
-
-/* 스와이프 시 끝부분 잘림 완화 */
-html body #view-benefits .filter-sticky{
-  border-radius:18px !important;
-}
-
-html body #view-benefits .filter-sticky .panel-filter-top-row,
-html body #view-benefits .filter-sticky .panel-searchbox,
-html body #view-benefits .filter-sticky .chips-scroll-bound,
-html body #view-benefits .filter-sticky .chips{
-  border-radius:14px !important;
-}
-
-/* 전체30 카테고리 칩 쪽 아이콘 잔재 숨김 */
-html body #view-benefits .filter-sticky .chips .chip-all-resident-icon,
-html body #view-benefits .filter-sticky .chips .chip-all-person-icon,
-html body #view-benefits .filter-sticky .chips .chip-all-resident-icon-removed,
-html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
+<style id="upick-distance-clean-v18">
+/* 거리 태그 중복 아이콘/잔상 제거 */
+.distance-tag img[src*="person.svg"],
+.distance-tag .distance-person-icon,
+.distance-tag .chip-all-person-icon,
+.distance-tag .chip-all-resident-icon{
   display:none !important;
 }
-
-/* 거리 필터 버튼/옵션 walk 아이콘 */
-.distance-filter-walk-icon{
+.distance-tag .distance-filter-walk-icon{
   width:13px !important;
   height:13px !important;
   flex:0 0 13px !important;
@@ -32054,75 +32038,49 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 }
 </style>
 
-
-<script id="upick-distance-filter-walk-v17-js">
+<script id="upick-distance-clean-v18-js">
 (function(){
   const WALK_ICON = '/icons/internal/walk.svg';
 
-  function removeWrongChipIcons(){
-    document.querySelectorAll(
-      '#view-benefits .filter-sticky .chips .chip-all-resident-icon, ' +
-      '#view-benefits .filter-sticky .chips .chip-all-person-icon, ' +
-      '#view-benefits .filter-sticky .chips .chip-all-resident-icon-removed, ' +
-      '#view-benefits .filter-sticky .chips .chip-all-person-icon-removed'
-    ).forEach(el => el.remove());
-  }
+  function cleanupDistanceTags(){
+    document.querySelectorAll('.distance-tag').forEach((tag) => {
 
-  function isDistanceFilterText(text){
-    const t = String(text || '').replace(/\s+/g, ' ').trim();
-    return t === '전체' ||
-           t === '500m' ||
-           t === '500m 이내' ||
-           t === '1km 이내' ||
-           t === '3km 이내';
-  }
+      // 기존 person.svg 제거
+      tag.querySelectorAll('img').forEach((img) => {
+        const src = img.getAttribute('src') || '';
+        if(src.includes('person.svg')){
+          img.remove();
+        }
+      });
 
-  function applyDistanceFilterWalkIcon(){
-    removeWrongChipIcons();
+      // walk.svg 없으면 추가
+      if(!tag.querySelector('.distance-filter-walk-icon')){
+        const img = document.createElement('img');
+        img.className = 'distance-filter-walk-icon';
+        img.src = WALK_ICON;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
 
-    const root = document.querySelector('#view-benefits .filter-sticky') || document;
-
-    root.querySelectorAll('button, [role="button"], .chip, .filter-chip, .dropdown-item, [role="option"]').forEach((el) => {
-      const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-
-      if(!isDistanceFilterText(text)) return;
-
-      // 카테고리 칩의 "전체 30" / "전체 0" 쪽은 제외
-      if(el.closest('.chips') && /^전체\s*\d+/.test(text)) return;
-
-      if(el.querySelector('.distance-filter-walk-icon')) return;
-
-      const img = document.createElement('img');
-      img.className = 'distance-filter-walk-icon';
-      img.src = WALK_ICON;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.decoding = 'async';
-
-      el.insertBefore(img, el.firstChild);
+        tag.insertBefore(img, tag.firstChild);
+      }
     });
   }
 
-  function run(){
-    applyDistanceFilterWalkIcon();
-  }
-
   document.addEventListener('click', () => {
-    setTimeout(run, 0);
-    setTimeout(run, 80);
-    setTimeout(run, 180);
-    setTimeout(run, 350);
+    setTimeout(cleanupDistanceTags, 0);
+    setTimeout(cleanupDistanceTags, 120);
   }, true);
 
-  const observer = new MutationObserver(run);
+  const observer = new MutationObserver(cleanupDistanceTags);
   if(document.body){
     observer.observe(document.body, {childList:true, subtree:true});
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', run);
+    document.addEventListener('DOMContentLoaded', cleanupDistanceTags);
   }else{
-    run();
+    cleanupDistanceTags();
   }
 })();
 </script>
