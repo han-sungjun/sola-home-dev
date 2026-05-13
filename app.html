@@ -16803,20 +16803,7 @@ async function refreshPushStatus(){
 
  const stored = getStoredLoginUser();
  const localSessionId = stored.sessionId || '';
- const serverSessionId = state.currentUserProfile.activeSessionId || '';
-
- if(serverSessionId && (!localSessionId || localSessionId !== serverSessionId)){
- await writeSecurityLog('SESSION_CONFLICT', {
- localSessionId,
- serverSessionId
- });
- await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.');
- localStorage.removeItem('loginUser');
- await signOut(auth).catch(() => {});
- redirectToLogin();
- resolve(false);
- return;
- }
+ const serverSessionId = sessionResult?.sessionId || state.currentUserProfile.activeSessionId || '';
 
  const approvalStatus = String(state.currentUserProfile.approvalStatus || 'pending');
  const accountStatus = String(state.currentUserProfile.accountStatus || 'inactive');
@@ -16873,7 +16860,10 @@ async function refreshPushStatus(){
  redirectTo: '/',
  alertFn: (message) => openModalAlert(message),
  intervalMs: 5 * 60 * 1000,
- requireActivity: true
+ requireActivity: true,
+ db,
+ docFn: doc,
+ onSnapshotFn: onSnapshot
  });
  }
 

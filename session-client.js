@@ -126,6 +126,80 @@ export async function checkServerSessionOrLogout({ auth, api, signOutFn, redirec
   return data;
 }
 
+
+export function startRealtimeSessionWatcher({
+  auth,
+  db,
+  docFn,
+  onSnapshotFn,
+  signOutFn,
+  redirectTo = '/',
+  alertFn,
+  userCollection = 'users',
+} = {}){
+  if (!auth?.currentUser || !db || typeof docFn !== 'function' || typeof onSnapshotFn !== 'function') {
+    return () => {};
+  }
+
+  let disposed = false;
+  let initialSnapshotSeen = false;
+  const uid = auth.currentUser.uid;
+
+  const unsubscribe = onSnapshotFn(
+    docFn(db, userCollection, uid),
+    async (snap) => {
+      if (disposed || forcedLogoutProcessing) return;
+      if (!snap.exists()) return;
+
+      const data = snap.data() || {};
+      const localSessionId = getLocalSessionId();
+      const serverSessionId = String(data.activeSessionId || '').trim();
+      const status = String(data.sessionStatus || '').trim();
+
+      // 첫 스냅샷도 검사합니다. 이미 다른 브라우저에서 로그인된 상태라면
+      // 페이지 재진입 즉시 중복 로그인을 감지해야 하기 때문입니다.
+      initialSnapshotSeen = true;
+
+      if (!localSessionId) return;
+
+      if (serverSessionId && serverSessionId !== localSessionId) {
+        disposed = true;
+        try{ unsubscribe(); }catch(_e){}
+        await handleInvalidSession({
+          auth,
+          api: {},
+          reason: 'duplicated_login',
+          signOutFn,
+          redirectTo,
+          alertFn
+        });
+        return;
+      }
+
+      if (!serverSessionId && (status === 'logout' || status === 'expired')) {
+        disposed = true;
+        try{ unsubscribe(); }catch(_e){}
+        await handleInvalidSession({
+          auth,
+          api: {},
+          reason: status === 'expired' ? 'session_expired' : 'logged_out',
+          signOutFn,
+          redirectTo,
+          alertFn
+        });
+      }
+    },
+    (error) => {
+      console.warn('[session] realtime watcher skipped', error);
+    }
+  );
+
+  return () => {
+    disposed = true;
+    try{ unsubscribe(); }catch(_e){}
+  };
+}
+
 export function startSessionKeepAlive({
   auth,
   api,
@@ -136,12 +210,24 @@ export function startSessionKeepAlive({
   checkEveryMs = 60 * 1000,
   requireActivity = true,
   adminMode = false,
+  db,
+  docFn,
+  onSnapshotFn,
 } = {}){
   let disposed = false;
   let lastPingAt = 0;
   let hasActivity = true;
   let running = false;
   const minPingMs = Number(intervalMs || (adminMode ? ADMIN_PING_INTERVAL_MS : DEFAULT_PING_INTERVAL_MS));
+  const stopRealtimeWatcher = startRealtimeSessionWatcher({
+    auth,
+    db,
+    docFn,
+    onSnapshotFn,
+    signOutFn,
+    redirectTo,
+    alertFn
+  });
 
   const markActivity = () => { hasActivity = true; };
   ['click', 'touchstart', 'keydown', 'scroll', 'pointerdown'].forEach((eventName) => {
@@ -197,5 +283,6 @@ export function startSessionKeepAlive({
     window.clearInterval(pingTimer);
     document.removeEventListener('visibilitychange', onVisibilityChange);
     window.removeEventListener('pageshow', onPageShow);
+    try{ stopRealtimeWatcher(); }catch(_e){}
   };
 }
