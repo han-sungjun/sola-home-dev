@@ -16314,13 +16314,36 @@ function setPushStatusUi(enabled){
 
  if(profileImageUrl){
  target.classList.add('has-photo');
- target.innerHTML = `<img src="${escapeAttr(profileImageUrl)}" alt="프로필 이미지" loading="lazy">`;
+ target.innerHTML = `<img src="${escapeAttr(profileImageUrl)}" alt="프로필 이미지" loading="eager" decoding="async">`;
  return;
  }
 
  // v85: 기본값도 빈 텍스트가 아니라 실제 SVG 아이콘으로 유지합니다.
  // 빈 원형 버튼으로 보이거나 헤더 동기화가 실패하는 문제를 막기 위한 안정화 처리입니다.
- target.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/user.svg" alt="계정" loading="lazy">`;
+ target.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/user.svg" alt="계정" loading="eager" decoding="async">`;
+ }
+
+ function syncHeaderProfileAvatars(profileImageUrl = getProfileImageUrl()){
+ // 모바일 공통 헤더/글로벌 히어로는 동적으로 재생성되는 DOM이라
+ // 로그인 직후 또는 화면 전환 직후 한 번 더 직접 동기화합니다.
+ try{
+ const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+ const selectors = [
+ '.upick-header-profile-avatar',
+ '#globalUserChip .user-avatar',
+ '.global-user-chip .user-avatar'
+ ];
+ selectors.forEach((selector) => {
+ qsa(selector).forEach((target) => renderProfileAvatar(target, roleMeta, profileImageUrl));
+ });
+ qsa('[data-upick-profile] img, .upick-header-profile-btn img').forEach((img) => {
+ if(!profileImageUrl) return;
+ if(img.getAttribute('src') !== profileImageUrl) img.setAttribute('src', profileImageUrl);
+ img.closest('.upick-header-profile-avatar')?.classList.add('has-photo');
+ });
+ }catch(error){
+ console.warn('헤더 프로필 이미지 동기화 실패:', error);
+ }
  }
 
  function applyRoleClass(target, className){
@@ -16358,6 +16381,7 @@ function setPushStatusUi(enabled){
  applyBodyRoleClass(roleMeta);
  renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
  renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
+ syncHeaderProfileAvatars(profileImageUrl);
  syncFontSizeSettingUi();
  }
 
@@ -16378,6 +16402,7 @@ function setPushStatusUi(enabled){
     }
     setTimeout(() => {
       updateUserChip();
+      syncHeaderProfileAvatars?.();
       updateBottomNavActiveState?.();
       try{ window.__upickStableBottomBadge?.(); }catch(_){ }
       try{ window.__upickGlobalHeroRefresh?.(); }catch(_){ }
