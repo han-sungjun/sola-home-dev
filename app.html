@@ -17634,6 +17634,8 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  '운동':'/icons/internal/walk.svg',
  '기타':'/icons/internal/pin.svg'
  };
+  const normalizeCategory = (value) => String(value || '').trim().replace(/\s+/g, '').replace(/[ㆍ·]/g, '').toLowerCase();
+
  const getCategoryIcon = (category) => { const src = CATEGORY_ICONS[normalizeCategory(category)] || '/icons/internal/pin.svg'; return `<img class="upick-svg-icon category-svg-icon" src="${src}" alt="" loading="lazy">`; };
 
  const STORE_STATUS_META={preparing:{label:'영업 준비 중',cls:'status-store-preparing'},active:{label:'정상 영업',cls:'status-store-active'},paused:{label:'휴업',cls:'status-store-paused'},closed:{label:'영업 종료',cls:'status-store-closed'},shutdown:{label:'폐점',cls:'status-store-shutdown'},reopened:{label:'재영업',cls:'status-store-reopened'},hidden:{label:'숨김',cls:'status-store-closed'}};
