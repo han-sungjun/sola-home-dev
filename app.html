@@ -14077,119 +14077,6 @@ nav.bottom-nav{
 }
 @keyframes kakaoShareSpin{to{transform:rotate(360deg)}}
 </style>
-
-
-<style id="upick-share-mobile-final-force">
-/* ===== 공유 버튼 모바일 최종 강제 보정 ===== */
-
-/* 혜택 상세/공지 상세 공유 버튼은 항상 3등분 */
-#detailModal .share-actions,
-#noticeModal .share-actions,
-#noticeModal .notice-detail-actions,
-.share-actions.notice-share-actions{
-  display:grid !important;
-  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-  gap:8px !important;
-  width:100% !important;
-  max-width:100% !important;
-  margin-top:12px !important;
-}
-
-/* 공지 상세에서 기존 세로 배치 CSS 무력화 */
-#noticeModal .notice-detail-actions{
-  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-}
-
-/* 버튼 내부 텍스트 깨짐 방지 */
-#detailModal .share-actions .btn,
-#noticeModal .share-actions .btn,
-#noticeModal .notice-detail-actions .btn,
-.share-actions.notice-share-actions .btn{
-  min-width:0 !important;
-  width:100% !important;
-  max-width:100% !important;
-  height:46px !important;
-  min-height:46px !important;
-  padding:0 6px !important;
-  border-radius:16px !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:5px !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  font-size:12px !important;
-  font-weight:900 !important;
-  line-height:1 !important;
-  letter-spacing:-.045em !important;
-}
-
-/* 아이콘은 줄어들지 않게 고정 */
-#detailModal .share-actions .btn img,
-#detailModal .share-actions .btn svg,
-#detailModal .share-actions .btn .upick-inline-icon,
-#noticeModal .share-actions .btn img,
-#noticeModal .share-actions .btn svg,
-#noticeModal .share-actions .btn .upick-inline-icon,
-#noticeModal .notice-detail-actions .btn img,
-#noticeModal .notice-detail-actions .btn svg,
-#noticeModal .notice-detail-actions .btn .upick-inline-icon{
-  width:16px !important;
-  height:16px !important;
-  flex:0 0 16px !important;
-  margin:0 2px 0 0 !important;
-}
-
-/* 공유 준비중 상태 */
-#detailModal .share-actions .btn.is-share-loading,
-#noticeModal .share-actions .btn.is-share-loading,
-#noticeModal .notice-detail-actions .btn.is-share-loading{
-  pointer-events:none !important;
-  opacity:.82 !important;
-  background:#f8fafc !important;
-  border-color:#bfdbfe !important;
-  color:#1d4ed8 !important;
-  font-size:11px !important;
-}
-
-#detailModal .share-actions .btn .share-spinner,
-#noticeModal .share-actions .btn .share-spinner,
-#noticeModal .notice-detail-actions .btn .share-spinner{
-  width:13px !important;
-  height:13px !important;
-  flex:0 0 13px !important;
-  border:2px solid rgba(37,99,235,.22) !important;
-  border-top-color:#2563eb !important;
-  border-radius:50% !important;
-  animation:upickShareSpin .75s linear infinite !important;
-}
-
-@keyframes upickShareSpin{
-  to{transform:rotate(360deg)}
-}
-
-/* 아주 좁은 화면 */
-@media(max-width:360px){
-  #detailModal .share-actions,
-  #noticeModal .share-actions,
-  #noticeModal .notice-detail-actions{
-    gap:6px !important;
-  }
-
-  #detailModal .share-actions .btn,
-  #noticeModal .share-actions .btn,
-  #noticeModal .notice-detail-actions .btn{
-    height:44px !important;
-    min-height:44px !important;
-    padding:0 4px !important;
-    font-size:11px !important;
-    gap:4px !important;
-  }
-}
-</style>
-
-
 <style id="upick-reaction-toggle-final-force">
 /* ===== 좋아요/추천/HOT 실제 토글 활성 상태 ===== */
 .reaction-box .reaction-btn{
@@ -14224,6 +14111,119 @@ nav.bottom-nav{
 .reaction-box .reaction-btn.active-recommend img,
 .reaction-box .reaction-btn.active-hot img{
   filter:drop-shadow(0 3px 7px rgba(15,23,42,.12)) !important;
+}
+</style>
+
+
+<style id="upick-share-mobile-layout-v2">
+/* ===== 공유 버튼 3개 한 줄 고정 + 중복 로딩 방지용 최종 CSS ===== */
+
+/* 혜택 상세 / 공지 상세 공유 버튼 묶음 */
+#detailModal :is(.share-actions, .notice-detail-actions),
+#noticeModal :is(.share-actions, .notice-detail-actions),
+.modal :is(.share-actions, .notice-detail-actions),
+.detail-modal :is(.share-actions, .notice-detail-actions){
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  width:100% !important;
+  max-width:100% !important;
+  align-items:stretch !important;
+}
+
+/* 혹시 inline style / 기존 width:100% 버튼이 있어도 3등분 */
+#detailModal :is(.share-actions, .notice-detail-actions) > *,
+#noticeModal :is(.share-actions, .notice-detail-actions) > *,
+.modal :is(.share-actions, .notice-detail-actions) > *,
+.detail-modal :is(.share-actions, .notice-detail-actions) > *{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+
+/* 버튼 본체 */
+#detailModal :is(.share-actions, .notice-detail-actions) button,
+#detailModal :is(.share-actions, .notice-detail-actions) .btn,
+#noticeModal :is(.share-actions, .notice-detail-actions) button,
+#noticeModal :is(.share-actions, .notice-detail-actions) .btn,
+.modal :is(.share-actions, .notice-detail-actions) button,
+.modal :is(.share-actions, .notice-detail-actions) .btn,
+.detail-modal :is(.share-actions, .notice-detail-actions) button,
+.detail-modal :is(.share-actions, .notice-detail-actions) .btn{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:46px !important;
+  min-height:46px !important;
+  padding:0 6px !important;
+  border-radius:16px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:5px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.045em !important;
+  box-sizing:border-box !important;
+}
+
+/* 아이콘/스피너 크기 고정 */
+#detailModal :is(.share-actions, .notice-detail-actions) button :is(img, svg, .upick-inline-icon),
+#detailModal :is(.share-actions, .notice-detail-actions) .btn :is(img, svg, .upick-inline-icon),
+#noticeModal :is(.share-actions, .notice-detail-actions) button :is(img, svg, .upick-inline-icon),
+#noticeModal :is(.share-actions, .notice-detail-actions) .btn :is(img, svg, .upick-inline-icon),
+.modal :is(.share-actions, .notice-detail-actions) button :is(img, svg, .upick-inline-icon),
+.modal :is(.share-actions, .notice-detail-actions) .btn :is(img, svg, .upick-inline-icon){
+  width:16px !important;
+  height:16px !important;
+  flex:0 0 16px !important;
+  margin:0 2px 0 0 !important;
+}
+
+/* 기존 로딩 스피너가 하나만 보이도록 크기만 정리 */
+#detailModal :is(.share-actions, .notice-detail-actions) :is(.share-spinner, .btn-spinner, .loading-spinner),
+#noticeModal :is(.share-actions, .notice-detail-actions) :is(.share-spinner, .btn-spinner, .loading-spinner),
+.modal :is(.share-actions, .notice-detail-actions) :is(.share-spinner, .btn-spinner, .loading-spinner){
+  width:14px !important;
+  height:14px !important;
+  flex:0 0 14px !important;
+}
+
+/* 혹시 같은 버튼 안에 스피너가 2개 생기면 첫 번째만 표시 */
+#detailModal :is(.share-actions, .notice-detail-actions) button :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner),
+#detailModal :is(.share-actions, .notice-detail-actions) .btn :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner),
+#noticeModal :is(.share-actions, .notice-detail-actions) button :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner),
+#noticeModal :is(.share-actions, .notice-detail-actions) .btn :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner){
+  display:none !important;
+}
+
+@media(max-width:420px){
+  #detailModal :is(.share-actions, .notice-detail-actions),
+  #noticeModal :is(.share-actions, .notice-detail-actions),
+  .modal :is(.share-actions, .notice-detail-actions),
+  .detail-modal :is(.share-actions, .notice-detail-actions){
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+    gap:7px !important;
+  }
+
+  #detailModal :is(.share-actions, .notice-detail-actions) button,
+  #detailModal :is(.share-actions, .notice-detail-actions) .btn,
+  #noticeModal :is(.share-actions, .notice-detail-actions) button,
+  #noticeModal :is(.share-actions, .notice-detail-actions) .btn,
+  .modal :is(.share-actions, .notice-detail-actions) button,
+  .modal :is(.share-actions, .notice-detail-actions) .btn,
+  .detail-modal :is(.share-actions, .notice-detail-actions) button,
+  .detail-modal :is(.share-actions, .notice-detail-actions) .btn{
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 4px !important;
+    font-size:11px !important;
+    gap:4px !important;
+  }
 }
 </style>
 
@@ -31699,97 +31699,47 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 })();
 </script>
 
-
-
-
-
-<script id="upick-share-loading-final-force">
+<script id="upick-share-text-normalizer-v2">
 (function(){
-  const ORIGINAL_HTML = new WeakMap();
+  function normalizeShareButtons(){
+    document.querySelectorAll('#detailModal .share-actions button, #detailModal .share-actions .btn, #noticeModal .share-actions button, #noticeModal .share-actions .btn, #noticeModal .notice-detail-actions button, #noticeModal .notice-detail-actions .btn, .modal .share-actions button, .modal .share-actions .btn').forEach((btn) => {
+      const text = (btn.textContent || '').replace(/\s+/g, ' ').trim();
 
-  function isShareBtn(btn){
-    if(!btn) return false;
-    return !!btn.closest('#detailModal .share-actions, #noticeModal .share-actions, #noticeModal .notice-detail-actions');
-  }
-
-  function compactLabel(btn){
-    const raw = (btn.textContent || '').replace(/\s+/g, ' ').trim();
-    if(raw.includes('URL')) return '복사 중';
-    if(raw.includes('QR')) return 'QR 준비 중';
-    if(raw.includes('카카오')) return '공유 준비 중';
-    if(raw.includes('공유')) return '공유 준비 중';
-    return '준비 중';
-  }
-
-  function setLoading(btn){
-    if(!isShareBtn(btn)) return;
-    if(!ORIGINAL_HTML.has(btn)) ORIGINAL_HTML.set(btn, btn.innerHTML);
-
-    const label = compactLabel(btn);
-    btn.classList.add('is-share-loading');
-    btn.disabled = true;
-    btn.setAttribute('aria-busy', 'true');
-    btn.innerHTML = '<span class="share-spinner" aria-hidden="true"></span><span>' + label + '</span>';
-  }
-
-  function clearLoading(btn){
-    if(!isShareBtn(btn)) return;
-    const original = ORIGINAL_HTML.get(btn);
-    if(original){
-      btn.innerHTML = original;
-      ORIGINAL_HTML.delete(btn);
-    }
-    btn.classList.remove('is-share-loading');
-    btn.disabled = false;
-    btn.removeAttribute('aria-busy');
-  }
-
-  // 기존 코드가 긴 문구를 넣어도 즉시 짧게 정규화
-  function normalizeLoadingText(){
-    document.querySelectorAll('#detailModal .share-actions .btn, #noticeModal .share-actions .btn, #noticeModal .notice-detail-actions .btn').forEach(btn => {
-      const raw = (btn.textContent || '').replace(/\s+/g, ' ').trim();
-      if(btn.disabled || /혜택 공유 준비|공지 공유 준비|카카오톡 열 준비|공유 준비 중|QR 준비 중|복사 중/.test(raw)){
-        if(!btn.classList.contains('is-share-loading')){
-          setLoading(btn);
+      if(/혜택 공유 준비 중|공지 공유 준비 중|카카오톡 열 준비 중/.test(text)){
+        // 기존 스피너는 유지하고 문구만 짧게 변경
+        const nodes = Array.from(btn.childNodes);
+        const textNode = nodes.find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if(textNode){
+          textNode.textContent = ' 공유 준비 중';
         }else{
-          const label = compactLabel(btn);
-          if(raw !== label){
-            btn.innerHTML = '<span class="share-spinner" aria-hidden="true"></span><span>' + label + '</span>';
-          }
+          const label = Array.from(btn.querySelectorAll('span,b,strong,em')).find(el => /혜택 공유 준비 중|공지 공유 준비 중|카카오톡 열 준비 중/.test(el.textContent || ''));
+          if(label) label.textContent = '공유 준비 중';
         }
       }
+
+      // 같은 버튼 내부 스피너 중복은 실제 DOM에서도 제거
+      const spinners = btn.querySelectorAll('.share-spinner, .btn-spinner, .loading-spinner');
+      spinners.forEach((spinner, idx) => {
+        if(idx > 0) spinner.remove();
+      });
     });
   }
 
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('#detailModal .share-actions .btn, #noticeModal .share-actions .btn, #noticeModal .notice-detail-actions .btn');
-    if(!btn) return;
-
-    // 공유/복사/QR 버튼 모두 즉시 피드백
-    setLoading(btn);
-
-    // 카카오 공유창 호출 후 복귀, 복사/QR도 너무 오래 잠기지 않게 복귀
-    setTimeout(() => clearLoading(btn), 1600);
+  document.addEventListener('click', () => {
+    setTimeout(normalizeShareButtons, 0);
+    setTimeout(normalizeShareButtons, 80);
+    setTimeout(normalizeShareButtons, 180);
   }, true);
 
-  const observer = new MutationObserver(() => {
-    normalizeLoadingText();
-  });
-
+  const observer = new MutationObserver(normalizeShareButtons);
   if(document.body){
-    observer.observe(document.body, {
-      childList:true,
-      subtree:true,
-      characterData:true,
-      attributes:true,
-      attributeFilter:['disabled', 'class']
-    });
+    observer.observe(document.body, {childList:true, subtree:true, characterData:true});
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', normalizeLoadingText);
+    document.addEventListener('DOMContentLoaded', normalizeShareButtons);
   }else{
-    normalizeLoadingText();
+    normalizeShareButtons();
   }
 })();
 </script>
