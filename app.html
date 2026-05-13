@@ -32306,13 +32306,17 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 .gnb-inline-badge.deprecated{background:rgba(100,116,139,.86);color:#fff;border-color:rgba(203,213,225,.62)}
 </style>
 
-<style id="upick-benefit-detail-photo-final-v8">
-/* ===== 혜택 상세 대표 사진 v8: 딥링크 경량 재시도 버전 ===== */
+<style id="upick-benefit-detail-photo-final-v9">
+/* ===== 혜택 상세 대표 사진 v9: 이미지 로드 완료 후 확대 활성화 ===== */
 #detailModal .benefit-detail-photo{
-  cursor:zoom-in !important;
+  cursor:default !important;
   position:absolute !important;
   overflow:hidden !important;
   -webkit-tap-highlight-color:transparent !important;
+}
+
+#detailModal .benefit-detail-photo.is-photo-ready{
+  cursor:zoom-in !important;
 }
 
 #detailModal .benefit-detail-photo-badge{
@@ -32324,6 +32328,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   display:none !important;
 }
 
+/* 이미지 로드 완료 전에는 돋보기 숨김 */
 #detailModal .benefit-detail-photo .benefit-photo-zoom-icon{
   position:absolute !important;
   right:8px !important;
@@ -32340,6 +32345,14 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   place-items:center !important;
   pointer-events:none !important;
   z-index:6 !important;
+  opacity:0 !important;
+  transform:scale(.86) !important;
+  transition:opacity .18s ease, transform .18s ease !important;
+}
+
+#detailModal .benefit-detail-photo.is-photo-ready .benefit-photo-zoom-icon{
+  opacity:1 !important;
+  transform:scale(1) !important;
 }
 
 #detailModal .benefit-detail-photo .benefit-photo-zoom-icon::before{
@@ -32351,6 +32364,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   filter:brightness(0) invert(1) !important;
 }
 
+/* 확대 뷰어 */
 #detailModal #benefitPhotoZoomViewer{
   position:fixed !important;
   inset:0 !important;
@@ -32431,23 +32445,13 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 </style>
 
 
-<script id="upick-benefit-detail-photo-final-v8-js">
+<script id="upick-benefit-detail-photo-final-v9-js">
 (function(){
-  let applyTimer = null;
   let retryTimer = null;
+  let applyTimer = null;
 
   function getModal(){
     return document.getElementById('detailModal');
-  }
-
-  function isModalOpen(){
-    const modal = getModal();
-    if(!modal) return false;
-    const rect = modal.getBoundingClientRect();
-    return modal.hasAttribute('open') ||
-      modal.classList.contains('open') ||
-      modal.classList.contains('show') ||
-      rect.width > 0;
   }
 
   function ensureViewer(){
@@ -32482,6 +32486,10 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     return viewer;
   }
 
+  function isImageReady(img){
+    return !!(img && img.complete && img.naturalWidth > 0 && img.naturalHeight > 0);
+  }
+
   function applyBenefitPhotoUI(){
     const modal = getModal();
     if(!modal) return false;
@@ -32498,19 +32506,33 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
       photo.appendChild(icon);
     }
 
+    const img = photo.querySelector('img');
+
     photo.setAttribute('role', 'button');
     photo.setAttribute('tabindex', '0');
     photo.setAttribute('aria-label', '대표 사진 확대 보기');
 
-    const img = photo.querySelector('img');
+    if(isImageReady(img)){
+      photo.classList.add('is-photo-ready');
+      photo.dataset.photoReady = '1';
+      return true;
+    }
+
+    photo.classList.remove('is-photo-ready');
+    photo.dataset.photoReady = '0';
+
     if(img && !img.dataset.upickZoomLoadBound){
       img.dataset.upickZoomLoadBound = '1';
       img.addEventListener('load', function(){
         requestAnimationFrame(applyBenefitPhotoUI);
       }, { once:true });
+      img.addEventListener('error', function(){
+        photo.classList.remove('is-photo-ready');
+        photo.dataset.photoReady = '0';
+      }, { once:true });
     }
 
-    return true;
+    return false;
   }
 
   function scheduleApply(){
@@ -32525,11 +32547,9 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     let count = 0;
     retryTimer = setInterval(function(){
       count += 1;
-
       const done = applyBenefitPhotoUI();
 
-      // 성공했거나, 모달이 안 열려있거나, 충분히 재시도했으면 종료
-      if(done || !isModalOpen() || count >= 30){
+      if(done || count >= 30){
         clearInterval(retryTimer);
         retryTimer = null;
       }
@@ -32538,6 +32558,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 
   function openViewer(src, title){
     if(!src) return;
+
     const viewer = ensureViewer();
     if(!viewer) return;
 
@@ -32568,7 +32589,15 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     if(!photo) return;
 
     const img = photo.querySelector('img');
-    if(!img || !img.src) return;
+
+    // 이미지 렌더링 완료 전에는 확대 차단
+    if(!isImageReady(img) || !photo.classList.contains('is-photo-ready')){
+      e.preventDefault();
+      e.stopPropagation();
+      scheduleApply();
+      startShortRetry();
+      return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
@@ -32588,7 +32617,13 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     if(e.key !== 'Enter' && e.key !== ' ') return;
 
     const img = photo.querySelector('img');
-    if(!img || !img.src) return;
+
+    if(!isImageReady(img) || !photo.classList.contains('is-photo-ready')){
+      e.preventDefault();
+      scheduleApply();
+      startShortRetry();
+      return;
+    }
 
     e.preventDefault();
 
@@ -32596,7 +32631,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     openViewer(img.currentSrc || img.src, titleEl ? titleEl.textContent.trim() : '');
   }, true);
 
-  // 일반 클릭 진입
+  // 일반 클릭 진입 + 딥링크 자동 진입 대응
   document.addEventListener('click', function(){
     setTimeout(scheduleApply, 60);
     setTimeout(scheduleApply, 220);
@@ -32604,7 +32639,6 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     startShortRetry();
   }, true);
 
-  // 딥링크/뒤로가기/복귀 진입
   window.addEventListener('pageshow', function(){
     scheduleApply();
     setTimeout(scheduleApply, 250);
