@@ -14189,6 +14189,44 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="upick-reaction-toggle-final-force">
+/* ===== 좋아요/추천/HOT 실제 토글 활성 상태 ===== */
+.reaction-box .reaction-btn{
+  transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .12s ease !important;
+}
+.reaction-box .reaction-btn:active{
+  transform:scale(.985) !important;
+}
+.reaction-box .reaction-btn.active-like{
+  background:#eff6ff !important;
+  border-color:#93c5fd !important;
+  color:#1d4ed8 !important;
+  box-shadow:0 8px 18px rgba(37,99,235,.12) !important;
+}
+.reaction-box .reaction-btn.active-recommend{
+  background:#eef2ff !important;
+  border-color:#a5b4fc !important;
+  color:#4338ca !important;
+  box-shadow:0 8px 18px rgba(67,56,202,.12) !important;
+}
+.reaction-box .reaction-btn.active-hot{
+  background:#fff7ed !important;
+  border-color:#fdba74 !important;
+  color:#ea580c !important;
+  box-shadow:0 8px 18px rgba(234,88,12,.12) !important;
+}
+.reaction-box .reaction-btn[data-processing="1"]{
+  opacity:.72 !important;
+  pointer-events:none !important;
+}
+.reaction-box .reaction-btn.active-like img,
+.reaction-box .reaction-btn.active-recommend img,
+.reaction-box .reaction-btn.active-hot img{
+  filter:drop-shadow(0 3px 7px rgba(15,23,42,.12)) !important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16687,31 +16725,130 @@ async function refreshPushStatus(){
  }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
  }
  async function handleResidentReaction(benefitId = '', reactionType = 'like'){
- if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return; }
- const uid = state.currentUser.uid; const reactionId = `${benefitId}_${uid}_${reactionType}`; const reactionRef = doc(db, 'benefit_reactions', reactionId);
- const existing = await getDoc(reactionRef).catch(() => null); if(existing?.exists?.()){ await openModalAlert('이미 반영된 반응입니다.'); return; }
- const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' }; const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
- const statField = fieldMap[reactionType] || 'likeCount'; const points = residentActivityPoints(reactionType);
+ if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
+
+ const uid = state.currentUser.uid;
+ const reactionId = `${benefitId}_${uid}_${reactionType}`;
+ const reactionRef = doc(db, 'benefit_reactions', reactionId);
+
+ const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
+ const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
+ const statField = fieldMap[reactionType] || 'likeCount';
+ const points = residentActivityPoints(reactionType);
+ const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
+
  try{
- await setDoc(reactionRef, { benefitId, uid, type: reactionType, createdAt: serverTimestamp() }, { merge:true });
- await setDoc(doc(db, BENEFIT_STATS_COLLECTION, benefitId), {benefitId, [statField]: increment(1), popularScore: increment(points), updatedAt: serverTimestamp()}, { merge:true });
- await recordResidentActivity(reactionType, points, benefitId);
- await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.\n인기점수에 바로 반영됩니다.`);
- }catch(error){console.warn('입주민 반응 저장 실패', error); await openModalAlert('반응 저장 중 오류가 발생했습니다.');}
+   const existing = await getDoc(reactionRef).catch(() => null);
+
+   // 이미 반응한 상태면 취소: count -1, popularScore -points
+   if(existing?.exists?.()){
+     await deleteDoc(reactionRef);
+     await setDoc(statRef, {
+       benefitId,
+       [statField]: increment(-1),
+       popularScore: increment(-points),
+       updatedAt: serverTimestamp()
+     }, { merge:true });
+
+     return {
+       active:false,
+       changed:true,
+       label:labelMap[reactionType] || '반응',
+       message:`${labelMap[reactionType] || '반응'}이 취소되었습니다.`
+     };
+   }
+
+   // 아직 반응하지 않은 상태면 등록: count +1, popularScore +points
+   await setDoc(reactionRef, {
+     benefitId,
+     uid,
+     type: reactionType,
+     createdAt: serverTimestamp()
+   }, { merge:true });
+
+   await setDoc(statRef, {
+     benefitId,
+     [statField]: increment(1),
+     popularScore: increment(points),
+     updatedAt: serverTimestamp()
+   }, { merge:true });
+
+   await recordResidentActivity(reactionType, points, benefitId);
+
+   return {
+     active:true,
+     changed:true,
+     label:labelMap[reactionType] || '반응',
+     message:`${labelMap[reactionType] || '반응'}이 반영되었습니다.`
+   };
+ }catch(error){
+   console.warn('입주민 반응 토글 실패', error);
+   await openModalAlert('반응 처리 중 오류가 발생했습니다.');
+   return { active:false, changed:false, error };
+ }
  }
  function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">HOT 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like"><img class="upick-svg-icon" src="/icons/internal/favorite.svg" alt="" loading="lazy"> 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"> 추천</button><button type="button" class="reaction-btn" data-reaction="hot"><img class="upick-svg-icon" src="/icons/internal/top5.svg" alt="" loading="lazy"> HOT</button></div>`; }
- function bindResidentReactionButtons(item = {}){ qsa('.reaction-btn').forEach((btn) => { btn.onclick = async (event) => { event.preventDefault(); event.stopPropagation(); await handleResidentReaction(item.id, btn.dataset.reaction || 'like'); }; }); }
+ function getReactionActiveClass(reactionType = 'like'){
+ const map = { like:'active-like', recommend:'active-recommend', hot:'active-hot' };
+ return map[reactionType] || 'active-like';
+ }
 
- const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
+ async function refreshResidentReactionButtons(benefitId = ''){
+ const uid = state.currentUser?.uid;
+ if(!benefitId || !uid) return;
 
- function toDateFromFirestore(value){
- if(!value) return null;
- try{
- if(typeof value.toDate === 'function') return value.toDate();
- if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
- if(value instanceof Date) return value;
- const parsed = new Date(value);
- return Number.isNaN(parsed.getTime()) ? null : parsed;
+ const buttons = qsa('.reaction-btn');
+ await Promise.all(buttons.map(async (btn) => {
+   const reactionType = btn.dataset.reaction || 'like';
+   const reactionId = `${benefitId}_${uid}_${reactionType}`;
+   const activeClass = getReactionActiveClass(reactionType);
+   const snap = await getDoc(doc(db, 'benefit_reactions', reactionId)).catch(() => null);
+
+   btn.classList.toggle(activeClass, !!snap?.exists?.());
+   btn.dataset.active = snap?.exists?.() ? '1' : '0';
+   btn.setAttribute('aria-pressed', snap?.exists?.() ? 'true' : 'false');
+ }));
+ }
+
+ function bindResidentReactionButtons(item = {}){
+ const benefitId = item?.id || qs('.reaction-box')?.dataset?.benefitId || '';
+ refreshResidentReactionButtons(benefitId).catch(() => {});
+
+ qsa('.reaction-btn').forEach((btn) => {
+   btn.onclick = async (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+
+     if(btn.dataset.processing === '1') return;
+     btn.dataset.processing = '1';
+
+     const reactionType = btn.dataset.reaction || 'like';
+     const activeClass = getReactionActiveClass(reactionType);
+
+     try{
+       const result = await handleResidentReaction(benefitId, reactionType);
+
+       if(result?.changed){
+         btn.classList.toggle(activeClass, !!result.active);
+         btn.dataset.active = result.active ? '1' : '0';
+         btn.setAttribute('aria-pressed', result.active ? 'true' : 'false');
+
+         // 기존 알럿 대신 버튼 상태만 바꾸되, 아주 짧은 토스트성 피드백이 필요하면 alert가 아닌 상태 표시만 남김
+         const help = btn.closest('.reaction-box')?.previousElementSibling;
+         if(help && help.classList?.contains('reaction-help')){
+           const original = help.dataset.originalText || help.textContent;
+           help.dataset.originalText = original;
+           help.textContent = result.active ? `${result.label} 반응이 반영되었습니다.` : `${result.label} 반응이 취소되었습니다.`;
+           setTimeout(() => {
+             if(help.dataset.originalText) help.textContent = help.dataset.originalText;
+           }, 1200);
+         }
+       }
+     }finally{
+       btn.dataset.processing = '0';
+     }
+   };
+ });
  }catch(_){
  return null;
  }
