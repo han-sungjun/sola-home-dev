@@ -4550,3 +4550,70 @@ body {
   position:relative!important;
   z-index:2147483601!important;
 }
+
+/* ===== Login support row final override ===== */
+.login-support-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+}
+
+.login-support-row .save-id-check{
+  flex:0 0 auto !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  white-space:nowrap !important;
+  font-size:13px !important;
+}
+
+.login-support-row .login-help-links{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:4px !important;
+  flex-wrap:nowrap !important;
+  white-space:nowrap !important;
+  text-align:right !important;
+}
+
+.login-support-row .login-help-link{
+  flex:0 0 auto !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:var(--muted) !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+  font-weight:700 !important;
+  white-space:nowrap !important;
+  text-decoration:none !important;
+}
+
+.login-support-row .login-help-links span[aria-hidden="true"]{
+  flex:0 0 auto !important;
+  color:#cbd5e1 !important;
+  font-size:11px !important;
+  line-height:1 !important;
+}
+
+@media (max-width: 420px){
+  .login-support-row{
+    gap:8px !important;
+  }
+  .login-support-row .save-id-check{
+    font-size:12px !important;
+  }
+  .login-support-row .login-help-link{
+    font-size:11px !important;
+    letter-spacing:-.04em !important;
+  }
+  .login-support-row .login-help-links{
+    gap:3px !important;
+  }
+}
