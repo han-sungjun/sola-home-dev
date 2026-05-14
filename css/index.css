@@ -4368,3 +4368,95 @@ body {
   #pageLoader.page-loader .loader-mark::after{border-radius:34px!important;}
 }
 
+
+/* 로그인 도움 / 계정 복구 기능 */
+.login-support-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 12px;
+  font-size: 13px;
+  color: #64748b;
+}
+.save-id-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+.save-id-check input {
+  width: 15px;
+  height: 15px;
+  accent-color: #2563eb;
+}
+.login-help-links {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+  text-align: right;
+}
+.login-help-link {
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font: inherit;
+  padding: 3px 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+.login-help-link:hover,
+.login-help-link:focus-visible {
+  color: #1d4ed8;
+  text-decoration: underline;
+  outline: none;
+}
+.account-recovery-panel {
+  max-height: min(86vh, 760px);
+  overflow: hidden;
+}
+.account-recovery-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.password-live-message {
+  min-height: 18px;
+  margin: 7px 2px 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #64748b;
+}
+.password-live-message.success { color: #047857; }
+.password-live-message.error { color: #dc2626; }
+.password-live-message.info { color: #64748b; }
+.sheet-result.success {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.sheet-result.error {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.18);
+}
+@media (max-width: 520px) {
+  .login-support-row {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .login-help-links {
+    gap: 4px;
+    font-size: 12px;
+  }
+  .account-recovery-tabs {
+    gap: 6px;
+  }
+  .account-recovery-tabs .sheet-tab {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 12px;
+  }
+}
