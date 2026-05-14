@@ -111,6 +111,45 @@ function openSheet(mode) {
   });
 }
 
+function resetAccountRecoveryForm() {
+  [
+    fields.findNicknameLoginId,
+    fields.findIdNickname,
+    fields.resetLoginId,
+    fields.resetNickname,
+    fields.resetNewPassword,
+    fields.resetNewPasswordConfirm,
+  ].forEach((el) => {
+    if (el) el.value = '';
+  });
+
+  [
+    fields.findNicknameResult,
+    fields.findIdResult,
+    fields.resetResult,
+  ].forEach((el) => {
+    if (!el) return;
+    el.textContent = '';
+    el.className = 'sheet-result info';
+  });
+
+  if (fields.resetMatchMessage) {
+    fields.resetMatchMessage.textContent = '';
+    fields.resetMatchMessage.className = 'password-live-message';
+  }
+
+  Object.values(sections).forEach((section) => {
+    section?.classList.remove('active');
+  });
+  Object.values(tabs).forEach((tab) => {
+    tab?.classList.remove('active');
+    tab?.setAttribute('aria-selected', 'false');
+  });
+  sections.nickname?.classList.add('active');
+  tabs.nickname?.classList.add('active');
+  tabs.nickname?.setAttribute('aria-selected', 'true');
+}
+
 function closeSheet() {
   if (!modal) return;
 
@@ -120,6 +159,7 @@ function closeSheet() {
 
   window.setTimeout(() => {
     modal.classList.remove('ready', 'closing');
+    resetAccountRecoveryForm();
     lastFocus?.focus?.();
   }, 360);
 }
@@ -303,16 +343,16 @@ qs('#findNicknameBtn')?.addEventListener('click', async (event) => {
     const data = await postJson(API.findNicknameByLoginId, { loginId });
     setResult(fields.findNicknameResult, `확인된 닉네임: ${data.nicknameMasked || data.nickname || ''}`, 'success');
     setButtonLoading(btn, false);
-    const showFull = await showAppAlert({
+    const keepMaskedOnly = await showAppAlert({
       title: '닉네임 찾기',
       message: `가입된 닉네임은 ${data.nicknameMasked || data.nickname} 입니다.\n전체 닉네임을 확인하시겠습니까?`,
-      confirmText: '전체 보기',
-      cancelText: '확인',
+      confirmText: '확인',
+      cancelText: '전체 보기',
     });
-    if (showFull) {
-      await showAppAlert({ title: '닉네임 찾기', message: `전체 닉네임은 ${data.nickname} 입니다.`, closeSheetOnConfirm: true });
-    } else {
+    if (keepMaskedOnly) {
       closeSheet();
+    } else {
+      await showAppAlert({ title: '닉네임 찾기', message: `전체 닉네임은 ${data.nickname} 입니다.`, closeSheetOnConfirm: true });
     }
   } catch (error) {
     setButtonLoading(btn, false);
@@ -338,17 +378,17 @@ qs('#findIdBtn')?.addEventListener('click', async (event) => {
     const data = await postJson(API.findLoginIdByNickname, { nickname });
     setResult(fields.findIdResult, `확인된 아이디: ${data.loginIdMasked || data.loginId || ''}`, 'success');
     setButtonLoading(btn, false);
-    const showFull = await showAppAlert({
+    const keepMaskedOnly = await showAppAlert({
       title: '아이디 찾기',
       message: `가입된 아이디는 ${data.loginIdMasked || data.loginId} 입니다.\n전체 아이디를 확인하시겠습니까?`,
-      confirmText: '전체 보기',
-      cancelText: '확인',
+      confirmText: '확인',
+      cancelText: '전체 보기',
     });
-    if (showFull) {
+    if (keepMaskedOnly) {
+      closeSheet();
+    } else {
       if (loginIdEl && data.loginId) loginIdEl.value = data.loginId;
       await showAppAlert({ title: '아이디 찾기', message: `전체 아이디는 ${data.loginId} 입니다.`, closeSheetOnConfirm: true });
-    } else {
-      closeSheet();
     }
   } catch (error) {
     setButtonLoading(btn, false);
