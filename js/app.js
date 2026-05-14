@@ -1819,6 +1819,52 @@ window.addEventListener('keydown', (event) => {
  }
 
  
+
+/* ===== Global modal backdrop lock =====
+   모든 dialog / role=dialog / alertdialog 계열은 바깥 영역 클릭으로 닫지 않습니다.
+   사용자는 X, 취소, 확인 등 명시 버튼으로만 닫을 수 있습니다. */
+function lockModalBackdropClick(event){
+  const target = event.target;
+  const current = event.currentTarget;
+
+  if(target === current){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+  }
+}
+
+function bindGlobalModalBackdropLock(){
+  const selectors = [
+    'dialog',
+    '.app-alert',
+    '[role="dialog"]',
+    '[role="alertdialog"]',
+    '.modal',
+    '.modal-overlay',
+    '.modal-backdrop',
+    '.sheet-modal'
+  ];
+
+  document.querySelectorAll(selectors.join(',')).forEach((el) => {
+    if(el.dataset.backdropLockBound === '1') return;
+    el.dataset.backdropLockBound = '1';
+    el.addEventListener('click', lockModalBackdropClick, true);
+    el.addEventListener('pointerdown', lockModalBackdropClick, true);
+  });
+}
+
+bindGlobalModalBackdropLock();
+
+const modalBackdropLockObserver = new MutationObserver(() => {
+  bindGlobalModalBackdropLock();
+});
+
+modalBackdropLockObserver.observe(document.documentElement, {
+  childList:true,
+  subtree:true
+});
+
 function preventBackdropClose(event){
   if(event.target === event.currentTarget){
     event.preventDefault();
