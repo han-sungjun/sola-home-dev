@@ -9698,8 +9698,13 @@ async function askAiAssistant(rawQuestion=''){
  gnbSheet?.classList.add('show');
  gnbOverlay?.classList.add('show');
  gnbSheet?.setAttribute('aria-hidden', 'false');
+ gnbToggleBtn?.setAttribute('aria-expanded', 'true');
  gnbSheet?.classList.remove('gnb-enter');
- requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
+ requestAnimationFrame(() => {
+   gnbSheet?.classList.add('gnb-enter');
+   const firstFocusTarget = gnbCloseBtn || gnbSheet?.querySelector('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+   firstFocusTarget?.focus?.({ preventScroll:true });
+ });
  document.body.style.overflow = 'hidden';
  document.body.classList.add('gnb-open');
  const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
@@ -9721,9 +9726,13 @@ async function askAiAssistant(rawQuestion=''){
  gnbSheet?.classList.remove('show');
  gnbOverlay?.classList.remove('show');
  gnbSheet?.setAttribute('aria-hidden', 'true');
+ gnbToggleBtn?.setAttribute('aria-expanded', 'false');
  document.body.style.overflow = '';
  document.body.classList.remove('gnb-open');
  gnbSheet?.style.removeProperty('transform');
+ requestAnimationFrame(() => {
+   gnbToggleBtn?.focus?.({ preventScroll:true });
+ });
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {
