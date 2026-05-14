@@ -9,12 +9,19 @@
     document.documentElement.appendChild(s);
     s.remove();
   }
-  async function runModule(block){
-    const blob = new Blob([block.code], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
-    try { await import(url); }
-    catch (err) { console.error('[app.js] module block error', block.id || block.index, err); }
-    finally { URL.revokeObjectURL(url); }
+  function runModule(block){
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      if (block.id) script.id = block.id;
+      script.type = 'module';
+      script.textContent = block.code;
+      script.onload = () => resolve();
+      script.onerror = (err) => {
+        console.error('[app.js] module block error', block.id || block.index, err);
+        resolve();
+      };
+      document.documentElement.appendChild(script);
+    });
   }
   for (const block of blocks) {
     if (block.type === 'module') { await runModule(block); }
