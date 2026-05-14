@@ -4257,6 +4257,23 @@ ${item.content || ''}`);
  }
  }
 
+ function makeKeyboardClickable(el, label){
+ if(!el) return el;
+ el.setAttribute('role','button');
+ el.setAttribute('tabindex','0');
+ if(label && !el.getAttribute('aria-label')) el.setAttribute('aria-label', label);
+ if(el.__upickA11yClickableBound) return el;
+ el.__upickA11yClickableBound = true;
+ el.addEventListener('keydown', (event) => {
+ if(event.key !== 'Enter' && event.key !== ' ') return;
+ const interactive = event.target && event.target.closest && event.target.closest('button,a,input,select,textarea,[role="button"],[role="link"],summary');
+ if(interactive && interactive !== el) return;
+ event.preventDefault();
+ el.click();
+ });
+ return el;
+ }
+
  function renderNotices(){
  const listEl = qs('#noticeList');
  const homeListEl = qs('#homeNoticeList');
@@ -4272,6 +4289,7 @@ ${item.content || ''}`);
  el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
+ makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
  el.onclick = () => openNoticeFromList(item);
  listEl.appendChild(el);
  });
@@ -4289,6 +4307,7 @@ ${item.content || ''}`);
  el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
+ makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
  el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true });
  homeListEl.appendChild(el);
  });
@@ -5062,6 +5081,7 @@ ${item.content || ''}`);
  list.querySelectorAll('.hot-now-item').forEach((el) => {
  const id = el.dataset.benefitId;
  const item = items.find((v) => v.id === id);
+ makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || '혜택'}`);
  el.onclick = () => {
  if(item?.benefit) openDetail(item.benefit);
  };
@@ -5101,6 +5121,7 @@ ${item.content || ''}`);
  <span>인기점수</span>
  </div>
  `;
+ makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || '혜택'}`);
  row.onclick = () => {
  if(item.benefit){
  openDetail(item.benefit);
@@ -5261,6 +5282,7 @@ ${item.content || ''}`);
  const topRank=getBenefitTopRank(item);
  card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
+ makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || '혜택'}`);
  card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
  card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
  card.querySelectorAll('.fav-btn').forEach((btn)=>{
