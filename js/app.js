@@ -11566,3 +11566,73 @@ document.addEventListener('keydown', (event) => {
  }
  })();
  
+/* =========================================================
+   A11Y HOTFIX: GNB first focus ring in every tab
+   홈 탭 외 다른 탭에서 GNB를 열 때도 첫 번째 홈 버튼에 포커스와 시각 링을 강제 복원합니다.
+   ========================================================= */
+(function(){
+  'use strict';
+  const FOCUS_RING_CLASS = 'upick-force-focus-ring';
+  const SHEET_SELECTOR = '#gnbSheet';
+  const FIRST_BUTTON_SELECTOR = '.gnb-home-active, .gnb-icons button:first-of-type, button[data-view-link="home"]';
+
+  function q(sel, root){ return (root || document).querySelector(sel); }
+  function isOpen(sheet){ return !!(sheet && sheet.classList.contains('show') && sheet.getAttribute('aria-hidden') !== 'true'); }
+
+  function clearForcedRings(sheet){
+    (sheet || document).querySelectorAll('.' + FOCUS_RING_CLASS).forEach(function(el){
+      el.classList.remove(FOCUS_RING_CLASS);
+    });
+  }
+
+  function focusFirstGnbButton(reason){
+    const sheet = q(SHEET_SELECTOR);
+    if(!isOpen(sheet)) return;
+    const first = q(FIRST_BUTTON_SELECTOR, sheet);
+    if(!first || first.disabled) return;
+
+    clearForcedRings(sheet);
+    first.classList.add(FOCUS_RING_CLASS);
+    first.dataset.upickForcedFocusReason = reason || 'open';
+
+    try { first.focus({ preventScroll: true }); }
+    catch(_) { try { first.focus(); } catch(__){} }
+  }
+
+  function scheduleInitialFocus(reason){
+    [0, 40, 120, 260].forEach(function(delay){
+      setTimeout(function(){ focusFirstGnbButton(reason); }, delay);
+    });
+    requestAnimationFrame(function(){ focusFirstGnbButton(reason + ':raf'); });
+  }
+
+  document.addEventListener('click', function(event){
+    const opener = event.target && event.target.closest && event.target.closest('#globalGnbBtn, #gnbToggleBtn, #gnbOpenBtn, #openGnbBtn, [data-open-gnb], .gnb-open-btn');
+    if(opener) scheduleInitialFocus('opener-click');
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if(event.key !== 'Enter' && event.key !== ' ') return;
+    const opener = event.target && event.target.closest && event.target.closest('#globalGnbBtn, #gnbToggleBtn, #gnbOpenBtn, #openGnbBtn, [data-open-gnb], .gnb-open-btn');
+    if(opener) scheduleInitialFocus('opener-key');
+  }, true);
+
+  document.addEventListener('focusin', function(event){
+    const sheet = q(SHEET_SELECTOR);
+    if(!sheet || !sheet.contains(event.target)) return;
+    if(!event.target.matches(FIRST_BUTTON_SELECTOR)) clearForcedRings(sheet);
+  }, true);
+
+  function bindObserver(){
+    const sheet = q(SHEET_SELECTOR);
+    if(!sheet || sheet.__upickGnbInitialFocusObserver) return;
+    sheet.__upickGnbInitialFocusObserver = true;
+    new MutationObserver(function(){
+      if(isOpen(sheet)) scheduleInitialFocus('sheet-open');
+      else clearForcedRings(sheet);
+    }).observe(sheet, { attributes:true, attributeFilter:['class','aria-hidden'] });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, {once:true});
+  else bindObserver();
+})();

@@ -19319,3 +19319,36 @@ body .bottom-nav .nav-btn:focus:not(:focus-visible),
 body nav.bottom-nav .nav-btn:focus:not(:focus-visible){
   outline: 3px solid rgba(255,255,255,.98) !important;
 }
+
+/* =========================================================
+   A11Y HOTFIX: GNB initial focus ring in every tab
+   - Earlier :focus:not(:focus-visible) rules could override script-focused buttons.
+   - Keep the first GNB Home button visibly focused even when opened from 혜택/즐겨찾기/TOP5/전체/AI.
+   ========================================================= */
+#gnbSheet.show .gnb-icon-btn.upick-force-focus-ring,
+#gnbSheet.show .gnb-icon-btn.upick-force-focus-ring:focus,
+#gnbSheet.show .gnb-icon-btn.upick-force-focus-ring:focus-visible,
+#gnbSheet.show .gnb-icon-btn.upick-force-focus-ring:focus:not(:focus-visible),
+#gnbSheet.show .gnb-home-active.upick-force-focus-ring,
+#gnbSheet.show .gnb-home-active.upick-force-focus-ring:focus,
+#gnbSheet.show .gnb-home-active.upick-force-focus-ring:focus-visible,
+#gnbSheet.show .gnb-home-active.upick-force-focus-ring:focus:not(:focus-visible) {
+  outline: 4px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,.78),
+    0 0 26px rgba(37,99,235,.86),
+    0 12px 28px rgba(15,23,42,.26),
+    inset 0 0 0 1px rgba(255,255,255,.76),
+    inset 0 1px 0 rgba(255,255,255,.45) !important;
+  border-radius: 14px !important;
+  position: relative !important;
+  z-index: 50 !important;
+  transform: scale(1.06) !important;
+}
+
+#gnbSheet.show .gnb-icon-btn:focus:not(:focus-visible):not(.upick-force-focus-ring),
+#gnbSheet.show .gnb-close:focus:not(:focus-visible):not(.upick-force-focus-ring) {
+  outline: none !important;
+}
