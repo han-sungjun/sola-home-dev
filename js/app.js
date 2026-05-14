@@ -3306,12 +3306,26 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  return collection(db, 'users', state.currentUser.uid, 'favorites');
  }
 
+ function restoreFavoriteButtonFocus(id){
+ if(!id) return;
+ const selector = `.fav-icon-btn[data-favorite-id="${CSS.escape(id)}"], .fav-iconbtn[data-favorite-id="${CSS.escape(id)}"], .fav-btn[data-favorite-id="${CSS.escape(id)}"]`;
+ const restore = () => {
+ const btn = document.querySelector(selector);
+ if(btn && typeof btn.focus === 'function') btn.focus({preventScroll:true});
+ };
+ requestAnimationFrame(restore);
+ setTimeout(restore, 80);
+ setTimeout(restore, 220);
+ }
+
  function subscribeFavorites(){
  const favoritesRef = getFavoritesCollectionRef();
  if(!favoritesRef) return;
  onSnapshot(favoritesRef, (snapshot) => {
+ const activeFavoriteId = document.activeElement?.dataset?.favoriteId || '';
  state.favoriteIds = snapshot.docs.map((d) => d.id);
  renderAll();
+ if(activeFavoriteId) restoreFavoriteButtonFocus(activeFavoriteId);
  }, (error) => {
  console.error('즐겨찾기 로드 실패', error);
  });
@@ -3340,6 +3354,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
 
  state.favoriteIds = Array.from(set);
  renderAll();
+ restoreFavoriteButtonFocus(id);
  return isAdding;
  }catch(error){
  console.error('즐겨찾기 저장 실패', id, error);
@@ -5249,8 +5264,8 @@ ${item.content || ''}`);
  ${distanceTag}
 
  </div>
- <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
- <div class="actions"><button class="btn btn-soft fav-btn">${favIcon}</button></div>`;
+ <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" data-favorite-id="${item.id}" aria-pressed="${isFavorite ? 'true' : 'false'}" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
+ <div class="actions"><button class="btn btn-soft fav-btn" type="button" data-favorite-id="${item.id}" aria-pressed="${isFavorite ? 'true' : 'false'}" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button></div>`;
  }
  function updateBenefitViewModeButtons(){
  const isList = state.benefitViewMode !== 'card';

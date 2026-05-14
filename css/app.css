@@ -19039,3 +19039,29 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
 #favoriteList .card .fav-iconbtn:focus-visible img{
   filter:drop-shadow(0 0 0 rgba(37,99,235,.55))!important;
 }
+
+
+/* ===== accessibility: global header icon focus ring fix =====
+   glass/overflow 계열 버튼도 키보드 포커스 링이 잘리지 않도록 내부+외부 링을 함께 표시합니다. */
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn{
+  overflow:visible!important;
+}
+
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus-visible{
+  outline:none!important;
+  border-color:#2563eb!important;
+  box-shadow:
+    0 0 0 3px rgba(37,99,235,.55),
+    0 0 0 6px rgba(37,99,235,.18),
+    inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
