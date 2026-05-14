@@ -176,3 +176,83 @@ img[alt=""]{speak:none;}
 #gnbSheet input:focus-visible{
   scroll-margin-top:88px;
 }
+
+/* A11Y GNB focus hotfix v3: GNB 버튼/닫기 버튼 위치 안정화 */
+#gnbToggleBtn,
+#globalGnbBtn,
+.gnb-wrap > .icon-btn{
+  box-sizing:border-box!important;
+  border-width:1px!important;
+  flex:0 0 auto!important;
+}
+#gnbToggleBtn:focus,
+#gnbToggleBtn:focus-visible,
+#globalGnbBtn:focus,
+#globalGnbBtn:focus-visible,
+.gnb-wrap > .icon-btn:focus,
+.gnb-wrap > .icon-btn:focus-visible{
+  outline:3px solid #7aa7ff!important;
+  outline-offset:4px!important;
+  box-shadow:0 0 0 4px rgba(255,255,255,.92),0 0 0 8px rgba(37,99,235,.52),0 14px 28px rgba(15,23,42,.12)!important;
+  border-color:rgba(255,255,255,.92)!important;
+  transform:none!important;
+  position:relative!important;
+  z-index:20!important;
+}
+#gnbToggleBtn:focus:not(:focus-visible),
+#globalGnbBtn:focus:not(:focus-visible),
+.gnb-wrap > .icon-btn:focus:not(:focus-visible){
+  outline:3px solid #7aa7ff!important;
+  outline-offset:4px!important;
+}
+#gnbToggleBtn img,
+#globalGnbBtn img,
+.gnb-wrap > .icon-btn img{
+  pointer-events:none;
+}
+#gnbCloseBtn,
+.gnb-close{
+  position:absolute!important;
+  top:18px!important;
+  right:18px!important;
+  left:auto!important;
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  height:48px!important;
+  min-height:48px!important;
+  max-height:48px!important;
+  padding:0!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  transform:none!important;
+  flex:0 0 48px!important;
+  z-index:30!important;
+}
+#gnbCloseBtn:hover,
+#gnbCloseBtn:focus,
+#gnbCloseBtn:focus-visible,
+.gnb-close:hover,
+.gnb-close:focus,
+.gnb-close:focus-visible{
+  top:18px!important;
+  right:18px!important;
+  left:auto!important;
+  width:48px!important;
+  height:48px!important;
+  transform:none!important;
+  outline:3px solid #fff!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.78),0 12px 28px rgba(15,23,42,.20)!important;
+}
+#gnbCloseBtn:active,
+.gnb-close:active{
+  transform:none!important;
+}
+.gnb-icons{
+  padding-right:72px!important;
+}
