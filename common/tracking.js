@@ -30,7 +30,7 @@ const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION
 globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
 const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
 
-const { db, auth } = await import(__solaNoCache("./common/firebase-config.js"));
+const { db, auth } = await import(__solaNoCache("/common/firebase-config.js"));
 
 // READ OPTIMIZED: 관리자 통계는 당일 전체 문서를 모두 읽지 않고 최근 N건 기준으로 집계합니다.
 const TRACKING_STATS_LIMIT = 300;

@@ -11,7 +11,7 @@ const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION
 globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
 const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
 
-const { ENV, FIREBASE_CONFIG } = await import(__solaNoCache("./common/env-config.js"));
+const { ENV, FIREBASE_CONFIG } = await import(__solaNoCache("/common/env-config.js"));
 
 const firebaseConfig = FIREBASE_CONFIG[ENV];
 
