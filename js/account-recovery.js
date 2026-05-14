@@ -387,6 +387,8 @@ qs('#findNicknameBtn')?.addEventListener('click', async (event) => {
           confirmText: '확인',
           onConfirm: () => closeSheet(),
         });
+      },
+    });
   } catch (error) {
     setButtonLoading(btn, false);
     setResult(fields.findNicknameResult, error.message, 'error');
