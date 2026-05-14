@@ -4437,22 +4437,32 @@ body {
 
 
 /* 로그인 도움 / 계정 복구 기능 */
-.login-support-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 10px 0 12px;
-  font-size: 13px;
-  color: #64748b;
+.login-support-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:nowrap;
 }
-.save-id-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
+
+.login-help-links{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  flex-wrap:nowrap;
+  white-space:nowrap;
+  font-size:13px;
+}
+
+.login-help-link{
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+
+.save-id-check{
+  flex:0 0 auto;
+  white-space:nowrap;
 }
 .save-id-check input {
   width: 15px;
