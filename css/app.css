@@ -19224,3 +19224,34 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
   z-index: 20 !important;
   transform: scale(1.06) !important;
 }
+
+/* ===== GNB header close alignment + password change ===== */
+.gnb-icons{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+}
+
+.gnb-icons .gnb-close{
+  margin-left:auto !important;
+}
+
+#passwordChangeModal .password-live-message{
+  margin:8px 2px 0;
+  font-size:12px;
+  line-height:1.4;
+  color:#64748b;
+}
+
+#passwordChangeModal .password-live-message.success{
+  color:#16a34a;
+}
+
+#passwordChangeModal .password-live-message.error{
+  color:#dc2626;
+}
+
+#passwordChangeModal .password-live-message.info{
+  color:#2563eb;
+}

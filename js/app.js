@@ -1875,6 +1875,134 @@ function setPushStatusUi(enabled){
  await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
  }
  }
+
+function resetPasswordChangeForm(){
+  ['#currentPasswordInput','#newPasswordInput','#newPasswordConfirmInput'].forEach((selector) => {
+    const el = qs(selector);
+    if(el) el.value = '';
+  });
+  const msg = qs('#passwordChangeMatchMessage');
+  if(msg){
+    msg.textContent = '';
+    msg.className = 'password-live-message';
+  }
+}
+
+function updatePasswordChangeMatchMessage(){
+  const pw = qs('#newPasswordInput')?.value || '';
+  const confirm = qs('#newPasswordConfirmInput')?.value || '';
+  const msg = qs('#passwordChangeMatchMessage');
+  if(!msg) return;
+  msg.className = 'password-live-message';
+  if(!pw && !confirm){
+    msg.textContent = '';
+    return;
+  }
+  if(pw.length > 0 && pw.length < 6){
+    msg.textContent = '새 비밀번호는 6자 이상 입력해주세요.';
+    msg.classList.add('error');
+    return;
+  }
+  if(!confirm){
+    msg.textContent = '새 비밀번호 확인란을 입력해주세요.';
+    msg.classList.add('info');
+    return;
+  }
+  if(pw === confirm){
+    msg.textContent = '새 비밀번호가 일치합니다.';
+    msg.classList.add('success');
+  }else{
+    msg.textContent = '새 비밀번호가 일치하지 않습니다.';
+    msg.classList.add('error');
+  }
+}
+
+function openPasswordChangeModal(){
+  const modal = qs('#passwordChangeModal');
+  if(!modal) return;
+  resetPasswordChangeForm();
+  if(modal.open) modal.close();
+  modal.showModal();
+  requestAnimationFrame(() => qs('#currentPasswordInput')?.focus());
+}
+
+function closePasswordChangeModal(){
+  const modal = qs('#passwordChangeModal');
+  if(modal?.open) modal.close();
+  resetPasswordChangeForm();
+}
+
+async function submitPasswordChange(event){
+  event?.preventDefault?.();
+  const currentPassword = qs('#currentPasswordInput')?.value || '';
+  const newPassword = qs('#newPasswordInput')?.value || '';
+  const newPasswordConfirm = qs('#newPasswordConfirmInput')?.value || '';
+  const submitBtn = qs('#submitPasswordChangeBtn');
+
+  if(!currentPassword){
+    await openModalAlert('기존 비밀번호를 입력해주세요.', qs('#currentPasswordInput'));
+    return;
+  }
+  if(!newPassword || newPassword.length < 6){
+    await openModalAlert('새 비밀번호는 6자 이상 입력해주세요.', qs('#newPasswordInput'));
+    return;
+  }
+  if(newPassword !== newPasswordConfirm){
+    await openModalAlert('새 비밀번호가 일치하지 않습니다.', qs('#newPasswordConfirmInput'));
+    return;
+  }
+  if(currentPassword === newPassword){
+    await openModalAlert('기존 비밀번호와 다른 비밀번호를 입력해주세요.', qs('#newPasswordInput'));
+    return;
+  }
+
+  try{
+    if(submitBtn){
+      submitBtn.disabled = true;
+      submitBtn.dataset.originalText = submitBtn.textContent;
+      submitBtn.textContent = '변경 중...';
+    }
+
+    const idToken = await auth.currentUser?.getIdToken?.(true);
+    if(!idToken){
+      await openModalAlert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
+      redirectToLogin();
+      return;
+    }
+
+    const response = await fetch(API_URL[ENV].changePasswordWithCurrent, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${idToken}`
+      },
+      body:JSON.stringify({ currentPassword, newPassword, newPasswordConfirm })
+    });
+
+    let data = {};
+    try{ data = await response.json(); }catch(_){}
+
+    if(!response.ok || data.ok === false){
+      throw new Error(data.message || '비밀번호 변경 처리 중 오류가 발생했습니다.');
+    }
+
+    closePasswordChangeModal();
+    await openModalAlert(data.message || '비밀번호 변경이 완료되었습니다. 보안을 위해 다시 로그인해주세요.');
+    try{ await logoutServerSession(auth, API_URL[ENV]); }catch(_){}
+    try{ await signOut(auth); }catch(_){}
+    redirectToLogin();
+  }catch(error){
+    console.error('비밀번호 변경 실패', error);
+    await openModalAlert(error.message || '비밀번호 변경 처리 중 오류가 발생했습니다.', qs('#submitPasswordChangeBtn'));
+  }finally{
+    if(submitBtn){
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtn.dataset.originalText || '비밀번호 변경';
+      delete submitBtn.dataset.originalText;
+    }
+  }
+}
+
 async function enablePushNotifications(){
  try{
  if(!state.currentUser?.uid){
@@ -11332,6 +11460,17 @@ document.addEventListener('keydown', (event) => {
  qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
  qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
  qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
+ qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
+ qs('#openPasswordChangeBtn')?.addEventListener('click', openPasswordChangeModal);
+ qs('#closePasswordChangeModal')?.addEventListener('click', closePasswordChangeModal);
+ qs('#cancelPasswordChangeBtn')?.addEventListener('click', closePasswordChangeModal);
+ qs('#passwordChangeForm')?.addEventListener('submit', submitPasswordChange);
+ qs('#newPasswordInput')?.addEventListener('input', updatePasswordChangeMatchMessage);
+ qs('#newPasswordConfirmInput')?.addEventListener('input', updatePasswordChangeMatchMessage);
+ qs('#passwordChangeModal')?.addEventListener('click', (event) => {
+ const modal = qs('#passwordChangeModal');
+ if(event.target === modal) closePasswordChangeModal();
+ });
  qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
  qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
  qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
