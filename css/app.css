@@ -19004,3 +19004,38 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
   position:relative;
   z-index:5;
 }
+
+/* ===== accessibility: favorite star focus ring strong override =====
+   기존 #cardList.view-* .fav-icon-btn { box-shadow:none!important; } 보다
+   더 높은 우선순위로 포커스 링을 다시 살립니다. */
+#cardList.view-card .card .fav-icon-btn:focus,
+#cardList.view-card .card .fav-icon-btn:focus-visible,
+#cardList.view-list .card .fav-icon-btn:focus,
+#cardList.view-list .card .fav-icon-btn:focus-visible,
+#favoriteList .card .fav-icon-btn:focus,
+#favoriteList .card .fav-icon-btn:focus-visible,
+#cardList.view-card .card .fav-iconbtn:focus,
+#cardList.view-card .card .fav-iconbtn:focus-visible,
+#cardList.view-list .card .fav-iconbtn:focus,
+#cardList.view-list .card .fav-iconbtn:focus-visible,
+#favoriteList .card .fav-iconbtn:focus,
+#favoriteList .card .fav-iconbtn:focus-visible{
+  outline:none!important;
+  border-radius:999px!important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.55)!important;
+}
+
+#cardList.view-card .card .fav-icon-btn:focus img,
+#cardList.view-card .card .fav-icon-btn:focus-visible img,
+#cardList.view-list .card .fav-icon-btn:focus img,
+#cardList.view-list .card .fav-icon-btn:focus-visible img,
+#favoriteList .card .fav-icon-btn:focus img,
+#favoriteList .card .fav-icon-btn:focus-visible img,
+#cardList.view-card .card .fav-iconbtn:focus img,
+#cardList.view-card .card .fav-iconbtn:focus-visible img,
+#cardList.view-list .card .fav-iconbtn:focus img,
+#cardList.view-list .card .fav-iconbtn:focus-visible img,
+#favoriteList .card .fav-iconbtn:focus img,
+#favoriteList .card .fav-iconbtn:focus-visible img{
+  filter:drop-shadow(0 0 0 rgba(37,99,235,.55))!important;
+}
