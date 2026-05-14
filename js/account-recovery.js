@@ -226,40 +226,59 @@ function switchTab(mode) {
   if (mode === 'nickname' && fields.findNicknameLoginId && !fields.findNicknameLoginId.value) fields.findNicknameLoginId.value = currentLoginId;
   if (mode === 'reset' && fields.resetLoginId && !fields.resetLoginId.value) fields.resetLoginId.value = currentLoginId;
 }
-function showAppAlert({ title = '안내', message = '', confirmText = '확인', cancelText = '', closeSheetOnConfirm = false }) {
+function showAppAlert({
+  title = '안내',
+  message = '',
+  confirmText = '확인',
+  cancelText = '',
+  closeSheetOnConfirm = false,
+  onConfirm = null,
+  onCancel = null,
+} = {}) {
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
     window.alert(message);
+    if (typeof onConfirm === 'function') onConfirm();
     if (closeSheetOnConfirm) closeSheet();
-    return Promise.resolve(true);
+    return Promise.resolve({ action: 'confirm', value: true });
   }
+
   // 바텀시트/로딩바 내부 stacking context에 밀리지 않도록 항상 body 최상단 레이어로 이동
-  if (alertEl.parentElement !== document.body) {
-    document.body.appendChild(alertEl);
-  } else {
-    document.body.appendChild(alertEl);
-  }
+  document.body.appendChild(alertEl);
+
   alertTitleEl.textContent = title;
   alertMsgEl.textContent = message;
   alertConfirmEl.textContent = confirmText;
   alertCancelEl.textContent = cancelText || '취소';
   alertCancelEl.classList.toggle('hidden', !cancelText);
+
   alertEl.classList.add('show');
   alertEl.setAttribute('aria-hidden', 'false');
   alertConfirmEl.focus();
+
   return new Promise((resolve) => {
-    alertResolver = (value) => {
+    alertResolver = async (action) => {
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
+
+      const isConfirm = action === 'confirm';
+      const callback = isConfirm ? onConfirm : onCancel;
+
       alertResolver = null;
-      if (value && closeSheetOnConfirm) {
-        closeSheet();
+
+      try {
+        if (typeof callback === 'function') {
+          await callback();
+        } else if (isConfirm && closeSheetOnConfirm) {
+          closeSheet();
+        }
+      } finally {
+        resolve({ action, value: isConfirm });
       }
-      resolve(value);
     };
   });
 }
-alertConfirmEl?.addEventListener('click', () => alertResolver?.(true));
-alertCancelEl?.addEventListener('click', () => alertResolver?.(false));
+alertConfirmEl?.addEventListener('click', () => alertResolver?.('confirm'));
+alertCancelEl?.addEventListener('click', () => alertResolver?.('cancel'));
 
 function hydrateSavedLoginId() {
   const saved = localStorage.getItem(SAVE_LOGIN_ID_KEY) || '';
@@ -343,17 +362,18 @@ qs('#findNicknameBtn')?.addEventListener('click', async (event) => {
     const data = await postJson(API.findNicknameByLoginId, { loginId });
     setResult(fields.findNicknameResult, `확인된 닉네임: ${data.nicknameMasked || data.nickname || ''}`, 'success');
     setButtonLoading(btn, false);
-    const keepMaskedOnly = await showAppAlert({
+    await showAppAlert({
       title: '닉네임 찾기',
       message: `가입된 닉네임은 ${data.nicknameMasked || data.nickname} 입니다.\n전체 닉네임을 확인하시겠습니까?`,
       confirmText: '확인',
       cancelText: '전체 보기',
+      onConfirm: () => closeSheet(),
+      onCancel: () => showAppAlert({
+        title: '닉네임 찾기',
+        message: `전체 닉네임은 ${data.nickname} 입니다.`,
+        closeSheetOnConfirm: true,
+      }),
     });
-    if (keepMaskedOnly) {
-      closeSheet();
-    } else {
-      await showAppAlert({ title: '닉네임 찾기', message: `전체 닉네임은 ${data.nickname} 입니다.`, closeSheetOnConfirm: true });
-    }
   } catch (error) {
     setButtonLoading(btn, false);
     setResult(fields.findNicknameResult, error.message, 'error');
@@ -378,18 +398,21 @@ qs('#findIdBtn')?.addEventListener('click', async (event) => {
     const data = await postJson(API.findLoginIdByNickname, { nickname });
     setResult(fields.findIdResult, `확인된 아이디: ${data.loginIdMasked || data.loginId || ''}`, 'success');
     setButtonLoading(btn, false);
-    const keepMaskedOnly = await showAppAlert({
+    await showAppAlert({
       title: '아이디 찾기',
       message: `가입된 아이디는 ${data.loginIdMasked || data.loginId} 입니다.\n전체 아이디를 확인하시겠습니까?`,
       confirmText: '확인',
       cancelText: '전체 보기',
+      onConfirm: () => closeSheet(),
+      onCancel: () => {
+        if (loginIdEl && data.loginId) loginIdEl.value = data.loginId;
+        return showAppAlert({
+          title: '아이디 찾기',
+          message: `전체 아이디는 ${data.loginId} 입니다.`,
+          closeSheetOnConfirm: true,
+        });
+      },
     });
-    if (keepMaskedOnly) {
-      closeSheet();
-    } else {
-      if (loginIdEl && data.loginId) loginIdEl.value = data.loginId;
-      await showAppAlert({ title: '아이디 찾기', message: `전체 아이디는 ${data.loginId} 입니다.`, closeSheetOnConfirm: true });
-    }
   } catch (error) {
     setButtonLoading(btn, false);
     setResult(fields.findIdResult, error.message, 'error');
