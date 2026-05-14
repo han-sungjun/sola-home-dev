@@ -1488,10 +1488,8 @@ function setPushStatusUi(enabled){
 
  alertConfirmEl.addEventListener('click', () => closeModal(true));
  alertCancelEl.addEventListener('click', () => closeModal(false));
- alertEl.addEventListener('click', (event) => {
- if(event.target === alertEl) closeModal(false);
- });
- window.addEventListener('keydown', (event) => {
+ // 앱 알림은 바깥 영역 클릭으로 닫지 않습니다.
+window.addEventListener('keydown', (event) => {
  if(!alertEl.classList.contains('show')) return;
  if(event.key === 'Escape') closeModal(false);
  });
@@ -1820,7 +1818,19 @@ function setPushStatusUi(enabled){
  }
  }
 
- function openAccountEditModal(){
+ 
+function preventBackdropClose(event){
+  if(event.target === event.currentTarget){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
+['#accountEditModal', '#passwordChangeModal', '#appAlert'].forEach((selector) => {
+  qs(selector)?.addEventListener('click', preventBackdropClose, true);
+});
+
+function openAccountEditModal(){
  fillAccountEditForm();
  const modal = qs('#accountEditModal');
  if(!modal) return;
@@ -11467,10 +11477,7 @@ document.addEventListener('keydown', (event) => {
  qs('#passwordChangeForm')?.addEventListener('submit', submitPasswordChange);
  qs('#newPasswordInput')?.addEventListener('input', updatePasswordChangeMatchMessage);
  qs('#newPasswordConfirmInput')?.addEventListener('input', updatePasswordChangeMatchMessage);
- qs('#passwordChangeModal')?.addEventListener('click', (event) => {
- const modal = qs('#passwordChangeModal');
- if(event.target === modal) closePasswordChangeModal();
- });
+ // 비밀번호 변경 모달은 바깥 영역 클릭으로 닫지 않습니다.
  qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
  qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
  qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
@@ -11482,10 +11489,7 @@ document.addEventListener('keydown', (event) => {
  });
  syncFontSizeSettingUi();
 
- qs('#accountEditModal')?.addEventListener('click', (event) => {
- const modal = qs('#accountEditModal');
- if(event.target === modal) closeAccountEditModal();
- });
+ // 계정 정보 수정 모달은 바깥 영역 클릭으로 닫지 않습니다.
  qs('#withdrawBtn')?.addEventListener('click', withdrawCurrentUser);
 
  qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await logoutServerSession(auth, API_URL[ENV]); await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
