@@ -18990,3 +18990,43 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
   visibility:visible!important;
   opacity:1!important;
 }
+
+/* ===== upick-a11y-benefit-favorite-focus-fix =====
+   혜택 목록 카드 내부 즐겨찾기 버튼 키보드 포커스 링 보정
+   - card(article[role="button"]) 다음 Tab 진입 시 별 버튼에도 링 표시
+   - 기존 outline:none / box-shadow:none 재정의보다 뒤에서 강하게 적용
+*/
+#cardList .fav-icon-btn:focus,
+#cardList .fav-iconbtn:focus,
+#favoriteList .fav-icon-btn:focus,
+#favoriteList .fav-iconbtn:focus{
+  outline:none !important;
+}
+
+#cardList .fav-icon-btn:focus-visible,
+#cardList .fav-iconbtn:focus-visible,
+#favoriteList .fav-icon-btn:focus-visible,
+#favoriteList .fav-iconbtn:focus-visible{
+  outline:3px solid #2563eb !important;
+  outline-offset:4px !important;
+  border-radius:999px !important;
+  box-shadow:
+    0 0 0 4px rgba(37,99,235,.20),
+    0 10px 22px rgba(15,23,42,.10) !important;
+  position:relative !important;
+  z-index:20 !important;
+}
+
+#cardList .fav-icon-btn:focus:not(:focus-visible),
+#cardList .fav-iconbtn:focus:not(:focus-visible),
+#favoriteList .fav-icon-btn:focus:not(:focus-visible),
+#favoriteList .fav-iconbtn:focus:not(:focus-visible){
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+/* 카드형에서 우측 상단 즐겨찾기 버튼 링이 카드 영역 밖으로 잘리지 않도록 보정 */
+#cardList.view-card .card,
+#favoriteList .card{
+  overflow:visible !important;
+}
