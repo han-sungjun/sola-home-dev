@@ -9695,19 +9695,35 @@ async function askAiAssistant(rawQuestion=''){
  const gnbCloseBtn = qs('#gnbCloseBtn');
 
  function openGnb(){
- gnbSheet?.classList.add('show');
+ if(!gnbSheet) return;
+ gnbSheet.classList.add('show');
  gnbOverlay?.classList.add('show');
- gnbSheet?.setAttribute('aria-hidden', 'false');
+ gnbSheet.setAttribute('aria-hidden', 'false');
  gnbToggleBtn?.setAttribute('aria-expanded', 'true');
- gnbSheet?.classList.remove('gnb-enter');
+
+ // 접근성 포커스와 진입 애니메이션이 동시에 실행되면 PC/모바일에서
+ // 첫 렌더링이 깨져 보일 수 있어, 표시 -> 레이아웃 안정화 -> 포커스 순서로 분리합니다.
+ gnbSheet.classList.remove('gnb-enter');
+ gnbSheet.classList.add('gnb-opening');
  requestAnimationFrame(() => {
-   gnbSheet?.classList.add('gnb-enter');
-   const firstFocusTarget = gnbCloseBtn || gnbSheet?.querySelector('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-   firstFocusTarget?.focus?.({ preventScroll:true });
+   requestAnimationFrame(() => {
+     if(!gnbSheet.classList.contains('show')) return;
+     gnbSheet.classList.remove('gnb-opening');
+     gnbSheet.classList.add('gnb-enter');
+   });
  });
+
  document.body.style.overflow = 'hidden';
  document.body.classList.add('gnb-open');
- const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
+
+ window.clearTimeout(window.__upickGnbFocusTimer);
+ window.__upickGnbFocusTimer = window.setTimeout(() => {
+   if(!gnbSheet.classList.contains('show')) return;
+   const firstFocusTarget = gnbCloseBtn || gnbSheet.querySelector('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+   firstFocusTarget?.focus?.({ preventScroll:true });
+ }, 260);
+
+ const homeBtn = gnbSheet.querySelector('.gnb-home-active');
  if(homeBtn){
  homeBtn.animate(
  [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
@@ -9719,20 +9735,21 @@ async function askAiAssistant(rawQuestion=''){
 
  function closeGnb(){
  const closeBtn = gnbCloseBtn;
+ window.clearTimeout(window.__upickGnbFocusTimer);
  closeBtn?.animate(
  [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
  { duration:180, easing:'ease-out' }
  );
- gnbSheet?.classList.remove('show');
+ gnbSheet?.classList.remove('show','gnb-enter','gnb-opening');
  gnbOverlay?.classList.remove('show');
  gnbSheet?.setAttribute('aria-hidden', 'true');
  gnbToggleBtn?.setAttribute('aria-expanded', 'false');
  document.body.style.overflow = '';
  document.body.classList.remove('gnb-open');
  gnbSheet?.style.removeProperty('transform');
- requestAnimationFrame(() => {
+ setTimeout(() => {
    gnbToggleBtn?.focus?.({ preventScroll:true });
- });
+ }, 160);
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {

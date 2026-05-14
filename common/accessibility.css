@@ -148,3 +148,31 @@ img[alt=""]{speak:none;}
 #gnbSheet.show[aria-hidden="false"]{
   visibility:visible;
 }
+
+/* GNB 포커스/렌더링 안정화 보정 */
+#gnbSheet:focus,
+#gnbSheet:focus-visible,
+.gnb-sheet:focus,
+.gnb-sheet:focus-visible{
+  outline:none!important;
+  box-shadow:none!important;
+}
+.gnb-sheet.gnb-opening .gnb-chip,
+.gnb-sheet.gnb-opening .gnb-menu-item,
+.gnb-sheet.gnb-opening .gnb-menu-subitem,
+.gnb-sheet.gnb-opening .gnb-banner,
+.gnb-sheet.gnb-opening .gnb-section-title,
+.gnb-sheet.gnb-opening .gnb-menu-group-title{
+  animation:none!important;
+}
+#gnbCloseBtn:focus-visible,
+.gnb-icon-btn:focus-visible{
+  outline:3px solid #fff!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.8)!important;
+}
+#gnbSheet button:focus-visible,
+#gnbSheet a:focus-visible,
+#gnbSheet input:focus-visible{
+  scroll-margin-top:88px;
+}
