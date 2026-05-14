@@ -9777,6 +9777,19 @@ async function askAiAssistant(rawQuestion=''){
     setTimeout(() => {
       try { homeBtn.focus({ preventScroll: true }); }
       catch(_) { homeBtn.focus(); }
+
+      // Some entry paths open the GNB after scripted view changes, and Chrome may not
+      // paint :focus-visible even though focus is correctly on the first button.
+      // Force the visual ring for the initial GNB focus, then remove it when focus moves.
+      homeBtn.classList.add('upick-force-focus-ring');
+      const clearForcedRing = () => homeBtn.classList.remove('upick-force-focus-ring');
+      homeBtn.addEventListener('blur', clearForcedRing, { once:true });
+      homeBtn.addEventListener('keydown', function clearOnTab(event){
+        if(event.key === 'Tab'){
+          clearForcedRing();
+          homeBtn.removeEventListener('keydown', clearOnTab);
+        }
+      });
     }, 90);
   });
   setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);

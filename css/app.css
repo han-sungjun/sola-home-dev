@@ -19200,3 +19200,27 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
     0 0 0 8px rgba(37,99,235,.48),
     0 12px 26px rgba(15,23,42,.16) !important;
 }
+
+
+/* =========================================================
+   A11Y PATCH: force-visible focus ring for GNB initial focus
+   - Chrome may not apply :focus-visible after script focus in some entry paths
+   - This class is added only to the first focused GNB control on open
+   ========================================================= */
+#gnbSheet .upick-force-focus-ring,
+#gnbSheet .upick-force-focus-ring:focus,
+#gnbSheet .upick-force-focus-ring:focus-visible {
+  outline: 4px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,.78),
+    0 0 26px rgba(37,99,235,.86),
+    0 12px 28px rgba(15,23,42,.26),
+    inset 0 0 0 1px rgba(255,255,255,.76),
+    inset 0 1px 0 rgba(255,255,255,.45) !important;
+  border-radius: 14px !important;
+  position: relative !important;
+  z-index: 20 !important;
+  transform: scale(1.06) !important;
+}
