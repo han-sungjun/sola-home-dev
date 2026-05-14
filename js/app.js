@@ -9730,8 +9730,36 @@ async function askAiAssistant(rawQuestion=''){
  const gnbSheet = qs('#gnbSheet');
  const gnbOverlay = qs('#gnbOverlay');
  const gnbCloseBtn = qs('#gnbCloseBtn');
+ let lastGnbOpener = null;
 
- function openGnb(){
+ function getVisibleGnbOpener(){
+ const candidates = [
+ lastGnbOpener,
+ qs('#globalGnbBtn'),
+ qs('#gnbToggleBtn'),
+ qs('#gnbOpenBtn'),
+ qs('#openGnbBtn'),
+ qs('[data-open-gnb]'),
+ qs('.gnb-open-btn')
+ ];
+ return candidates.find((el) => el && el.focus && !el.disabled && el.offsetParent !== null) || null;
+ }
+
+ function restoreGnbOpenerFocus(){
+ const opener = getVisibleGnbOpener();
+ if(!opener) return;
+ requestAnimationFrame(() => {
+ setTimeout(() => {
+ try { opener.focus({ preventScroll:true }); }
+ catch(_) { opener.focus(); }
+ }, 40);
+ });
+ }
+
+ function openGnb(opener){
+ if(opener && opener.focus) lastGnbOpener = opener;
+ else if(document.activeElement && document.activeElement.closest && !gnbSheet?.contains(document.activeElement)) lastGnbOpener = document.activeElement;
+
  gnbSheet?.classList.add('show');
  gnbOverlay?.classList.add('show');
  gnbSheet?.setAttribute('aria-hidden', 'false');
@@ -9755,7 +9783,7 @@ async function askAiAssistant(rawQuestion=''){
  }
  }
 
- function closeGnb(){
+ function closeGnb(options = {}){
  const closeBtn = gnbCloseBtn;
  closeBtn?.animate(
  [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
@@ -9767,15 +9795,18 @@ async function askAiAssistant(rawQuestion=''){
  document.body.style.overflow = '';
  document.body.classList.remove('gnb-open');
  gnbSheet?.style.removeProperty('transform');
+ if(options.restoreFocus !== false) restoreGnbOpenerFocus();
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {
  event.stopPropagation();
- openGnb();
+ const active = document.activeElement;
+ const opener = (active && active.id === 'globalGnbBtn') ? active : event.currentTarget;
+ openGnb(opener);
  });
 
  function openGnbToSettings(){
- openGnb();
+ openGnb(document.activeElement && document.activeElement.focus ? document.activeElement : null);
  requestAnimationFrame(() => {
  const settingsSection = qs('#gnbSettingsAccountSummary');
  settingsSection?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -9906,7 +9937,7 @@ async function askAiAssistant(rawQuestion=''){
  const endX = event.changedTouches[0].clientX;
  const moved = gnbTouchStartX - endX;
  if(moved > 40){
- openGnb();
+ openGnb(qs('#globalGnbBtn') || qs('#gnbToggleBtn'));
  }
  gnbTouchStartX = 0;
  }, { passive:true });
