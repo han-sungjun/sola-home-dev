@@ -19065,3 +19065,31 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
     0 0 0 6px rgba(37,99,235,.18),
     inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
+
+/* ===== accessibility: stronger global header focus ring visibility =====
+   상단 히어로 영역은 배경이 파란 계열이라 기존 파란 링이 약하게 보여
+   흰색 내부 링 + 브랜드 블루 외부 링 + 은은한 글로우로 대비를 강화합니다. */
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus-visible{
+  outline:none!important;
+  border-color:rgba(255,255,255,.95)!important;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.98),
+    0 0 0 6px rgba(37,99,235,.92),
+    0 0 0 10px rgba(255,255,255,.28),
+    0 10px 24px rgba(15,23,42,.24),
+    inset 0 0 0 1px rgba(255,255,255,.45)!important;
+}
+
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus-visible img,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus-visible img,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus-visible img,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus-visible img{
+  transform:scale(1.04);
+}
