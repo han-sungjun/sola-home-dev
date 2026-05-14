@@ -237,6 +237,8 @@ function showAppAlert({
   onCancel = null,
 } = {}) {
   const hasCancel = !!cancelText;
+  const normalizedConfirmText = confirmText || '확인';
+  const normalizedCancelText = cancelText || '';
 
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
     window.alert(message);
@@ -250,8 +252,12 @@ function showAppAlert({
 
   alertTitleEl.textContent = title;
   alertMsgEl.textContent = message;
-  alertConfirmEl.textContent = confirmText || '확인';
-  alertCancelEl.textContent = cancelText || '취소';
+
+  alertConfirmEl.textContent = normalizedConfirmText;
+  alertConfirmEl.setAttribute('aria-label', normalizedConfirmText);
+
+  alertCancelEl.textContent = normalizedCancelText || '취소';
+  alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
   alertEl.classList.add('show');
@@ -264,10 +270,12 @@ function showAppAlert({
 
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
-      alertResolver = null;
 
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
+
+      // 다음 알럿을 콜백 안에서 띄울 수 있도록 현재 resolver를 먼저 해제합니다.
+      alertResolver = null;
 
       try {
         if (typeof callback === 'function') {
@@ -372,12 +380,13 @@ qs('#findNicknameBtn')?.addEventListener('click', async (event) => {
       confirmText: '확인',
       cancelText: '전체 보기',
       onConfirm: () => closeSheet(),
-      onCancel: () => showAppAlert({
-        title: '닉네임 찾기',
-        message: `전체 닉네임은 ${data.nickname} 입니다.`,
-        closeSheetOnConfirm: true,
-      }),
-    });
+      onCancel: async () => {
+        await showAppAlert({
+          title: '닉네임 찾기',
+          message: `전체 닉네임은 ${data.nickname} 입니다.`,
+          confirmText: '확인',
+          onConfirm: () => closeSheet(),
+        });
   } catch (error) {
     setButtonLoading(btn, false);
     setResult(fields.findNicknameResult, error.message, 'error');
@@ -408,12 +417,13 @@ qs('#findIdBtn')?.addEventListener('click', async (event) => {
       confirmText: '확인',
       cancelText: '전체 보기',
       onConfirm: () => closeSheet(),
-      onCancel: () => {
+      onCancel: async () => {
         if (loginIdEl && data.loginId) loginIdEl.value = data.loginId;
-        return showAppAlert({
+        await showAppAlert({
           title: '아이디 찾기',
           message: `전체 아이디는 ${data.loginId} 입니다.`,
-          closeSheetOnConfirm: true,
+          confirmText: '확인',
+          onConfirm: () => closeSheet(),
         });
       },
     });
