@@ -59,12 +59,15 @@ function setResult(el, message = '', type = 'info') {
 function setButtonLoading(btn, loading, text) {
   if (!btn) return;
   if (loading) {
-    btn.dataset.originalText = btn.textContent;
+    if (!btn.dataset.originalText || !btn.disabled) {
+      btn.dataset.originalText = btn.textContent;
+    }
     btn.disabled = true;
     btn.textContent = text || '처리 중...';
   } else {
     btn.disabled = false;
     btn.textContent = btn.dataset.originalText || btn.textContent;
+    delete btn.dataset.originalText;
   }
 }
 async function postJson(url, body) {
@@ -208,7 +211,9 @@ function showAppAlert({ title = '안내', message = '', confirmText = '확인', 
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
       alertResolver = null;
-      if (value && closeSheetOnConfirm) closeSheet();
+      if (value && closeSheetOnConfirm) {
+        closeSheet();
+      }
       resolve(value);
     };
   });
@@ -297,20 +302,23 @@ qs('#findNicknameBtn')?.addEventListener('click', async (event) => {
   try {
     const data = await postJson(API.findNicknameByLoginId, { loginId });
     setResult(fields.findNicknameResult, `확인된 닉네임: ${data.nicknameMasked || data.nickname || ''}`, 'success');
+    setButtonLoading(btn, false);
     const showFull = await showAppAlert({
       title: '닉네임 찾기',
       message: `가입된 닉네임은 ${data.nicknameMasked || data.nickname} 입니다.\n전체 닉네임을 확인하시겠습니까?`,
       confirmText: '전체 보기',
-      cancelText: '아이디 재입력',
+      cancelText: '확인',
     });
     if (showFull) {
       await showAppAlert({ title: '닉네임 찾기', message: `전체 닉네임은 ${data.nickname} 입니다.`, closeSheetOnConfirm: true });
     } else {
-      fields.findNicknameLoginId?.focus();
+      closeSheet();
     }
   } catch (error) {
+    setButtonLoading(btn, false);
     setResult(fields.findNicknameResult, error.message, 'error');
     await showAppAlert({ message: error.message || '아이디를 확인해주세요.' });
+    requestAnimationFrame(() => fields.findNicknameLoginId?.focus?.());
   } finally {
     setButtonLoading(btn, false);
   }
@@ -329,21 +337,24 @@ qs('#findIdBtn')?.addEventListener('click', async (event) => {
   try {
     const data = await postJson(API.findLoginIdByNickname, { nickname });
     setResult(fields.findIdResult, `확인된 아이디: ${data.loginIdMasked || data.loginId || ''}`, 'success');
+    setButtonLoading(btn, false);
     const showFull = await showAppAlert({
       title: '아이디 찾기',
       message: `가입된 아이디는 ${data.loginIdMasked || data.loginId} 입니다.\n전체 아이디를 확인하시겠습니까?`,
       confirmText: '전체 보기',
-      cancelText: '닉네임 재입력',
+      cancelText: '확인',
     });
     if (showFull) {
       if (loginIdEl && data.loginId) loginIdEl.value = data.loginId;
       await showAppAlert({ title: '아이디 찾기', message: `전체 아이디는 ${data.loginId} 입니다.`, closeSheetOnConfirm: true });
     } else {
-      fields.findIdNickname?.focus();
+      closeSheet();
     }
   } catch (error) {
+    setButtonLoading(btn, false);
     setResult(fields.findIdResult, error.message, 'error');
     await showAppAlert({ message: error.message || '닉네임이 올바른지 확인해주세요.' });
+    requestAnimationFrame(() => fields.findIdNickname?.focus?.());
   } finally {
     setButtonLoading(btn, false);
   }
