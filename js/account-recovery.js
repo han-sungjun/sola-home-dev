@@ -232,9 +232,12 @@ function showAppAlert({
   confirmText = '확인',
   cancelText = '',
   closeSheetOnConfirm = false,
+  closeSheetOnCancel = false,
   onConfirm = null,
   onCancel = null,
 } = {}) {
+  const hasCancel = !!cancelText;
+
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
     window.alert(message);
     if (typeof onConfirm === 'function') onConfirm();
@@ -247,28 +250,29 @@ function showAppAlert({
 
   alertTitleEl.textContent = title;
   alertMsgEl.textContent = message;
-  alertConfirmEl.textContent = confirmText;
+  alertConfirmEl.textContent = confirmText || '확인';
   alertCancelEl.textContent = cancelText || '취소';
-  alertCancelEl.classList.toggle('hidden', !cancelText);
+  alertCancelEl.classList.toggle('hidden', !hasCancel);
 
   alertEl.classList.add('show');
   alertEl.setAttribute('aria-hidden', 'false');
   alertConfirmEl.focus();
 
   return new Promise((resolve) => {
-    alertResolver = async (action) => {
+    alertResolver = async (action = 'confirm') => {
+      const isConfirm = action === 'confirm';
+
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
-
-      const isConfirm = action === 'confirm';
-      const callback = isConfirm ? onConfirm : onCancel;
-
       alertResolver = null;
+
+      const callback = isConfirm ? onConfirm : onCancel;
+      const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
       try {
         if (typeof callback === 'function') {
           await callback();
-        } else if (isConfirm && closeSheetOnConfirm) {
+        } else if (shouldCloseSheet) {
           closeSheet();
         }
       } finally {
@@ -447,7 +451,7 @@ qs('#resetPwSubmitBtn')?.addEventListener('click', async (event) => {
     await showAppAlert({
       title: '비밀번호 재설정 완료',
       message: data.message || '비밀번호 재설정이 완료되었습니다. 재로그인 하시면 됩니다.',
-      closeSheetOnConfirm: true,
+      onConfirm: () => closeSheet(),
     });
   } catch (error) {
     setResult(fields.resetResult, error.message, 'error');
