@@ -2,6 +2,7 @@
   "name": "sola-home-web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "firebase-admin": "^12.7.0"
   },
