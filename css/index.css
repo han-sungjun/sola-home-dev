@@ -389,9 +389,18 @@
         transition:opacity .26s ease;
     }
 
+    .sheet-modal.ready,
     .sheet-modal.show{
         display:flex;
+    }
+
+    .sheet-modal.show{
         opacity:1;
+    }
+
+    .sheet-modal.closing{
+        display:flex;
+        opacity:0;
     }
 
     .sheet-panel{
@@ -411,6 +420,11 @@
     .sheet-modal.show .sheet-panel{
         transform:translateY(0);
         opacity:1;
+    }
+
+    .sheet-modal.closing .sheet-panel{
+        transform:translateY(100%);
+        opacity:0;
     }
     .sheet-handle{width:54px;height:6px;border-radius:999px;background:#dbe2ea;margin:0 auto 14px}
     .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}

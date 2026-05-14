@@ -86,20 +86,39 @@ async function postJson(url, body) {
 }
 function openSheet(mode) {
   if (!modal) return;
+
+  const nextMode = mode || 'nickname';
   lastFocus = document.activeElement;
-  modal.classList.add('show');
+
+  // display:none 상태에서 show를 바로 붙이면 시작 프레임이 생략되어 정적으로 보일 수 있습니다.
+  // 먼저 렌더링 가능한 상태로 만든 뒤, 다음 프레임에 show를 붙여 아래→위 애니메이션을 확실히 실행합니다.
+  modal.classList.remove('show', 'closing');
+  modal.classList.add('ready');
   modal.setAttribute('aria-hidden', 'false');
-  switchTab(mode || 'nickname');
-  window.setTimeout(() => {
-    const first = sections[mode || 'nickname']?.querySelector('input, button');
-    first?.focus?.();
-  }, 80);
+  switchTab(nextMode);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      modal.classList.add('show');
+      window.setTimeout(() => {
+        const first = sections[nextMode]?.querySelector('input, button');
+        first?.focus?.();
+      }, 160);
+    });
+  });
 }
+
 function closeSheet() {
   if (!modal) return;
+
   modal.classList.remove('show');
+  modal.classList.add('closing');
   modal.setAttribute('aria-hidden', 'true');
-  lastFocus?.focus?.();
+
+  window.setTimeout(() => {
+    modal.classList.remove('ready', 'closing');
+    lastFocus?.focus?.();
+  }, 360);
 }
 function switchTab(mode) {
   Object.entries(tabs).forEach(([key, tab]) => {
