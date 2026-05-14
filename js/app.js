@@ -10,18 +10,17 @@
     s.remove();
   }
   function runModule(block){
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      if (block.id) script.id = block.id;
-      script.type = 'module';
-      script.textContent = block.code;
-      script.onload = () => resolve();
-      script.onerror = (err) => {
-        console.error('[app.js] module block error', block.id || block.index, err);
-        resolve();
-      };
-      document.documentElement.appendChild(script);
-    });
+    // Inline module scripts do not consistently fire load events across browsers.
+    // Resolve immediately after inserting so later extracted blocks (including hero/header patches) still run.
+    const script = document.createElement('script');
+    if (block.id) script.id = block.id;
+    script.type = 'module';
+    script.textContent = block.code;
+    script.onerror = (err) => {
+      console.error('[app.js] module block error', block.id || block.index, err);
+    };
+    document.documentElement.appendChild(script);
+    return Promise.resolve();
   }
   for (const block of blocks) {
     if (block.type === 'module') { await runModule(block); }
@@ -10234,6 +10233,19 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
     <span class="nav-label">${escapeHtml(label)}</span>
   </button>`;
  }
+
+
+ function syncBottomNavSafeOffset(){
+  const nav = document.querySelector('.bottom-nav');
+  const height = nav ? Math.ceil(nav.getBoundingClientRect().height || nav.offsetHeight || 0) : 0;
+  const safeOffset = height ? `${height}px` : '0px';
+  document.documentElement.style.setProperty('--bottom-nav-safe-offset', safeOffset);
+  document.documentElement.style.setProperty('--bottom-nav-height', safeOffset);
+  document.body.style.setProperty('--bottom-nav-safe-offset', safeOffset);
+ }
+ window.syncBottomNavSafeOffset = window.syncBottomNavSafeOffset || syncBottomNavSafeOffset;
+ window.addEventListener('resize', () => window.syncBottomNavSafeOffset?.(), { passive:true });
+ window.addEventListener('orientationchange', () => setTimeout(() => window.syncBottomNavSafeOffset?.(), 120), { passive:true });
 
  async function renderDynamicBottomNav(forceReload=false){
   const nav = document.querySelector('.bottom-nav');
