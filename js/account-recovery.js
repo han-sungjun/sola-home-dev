@@ -120,6 +120,12 @@ function showAppAlert({ title = '안내', message = '', confirmText = '확인', 
     if (closeSheetOnConfirm) closeSheet();
     return Promise.resolve(true);
   }
+  // 바텀시트/로딩바 내부 stacking context에 밀리지 않도록 항상 body 최상단 레이어로 이동
+  if (alertEl.parentElement !== document.body) {
+    document.body.appendChild(alertEl);
+  } else {
+    document.body.appendChild(alertEl);
+  }
   alertTitleEl.textContent = title;
   alertMsgEl.textContent = message;
   alertConfirmEl.textContent = confirmText;

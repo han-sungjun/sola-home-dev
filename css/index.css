@@ -241,9 +241,9 @@
     }
     .hidden{display:none!important}
   
-    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:2147483600!important;background:rgba(15,23,42,.46);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
     .app-alert.show{display:flex}
-    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-card{position:relative;z-index:2147483601!important;width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
     .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
     .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
     .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
@@ -4459,4 +4459,17 @@ body {
     padding-right: 6px;
     font-size: 12px;
   }
+}
+
+
+/* account recovery alert must stay above bottom sheet / loader overlay */
+#appAlert.app-alert{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483600!important;
+  isolation:isolate!important;
+}
+#appAlert .app-alert-card{
+  position:relative!important;
+  z-index:2147483601!important;
 }
