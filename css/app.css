@@ -19255,3 +19255,19 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
 #passwordChangeModal .password-live-message.info{
   color:#2563eb;
 }
+
+/* ===== GNB close button edge alignment ===== */
+.gnb-icons{
+  padding-right:max(2px, env(safe-area-inset-right)) !important;
+}
+
+.gnb-icons .gnb-close{
+  margin-left:auto !important;
+  transform:translateX(6px) !important;
+}
+
+@media (max-width: 480px){
+  .gnb-icons .gnb-close{
+    transform:translateX(8px) !important;
+  }
+}
