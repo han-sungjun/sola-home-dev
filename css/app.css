@@ -19125,3 +19125,44 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
 #globalGnbBtn:focus:not(:focus-visible) {
   outline: none !important;
 }
+
+
+/* =========================================================
+   A11Y PATCH: GNB sheet focus visibility + tab order
+   - Opening the GNB moves focus to the left Home button
+   - Close button remains visually top-right but appears later in tab order
+   - Focus ring is drawn outside the glass button and is not clipped
+   ========================================================= */
+#gnbSheet,
+#gnbSheet .gnb-top,
+#gnbSheet .gnb-icons {
+  overflow: visible !important;
+}
+
+#gnbSheet .gnb-icon-btn,
+#gnbSheet .gnb-close {
+  position: relative !important;
+  z-index: 3 !important;
+  overflow: visible !important;
+}
+
+#gnbSheet .gnb-icon-btn:focus,
+#gnbSheet .gnb-icon-btn:focus-visible,
+#gnbSheet .gnb-close:focus,
+#gnbSheet .gnb-close:focus-visible {
+  outline: 4px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,.72),
+    0 0 22px rgba(37,99,235,.78),
+    0 12px 28px rgba(15,23,42,.24),
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    inset 0 1px 0 rgba(255,255,255,.42) !important;
+  transform: scale(1.06) !important;
+}
+
+#gnbSheet .gnb-icon-btn:focus:not(:focus-visible),
+#gnbSheet .gnb-close:focus:not(:focus-visible) {
+  outline: none !important;
+}

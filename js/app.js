@@ -9745,6 +9745,12 @@ async function askAiAssistant(rawQuestion=''){
  [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
  { duration:180, easing:'ease-out' }
  );
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      try { homeBtn.focus({ preventScroll: true }); }
+      catch(_) { homeBtn.focus(); }
+    }, 90);
+  });
   setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
  }
  }
