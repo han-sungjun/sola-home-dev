@@ -120,15 +120,65 @@ function closeSheet() {
     lastFocus?.focus?.();
   }, 360);
 }
+function getSheetBody() {
+  return modal?.querySelector('.sheet-body') || null;
+}
+
+function animateSheetBodyHeight(nextSection) {
+  const body = getSheetBody();
+  if (!body || !nextSection) return;
+
+  const previousHeight = body.getBoundingClientRect().height;
+  body.style.height = `${previousHeight}px`;
+  body.classList.add('is-height-animating');
+
+  requestAnimationFrame(() => {
+    const nextHeight = nextSection.scrollHeight;
+    body.style.height = `${nextHeight}px`;
+
+    window.setTimeout(() => {
+      body.style.height = '';
+      body.classList.remove('is-height-animating');
+    }, 340);
+  });
+}
+
 function switchTab(mode) {
+  const nextSection = sections[mode];
+  const currentSection = Object.values(sections).find(section => section?.classList.contains('active'));
+
   Object.entries(tabs).forEach(([key, tab]) => {
     const active = key === mode;
     tab?.classList.toggle('active', active);
     tab?.setAttribute('aria-selected', active ? 'true' : 'false');
   });
-  Object.entries(sections).forEach(([key, section]) => {
-    section?.classList.toggle('active', key === mode);
-  });
+
+  if (currentSection && nextSection && currentSection !== nextSection && modal?.classList.contains('show')) {
+    const body = getSheetBody();
+    const previousHeight = body?.getBoundingClientRect().height || 0;
+    if (body && previousHeight) {
+      body.style.height = `${previousHeight}px`;
+      body.classList.add('is-height-animating');
+    }
+
+    Object.entries(sections).forEach(([key, section]) => {
+      section?.classList.toggle('active', key === mode);
+    });
+
+    requestAnimationFrame(() => {
+      if (!body) return;
+      body.style.height = `${nextSection.scrollHeight}px`;
+      window.setTimeout(() => {
+        body.style.height = '';
+        body.classList.remove('is-height-animating');
+      }, 360);
+    });
+  } else {
+    Object.entries(sections).forEach(([key, section]) => {
+      section?.classList.toggle('active', key === mode);
+    });
+  }
+
   const currentLoginId = normalizeLoginId(loginIdEl?.value || '');
   if (mode === 'nickname' && fields.findNicknameLoginId && !fields.findNicknameLoginId.value) fields.findNicknameLoginId.value = currentLoginId;
   if (mode === 'reset' && fields.resetLoginId && !fields.resetLoginId.value) fields.resetLoginId.value = currentLoginId;

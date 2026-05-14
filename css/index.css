@@ -434,9 +434,29 @@
     .sheet-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 14px}
     .sheet-tab{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:16px;padding:12px 14px;font-size:14px;font-weight:800;cursor:pointer}
     .sheet-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-    .sheet-body{padding-top:4px}
-    .sheet-section{display:none}
-    .sheet-section.active{display:block}
+    .sheet-body{
+      padding-top:4px;
+      transition:height .34s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change:height;
+    }
+    .sheet-body.is-height-animating{
+      overflow:hidden;
+    }
+    .sheet-section{
+      display:none;
+      opacity:0;
+      transform:translateY(8px);
+    }
+    .sheet-section.active{
+      display:block;
+      opacity:1;
+      transform:translateY(0);
+      animation:sheetSectionFadeUp .24s ease both;
+    }
+    @keyframes sheetSectionFadeUp{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
     .sheet-note{margin:0 2px 14px;color:var(--muted);font-size:13px;line-height:1.65;white-space:pre-line}
     .sheet-inline-actions{display:grid;gap:10px;margin-top:14px}
     .sheet-result{display:none;margin-top:12px;padding:13px 14px;border-radius:16px;font-size:13px;line-height:1.6;border:1px solid transparent;white-space:pre-line}
