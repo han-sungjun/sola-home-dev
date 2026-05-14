@@ -243,11 +243,12 @@ function showAppAlert({
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
     window.alert(message);
     if (typeof onConfirm === 'function') onConfirm();
-    if (closeSheetOnConfirm) closeSheet();
+    else if (closeSheetOnConfirm) closeSheet();
     return Promise.resolve({ action: 'confirm', value: true });
   }
 
-  // 바텀시트/로딩바 내부 stacking context에 밀리지 않도록 항상 body 최상단 레이어로 이동
+  // 전역 resolver 1개에 의존하면 알럿 안에서 다음 알럿을 띄울 때 상태가 꼬일 수 있습니다.
+  // 알럿이 열릴 때마다 버튼별 전용 핸들러를 직접 바인딩합니다.
   document.body.appendChild(alertEl);
 
   alertTitleEl.textContent = title;
@@ -262,20 +263,27 @@ function showAppAlert({
 
   alertEl.classList.add('show');
   alertEl.setAttribute('aria-hidden', 'false');
-  alertConfirmEl.focus();
+
+  alertConfirmEl.onclick = null;
+  alertCancelEl.onclick = null;
 
   return new Promise((resolve) => {
-    alertResolver = async (action = 'confirm') => {
+    let settled = false;
+
+    const finish = async (action = 'confirm') => {
+      if (settled) return;
+      settled = true;
+
       const isConfirm = action === 'confirm';
+      const callback = isConfirm ? onConfirm : onCancel;
+      const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
 
-      const callback = isConfirm ? onConfirm : onCancel;
-      const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
-
-      // 다음 알럿을 콜백 안에서 띄울 수 있도록 현재 resolver를 먼저 해제합니다.
-      alertResolver = null;
+      // 현재 알럿 버튼 핸들러를 먼저 비워 다음 알럿과 충돌하지 않게 합니다.
+      alertConfirmEl.onclick = null;
+      alertCancelEl.onclick = null;
 
       try {
         if (typeof callback === 'function') {
@@ -287,10 +295,13 @@ function showAppAlert({
         resolve({ action, value: isConfirm });
       }
     };
+
+    alertConfirmEl.onclick = () => finish('confirm');
+    alertCancelEl.onclick = () => finish('cancel');
+
+    requestAnimationFrame(() => alertConfirmEl.focus());
   });
 }
-alertConfirmEl?.addEventListener('click', () => alertResolver?.('confirm'));
-alertCancelEl?.addEventListener('click', () => alertResolver?.('cancel'));
 
 function hydrateSavedLoginId() {
   const saved = localStorage.getItem(SAVE_LOGIN_ID_KEY) || '';
