@@ -19258,16 +19258,16 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
 
 /* ===== GNB close button edge alignment ===== */
 .gnb-icons{
-  padding-right:max(2px, env(safe-area-inset-right)) !important;
+  padding-right:max(6px, env(safe-area-inset-right)) !important;
 }
 
 .gnb-icons .gnb-close{
   margin-left:auto !important;
-  transform:translateX(6px) !important;
+  transform:translateX(1px) !important;
 }
 
 @media (max-width: 480px){
   .gnb-icons .gnb-close{
-    transform:translateX(8px) !important;
+    transform:translateX(2px) !important;
   }
 }
