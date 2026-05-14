@@ -1,3 +1,4 @@
+require('./common/replace-env.js');
 const fs = require("fs");
 
 function normalizeBaseUrl(value) {
