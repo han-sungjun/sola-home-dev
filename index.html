@@ -17,17 +17,17 @@
     <meta content="입주민 전용 혜택 플랫폼" name="description">
     <meta content="index,follow" name="robots">
     <title>
-      더운정픽 - 입장하기
+      더운정픽 - 로그인
     </title>
     <meta content="website" property="og:type">
     <meta content="더운정픽" property="og:site_name">
     <meta content="더운정픽" property="og:title">
-    <meta content="더운정픽 - 입장하기" property="og:description">
+    <meta content="더운정픽 - 로그인" property="og:description">
     <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
     <meta content="__BASE_URL__/app" property="og:url">
     <meta content="summary_large_image" name="twitter:card">
     <meta content="더운정픽" name="twitter:title">
-    <meta content="더운정픽 - 입장하기" name="twitter:description">
+    <meta content="더운정픽 - 로그인" name="twitter:description">
     <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
     <link href="/icons/favicon.ico?v=20260511" rel="icon">
     <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
@@ -58,7 +58,7 @@
         <section class="hero">
           <div class="eyebrow">
             <img alt class="eyebrow-icon" loading="lazy" src="/icons/internal/lock.svg">
-            입주민 전용 입장
+            입주민 전용 로그인
           </div>
           <div class="env-badge hero-env" id="envBadge">
             <span class="env-badge-dot">
@@ -71,10 +71,10 @@
           <h1>
             더운정픽
             <br>
-            입장하기
+            로그인
           </h1>
           <p>
-            입주민 전용 서비스 이용을 위해 입장해 주세요.
+            입주민 전용 서비스 이용을 위해 로그인해 주세요.
           </p>
         </section>
         <section class="panel">
@@ -92,24 +92,27 @@
               <input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password">
             </div>
             <div class="login-support-row">
-              <div class="login-check-group" aria-label="로그인 옵션">
-                <label class="save-id-check" for="saveLoginId">
-                  <input id="saveLoginId" type="checkbox">
-                  <span>아이디 저장</span>
-                </label>
-                <label class="save-id-check" for="keepLoginState">
-                  <input id="keepLoginState" type="checkbox">
-                  <span>입장 상태 유지</span>
-                </label>
+              <label class="save-id-check" for="saveLoginId">
+                <input id="saveLoginId" type="checkbox">
+                <span>아이디 저장</span>
+              </label>
+              <div class="login-help-links" aria-label="로그인 도움 메뉴">
+                <button class="login-help-link" id="openFindNicknameBtn" type="button">닉네임 찾기</button>
+                <span aria-hidden="true">|</span>
+                <button class="login-help-link" id="openFindIdBtn" type="button">아이디 찾기</button>
+                <span aria-hidden="true">|</span>
+                <button class="login-help-link" id="openResetPwBtn" type="button">비밀번호 재설정</button>
               </div>
-              <button class="login-help-link account-find-link" id="openAccountFindBtn" type="button" aria-haspopup="dialog" aria-controls="accountRecoveryModal">계정 찾기</button>
+            </div>
+            <div class="helper">
+              회원가입 후 바로 입주민 전용 서비스를 이용할 수 있습니다.
             </div>
             <div class="btn-row">
               <button class="btn btn-primary" id="loginBtn" type="submit">
-                입장하기
+                로그인
               </button>
               <button class="btn btn-soft" id="signupBtn" onclick="if(window.__LOGIN_SAFE_SIGNUP__ && !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}" type="button">
-                계정 만들기
+                회원가입
               </button>
             </div>
             <button class="btn btn-install" hidden id="installAppBtn" type="button">
@@ -150,22 +153,19 @@
         <div class="sheet-handle"></div>
         <div class="sheet-head">
           <div>
-            <h3 class="sheet-title" id="accountHelpTitle">계정 찾기</h3>
-            <p class="sheet-desc" id="accountHelpDesc">계정 정보를 확인하거나 비밀번호를 재설정할 수 있습니다.</p>
+            <h3 class="sheet-title" id="accountHelpTitle">로그인 도움</h3>
+            <p class="sheet-desc" id="accountHelpDesc">아이디, 닉네임 확인 또는 비밀번호 재설정을 진행합니다.</p>
           </div>
           <button aria-label="닫기" class="sheet-close" id="accountHelpCloseBtn" type="button">✕</button>
         </div>
-        <div class="sheet-tabs account-recovery-tabs" role="tablist" aria-label="계정 찾기 탭">
+        <div class="sheet-tabs account-recovery-tabs" role="tablist" aria-label="로그인 도움 탭">
           <button class="sheet-tab active" id="tabFindNickname" type="button" role="tab" aria-controls="findNicknameSection" aria-selected="true">닉네임 찾기</button>
           <button class="sheet-tab" id="tabFindId" type="button" role="tab" aria-controls="findIdSection" aria-selected="false">아이디 찾기</button>
           <button class="sheet-tab" id="tabResetPw" type="button" role="tab" aria-controls="resetPwSection" aria-selected="false">비밀번호 재설정</button>
         </div>
         <div class="sheet-body">
           <section class="sheet-section active" id="findNicknameSection" role="tabpanel" aria-labelledby="tabFindNickname">
-            <ul class="sheet-note-list">
-              <li>아이디는 알고 있지만 닉네임이 기억나지 않을 때 사용합니다.</li>
-              <li>아이디도 기억나지 않는 경우 관리자에게 문의해주세요.</li>
-            </ul>
+            <p class="sheet-note">아이디는 알고 있으나 닉네임이 기억나지 않을 때 사용합니다. 아이디도 기억나지 않는 경우 관리자에게 문의하거나 신규 간편 입장 신청을 진행해주세요.</p>
             <div class="field">
               <label for="findNicknameLoginId">아이디</label>
               <input autocomplete="username" class="input" id="findNicknameLoginId" inputmode="text" placeholder="아이디 입력" type="text">
@@ -176,10 +176,7 @@
             <div class="sheet-result info" id="findNicknameResult"></div>
           </section>
           <section class="sheet-section" id="findIdSection" role="tabpanel" aria-labelledby="tabFindId">
-            <ul class="sheet-note-list">
-              <li>닉네임은 알고 있지만 아이디가 기억나지 않을 때 사용합니다.</li>
-              <li>닉네임도 기억나지 않는 경우 관리자에게 문의해주세요.</li>
-            </ul>
+            <p class="sheet-note">닉네임은 알고 있으나 아이디가 기억나지 않을 때 사용합니다. 닉네임도 기억나지 않는 경우 관리자에게 문의하거나 신규 간편 입장 신청을 진행해주세요.</p>
             <div class="field">
               <label for="findIdNickname">닉네임</label>
               <input autocomplete="nickname" class="input" id="findIdNickname" inputmode="text" placeholder="닉네임 입력" type="text">
@@ -190,10 +187,7 @@
             <div class="sheet-result info" id="findIdResult"></div>
           </section>
           <section class="sheet-section" id="resetPwSection" role="tabpanel" aria-labelledby="tabResetPw">
-            <ul class="sheet-note-list">
-              <li>새로운 비밀번호로 다시 설정할 수 있습니다.</li>
-              <li>안전한 이용을 위해 아이디와 닉네임 확인 후 진행해주세요.</li>
-            </ul>
+            <p class="sheet-note">비밀번호는 보안상 확인할 수 없습니다. 아이디와 닉네임 확인 후 새 비밀번호로 재설정됩니다.</p>
             <div class="field">
               <label for="resetPwLoginId">아이디</label>
               <input autocomplete="username" class="input" id="resetPwLoginId" inputmode="text" placeholder="아이디 입력" type="text">
@@ -247,8 +241,7 @@
       </div>
     </div>
     <script src="/js/index.js"></script>
-    <script type="module" src="/js/account-recovery.js?v=2026051402"></script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
-    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
+    <script type="module" src="/js/account-recovery.js?v=2026051402"></script>    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
       <script defer src="/common/accessibility.js?v=2026051401"></script>
   </body>

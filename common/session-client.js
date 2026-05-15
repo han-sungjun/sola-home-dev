@@ -1,22 +1,9 @@
 const LOGIN_STORAGE_KEY = 'loginUser';
-const KEEP_LOGIN_STORAGE_KEY = 'upick_keep_login_state';
 const DEFAULT_PING_INTERVAL_MS = 5 * 60 * 1000;
 const ADMIN_PING_INTERVAL_MS = 3 * 60 * 1000;
 let forcedLogoutProcessing = false;
 
-function shouldKeepLoginState(){
-  try{ return localStorage.getItem(KEEP_LOGIN_STORAGE_KEY) === '1'; }catch(_){ return false; }
-}
-
-function getSessionStorageArea(){
-  return shouldKeepLoginState() ? localStorage : sessionStorage;
-}
-
 export function getStoredLoginUser(){
-  try{
-    const sessionValue = sessionStorage.getItem(LOGIN_STORAGE_KEY);
-    if (sessionValue) return JSON.parse(sessionValue || '{}') || {};
-  }catch(_){/* noop */}
   try{
     return JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY) || '{}') || {};
   }catch(_){
@@ -37,18 +24,12 @@ export function saveLoginSession(userLike = {}, sessionId = ''){
     accountStatus: userLike.accountStatus || current.accountStatus || 'active',
     sessionId: sessionId || userLike.sessionId || current.sessionId || '',
   };
-  const storage = getSessionStorageArea();
-  storage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(next));
-  try{
-    if (storage === localStorage) sessionStorage.removeItem(LOGIN_STORAGE_KEY);
-    else localStorage.removeItem(LOGIN_STORAGE_KEY);
-  }catch(_e){}
+  localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(next));
   return next;
 }
 
 export function clearLoginSession(){
   try{ localStorage.removeItem(LOGIN_STORAGE_KEY); }catch(_e){}
-  try{ sessionStorage.removeItem(LOGIN_STORAGE_KEY); }catch(_e){}
 }
 
 export function getLocalSessionId(){

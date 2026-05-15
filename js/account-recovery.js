@@ -365,7 +365,6 @@ loginIdEl?.addEventListener('input', () => {
   if (saveLoginIdEl?.checked) localStorage.setItem(SAVE_LOGIN_ID_KEY, normalizeLoginId(loginIdEl.value));
 });
 
-qs('#openAccountFindBtn')?.addEventListener('click', () => openSheet('nickname'));
 qs('#openFindNicknameBtn')?.addEventListener('click', () => openSheet('nickname'));
 qs('#openFindIdBtn')?.addEventListener('click', () => openSheet('id'));
 qs('#openResetPwBtn')?.addEventListener('click', () => openSheet('reset'));
