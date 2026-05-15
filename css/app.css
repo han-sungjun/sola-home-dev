@@ -10619,6 +10619,8 @@ dialog:not(.app-alert) .modal-body{
 .detail-mini-zoom-btn{
   width:34px;
   height:34px;
+  min-width:34px;
+  min-height:34px;
   border:0;
   background:#fff;
   color:#0f172a;
