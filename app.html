@@ -84,8 +84,8 @@
                     <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg">
                   </div>
                   <div class="user-meta">
-                    <strong class="user-name" id="userNickname" title="입장 확인 중">
-                      입장 확인 중
+                    <strong class="user-name" id="userNickname" title="로그인 확인 중">
+                      로그인 확인 중
                     </strong>
                     <span class="user-sub" id="userUnitInfo">
                       입주민 계정
@@ -127,7 +127,7 @@
               </p>
               <div aria-label="안심 이용 안내" class="trust-hero-badges">
                 <span class="trust-hero-badge">
-                  간단 입장
+                  계정 만들기
                 </span>
                 <span class="trust-hero-badge">
                   가벼운 확인
@@ -326,7 +326,7 @@
               </small>
             </div>
             <div class="helper">
-              관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 입장한 계정 기준으로 동기화됩니다.
+              관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.
             </div>
           </div>
           <div class="list" id="favoriteList">
@@ -1305,7 +1305,7 @@
                     계정 요약
                   </h4>
                   <p class="gnb-settings-section-desc">
-                    현재 입장한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
+                    현재 로그인한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
                   </p>
                 </div>
                 <div class="gnb-status-pill" id="gnbPushStatusPill">
@@ -1322,7 +1322,7 @@
                       계정
                     </span>
                     <strong class="gnb-account-name" id="gnbAccountName">
-                      입장 확인 중
+                      로그인 확인 중
                     </strong>
                     <span class="gnb-account-sub" id="gnbAccountUnit">
                       입주민 계정
@@ -1535,7 +1535,7 @@
                     비밀번호 변경
                   </span>
                   <span class="desc">
-                    재입장 필요
+                    재로그인 필요
                   </span>
                 </button>
                 <button class="gnb-action-btn outline" id="logoutBtn" type="button">
@@ -1543,7 +1543,7 @@
                     나가기
                   </span>
                   <span class="desc">
-                    현재 계정 종료
+                    현재 공간 나가기
                   </span>
                 </button>
               </div>
@@ -1588,7 +1588,7 @@
       </div>
       <div class="modal-body">
         <div class="account-edit-help">
-          입장한 계정의 표시 정보를 수정합니다. 이름&middot;연락처 대신 닉네임 중심으로만 관리합니다.
+          로그인한 계정의 표시 정보를 수정합니다. 이름&middot;연락처 대신 닉네임 중심으로만 관리합니다.
         </div>
         <form class="account-edit-form" id="accountEditForm">
           <div class="account-edit-field">
@@ -1666,7 +1666,7 @@
       </div>
       <div class="modal-body">
         <div class="account-edit-help">
-          현재 비밀번호 확인 후 새 비밀번호로 변경합니다. 변경 완료 후 보안을 위해 자동 나가기됩니다.
+          현재 비밀번호 확인 후 새 비밀번호로 변경합니다. 변경 완료 후 보안을 위해 자동 로그아웃됩니다.
         </div>
         <form class="account-edit-form" id="passwordChangeForm">
           <div class="account-edit-field">
@@ -1756,7 +1756,8 @@
       </div>
     </dialog>
     <script src="/js/app.js?v=2026051503" type="module">
-    </script>    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
+    </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
+    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
       <script defer src="/common/accessibility.js?v=2026051401"></script>
   </body>
