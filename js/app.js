@@ -3436,7 +3436,10 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
    const controls=document.createElement('div');
    controls.className='detail-mini-zoom-controls';
    controls.setAttribute('aria-label','미니지도 확대 축소');
-   controls.innerHTML='<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="1" aria-label="지도 확대">+</button><button type="button" class="detail-mini-zoom-btn" data-zoom-delta="-1" aria-label="지도 축소">−</button>';
+   controls.innerHTML=`
+<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="1" aria-label="지도 확대"><span>+</span></button>
+<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="-1" aria-label="지도 축소"><span>−</span></button>
+`;
    controls.addEventListener('click',(event)=>{
     const btn=event.target.closest('[data-zoom-delta]');
     if(!btn) return;
