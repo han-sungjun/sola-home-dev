@@ -4636,3 +4636,122 @@ body {
     justify-content:space-between;
   }
 }
+
+
+/* ===== Account find single-link layout override ===== */
+.login-premium-hero-shell .login-support-row,
+.login-support-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+  margin:12px 0 18px !important;
+  overflow:hidden !important;
+}
+
+.login-premium-hero-shell .login-check-group,
+.login-check-group{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:10px !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+}
+
+.login-premium-hero-shell .save-id-check,
+.login-support-row .save-id-check{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:5px !important;
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  color:#475569 !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+}
+
+.login-premium-hero-shell .save-id-check span,
+.login-support-row .save-id-check span{
+  display:inline-block !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+
+.login-premium-hero-shell .account-find-link,
+.login-support-row .account-find-link{
+  flex:0 0 auto !important;
+  margin-left:auto !important;
+  border:0 !important;
+  background:transparent !important;
+  color:#0B2A60 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+  letter-spacing:-.02em !important;
+  white-space:nowrap !important;
+  padding:4px 0 4px 8px !important;
+  cursor:pointer !important;
+  text-decoration:none !important;
+}
+
+.login-premium-hero-shell .account-find-link:hover,
+.login-premium-hero-shell .account-find-link:focus-visible,
+.login-support-row .account-find-link:hover,
+.login-support-row .account-find-link:focus-visible{
+  color:#1D4ED8 !important;
+  text-decoration:underline !important;
+  text-underline-offset:4px !important;
+  outline:none !important;
+}
+
+.login-premium-hero-shell .btn-row{
+  margin-top:0 !important;
+}
+
+@media (max-width:420px){
+  .login-premium-hero-shell .login-support-row,
+  .login-support-row{
+    gap:8px !important;
+    margin:11px 0 17px !important;
+  }
+  .login-premium-hero-shell .login-check-group,
+  .login-check-group{
+    gap:7px !important;
+  }
+  .login-premium-hero-shell .save-id-check,
+  .login-support-row .save-id-check{
+    font-size:12px !important;
+    letter-spacing:-.04em !important;
+  }
+  .login-premium-hero-shell .account-find-link,
+  .login-support-row .account-find-link{
+    font-size:12px !important;
+    letter-spacing:-.04em !important;
+    padding-left:6px !important;
+  }
+}
+
+@media (max-width:360px){
+  .login-premium-hero-shell .login-check-group,
+  .login-check-group{
+    gap:5px !important;
+  }
+  .login-premium-hero-shell .save-id-check,
+  .login-support-row .save-id-check,
+  .login-premium-hero-shell .account-find-link,
+  .login-support-row .account-find-link{
+    font-size:11.5px !important;
+  }
+  .login-support-row .save-id-check input{
+    width:14px !important;
+    height:14px !important;
+  }
+}
