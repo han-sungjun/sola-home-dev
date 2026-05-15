@@ -4617,3 +4617,22 @@ body {
     gap:3px !important;
   }
 }
+
+.login-check-group{
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+.login-check-group .save-id-check{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+@media (max-width: 520px){
+  .login-check-group{
+    width:100%;
+    justify-content:space-between;
+  }
+}

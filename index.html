@@ -92,10 +92,16 @@
               <input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password">
             </div>
             <div class="login-support-row">
-              <label class="save-id-check" for="saveLoginId">
-                <input id="saveLoginId" type="checkbox">
-                <span>아이디 저장</span>
-              </label>
+              <div class="login-check-group" aria-label="로그인 옵션">
+                <label class="save-id-check" for="saveLoginId">
+                  <input id="saveLoginId" type="checkbox">
+                  <span>아이디 저장</span>
+                </label>
+                <label class="save-id-check" for="keepLoginState">
+                  <input id="keepLoginState" type="checkbox">
+                  <span>로그인 상태 유지</span>
+                </label>
+              </div>
               <div class="login-help-links" aria-label="로그인 도움 메뉴">
                 <button class="login-help-link" id="openFindNicknameBtn" type="button">닉네임 찾기</button>
                 <span aria-hidden="true">|</span>
@@ -241,7 +247,8 @@
       </div>
     </div>
     <script src="/js/index.js"></script>
-    <script type="module" src="/js/account-recovery.js?v=2026051402"></script>    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
+    <script type="module" src="/js/account-recovery.js?v=2026051402"></script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
+    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
       <script defer src="/common/accessibility.js?v=2026051401"></script>
   </body>
