@@ -1697,6 +1697,16 @@ window.addEventListener('keydown', (event) => {
  }
 
  let accountNicknameCheckedValue = '';
+ let accountNicknameCheckStatus = 'idle';
+
+ function setAccountNicknameCheckStatus(status='idle', checkedValue=''){
+ accountNicknameCheckStatus = status;
+ accountNicknameCheckedValue = checkedValue || '';
+ const input = qs('#accountNicknameInput');
+ const checkBtn = qs('#accountCheckNicknameBtn');
+ if(input) input.dataset.nicknameCheckStatus = status;
+ if(checkBtn) checkBtn.dataset.nicknameCheckStatus = status;
+ }
 
  function getOriginalAccountNickname(){
  return normalizeProfileInput(state.currentUserProfile?.nickname || state.currentUser?.displayName || '');
@@ -1707,16 +1717,18 @@ window.addEventListener('keydown', (event) => {
  const checkBtn = qs('#accountCheckNicknameBtn');
  const nickname = normalizeProfileInput(input?.value || '');
  const originalNickname = getOriginalAccountNickname();
- accountNicknameCheckedValue = '';
+ setAccountNicknameCheckStatus('idle');
  setAccountNicknameState(null);
 
  if(!nickname){
+ setAccountNicknameCheckStatus('empty');
  setAccountNicknameMessage('err', '닉네임을 입력해 주세요.');
  if(!silent) await openModalAlert('닉네임을 입력해 주세요.', input);
  return false;
  }
 
  if(!validateProfileNicknameFormat(nickname)){
+ setAccountNicknameCheckStatus('invalid');
  setAccountNicknameState(false);
  setAccountNicknameMessage('err', '닉네임은 2~20자로 입력해 주세요.');
  if(!silent) await openModalAlert('닉네임은 2~20자로 입력해 주세요.', input);
@@ -1724,6 +1736,7 @@ window.addEventListener('keydown', (event) => {
  }
 
  if(nickname === originalNickname){
+ setAccountNicknameCheckStatus('same');
  setAccountNicknameState(false);
  setAccountNicknameMessage('err', '현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.');
  if(!silent) await openModalAlert('현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.', input);
@@ -1731,6 +1744,7 @@ window.addEventListener('keydown', (event) => {
  }
 
  if(!CHECK_NICKNAME_URL){
+ setAccountNicknameCheckStatus('error');
  setAccountNicknameState(false);
  setAccountNicknameMessage('err', '닉네임 중복 확인 주소가 설정되지 않았습니다.');
  if(!silent) await openModalAlert('닉네임 중복 확인 주소가 설정되지 않았습니다.', checkBtn || input);
@@ -1738,6 +1752,7 @@ window.addEventListener('keydown', (event) => {
  }
 
  try{
+ setAccountNicknameCheckStatus('checking');
  if(checkBtn){
  checkBtn.disabled = true;
  checkBtn.textContent = '확인 중';
@@ -1752,17 +1767,19 @@ window.addEventListener('keydown', (event) => {
  }
 
  if(!result.available){
+ setAccountNicknameCheckStatus('duplicate');
  setAccountNicknameState(false);
  setAccountNicknameMessage('err', result.message || '이미 사용 중인 닉네임입니다.');
  if(!silent) await openModalAlert(result.message || '이미 사용 중인 닉네임입니다.', input);
  return false;
  }
 
- accountNicknameCheckedValue = nickname;
+ setAccountNicknameCheckStatus('available', nickname);
  setAccountNicknameState(true);
  setAccountNicknameMessage('ok', result.message || '사용 가능한 닉네임입니다.');
  return true;
  }catch(error){
+ setAccountNicknameCheckStatus('error');
  setAccountNicknameState(false);
  setAccountNicknameMessage('err', error.message || '닉네임 중복 확인 중 오류가 발생했습니다.');
  if(!silent) await openModalAlert(error.message || '닉네임 중복 확인 중 오류가 발생했습니다.', checkBtn || input);
@@ -1781,9 +1798,9 @@ window.addEventListener('keydown', (event) => {
  const buildingInput = qs('#accountBuildingInput');
  const unitInput = qs('#accountUnitInput');
  if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
- accountNicknameCheckedValue = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
+ setAccountNicknameCheckStatus('idle');
  setAccountNicknameState(null);
- setAccountNicknameMessage('', '닉네임을 변경하는 경우 중복 확인 후 저장됩니다.');
+ setAccountNicknameMessage('', '닉네임을 변경한 뒤 중복 확인을 완료해야 저장됩니다.');
  if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
  if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
  updateProfileImagePreview();
@@ -2018,12 +2035,19 @@ function openAccountEditModal(){
  }
 
  const originalNickname = getOriginalAccountNickname();
- if(nickname !== originalNickname && accountNicknameCheckedValue !== nickname){
- const ok = await checkAccountNicknameDuplicate({ silent:true });
- if(!ok){
- await openModalAlert('닉네임 중복 확인을 완료해 주세요.', qs('#accountCheckNicknameBtn') || qs('#accountNicknameInput'));
+ if(nickname === originalNickname){
+ setAccountNicknameCheckStatus('same');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.');
+ await openModalAlert('현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.', qs('#accountNicknameInput'));
  return;
  }
+
+ if(accountNicknameCheckStatus !== 'available' || accountNicknameCheckedValue !== nickname){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '닉네임 중복 확인을 먼저 완료해 주세요.');
+ await openModalAlert('닉네임 중복 확인을 먼저 완료해 주세요.', qs('#accountCheckNicknameBtn') || qs('#accountNicknameInput'));
+ return;
  }
 
  showGlobalLoading();
@@ -2040,7 +2064,7 @@ function openAccountEditModal(){
  building,
  unit
  };
- accountNicknameCheckedValue = nickname;
+ setAccountNicknameCheckStatus('available', nickname);
  setAccountNicknameState(true);
  setAccountNicknameMessage('ok', '저장된 닉네임입니다.');
  updateUserChip();
@@ -11652,9 +11676,16 @@ document.addEventListener('keydown', (event) => {
  qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
  qs('#accountCheckNicknameBtn')?.addEventListener('click', () => checkAccountNicknameDuplicate());
  qs('#accountNicknameInput')?.addEventListener('input', () => {
- accountNicknameCheckedValue = '';
+ const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
+ const originalNickname = getOriginalAccountNickname();
+ setAccountNicknameCheckStatus(nickname === originalNickname ? 'same' : 'idle');
  setAccountNicknameState(null);
- setAccountNicknameMessage('', '닉네임을 변경하는 경우 중복 확인 후 저장됩니다.');
+ if(nickname === originalNickname){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.');
+ }else{
+ setAccountNicknameMessage('', '닉네임 중복 확인을 먼저 완료해 주세요.');
+ }
  });
  bindProfileUploadButton();
  qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
