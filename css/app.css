@@ -20049,3 +20049,33 @@ body.gnb-manage-scroll-lock{
   box-shadow:0 0 24px rgba(96,165,250,.34)!important;
   animation:upickCommonLoaderFlow 1.18s ease-in-out infinite!important;
 }
+
+/* ===== 웹 접근성 공통 버튼 44px 예외: 혜택 상단 필터/보기 전환 전용 ===== */
+#view-benefits .benefit-filter-top-row .filter-icon-btn,
+#view-benefits .benefit-filter-top-row .view-mode-btn {
+  min-width: auto !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 7px 10px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+#view-benefits .benefit-filter-top-row .filter-icon-row,
+#view-benefits .benefit-filter-top-row .benefit-view-switch {
+  align-items: center !important;
+}
+
+@media (max-width: 480px) {
+  #view-benefits .benefit-filter-top-row .filter-icon-btn,
+  #view-benefits .benefit-filter-top-row .view-mode-btn {
+    min-width: auto !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 6px 9px !important;
+    font-size: 11px !important;
+  }
+}
