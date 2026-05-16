@@ -16,32 +16,33 @@
   ];
 
   var boundLoaders = new WeakMap();
-  var topLayerLoader = null;
+  var hideTimer = null;
 
   function isAdminPage(){
     return /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page');
   }
 
+  function supportsDialog(){
+    return typeof HTMLDialogElement !== 'undefined' && typeof document.createElement('dialog').showModal === 'function';
+  }
+
   function ensureLoader(){
-    // 기존 dialog(showModal) 위에 로딩을 올리려면 단순 fixed z-index로는 부족합니다.
-    // dialog top-layer가 모든 z-index보다 위에 있기 때문에 로딩도 dialog로 띄웁니다.
-    if(typeof HTMLDialogElement !== 'undefined') {
-      var dialogLoader = document.getElementById('commonLoadingDialog');
-      if(!dialogLoader){
-        dialogLoader = document.createElement('dialog');
-        dialogLoader.id = 'commonLoadingDialog';
-        dialogLoader.className = 'global-loading upick-loading-dialog';
-        dialogLoader.setAttribute('aria-hidden','true');
-        dialogLoader.setAttribute('aria-modal','true');
-        dialogLoader.setAttribute('role','alertdialog');
-        dialogLoader.addEventListener('cancel', function(event){ event.preventDefault(); });
-        document.body.appendChild(dialogLoader);
-      }
-      topLayerLoader = dialogLoader;
-      return dialogLoader;
+    var loader = document.getElementById('commonLoadingDialog');
+    if(loader) return loader;
+
+    if(supportsDialog()){
+      loader = document.createElement('dialog');
+      loader.id = 'commonLoadingDialog';
+      loader.className = 'global-loading upick-loading-dialog';
+      loader.setAttribute('aria-hidden','true');
+      loader.setAttribute('aria-modal','true');
+      loader.setAttribute('role','alertdialog');
+      loader.addEventListener('cancel', function(event){ event.preventDefault(); });
+      document.body.appendChild(loader);
+      return loader;
     }
 
-    var loader = document.getElementById('globalLoadingBar') || document.getElementById('pageLoader');
+    loader = document.getElementById('globalLoadingBar') || document.getElementById('pageLoader');
     if(loader) return loader;
     loader = document.createElement('div');
     loader.id = 'pageLoader';
@@ -53,7 +54,7 @@
 
   function ensureMarkup(loader){
     if(!loader) return;
-    var content = loader.querySelector('.loader-content');
+    var content = loader.querySelector(':scope > .loader-content') || loader.querySelector('.loader-content');
     if(!content){
       content = document.createElement('div');
       content.className = 'loader-content';
@@ -158,9 +159,34 @@
       ensureMarkup(loader);
       isVisible(loader) ? start() : stop();
     });
-    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden','style'] });
+    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden','style','open'] });
 
     if(isVisible(loader)) start();
+  }
+
+  function openTopLayer(loader){
+    if(!loader || loader.tagName !== 'DIALOG') return;
+    if(loader.open) return;
+    try{ loader.showModal(); }
+    catch(_){
+      try{ loader.show(); }
+      catch(__){}
+    }
+  }
+
+  function closeTopLayer(loader){
+    if(!loader || loader.tagName !== 'DIALOG') return;
+    if(!loader.open) return;
+    try{ loader.close(); }
+    catch(_){ loader.removeAttribute('open'); }
+  }
+
+  function hideOne(loader){
+    if(!loader) return;
+    loader.classList.remove('show','is-visible');
+    loader.setAttribute('aria-hidden','true');
+    // 핵심: dialog top-layer는 display:none이어도 클릭을 막을 수 있어 반드시 close() 처리합니다.
+    closeTopLayer(loader);
   }
 
   function init(){
@@ -180,8 +206,10 @@
 
   window.UpickLoading = {
     show: function(message, subMessage){
+      if(hideTimer){ clearTimeout(hideTimer); hideTimer = null; }
       var loader = ensureLoader();
       bind(loader);
+      ensureMarkup(loader);
       if(message || subMessage){
         var main = loader.querySelector('.loader-message');
         var sub = loader.querySelector('.loader-sub-message');
@@ -190,22 +218,26 @@
       }
       loader.classList.add('show');
       loader.setAttribute('aria-hidden','false');
-      if(loader.tagName === 'DIALOG' && !loader.open){
-        try{ loader.showModal(); }catch(_){ try{ loader.show(); }catch(__){} }
-      }
+      openTopLayer(loader);
       syncLock();
       return loader;
     },
     hide: function(){
-      document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(function(loader){
-        loader.classList.remove('show','is-visible');
-        loader.setAttribute('aria-hidden','true');
-      });
-      syncLock();
+      if(hideTimer) clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(function(){
+        document.querySelectorAll('#commonLoadingDialog,#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(hideOne);
+        syncLock();
+        hideTimer = null;
+      }, 0);
     },
     bind: bind,
-    refresh: init
+    refresh: init,
+    _closeTopLayer: closeTopLayer
   };
+
+  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다.
+  window.showGlobalLoading = window.showGlobalLoading || function(message, subMessage){ return window.UpickLoading.show(message, subMessage); };
+  window.hideGlobalLoading = window.hideGlobalLoading || function(){ return window.UpickLoading.hide(); };
 
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init, { once:true });
