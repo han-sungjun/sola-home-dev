@@ -219,7 +219,7 @@
     refresh: init,
   };
 
-  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다. v2026051609
+  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다. v2026051610
   window.showGlobalLoading = window.showGlobalLoading || function(message, subMessage){ return window.UpickLoading.show(message, subMessage); };
   window.hideGlobalLoading = window.hideGlobalLoading || function(){ return window.UpickLoading.hide(); };
 
