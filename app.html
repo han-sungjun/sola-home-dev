@@ -1892,14 +1892,12 @@
                   <button class="gnb-manage-close" type="button" aria-label="운영 관리 닫기">✕</button>\
                 </div>\
                 <div class="gnb-management-tabs" role="tablist" aria-label="운영 관리 탭">\
-                  <button data-manage-tab="overview" class="active" type="button" role="tab" aria-selected="true">운영</button>\
-                  <button data-manage-tab="share" type="button" role="tab" aria-selected="false">공유</button>\
+                  <button data-manage-tab="share" class="active" type="button" role="tab" aria-selected="true">공유</button>\
                   <button data-manage-tab="admin" type="button" role="tab" aria-selected="false">관리자</button>\
                   <button data-manage-tab="root" class="root-only-panel" type="button" role="tab" aria-selected="false">Root</button>\
                 </div>\
                 <div class="gnb-management-body">\
-                  <section data-manage-panel="overview" class="gnb-management-panel active"><div class="gnb-management-empty"><strong>운영 메뉴를 분리했습니다.</strong><p>GNB는 진입점만 남기고, 실제 운영 기능은 이 팝업에서 관리합니다.</p></div></section>\
-                  <section data-manage-panel="share" class="gnb-management-panel" hidden><div class="gnb-management-action-slot" id="gnbShareActionSlot"></div></section>\
+                  <section data-manage-panel="share" class="gnb-management-panel active"><div class="gnb-management-action-slot" id="gnbShareActionSlot"></div></section>\
                   <section data-manage-panel="admin" class="gnb-management-panel" hidden><div class="gnb-management-action-slot" id="gnbAdminActionSlot"></div></section>\
                   <section data-manage-panel="root" class="gnb-management-panel" hidden><div id="gnbRootActionSlot"></div></section>\
                 </div>\
@@ -1911,7 +1909,7 @@
           if(rootPanel) qs('#gnbRootActionSlot', modalPanel).appendChild(rootPanel);
           qsa('[data-manage-tab]', modalPanel).forEach(function(btn){ btn.addEventListener('click', function(){ activateTab(modalPanel, btn.dataset.manageTab); }); });
           qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
-          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, 'overview'); });
+          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, 'share'); });
         }
         function init(){ initAccountManageModal(); initOperationManageModal(); }
         if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});

@@ -19747,6 +19747,23 @@ body.gnb-manage-scroll-lock{
 }
 
 
+/* ===== 2026-05-16 GNB 계정/운영 관리 탭-본문 간격 보정 ===== */
+.gnb-management-dialog .gnb-management-body,
+.gnb-operation-dialog .gnb-management-body{
+  padding-top:14px!important;
+}
+.gnb-management-dialog .gnb-management-tabs,
+.gnb-operation-dialog .gnb-management-tabs{
+  padding-bottom:12px!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog .gnb-management-body,
+  .gnb-operation-dialog .gnb-management-body{
+    padding-top:12px!important;
+  }
+}
+
+
 /* ===== 공통 로딩 UI 통일 : login loader 기준 ===== */
 :root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
 #pageLoader,
