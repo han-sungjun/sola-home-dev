@@ -1,154 +1,110 @@
-/* 더운정픽 공통 모달 시스템
-   - 모든 dialog 기반 팝업의 기본 UX를 통일합니다.
-   - 페이지별 상세 스타일은 유지하되, backdrop/애니메이션/스크롤/안전영역을 공통화합니다.
+/* 더운정픽 공통 모달 시스템 v2
+   - 기존 <dialog>는 건드리지 않습니다.
+   - CommonModal.open()으로 호출한 동적 모달만 공통 UI/스크롤 잠금을 적용합니다.
 */
 :root{
-  --common-modal-z: 2147483000;
-  --common-modal-radius: 28px;
-  --common-modal-backdrop: rgba(15,23,42,.48);
-  --common-modal-blur: 12px;
-  --common-modal-shadow: 0 26px 80px rgba(15,23,42,.24);
-  --common-modal-border: rgba(255,255,255,.72);
-  --common-modal-bg: rgba(255,255,255,.96);
+  --common-modal-z:2147483000;
+  --common-modal-backdrop:rgba(15,23,42,.48);
+  --common-modal-blur:12px;
 }
 
 html.common-modal-lock,
 body.common-modal-lock{
+  width:100%!important;
   overflow:hidden!important;
   overscroll-behavior:none!important;
-  touch-action:none;
 }
-
 body.common-modal-lock{
   position:fixed!important;
-  width:100%!important;
   left:0!important;
   right:0!important;
 }
 
-dialog.common-modal,
-dialog[data-common-modal="true"]{
-  position:fixed!important;
-  inset:0!important;
-  width:min(94vw, 720px);
-  max-width:calc(100vw - 28px);
-  max-height:calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  margin:auto!important;
-  padding:0!important;
-  border:0!important;
-  background:transparent!important;
-  color:inherit;
-  overflow:visible!important;
-  z-index:var(--common-modal-z)!important;
-}
-
-dialog.common-modal::backdrop,
-dialog[data-common-modal="true"]::backdrop{
-  background:var(--common-modal-backdrop)!important;
+.common-modal-root{position:relative;z-index:var(--common-modal-z);}
+.common-modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:var(--common-modal-z);
+  display:grid;
+  place-items:center;
+  padding:calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+  background:var(--common-modal-backdrop);
   backdrop-filter:blur(var(--common-modal-blur));
   -webkit-backdrop-filter:blur(var(--common-modal-blur));
+  overscroll-behavior:none;
+  touch-action:none;
 }
-
-dialog.common-modal:not([open]),
-dialog[data-common-modal="true"]:not([open]){
-  display:none!important;
-}
-
-dialog.common-modal[open],
-dialog[data-common-modal="true"][open]{
-  display:grid!important;
-  place-items:center;
-}
-
-.common-modal-card,
-.common-modal-surface,
-dialog.common-modal > :first-child,
-dialog[data-common-modal="true"] > :first-child{
-  max-height:calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  overflow:hidden;
-  border-radius:var(--common-modal-radius)!important;
-  background:var(--common-modal-bg);
-  box-shadow:var(--common-modal-shadow)!important;
-  border:1px solid var(--common-modal-border);
-}
-
-dialog.common-modal.common-modal--scroll > :first-child,
-dialog[data-common-modal="true"].common-modal--scroll > :first-child{
+.common-modal-stage{
+  max-width:100%;
+  max-height:100%;
   display:flex;
-  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  touch-action:auto;
+  animation:commonModalIn .18s cubic-bezier(.22,.8,.24,1) both;
 }
+.common-modal-stage > *{max-width:100%;max-height:100%;}
 
-.common-modal-header,
-.common-modal-tabs,
-.common-modal-footer,
-.gnb-manage-head,
-.gnb-manage-tabs{
-  flex:0 0 auto;
+/* GNB 계정/운영 관리 팝업은 공통 루트 안에서만 고정 높이/내부 스크롤 적용 */
+.common-modal-stage .gnb-management-dialog,
+.common-modal-stage .gnb-operation-dialog{
+  position:relative!important;
+  display:block!important;
+  width:min(560px,calc(100vw - 24px))!important;
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:30px!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 32px 80px rgba(15,23,42,.28)!important;
+  overflow:hidden!important;
+  color:#0f172a;
 }
-
-.common-modal-body,
-.common-modal-content,
-.gnb-manage-panels{
-  flex:1 1 auto;
-  min-height:0;
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-}
-
-/* GNB 계정/운영 관리 탭 모달 전용 공통 보정 */
-.gnb-management-dialog{
-  width:min(94vw, 520px)!important;
-}
-.gnb-management-dialog > .gnb-manage-card{
-  width:100%;
-  height:min(76dvh, 680px);
+.common-modal-stage .gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
   display:flex!important;
   flex-direction:column!important;
+  overflow:hidden!important;
 }
-.gnb-management-dialog .gnb-manage-head,
-.gnb-management-dialog .gnb-manage-tabs{
+.common-modal-stage .gnb-management-head,
+.common-modal-stage .gnb-management-tabs{
   flex:0 0 auto!important;
 }
-.gnb-management-dialog .gnb-manage-panels{
+.common-modal-stage .gnb-management-tabs{
+  position:relative!important;
+  z-index:3!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(226,232,240,.72)!important;
+}
+.common-modal-stage .gnb-management-body{
   flex:1 1 auto!important;
   min-height:0!important;
   overflow-y:auto!important;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
 }
-
-/* 운영 관리도 탭 위치가 흔들리지 않도록 동일 고정 */
-.gnb-operation-dialog > .gnb-manage-card{
-  height:min(72dvh, 620px);
-}
-
-/* 열림/닫힘 애니메이션 공통 */
-dialog.common-modal[open] > :first-child,
-dialog[data-common-modal="true"][open] > :first-child{
-  animation:commonModalIn .18s cubic-bezier(.22,.8,.24,1) both;
+.common-modal-stage .gnb-management-panel{
+  min-height:100%!important;
+  align-content:start!important;
 }
 
 @keyframes commonModalIn{
-  from{opacity:0; transform:translateY(14px) scale(.975);}
-  to{opacity:1; transform:translateY(0) scale(1);}
+  from{opacity:0;transform:translateY(14px) scale(.975);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+@media (max-width:520px){
+  .common-modal-overlay{padding:calc(10px + env(safe-area-inset-top)) 9px calc(10px + env(safe-area-inset-bottom));}
+  .common-modal-stage .gnb-management-dialog,
+  .common-modal-stage .gnb-operation-dialog{
+    width:calc(100vw - 18px)!important;
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+    border-radius:26px!important;
+  }
 }
 
-@media (max-width:480px){
-  dialog.common-modal,
-  dialog[data-common-modal="true"]{
-    width:calc(100vw - 20px)!important;
-    max-width:calc(100vw - 20px)!important;
-    max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-  .common-modal-card,
-  .common-modal-surface,
-  dialog.common-modal > :first-child,
-  dialog[data-common-modal="true"] > :first-child{
-    max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    border-radius:24px!important;
-  }
-  .gnb-management-dialog > .gnb-manage-card{
-    height:min(78dvh, 660px);
-  }
-}
+.common-modal-stash{display:none!important;}

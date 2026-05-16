@@ -1,18 +1,28 @@
 (function(){
   'use strict';
 
+  var root = null;
+  var overlay = null;
+  var stage = null;
   var scrollY = 0;
-  var openCount = 0;
+  var currentContent = null;
+  var currentOptions = null;
+  var currentPlaceholder = null;
   var initialized = false;
 
-  function isDialogModalTarget(dialog){
-    if(!dialog || dialog.tagName !== 'DIALOG') return false;
-    if(dialog.classList.contains('app-alert')) return false; // alert/confirm은 common-alert가 담당
-    return true;
+  function ensureRoot(){
+    if(root) return root;
+    root = document.getElementById('commonModalRoot');
+    if(!root){
+      root = document.createElement('div');
+      root.id = 'commonModalRoot';
+      root.className = 'common-modal-root';
+      document.body.appendChild(root);
+    }
+    return root;
   }
 
   function lockBody(){
-    if(openCount > 0) return;
     scrollY = window.scrollY || document.documentElement.scrollTop || 0;
     document.documentElement.classList.add('common-modal-lock');
     document.body.classList.add('common-modal-lock');
@@ -20,132 +30,104 @@
   }
 
   function unlockBody(){
-    if(openCount > 0) return;
     document.documentElement.classList.remove('common-modal-lock');
     document.body.classList.remove('common-modal-lock');
     document.body.style.top = '';
     window.scrollTo(0, scrollY || 0);
   }
 
-  function markDialog(dialog){
-    if(!isDialogModalTarget(dialog)) return dialog;
-    dialog.dataset.commonModal = 'true';
-    dialog.classList.add('common-modal');
-    dialog.classList.add('common-modal--scroll');
-    dialog.addEventListener('cancel', function(event){
-      // ESC/뒤로가기성 닫힘은 기존 정책과 동일하게 방지
-      if(dialog.dataset.allowEscClose !== 'true') event.preventDefault();
-    });
-    return dialog;
+  function focusFirst(selector){
+    window.setTimeout(function(){
+      var target = selector && stage ? stage.querySelector(selector) : null;
+      if(!target && stage) target = stage.querySelector('[autofocus], button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(target && target.focus) target.focus({preventScroll:true});
+    }, 30);
   }
 
-  function markAllDialogs(root){
-    Array.prototype.forEach.call((root || document).querySelectorAll('dialog'), markDialog);
-  }
-
-  function afterOpen(dialog){
-    if(!isDialogModalTarget(dialog)) return;
-    markDialog(dialog);
-    if(dialog.dataset.commonModalOpened === 'true') return;
-    dialog.dataset.commonModalOpened = 'true';
-    openCount += 1;
-    lockBody();
-  }
-
-  function afterClose(dialog){
-    if(!isDialogModalTarget(dialog)) return;
-    if(dialog.dataset.commonModalOpened !== 'true') return;
-    dialog.dataset.commonModalOpened = 'false';
-    openCount = Math.max(0, openCount - 1);
+  function close(){
+    if(!overlay) return;
+    var opts = currentOptions || {};
+    var content = currentContent;
+    if(content && currentPlaceholder && currentPlaceholder.parentNode){
+      currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
+      currentPlaceholder.remove();
+    }else if(content && content.parentNode){
+      content.parentNode.removeChild(content);
+    }
+    document.removeEventListener('keydown', trapEsc, true);
+    overlay.remove();
+    overlay = null;
+    stage = null;
+    currentContent = null;
+    currentOptions = null;
+    currentPlaceholder = null;
     unlockBody();
+    if(typeof opts.onClose === 'function') opts.onClose(content);
   }
 
-  function patchDialogPrototype(){
-    if(!window.HTMLDialogElement || window.HTMLDialogElement.__commonModalPatched) return;
-    var proto = window.HTMLDialogElement.prototype;
-    var nativeShowModal = proto.showModal;
-    var nativeShow = proto.show;
-    var nativeClose = proto.close;
+  function open(options){
+    options = options || {};
+    close();
+    ensureRoot();
 
-    if(typeof nativeShowModal === 'function'){
-      proto.showModal = function(){
-        markDialog(this);
-        var result = nativeShowModal.apply(this, arguments);
-        afterOpen(this);
-        return result;
-      };
+    var content = options.content;
+    if(typeof content === 'string'){
+      var template = document.createElement('template');
+      template.innerHTML = content.trim();
+      content = template.content.firstElementChild;
     }
-    if(typeof nativeShow === 'function'){
-      proto.show = function(){
-        markDialog(this);
-        var result = nativeShow.apply(this, arguments);
-        afterOpen(this);
-        return result;
-      };
-    }
-    if(typeof nativeClose === 'function'){
-      proto.close = function(){
-        var result = nativeClose.apply(this, arguments);
-        afterClose(this);
-        return result;
-      };
-    }
-    window.HTMLDialogElement.__commonModalPatched = true;
-  }
+    if(!content) return null;
 
-  function observeDynamicDialogs(){
-    if(!window.MutationObserver) return;
-    var observer = new MutationObserver(function(mutations){
-      mutations.forEach(function(mutation){
-        Array.prototype.forEach.call(mutation.addedNodes || [], function(node){
-          if(!node || node.nodeType !== 1) return;
-          if(node.tagName === 'DIALOG') markDialog(node);
-          else if(node.querySelectorAll) markAllDialogs(node);
-        });
-      });
-    });
-    observer.observe(document.documentElement, { childList:true, subtree:true });
-  }
+    overlay = document.createElement('div');
+    overlay.className = 'common-modal-overlay' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.setAttribute('role','presentation');
 
-  function setupBackdropGuard(){
-    document.addEventListener('click', function(event){
-      var dialog = event.target && event.target.closest ? event.target.closest('dialog.common-modal,[data-common-modal="true"]') : null;
-      if(!dialog) return;
-      // dialog 자체/backdrop 영역 클릭으로 닫히지 않게 유지
-      if(event.target === dialog){
+    stage = document.createElement('div');
+    stage.className = 'common-modal-stage' + (options.stageClass ? ' ' + options.stageClass : '');
+    stage.setAttribute('role','dialog');
+    stage.setAttribute('aria-modal','true');
+    if(options.labelledby) stage.setAttribute('aria-labelledby', options.labelledby);
+
+    if(content.parentNode){
+      currentPlaceholder = document.createComment('common-modal-placeholder');
+      content.parentNode.insertBefore(currentPlaceholder, content);
+    }
+    stage.appendChild(content);
+    overlay.appendChild(stage);
+    root.appendChild(overlay);
+
+    overlay.addEventListener('click', function(event){
+      if(event.target === overlay){
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
+    document.addEventListener('keydown', trapEsc, true);
+
+    currentContent = content;
+    currentOptions = options;
+    lockBody();
+    focusFirst(options.initialFocusSelector);
+    return content;
+  }
+
+  function trapEsc(event){
+    if(!overlay) return;
+    if(event.key === 'Escape'){
+      event.preventDefault();
+      event.stopPropagation();
+      if(currentOptions && currentOptions.allowEscClose === true) close();
+    }
   }
 
   function init(){
     if(initialized) return;
     initialized = true;
-    patchDialogPrototype();
-    markAllDialogs(document);
-    observeDynamicDialogs();
-    setupBackdropGuard();
+    ensureRoot();
   }
 
-  window.CommonModal = {
-    init:init,
-    prepare:markDialog,
-    open:function(dialog){
-      dialog = typeof dialog === 'string' ? document.querySelector(dialog) : dialog;
-      if(!dialog) return;
-      markDialog(dialog);
-      if(typeof dialog.showModal === 'function') dialog.showModal();
-      else { dialog.setAttribute('open',''); afterOpen(dialog); }
-    },
-    close:function(dialog){
-      dialog = typeof dialog === 'string' ? document.querySelector(dialog) : dialog;
-      if(!dialog) return;
-      if(typeof dialog.close === 'function') dialog.close();
-      else { dialog.removeAttribute('open'); afterClose(dialog); }
-    }
-  };
+  window.CommonModal = { init:init, open:open, close:close, isOpen:function(){ return !!overlay; } };
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
 })();
