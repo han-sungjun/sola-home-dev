@@ -1789,9 +1789,28 @@
         function preventEscClose(dialog){
           dialog.addEventListener('cancel', function(event){ event.preventDefault(); });
         }
+        var gnbManageScrollY = 0;
+        var gnbManageLockCount = 0;
+        function lockGnbManageScroll(){
+          gnbManageLockCount += 1;
+          if(gnbManageLockCount > 1) return;
+          gnbManageScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+          document.documentElement.classList.add('gnb-manage-scroll-lock');
+          document.body.classList.add('gnb-manage-scroll-lock');
+          document.body.style.top = '-' + gnbManageScrollY + 'px';
+        }
+        function unlockGnbManageScroll(){
+          gnbManageLockCount = Math.max(0, gnbManageLockCount - 1);
+          if(gnbManageLockCount > 0) return;
+          document.documentElement.classList.remove('gnb-manage-scroll-lock');
+          document.body.classList.remove('gnb-manage-scroll-lock');
+          document.body.style.top = '';
+          window.scrollTo(0, gnbManageScrollY || 0);
+        }
         function openDialog(dialog, firstTab){
           if(!dialog) return;
           activateTab(dialog, firstTab || 'notice');
+          lockGnbManageScroll();
           if(typeof dialog.showModal === 'function') dialog.showModal();
           else dialog.setAttribute('open','');
           setTimeout(function(){
@@ -1803,6 +1822,7 @@
           if(!dialog) return;
           if(typeof dialog.close === 'function') dialog.close();
           else dialog.removeAttribute('open');
+          unlockGnbManageScroll();
         }
         function initAccountManageModal(){
           var summary = qs('#gnbSettingsAccountSummary');

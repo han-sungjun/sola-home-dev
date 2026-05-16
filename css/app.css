@@ -19536,3 +19536,37 @@ body.app-role-admin .gnb-operation-top-btn.admin-only-menu{
   visibility:visible;
   transform:translateX(-50%) translateY(0);
 }
+
+
+/* ===== 2026-05 GNB 탭 팝업 스크롤 잠금 보정 ===== */
+html.gnb-manage-scroll-lock,
+body.gnb-manage-scroll-lock{
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.gnb-manage-scroll-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  touch-action:none!important;
+}
+.gnb-management-dialog[open]{
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+}
+.gnb-management-shell{
+  overflow:hidden!important;
+}
+.gnb-management-body{
+  overflow:visible!important;
+  max-height:none!important;
+}
+.gnb-management-tabs{
+  overscroll-behavior:contain!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog{
+    max-height:calc(100dvh - 36px)!important;
+  }
+}
