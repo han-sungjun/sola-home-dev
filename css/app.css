@@ -2247,6 +2247,32 @@ body.app-role-resident [data-view="shareinsights"]{
 .profile-upload-plus:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 14px 28px rgba(15,23,42,.26)}
 .profile-upload-plus:active{transform:scale(.94)}
 .profile-upload-plus[disabled]{opacity:.55;cursor:wait;transform:none;}
+
+/* ===== 계정 정보 수정 모달: 프로필 업로드 + 버튼 접근성 예외 =====
+/* 공통 접근성 CSS(button min 44px)는 유지하고, 프로필 이미지 위의 + 버튼만 시각 크기 예외 처리 */
+#accountProfileUploadBtn.profile-upload-plus{
+ min-width:28px!important;
+ min-height:28px!important;
+ width:28px!important;
+ height:28px!important;
+ padding:0!important;
+ right:-6px!important;
+ bottom:-6px!important;
+ border-radius:999px!important;
+ z-index:3!important;
+}
+@media (max-width:768px){
+ #accountProfileUploadBtn.profile-upload-plus{
+  min-width:26px!important;
+  min-height:26px!important;
+  width:26px!important;
+  height:26px!important;
+  right:-4px!important;
+  bottom:-4px!important;
+  font-size:16px!important;
+ }
+}
+
 .profile-file-input{display:none!important;}
 .profile-upload-status{display:block;margin-top:8px;font-size:11px;font-weight:800;color:#64748b;line-height:1.5;}
 .profile-upload-status.success{color:#1d4ed8;}
@@ -20022,45 +20048,4 @@ body.gnb-manage-scroll-lock{
   background-size:200% 100%!important;
   box-shadow:0 0 24px rgba(96,165,250,.34)!important;
   animation:upickCommonLoaderFlow 1.18s ease-in-out infinite!important;
-}
-
-
-/* ===== v81 모바일 계정 정보 수정 모달: 버튼 안정화 + 프사 + 버튼 축소 ===== */
-@media (max-width: 420px){
-  #accountEditModal .account-edit-actions{
-    display:flex!important;
-    flex-direction:row!important;
-    align-items:stretch!important;
-    gap:8px!important;
-    margin-top:8px!important;
-    border:0!important;
-    border-radius:0!important;
-    overflow:visible!important;
-    background:transparent!important;
-    box-shadow:none!important;
-  }
-  #accountEditModal .account-edit-actions .btn{
-    flex:1 1 0!important;
-    min-width:0!important;
-    min-height:50px!important;
-    border-radius:16px!important;
-    box-shadow:none!important;
-  }
-  #accountEditModal .account-edit-actions .btn-soft{
-    border:1px solid rgba(191,219,254,.95)!important;
-    border-right:1px solid rgba(191,219,254,.95)!important;
-    background:#fff!important;
-  }
-  #accountEditModal .account-edit-actions .btn-primary{
-    border:0!important;
-  }
-  #accountEditModal .profile-upload-plus{
-    width:18px!important;
-    height:18px!important;
-    right:-2px!important;
-    bottom:-2px!important;
-    font-size:12px!important;
-    line-height:1!important;
-    box-shadow:0 5px 12px rgba(15,23,42,.18), inset 0 0 0 1px rgba(255,255,255,.25)!important;
-  }
 }
