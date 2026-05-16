@@ -1,4 +1,4 @@
-/* 더운정픽 공통 알럿/컨펌 UI v2026051601
+/* 더운정픽 공통 알럿/컨펌 UI v2026051602
    로그인 화면의 부드러운 오버레이/카드 톤을 전 페이지 공통 기준으로 사용합니다. */
 :root{
   --upick-alert-navy:#0f172a;
@@ -88,6 +88,8 @@ dialog.app-alert[open].show .app-alert-card{
 .app-alert-title{margin:0!important;font-size:18px!important;line-height:1.3!important;letter-spacing:-.03em!important;font-weight:800!important;color:#0f172a!important;}
 .app-alert-message{margin:0!important;color:#475569!important;font-size:15px!important;line-height:1.75!important;white-space:pre-line!important;word-break:keep-all!important;overflow-wrap:anywhere!important;}
 .app-alert-actions{display:flex!important;justify-content:flex-end!important;gap:10px!important;margin-top:22px!important;}
+.app-alert-actions.is-alert .app-alert-cancel{display:none!important;}
+.app-alert-actions.is-confirm .app-alert-cancel{display:inline-flex!important;}
 .app-alert-cancel,
 .app-alert-confirm{min-width:100px!important;border-radius:18px!important;padding:13px 18px!important;font-weight:800!important;cursor:pointer!important;transition:transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease, opacity .16s ease!important;}
 .app-alert-cancel{border:1px solid #dbe4f0!important;background:#fff!important;color:#0f172a!important;}
@@ -105,7 +107,10 @@ body.upick-alert-open .app-alert-card{touch-action:auto!important;}
 @media (max-width:420px){
   .app-alert,dialog.app-alert{padding:16px!important;}
   .app-alert-card,dialog.app-alert .app-alert-card{border-radius:26px!important;padding:22px!important;}
-  .app-alert-actions{display:grid!important;grid-template-columns:1fr 1fr!important;}
-  .app-alert-cancel.hidden + .app-alert-confirm,.app-alert-confirm:only-child{grid-column:1 / -1!important;}
-  .app-alert-cancel,.app-alert-confirm{width:100%!important;}
+  .app-alert-actions{display:grid!important;grid-template-columns:1fr 1fr!important;align-items:center!important;}
+  .app-alert-actions.is-alert .app-alert-cancel{display:block!important;visibility:hidden!important;pointer-events:none!important;}
+  .app-alert-actions.is-alert .app-alert-confirm{grid-column:2!important;}
+  .app-alert-actions.is-confirm .app-alert-cancel{grid-column:1!important;visibility:visible!important;pointer-events:auto!important;}
+  .app-alert-actions.is-confirm .app-alert-confirm{grid-column:2!important;}
+  .app-alert-cancel,.app-alert-confirm{width:100%!important;min-width:0!important;}
 }

@@ -1,4 +1,4 @@
-/* 더운정픽 공통 알럿/컨펌 v2026051601 */
+/* 더운정픽 공통 알럿/컨펌 v2026051602 */
 (function(){
   'use strict';
 
@@ -9,6 +9,7 @@
   var messageEl = null;
   var confirmBtn = null;
   var cancelBtn = null;
+  var actionsEl = null;
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
   function escapeText(value){ return String(value == null ? '' : value); }
@@ -41,6 +42,7 @@
     cancelBtn = qs('#appAlertCancel', alertEl) || qs('#appAlertCancel');
 
     var actions = qs('.app-alert-actions', alertEl);
+    actionsEl = actions;
     if(actions && !cancelBtn){
       cancelBtn = document.createElement('button');
       cancelBtn.className = 'app-alert-cancel hidden';
@@ -129,6 +131,10 @@
       cancelBtn.textContent = escapeText(options.cancelText || '취소');
       cancelBtn.classList.add('hidden');
       cancelBtn.setAttribute('aria-hidden','true');
+      if(actionsEl){
+        actionsEl.classList.add('is-alert');
+        actionsEl.classList.remove('is-confirm');
+      }
       confirmBtn.onclick = null;
       cancelBtn.onclick = null;
       var finish = function(){
@@ -154,6 +160,10 @@
       cancelBtn.setAttribute('aria-label', cancelBtn.textContent);
       cancelBtn.classList.remove('hidden');
       cancelBtn.removeAttribute('aria-hidden');
+      if(actionsEl){
+        actionsEl.classList.add('is-confirm');
+        actionsEl.classList.remove('is-alert');
+      }
       confirmBtn.onclick = null;
       cancelBtn.onclick = null;
       var finish = function(value){
