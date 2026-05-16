@@ -1132,6 +1132,12 @@
               나가기
             </span>
           </button>
+          <button aria-label="운영 관리 열기" class="gnb-icon-btn gnb-operation-top-btn admin-only-menu" id="openGnbOperationManageBtn" title="운영 관리" type="button">
+            <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/crown.svg">
+            <span class="gnb-tooltip">
+              운영 관리
+            </span>
+          </button>
           <button aria-label="전체 메뉴 닫기" class="gnb-close" id="gnbCloseBtn" title="닫기" type="button">
             ✕
           </button>
@@ -1232,7 +1238,7 @@
             </div>
           </div>
         </section>
-        <section aria-label="관리자 전용 메뉴" class="gnb-section admin-only-menu">
+        <section aria-label="관리자 전용 메뉴" class="gnb-section admin-only-menu gnb-admin-section-source">
           <div class="gnb-admin-premium">
             <div class="gnb-admin-head">
               <div>
@@ -1864,13 +1870,12 @@
         }
         function initOperationManageModal(){
           var admin = qs('.gnb-admin-premium');
-          if(!admin || qs('#openGnbOperationManageBtn')) return;
+          var openBtn = qs('#openGnbOperationManageBtn');
+          if(!admin || !openBtn || qs('#gnbOperationManageModal')) return;
           var oldActions = qs('.gnb-admin-actions', admin);
           var shareBtn = qs('[data-view-link="shareinsights"]', oldActions || admin);
           var adminBtn = qs('#openAdminPageFromGnbBtn');
           var rootPanel = qs('.gnb-root-panel', admin);
-          var openBtn = makeEl('<button class="gnb-operation-open-btn" id="openGnbOperationManageBtn" type="button"><span><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/crown.svg">운영 관리 열기</span><small>공유·관리자·Root 기능을 탭으로 확인</small></button>');
-          admin.appendChild(openBtn);
           if(oldActions && oldActions.parentElement) oldActions.remove();
           if(rootPanel && rootPanel.parentElement) rootPanel.remove();
 

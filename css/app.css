@@ -19469,3 +19469,70 @@ body nav.bottom-nav .nav-btn:focus:not(:focus-visible){
   .gnb-management-tabs button{min-width:72px;padding:10px 12px;}
   .gnb-management-body{padding:0 12px 14px;}
 }
+
+/* ===== 2026-05 GNB 운영 관리 상단 왕관 버튼 분리 ===== */
+.gnb-admin-section-source{
+  display:none!important;
+}
+.gnb-operation-top-btn.admin-only-menu{
+  display:none;
+}
+body.app-role-root .gnb-operation-top-btn.admin-only-menu,
+body.app-role-admin .gnb-operation-top-btn.admin-only-menu{
+  display:grid!important;
+}
+.gnb-operation-top-btn{
+  width:42px;
+  min-width:42px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(135deg,rgba(254,243,199,.22),rgba(245,158,11,.18));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 10px 22px rgba(15,23,42,.18);
+}
+.gnb-operation-top-btn .upick-svg-icon{
+  width:22px!important;
+  height:22px!important;
+  filter:drop-shadow(0 6px 10px rgba(245,158,11,.20));
+}
+.gnb-operation-top-btn:hover,
+.gnb-operation-top-btn:focus-visible{
+  background:linear-gradient(135deg,rgba(254,243,199,.34),rgba(245,158,11,.26));
+  border-color:rgba(253,230,138,.42);
+}
+.gnb-operation-top-btn .gnb-tooltip{
+  position:absolute;
+  left:50%;
+  top:calc(100% + 10px);
+  transform:translateX(-50%) translateY(-4px);
+  background:rgba(15,23,42,.96);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:-.02em;
+  padding:7px 10px;
+  border-radius:12px;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .16s ease, transform .16s ease, visibility .16s ease;
+  box-shadow:0 12px 24px rgba(15,23,42,.18);
+  z-index:5;
+}
+.gnb-operation-top-btn .gnb-tooltip::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-5px;
+  width:10px;
+  height:10px;
+  transform:translateX(-50%) rotate(45deg);
+  background:rgba(15,23,42,.96);
+  border-radius:2px;
+}
+.gnb-operation-top-btn:hover .gnb-tooltip,
+.gnb-operation-top-btn:focus-visible .gnb-tooltip{
+  opacity:1;
+  visibility:visible;
+  transform:translateX(-50%) translateY(0);
+}
