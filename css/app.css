@@ -19620,3 +19620,53 @@ body.gnb-manage-scroll-lock{
     max-height:calc(100dvh - 64px)!important;
   }
 }
+
+/* ===== 2026-05 운영 관리 팝업 탭 고정/내용부 스크롤 최종 보정 ===== */
+.gnb-management-dialog,
+.gnb-operation-dialog{
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  overflow:hidden!important;
+}
+.gnb-management-dialog .gnb-management-shell,
+.gnb-operation-dialog .gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.gnb-management-dialog .gnb-management-head,
+.gnb-management-dialog .gnb-management-tabs,
+.gnb-operation-dialog .gnb-management-head,
+.gnb-operation-dialog .gnb-management-tabs{
+  flex:0 0 auto!important;
+}
+.gnb-management-dialog .gnb-management-tabs,
+.gnb-operation-dialog .gnb-management-tabs{
+  position:relative!important;
+  z-index:3!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(226,232,240,.72)!important;
+}
+.gnb-management-dialog .gnb-management-body,
+.gnb-operation-dialog .gnb-management-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.gnb-management-dialog .gnb-management-panel,
+.gnb-operation-dialog .gnb-management-panel{
+  min-height:100%!important;
+  align-content:start!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog,
+  .gnb-operation-dialog{
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+  }
+}
