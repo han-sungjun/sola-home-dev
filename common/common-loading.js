@@ -26,30 +26,52 @@
     return typeof HTMLDialogElement !== 'undefined' && typeof document.createElement('dialog').showModal === 'function';
   }
 
-  function ensureLoader(){
-    var loader = document.getElementById('commonLoadingDialog');
-    if(loader) return loader;
+  function hasVisibleInitialLoader(){
+    var existing = document.getElementById('globalLoadingBar') || document.getElementById('pageLoader');
+    if(!existing) return null;
+    var initial = existing.dataset && existing.dataset.initialAppLoading === '1';
+    if(initial || isVisible(existing)) return existing;
+    return null;
+  }
 
-    if(supportsDialog()){
-      loader = document.createElement('dialog');
-      loader.id = 'commonLoadingDialog';
-      loader.className = 'global-loading upick-loading-dialog';
-      loader.setAttribute('aria-hidden','true');
-      loader.setAttribute('aria-modal','true');
-      loader.setAttribute('role','alertdialog');
-      loader.addEventListener('cancel', function(event){ event.preventDefault(); });
-      document.body.appendChild(loader);
-      return loader;
-    }
+  function hasOpenBlockingDialog(){
+    return !!document.querySelector('dialog[open]:not(#commonLoadingDialog), .common-modal-root.is-open, .app-alert.show, .sheet-modal.show');
+  }
 
-    loader = document.getElementById('globalLoadingBar') || document.getElementById('pageLoader');
+  function ensurePlainLoader(){
+    var loader = document.getElementById('globalLoadingBar') || document.getElementById('pageLoader');
     if(loader) return loader;
     loader = document.createElement('div');
-    loader.id = 'pageLoader';
-    loader.className = 'page-loader';
+    loader.id = 'globalLoadingBar';
+    loader.className = 'global-loading';
     loader.setAttribute('aria-hidden','true');
+    document.body.insertBefore(loader, document.body.firstChild);
+    return loader;
+  }
+
+  function ensureDialogLoader(){
+    var loader = document.getElementById('commonLoadingDialog');
+    if(loader) return loader;
+    loader = document.createElement('dialog');
+    loader.id = 'commonLoadingDialog';
+    loader.className = 'global-loading upick-loading-dialog';
+    loader.setAttribute('aria-hidden','true');
+    loader.setAttribute('aria-modal','true');
+    loader.setAttribute('role','alertdialog');
+    loader.addEventListener('cancel', function(event){ event.preventDefault(); });
     document.body.appendChild(loader);
     return loader;
+  }
+
+  function ensureLoader(forceTopLayer){
+    // 최초 공개앱 진입 로딩 중에는 이미 화면에 떠 있는 #globalLoadingBar를 재사용합니다.
+    // 여기서 dialog 로딩으로 갈아타면 로딩 UI가 중간에 다른 형태로 바뀌어 보입니다.
+    var initial = hasVisibleInitialLoader();
+    if(initial) return initial;
+
+    // 일반 페이지 로딩은 기존 전역 로더를 사용하고, 이미 dialog/alert 위에서 실행되는 작업만 top-layer dialog 로더를 사용합니다.
+    if((forceTopLayer || hasOpenBlockingDialog()) && supportsDialog()) return ensureDialogLoader();
+    return ensurePlainLoader();
   }
 
   function ensureMarkup(loader){
@@ -187,6 +209,7 @@
     loader.setAttribute('aria-hidden','true');
     // 핵심: dialog top-layer는 display:none이어도 클릭을 막을 수 있어 반드시 close() 처리합니다.
     closeTopLayer(loader);
+    if(loader.dataset) delete loader.dataset.initialAppLoading;
   }
 
   function init(){
@@ -207,7 +230,7 @@
   window.UpickLoading = {
     show: function(message, subMessage){
       if(hideTimer){ clearTimeout(hideTimer); hideTimer = null; }
-      var loader = ensureLoader();
+      var loader = ensureLoader(false);
       bind(loader);
       ensureMarkup(loader);
       if(message || subMessage){

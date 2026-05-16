@@ -19848,3 +19848,178 @@ body.gnb-manage-scroll-lock{
 @keyframes upickV82LoaderBarFlow{0%,100%{opacity:.38;transform:scaleX(.72);background-position:0% 50%;}50%{opacity:.95;transform:scaleX(1);background-position:100% 50%;}}
 @media (max-width:420px){#pageLoader .loader-content,#globalLoadingBar .loader-content,.page-loader .loader-content,.global-loading .loader-content{gap:20px!important;transform:translateY(-4px)!important;}#pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}}
 @media (prefers-reduced-motion: reduce){#pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark,#pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before,#pageLoader .loader-mark::after,#globalLoadingBar .loader-mark::after,.page-loader .loader-mark::after,.global-loading .loader-mark::after{animation:none!important;}}
+
+/* v2026051607: 공개앱 최초 로딩 UI 안정화
+   common-loading.css가 로드되기 전/후에도 같은 형태가 유지되도록 app.css 끝에서도 공통 로딩 스타일을 다시 고정합니다. */
+#globalLoadingBar,
+#pageLoader,
+#commonLoadingDialog,
+.global-loading,
+.page-loader{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:24px!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:rgba(7,18,42,.54)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  z-index:2147483900!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+#globalLoadingBar.show,
+#pageLoader.show,
+#commonLoadingDialog.show,
+.global-loading.show,
+.page-loader.show,
+#globalLoadingBar[aria-hidden="false"],
+#pageLoader[aria-hidden="false"],
+#commonLoadingDialog[aria-hidden="false"],
+.global-loading[aria-hidden="false"],
+.page-loader[aria-hidden="false"]{display:flex!important;}
+#globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible),
+#pageLoader[aria-hidden="true"]:not(.show):not(.is-visible),
+#commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible),
+.global-loading[aria-hidden="true"]:not(.show):not(.is-visible),
+.page-loader[aria-hidden="true"]:not(.show):not(.is-visible){display:none!important;pointer-events:none!important;}
+#globalLoadingBar::before,
+#pageLoader::before,
+#commonLoadingDialog::before,
+.global-loading::before,
+.page-loader::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar .loader-content,
+#pageLoader .loader-content,
+#commonLoadingDialog .loader-content,
+.global-loading .loader-content,
+.page-loader .loader-content{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:22px!important;
+  min-width:0!important;
+  text-align:center!important;
+}
+#globalLoadingBar .loader-mark,
+#pageLoader .loader-mark,
+#commonLoadingDialog .loader-mark,
+.global-loading .loader-mark,
+.page-loader .loader-mark{
+  width:108px!important;
+  height:108px!important;
+  min-width:108px!important;
+  min-height:108px!important;
+  border-radius:34px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
+  border:1px solid rgba(191,219,254,.92)!important;
+  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  display:grid!important;
+  place-items:center!important;
+  position:relative!important;
+  overflow:visible!important;
+  transform:none!important;
+  animation:upickCommonLoaderFloat 1.3s ease-in-out infinite!important;
+}
+#globalLoadingBar .loader-mark::before,
+#pageLoader .loader-mark::before,
+#commonLoadingDialog .loader-mark::before,
+.global-loading .loader-mark::before,
+.page-loader .loader-mark::before{
+  content:""!important;
+  width:76px!important;
+  height:76px!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  display:block!important;
+  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;
+  transform-origin:center!important;
+  animation:upickCommonLoaderLogo 1.3s ease-in-out infinite!important;
+}
+#globalLoadingBar .loader-mark::after,
+#pageLoader .loader-mark::after,
+#commonLoadingDialog .loader-mark::after,
+.global-loading .loader-mark::after,
+.page-loader .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-10px!important;
+  width:auto!important;
+  height:auto!important;
+  left:-10px!important;
+  right:-10px!important;
+  top:-10px!important;
+  bottom:-10px!important;
+  border-radius:42px!important;
+  border:2px solid rgba(96,165,250,.20)!important;
+  border-top-color:#60a5fa!important;
+  border-right-color:#2563eb!important;
+  background:none!important;
+  transform:none!important;
+  opacity:1!important;
+  animation:upickCommonLoaderRing 1.05s linear infinite!important;
+  box-shadow:0 0 24px rgba(37,99,235,.18)!important;
+}
+#globalLoadingBar .loader-mark img,
+#pageLoader .loader-mark img,
+#commonLoadingDialog .loader-mark img,
+.global-loading .loader-mark img,
+.page-loader .loader-mark img,
+#globalLoadingBar .loader-mark span,
+#pageLoader .loader-mark span,
+#commonLoadingDialog .loader-mark span,
+.global-loading .loader-mark span,
+.page-loader .loader-mark span{display:none!important;opacity:0!important;visibility:hidden!important;}
+#globalLoadingBar .loader-message,
+#pageLoader .loader-message,
+#commonLoadingDialog .loader-message,
+.global-loading .loader-message,
+.page-loader .loader-message{
+  margin:0!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+  line-height:1.45!important;
+  text-shadow:0 10px 28px rgba(0,0,0,.24)!important;
+}
+#globalLoadingBar .loader-sub-message,
+#pageLoader .loader-sub-message,
+#commonLoadingDialog .loader-sub-message,
+.global-loading .loader-sub-message,
+.page-loader .loader-sub-message{
+  margin:0!important;
+  color:rgba(226,232,240,.86)!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1.45!important;
+}
+#globalLoadingBar .loader-content::after,
+#pageLoader .loader-content::after,
+#commonLoadingDialog .loader-content::after,
+.global-loading .loader-content::after,
+.page-loader .loader-content::after{
+  content:""!important;
+  width:min(210px,52vw)!important;
+  height:4px!important;
+  border-radius:999px!important;
+  margin-top:2px!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.86),transparent)!important;
+  background-size:200% 100%!important;
+  box-shadow:0 0 24px rgba(96,165,250,.34)!important;
+  animation:upickCommonLoaderFlow 1.18s ease-in-out infinite!important;
+}
