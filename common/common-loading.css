@@ -1,4 +1,4 @@
-/* 더운정픽 공통 로딩 UI v2026051608
+/* 더운정픽 공통 로딩 UI v2026051609
    - 운영계 로그인 로딩바의 glass + 로고 동시 부유 모션을 개발계 공통 로딩에 적용
    - dialog/top-layer 방식은 사용하지 않고 기존 #pageLoader / #globalLoadingBar DOM만 재사용 */
 :root{
@@ -34,9 +34,9 @@
   padding:24px!important;
   margin:0!important;
   overflow:hidden!important;
-  background:rgba(226,234,245,.72)!important;
-  backdrop-filter:blur(15px) saturate(1.08)!important;
-  -webkit-backdrop-filter:blur(15px) saturate(1.08)!important;
+  background:rgba(226,234,245,.82)!important;
+  backdrop-filter:blur(7px)!important;
+  -webkit-backdrop-filter:blur(7px)!important;
   z-index:2147483000!important;
   opacity:1!important;
   visibility:visible!important;
@@ -74,9 +74,8 @@
   position:absolute!important;
   inset:0!important;
   background:
-    radial-gradient(ellipse at 50% 34%, rgba(37,99,235,.34), transparent 31%),
-    radial-gradient(ellipse at 50% 55%, rgba(255,255,255,.78), transparent 42%),
-    linear-gradient(180deg, rgba(9,37,86,.28) 0%, rgba(255,255,255,.40) 54%, rgba(238,231,219,.42) 100%)!important;
+    radial-gradient(ellipse at 50% 38%, rgba(37,99,235,.24), transparent 34%),
+    linear-gradient(180deg, rgba(9,37,86,.18) 0%, rgba(255,255,255,.44) 58%, rgba(238,231,219,.36) 100%)!important;
   pointer-events:none!important;
 }
 
@@ -110,7 +109,7 @@
   border-radius:29px!important;
   background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
   border:1px solid rgba(255,255,255,.56)!important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.80),inset 0 -1px 0 rgba(96,165,250,.13)!important;
+  box-shadow:0 14px 30px rgba(15,44,92,.13),inset 0 1px 0 rgba(255,255,255,.76)!important;
   display:grid!important;
   place-items:center!important;
   position:relative!important;
@@ -121,7 +120,7 @@
   transform:translate3d(0,0,0)!important;
   transform-origin:center center!important;
   will-change:transform!important;
-  animation:upickCommonLoaderFloatV8 1.65s ease-in-out infinite!important;
+  animation:upickCommonLoaderFloatV9 1.8s ease-in-out infinite!important;
 }
 
 #pageLoader .loader-mark::before,
@@ -133,7 +132,7 @@
   height:64px!important;
   display:block!important;
   background:var(--upick-loading-symbol) center/contain no-repeat!important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
+  filter:drop-shadow(0 5px 10px rgba(2,8,23,.10))!important;
   position:relative!important;
   z-index:2!important;
   transform:none!important;
@@ -159,11 +158,11 @@
   border-right-color:rgba(59,130,246,.32)!important;
   border-bottom-color:rgba(191,219,254,.04)!important;
   border-left-color:rgba(191,219,254,.08)!important;
-  box-shadow:0 0 13px rgba(96,165,250,.14)!important;
+  box-shadow:none!important;
   opacity:.56!important;
   background:transparent!important;
   transform-origin:center center!important;
-  animation:upickCommonLoaderOrbitV8 3s linear infinite!important;
+  animation:upickCommonLoaderOrbitV9 3.2s linear infinite!important;
   z-index:1!important;
   pointer-events:none!important;
 }
@@ -255,7 +254,7 @@
   margin-top:0!important;
   background:linear-gradient(90deg,transparent 0%,rgba(147,197,253,.30) 16%,rgba(96,165,250,.95) 50%,rgba(147,197,253,.30) 84%,transparent 100%)!important;
   box-shadow:0 0 14px rgba(96,165,250,.26),inset 0 1px 0 rgba(255,255,255,.22)!important;
-  animation:upickCommonLoaderBarV8 1.15s ease-in-out infinite!important;
+  animation:upickCommonLoaderBarV9 1.25s ease-in-out infinite!important;
 }
 
 html.upick-loading-lock,
@@ -264,19 +263,30 @@ body.upick-loading-lock{
   overscroll-behavior:none!important;
 }
 
-@keyframes upickCommonLoaderFloatV8{
+@keyframes upickCommonLoaderFloatV9{
   0%,100%{transform:translate3d(0,0,0)}
   50%{transform:translate3d(0,-4px,0)}
 }
-@keyframes upickCommonLoaderOrbitV8{
+@keyframes upickCommonLoaderOrbitV9{
   0%{transform:rotate(0deg);opacity:.56}
   35%{opacity:.82}
   70%{opacity:.68}
   100%{transform:rotate(360deg);opacity:.56}
 }
-@keyframes upickCommonLoaderBarV8{
+@keyframes upickCommonLoaderBarV9{
   0%,100%{opacity:.46;width:min(150px,38vw)}
   50%{opacity:1;width:min(190px,50vw)}
+}
+
+
+@media(max-width:430px){
+  #pageLoader,
+  #globalLoadingBar,
+  .page-loader,
+  .global-loading{
+    backdrop-filter:blur(5px)!important;
+    -webkit-backdrop-filter:blur(5px)!important;
+  }
 }
 
 @media(max-width:430px){

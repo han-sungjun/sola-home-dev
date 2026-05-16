@@ -17,6 +17,7 @@
 
   var boundLoaders = new WeakMap();
   var hideTimer = null;
+  var rafLockId = null;
 
   function isAdminPage(){
     return /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page');
@@ -105,12 +106,16 @@
   }
 
   function syncLock(){
-    var active = Array.prototype.some.call(
-      document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading'),
-      isVisible
-    );
-    document.documentElement.classList.toggle('upick-loading-lock', active);
-    document.body.classList.toggle('upick-loading-lock', active);
+    if(rafLockId) return;
+    rafLockId = window.requestAnimationFrame(function(){
+      rafLockId = null;
+      var active = Array.prototype.some.call(
+        document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading'),
+        isVisible
+      );
+      document.documentElement.classList.toggle('upick-loading-lock', active);
+      document.body.classList.toggle('upick-loading-lock', active);
+    });
   }
 
   function bind(loader){
@@ -153,13 +158,22 @@
       syncLock();
     }
 
-    var observer = new MutationObserver(function(){
-      ensureMarkup(loader);
-      isVisible(loader) ? start() : stop();
-    });
-    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden','style','open'] });
+    state.visible = null;
 
-    if(isVisible(loader)) start();
+    function syncState(){
+      var visible = isVisible(loader);
+      if(state.visible === visible){
+        syncLock();
+        return;
+      }
+      state.visible = visible;
+      visible ? start() : stop();
+    }
+
+    var observer = new MutationObserver(syncState);
+    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden'] });
+
+    syncState();
   }
 
   function hideOne(loader){
@@ -170,17 +184,9 @@
   }
 
   function init(){
+    // 성능 안정화: 전체 문서 subtree 감시는 제거합니다.
+    // 기존 로더는 초기 1회만 바인딩하고, 동적 로더는 show() 호출 시 ensureLoader()에서 직접 바인딩합니다.
     document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(bind);
-    var observer = new MutationObserver(function(mutations){
-      mutations.forEach(function(mutation){
-        mutation.addedNodes && Array.prototype.forEach.call(mutation.addedNodes, function(node){
-          if(!node || node.nodeType !== 1) return;
-          if(node.matches && node.matches('#pageLoader,#globalLoadingBar,.page-loader,.global-loading')) bind(node);
-          if(node.querySelectorAll) node.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(bind);
-        });
-      });
-    });
-    observer.observe(document.documentElement, { childList:true, subtree:true });
     syncLock();
   }
 
@@ -213,7 +219,7 @@
     refresh: init,
   };
 
-  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다.
+  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다. v2026051609
   window.showGlobalLoading = window.showGlobalLoading || function(message, subMessage){ return window.UpickLoading.show(message, subMessage); };
   window.hideGlobalLoading = window.hideGlobalLoading || function(){ return window.UpickLoading.hide(); };
 
