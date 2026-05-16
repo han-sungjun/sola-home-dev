@@ -19570,3 +19570,53 @@ body.gnb-manage-scroll-lock{
     max-height:calc(100dvh - 36px)!important;
   }
 }
+
+/* ===== 2026-05 GNB 탭 팝업: 배경 잠금 + 모달 내부 스크롤 + 고정 높이 보정 ===== */
+html.gnb-manage-scroll-lock,
+body.gnb-manage-scroll-lock{
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.gnb-manage-scroll-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  touch-action:auto!important;
+}
+.gnb-management-dialog{
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+}
+.gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.gnb-management-head,
+.gnb-management-tabs{
+  flex:0 0 auto!important;
+}
+.gnb-management-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.gnb-management-panel{
+  min-height:100%!important;
+  align-content:start!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog{
+    width:calc(100% - 18px)!important;
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+  }
+}
