@@ -2218,12 +2218,14 @@ async function submitPasswordChange(event){
     if(submitBtn){
       submitBtn.disabled = true;
       submitBtn.dataset.originalText = submitBtn.textContent;
-      submitBtn.textContent = '변경 중...';
     }
+    showGlobalLoading();
 
     const idToken = await auth.currentUser?.getIdToken?.(true);
     if(!idToken){
+      hideGlobalLoading(80);
       await openModalAlert('입장 정보가 만료되었습니다. 다시 입장해주세요.');
+      showGlobalLoading();
       redirectToLogin();
       return;
     }
@@ -2244,13 +2246,16 @@ async function submitPasswordChange(event){
       throw new Error(data.message || '비밀번호 변경 처리 중 오류가 발생했습니다.');
     }
 
+    hideGlobalLoading(80);
     closePasswordChangeModal();
     await openModalAlert(data.message || '비밀번호 변경이 완료되었습니다. 보안을 위해 다시 입장해주세요.');
+    showGlobalLoading();
     try{ await logoutServerSession(auth, API_URL[ENV]); }catch(_){}
     try{ await signOut(auth); }catch(_){}
     redirectToLogin();
   }catch(error){
     console.error('비밀번호 변경 실패', error);
+    hideGlobalLoading(80);
     await openModalAlert(error.message || '비밀번호 변경 처리 중 오류가 발생했습니다.', qs('#submitPasswordChangeBtn'));
   }finally{
     if(submitBtn){
