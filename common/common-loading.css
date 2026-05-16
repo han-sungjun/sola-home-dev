@@ -21,6 +21,7 @@
 
 #pageLoader,
 #globalLoadingBar,
+#commonLoadingDialog,
 .page-loader,
 .global-loading{
   position:fixed!important;
@@ -45,14 +46,17 @@
 
 #pageLoader.show,
 #globalLoadingBar.show,
+#commonLoadingDialog.show,
 .page-loader.show,
 .global-loading.show,
 #pageLoader.is-visible,
 #globalLoadingBar.is-visible,
+#commonLoadingDialog.is-visible,
 .page-loader.is-visible,
 .global-loading.is-visible,
 #pageLoader[aria-hidden="false"],
 #globalLoadingBar[aria-hidden="false"],
+#commonLoadingDialog[aria-hidden="false"],
 .page-loader[aria-hidden="false"],
 .global-loading[aria-hidden="false"]{
   display:flex!important;
@@ -60,6 +64,7 @@
 
 #pageLoader[aria-hidden="true"]:not(.show):not(.is-visible),
 #globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible),
+#commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible),
 .page-loader[aria-hidden="true"]:not(.show):not(.is-visible),
 .global-loading[aria-hidden="true"]:not(.show):not(.is-visible){
   display:none!important;
@@ -67,6 +72,7 @@
 
 #pageLoader::before,
 #globalLoadingBar::before,
+#commonLoadingDialog::before,
 .page-loader::before,
 .global-loading::before{
   content:""!important;
@@ -78,6 +84,7 @@
 
 #pageLoader .loader-content,
 #globalLoadingBar .loader-content,
+#commonLoadingDialog .loader-content,
 .page-loader .loader-content,
 .global-loading .loader-content{
   position:relative!important;
@@ -93,6 +100,7 @@
 
 #pageLoader .loader-mark,
 #globalLoadingBar .loader-mark,
+#commonLoadingDialog .loader-mark,
 .page-loader .loader-mark,
 .global-loading .loader-mark{
   width:108px!important;
@@ -113,6 +121,7 @@
 
 #pageLoader .loader-mark::before,
 #globalLoadingBar .loader-mark::before,
+#commonLoadingDialog .loader-mark::before,
 .page-loader .loader-mark::before,
 .global-loading .loader-mark::before{
   content:""!important;
@@ -127,6 +136,7 @@
 
 #pageLoader .loader-mark::after,
 #globalLoadingBar .loader-mark::after,
+#commonLoadingDialog .loader-mark::after,
 .page-loader .loader-mark::after,
 .global-loading .loader-mark::after{
   content:""!important;
@@ -151,18 +161,22 @@
 
 #pageLoader .loader-mark img,
 #globalLoadingBar .loader-mark img,
+#commonLoadingDialog .loader-mark img,
 .page-loader .loader-mark img,
 .global-loading .loader-mark img,
 #pageLoader .loader-mark .loader-orbit,
 #globalLoadingBar .loader-mark .loader-orbit,
+#commonLoadingDialog .loader-mark .loader-orbit,
 .page-loader .loader-mark .loader-orbit,
 .global-loading .loader-mark .loader-orbit,
 #pageLoader .loader-mark .arm,
 #globalLoadingBar .loader-mark .arm,
+#commonLoadingDialog .loader-mark .arm,
 .page-loader .loader-mark .arm,
 .global-loading .loader-mark .arm,
 #pageLoader .loader-mark span,
 #globalLoadingBar .loader-mark span,
+#commonLoadingDialog .loader-mark span,
 .page-loader .loader-mark span,
 .global-loading .loader-mark span{
   display:none!important;
@@ -172,6 +186,7 @@
 
 #pageLoader .loader-copy,
 #globalLoadingBar .loader-copy,
+#commonLoadingDialog .loader-copy,
 .page-loader .loader-copy,
 .global-loading .loader-copy{
   display:grid!important;
@@ -184,6 +199,7 @@
 
 #pageLoader .loader-copy.is-changing,
 #globalLoadingBar .loader-copy.is-changing,
+#commonLoadingDialog .loader-copy.is-changing,
 .page-loader .loader-copy.is-changing,
 .global-loading .loader-copy.is-changing{
   opacity:.62!important;
@@ -192,6 +208,7 @@
 
 #pageLoader .loader-message,
 #globalLoadingBar .loader-message,
+#commonLoadingDialog .loader-message,
 .page-loader .loader-message,
 .global-loading .loader-message{
   margin:0!important;
@@ -205,6 +222,7 @@
 
 #pageLoader .loader-sub-message,
 #globalLoadingBar .loader-sub-message,
+#commonLoadingDialog .loader-sub-message,
 .page-loader .loader-sub-message,
 .global-loading .loader-sub-message{
   margin:0!important;
@@ -217,6 +235,7 @@
 
 #pageLoader .loader-content::after,
 #globalLoadingBar .loader-content::after,
+#commonLoadingDialog .loader-content::after,
 .page-loader .loader-content::after,
 .global-loading .loader-content::after{
   content:""!important;
@@ -256,20 +275,44 @@ body.upick-loading-lock{
 @media (prefers-reduced-motion:reduce){
   #pageLoader .loader-mark,
   #globalLoadingBar .loader-mark,
+  #commonLoadingDialog .loader-mark,
   .page-loader .loader-mark,
   .global-loading .loader-mark,
   #pageLoader .loader-mark::before,
   #globalLoadingBar .loader-mark::before,
+  #commonLoadingDialog .loader-mark::before,
   .page-loader .loader-mark::before,
   .global-loading .loader-mark::before,
   #pageLoader .loader-mark::after,
-  #globalLoadingBar .loader-mark::after,
+  #commonLoadingDialog .loader-mark::after,
   .page-loader .loader-mark::after,
   .global-loading .loader-mark::after,
   #pageLoader .loader-content::after,
   #globalLoadingBar .loader-content::after,
+  #commonLoadingDialog .loader-content::after,
   .page-loader .loader-content::after,
   .global-loading .loader-content::after{
     animation:none!important;
   }
+}
+
+
+/* dialog 기반 최상위 로딩: showModal() top-layer로 기존 dialog 위에 표시 */
+#commonLoadingDialog{
+  border:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+  color:inherit!important;
+}
+#commonLoadingDialog::backdrop{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+#commonLoadingDialog[open],
+#commonLoadingDialog.show,
+#commonLoadingDialog.is-visible,
+#commonLoadingDialog[aria-hidden="false"]{
+  display:flex!important;
 }

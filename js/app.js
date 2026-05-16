@@ -1259,8 +1259,12 @@ showForegroundPushToast({
    gnbSheet?.setAttribute('aria-hidden', 'false');
    document.body.classList.add('gnb-open');
  }
- globalLoadingBar.classList.add('show');
- globalLoadingBar.setAttribute('aria-hidden', 'false');
+ if(window.UpickLoading && typeof window.UpickLoading.show === 'function'){
+   window.UpickLoading.show();
+ }else{
+   globalLoadingBar.classList.add('show');
+   globalLoadingBar.setAttribute('aria-hidden', 'false');
+ }
  }
 
  function hideGlobalLoading(delay=160){
@@ -1268,8 +1272,12 @@ showForegroundPushToast({
  clearTimeout(globalLoadingTimer);
  globalLoadingTimer = setTimeout(() => {
  const shouldKeepGnbOpen = document.body.dataset.gnbOpenBeforeLoading === '1';
+ if(window.UpickLoading && typeof window.UpickLoading.hide === 'function'){
+ window.UpickLoading.hide();
+ }else{
  globalLoadingBar.classList.remove('show');
  globalLoadingBar.setAttribute('aria-hidden', 'true');
+ }
  document.body.classList.remove('ui-loading-lock');
  document.documentElement.classList.remove('ui-loading-lock');
  if(shouldKeepGnbOpen){

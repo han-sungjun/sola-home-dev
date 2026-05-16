@@ -16,12 +16,31 @@
   ];
 
   var boundLoaders = new WeakMap();
+  var topLayerLoader = null;
 
   function isAdminPage(){
     return /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page');
   }
 
   function ensureLoader(){
+    // 기존 dialog(showModal) 위에 로딩을 올리려면 단순 fixed z-index로는 부족합니다.
+    // dialog top-layer가 모든 z-index보다 위에 있기 때문에 로딩도 dialog로 띄웁니다.
+    if(typeof HTMLDialogElement !== 'undefined') {
+      var dialogLoader = document.getElementById('commonLoadingDialog');
+      if(!dialogLoader){
+        dialogLoader = document.createElement('dialog');
+        dialogLoader.id = 'commonLoadingDialog';
+        dialogLoader.className = 'global-loading upick-loading-dialog';
+        dialogLoader.setAttribute('aria-hidden','true');
+        dialogLoader.setAttribute('aria-modal','true');
+        dialogLoader.setAttribute('role','alertdialog');
+        dialogLoader.addEventListener('cancel', function(event){ event.preventDefault(); });
+        document.body.appendChild(dialogLoader);
+      }
+      topLayerLoader = dialogLoader;
+      return dialogLoader;
+    }
+
     var loader = document.getElementById('globalLoadingBar') || document.getElementById('pageLoader');
     if(loader) return loader;
     loader = document.createElement('div');
@@ -88,7 +107,7 @@
 
   function syncLock(){
     var active = Array.prototype.some.call(
-      document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading'),
+      document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading'),
       isVisible
     );
     document.documentElement.classList.toggle('upick-loading-lock', active);
@@ -145,13 +164,13 @@
   }
 
   function init(){
-    document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(bind);
+    document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(bind);
     var observer = new MutationObserver(function(mutations){
       mutations.forEach(function(mutation){
         mutation.addedNodes && Array.prototype.forEach.call(mutation.addedNodes, function(node){
           if(!node || node.nodeType !== 1) return;
-          if(node.matches && node.matches('#pageLoader,#globalLoadingBar,.page-loader,.global-loading')) bind(node);
-          if(node.querySelectorAll) node.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(bind);
+          if(node.matches && node.matches('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading')) bind(node);
+          if(node.querySelectorAll) node.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(bind);
         });
       });
     });
@@ -171,11 +190,14 @@
       }
       loader.classList.add('show');
       loader.setAttribute('aria-hidden','false');
+      if(loader.tagName === 'DIALOG' && !loader.open){
+        try{ loader.showModal(); }catch(_){ try{ loader.show(); }catch(__){} }
+      }
       syncLock();
       return loader;
     },
     hide: function(){
-      document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(function(loader){
+      document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(function(loader){
         loader.classList.remove('show','is-visible');
         loader.setAttribute('aria-hidden','true');
       });
