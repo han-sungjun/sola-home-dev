@@ -19423,3 +19423,49 @@ body nav.bottom-nav .nav-btn:focus:not(:focus-visible){
     font-size:12px;
   }
 }
+
+
+/* ===== GNB 설정/운영 기능 탭 팝업 분리 v1 ===== */
+.gnb-summary-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.gnb-manage-open-btn,.gnb-operation-open-btn{border:1px solid rgba(37,99,235,.16);background:linear-gradient(180deg,#fff,#eff6ff);color:#1e3a8a;border-radius:999px;padding:12px 14px;font-weight:900;letter-spacing:-.03em;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 24px rgba(37,99,235,.10);cursor:pointer;min-height:46px;}
+.gnb-manage-open-btn:focus-visible,.gnb-operation-open-btn:focus-visible,.gnb-management-tabs button:focus-visible,.gnb-manage-close:focus-visible{outline:3px solid rgba(37,99,235,.35);outline-offset:3px;}
+.gnb-operation-open-btn{width:100%;margin-top:16px;border-radius:24px;padding:18px;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;box-shadow:0 18px 38px rgba(15,23,42,.18);flex-direction:column;align-items:flex-start;gap:7px;}
+.gnb-operation-open-btn span{display:flex;align-items:center;gap:8px;font-size:17px;}
+.gnb-operation-open-btn small{font-size:12px;color:rgba(255,255,255,.76);font-weight:800;}
+.gnb-management-dialog{width:min(560px,calc(100% - 24px))!important;max-height:min(760px,calc(100dvh - 36px))!important;border:none!important;border-radius:30px!important;padding:0!important;background:rgba(255,255,255,.96)!important;box-shadow:0 32px 80px rgba(15,23,42,.28)!important;overflow:hidden!important;}
+.gnb-management-dialog::backdrop{background:rgba(15,23,42,.48)!important;backdrop-filter:blur(6px)!important;}
+.gnb-management-shell{display:flex;flex-direction:column;max-height:min(760px,calc(100dvh - 36px));}
+.gnb-management-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:22px 22px 14px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border-bottom:1px solid rgba(148,163,184,.20);}
+.gnb-management-head.operation{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;}
+.gnb-management-kicker{display:inline-flex;align-items:center;border-radius:999px;padding:7px 10px;background:rgba(37,99,235,.10);color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:8px;}
+.gnb-management-head.operation .gnb-management-kicker{background:rgba(255,255,255,.14);color:#fff;}
+.gnb-management-head h3{margin:0;font-size:23px;letter-spacing:-.06em;line-height:1.15;}
+.gnb-management-head p{margin:8px 0 0;font-size:13px;line-height:1.55;color:#64748b;font-weight:750;}
+.gnb-management-head.operation p{color:rgba(255,255,255,.78);}
+.gnb-manage-close{flex:0 0 auto;width:42px;height:42px;border:none;border-radius:16px;background:rgba(255,255,255,.88);color:#0f172a;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.10);}
+.gnb-management-tabs{display:flex;gap:8px;padding:14px 16px 10px;overflow-x:auto;scrollbar-width:none;background:#fff;}
+.gnb-management-tabs::-webkit-scrollbar{display:none;}
+.gnb-management-tabs button{flex:1 0 auto;min-width:76px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;border-radius:999px;padding:11px 14px;font-size:13px;font-weight:950;cursor:pointer;}
+.gnb-management-tabs button.active{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 10px 22px rgba(15,23,42,.16);}
+.gnb-management-body{padding:0 16px 18px;overflow:auto;-webkit-overflow-scrolling:touch;}
+.gnb-management-panel{display:grid;gap:12px;}
+.gnb-management-panel[hidden]{display:none!important;}
+.gnb-management-dialog .gnb-settings-section{box-shadow:none;margin:0;border-radius:24px;border:1px solid rgba(226,232,240,.95);background:#fff;}
+.gnb-management-dialog .gnb-settings-section + .gnb-settings-section{margin-top:12px;}
+.gnb-management-dialog .gnb-action-grid{grid-template-columns:1fr;}
+.gnb-management-action-slot{display:grid;gap:12px;}
+.gnb-management-action-slot .gnb-menu-item{width:100%;min-height:64px;border-radius:22px;border:1px solid #e2e8f0;background:#fff;box-shadow:0 12px 24px rgba(15,23,42,.07);font-weight:950;color:#0f172a;}
+.gnb-management-empty{border:1px dashed #cbd5e1;border-radius:24px;background:#f8fafc;padding:18px;color:#475569;line-height:1.6;}
+.gnb-management-empty strong{display:block;color:#0f172a;font-size:16px;margin-bottom:5px;}
+.gnb-management-empty p{margin:0;font-size:13px;font-weight:800;}
+.gnb-operation-dialog .gnb-root-panel{margin:0;}
+@media (max-width:520px){
+  .gnb-summary-actions{width:100%;justify-content:flex-start;margin-top:10px;}
+  .gnb-manage-open-btn{flex:1;}
+  .gnb-management-dialog{width:calc(100% - 18px)!important;border-radius:26px!important;}
+  .gnb-management-head{padding:20px 18px 12px;}
+  .gnb-management-head h3{font-size:21px;}
+  .gnb-management-tabs{padding-inline:12px;}
+  .gnb-management-tabs button{min-width:72px;padding:10px 12px;}
+  .gnb-management-body{padding:0 12px 14px;}
+}
