@@ -683,7 +683,9 @@ body.gnb-open .bottom-nav{
  #accountEditModal{width:calc(100% - 20px);border-radius:26px;}
  #accountEditModal .modal-head{padding:16px 16px 8px;}
  #accountEditModal .modal-body{padding:0 16px 18px;}
- .account-edit-actions{grid-template-columns:1fr;}
+ /* 모바일 계정 정보 수정 모달: 취소/저장 버튼은 세로 분리하지 않고 한 줄 유지 */
+ .account-edit-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
+ #accountEditModal .account-edit-actions .btn{width:100%;min-width:0;}
 }
 
 /* ===== 입주민 글자 크기 조정: DB 저장형 접근성 옵션 ===== */
