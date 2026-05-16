@@ -11727,15 +11727,17 @@ document.addEventListener('keydown', (event) => {
  bindGlobalLoadingTriggers();
 
  (async()=>{
+ // 최초 진입 시에는 화면이 먼저 비어 보이지 않도록 앱 부트스트랩 로딩을 바로 유지합니다.
+ // 이후 benefits/notices/popular의 첫 스냅샷이 모두 도착하면 markInitialDataLoaded()에서 닫습니다.
+ showGlobalLoading();
+ try{
  await initPushSystem();
  const ok = await ensureAuthenticatedUser();
  if(!ok) return;
  await handleShareClickLog();
  await refreshPushStatus();
- renderAll();
  if(hasFirebaseConfig()){
  qs('#firebaseNotice').classList.add('hidden');
- showGlobalLoading();
  subscribeBenefits();
  subscribeNotices();
  subscribeAiKnowledge();
@@ -11747,6 +11749,14 @@ document.addEventListener('keydown', (event) => {
  qs('#firebaseNotice').classList.remove('hidden');
  state.loading=false;
  renderAll();
+ hideGlobalLoading(80);
+ }
+ }catch(error){
+ console.error('공개앱 초기 로딩 실패', error);
+ state.loading=false;
+ renderAll();
+ hideGlobalLoading(80);
+ await openModalAlert('앱 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
  }
  })();
  
