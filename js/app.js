@@ -79,6 +79,7 @@
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
  const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
  const CHECK_NICKNAME_URL = API_URL?.[ENV]?.checkNickname || '';
+ const UPDATE_ACCOUNT_PROFILE_URL = API_URL?.[ENV]?.updateAccountProfile || '';
 
  // AI 첨부파일 다운로드는 Firebase Storage URL을 직접 열지 않고 Cloud Run 다운로드 API를 사용합니다.
  function extractAiAttachmentStoragePath(url=''){
@@ -2050,19 +2051,40 @@ function openAccountEditModal(){
  return;
  }
 
+ if(!UPDATE_ACCOUNT_PROFILE_URL){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '계정 정보 수정 주소가 설정되지 않았습니다.');
+ await openModalAlert('계정 정보 수정 주소가 설정되지 않았습니다.', qs('#saveAccountEditBtn'));
+ return;
+ }
+
  showGlobalLoading();
- await setDoc(doc(db, 'users', state.currentUser.uid), {
- nickname,
- building,
- unit,
- updatedAt: serverTimestamp()
- }, { merge:true });
+ const idToken = await state.currentUser.getIdToken(true);
+ const response = await fetch(UPDATE_ACCOUNT_PROFILE_URL, {
+ method:'POST',
+ headers:{
+ 'Content-Type':'application/json',
+ 'Authorization': `Bearer ${idToken}`
+ },
+ body: JSON.stringify({ nickname, building, unit })
+ });
+ const result = await response.json().catch(() => ({}));
+ if(!response.ok || !result.ok){
+ const message = result.message || '계정 정보 저장 중 오류가 발생했습니다.';
+ if(result.code === 'nickname_duplicate'){
+ setAccountNicknameCheckStatus('duplicate');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', message);
+ }
+ throw new Error(message);
+ }
 
  state.currentUserProfile = {
  ...(state.currentUserProfile || {}),
- nickname,
- building,
- unit
+ nickname: result.nickname || nickname,
+ building: result.building ?? building,
+ unit: result.unit ?? unit,
+ nicknameKey: result.nicknameKey || nickname.toLowerCase()
  };
  setAccountNicknameCheckStatus('available', nickname);
  setAccountNicknameState(true);
@@ -2074,7 +2096,7 @@ function openAccountEditModal(){
  }catch(error){
  console.error('계정 정보 저장 실패', error);
  hideGlobalLoading(80);
- await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
+ await openModalAlert(error.message || '계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
  }
  }
 
