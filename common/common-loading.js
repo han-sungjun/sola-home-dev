@@ -17,10 +17,13 @@
 
   var boundLoaders = new WeakMap();
   var hideTimer = null;
-  var rafLockId = null;
 
   function isAdminPage(){
     return /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page');
+  }
+
+  function supportsDialog(){
+    return typeof HTMLDialogElement !== 'undefined' && typeof document.createElement('dialog').showModal === 'function';
   }
 
   function hasVisibleInitialLoader(){
@@ -29,6 +32,10 @@
     var initial = existing.dataset && existing.dataset.initialAppLoading === '1';
     if(initial || isVisible(existing)) return existing;
     return null;
+  }
+
+  function hasOpenBlockingDialog(){
+    return !!document.querySelector('dialog[open]:not(#commonLoadingDialog), .common-modal-root.is-open, .app-alert.show, .sheet-modal.show');
   }
 
   function ensurePlainLoader(){
@@ -42,17 +49,33 @@
     return loader;
   }
 
+  function ensureDialogLoader(){
+    var loader = document.getElementById('commonLoadingDialog');
+    if(loader) return loader;
+    loader = document.createElement('dialog');
+    loader.id = 'commonLoadingDialog';
+    loader.className = 'global-loading upick-loading-dialog';
+    loader.setAttribute('aria-hidden','true');
+    loader.setAttribute('aria-modal','true');
+    loader.setAttribute('role','alertdialog');
+    loader.addEventListener('cancel', function(event){ event.preventDefault(); });
+    document.body.appendChild(loader);
+    return loader;
+  }
+
   function ensureLoader(forceTopLayer){
-    // 개발계는 기존 DOM 기반 로딩바만 사용합니다.
-    // dialog top-layer 로딩은 투명 레이어 잔존/클릭 차단 문제가 있어 사용하지 않습니다.
+    // 최초 공개앱 진입 로딩 중에는 이미 화면에 떠 있는 #globalLoadingBar를 재사용합니다.
+    // 여기서 dialog 로딩으로 갈아타면 로딩 UI가 중간에 다른 형태로 바뀌어 보입니다.
     var initial = hasVisibleInitialLoader();
     if(initial) return initial;
+
+    // 일반 페이지 로딩은 기존 전역 로더를 사용하고, 이미 dialog/alert 위에서 실행되는 작업만 top-layer dialog 로더를 사용합니다.
+    if((forceTopLayer || hasOpenBlockingDialog()) && supportsDialog()) return ensureDialogLoader();
     return ensurePlainLoader();
   }
 
   function ensureMarkup(loader){
     if(!loader) return;
-    loader.classList.add('upick-loader-enhanced');
     var content = loader.querySelector(':scope > .loader-content') || loader.querySelector('.loader-content');
     if(!content){
       content = document.createElement('div');
@@ -106,16 +129,12 @@
   }
 
   function syncLock(){
-    if(rafLockId) return;
-    rafLockId = window.requestAnimationFrame(function(){
-      rafLockId = null;
-      var active = Array.prototype.some.call(
-        document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading'),
-        isVisible
-      );
-      document.documentElement.classList.toggle('upick-loading-lock', active);
-      document.body.classList.toggle('upick-loading-lock', active);
-    });
+    var active = Array.prototype.some.call(
+      document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading'),
+      isVisible
+    );
+    document.documentElement.classList.toggle('upick-loading-lock', active);
+    document.body.classList.toggle('upick-loading-lock', active);
   }
 
   function bind(loader){
@@ -158,35 +177,53 @@
       syncLock();
     }
 
-    state.visible = null;
+    var observer = new MutationObserver(function(){
+      ensureMarkup(loader);
+      isVisible(loader) ? start() : stop();
+    });
+    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden','style','open'] });
 
-    function syncState(){
-      var visible = isVisible(loader);
-      if(state.visible === visible){
-        syncLock();
-        return;
-      }
-      state.visible = visible;
-      visible ? start() : stop();
+    if(isVisible(loader)) start();
+  }
+
+  function openTopLayer(loader){
+    if(!loader || loader.tagName !== 'DIALOG') return;
+    if(loader.open) return;
+    try{ loader.showModal(); }
+    catch(_){
+      try{ loader.show(); }
+      catch(__){}
     }
+  }
 
-    var observer = new MutationObserver(syncState);
-    observer.observe(loader, { attributes:true, attributeFilter:['class','aria-hidden'] });
-
-    syncState();
+  function closeTopLayer(loader){
+    if(!loader || loader.tagName !== 'DIALOG') return;
+    if(!loader.open) return;
+    try{ loader.close(); }
+    catch(_){ loader.removeAttribute('open'); }
   }
 
   function hideOne(loader){
     if(!loader) return;
     loader.classList.remove('show','is-visible');
     loader.setAttribute('aria-hidden','true');
+    // 핵심: dialog top-layer는 display:none이어도 클릭을 막을 수 있어 반드시 close() 처리합니다.
+    closeTopLayer(loader);
     if(loader.dataset) delete loader.dataset.initialAppLoading;
   }
 
   function init(){
-    // 성능 안정화: 전체 문서 subtree 감시는 제거합니다.
-    // 기존 로더는 초기 1회만 바인딩하고, 동적 로더는 show() 호출 시 ensureLoader()에서 직접 바인딩합니다.
-    document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(bind);
+    document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(bind);
+    var observer = new MutationObserver(function(mutations){
+      mutations.forEach(function(mutation){
+        mutation.addedNodes && Array.prototype.forEach.call(mutation.addedNodes, function(node){
+          if(!node || node.nodeType !== 1) return;
+          if(node.matches && node.matches('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading')) bind(node);
+          if(node.querySelectorAll) node.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(bind);
+        });
+      });
+    });
+    observer.observe(document.documentElement, { childList:true, subtree:true });
     syncLock();
   }
 
@@ -204,22 +241,24 @@
       }
       loader.classList.add('show');
       loader.setAttribute('aria-hidden','false');
+      openTopLayer(loader);
       syncLock();
       return loader;
     },
     hide: function(){
       if(hideTimer) clearTimeout(hideTimer);
       hideTimer = window.setTimeout(function(){
-        document.querySelectorAll('#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(hideOne);
+        document.querySelectorAll('#commonLoadingDialog,#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(hideOne);
         syncLock();
         hideTimer = null;
       }, 0);
     },
     bind: bind,
     refresh: init,
+    _closeTopLayer: closeTopLayer
   };
 
-  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다. v2026051610
+  // 기존 코드가 showGlobalLoading/hideGlobalLoading 이름을 쓰는 경우도 공통 로딩으로 연결합니다.
   window.showGlobalLoading = window.showGlobalLoading || function(message, subMessage){ return window.UpickLoading.show(message, subMessage); };
   window.hideGlobalLoading = window.hideGlobalLoading || function(){ return window.UpickLoading.hide(); };
 
