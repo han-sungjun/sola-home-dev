@@ -1363,6 +1363,23 @@ function setPushStatusUi(enabled){
  document.body.classList.add(`app-role-${roleMeta.role || 'resident'}`);
  }
 
+
+ function syncGnbOperationAccess(roleMeta = getCurrentRoleMeta()){
+ const role = String(roleMeta?.role || '').toLowerCase();
+ const allowed = role === 'root' || role === 'admin';
+ const topBtn = qs('#openGnbOperationManageBtn');
+ if(topBtn){
+ topBtn.hidden = !allowed;
+ topBtn.setAttribute('aria-hidden', allowed ? 'false' : 'true');
+ topBtn.style.setProperty('display', allowed ? 'grid' : 'none', 'important');
+ topBtn.tabIndex = allowed ? 0 : -1;
+ }
+ const modal = qs('#gnbOperationManageModal');
+ if(modal && !allowed && modal.open){
+ try{ modal.close(); }catch(_){ modal.removeAttribute('open'); }
+ }
+ }
+
  function enforceShareInsightAccess(){
  if(state.view === 'shareinsights' && !isAdminRole()){
  state.view = 'home';
@@ -1640,6 +1657,7 @@ window.addEventListener('keydown', (event) => {
  applyRoleClass(userChipEl, roleMeta.className);
  applyRoleClass(gnbAccountCardEl, roleMeta.className);
  applyBodyRoleClass(roleMeta);
+ syncGnbOperationAccess(roleMeta);
  renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
  renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
  syncHeaderProfileAvatars(profileImageUrl);

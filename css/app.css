@@ -19670,3 +19670,50 @@ body.gnb-manage-scroll-lock{
     max-height:calc(100dvh - 64px)!important;
   }
 }
+
+
+/* ===== 2026-05-16 GNB 운영 버튼 권한/계정 요약 액션 정렬 보정 ===== */
+#openGnbOperationManageBtn[hidden],
+.gnb-operation-top-btn[aria-hidden="true"]{
+  display:none!important;
+}
+#gnbSettingsAccountSummary .gnb-settings-section-header{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+#gnbSettingsAccountSummary .gnb-summary-actions{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  align-items:stretch;
+  justify-content:stretch;
+}
+#gnbSettingsAccountSummary .gnb-status-pill,
+#gnbSettingsAccountSummary .gnb-manage-open-btn{
+  width:100%;
+  min-height:52px;
+  padding:0 14px;
+  border-radius:999px;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  text-align:center;
+  line-height:1.2;
+}
+#gnbSettingsAccountSummary .gnb-manage-open-btn img,
+#gnbSettingsAccountSummary .gnb-status-pill::before{
+  flex:0 0 auto;
+}
+@media (max-width:420px){
+  #gnbSettingsAccountSummary .gnb-summary-actions{
+    grid-template-columns:1fr 1fr;
+  }
+  #gnbSettingsAccountSummary .gnb-status-pill,
+  #gnbSettingsAccountSummary .gnb-manage-open-btn{
+    min-height:50px;
+    font-size:13px;
+  }
+}
