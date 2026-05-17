@@ -20374,3 +20374,52 @@ body.gnb-manage-scroll-lock{
     max-height:70vh !important;
   }
 }
+
+
+/* v20260517 정부지원금 SVG 아이콘 표시 */
+.support-program-detail-chip{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+}
+.support-program-svg-icon{
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  display:inline-grid;
+  place-items:center;
+  border-radius:7px;
+  background:#e0f2fe;
+  color:#0369a1;
+}
+.support-program-svg-icon svg{
+  width:15px;
+  height:15px;
+  display:block;
+}
+.support-program-svg-icon svg path,
+.support-program-svg-icon svg rect{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.support-program-svg-icon.oil{
+  background:#fff7ed;
+  color:#ea580c;
+}
+.support-program-svg-icon.local{
+  background:#ecfdf5;
+  color:#059669;
+}
+.support-program-svg-icon.card{
+  background:#eef2ff;
+  color:#2563eb;
+}
+.support-program-chip-label{
+  min-width:0;
+}
+.support-program-detail-chip::before{
+  content:none !important;
+}

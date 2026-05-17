@@ -3355,10 +3355,28 @@ function normalizeSupportProgramsForDetail(item = {}){
 
  return [...new Set(programs)];
 }
+
+function getSupportProgramIconSvg(name = ''){
+ const label = String(name || '').trim();
+ const safeLabel = escapeHtml(label);
+ if(label.includes('고유가') || label.includes('유가') || label.includes('피해지원금')){
+   return `<span class="support-program-svg-icon oil" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 3h8.2c.7 0 1.3.6 1.3 1.3v14.4c0 .7-.6 1.3-1.3 1.3H7c-.7 0-1.3-.6-1.3-1.3V4.3C5.7 3.6 6.3 3 7 3Z"/><path d="M8.2 5.2h5.8v4.6H8.2V5.2Z"/><path d="M16.5 7.2h1.1l1.8 1.8v6.2c0 .9.7 1.6 1.6 1.6.8 0 1.5-.7 1.5-1.6v-3.1"/><path d="M19.4 9l-1.2 1.2 2.2 2.2 1.2-1.2"/><path d="M11.2 13.2c-1.2 1.3-1.8 2.3-1.8 3.1 0 1 .8 1.8 1.8 1.8s1.8-.8 1.8-1.8c0-.8-.6-1.8-1.8-3.1Z"/></svg></span>`;
+ }
+ if(label.includes('지역화폐') || label.includes('화폐')){
+   return `<span class="support-program-svg-icon local" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="6" width="18" height="12" rx="2.2"/><path d="M6.5 10h6M6.5 14h4M16.5 10.5h1.5M16.5 13.5h1.5"/></svg></span>`;
+ }
+ return `<span class="support-program-svg-icon card" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 9h18M7 14h4"/></svg></span>`;
+}
+function supportProgramChipHtml(name = ''){
+ const label = String(name || '').trim();
+ if(!label) return '';
+ return `<span class="support-program-detail-chip" title="${escapeAttr(label)}">${getSupportProgramIconSvg(label)}<span class="support-program-chip-label">${escapeHtml(label)}</span></span>`;
+}
+
 function supportProgramsPanelHtml(item = {}){
  const programs = normalizeSupportProgramsForDetail(item);
  if(!programs.length) return '';
- const names = programs.map(v => `<span class="support-program-detail-chip">${escapeHtml(v)}</span>`).join('');
+ const names = programs.map(v => supportProgramChipHtml(v)).join('');
  return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div><p class="support-program-detail-note">매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
 }
 function normalizeCouponLinksForDetail(item = {}){
