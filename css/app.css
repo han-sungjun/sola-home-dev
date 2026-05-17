@@ -20759,3 +20759,58 @@ body.gnb-manage-scroll-lock{
     font-size:22px !important;
   }
 }
+
+
+/* v20260517 소식 팝업 대표사진 스타일 정렬 */
+.news-image-preview-overlay{
+  width:min(420px,88vw) !important;
+  max-width:88vw !important;
+  border-radius:28px !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  box-shadow:0 30px 90px rgba(15,23,42,.42) !important;
+}
+.news-image-preview-dialog{
+  position:relative !important;
+  width:100% !important;
+  background:#fff !important;
+  border-radius:28px !important;
+  overflow:hidden !important;
+  padding:0 !important;
+}
+.news-image-preview-dialog::before{
+  content:'소식 이미지' !important;
+  display:block !important;
+  padding:18px 58px 16px 18px !important;
+  border-bottom:1px solid #e2e8f0 !important;
+  color:#0f172a !important;
+  font-size:15px !important;
+  font-weight:1000 !important;
+  letter-spacing:-.04em !important;
+  background:#fff !important;
+}
+.news-image-preview-dialog img{
+  display:block !important;
+  width:calc(100% - 24px) !important;
+  max-width:calc(100% - 24px) !important;
+  margin:12px !important;
+  border-radius:18px !important;
+  max-height:min(60vh,560px) !important;
+  object-fit:contain !important;
+  background:#f8fafc !important;
+}
+.news-image-preview-close{
+  position:absolute !important;
+  top:10px !important;
+  right:10px !important;
+  width:42px !important;
+  height:42px !important;
+  border-radius:14px !important;
+  border:3px solid #fff !important;
+  background:#0f172a !important;
+  color:#fff !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  z-index:10 !important;
+  box-shadow:0 10px 26px rgba(15,23,42,.28) !important;
+}
