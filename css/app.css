@@ -20926,129 +20926,117 @@ body.gnb-manage-scroll-lock{
   }
 }
 
-/* v20260518 소식 이미지 확대 팝업 최종: 대표 사진 팝업과 동일한 header/body 분리형, 소형 사이즈 */
-.news-image-preview-overlay{
+/* v20260518 소식 이미지 팝업 최종 안정화: dialog 자체를 중앙 소형 팝업으로 고정 */
+.news-image-preview-overlay,
+.news-image-preview-overlay.show,
+.news-image-preview-overlay[open]{
   position:fixed !important;
-  inset:0 !important;
-  width:auto !important;
-  height:auto !important;
-  max-width:none !important;
-  max-height:none !important;
-  margin:auto !important;
-  padding:0 !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  overflow:visible !important;
-  color:inherit !important;
-}
-.news-image-preview-overlay::backdrop{
-  background:rgba(7,18,42,.76) !important;
-  backdrop-filter:blur(9px) !important;
-  -webkit-backdrop-filter:blur(9px) !important;
-}
-.news-image-preview-overlay.show{
+  inset:auto !important;
+  top:50% !important;
+  left:50% !important;
+  transform:translate(-50%,-50%) !important;
   display:block !important;
-}
-.news-image-preview-dialog{
-  width:min(360px, calc(100vw - 40px)) !important;
-  max-width:min(360px, calc(100vw - 40px)) !important;
-  max-height:86dvh !important;
+  width:min(330px, calc(100vw - 40px)) !important;
+  max-width:calc(100vw - 40px) !important;
+  height:auto !important;
+  max-height:calc(100dvh - 48px) !important;
   margin:0 !important;
   padding:0 !important;
   border:0 !important;
   border-radius:28px !important;
   background:#fff !important;
   overflow:hidden !important;
-  box-shadow:0 30px 80px rgba(7,26,61,.34) !important;
+  box-shadow:0 30px 90px rgba(15,23,42,.42) !important;
+  outline:none !important;
 }
-.news-image-preview-dialog::before{
+.news-image-preview-overlay::backdrop{
+  background:rgba(15,23,42,.72) !important;
+  backdrop-filter:blur(6px) !important;
+}
+.news-image-preview-dialog{
+  position:relative !important;
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border-radius:28px !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+.news-image-preview-dialog::before,
+.news-image-preview-dialog::after{
   content:none !important;
   display:none !important;
 }
 .news-image-preview-head{
   height:58px !important;
-  padding:10px 12px 10px 18px !important;
+  padding:0 58px 0 18px !important;
   display:flex !important;
   align-items:center !important;
-  justify-content:space-between !important;
-  gap:10px !important;
-  border-bottom:1px solid rgba(226,232,240,.92) !important;
+  justify-content:flex-start !important;
+  border-bottom:1px solid rgba(226,232,240,.9) !important;
   background:#fff !important;
+  box-sizing:border-box !important;
 }
 .news-image-preview-title{
-  min-width:0 !important;
-  flex:1 !important;
   color:#0f172a !important;
   font-size:15px !important;
   font-weight:1000 !important;
-  line-height:1.2 !important;
   letter-spacing:-.04em !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-.news-image-preview-close{
-  position:static !important;
-  flex:0 0 auto !important;
-  width:38px !important;
-  height:38px !important;
-  border:0 !important;
-  border-radius:14px !important;
-  background:#0f172a !important;
-  color:#fff !important;
-  font-size:25px !important;
-  font-weight:900 !important;
-  line-height:1 !important;
-  display:grid !important;
-  place-items:center !important;
-  cursor:pointer !important;
-  box-shadow:0 10px 22px rgba(15,23,42,.25) !important;
-  z-index:2 !important;
+  line-height:1.1 !important;
 }
 .news-image-preview-body{
-  max-height:calc(86dvh - 58px) !important;
-  overflow:auto !important;
-  padding:12px !important;
-  background:#f8fafc !important;
-  display:grid !important;
-  place-items:center !important;
+  padding:14px !important;
+  background:#fff !important;
 }
 .news-image-preview-body img,
 .news-image-preview-dialog img{
   display:block !important;
   width:100% !important;
   max-width:100% !important;
-  height:auto !important;
-  max-height:min(260px, calc(86dvh - 90px)) !important;
+  max-height:min(48vh,340px) !important;
+  margin:0 !important;
+  border-radius:18px !important;
+  background:#f8fafc !important;
   object-fit:contain !important;
-  border-radius:20px !important;
-  background:#fff !important;
+  box-shadow:none !important;
 }
-@media(max-width:420px){
-  .news-image-preview-dialog{
-    width:calc(100vw - 32px) !important;
+.news-image-preview-close{
+  position:absolute !important;
+  top:9px !important;
+  right:9px !important;
+  width:40px !important;
+  height:40px !important;
+  min-width:40px !important;
+  min-height:40px !important;
+  padding:0 !important;
+  border-radius:14px !important;
+  border:3px solid #fff !important;
+  background:#0f172a !important;
+  color:#fff !important;
+  font-size:23px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  display:grid !important;
+  place-items:center !important;
+  z-index:10 !important;
+  box-shadow:0 10px 26px rgba(15,23,42,.28) !important;
+}
+@media(max-width:520px){
+  .news-image-preview-overlay,
+  .news-image-preview-overlay.show,
+  .news-image-preview-overlay[open]{
+    width:min(306px, calc(100vw - 32px)) !important;
     max-width:calc(100vw - 32px) !important;
     border-radius:24px !important;
   }
-  .news-image-preview-head{
-    height:54px !important;
-    padding:9px 10px 9px 16px !important;
-  }
-  .news-image-preview-close{
-    width:36px !important;
-    height:36px !important;
-    border-radius:13px !important;
-    font-size:24px !important;
-  }
-  .news-image-preview-body{
-    max-height:calc(86dvh - 54px) !important;
-    padding:10px !important;
-  }
+  .news-image-preview-dialog{border-radius:24px !important;}
+  .news-image-preview-head{height:56px !important;padding-left:16px !important;padding-right:56px !important;}
+  .news-image-preview-body{padding:12px !important;}
   .news-image-preview-body img,
-  .news-image-preview-dialog img{
-    max-height:min(240px, calc(86dvh - 78px)) !important;
-    border-radius:18px !important;
-  }
+  .news-image-preview-dialog img{max-height:44vh !important;border-radius:16px !important;}
+  .news-image-preview-close{width:38px !important;height:38px !important;min-width:38px !important;min-height:38px !important;top:8px !important;right:8px !important;font-size:22px !important;}
 }
