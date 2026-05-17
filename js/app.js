@@ -7256,7 +7256,7 @@ function renderCalendarDayModal(){
  if(joined.includes('관리사무소') || joined.includes('관리실') || joined.includes('전화') || joined.includes('연락처')){
  synonyms.push('관리사무소','관리실','생활지원센터','전화번호','연락처','대표번호','민원','사무소');
  }
- if(joined.includes(getMapMarkerLabel(item)) || joined.includes('할인')) synonyms.push(getMapMarkerLabel(item),'할인','제휴','매장');
+ if(joined.includes('혜택') || joined.includes('할인')) synonyms.push('혜택','할인','제휴','매장');
  return [...new Set([...base, ...synonyms])];
  }
 
@@ -10763,7 +10763,7 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   const fallbackMap = {
     home:{menuId:'home',name:'홈',bottomLabel:'홈',icon:'icon:home',view:'home',route:'home',sections:['bottom'],order:0},
     all:{menuId:'all',name:'전체',bottomLabel:'전체',icon:'icon:all',view:'all',route:'all',sections:['bottom'],order:9999},
-    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:getMapMarkerLabel(item),icon:'icon:benefits',view:'benefits',route:'benefits',sections:['bottom'],order:10},
+    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:'혜택',icon:'icon:benefits',view:'benefits',route:'benefits',sections:['bottom'],order:10},
     favorite:{menuId:'favorite',name:'즐겨찾기 확인',bottomLabel:'즐겨찾기',icon:'icon:favorite',view:'favorite',route:'favorite',sections:['bottom'],order:20},
     top5:{menuId:'top5',name:'인기 매장 TOP 5',bottomLabel:'TOP5',icon:'icon:top5',view:'top5',route:'top5',sections:['bottom'],order:30},
     ai:{menuId:'ai',name:'AI 생활 도우미',bottomLabel:'AI',icon:'icon:ai',view:'ai',route:'ai',sections:['bottom'],order:40},
