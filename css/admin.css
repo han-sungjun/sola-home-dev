@@ -976,14 +976,9 @@ body.gnb-open .admin-bottom-nav{
 .geo-status{margin-top:8px;padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:800;line-height:1.5}
 .geo-status.success{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
 .geo-status.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
-.geo-coord-panel{margin-top:10px;padding:14px;border:1px solid #dbeafe;border-radius:18px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)}
-.geo-coord-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
-.geo-coord-head strong{display:block;color:#0f172a;font-size:14px;font-weight:900}
-.geo-coord-head p{margin:4px 0 0;color:#64748b;font-size:12px;font-weight:800;line-height:1.45}
 .geo-coord-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.geo-coord-grid input{background:#fff;color:#0f172a}
-.geo-coord-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-@media (max-width:420px){.geo-row{grid-template-columns:1fr}.geo-btn{width:100%}.geo-coord-grid{grid-template-columns:1fr}.geo-coord-actions{grid-template-columns:1fr}}
+.geo-coord-grid input{background:#f8fafc;color:#475569}
+@media (max-width:420px){.geo-row{grid-template-columns:1fr}.geo-btn{width:100%}.geo-coord-grid{grid-template-columns:1fr}}
 
 /* ===== TOP5 / share management extension ===== */
 .admin-field-help{color:#94a3b8;font-size:12px;line-height:1.45;margin-top:4px}
