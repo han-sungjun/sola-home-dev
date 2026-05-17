@@ -21515,3 +21515,60 @@ body.gnb-manage-scroll-lock{
     font-size:14px !important;
   }
 }
+
+/* ===== v20260518 Benefit date ribbon position final: no spacing, per-card/list layout ===== */
+#cardList .benefit-badge-stack.has-date-badge .badge,
+#favoriteList .benefit-badge-stack.has-date-badge .badge,
+#cardList.view-list .benefit-badge-stack.has-date-badge .badge,
+#favoriteList.view-list .benefit-badge-stack.has-date-badge .badge{
+  margin-top:0 !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-12px !important;
+  z-index:6 !important;
+  padding:3px 7px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  border-radius:999px !important;
+}
+
+#cardList.view-card .benefit-badge-stack,
+#favoriteList.view-card .benefit-badge-stack{
+  align-self:center !important;
+}
+
+#cardList.view-list .benefit-badge-stack,
+#favoriteList.view-list .benefit-badge-stack{
+  align-self:center !important;
+  justify-self:start !important;
+  width:58px !important;
+  min-width:58px !important;
+  max-width:58px !important;
+}
+
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-12px !important;
+  padding:3px 7px !important;
+  font-size:9px !important;
+  transform:rotate(-30deg) !important;
+}
+
+@media(max-width:520px){
+  #cardList .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    left:-24px !important;
+    top:-12px !important;
+    padding:3px 7px !important;
+    font-size:8.5px !important;
+    transform:rotate(-30deg) !important;
+  }
+}
