@@ -3327,14 +3327,32 @@ function formatTravelDuration(minutes){
 
  
 function normalizeSupportProgramsForDetail(item = {}){
- const raw = item.supportPrograms || item.supportProgram || item.governmentSupport || item.supportProgramNames || item.supportProgramList || {};
+ const raw = item.supportPrograms ?? item.supportProgram ?? item.governmentSupport ?? item.supportProgramNames ?? item.supportProgramList ?? {};
  let programs = [];
- if(Array.isArray(raw)) programs = raw;
- else if(raw && Array.isArray(raw.programs)) programs = raw.programs;
- else if(raw && Array.isArray(raw.items)) programs = raw.items;
- else if(typeof raw === 'string') programs = raw.split(/[·,，\n]/);
- else if(typeof item.supportProgramsText === 'string') programs = item.supportProgramsText.split(/[·,，\n]/);
- programs = programs.map(v => String(v || '').trim()).filter(Boolean);
+
+ if(Array.isArray(raw)) {
+   programs = raw;
+ } else if(raw && typeof raw === 'object') {
+   if(Array.isArray(raw.programs)) programs = raw.programs;
+   else if(Array.isArray(raw.items)) programs = raw.items;
+   else if(Array.isArray(raw.names)) programs = raw.names;
+   else {
+     programs = Object.entries(raw)
+       .filter(([key, value]) => key !== 'enabled' && value)
+       .map(([key, value]) => typeof value === 'string' ? value : key);
+   }
+ } else if(typeof raw === 'string') {
+   programs = raw.split(/[·,，\n]/);
+ }
+
+ if(!programs.length && typeof item.supportProgramsText === 'string') {
+   programs = item.supportProgramsText.split(/[·,，\n]/);
+ }
+
+ programs = programs
+   .map(v => String(v || '').trim())
+   .filter(Boolean);
+
  return [...new Set(programs)];
 }
 function supportProgramsPanelHtml(item = {}){
@@ -3724,6 +3742,9 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
  externalLinks:item.externalLinks||{},
  serviceTags:item.serviceTags||{},
+ supportPrograms:item.supportPrograms||item.supportProgram||item.governmentSupport||item.supportProgramNames||item.supportProgramList||null,
+ supportProgramsText:item.supportProgramsText||'',
+ couponLinks:item.couponLinks||item.coupons||item.couponList||item.couponUrls||[],
  lat:Number.isFinite(lat)?lat:null,
  lng:Number.isFinite(lng)?lng:null,
  service:!!item.service||String(item.discountText).trim()==='서비스',
