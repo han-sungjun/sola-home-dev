@@ -1920,5 +1920,50 @@
       })();
     </script>
 
-    </body>
+    
+<script id="upick-operation-modal-refresh-fix">
+document.addEventListener('DOMContentLoaded', () => {
+  const refreshButtons = Array.from(document.querySelectorAll('button'))
+    .filter(btn => (btn.textContent || '').includes('화면 새로고침'));
+
+  refreshButtons.forEach((btn) => {
+    if (btn.dataset.refreshFixBound === 'true') return;
+    btn.dataset.refreshFixBound = 'true';
+
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const gnbOverlay = document.querySelector('.gnb-overlay');
+      const gnbSheet = document.querySelector('.gnb-sheet');
+
+      if (gnbOverlay) gnbOverlay.classList.remove('show');
+      if (gnbSheet) gnbSheet.classList.remove('show');
+
+      document.body.classList.remove('gnb-open');
+
+      setTimeout(() => {
+        location.replace(location.pathname + location.search);
+      }, 120);
+    });
+  });
+
+  const shareInsightButtons = Array.from(document.querySelectorAll('button'))
+    .filter(btn => (btn.textContent || '').includes('공유 인사이트'));
+
+  shareInsightButtons.forEach((btn) => {
+    if (btn.dataset.shareInsightFixBound === 'true') return;
+    btn.dataset.shareInsightFixBound = 'true';
+
+    btn.addEventListener('click', () => {
+      const operationModal = document.querySelector('.operation-manage-modal, .operation-management-modal, .admin-operation-modal');
+      if (operationModal) {
+        operationModal.classList.add('show');
+      }
+    });
+  });
+});
+</script>
+
+</body>
 </html>
