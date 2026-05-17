@@ -3849,7 +3849,8 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  function benefitEndBadgeHtml(item={},scope='card'){
  const status=getBenefitEndDateStatus(item);
  if(!status || status.key==='ended') return '';
- return `<div class="benefit-end-badge ${status.className} ${scope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
+ const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
+ return `<div class="benefit-end-badge ${status.className} benefit-date-scope-${safeScope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
  }
  function isPubliclyVisibleBenefit(item={}){return item.visible!==false && normalizeBenefitStoreStatus(item)!=='hidden' && isBenefitDateActive(item);}
  function isRecommendableBenefit(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);return isPubliclyVisibleBenefit(item) && ['active','reopened'].includes(store) && ['active','resumed'].includes(benefit);}

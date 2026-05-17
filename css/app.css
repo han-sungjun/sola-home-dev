@@ -21262,97 +21262,118 @@ body.gnb-manage-scroll-lock{
 
 
 /* ===== Benefit end-date auto badges ===== */
-.benefit-end-badge{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;min-height:24px;margin:0 0 6px;padding:5px 9px;border-radius:999px;border:1px solid transparent;font-size:11px;font-weight:1000;line-height:1;letter-spacing:-.02em;box-shadow:0 8px 18px rgba(15,23,42,.06);}
-.benefit-end-badge.soon{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
-.benefit-end-badge.urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
-.benefit-end-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;box-shadow:0 10px 20px rgba(127,29,29,.18);}
-.benefit-end-badge.detail{margin-bottom:8px;}
-#cardList.view-list .benefit-end-badge{margin:0 0 4px;}
-
-/* ===== Benefit date ribbon badge: placed only above the discount box ===== */
-#cardList .benefit-badge-stack{
-  position:relative;
-  flex:0 0 auto;
-  display:inline-flex;
-  align-items:flex-start;
-  justify-content:center;
-  width:max-content;
-  min-width:72px;
-  overflow:visible;
-}
-#cardList .benefit-badge-stack .badge{
-  margin:0;
-}
-#cardList .benefit-badge-stack.has-date-badge .badge{
-  margin-top:12px;
-}
-#cardList .benefit-end-badge{
-  position:absolute;
-  left:-7px;
-  top:-7px;
-  z-index:4;
+.benefit-end-badge{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   width:max-content;
-  max-width:none;
-  min-height:0;
-  margin:0;
-  padding:6px 10px;
-  border:0;
-  border-radius:4px;
-  color:#fff;
-  font-size:12px;
+  max-width:100%;
+  min-height:24px;
+  margin:0 0 6px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid transparent;
+  font-size:11px;
   font-weight:1000;
   line-height:1;
-  letter-spacing:-.05em;
-  white-space:nowrap;
-  transform:rotate(-8deg);
-  transform-origin:left center;
-  box-shadow:0 8px 16px rgba(15,23,42,.14);
-  pointer-events:none;
+  letter-spacing:-.02em;
+  box-shadow:0 8px 18px rgba(15,23,42,.06);
 }
-#cardList .benefit-end-badge.soon{
-  background:linear-gradient(135deg,#fbbf24,#f59e0b);
-  color:#fff;
+.benefit-end-badge.soon{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+.benefit-end-badge.urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
+.benefit-end-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;box-shadow:0 10px 20px rgba(127,29,29,.18);}
+.benefit-end-badge.detail{margin-bottom:8px;}
+
+/* ===== Benefit date ribbon badge: HOT 배지 톤 + 할인율 상단 고정 ===== */
+#cardList .benefit-badge-stack{
+  position:relative !important;
+  flex:0 0 auto !important;
+  display:inline-flex !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  width:max-content !important;
+  min-width:72px !important;
+  overflow:visible !important;
+  isolation:isolate;
 }
-#cardList .benefit-end-badge.urgent{
-  background:linear-gradient(135deg,#fb923c,#f97316);
-  color:#fff;
+#cardList .benefit-badge-stack .badge{
+  margin:0 !important;
+  position:relative !important;
+  z-index:1 !important;
 }
-#cardList .benefit-end-badge.today{
-  background:linear-gradient(135deg,#f43f5e,#e11d48);
-  color:#fff;
+#cardList .benefit-badge-stack.has-date-badge .badge{
+  margin-top:18px !important;
+}
+#cardList .benefit-end-badge.benefit-date-scope-card{
+  position:absolute !important;
+  left:-2px !important;
+  top:-6px !important;
+  z-index:5 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:max-content !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:4px 8px !important;
+  border:0 !important;
+  border-radius:999px !important;
+  color:#fff !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  letter-spacing:-.045em !important;
+  white-space:nowrap !important;
+  word-break:keep-all !important;
+  writing-mode:horizontal-tb !important;
+  transform:rotate(-8deg) !important;
+  transform-origin:left center !important;
+  box-shadow:0 8px 18px rgba(249,115,22,.20) !important;
+  pointer-events:none !important;
+  box-sizing:border-box !important;
+}
+#cardList .benefit-end-badge.benefit-date-scope-card.soon{
+  background:linear-gradient(135deg,#ffb000,#ff8a00) !important;
+}
+#cardList .benefit-end-badge.benefit-date-scope-card.urgent{
+  background:linear-gradient(135deg,#ff5b35,#ff8a00) !important;
+}
+#cardList .benefit-end-badge.benefit-date-scope-card.today{
+  background:linear-gradient(135deg,#ef233c,#ff416c) !important;
+  box-shadow:0 8px 18px rgba(239,35,60,.22) !important;
 }
 #cardList.view-card .benefit-badge-stack{
-  min-width:72px;
+  min-width:72px !important;
 }
-#cardList.view-list .card{
-  overflow:visible;
+#cardList.view-card .card,
+#cardList.view-card .card-top,
+#cardList.view-list .card,
+#cardList.view-list .card-top{
+  overflow:visible !important;
 }
 #cardList.view-list .benefit-badge-stack{
-  grid-column:1;
-  width:46px;
-  min-width:46px;
-  align-self:center;
-  justify-self:start;
+  grid-column:1 !important;
+  width:46px !important;
+  min-width:46px !important;
+  align-self:center !important;
+  justify-self:start !important;
 }
 #cardList.view-list .benefit-badge-stack.has-date-badge .badge{
-  margin-top:10px;
+  margin-top:17px !important;
 }
-#cardList.view-list .benefit-end-badge{
-  left:-5px;
-  top:-9px;
-  padding:5px 8px;
-  font-size:11px;
-  border-radius:4px;
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card{
+  left:-1px !important;
+  top:-6px !important;
+  padding:3px 7px !important;
+  font-size:9px !important;
+  border-radius:999px !important;
+  transform:rotate(-8deg) !important;
 }
 #cardList.view-list .benefit-badge-stack .badge{
-  width:46px;
-  height:46px;
-  min-width:46px;
-}
-#cardList.view-card .card-top,
-#cardList.view-list .card-top{
-  overflow:visible;
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
 }
