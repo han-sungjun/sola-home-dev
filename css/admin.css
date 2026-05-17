@@ -6046,3 +6046,35 @@ img.brand-icon[src*="home.svg"],
 .news-item-row .news-field-label + input{
   margin-bottom:2px;
 }
+
+
+/* v20260517 소식 표시 유형 */
+.news-item-row .news-badge{
+  width:100% !important;
+  min-height:46px !important;
+  border:1px solid #dbeafe;
+  border-radius:14px;
+  padding:0 14px;
+  background:#fff;
+  font-weight:900;
+  color:#0f172a;
+}
+
+
+/* v20260517 소식 표시 유형 기타 입력 */
+.news-badge-wrap{
+  display:grid;
+  grid-template-columns:160px 1fr;
+  gap:8px;
+  align-items:center;
+}
+.news-badge-custom{
+  width:100% !important;
+  min-height:46px !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:760px){
+  .news-badge-wrap{
+    grid-template-columns:1fr;
+  }
+}
