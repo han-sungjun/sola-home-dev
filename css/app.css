@@ -20197,3 +20197,8 @@ body.gnb-manage-scroll-lock{
 .news-image-preview-dialog{position:relative;max-width:min(720px,96vw);max-height:88vh;border-radius:22px;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.35);padding:10px;overflow:hidden;}
 .news-image-preview-dialog img{display:block;max-width:100%;max-height:82vh;border-radius:16px;object-fit:contain;}
 .news-image-preview-close{position:absolute;top:14px;right:14px;width:40px;height:40px;border:0;border-radius:999px;background:rgba(15,23,42,.88);color:#fff;font-size:24px;font-weight:900;cursor:pointer;z-index:1;}
+
+
+/* v20260517 소식 이미지 영역: 대표 이미지와 동일한 확대 UX */
+.news-detail-thumb.benefit-detail-photo-like{position:relative;}
+.news-detail-thumb.benefit-detail-photo-like::after{content:'확대';position:absolute;right:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(15,23,42,.82);color:#fff;font-size:10px;font-weight:900;letter-spacing:-.02em;}

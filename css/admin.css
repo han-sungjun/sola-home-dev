@@ -5962,3 +5962,16 @@ img.brand-icon[src*="home.svg"],
 .news-item-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .news-item-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:999px;background:#ecfeff;color:#0e7490;font-size:12px;font-weight:900;border:1px solid #bae6fd;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media(max-width:760px){.news-item-row{grid-template-columns:1fr;}.news-item-remove-btn{width:100%;}}
+
+
+/* v20260517 소식 이미지 Firebase Storage 업로드 */
+.news-item-row{grid-template-columns:150px 1.1fr .6fr 1.1fr 1.1fr auto;}
+.news-image-admin-cell{display:grid;gap:6px;align-items:center;}
+.news-image-admin-preview{height:74px;border:1px dashed #bfdbfe;border-radius:14px;background:#eff6ff;color:#64748b;font-size:12px;font-weight:800;display:grid;place-items:center;overflow:hidden;text-align:center;}
+.news-image-admin-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+.news-image-file{font-size:12px;}
+.news-image-upload-btn{min-height:36px;padding:7px 10px;font-size:12px;}
+.news-image-upload-status{min-height:16px;font-size:11px;color:#64748b;font-weight:800;}
+.news-image-upload-status.success{color:#15803d;}
+.news-image-upload-status.error{color:#b91c1c;}
+@media(max-width:760px){.news-item-row{grid-template-columns:1fr;}.news-image-admin-preview{height:120px;}}
