@@ -20735,3 +20735,27 @@ body.gnb-manage-scroll-lock{
   display:none !important;
   content:none !important;
 }
+
+
+/* v20260517 소식 팝업 X 버튼/구분선 보정 */
+.news-image-preview-dialog::before{
+  padding:16px 52px 14px 18px !important;
+  border-bottom:1px solid #e2e8f0 !important;
+}
+.news-image-preview-close{
+  width:42px !important;
+  height:42px !important;
+  top:8px !important;
+  right:8px !important;
+  border-radius:14px !important;
+  border:3px solid #fff !important;
+  font-size:24px !important;
+  box-shadow:0 10px 26px rgba(15,23,42,.28) !important;
+}
+@media(max-width:520px){
+  .news-image-preview-close{
+    width:40px !important;
+    height:40px !important;
+    font-size:22px !important;
+  }
+}
