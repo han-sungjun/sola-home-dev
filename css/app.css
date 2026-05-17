@@ -21259,3 +21259,12 @@ body.gnb-manage-scroll-lock{
   visibility:visible !important;
   pointer-events:auto !important;
 }
+
+
+/* ===== Benefit end-date auto badges ===== */
+.benefit-end-badge{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;min-height:24px;margin:0 0 6px;padding:5px 9px;border-radius:999px;border:1px solid transparent;font-size:11px;font-weight:1000;line-height:1;letter-spacing:-.02em;box-shadow:0 8px 18px rgba(15,23,42,.06);}
+.benefit-end-badge.soon{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+.benefit-end-badge.urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
+.benefit-end-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;box-shadow:0 10px 20px rgba(127,29,29,.18);}
+.benefit-end-badge.detail{margin-bottom:8px;}
+#cardList.view-list .benefit-end-badge{margin:0 0 4px;}

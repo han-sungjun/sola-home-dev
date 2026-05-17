@@ -3807,7 +3807,51 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  const BENEFIT_STATUS_META={preparing:{label:'혜택 준비 중',cls:'status-benefit-preparing'},active:{label:'혜택 진행 중',cls:'status-benefit-active'},ended:{label:'혜택 종료',cls:'status-benefit-ended'},none:{label:'혜택 없음',cls:'status-benefit-none'},resumed:{label:'혜택 재개',cls:'status-benefit-resumed'}};
  function normalizeBenefitStoreStatus(item={}){const raw=String(item.storeStatus||item.operationStatus||item.status||'').toLowerCase();if(item.visible===false||raw==='hidden')return 'hidden';if(item.closed===true||raw==='shutdown')return 'shutdown';if(['preparing','active','paused','closed','shutdown','reopened','hidden'].includes(raw))return raw;return 'active';}
  function normalizeResidentBenefitStatus(item={}){const raw=String(item.benefitStatus||item.residentBenefitStatus||item.discountStatus||'').toLowerCase();if(['preparing','active','ended','none','resumed'].includes(raw))return raw;return 'active';}
- function isPubliclyVisibleBenefit(item={}){return item.visible!==false && normalizeBenefitStoreStatus(item)!=='hidden';}
+ function getBenefitDateValue(item={},type='end'){
+ const keys = type === 'start' ? ['benefitStartedAt','benefitStartDate','discountStartedAt','discountStartDate','startDate'] : ['benefitEndedAt','benefitEndDate','discountEndedAt','discountEndDate','endDate'];
+ for(const key of keys){ const value=item?.[key]; if(value) return String(value).trim(); }
+ return '';
+ }
+ function parseBenefitLocalDate(value){
+ const raw=String(value||'').trim();
+ if(!raw) return null;
+ const match=raw.match(/^(\d{4})[-.\/](\d{1,2})[-.\/](\d{1,2})/);
+ if(!match) return null;
+ const d=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]));
+ return Number.isNaN(d.getTime())?null:d;
+ }
+ function getTodayLocalDate(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+ function getBenefitDateDiffDays(targetDate){
+ const target=parseBenefitLocalDate(targetDate);
+ if(!target) return null;
+ target.setHours(0,0,0,0);
+ return Math.round((target.getTime()-getTodayLocalDate().getTime())/86400000);
+ }
+ function getBenefitEndDateStatus(item={}){
+ const endDate=getBenefitDateValue(item,'end');
+ const daysLeft=getBenefitDateDiffDays(endDate);
+ if(daysLeft===null) return null;
+ if(daysLeft<0) return {key:'ended',label:'혜택 종료',className:'ended',daysLeft,endDate};
+ if(daysLeft===0) return {key:'today',label:'금일 혜택 종료',className:'today',daysLeft,endDate};
+ if(daysLeft<=3) return {key:'urgent',label:'혜택 종료 임박',className:'urgent',daysLeft,endDate};
+ if(daysLeft<=7) return {key:'soon',label:'혜택 종료 예정',className:'soon',daysLeft,endDate};
+ return null;
+ }
+ function isBenefitDateActive(item={}){
+ const startDate=getBenefitDateValue(item,'start');
+ const endDate=getBenefitDateValue(item,'end');
+ const startDiff=getBenefitDateDiffDays(startDate);
+ const endDiff=getBenefitDateDiffDays(endDate);
+ if(startDiff!==null && startDiff>0) return false;
+ if(endDiff!==null && endDiff<0) return false;
+ return true;
+ }
+ function benefitEndBadgeHtml(item={},scope='card'){
+ const status=getBenefitEndDateStatus(item);
+ if(!status || status.key==='ended') return '';
+ return `<div class="benefit-end-badge ${status.className} ${scope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
+ }
+ function isPubliclyVisibleBenefit(item={}){return item.visible!==false && normalizeBenefitStoreStatus(item)!=='hidden' && isBenefitDateActive(item);}
  function isRecommendableBenefit(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);return isPubliclyVisibleBenefit(item) && ['active','reopened'].includes(store) && ['active','resumed'].includes(benefit);}
  function benefitStatusChipsHtml(item={}, options={}){const compact=!!options.compact;const storeKey=normalizeBenefitStoreStatus(item);const benefitKey=normalizeResidentBenefitStatus(item);const store=STORE_STATUS_META[storeKey]||STORE_STATUS_META.active;const benefit=BENEFIT_STATUS_META[benefitKey]||BENEFIT_STATUS_META.active;const storeText=compact?'':store.label;const benefitText=compact?'':benefit.label;const storeTitle=escapeHtml(store.label);const benefitTitle=escapeHtml(benefit.label);return `<div class="benefit-status-row"><span class="status-chip ${store.cls}${compact?` compact-status compact-store-${storeKey}`:''}" title="${storeTitle}" aria-label="${storeTitle}">${storeText}</span><span class="status-chip ${benefit.cls}${compact?` compact-status compact-benefit-${benefitKey}`:''}" title="${benefitTitle}" aria-label="${benefitTitle}">${benefitText}</span></div>`;}
  function benefitStatusReasonHtml(item={}){const lines=[];const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(item.storeStatusReason)lines.push(item.storeStatusReason);if(benefit==='ended'&&item.benefitEndedAt)lines.push(`${item.benefitEndedAt} 혜택 종료`);if(item.benefitStatusReason)lines.push(item.benefitStatusReason);return lines.length?`<div class="status-reason-line">${escapeHtml(lines.join(' · '))}</div>`:'';}
@@ -3865,7 +3909,10 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  benefitStatus:normalizeResidentBenefitStatus(item),
  storeStatusReason:item.storeStatusReason||item.closedReason||item.closedMemo||item.closeReason||item.closeMemo||'',
  benefitStatusReason:item.benefitStatusReason||item.statusReason||item.discountStatusReason||'',
+ benefitStartedAt:item.benefitStartedAt||item.benefitStartDate||item.discountStartedAt||item.discountStartDate||'',
+ benefitStartDate:item.benefitStartDate||item.benefitStartedAt||item.discountStartedAt||item.discountStartDate||'',
  benefitEndedAt:item.benefitEndedAt||item.discountEndedAt||item.benefitEndDate||'',
+ benefitEndDate:item.benefitEndDate||item.benefitEndedAt||item.discountEndedAt||'',
  closedAt:item.closedAt||item.closedDate||item.closedConfirmedAt||'',
  closed:!!item.closed,
  recommended:!!item.recommended,
@@ -5823,6 +5870,7 @@ ${item.content || ''}`);
  const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
  return `${benefitTopBadgeHtml(item)}
  <div class="card-top">
+ ${benefitEndBadgeHtml(item)}
  <div class="${getBadgeClass(item)}">${item.discountText}</div>
  <div class="card-info">
  <h4>${item.name}</h4>
@@ -6598,7 +6646,7 @@ function renderCalendarDayModal(){
  const photoHtml = imageUrl
  ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
  : '';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main">${benefitEndBadgeHtml(item,'detail')}<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
  }
 
  function openDetail(item, options = {}){
