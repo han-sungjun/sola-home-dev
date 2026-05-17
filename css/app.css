@@ -20141,3 +20141,13 @@ body.gnb-manage-scroll-lock{
   color:#64748b;
   font-weight:900;
 }
+
+
+.upick-coupon-link-section{margin:14px 0;padding:16px;border-radius:18px;background:#fff;border:1px solid #e5e7eb;box-shadow:0 10px 24px rgba(15,23,42,.06)}
+.upick-coupon-link-section h3{margin:0 0 10px;font-size:15px;font-weight:900;color:#0f172a}
+.upick-coupon-link-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff}
+.upick-coupon-icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#ecfdf5;font-size:22px;flex:0 0 auto}
+.upick-coupon-copy{min-width:0;display:flex;flex-direction:column;gap:3px;flex:1}
+.upick-coupon-copy strong{font-size:13px;font-weight:900;color:#059669}
+.upick-coupon-copy span{font-size:14px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upick-coupon-link-card button{border:0;background:transparent;color:#16a34a;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer}
