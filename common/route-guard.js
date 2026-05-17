@@ -11,7 +11,6 @@
   ];
 
   const ADMIN_PAGES = [
-    "/admin",
     "/admin"
   ];
 
