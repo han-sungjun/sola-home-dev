@@ -3514,7 +3514,15 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
  window.getMapModeItems = getMapModeItems;
  window.getMapModelItems = getMapModeItems;
  function clusterMapItems(items=[], zoom=15){const z=Number(zoom||15); const threshold=z>=19?3:z>=18?8:z>=17?18:z>=16?80:z>=15?150:z>=14?280:z>=13?520:z>=12?950:1800; const clusters=[]; items.forEach(item=>{const pos=getBenefitLatLng(item); if(!pos)return; let selected=null; for(const c of clusters){if(getDistanceMeters(pos.lat,pos.lng,c.lat,c.lng)<=threshold){selected=c;break;}} if(selected){selected.items.push(item); selected.lat=selected.items.reduce((sum,it)=>sum+getBenefitLatLng(it).lat,0)/selected.items.length; selected.lng=selected.items.reduce((sum,it)=>sum+getBenefitLatLng(it).lng,0)/selected.items.length;}else{clusters.push({lat:pos.lat,lng:pos.lng,items:[item]});}}); return clusters;}
- function markerHtmlForItem(item){const d=getItemDistance(item); const label=Number.isFinite(d)?formatDistance(d).replace('약 ',''):'혜택'; return '<div class="map-marker-store"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+label+'</div>';}
+ function getMapMarkerLabel(item = {}){
+ const raw = String(item.name || item.storeName || item.title || '매장').trim();
+ if(!raw) return '매장';
+ return raw.length > 10 ? raw.slice(0,10) + '…' : raw;
+}
+function markerHtmlForItem(item){
+ const label = getMapMarkerLabel(item);
+ return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</div>';
+}
  function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
  function normalizeMapCoord(value){const n=Number(value); return Number.isFinite(n)?n.toFixed(6):'';}
  function getSamePositionClusterKey(items=[]){if(!Array.isArray(items)||items.length<=1)return ''; const first=getBenefitLatLng(items[0]); if(!first)return ''; const key=normalizeMapCoord(first.lat)+','+normalizeMapCoord(first.lng); const allSame=items.every(item=>{const pos=getBenefitLatLng(item); return pos&&(normalizeMapCoord(pos.lat)+','+normalizeMapCoord(pos.lng))===key;}); return allSame?key:'';}
@@ -3636,7 +3644,7 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
    pinchZoom:true
   });
   ensureDetailMiniMapZoomControls(mapEl, detailMapInstance);
-  new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100});
+  new nm.Marker({position:store,map:detailMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(20,34)},zIndex:100});
   let bounds=null;
   if(hasFreshUserLocation()){
    const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng);
@@ -5560,7 +5568,7 @@ ${item.content || ''}`);
  list.querySelectorAll('.hot-now-item').forEach((el) => {
  const id = el.dataset.benefitId;
  const item = items.find((v) => v.id === id);
- makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || '혜택'}`);
+ makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || getMapMarkerLabel(item)}`);
  el.onclick = () => {
  if(item?.benefit) openDetail(item.benefit);
  };
@@ -5600,7 +5608,7 @@ ${item.content || ''}`);
  <span>인기점수</span>
  </div>
  `;
- makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || '혜택'}`);
+ makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
  row.onclick = () => {
  if(item.benefit){
  openDetail(item.benefit);
@@ -5761,7 +5769,7 @@ ${item.content || ''}`);
  const topRank=getBenefitTopRank(item);
  card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
- makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || '혜택'}`);
+ makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
  card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
  card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
  card.querySelectorAll('.fav-btn').forEach((btn)=>{
@@ -6779,8 +6787,8 @@ function renderCalendarDayModal(){
  const synonymMap = {
  '공지':['공지','공지사항','안내','알림','소식','최근'],
  '최근':['최근','최신','새로운','신규','공지'],
- '혜택':['혜택','할인','제휴','매장','가게','상가','쿠폰','이벤트'],
- '매장':['매장','가게','상가','업체','혜택'],
+ getMapMarkerLabel(item):[getMapMarkerLabel(item),'할인','제휴','매장','가게','상가','쿠폰','이벤트'],
+ '매장':['매장','가게','상가','업체',getMapMarkerLabel(item)],
  '인기':['인기','top','top5','순위','랭킹','추천','베스트'],
  '지도':['지도','위치','거리','근처','주변','네이버','길찾기'],
  '전화':['전화','연락처','번호','문의'],
@@ -7195,7 +7203,7 @@ function renderCalendarDayModal(){
  <div class="ai-live-card-grid">
  ${cards.map(({item, reason}) => `
  <div class="ai-live-card">
- <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+ <b>${escapeHtml(item.name || item.storeName || item.title || getMapMarkerLabel(item))}</b>
  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
  <div class="ai-live-meta">
  ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
@@ -7248,7 +7256,7 @@ function renderCalendarDayModal(){
  if(joined.includes('관리사무소') || joined.includes('관리실') || joined.includes('전화') || joined.includes('연락처')){
  synonyms.push('관리사무소','관리실','생활지원센터','전화번호','연락처','대표번호','민원','사무소');
  }
- if(joined.includes('혜택') || joined.includes('할인')) synonyms.push('혜택','할인','제휴','매장');
+ if(joined.includes(getMapMarkerLabel(item)) || joined.includes('할인')) synonyms.push(getMapMarkerLabel(item),'할인','제휴','매장');
  return [...new Set([...base, ...synonyms])];
  }
 
@@ -8701,7 +8709,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
- <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+ <b>${escapeHtml(item.name || item.storeName || item.title || getMapMarkerLabel(item))}</b>
  <span class="ai-match-score">매칭 ${Math.min(99, Math.round(Number(score || 0) * 7))}%</span>
  </div>
  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
@@ -10598,7 +10606,7 @@ function renderIconToken(icon='', fallback=''){
  const DEFAULT_GNB_MENUS = [
   {menuId:'home', name:'홈', bottomLabel:'홈', icon:'icon:home', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
   {menuId:'ai', name:'AI 생활 도우미', bottomLabel:'AI', icon:'icon:ai', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
-  {menuId:'benefits', name:'혜택 전체보기', bottomLabel:'혜택', icon:'icon:benefits', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
+  {menuId:'benefits', name:'혜택 전체보기', bottomLabel:getMapMarkerLabel(item), icon:'icon:benefits', view:'benefits', sections:['new','main'], order:30, keywords:[getMapMarkerLabel(item),'할인','매장','제휴','전체']},
   {menuId:'favorite', name:'즐겨찾기 확인', bottomLabel:'즐겨찾기', icon:'icon:favorite', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
   {menuId:'notices', name:'공지사항 보기', bottomLabel:'공지', icon:'icon:notices', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
   {menuId:'calendar', name:'캘린더 예약', bottomLabel:'캘린더', icon:'icon:calendar', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
@@ -10755,7 +10763,7 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
   const fallbackMap = {
     home:{menuId:'home',name:'홈',bottomLabel:'홈',icon:'icon:home',view:'home',route:'home',sections:['bottom'],order:0},
     all:{menuId:'all',name:'전체',bottomLabel:'전체',icon:'icon:all',view:'all',route:'all',sections:['bottom'],order:9999},
-    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:'혜택',icon:'icon:benefits',view:'benefits',route:'benefits',sections:['bottom'],order:10},
+    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:getMapMarkerLabel(item),icon:'icon:benefits',view:'benefits',route:'benefits',sections:['bottom'],order:10},
     favorite:{menuId:'favorite',name:'즐겨찾기 확인',bottomLabel:'즐겨찾기',icon:'icon:favorite',view:'favorite',route:'favorite',sections:['bottom'],order:20},
     top5:{menuId:'top5',name:'인기 매장 TOP 5',bottomLabel:'TOP5',icon:'icon:top5',view:'top5',route:'top5',sections:['bottom'],order:30},
     ai:{menuId:'ai',name:'AI 생활 도우미',bottomLabel:'AI',icon:'icon:ai',view:'ai',route:'ai',sections:['bottom'],order:40},
@@ -10770,7 +10778,7 @@ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
  function getBottomNavSafeLabel(menu = {}){
   const key = String(menu.view || menu.route || menu.menuId || '').replace(/^#|^\//,'').trim();
   const shortLabelMap = {
-    home:'홈', all:'전체', benefits:'혜택', favorite:'즐겨찾기', top5:'TOP5',
+    home:'홈', all:'전체', benefits:getMapMarkerLabel(item), favorite:'즐겨찾기', top5:'TOP5',
     ai:'AI', calendar:'캘린더', map:'지도', notices:'공지', shareinsights:'공유'
   };
   return menu.bottomLabel || menu.navLabel || menu.shortName || shortLabelMap[key] || menu.name || menu.menuId || key;
@@ -11005,7 +11013,7 @@ async function loadGnbMenusFromDb(){
   if(popular) return { menu: popular, reason: '요즘 가장 많이 쓰는 메뉴예요.' };
   if(recent) return { menu: recent, reason: '방금 보셨던 메뉴를 이어서 볼 수 있어요.' };
 
-  const timeKeywords = hour < 11 ? ['공지','혜택','AI'] : hour < 15 ? ['혜택','지도','AI'] : hour < 20 ? ['캘린더','혜택','지도'] : ['AI','공지','캘린더'];
+  const timeKeywords = hour < 11 ? ['공지',getMapMarkerLabel(item),'AI'] : hour < 15 ? [getMapMarkerLabel(item),'지도','AI'] : hour < 20 ? ['캘린더',getMapMarkerLabel(item),'지도'] : ['AI','공지','캘린더'];
   for(const key of timeKeywords){
     const found = gnbMenuCache.find(m => canUseGnbMenu(m) && String(m.menuId) !== 'home' && [m.name,m.menuId,m.view,...(m.keywords||[])].join(' ').includes(key));
     if(found) return { menu: found, reason: '지금 시간대에 보기 좋은 메뉴예요.' };
