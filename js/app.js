@@ -3384,6 +3384,78 @@ function couponLinksPanelHtml(item = {}){
  return `<div class="panel coupon-link-detail-panel"><strong style="display:block;margin-bottom:10px;font-size:15px;color:#0f172a;">쿠폰</strong><a class="coupon-link-detail-card" href="${escapeAttr(first.url)}" target="_blank" rel="noopener"><span class="coupon-link-detail-icon">🎁</span><span class="coupon-link-detail-copy"><b>쿠폰 있어요</b><em>${escapeHtml(first.title)}</em></span><span class="coupon-link-detail-action">모두 보기</span></a></div>`;
 }
 
+
+function normalizeNewsItemsForDetail(item = {}){
+ const raw = item.newsItems || item.news || item.storeNews || item.noticeLinks || [];
+ let rows = [];
+ if(Array.isArray(raw)){
+   rows = raw.map(row => {
+     if(typeof row === 'string') return { title:'소식', imageUrl:'', date:'', url:row };
+     row = row || {};
+     return {
+       title:String(row.title || row.name || row.label || row.newsTitle || '소식').trim(),
+       imageUrl:String(row.imageUrl || row.thumbnailUrl || row.thumbnail || row.photoUrl || row.image || '').trim(),
+       date:String(row.date || row.newsDate || row.publishedAt || row.createdText || '').trim(),
+       url:String(row.url || row.link || row.href || row.newsUrl || '').trim()
+     };
+   });
+ }else if(raw && typeof raw === 'object'){
+   rows = [{ title:String(raw.title || raw.name || raw.label || raw.newsTitle || '소식').trim(), imageUrl:String(raw.imageUrl || raw.thumbnailUrl || raw.thumbnail || raw.photoUrl || raw.image || '').trim(), date:String(raw.date || raw.newsDate || raw.publishedAt || raw.createdText || '').trim(), url:String(raw.url || raw.link || raw.href || raw.newsUrl || '').trim() }];
+ }else if(typeof raw === 'string'){
+   rows = raw.split(/[\n,，]/).map(url => ({ title:'소식', imageUrl:'', date:'', url:String(url).trim() }));
+ }
+ return rows.filter(row => row.title || row.imageUrl || row.url).map(row => ({ title:row.title || '소식', imageUrl:row.imageUrl || '', date:row.date || '', url:row.url || '' }));
+}
+
+function newsItemsPanelHtml(item = {}){
+ const rows = normalizeNewsItemsForDetail(item);
+ if(!rows.length) return '';
+ const cards = rows.map((row) => {
+   const image = row.imageUrl ? `<button type="button" class="news-detail-thumb" data-news-image="${escapeAttr(row.imageUrl)}" data-news-title="${escapeAttr(row.title || '소식 이미지')}" aria-label="소식 이미지 확대"><img src="${escapeAttr(row.imageUrl)}" alt="" loading="lazy" decoding="async"></button>` : `<span class="news-detail-thumb empty">소식</span>`;
+   const body = `<div class="news-detail-copy"><b>${escapeHtml(row.title || '소식')}</b>${row.date ? `<em>${escapeHtml(row.date)}</em>` : ''}</div>`;
+   if(row.url){
+     return `<a class="news-detail-card" href="${escapeAttr(row.url)}" target="_blank" rel="noopener">${image}${body}</a>`;
+   }
+   return `<div class="news-detail-card">${image}${body}</div>`;
+ }).join('');
+ return `<div class="panel news-detail-panel"><strong style="display:block;margin-bottom:10px;font-size:15px;color:#0f172a;">소식</strong><div class="news-detail-list">${cards}</div></div>`;
+}
+
+function openNewsImagePreview(src='', title='소식 이미지'){
+ const imageUrl = String(src || '').trim();
+ if(!imageUrl) return;
+ let overlay = document.getElementById('newsImagePreviewOverlay');
+ if(!overlay){
+   overlay = document.createElement('div');
+   overlay.id = 'newsImagePreviewOverlay';
+   overlay.className = 'news-image-preview-overlay';
+   overlay.innerHTML = `<div class="news-image-preview-dialog" role="dialog" aria-modal="true" aria-label="소식 이미지 확대"><button type="button" class="news-image-preview-close" aria-label="닫기">×</button><img alt=""></div>`;
+   document.body.appendChild(overlay);
+   overlay.addEventListener('click', (event) => {
+     if(event.target === overlay || event.target.closest('.news-image-preview-close')){
+       overlay.classList.remove('show');
+       overlay.setAttribute('aria-hidden','true');
+     }
+   });
+ }
+ const img = overlay.querySelector('img');
+ if(img){
+   img.src = imageUrl;
+   img.alt = title || '소식 이미지';
+ }
+ overlay.classList.add('show');
+ overlay.setAttribute('aria-hidden','false');
+}
+
+document.addEventListener('click', (event) => {
+ const thumb = event.target.closest?.('[data-news-image]');
+ if(!thumb) return;
+ event.preventDefault();
+ event.stopPropagation();
+ openNewsImagePreview(thumb.dataset.newsImage || '', thumb.dataset.newsTitle || '소식 이미지');
+}, true);
+
+
 function benefitExtraInfoHtml(item = {}){
  const links = getBenefitSocialLinks(item);
  const services = [];
@@ -3753,6 +3825,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  supportPrograms:item.supportPrograms||item.supportProgram||item.governmentSupport||item.supportProgramNames||item.supportProgramList||null,
  supportProgramsText:item.supportProgramsText||'',
  couponLinks:item.couponLinks||item.coupons||item.couponList||item.couponUrls||[],
+ newsItems:item.newsItems||item.news||item.storeNews||item.noticeLinks||[],
  lat:Number.isFinite(lat)?lat:null,
  lng:Number.isFinite(lng)?lng:null,
  service:!!item.service||String(item.discountText).trim()==='서비스',
@@ -6503,7 +6576,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
