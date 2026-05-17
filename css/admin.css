@@ -5975,3 +5975,74 @@ img.brand-icon[src*="home.svg"],
 .news-image-upload-status.success{color:#15803d;}
 .news-image-upload-status.error{color:#b91c1c;}
 @media(max-width:760px){.news-item-row{grid-template-columns:1fr;}.news-image-admin-preview{height:120px;}}
+
+
+/* v20260517 소식 입력 카드 세로형 정리 */
+.news-item-row{
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+  align-items:stretch !important;
+  padding:14px !important;
+  border-radius:18px !important;
+}
+.news-image-admin-cell{
+  display:grid !important;
+  grid-template-columns:150px 1fr !important;
+  gap:10px !important;
+  align-items:center !important;
+}
+.news-image-admin-preview{
+  width:150px !important;
+  height:92px !important;
+}
+.news-image-file{
+  width:100% !important;
+  min-height:42px !important;
+}
+.news-image-upload-btn{
+  width:100% !important;
+  min-height:44px !important;
+}
+.news-image-upload-status{
+  display:block !important;
+  margin-top:4px !important;
+}
+.news-item-row .news-title,
+.news-item-row .news-date,
+.news-item-row .news-image-url,
+.news-item-row .news-url{
+  width:100% !important;
+  min-height:46px !important;
+  box-sizing:border-box !important;
+}
+.news-item-row .news-title::before,
+.news-item-row .news-date::before,
+.news-item-row .news-url::before{
+  content:none !important;
+}
+.news-item-remove-btn{
+  width:100% !important;
+  min-height:44px !important;
+  margin-top:2px !important;
+}
+@media(max-width:760px){
+  .news-image-admin-cell{
+    grid-template-columns:1fr !important;
+  }
+  .news-image-admin-preview{
+    width:100% !important;
+    height:140px !important;
+  }
+}
+
+
+.news-field-label{
+  display:block;
+  margin:2px 0 5px;
+  font-size:12px;
+  font-weight:900;
+  color:#475569;
+}
+.news-item-row .news-field-label + input{
+  margin-bottom:2px;
+}
