@@ -5947,3 +5947,8 @@ img.brand-icon[src*="home.svg"],
 .coupon-link-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .coupon-link-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-size:12px;font-weight:900}
 @media (max-width:640px){.coupon-link-row{grid-template-columns:1fr}.coupon-link-remove-btn{width:100%}}
+
+
+.support-program-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;}
+.support-program-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:5px 8px;border-radius:999px;background:#ecfeff;color:#075985;border:1px solid #bae6fd;font-size:12px;font-weight:900;line-height:1.1;white-space:nowrap;}
+.admin-benefit-card .support-program-chip{white-space:nowrap;}
