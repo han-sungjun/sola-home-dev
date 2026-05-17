@@ -3394,24 +3394,28 @@ function normalizeNewsItemsForDetail(item = {}){
      row = row || {};
      return {
        title:String(row.title || row.name || row.label || row.newsTitle || '소식').trim(),
+       badge:String(row.badge || row.type || row.badgeLabel || row.newsBadge || '소식').trim(),
        imageUrl:String(row.imageUrl || row.thumbnailUrl || row.thumbnail || row.photoUrl || row.image || '').trim(),
        date:String(row.date || row.newsDate || row.publishedAt || row.createdText || '').trim(),
        url:String(row.url || row.link || row.href || row.newsUrl || '').trim()
      };
    });
  }else if(raw && typeof raw === 'object'){
-   rows = [{ title:String(raw.title || raw.name || raw.label || raw.newsTitle || '소식').trim(), imageUrl:String(raw.imageUrl || raw.thumbnailUrl || raw.thumbnail || raw.photoUrl || raw.image || '').trim(), date:String(raw.date || raw.newsDate || raw.publishedAt || raw.createdText || '').trim(), url:String(raw.url || raw.link || raw.href || raw.newsUrl || '').trim() }];
+   rows = [{ title:String(raw.title || raw.name || raw.label || raw.newsTitle || '소식').trim(), badge:String(raw.badge || raw.type || raw.badgeLabel || raw.newsBadge || '소식').trim(), imageUrl:String(raw.imageUrl || raw.thumbnailUrl || raw.thumbnail || raw.photoUrl || raw.image || '').trim(), date:String(raw.date || raw.newsDate || raw.publishedAt || raw.createdText || '').trim(), url:String(raw.url || raw.link || raw.href || raw.newsUrl || '').trim() }];
  }else if(typeof raw === 'string'){
    rows = raw.split(/[\n,，]/).map(url => ({ title:'소식', imageUrl:'', date:'', url:String(url).trim() }));
  }
- return rows.filter(row => row.title || row.imageUrl || row.url).map(row => ({ title:row.title || '소식', imageUrl:row.imageUrl || '', date:row.date || '', url:row.url || '' }));
+ return rows.filter(row => row.title || row.imageUrl || row.url).map(row => ({ title:row.title || '소식', badge:row.badge || row.type || '소식', imageUrl:row.imageUrl || '', date:row.date || '', url:row.url || '' }));
 }
 
 function newsItemsPanelHtml(item = {}){
  const rows = normalizeNewsItemsForDetail(item);
  if(!rows.length) return '';
  const cards = rows.map((row) => {
-   const image = row.imageUrl ? `<button type="button" class="news-detail-thumb" data-news-image="${escapeAttr(row.imageUrl)}" data-news-title="${escapeAttr(row.title || '소식 이미지')}" aria-label="소식 이미지 확대"><img src="${escapeAttr(row.imageUrl)}" alt="" loading="lazy" decoding="async"></button>` : `<span class="news-detail-thumb empty">소식</span>`;
+   const badge = String(row.badge || row.type || '소식').trim() || '소식';
+   const badgeKey = badge.toLowerCase().replace(/[^a-z0-9가-힣_-]/g,'');
+   const badgeHtml = `<span class="news-detail-badge ${escapeAttr(badgeKey)}">${escapeHtml(badge)}</span>`;
+   const image = row.imageUrl ? `<button type="button" class="news-detail-thumb benefit-detail-photo-like" data-news-image="${escapeAttr(row.imageUrl)}" data-news-title="${escapeAttr(row.title || '소식 이미지')}" aria-label="소식 이미지 확대">${badgeHtml}<img src="${escapeAttr(row.imageUrl)}" alt="" loading="lazy" decoding="async"></button>` : `<span class="news-detail-thumb empty">${badgeHtml}소식</span>`;
    const body = `<div class="news-detail-copy"><b>${escapeHtml(row.title || '소식')}</b>${row.date ? `<em>${escapeHtml(row.date)}</em>` : ''}</div>`;
    if(row.url){
      return `<a class="news-detail-card" href="${escapeAttr(row.url)}" target="_blank" rel="noopener">${image}${body}</a>`;
@@ -3426,16 +3430,23 @@ function openNewsImagePreview(src='', title='소식 이미지'){
  if(!imageUrl) return;
  let overlay = document.getElementById('newsImagePreviewOverlay');
  if(!overlay){
-   overlay = document.createElement('div');
+   overlay = document.createElement('dialog');
    overlay.id = 'newsImagePreviewOverlay';
    overlay.className = 'news-image-preview-overlay';
-   overlay.innerHTML = `<div class="news-image-preview-dialog" role="dialog" aria-modal="true" aria-label="소식 이미지 확대"><button type="button" class="news-image-preview-close" aria-label="닫기">×</button><img alt=""></div>`;
+   overlay.innerHTML = `<div class="news-image-preview-dialog" role="document" aria-label="소식 이미지 확대"><button type="button" class="news-image-preview-close" aria-label="닫기">×</button><img alt=""></div>`;
    document.body.appendChild(overlay);
+   const closePreview = () => {
+     overlay.classList.remove('show');
+     overlay.setAttribute('aria-hidden','true');
+     document.body.classList.remove('news-image-preview-open');
+     if(typeof overlay.close === 'function' && overlay.open) overlay.close();
+   };
    overlay.addEventListener('click', (event) => {
-     if(event.target === overlay || event.target.closest('.news-image-preview-close')){
-       overlay.classList.remove('show');
-       overlay.setAttribute('aria-hidden','true');
-     }
+     if(event.target === overlay || event.target.closest('.news-image-preview-close')) closePreview();
+   });
+   overlay.addEventListener('cancel', (event) => {
+     event.preventDefault();
+     closePreview();
    });
  }
  const img = overlay.querySelector('img');
@@ -3445,6 +3456,8 @@ function openNewsImagePreview(src='', title='소식 이미지'){
  }
  overlay.classList.add('show');
  overlay.setAttribute('aria-hidden','false');
+ document.body.classList.add('news-image-preview-open');
+ if(typeof overlay.showModal === 'function' && !overlay.open) overlay.showModal();
 }
 
 document.addEventListener('click', (event) => {
