@@ -5937,3 +5937,32 @@ img.brand-icon[src*="home.svg"],
 @keyframes upickV82LoaderBarFlow{0%,100%{opacity:.38;transform:scaleX(.72);background-position:0% 50%;}50%{opacity:.95;transform:scaleX(1);background-position:100% 50%;}}
 @media (max-width:420px){#pageLoader .loader-content,#globalLoadingBar .loader-content,.page-loader .loader-content,.global-loading .loader-content{gap:20px!important;transform:translateY(-4px)!important;}#pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}}
 @media (prefers-reduced-motion: reduce){#pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark,#pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before,#pageLoader .loader-mark::after,#globalLoadingBar .loader-mark::after,.page-loader .loader-mark::after,.global-loading .loader-mark::after{animation:none!important;}}
+
+
+/* 정부지원금 다중 선택 */
+.support-program-field{
+  border:1px solid rgba(59,130,246,.14);
+  background:linear-gradient(180deg, rgba(239,246,255,.72), rgba(255,255,255,.94));
+  border-radius:18px;
+  padding:14px;
+}
+.support-program-checks{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:10px 0 10px;
+}
+.support-program-checks label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:42px;
+  padding:10px 12px;
+  border:1px solid rgba(148,163,184,.28);
+  border-radius:14px;
+  background:#fff;
+  font-weight:800;
+  color:#0f172a;
+}
+.support-program-checks input{width:18px;height:18px;accent-color:#2563eb;}
+@media (max-width:720px){.support-program-checks{grid-template-columns:1fr;}}
