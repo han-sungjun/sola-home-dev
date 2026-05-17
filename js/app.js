@@ -5868,10 +5868,11 @@ ${item.content || ''}`);
  const favIcon = `<img class="upick-fav-icon-img" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">`;
  const fullAddress = getBenefitDisplayAddress(item);
  const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
+ const dateBadgeHtml = benefitEndBadgeHtml(item);
+ const badgeStackClass = dateBadgeHtml ? 'benefit-badge-stack has-date-badge' : 'benefit-badge-stack';
  return `${benefitTopBadgeHtml(item)}
  <div class="card-top">
- ${benefitEndBadgeHtml(item)}
- <div class="${getBadgeClass(item)}">${item.discountText}</div>
+ <div class="${badgeStackClass}">${dateBadgeHtml}<div class="${getBadgeClass(item)}">${item.discountText}</div></div>
  <div class="card-info">
  <h4>${item.name}</h4>
  <div class="meta">${item.condition}</div>

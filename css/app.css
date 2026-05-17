@@ -21268,3 +21268,91 @@ body.gnb-manage-scroll-lock{
 .benefit-end-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;box-shadow:0 10px 20px rgba(127,29,29,.18);}
 .benefit-end-badge.detail{margin-bottom:8px;}
 #cardList.view-list .benefit-end-badge{margin:0 0 4px;}
+
+/* ===== Benefit date ribbon badge: placed only above the discount box ===== */
+#cardList .benefit-badge-stack{
+  position:relative;
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:flex-start;
+  justify-content:center;
+  width:max-content;
+  min-width:72px;
+  overflow:visible;
+}
+#cardList .benefit-badge-stack .badge{
+  margin:0;
+}
+#cardList .benefit-badge-stack.has-date-badge .badge{
+  margin-top:12px;
+}
+#cardList .benefit-end-badge{
+  position:absolute;
+  left:-7px;
+  top:-7px;
+  z-index:4;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:none;
+  min-height:0;
+  margin:0;
+  padding:6px 10px;
+  border:0;
+  border-radius:4px;
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1;
+  letter-spacing:-.05em;
+  white-space:nowrap;
+  transform:rotate(-8deg);
+  transform-origin:left center;
+  box-shadow:0 8px 16px rgba(15,23,42,.14);
+  pointer-events:none;
+}
+#cardList .benefit-end-badge.soon{
+  background:linear-gradient(135deg,#fbbf24,#f59e0b);
+  color:#fff;
+}
+#cardList .benefit-end-badge.urgent{
+  background:linear-gradient(135deg,#fb923c,#f97316);
+  color:#fff;
+}
+#cardList .benefit-end-badge.today{
+  background:linear-gradient(135deg,#f43f5e,#e11d48);
+  color:#fff;
+}
+#cardList.view-card .benefit-badge-stack{
+  min-width:72px;
+}
+#cardList.view-list .card{
+  overflow:visible;
+}
+#cardList.view-list .benefit-badge-stack{
+  grid-column:1;
+  width:46px;
+  min-width:46px;
+  align-self:center;
+  justify-self:start;
+}
+#cardList.view-list .benefit-badge-stack.has-date-badge .badge{
+  margin-top:10px;
+}
+#cardList.view-list .benefit-end-badge{
+  left:-5px;
+  top:-9px;
+  padding:5px 8px;
+  font-size:11px;
+  border-radius:4px;
+}
+#cardList.view-list .benefit-badge-stack .badge{
+  width:46px;
+  height:46px;
+  min-width:46px;
+}
+#cardList.view-card .card-top,
+#cardList.view-list .card-top{
+  overflow:visible;
+}
