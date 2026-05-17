@@ -20728,3 +20728,10 @@ body.gnb-manage-scroll-lock{
     max-height:46vh !important;
   }
 }
+
+
+/* v20260517 소식 팝업 구분선 제거 */
+.news-image-preview-dialog::after{
+  display:none !important;
+  content:none !important;
+}
