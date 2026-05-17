@@ -20165,3 +20165,18 @@ body.gnb-manage-scroll-lock{
 .coupon-link-detail-copy b{font-size:13px;color:#16a34a;font-weight:900;}
 .coupon-link-detail-copy em{font-style:normal;font-size:14px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .coupon-link-detail-action{font-size:13px;font-weight:900;color:#16a34a;white-space:nowrap;}
+
+
+/* v20260517 지도 마커 매장명 표시 보정 */
+.map-marker-store{
+  max-width: 154px;
+  min-height: 30px;
+  padding: 7px 10px;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-marker-store .upick-svg-icon{
+  flex: 0 0 auto;
+}
