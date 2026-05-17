@@ -1541,7 +1541,7 @@ window.addEventListener('keydown', (event) => {
  if(location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/')){
  sessionStorage.setItem('pendingDeepLink', location.href);
  }
- window.location.replace(LOGIN_PAGE_URL));
+ window.location.replace(LOGIN_PAGE_URL);
  };
  function getDisplayNickname(){
  return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
