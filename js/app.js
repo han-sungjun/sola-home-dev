@@ -3451,7 +3451,7 @@ function openNewsImagePreview(src='', title='소식 이미지'){
    overlay = document.createElement('dialog');
    overlay.id = 'newsImagePreviewOverlay';
    overlay.className = 'news-image-preview-overlay';
-   overlay.innerHTML = `<div class="news-image-preview-dialog" role="document" aria-label="소식 이미지 확대"><button type="button" class="news-image-preview-close" aria-label="닫기">×</button><img alt=""></div>`;
+   overlay.innerHTML = `<div class="news-image-preview-dialog" role="document" aria-label="소식 이미지 확대"><div class="news-image-preview-head"><div class="news-image-preview-title">소식 이미지</div><button type="button" class="news-image-preview-close" aria-label="닫기">×</button></div><div class="news-image-preview-body"><img alt=""></div></div>`;
    document.body.appendChild(overlay);
    const closePreview = () => {
      overlay.classList.remove('show');
