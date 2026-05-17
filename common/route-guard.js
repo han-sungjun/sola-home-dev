@@ -16,7 +16,7 @@
 
   function go(url) {
     if (location.pathname !== url) {
-      location.replace(url));
+      location.replace(url);
     }
   }
 

@@ -113,7 +113,7 @@ function toE164Korea(value = '') {
 }
 
 function goHome() {
-  window.location.replace(HOME_PATH));
+  window.location.replace(HOME_PATH);
 }
 
 function goApp(delay = 500) {
@@ -467,7 +467,7 @@ async function resetPassword() {
     await signOut(auth).catch(() => {});
 
     setTimeout(() => {
-      window.location.replace(HOME_PATH));
+      window.location.replace(HOME_PATH);
     }, 900);
   } catch (e) {
     console.error('[phone-verify] resetPassword failed:', e);
@@ -512,7 +512,7 @@ if (newPasswordConfirmEl) {
 if (signOutBtn) {
   signOutBtn.onclick = async () => {
     await signOut(auth).catch(() => {});
-    window.location.replace(HOME_PATH));
+    window.location.replace(HOME_PATH);
   };
 }
 
@@ -522,7 +522,7 @@ onAuthStateChanged(auth, async (user) => {
       signOutBtn.textContent = '입장 화면 으로';
       signOutBtn.onclick = async () => {
         await signOut(auth).catch(() => {});
-        window.location.replace(HOME_PATH));
+        window.location.replace(HOME_PATH);
       };
     }
 
@@ -531,7 +531,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   if (!user) {
-    window.location.replace(HOME_PATH));
+    window.location.replace(HOME_PATH);
     return;
   }
 
@@ -544,7 +544,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     if (data?.phoneVerified === true) {
-      window.location.replace(APP_PATH));
+      window.location.replace(APP_PATH);
       return;
     }
 

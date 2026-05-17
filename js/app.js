@@ -2556,7 +2556,7 @@ async function refreshPushStatus(){
  }
 
  if(phoneVerificationRequired && !phoneVerified){
- window.location.replace('/phone-verify'));
+ window.location.replace('/phone-verify');
  resolve(false);
  return;
  }
@@ -2591,7 +2591,7 @@ async function refreshPushStatus(){
 
  const pendingDeepLink = consumePendingDeepLinkSafely();
  if(pendingDeepLink && pendingDeepLink !== location.href){
- window.location.replace(pendingDeepLink));
+ window.location.replace(pendingDeepLink);
  resolve(false);
  return;
  }

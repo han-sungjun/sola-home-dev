@@ -136,7 +136,7 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
   clearLoginSession();
   try{ if (typeof signOutFn === 'function') await signOutFn(auth); }catch(_e){}
 
-  if (redirectTo) window.location.replace(redirectTo));
+  if (redirectTo) window.location.replace(redirectTo);
   return false;
 }
 
