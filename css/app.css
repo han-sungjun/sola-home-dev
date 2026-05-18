@@ -20523,7 +20523,7 @@ body.gnb-manage-scroll-lock{
   .news-image-preview-close{
     width:48px !important;
     height:48px !important;
-    top:-4px !important;
+    top:-12px !important;
     right:-12px !important;
   }
 }
@@ -21302,7 +21302,7 @@ body.gnb-manage-scroll-lock{
   z-index:1 !important;
 }
 #cardList .benefit-badge-stack.has-date-badge .badge{
-  margin-top:0 !important;
+  margin-top:18px !important;
 }
 #cardList .benefit-end-badge.benefit-date-scope-card{
   position:absolute !important;
@@ -21527,7 +21527,7 @@ body.gnb-manage-scroll-lock{
 #cardList .benefit-end-badge.benefit-date-scope-card,
 #favoriteList .benefit-end-badge.benefit-date-scope-card{
   left:-24px !important;
-  top:-4px !important;
+  top:-12px !important;
   z-index:6 !important;
   padding:3px 7px !important;
   font-size:9px !important;
@@ -21554,7 +21554,7 @@ body.gnb-manage-scroll-lock{
 #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
 #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
   left:-24px !important;
-  top:-4px !important;
+  top:-12px !important;
   padding:3px 7px !important;
   font-size:9px !important;
   transform:rotate(-30deg) !important;
@@ -21563,6 +21563,66 @@ body.gnb-manage-scroll-lock{
 @media(max-width:520px){
   #cardList .benefit-end-badge.benefit-date-scope-card,
   #favoriteList .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    left:-24px !important;
+    top:-12px !important;
+    padding:3px 7px !important;
+    font-size:8.5px !important;
+    transform:rotate(-30deg) !important;
+  }
+}
+
+/* ===== v20260518 Benefit ribbon v9 full: 카드형/리스트형 위치 완전 분리 ===== */
+#cardList .benefit-badge-stack.has-date-badge .badge,
+#favoriteList .benefit-badge-stack.has-date-badge .badge,
+#cardList.view-list .benefit-badge-stack.has-date-badge .badge,
+#favoriteList.view-list .benefit-badge-stack.has-date-badge .badge{
+  margin-top:0 !important;
+}
+
+/* 카드형: 현재 카드형에서 자연스럽게 보이는 위치 유지 */
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-12px !important;
+  padding:3px 7px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  border-radius:999px !important;
+  z-index:6 !important;
+}
+
+/* 리스트형: 카드형보다 조금 아래로 내려 카드 상단에 자연스럽게 걸치도록 분리 */
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-4px !important;
+  padding:3px 7px !important;
+  font-size:8.5px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  border-radius:999px !important;
+  z-index:6 !important;
+}
+
+@media(max-width:520px){
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+    left:-24px !important;
+    top:-12px !important;
+    padding:3px 7px !important;
+    font-size:8.5px !important;
+    transform:rotate(-30deg) !important;
+  }
+
   #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
   #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
     left:-24px !important;
