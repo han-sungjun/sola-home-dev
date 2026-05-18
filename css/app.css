@@ -22351,3 +22351,43 @@ body.gnb-manage-scroll-lock{
     transform:translate(-1%, -38%) rotate(-18deg) !important;
   }
 }
+
+/* ===== v20260518 Benefit date ribbon v18: discount badge overlap fine tune ===== */
+#cardList .benefit-badge-stack,
+#favoriteList .benefit-badge-stack,
+#cardList .benefit-badge-stack.has-date-badge,
+#favoriteList .benefit-badge-stack.has-date-badge{
+  position: relative !important;
+  overflow: visible !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card{
+  left: 0 !important;
+  top: 0 !important;
+  transform: translate(-2%, 110%) rotate(-30deg) !important;
+  transform-origin: left center !important;
+  z-index: 40 !important;
+}
+
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  transform: translate(-2%, 110%) rotate(-30deg) !important;
+}
+
+@media(max-width:520px){
+  #cardList .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    transform: translate(-2%, 110%) rotate(-30deg) !important;
+  }
+}
