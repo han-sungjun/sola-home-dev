@@ -22541,7 +22541,7 @@ body.gnb-manage-scroll-lock{
   content: "" !important;
   position: absolute !important;
   top: -55% !important;
-  left: -70% !important;
+  left: -78%;
   width: 46% !important;
   height: 210% !important;
   transform: rotate(24deg) !important;
@@ -22556,7 +22556,7 @@ body.gnb-manage-scroll-lock{
   z-index: 2 !important;
 }
 
-/* v30 혜택 종료 리본 광택: HOT 배지 방식 + 실제 이동 보정 */
+
 .benefit-end-badge.benefit-date-scope-card,
 #cardList .benefit-end-badge.benefit-date-scope-card,
 #favoriteList .benefit-end-badge.benefit-date-scope-card,
@@ -22601,6 +22601,58 @@ body.gnb-manage-scroll-lock{
   }
   100% {
     left: 128%;
+    opacity: 0;
+  }
+}
+
+/* v31 혜택 종료 리본 광택: left !important 제거로 실제 이동 보정 */
+.benefit-end-badge.benefit-date-scope-card,
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card,
+#detailModal .benefit-end-badge.detail {
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+.benefit-end-badge.benefit-date-scope-card::after,
+#cardList .benefit-end-badge.benefit-date-scope-card::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+#detailModal .benefit-end-badge.detail::after {
+  content: "" !important;
+  position: absolute !important;
+  top: -55% !important;
+  left: -78%;
+  width: 46% !important;
+  height: 210% !important;
+  transform: rotate(24deg) !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,.82),
+    rgba(255,255,255,0)
+  ) !important;
+  animation-name: benefitEndBadgeShineMove !important;
+  animation-duration: 2.7s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-iteration-count: infinite !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+@keyframes benefitEndBadgeShineMove {
+  0% {
+    left: -78%;
+    opacity: 0;
+  }
+  15% {
+    opacity: .95;
+  }
+  42% {
+    left: 138%;
+    opacity: 0;
+  }
+  100% {
+    left: 138%;
     opacity: 0;
   }
 }
