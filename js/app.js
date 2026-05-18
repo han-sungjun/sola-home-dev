@@ -5870,10 +5870,9 @@ ${item.content || ''}`);
  const fullAddress = getBenefitDisplayAddress(item);
  const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
  const dateBadgeHtml = benefitEndBadgeHtml(item);
- const badgeStackClass = dateBadgeHtml ? 'benefit-badge-stack has-date-badge' : 'benefit-badge-stack';
  return `${benefitTopBadgeHtml(item)}
  <div class="card-top">
- <div class="${badgeStackClass}">${dateBadgeHtml}<div class="${getBadgeClass(item)}">${item.discountText}</div></div>
+ ${dateBadgeHtml}<div class="${getBadgeClass(item)}">${item.discountText}</div>
  <div class="card-info">
  <h4>${item.name}</h4>
  <div class="meta">${item.condition}</div>
