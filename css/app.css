@@ -22579,3 +22579,59 @@ body.gnb-manage-scroll-lock{
     display:none !important;
   }
 }
+
+/* ===== v20260518 Benefit date ribbon v24: stronger visible shine ===== */
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card,
+#detailModal .benefit-end-badge.detail,
+#detailModal .benefit-date-status-chip{
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card::before,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::before,
+#detailModal .benefit-end-badge.detail::before,
+#detailModal .benefit-date-status-chip::before{
+  content: "" !important;
+  position: absolute !important;
+  top: -45% !important;
+  bottom: -45% !important;
+  left: -85% !important;
+  width: 58% !important;
+  background: linear-gradient(
+    115deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0) 28%,
+    rgba(255,255,255,.45) 42%,
+    rgba(255,255,255,.95) 50%,
+    rgba(255,255,255,.45) 58%,
+    rgba(255,255,255,0) 72%,
+    rgba(255,255,255,0) 100%
+  ) !important;
+  transform: skewX(-22deg) !important;
+  animation: benefitRibbonGlint 2.15s ease-in-out infinite !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  opacity: .95 !important;
+  mix-blend-mode: screen !important;
+}
+
+@keyframes benefitRibbonGlint{
+  0% { left: -85%; opacity: 0; }
+  12% { opacity: .95; }
+  45% { left: 128%; opacity: .95; }
+  58% { left: 128%; opacity: 0; }
+  100% { left: 128%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  #cardList .benefit-end-badge.benefit-date-scope-card::before,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card::before,
+  #detailModal .benefit-end-badge.detail::before,
+  #detailModal .benefit-date-status-chip::before{
+    animation: none !important;
+    display: none !important;
+  }
+}
