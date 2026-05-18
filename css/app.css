@@ -20523,7 +20523,7 @@ body.gnb-manage-scroll-lock{
   .news-image-preview-close{
     width:48px !important;
     height:48px !important;
-    top:-12px !important;
+    top:-4px !important;
     right:-12px !important;
   }
 }
@@ -21302,7 +21302,7 @@ body.gnb-manage-scroll-lock{
   z-index:1 !important;
 }
 #cardList .benefit-badge-stack.has-date-badge .badge{
-  margin-top:18px !important;
+  margin-top:0 !important;
 }
 #cardList .benefit-end-badge.benefit-date-scope-card{
   position:absolute !important;
@@ -21527,7 +21527,7 @@ body.gnb-manage-scroll-lock{
 #cardList .benefit-end-badge.benefit-date-scope-card,
 #favoriteList .benefit-end-badge.benefit-date-scope-card{
   left:-24px !important;
-  top:-12px !important;
+  top:-4px !important;
   z-index:6 !important;
   padding:3px 7px !important;
   font-size:9px !important;
@@ -21554,7 +21554,7 @@ body.gnb-manage-scroll-lock{
 #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
 #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
   left:-24px !important;
-  top:-12px !important;
+  top:-4px !important;
   padding:3px 7px !important;
   font-size:9px !important;
   transform:rotate(-30deg) !important;
@@ -21566,7 +21566,7 @@ body.gnb-manage-scroll-lock{
   #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
   #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
     left:-24px !important;
-    top:-12px !important;
+    top:-4px !important;
     padding:3px 7px !important;
     font-size:8.5px !important;
     transform:rotate(-30deg) !important;
