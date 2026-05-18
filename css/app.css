@@ -22525,7 +22525,7 @@ body.gnb-manage-scroll-lock{
   box-shadow:0 8px 18px rgba(127,29,29,.16);
 }
 
-/* ===== v20260518 Benefit date ribbon v23: shine effect final ===== */
+/* ===== v20260518 Benefit date ribbon v25: visible shine without breaking absolute badge position ===== */
 #cardList .benefit-end-badge.benefit-date-scope-card,
 #favoriteList .benefit-end-badge.benefit-date-scope-card,
 #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
@@ -22537,101 +22537,86 @@ body.gnb-manage-scroll-lock{
   position:absolute !important;
   overflow:hidden !important;
   isolation:isolate !important;
+  z-index:12 !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.22) !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card::before,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::before{
+  content:"" !important;
+  position:absolute !important;
+  top:-70% !important;
+  left:-95% !important;
+  width:62% !important;
+  height:240% !important;
+  background:linear-gradient(
+    115deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0) 26%,
+    rgba(255,255,255,.52) 42%,
+    rgba(255,255,255,.98) 50%,
+    rgba(255,255,255,.52) 58%,
+    rgba(255,255,255,0) 74%,
+    rgba(255,255,255,0) 100%
+  ) !important;
+  transform:skewX(-18deg) !important;
+  animation:benefitRibbonGlint 2.35s ease-in-out infinite !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+  opacity:.98 !important;
+  mix-blend-mode:screen !important;
 }
 
 #cardList .benefit-end-badge.benefit-date-scope-card::after,
 #favoriteList .benefit-end-badge.benefit-date-scope-card::after{
+  content:none !important;
+  display:none !important;
+}
+
+#detailModal .benefit-date-status-chip{
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+}
+
+#detailModal .benefit-date-status-chip::before{
   content:"" !important;
   position:absolute !important;
-  top:-55% !important;
+  top:-70% !important;
   left:-95% !important;
-  width:45% !important;
-  height:210% !important;
-  background:linear-gradient(120deg,
+  width:62% !important;
+  height:240% !important;
+  background:linear-gradient(
+    115deg,
     rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.12) 32%,
-    rgba(255,255,255,.82) 50%,
-    rgba(255,255,255,.16) 68%,
-    rgba(255,255,255,0) 100%) !important;
+    rgba(255,255,255,0) 26%,
+    rgba(255,255,255,.45) 42%,
+    rgba(255,255,255,.9) 50%,
+    rgba(255,255,255,.45) 58%,
+    rgba(255,255,255,0) 74%,
+    rgba(255,255,255,0) 100%
+  ) !important;
   transform:skewX(-18deg) !important;
-  animation:benefitRibbonShine 2.8s ease-in-out infinite !important;
+  animation:benefitRibbonGlint 2.35s ease-in-out infinite !important;
   pointer-events:none !important;
-  z-index:1 !important;
+  z-index:2 !important;
+  opacity:.95 !important;
+  mix-blend-mode:screen !important;
 }
 
-#cardList .benefit-end-badge.benefit-date-scope-card,
-#favoriteList .benefit-end-badge.benefit-date-scope-card{
-  text-shadow:0 1px 2px rgba(0,0,0,.18) !important;
-}
-
-@keyframes benefitRibbonShine{
+@keyframes benefitRibbonGlint{
   0%{ left:-95%; opacity:0; }
-  12%{ opacity:1; }
-  42%{ left:145%; opacity:1; }
+  10%{ opacity:.98; }
+  44%{ left:145%; opacity:.98; }
   56%{ left:145%; opacity:0; }
   100%{ left:145%; opacity:0; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  #cardList .benefit-end-badge.benefit-date-scope-card::after,
-  #favoriteList .benefit-end-badge.benefit-date-scope-card::after{
-    animation:none !important;
-    display:none !important;
-  }
-}
-
-/* ===== v20260518 Benefit date ribbon v24: stronger visible shine ===== */
-#cardList .benefit-end-badge.benefit-date-scope-card,
-#favoriteList .benefit-end-badge.benefit-date-scope-card,
-#detailModal .benefit-end-badge.detail,
-#detailModal .benefit-date-status-chip{
-  position: relative !important;
-  overflow: hidden !important;
-  isolation: isolate !important;
-}
-
-#cardList .benefit-end-badge.benefit-date-scope-card::before,
-#favoriteList .benefit-end-badge.benefit-date-scope-card::before,
-#detailModal .benefit-end-badge.detail::before,
-#detailModal .benefit-date-status-chip::before{
-  content: "" !important;
-  position: absolute !important;
-  top: -45% !important;
-  bottom: -45% !important;
-  left: -85% !important;
-  width: 58% !important;
-  background: linear-gradient(
-    115deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0) 28%,
-    rgba(255,255,255,.45) 42%,
-    rgba(255,255,255,.95) 50%,
-    rgba(255,255,255,.45) 58%,
-    rgba(255,255,255,0) 72%,
-    rgba(255,255,255,0) 100%
-  ) !important;
-  transform: skewX(-22deg) !important;
-  animation: benefitRibbonGlint 2.15s ease-in-out infinite !important;
-  pointer-events: none !important;
-  z-index: 2 !important;
-  opacity: .95 !important;
-  mix-blend-mode: screen !important;
-}
-
-@keyframes benefitRibbonGlint{
-  0% { left: -85%; opacity: 0; }
-  12% { opacity: .95; }
-  45% { left: 128%; opacity: .95; }
-  58% { left: 128%; opacity: 0; }
-  100% { left: 128%; opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce){
   #cardList .benefit-end-badge.benefit-date-scope-card::before,
   #favoriteList .benefit-end-badge.benefit-date-scope-card::before,
-  #detailModal .benefit-end-badge.detail::before,
   #detailModal .benefit-date-status-chip::before{
-    animation: none !important;
-    display: none !important;
+    animation:none !important;
+    display:none !important;
   }
 }
