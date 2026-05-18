@@ -12163,23 +12163,15 @@ document.addEventListener('keydown', (event) => {
   else bindObserver();
 })();
 
-/* ===== Fix: 로딩바와 알럿이 동시에 떠도 확인 버튼 클릭 가능 ===== */
+/* ===== Fix: 로딩바와 알럿이 동시에 떠도 확인 버튼 클릭 가능 =====
+   성능 보정: 문서 전체 MutationObserver를 제거하고, 로딩바는 클릭을 가로채지 않도록 CSS에 맡깁니다. */
 (function(){
-  function hasActiveDialog(){
-    return !!document.querySelector('dialog[open], .common-alert.show, .modal-alert.show, #appAlert[open], [role="dialog"][aria-modal="true"]');
-  }
-  function syncLoadingPointerState(){
-    var active = hasActiveDialog();
+  function releaseLoadingPointer(){
     document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(loader){
-      loader.style.pointerEvents = active ? 'none' : '';
-      if(active) loader.setAttribute('aria-hidden', 'true');
+      loader.style.pointerEvents = 'none';
     });
   }
-  var observer = new MutationObserver(syncLoadingPointerState);
-  observer.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['open','class','style','aria-hidden'] });
-  document.addEventListener('click', syncLoadingPointerState, true);
-  document.addEventListener('keydown', syncLoadingPointerState, true);
-  document.addEventListener('DOMContentLoaded', syncLoadingPointerState);
-  window.addEventListener('load', syncLoadingPointerState);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', releaseLoadingPointer, { once:true });
+  else releaseLoadingPointer();
+  window.addEventListener('load', releaseLoadingPointer, { once:true });
 })();
-

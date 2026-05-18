@@ -401,3 +401,23 @@ body:has(.modal-alert.show) .global-loading {
   pointer-events: none !important;
 }
 
+
+
+/* ===== Performance Fix: loading overlay must not block alert buttons ===== */
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  pointer-events: none !important;
+}
+#appAlert,
+#appAlert[open],
+dialog#appAlert,
+dialog[open],
+.common-alert,
+.common-alert.show,
+.modal-alert,
+.modal-alert.show,
+[role="dialog"][aria-modal="true"] {
+  z-index: 2147483600 !important;
+  pointer-events: auto !important;
+}
