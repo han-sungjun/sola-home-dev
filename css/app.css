@@ -22525,7 +22525,7 @@ body.gnb-manage-scroll-lock{
   box-shadow:0 8px 18px rgba(127,29,29,.16);
 }
 
-/* v29 혜택 종료 리본: 전체 기능 HOT 배지와 동일한 광택 효과 */
+
 .benefit-end-badge.benefit-date-scope-card,
 #cardList .benefit-end-badge.benefit-date-scope-card,
 #favoriteList .benefit-end-badge.benefit-date-scope-card,
@@ -22554,5 +22554,54 @@ body.gnb-manage-scroll-lock{
   animation: badgeShine 2.7s ease-in-out infinite !important;
   pointer-events: none !important;
   z-index: 2 !important;
+}
+
+/* v30 혜택 종료 리본 광택: HOT 배지 방식 + 실제 이동 보정 */
+.benefit-end-badge.benefit-date-scope-card,
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card,
+#detailModal .benefit-end-badge.detail {
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+.benefit-end-badge.benefit-date-scope-card::after,
+#cardList .benefit-end-badge.benefit-date-scope-card::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+#detailModal .benefit-end-badge.detail::after {
+  content: "" !important;
+  position: absolute !important;
+  top: -55% !important;
+  left: -75%;
+  width: 46% !important;
+  height: 210% !important;
+  transform: rotate(24deg) !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,.82),
+    rgba(255,255,255,0)
+  ) !important;
+  animation: benefitEndBadgeShineMove 2.7s ease-in-out infinite;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+@keyframes benefitEndBadgeShineMove {
+  0% {
+    left: -75%;
+    opacity: 0;
+  }
+  16% {
+    opacity: .95;
+  }
+  38% {
+    left: 128%;
+    opacity: 0;
+  }
+  100% {
+    left: 128%;
+    opacity: 0;
+  }
 }
 
