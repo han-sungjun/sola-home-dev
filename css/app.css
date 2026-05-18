@@ -22676,3 +22676,53 @@ body.gnb-manage-scroll-lock{
     display:none !important;
   }
 }
+
+/* ===== v20260518 Benefit ribbon v27: HOT badge shine strength match ===== */
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card{
+  position:absolute !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  z-index:14 !important;
+}
+
+#detailModal .benefit-date-status-chip{
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card::before,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::before,
+#detailModal .benefit-date-status-chip::before{
+  content:none !important;
+  display:none !important;
+}
+
+/* 전체 기능 HOT 배지와 동일 계열의 선명한 사선 광택 */
+#cardList .benefit-end-badge.benefit-date-scope-card::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+#detailModal .benefit-date-status-chip::after{
+  content:"" !important;
+  position:absolute !important;
+  top:-55% !important;
+  left:-75% !important;
+  width:46% !important;
+  height:210% !important;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.82),rgba(255,255,255,0)) !important;
+  transform:rotate(24deg) !important;
+  animation:badgeShine 2.7s ease-in-out infinite !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #cardList .benefit-end-badge.benefit-date-scope-card::after,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+  #detailModal .benefit-date-status-chip::after{
+    animation:none !important;
+    display:none !important;
+  }
+}
