@@ -22657,3 +22657,33 @@ body.gnb-manage-scroll-lock{
   }
 }
 
+/* ===== Fix: 알럿/확인 버튼은 로딩바보다 항상 위에서 클릭 가능 ===== */
+#appAlert,
+#appAlert[open],
+dialog#appAlert,
+.common-alert,
+.common-alert.show,
+.common-alert-backdrop,
+.modal-alert,
+.modal-alert.show,
+dialog[open],
+[role="dialog"][aria-modal="true"] {
+  z-index: 2147483600 !important;
+  pointer-events: auto !important;
+}
+
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  z-index: 2147483000 !important;
+}
+
+body:has(dialog[open]) #globalLoadingBar,
+body:has(dialog[open]) .global-loading,
+body:has(.common-alert.show) #globalLoadingBar,
+body:has(.common-alert.show) .global-loading,
+body:has(.modal-alert.show) #globalLoadingBar,
+body:has(.modal-alert.show) .global-loading {
+  pointer-events: none !important;
+}
+

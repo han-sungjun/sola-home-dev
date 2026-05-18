@@ -2164,8 +2164,8 @@ function updatePasswordChangeMatchMessage(){
     msg.textContent = '';
     return;
   }
-  if(pw.length > 0 && pw.length < 6){
-    msg.textContent = '새 비밀번호는 6자 이상 입력해주세요.';
+  if(pw.length > 0 && pw.length < 8){
+    msg.textContent = '새 비밀번호는 8자 이상 입력해주세요.';
     msg.classList.add('error');
     return;
   }
@@ -2209,8 +2209,8 @@ async function submitPasswordChange(event){
     await openModalAlert('기존 비밀번호를 입력해주세요.', qs('#currentPasswordInput'));
     return;
   }
-  if(!newPassword || newPassword.length < 6){
-    await openModalAlert('새 비밀번호는 6자 이상 입력해주세요.', qs('#newPasswordInput'));
+  if(!newPassword || newPassword.length < 8){
+    await openModalAlert('새 비밀번호는 8자 이상 입력해주세요.', qs('#newPasswordInput'));
     return;
   }
   if(newPassword !== newPasswordConfirm){
@@ -3172,8 +3172,8 @@ function formatTravelDuration(minutes){
  });
  }
 
- function ensureBenefitDistances(){
- if(!shouldUseDistanceFilter()){
+ function ensureBenefitDistances({ initialDisplay = false } = {}){
+ if(!initialDisplay && !shouldUseDistanceFilter()){
  updateDistanceFilterHelp();
  return Promise.resolve(false);
  }
@@ -3210,6 +3210,50 @@ function formatTravelDuration(minutes){
  return false;
  });
  }
+
+
+/* ===== Fix: 혜택 최초 진입 시에도 거리 태그 준비 ===== */
+function prepareInitialBenefitDistances(){
+  if(!navigator.geolocation) return Promise.resolve(false);
+  if(hasFreshUserLocation()){
+    recalculateBenefitDistances();
+    if(typeof renderCards === 'function'){
+      try {
+        renderCards('#cardList', getFilteredBenefits());
+        renderCards('#favoriteList', getVisibleBenefits().filter((item) => state.favoriteIds.includes(item.id)));
+      } catch(_) {}
+    }
+    return Promise.resolve(true);
+  }
+  state.distanceStatus = 'loading';
+  updateDistanceFilterHelp();
+  return getReliableCurrentPosition()
+    .then(() => {
+      state.distanceStatus = 'ready';
+      updateDistanceFilterHelp();
+      if(typeof renderCards === 'function'){
+        try {
+          renderCards('#cardList', getFilteredBenefits());
+          renderCards('#favoriteList', getVisibleBenefits().filter((item) => state.favoriteIds.includes(item.id)));
+        } catch(_) {}
+      }
+      return true;
+    })
+    .catch((error) => {
+      state.distanceStatus = 'idle';
+      updateDistanceFilterHelp();
+      return false;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(prepareInitialBenefitDistances, 700);
+  setTimeout(prepareInitialBenefitDistances, 1800);
+});
+window.addEventListener('load', function(){
+  setTimeout(prepareInitialBenefitDistances, 500);
+});
+
 
  function updateDistanceText(item = {}){
  const target = qs('#distanceText');
@@ -5928,7 +5972,13 @@ ${item.content || ''}`);
  wrap.classList.add('view-list');
  wrap.classList.remove('view-card');
  }
- if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
+ if(!items.length){
+ const emptyMessage = target === '#favoriteList'
+   ? '아직 즐겨찾기한 혜택이 없어요.<br><small>마음에 드는 혜택의 별표를 누르면 이곳에서 다시 볼 수 있습니다.</small>'
+   : '현재 조건에 맞는 혜택을 찾지 못했어요.<br><small>검색어나 필터를 조금 바꿔 다시 확인해 주세요.</small>';
+ wrap.innerHTML='<div class="panel empty">'+emptyMessage+'</div>';
+ return;
+ }
  items.forEach(item=>{
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
@@ -12112,3 +12162,24 @@ document.addEventListener('keydown', (event) => {
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, {once:true});
   else bindObserver();
 })();
+
+/* ===== Fix: 로딩바와 알럿이 동시에 떠도 확인 버튼 클릭 가능 ===== */
+(function(){
+  function hasActiveDialog(){
+    return !!document.querySelector('dialog[open], .common-alert.show, .modal-alert.show, #appAlert[open], [role="dialog"][aria-modal="true"]');
+  }
+  function syncLoadingPointerState(){
+    var active = hasActiveDialog();
+    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(loader){
+      loader.style.pointerEvents = active ? 'none' : '';
+      if(active) loader.setAttribute('aria-hidden', 'true');
+    });
+  }
+  var observer = new MutationObserver(syncLoadingPointerState);
+  observer.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['open','class','style','aria-hidden'] });
+  document.addEventListener('click', syncLoadingPointerState, true);
+  document.addEventListener('keydown', syncLoadingPointerState, true);
+  document.addEventListener('DOMContentLoaded', syncLoadingPointerState);
+  window.addEventListener('load', syncLoadingPointerState);
+})();
+
