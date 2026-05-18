@@ -22525,43 +22525,34 @@ body.gnb-manage-scroll-lock{
   box-shadow:0 8px 18px rgba(127,29,29,.16);
 }
 
-
-/* v28 HOT-style shine effect */
-.benefit-end-badge {
+/* v29 혜택 종료 리본: 전체 기능 HOT 배지와 동일한 광택 효과 */
+.benefit-end-badge.benefit-date-scope-card,
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card,
+#detailModal .benefit-end-badge.detail {
   overflow: hidden !important;
   isolation: isolate !important;
-  position: absolute !important;
 }
 
-.benefit-end-badge::after {
+.benefit-end-badge.benefit-date-scope-card::after,
+#cardList .benefit-end-badge.benefit-date-scope-card::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+#detailModal .benefit-end-badge.detail::after {
   content: "" !important;
   position: absolute !important;
-  top: -60% !important;
-  left: -90% !important;
-  width: 45% !important;
-  height: 220% !important;
+  top: -55% !important;
+  left: -70% !important;
+  width: 46% !important;
+  height: 210% !important;
+  transform: rotate(24deg) !important;
   background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0) 35%,
-    rgba(255,255,255,.95) 50%,
-    rgba(255,255,255,0) 65%,
-    rgba(255,255,255,0) 100%
+    90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,.78),
+    rgba(255,255,255,0)
   ) !important;
-  transform: skewX(-18deg) !important;
-  animation: benefitRibbonHotShine 2.2s ease-in-out infinite !important;
+  animation: badgeShine 2.7s ease-in-out infinite !important;
   pointer-events: none !important;
   z-index: 2 !important;
 }
 
-@keyframes benefitRibbonHotShine {
-  0% {
-    left: -90%;
-  }
-  45% {
-    left: 140%;
-  }
-  100% {
-    left: 140%;
-  }
-}
