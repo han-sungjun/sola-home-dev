@@ -1,1 +1,53 @@
-function _0xd393(_0x31c55c,_0x418d10){_0x31c55c=_0x31c55c-0x8b;var _0x102adb=_0x102a();var _0xd393fd=_0x102adb[_0x31c55c];return _0xd393fd;}(function(_0x47aa73,_0x33769e){var _0x3ca4fc=_0xd393,_0x31426d=_0x47aa73();while(!![]){try{var _0xcb21a1=parseInt(_0x3ca4fc(0x8f))/0x1+-parseInt(_0x3ca4fc(0x98))/0x2*(parseInt(_0x3ca4fc(0xa0))/0x3)+-parseInt(_0x3ca4fc(0x9e))/0x4+parseInt(_0x3ca4fc(0x9f))/0x5*(-parseInt(_0x3ca4fc(0x92))/0x6)+-parseInt(_0x3ca4fc(0x8e))/0x7*(-parseInt(_0x3ca4fc(0x96))/0x8)+-parseInt(_0x3ca4fc(0x94))/0x9*(parseInt(_0x3ca4fc(0x8d))/0xa)+parseInt(_0x3ca4fc(0x90))/0xb;if(_0xcb21a1===_0x33769e)break;else _0x31426d['push'](_0x31426d['shift']());}catch(_0x1dd3e2){_0x31426d['push'](_0x31426d['shift']());}}}(_0x102a,0x3fd96),!(function(){'use strict';var _0x4cfaa8=_0xd393;function _0x34a752(_0x35466f){var _0x391ee3=_0xd393;_0x35466f[_0x391ee3(0x97)]===_0x35466f['currentTarget']&&(_0x35466f['preventDefault'](),_0x35466f['stopPropagation'](),_0x391ee3(0x8c)==typeof _0x35466f['stopImmediatePropagation']&&_0x35466f[_0x391ee3(0x9a)]());}function _0x84e07e(){var _0x3c82d9=_0xd393;document[_0x3c82d9(0x99)]([_0x3c82d9(0x95),'.app-alert','.sheet-modal','[role=\x22dialog\x22]','[role=\x22alertdialog\x22]',_0x3c82d9(0x9d),'.modal-overlay','.modal-backdrop',_0x3c82d9(0x8b),_0x3c82d9(0x9c)]['join'](','))['forEach'](function(_0x1b454b){var _0x6f2eea=_0x3c82d9;'1'!==_0x1b454b[_0x6f2eea(0x9b)]['modalBackdropLockBound']&&(_0x1b454b['dataset']['modalBackdropLockBound']='1',_0x1b454b['addEventListener'](_0x6f2eea(0x91),_0x34a752,!0x0),_0x1b454b['addEventListener']('pointerdown',_0x34a752,!0x0));});}'loading'===document[_0x4cfaa8(0x93)]?document[_0x4cfaa8(0xa1)]('DOMContentLoaded',_0x84e07e,{'once':!0x0}):_0x84e07e(),new MutationObserver(_0x84e07e)['observe'](document['documentElement'],{'childList':!0x0,'subtree':!0x0}),window['__UPICK_MODAL_BACKDROP_LOCK__']={'bind':_0x84e07e};}()));function _0x102a(){var _0xaf903b=['target','2SIDMdW','querySelectorAll','stopImmediatePropagation','dataset','.admin-dialog','.modal','857516BmOsLk','154175ukxmRL','1295799nGOLgx','addEventListener','.admin-modal','function','1213880ryBBVI','7sUMQvu','103588WDuWKj','11364034LaUyhl','click','6zgVRjA','readyState','27ApOtsJ','dialog','1329240ciVtaE'];_0x102a=function(){return _0xaf903b;};return _0x102a();}
+/* 더운정픽 공통 모달 바깥 클릭 닫힘 방지
+   모든 dialog / alert / confirm / sheet / modal 계열은 바깥 영역 클릭으로 닫지 않습니다.
+   X, 취소, 확인 등 명시 버튼으로만 닫을 수 있습니다. */
+(function(){
+  'use strict';
+
+  function lockModalBackdropClick(event){
+    if(event.target === event.currentTarget){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation === 'function'){
+        event.stopImmediatePropagation();
+      }
+    }
+  }
+
+  function bindModalBackdropLock(){
+    var selectors = [
+      'dialog',
+      '.app-alert',
+      '.sheet-modal',
+      '[role="dialog"]',
+      '[role="alertdialog"]',
+      '.modal',
+      '.modal-overlay',
+      '.modal-backdrop',
+      '.admin-modal',
+      '.admin-dialog'
+    ];
+
+    document.querySelectorAll(selectors.join(',')).forEach(function(el){
+      if(el.dataset.modalBackdropLockBound === '1') return;
+      el.dataset.modalBackdropLockBound = '1';
+      el.addEventListener('click', lockModalBackdropClick, true);
+      el.addEventListener('pointerdown', lockModalBackdropClick, true);
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindModalBackdropLock, { once:true });
+  }else{
+    bindModalBackdropLock();
+  }
+
+  new MutationObserver(bindModalBackdropLock).observe(document.documentElement, {
+    childList:true,
+    subtree:true
+  });
+
+  window.__UPICK_MODAL_BACKDROP_LOCK__ = {
+    bind: bindModalBackdropLock
+  };
+})();

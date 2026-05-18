@@ -1,1 +1,22 @@
-(function(_0x5dd34f,_0x1ad18a){var _0xc38f47=_0x1301,_0x356c35=_0x5dd34f();while(!![]){try{var _0x34d624=parseInt(_0xc38f47(0x1c2))/0x1*(parseInt(_0xc38f47(0x1c3))/0x2)+-parseInt(_0xc38f47(0x1c1))/0x3*(parseInt(_0xc38f47(0x1bd))/0x4)+parseInt(_0xc38f47(0x1bc))/0x5+-parseInt(_0xc38f47(0x1c0))/0x6*(parseInt(_0xc38f47(0x1be))/0x7)+-parseInt(_0xc38f47(0x1bf))/0x8+parseInt(_0xc38f47(0x1c6))/0x9+parseInt(_0xc38f47(0x1c4))/0xa;if(_0x34d624===_0x1ad18a)break;else _0x356c35['push'](_0x356c35['shift']());}catch(_0x2f0e87){_0x356c35['push'](_0x356c35['shift']());}}}(_0x211d,0xc983d),!(function(){var _0x5b4211=_0x1301;if({'www.theunjeongpick.com':!0x0,'theunjeongpick.com':!0x0,'www.sola-home.kr':!0x0,'sola-home.kr':!0x0}[window['location']['hostname']]&&!window['__SOLA_CONSOLE_GUARD_APPLIED__']){window[_0x5b4211(0x1c5)]=!0x0;var _0x4d7543=function(){};console['log']=_0x4d7543,console['info']=_0x4d7543,console['debug']=_0x4d7543;}}()));function _0x1301(_0x520049,_0x50409d){_0x520049=_0x520049-0x1bc;var _0x211dbe=_0x211d();var _0x130192=_0x211dbe[_0x520049];return _0x130192;}function _0x211d(){var _0xe5c49=['12628737WqDZdL','1499335JWuBYO','6116EpxALM','839622sLxZrO','8244608xpOJUt','6psQqEF','1977mrqoud','94225iIMBrb','10qhhxuT','8093530PEfQUZ','__SOLA_CONSOLE_GUARD_APPLIED__'];_0x211d=function(){return _0xe5c49;};return _0x211d();}
+(function () {
+  var host = window.location.hostname;
+  var PROD_HOSTS = {
+    "www.theunjeongpick.com": true,
+    "theunjeongpick.com": true,
+    "www.sola-home.kr": true,
+    "sola-home.kr": true
+  };
+
+  if (!PROD_HOSTS[host]) return;
+  if (window.__SOLA_CONSOLE_GUARD_APPLIED__) return;
+
+  window.__SOLA_CONSOLE_GUARD_APPLIED__ = true;
+
+  var noop = function () {};
+
+  // 운영계에서는 정보성 로그만 숨깁니다.
+  // 장애 추적용 warn/error는 유지합니다.
+  console.log = noop;
+  console.info = noop;
+  console.debug = noop;
+})();

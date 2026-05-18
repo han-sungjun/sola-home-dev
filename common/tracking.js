@@ -1,1 +1,1057 @@
-import{collection,addDoc,serverTimestamp,query,where,getDocs,orderBy,limit,Timestamp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";import{signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";const __SOLA_DYNAMIC_IMPORT_VERSION__=globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__||(()=>{const d=new Date,pad=(n,len=2)=>String(n).padStart(len,"0");return`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(),3)}`})();globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__=__SOLA_DYNAMIC_IMPORT_VERSION__;const{db:db,auth:auth}=await import((url="/common/firebase-config.js",`${url}${url.includes("?")?"&":"?"}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`));var url;function getUserInfo(){const user=auth.currentUser;return{uid:user?.uid||null,email:user?.email||null}}function getDeviceInfo(){return navigator.userAgent||"unknown"}function startOfToday(){const d=new Date;return d.setHours(0,0,0,0),d}function safeText(value,fallback="-"){return null==value||""===value?fallback:String(value)}function formatActivityDateTime(value){const d=function(value){if(!value)return null;if(value instanceof Date)return value;if("function"==typeof value?.toDate)return value.toDate();if("number"==typeof value)return new Date(value);if("string"==typeof value){const parsed=new Date(value);return Number.isNaN(parsed.getTime())?null:parsed}return"object"==typeof value&&"number"==typeof value.seconds?new Date(1e3*value.seconds):null}(value);if(!d||Number.isNaN(d.getTime()))return"-";const pad=n=>String(n).padStart(2,"0");return`${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`}export async function saveActivity(pageName,detail=""){try{const{uid:uid}=getUserInfo();if(!uid)return;await addDoc(collection(db,"activity_logs"),{uid:uid,page:pageName,detail:detail,createdAt:serverTimestamp()})}catch(e){console.log("activity log error",e)}}export async function saveVisit(pageName,detail=""){try{const{uid:uid,email:email}=getUserInfo();if(!uid)return;await addDoc(collection(db,"visit_history"),{uid:uid,email:email,page:pageName,detail:detail||"",path:location.pathname,url:location.href,referrer:document.referrer||null,userAgent:getDeviceInfo(),createdAt:serverTimestamp()})}catch(e){console.log("visit log error",e)}}export async function saveLogin({email:email,status:status,reason:reason}){try{const user=auth.currentUser;await addDoc(collection(db,"login_history"),{uid:user?.uid||null,email:email||null,status:status,reason:reason||"",userAgent:getDeviceInfo(),path:location.pathname,url:location.href,createdAt:serverTimestamp()})}catch(e){console.log("login log error",e)}}function getFailInfo(){try{const raw=localStorage.getItem("sola_login_fail_info");if(!raw)return{fails:[],lockedUntil:null};const parsed=JSON.parse(raw);return{fails:Array.isArray(parsed.fails)?parsed.fails:[],lockedUntil:parsed.lockedUntil||null}}catch{return{fails:[],lockedUntil:null}}}function setFailInfo(data){localStorage.setItem("sola_login_fail_info",JSON.stringify(data))}function cleanupFailInfo(info){const windowStart=Date.now()-6e5;return info.fails=(info.fails||[]).filter(ts=>ts>=windowStart),info.lockedUntil&&Date.now()>info.lockedUntil&&(info.lockedUntil=null),info}export function getLoginLockStatus(){let info=getFailInfo();info=cleanupFailInfo(info),setFailInfo(info);const now=Date.now(),isLocked=!!info.lockedUntil&&now<info.lockedUntil,remainMs=isLocked?info.lockedUntil-now:0;return{isLocked:isLocked,remainMs:remainMs,remainSec:Math.ceil(remainMs/1e3),remainMin:Math.ceil(remainMs/6e4)}}export function recordLoginFailureLocal(){let info=getFailInfo();return info=cleanupFailInfo(info),info.fails.push(Date.now()),info.fails.length>=5&&(info.lockedUntil=Date.now()+6e5),setFailInfo(info),getLoginLockStatus()}export function clearLoginFailureLocal(){setFailInfo({fails:[],lockedUntil:null})}async function showAppModalAlert(message,title="안내"){try{if("undefined"!=typeof window&&"function"==typeof window.openModalAlert)return await window.openModalAlert(message,null,title),!0}catch(e){console.log("app modal alert error",e)}return"undefined"!=typeof window&&"function"==typeof window.showCommonAlert?(await window.showCommonAlert({title:title,message:message}),!0):(alert(message),!0)}let lastActivityTime=Date.now(),warningShown=!1,autoLogoutInterval=null,authWatchInitialized=!1,warningModalOpen=!1;function resetTimer(){auth.currentUser&&(lastActivityTime=Date.now(),warningShown=!1,syncIdleTimerStateFromAutoLogout())}function stopAutoLogoutTimer(){autoLogoutInterval&&(clearInterval(autoLogoutInterval),autoLogoutInterval=null),warningShown=!1,warningModalOpen=!1}function startAutoLogoutTimer(){auth.currentUser&&(autoLogoutInterval||(lastActivityTime=Date.now(),warningShown=!1,syncIdleTimerStateFromAutoLogout(),autoLogoutInterval=setInterval(async()=>{if(!auth.currentUser)return void stopAutoLogoutTimer();const diff=Date.now()-lastActivityTime;if(diff>174e4&&!warningShown&&!warningModalOpen&&(warningShown=!0,warningModalOpen=!0,showAppModalAlert("1분 후 자동 나가기 됩니다.\n계속 이용하시려면 확인을 눌러 주세요.","자동 나가기 안내").then(()=>{warningModalOpen=!1,auth.currentUser&&resetTimer()})),diff>18e5)try{stopAutoLogoutTimer(),await signOut(auth),await showAppModalAlert("장시간 미사용으로 자동 나가기되었습니다.","자동 나가기"),location.replace("/")}catch(e){console.log("auto logout error",e)}syncIdleTimerStateFromAutoLogout()},1e3)))}function ensureAutoLogoutAuthWatcher(){authWatchInitialized||(authWatchInitialized=!0,window.__solaAutoLogoutEventsBound||(window.__solaAutoLogoutEventsBound=!0,["click","mousemove","keydown","scroll","touchstart"].forEach(event=>{window.addEventListener(event,resetTimer,{passive:!0})})),onAuthStateChanged(auth,user=>{user?startAutoLogoutTimer():(stopAutoLogoutTimer(),idleTimerRemainSeconds=IDLE_TIMER_TOTAL_SECONDS,idleTimerWarningShown=!1,updateIdleTimerUi())}))}export async function getTodayStats(){try{const today=startOfToday(),visitQuery=query(collection(db,"visit_history"),where("createdAt",">=",Timestamp.fromDate(today)),limit(300)),loginQuery=query(collection(db,"login_history"),where("createdAt",">=",Timestamp.fromDate(today)),limit(300)),[visitSnap,loginSnap]=await Promise.all([getDocs(visitQuery),getDocs(loginQuery)]);let successCount=0,failCount=0,blockedCount=0;return loginSnap.forEach(doc=>{const d=doc.data();"success"===d.status?successCount++:"fail"===d.status?failCount++:"blocked"===d.status&&blockedCount++}),{visitCount:visitSnap.size,loginCount:loginSnap.size,successCount:successCount,failCount:failCount,blockedCount:blockedCount}}catch(e){return console.log("stats error",e),{visitCount:0,loginCount:0,successCount:0,failCount:0,blockedCount:0}}}export async function getVisitPathStats(){try{const today=startOfToday(),visitQuery=query(collection(db,"visit_history"),where("createdAt",">=",Timestamp.fromDate(today)),limit(300)),snap=await getDocs(visitQuery),pageMap={};return snap.forEach(doc=>{const page=safeText(doc.data().page,"unknown");pageMap[page]=(pageMap[page]||0)+1}),Object.entries(pageMap).map(([page,count])=>({page:page,count:count})).sort((a,b)=>b.count-a.count)}catch(e){return console.log("visit path stats error",e),[]}}export async function getUserActivityStats(){try{const today=startOfToday(),visitQuery=query(collection(db,"visit_history"),where("createdAt",">=",Timestamp.fromDate(today)),limit(300)),loginQuery=query(collection(db,"login_history"),where("createdAt",">=",Timestamp.fromDate(today)),limit(300)),[visitSnap,loginSnap]=await Promise.all([getDocs(visitQuery),getDocs(loginQuery)]),userMap={};return visitSnap.forEach(doc=>{const d=doc.data(),key=d.uid||d.email||"unknown";userMap[key]||(userMap[key]={uid:d.uid||null,email:d.email||"-",visitCount:0,loginCount:0,failCount:0,blockedCount:0}),userMap[key].visitCount+=1}),loginSnap.forEach(doc=>{const d=doc.data(),key=d.uid||d.email||"unknown";userMap[key]||(userMap[key]={uid:d.uid||null,email:d.email||"-",visitCount:0,loginCount:0,failCount:0,blockedCount:0}),userMap[key].loginCount+=1,"fail"===d.status&&(userMap[key].failCount+=1),"blocked"===d.status&&(userMap[key].blockedCount+=1)}),Object.values(userMap).sort((a,b)=>{const aTotal=a.visitCount+a.loginCount;return b.visitCount+b.loginCount-aTotal})}catch(e){return console.log("user activity stats error",e),[]}}export async function getRecentActivityLogs(maxItems=20){try{maxItems=Math.min(Number(maxItems)||20,50);const[visitSnap,loginSnap]=await Promise.all([getDocs(query(collection(db,"visit_history"),orderBy("createdAt","desc"),limit(maxItems))),getDocs(query(collection(db,"login_history"),orderBy("createdAt","desc"),limit(maxItems)))]),visitLogs=[];visitSnap.forEach(doc=>{const d=doc.data();visitLogs.push({type:"visit",email:d.email||"-",page:d.page||"-",detail:d.detail||"",status:"",createdAt:d.createdAt?.toDate?d.createdAt.toDate():null})});const loginLogs=[];return loginSnap.forEach(doc=>{const d=doc.data();loginLogs.push({type:"login",email:d.email||"-",page:d.path||"-",detail:d.reason||"",status:d.status||"",createdAt:d.createdAt?.toDate?d.createdAt.toDate():null})}),[...visitLogs,...loginLogs].sort((a,b)=>{const at=a.createdAt?a.createdAt.getTime():0;return(b.createdAt?b.createdAt.getTime():0)-at}).slice(0,maxItems)}catch(e){return console.log("recent activity logs error",e),[]}}export async function getRecentActivity(maxItems=20){return await getRecentActivityLogs(maxItems)}export async function renderAdminStatsUI({statsContainerId:statsContainerId="adminStatsCards",chartContainerId:chartContainerId="visitPathChart",userListContainerId:userListContainerId="userActivityList",recentListContainerId:recentListContainerId="recentActivityList"}={}){const statsEl=document.getElementById(statsContainerId),chartEl=document.getElementById(chartContainerId),userListEl=document.getElementById(userListContainerId),recentListEl=document.getElementById(recentListContainerId),[stats,pathStats,userStats,recentLogs]=await Promise.all([getTodayStats(),getVisitPathStats(),getUserActivityStats(),getRecentActivityLogs(20)]);if(statsEl&&(statsEl.innerHTML=`\n      <div class="summary-row"><strong>오늘 방문</strong><span>${stats.visitCount}건</span></div>\n      <div class="summary-row"><strong>오늘 입장 시도</strong><span>${stats.loginCount}건</span></div>\n      <div class="summary-row"><strong>오늘 입장 성공</strong><span>${stats.successCount}건</span></div>\n      <div class="summary-row"><strong>오늘 입장 실패</strong><span>${stats.failCount}건</span></div>\n      <div class="summary-row"><strong>오늘 차단</strong><span>${stats.blockedCount}건</span></div>\n    `),chartEl){const max=Math.max(...pathStats.map(v=>v.count),1);chartEl.innerHTML=pathStats.length?pathStats.map(item=>`\n          <div style="margin-bottom:10px;">\n            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">\n              <strong>${item.page}</strong>\n              <span>${item.count}</span>\n            </div>\n            <div style="height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;">\n              <div style="height:100%;width:${item.count/max*100}%;background:linear-gradient(90deg,#111827,#ef4444);border-radius:999px;"></div>\n            </div>\n          </div>\n        `).join(""):'<div class="notice">방문 경로 데이터가 아직 없습니다.</div>'}userListEl&&(userListEl.innerHTML=userStats.length?userStats.map(item=>`\n          <div class="mini-item">\n            <div class="mini-item-head">\n              <h5>${safeText(item.email)}</h5>\n              <span class="tag">방문 ${item.visitCount}</span>\n            </div>\n            <div class="tags">\n              <span class="tag">입장 ${item.loginCount}</span>\n              <span class="tag">실패 ${item.failCount}</span>\n              <span class="tag">차단 ${item.blockedCount}</span>\n            </div>\n          </div>\n        `).join(""):'<div class="notice">사용자 활동 데이터가 아직 없습니다.</div>'),recentListEl&&(recentListEl.innerHTML=recentLogs.length?recentLogs.map(item=>`\n          <div class="mini-item">\n            <div class="mini-item-head">\n              <h5>${"visit"===item.type?"방문":"입장"}</h5>\n              <span class="tag">${safeText(item.email)}</span>\n            </div>\n            <div class="helper">\n              ${"visit"===item.type?`페이지: ${safeText(item.page)} ${item.detail?`| 상세: ${safeText(item.detail)}`:""}`:`상태: ${safeText(item.status)} | 사유: ${safeText(item.detail)}`}\n            </div>\n            <div class="helper" style="font-size:12px;color:#94a3b8;margin-top:6px;">\n              📅 ${formatActivityDateTime(item.createdAt)}\n            </div>\n          </div>\n        `).join(""):'<div class="notice">최근 활동 로그가 아직 없습니다.</div>')}export const IDLE_TIMER_TOTAL_SECONDS=1800;let idleTimerRemainSeconds=IDLE_TIMER_TOTAL_SECONDS,idleTimerWarningShown=!1;function updateIdleTimerUi(){const chipEls=document.querySelectorAll("[data-idle-timer-chip]"),textEls=document.querySelectorAll("[data-idle-timer-text]"),progressEls=document.querySelectorAll("[data-idle-timer-progress]"),level=(sec=idleTimerRemainSeconds)>1200?"safe":sec>600?"warn":"danger";var sec;const percent=Math.max(0,Math.min(100,idleTimerRemainSeconds/IDLE_TIMER_TOTAL_SECONDS*100));chipEls.forEach(chipEl=>{chipEl.classList.remove("idle-safe","idle-warn","idle-danger"),chipEl.classList.add(`idle-${level}`)}),textEls.forEach(textEl=>{textEl.textContent=function(sec){return`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`}(idleTimerRemainSeconds)}),progressEls.forEach(progressEl=>{progressEl.style.width=`${percent}%`})}function syncIdleTimerStateFromAutoLogout(){if(!auth.currentUser)return idleTimerRemainSeconds=IDLE_TIMER_TOTAL_SECONDS,idleTimerWarningShown=!1,void updateIdleTimerUi();const diff=Date.now()-lastActivityTime,remainMs=Math.max(0,18e5-diff);idleTimerRemainSeconds=Math.ceil(remainMs/1e3),updateIdleTimerUi()}export function getIdleTimerHtml(){return'\n    <div class="idle-timer-chip idle-safe" data-idle-timer-chip aria-live="polite">\n      <span class="idle-timer-label">자동 나가기</span>\n      <strong data-idle-timer-text>30:00</strong>\n      <div class="idle-progress-track" aria-hidden="true">\n        <div class="idle-progress-bar" data-idle-timer-progress></div>\n      </div>\n    </div>\n  '}export function getIdleTimerCss(){return"\n    .idle-timer-chip{\n      min-width:96px;\n      padding:8px 10px;\n      border-radius:18px;\n      background:rgba(255,255,255,.92);\n      border:1px solid rgba(255,255,255,.7);\n      box-shadow:0 4px 12px rgba(15,23,42,.08);\n      display:flex;\n      flex-direction:column;\n      align-items:center;\n      justify-content:center;\n      gap:2px;\n      transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;\n    }\n\n    .idle-timer-label{\n      font-size:10px;\n      line-height:1;\n      font-weight:700;\n      white-space:nowrap;\n      color:#15803d;\n    }\n\n    .idle-timer-chip strong{\n      font-size:16px;\n      line-height:1.1;\n      letter-spacing:-.03em;\n      color:#166534;\n    }\n\n    .idle-progress-track{\n      width:100%;\n      height:4px;\n      margin-top:4px;\n      border-radius:999px;\n      background:rgba(15,23,42,.10);\n      overflow:hidden;\n    }\n\n    .idle-progress-bar{\n      width:100%;\n      height:100%;\n      border-radius:999px;\n      background:currentColor;\n      transition:width .25s linear;\n    }\n\n    .idle-timer-chip.idle-safe{\n      background:#ecfdf5;\n      border-color:#bbf7d0;\n      color:#166534;\n    }\n    .idle-timer-chip.idle-safe .idle-timer-label{\n      color:#15803d;\n    }\n\n    .idle-timer-chip.idle-warn{\n      background:#fffbeb;\n      border-color:#fde68a;\n      color:#b45309;\n    }\n    .idle-timer-chip.idle-warn .idle-timer-label{\n      color:#b45309;\n    }\n\n    .idle-timer-chip.idle-danger{\n      background:#fef2f2;\n      border-color:#fecaca;\n      color:#b91c1c;\n      animation:idlePulse 1.2s ease-in-out infinite;\n    }\n    .idle-timer-chip.idle-danger .idle-timer-label{\n      color:#b91c1c;\n    }\n\n    @keyframes idlePulse{\n      0%,100%{ transform:scale(1); }\n      50%{ transform:scale(1.03); }\n    }\n\n    @media (max-width:420px){\n      .idle-timer-chip{\n        min-width:88px;\n        padding:7px 8px;\n      }\n      .idle-timer-chip strong{\n        font-size:15px;\n      }\n      .idle-timer-label{\n        font-size:9px;\n      }\n    }\n  "}export function mountIdleTimer({containerSelector:containerSelector,insertPosition:insertPosition="beforeend"}={}){ensureAutoLogoutAuthWatcher();const container=document.querySelector(containerSelector);if(container){if(!document.getElementById("idleTimerStyle")){const style=document.createElement("style");style.id="idleTimerStyle",style.textContent=getIdleTimerCss(),document.head.appendChild(style)}container.querySelector("[data-idle-timer-chip]")||container.insertAdjacentHTML(insertPosition,getIdleTimerHtml()),syncIdleTimerStateFromAutoLogout(),auth.currentUser&&startAutoLogoutTimer()}}let visitPathChartInstance=null,loginStatsChartInstance=null;export async function renderAdminCharts({visitCanvasId:visitCanvasId="visitPathChartCanvas",loginCanvasId:loginCanvasId="loginStatsChartCanvas"}={}){if("undefined"==typeof Chart)return void console.log("Chart.js not found");const[stats,pathStats]=await Promise.all([getTodayStats(),getVisitPathStats()]),visitCanvas=document.getElementById(visitCanvasId);if(visitCanvas){const labels=(pathStats||[]).map(item=>item.page),values=(pathStats||[]).map(item=>item.count);visitPathChartInstance&&visitPathChartInstance.destroy(),visitPathChartInstance=new Chart(visitCanvas,{type:"bar",data:{labels:labels,datasets:[{label:"방문 수",data:values,backgroundColor:["rgba(15,23,42,.92)","rgba(37,99,235,.88)","rgba(239,68,68,.82)","rgba(245,158,11,.82)","rgba(14,165,233,.82)"],borderRadius:14,borderSkipped:!1,barThickness:26,maxBarThickness:30}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1},tooltip:{backgroundColor:"rgba(15,23,42,.92)",titleColor:"#fff",bodyColor:"#fff",padding:12,cornerRadius:12}},scales:{x:{ticks:{color:"#64748b",font:{size:11,weight:"700"}},grid:{display:!1}},y:{beginAtZero:!0,ticks:{color:"#64748b",precision:0,font:{weight:"700"}},grid:{color:"rgba(15,23,42,.06)"}}}}})}const loginCanvas=document.getElementById(loginCanvasId);loginCanvas&&(loginStatsChartInstance&&loginStatsChartInstance.destroy(),loginStatsChartInstance=new Chart(loginCanvas,{type:"doughnut",data:{labels:["성공","실패","차단"],datasets:[{data:[stats?.successCount||0,stats?.failCount||0,stats?.blockedCount||0],backgroundColor:["rgba(34,197,94,.88)","rgba(245,158,11,.88)","rgba(239,68,68,.88)"],borderColor:"#ffffff",borderWidth:4,hoverOffset:6}]},options:{responsive:!0,maintainAspectRatio:!1,cutout:"72%",plugins:{tooltip:{backgroundColor:"rgba(15,23,42,.92)",titleColor:"#fff",bodyColor:"#fff",padding:12,cornerRadius:12},legend:{position:"bottom",labels:{boxWidth:12,usePointStyle:!0,pointStyle:"circle",color:"#475569",font:{size:12,weight:"700"},padding:16}}}}}))}export async function refreshAdminDashboard({statsContainerId:statsContainerId="adminStatsCards",chartContainerId:chartContainerId="visitPathChart",userListContainerId:userListContainerId="userActivityList",recentListContainerId:recentListContainerId="recentActivityList",visitCanvasId:visitCanvasId="visitPathChartCanvas",loginCanvasId:loginCanvasId="loginStatsChartCanvas"}={}){await renderAdminStatsUI({statsContainerId:statsContainerId,chartContainerId:chartContainerId,userListContainerId:userListContainerId,recentListContainerId:recentListContainerId}),await renderAdminCharts({visitCanvasId:visitCanvasId,loginCanvasId:loginCanvasId})}
+// =========================
+// tracking.js
+// 운영형 입주민 플랫폼용 통합 추적 모듈
+// 입장 성공 후에만 30분 타이머 시작
+// =========================
+
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+  const d = new Date();
+  const pad = (n, len = 2) => String(n).padStart(len, '0');
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+})();
+globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+
+const { db, auth } = await import(__solaNoCache("/common/firebase-config.js"));
+
+// READ OPTIMIZED: 관리자 통계는 당일 전체 문서를 모두 읽지 않고 최근 N건 기준으로 집계합니다.
+const TRACKING_STATS_LIMIT = 300;
+
+
+// =========================
+// 공통 유틸
+// =========================
+
+function getUserInfo() {
+  const user = auth.currentUser;
+  return {
+    uid: user?.uid || null,
+    email: user?.email || null
+  };
+}
+
+function getDeviceInfo() {
+  return navigator.userAgent || "unknown";
+}
+
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function safeText(value, fallback = "-") {
+  if (value === null || value === undefined || value === "") return fallback;
+  return String(value);
+}
+
+function toSafeDate(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value?.toDate === "function") return value.toDate();
+  if (typeof value === "number") return new Date(value);
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  if (typeof value === "object" && typeof value.seconds === "number") {
+    return new Date(value.seconds * 1000);
+  }
+  return null;
+}
+
+function formatActivityDateTime(value) {
+  const d = toSafeDate(value);
+  if (!d || Number.isNaN(d.getTime())) return "-";
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+
+  return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
+}
+
+
+// =========================
+// saveActivity
+// =========================
+
+export async function saveActivity(pageName, detail = "") {
+  try {
+    const { uid } = getUserInfo();
+    if (!uid) return;
+
+    await addDoc(collection(db, "activity_logs"), {
+      uid,
+      page: pageName,
+      detail,
+      createdAt: serverTimestamp()
+    });
+
+  } catch (e) {
+    console.log("activity log error", e);
+  }
+}
+
+
+// =========================
+// 방문 이력 저장
+// =========================
+
+export async function saveVisit(pageName, detail = "") {
+  try {
+    const { uid, email } = getUserInfo();
+    if (!uid) return;
+
+    await addDoc(collection(db, "visit_history"), {
+      uid,
+      email,
+      page: pageName,
+      detail: detail || "",
+      path: location.pathname,
+      url: location.href,
+      referrer: document.referrer || null,
+      userAgent: getDeviceInfo(),
+      createdAt: serverTimestamp()
+    });
+
+  } catch (e) {
+    console.log("visit log error", e);
+  }
+}
+
+
+// =========================
+// 입장 이력 저장
+// =========================
+
+export async function saveLogin({ email, status, reason }) {
+  try {
+    const user = auth.currentUser;
+
+    await addDoc(collection(db, "login_history"), {
+      uid: user?.uid || null,
+      email: email || null,
+      status,
+      reason: reason || "",
+      userAgent: getDeviceInfo(),
+      path: location.pathname,
+      url: location.href,
+      createdAt: serverTimestamp()
+    });
+
+  } catch (e) {
+    console.log("login log error", e);
+  }
+}
+
+
+// =========================
+// 입장 실패 제한
+// =========================
+
+const LOGIN_FAIL_KEY = "sola_login_fail_info";
+const LOGIN_FAIL_LIMIT = 5;
+const LOGIN_FAIL_WINDOW_MIN = 10;
+const LOGIN_LOCK_MIN = 10;
+
+function getFailInfo() {
+  try {
+    const raw = localStorage.getItem(LOGIN_FAIL_KEY);
+    if (!raw) {
+      return {
+        fails: [],
+        lockedUntil: null
+      };
+    }
+
+    const parsed = JSON.parse(raw);
+    return {
+      fails: Array.isArray(parsed.fails) ? parsed.fails : [],
+      lockedUntil: parsed.lockedUntil || null
+    };
+  } catch {
+    return {
+      fails: [],
+      lockedUntil: null
+    };
+  }
+}
+
+function setFailInfo(data) {
+  localStorage.setItem(LOGIN_FAIL_KEY, JSON.stringify(data));
+}
+
+function cleanupFailInfo(info) {
+  const windowStart = Date.now() - LOGIN_FAIL_WINDOW_MIN * 60 * 1000;
+  info.fails = (info.fails || []).filter(ts => ts >= windowStart);
+
+  if (info.lockedUntil && Date.now() > info.lockedUntil) {
+    info.lockedUntil = null;
+  }
+
+  return info;
+}
+
+export function getLoginLockStatus() {
+  let info = getFailInfo();
+  info = cleanupFailInfo(info);
+  setFailInfo(info);
+
+  const now = Date.now();
+  const isLocked = !!info.lockedUntil && now < info.lockedUntil;
+  const remainMs = isLocked ? info.lockedUntil - now : 0;
+
+  return {
+    isLocked,
+    remainMs,
+    remainSec: Math.ceil(remainMs / 1000),
+    remainMin: Math.ceil(remainMs / 60000)
+  };
+}
+
+export function recordLoginFailureLocal() {
+  let info = getFailInfo();
+  info = cleanupFailInfo(info);
+
+  info.fails.push(Date.now());
+
+  if (info.fails.length >= LOGIN_FAIL_LIMIT) {
+    info.lockedUntil = Date.now() + LOGIN_LOCK_MIN * 60 * 1000;
+  }
+
+  setFailInfo(info);
+  return getLoginLockStatus();
+}
+
+export function clearLoginFailureLocal() {
+  setFailInfo({
+    fails: [],
+    lockedUntil: null
+  });
+}
+
+
+// =========================
+// 자동 나가기 (입장 후에만 시작)
+// =========================
+
+
+async function showAppModalAlert(message, title = "안내") {
+  try {
+    if (typeof window !== "undefined" && typeof window.openModalAlert === "function") {
+      await window.openModalAlert(message, null, title);
+      return true;
+    }
+  } catch (e) {
+    console.log("app modal alert error", e);
+  }
+
+  if (typeof window !== "undefined" && typeof window.showCommonAlert === "function") {
+    await window.showCommonAlert({ title, message });
+    return true;
+  }
+
+  alert(message);
+  return true;
+}
+
+const AUTO_LOGOUT_TIME = 30 * 60 * 1000;
+const WARNING_TIME = 29 * 60 * 1000;
+
+let lastActivityTime = Date.now();
+let warningShown = false;
+let autoLogoutInterval = null;
+let authWatchInitialized = false;
+let warningModalOpen = false;
+
+function resetTimer() {
+  if (!auth.currentUser) return;
+  lastActivityTime = Date.now();
+  warningShown = false;
+  syncIdleTimerStateFromAutoLogout();
+}
+
+function bindAutoLogoutActivityEventsOnce() {
+  if (window.__solaAutoLogoutEventsBound) return;
+  window.__solaAutoLogoutEventsBound = true;
+
+  ["click", "mousemove", "keydown", "scroll", "touchstart"].forEach(event => {
+    window.addEventListener(event, resetTimer, { passive: true });
+  });
+}
+
+function stopAutoLogoutTimer() {
+  if (autoLogoutInterval) {
+    clearInterval(autoLogoutInterval);
+    autoLogoutInterval = null;
+  }
+  warningShown = false;
+  warningModalOpen = false;
+}
+
+function startAutoLogoutTimer() {
+  if (!auth.currentUser) return;
+  if (autoLogoutInterval) return;
+
+  lastActivityTime = Date.now();
+  warningShown = false;
+  syncIdleTimerStateFromAutoLogout();
+
+  autoLogoutInterval = setInterval(async () => {
+    if (!auth.currentUser) {
+      stopAutoLogoutTimer();
+      return;
+    }
+
+    const now = Date.now();
+    const diff = now - lastActivityTime;
+
+    if (diff > WARNING_TIME && !warningShown && !warningModalOpen) {
+      warningShown = true;
+      warningModalOpen = true;
+
+      // 안내 모달의 [확인]을 누르면 사용 의사가 있는 것으로 보고 세션 시간을 다시 30분으로 연장합니다.
+      showAppModalAlert(`1분 후 자동 나가기 됩니다.
+계속 이용하시려면 확인을 눌러 주세요.`, "자동 나가기 안내")
+        .then(() => {
+          warningModalOpen = false;
+          if (auth.currentUser) {
+            resetTimer();
+          }
+        });
+    }
+
+    if (diff > AUTO_LOGOUT_TIME) {
+      try {
+        stopAutoLogoutTimer();
+        await signOut(auth);
+        await showAppModalAlert("장시간 미사용으로 자동 나가기되었습니다.", "자동 나가기");
+        location.replace("/");
+      } catch (e) {
+        console.log("auto logout error", e);
+      }
+    }
+
+    syncIdleTimerStateFromAutoLogout();
+  }, 1000);
+}
+
+function ensureAutoLogoutAuthWatcher() {
+  if (authWatchInitialized) return;
+  authWatchInitialized = true;
+
+  bindAutoLogoutActivityEventsOnce();
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      startAutoLogoutTimer();
+    } else {
+      stopAutoLogoutTimer();
+      idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+      idleTimerWarningShown = false;
+      updateIdleTimerUi();
+    }
+  });
+}
+
+
+// =========================
+// 관리자 통계 카드 데이터
+// =========================
+
+export async function getTodayStats() {
+  try {
+    const today = startOfToday();
+
+    const visitQuery = query(
+      collection(db, "visit_history"),
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
+    );
+
+    const loginQuery = query(
+      collection(db, "login_history"),
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
+    );
+
+    const [visitSnap, loginSnap] = await Promise.all([
+      getDocs(visitQuery),
+      getDocs(loginQuery)
+    ]);
+
+    let successCount = 0;
+    let failCount = 0;
+    let blockedCount = 0;
+
+    loginSnap.forEach(doc => {
+      const d = doc.data();
+      if (d.status === "success") successCount++;
+      else if (d.status === "fail") failCount++;
+      else if (d.status === "blocked") blockedCount++;
+    });
+
+    return {
+      visitCount: visitSnap.size,
+      loginCount: loginSnap.size,
+      successCount,
+      failCount,
+      blockedCount
+    };
+
+  } catch (e) {
+    console.log("stats error", e);
+    return {
+      visitCount: 0,
+      loginCount: 0,
+      successCount: 0,
+      failCount: 0,
+      blockedCount: 0
+    };
+  }
+}
+
+
+// =========================
+// 방문 경로 분석
+// =========================
+
+export async function getVisitPathStats() {
+  try {
+    const today = startOfToday();
+
+    const visitQuery = query(
+      collection(db, "visit_history"),
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
+    );
+
+    const snap = await getDocs(visitQuery);
+
+    const pageMap = {};
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      const page = safeText(d.page, "unknown");
+      pageMap[page] = (pageMap[page] || 0) + 1;
+    });
+
+    return Object.entries(pageMap)
+      .map(([page, count]) => ({ page, count }))
+      .sort((a, b) => b.count - a.count);
+
+  } catch (e) {
+    console.log("visit path stats error", e);
+    return [];
+  }
+}
+
+
+// =========================
+// 사용자별 활동 로그
+// =========================
+
+export async function getUserActivityStats() {
+  try {
+    const today = startOfToday();
+
+    const visitQuery = query(
+      collection(db, "visit_history"),
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
+    );
+
+    const loginQuery = query(
+      collection(db, "login_history"),
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
+    );
+
+    const [visitSnap, loginSnap] = await Promise.all([
+      getDocs(visitQuery),
+      getDocs(loginQuery)
+    ]);
+
+    const userMap = {};
+
+    visitSnap.forEach(doc => {
+      const d = doc.data();
+      const key = d.uid || d.email || "unknown";
+      if (!userMap[key]) {
+        userMap[key] = {
+          uid: d.uid || null,
+          email: d.email || "-",
+          visitCount: 0,
+          loginCount: 0,
+          failCount: 0,
+          blockedCount: 0
+        };
+      }
+      userMap[key].visitCount += 1;
+    });
+
+    loginSnap.forEach(doc => {
+      const d = doc.data();
+      const key = d.uid || d.email || "unknown";
+      if (!userMap[key]) {
+        userMap[key] = {
+          uid: d.uid || null,
+          email: d.email || "-",
+          visitCount: 0,
+          loginCount: 0,
+          failCount: 0,
+          blockedCount: 0
+        };
+      }
+
+      userMap[key].loginCount += 1;
+
+      if (d.status === "fail") userMap[key].failCount += 1;
+      if (d.status === "blocked") userMap[key].blockedCount += 1;
+    });
+
+    return Object.values(userMap).sort((a, b) => {
+      const aTotal = a.visitCount + a.loginCount;
+      const bTotal = b.visitCount + b.loginCount;
+      return bTotal - aTotal;
+    });
+
+  } catch (e) {
+    console.log("user activity stats error", e);
+    return [];
+  }
+}
+
+
+// =========================
+// 최근 활동 로그
+// =========================
+
+export async function getRecentActivityLogs(maxItems = 20) {
+  try {
+    maxItems = Math.min(Number(maxItems) || 20, 50);
+    const [visitSnap, loginSnap] = await Promise.all([
+      getDocs(
+        query(
+          collection(db, "visit_history"),
+          orderBy("createdAt", "desc"),
+          limit(maxItems)
+        )
+      ),
+      getDocs(
+        query(
+          collection(db, "login_history"),
+          orderBy("createdAt", "desc"),
+          limit(maxItems)
+        )
+      )
+    ]);
+
+    const visitLogs = [];
+    visitSnap.forEach(doc => {
+      const d = doc.data();
+      visitLogs.push({
+        type: "visit",
+        email: d.email || "-",
+        page: d.page || "-",
+        detail: d.detail || "",
+        status: "",
+        createdAt: d.createdAt?.toDate ? d.createdAt.toDate() : null
+      });
+    });
+
+    const loginLogs = [];
+    loginSnap.forEach(doc => {
+      const d = doc.data();
+      loginLogs.push({
+        type: "login",
+        email: d.email || "-",
+        page: d.path || "-",
+        detail: d.reason || "",
+        status: d.status || "",
+        createdAt: d.createdAt?.toDate ? d.createdAt.toDate() : null
+      });
+    });
+
+    return [...visitLogs, ...loginLogs]
+      .sort((a, b) => {
+        const at = a.createdAt ? a.createdAt.getTime() : 0;
+        const bt = b.createdAt ? b.createdAt.getTime() : 0;
+        return bt - at;
+      })
+      .slice(0, maxItems);
+
+  } catch (e) {
+    console.log("recent activity logs error", e);
+    return [];
+  }
+}
+
+export async function getRecentActivity(maxItems = 20) {
+  return await getRecentActivityLogs(maxItems);
+}
+
+
+// =========================
+// 관리자 통계 카드 UI 렌더링용 헬퍼
+// =========================
+
+export async function renderAdminStatsUI({
+  statsContainerId = "adminStatsCards",
+  chartContainerId = "visitPathChart",
+  userListContainerId = "userActivityList",
+  recentListContainerId = "recentActivityList"
+} = {}) {
+  const statsEl = document.getElementById(statsContainerId);
+  const chartEl = document.getElementById(chartContainerId);
+  const userListEl = document.getElementById(userListContainerId);
+  const recentListEl = document.getElementById(recentListContainerId);
+
+  const [stats, pathStats, userStats, recentLogs] = await Promise.all([
+    getTodayStats(),
+    getVisitPathStats(),
+    getUserActivityStats(),
+    getRecentActivityLogs(20)
+  ]);
+
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="summary-row"><strong>오늘 방문</strong><span>${stats.visitCount}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 시도</strong><span>${stats.loginCount}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 성공</strong><span>${stats.successCount}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 실패</strong><span>${stats.failCount}건</span></div>
+      <div class="summary-row"><strong>오늘 차단</strong><span>${stats.blockedCount}건</span></div>
+    `;
+  }
+
+  if (chartEl) {
+    const max = Math.max(...pathStats.map(v => v.count), 1);
+    chartEl.innerHTML = pathStats.length
+      ? pathStats.map(item => `
+          <div style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+              <strong>${item.page}</strong>
+              <span>${item.count}</span>
+            </div>
+            <div style="height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${(item.count / max) * 100}%;background:linear-gradient(90deg,#111827,#ef4444);border-radius:999px;"></div>
+            </div>
+          </div>
+        `).join("")
+      : `<div class="notice">방문 경로 데이터가 아직 없습니다.</div>`;
+  }
+
+  if (userListEl) {
+    userListEl.innerHTML = userStats.length
+      ? userStats.map(item => `
+          <div class="mini-item">
+            <div class="mini-item-head">
+              <h5>${safeText(item.email)}</h5>
+              <span class="tag">방문 ${item.visitCount}</span>
+            </div>
+            <div class="tags">
+              <span class="tag">입장 ${item.loginCount}</span>
+              <span class="tag">실패 ${item.failCount}</span>
+              <span class="tag">차단 ${item.blockedCount}</span>
+            </div>
+          </div>
+        `).join("")
+      : `<div class="notice">사용자 활동 데이터가 아직 없습니다.</div>`;
+  }
+
+  if (recentListEl) {
+    recentListEl.innerHTML = recentLogs.length
+      ? recentLogs.map(item => `
+          <div class="mini-item">
+            <div class="mini-item-head">
+              <h5>${item.type === "visit" ? "방문" : "입장"}</h5>
+              <span class="tag">${safeText(item.email)}</span>
+            </div>
+            <div class="helper">
+              ${item.type === "visit"
+                ? `페이지: ${safeText(item.page)} ${item.detail ? `| 상세: ${safeText(item.detail)}` : ""}`
+                : `상태: ${safeText(item.status)} | 사유: ${safeText(item.detail)}`
+              }
+            </div>
+            <div class="helper" style="font-size:12px;color:#94a3b8;margin-top:6px;">
+              📅 ${formatActivityDateTime(item.createdAt)}
+            </div>
+          </div>
+        `).join("")
+      : `<div class="notice">최근 활동 로그가 아직 없습니다.</div>`;
+  }
+}
+
+
+// =========================
+// 공통 자동 나가기 타이머 컴포넌트
+// 입장 성공 후에만 시작
+// =========================
+
+export const IDLE_TIMER_TOTAL_SECONDS = 30 * 60;
+
+let idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+let idleTimerInterval = null;
+let idleTimerInitialized = false;
+let idleTimerWarningShown = false;
+
+function formatIdleTime(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function getIdleTimerLevel(sec) {
+  if (sec > 20 * 60) return "safe";
+  if (sec > 10 * 60) return "warn";
+  return "danger";
+}
+
+function updateIdleTimerUi() {
+  const chipEls = document.querySelectorAll("[data-idle-timer-chip]");
+  const textEls = document.querySelectorAll("[data-idle-timer-text]");
+  const progressEls = document.querySelectorAll("[data-idle-timer-progress]");
+
+  const level = getIdleTimerLevel(idleTimerRemainSeconds);
+  const percent = Math.max(0, Math.min(100, (idleTimerRemainSeconds / IDLE_TIMER_TOTAL_SECONDS) * 100));
+
+  chipEls.forEach((chipEl) => {
+    chipEl.classList.remove("idle-safe", "idle-warn", "idle-danger");
+    chipEl.classList.add(`idle-${level}`);
+  });
+
+  textEls.forEach((textEl) => {
+    textEl.textContent = formatIdleTime(idleTimerRemainSeconds);
+  });
+
+  progressEls.forEach((progressEl) => {
+    progressEl.style.width = `${percent}%`;
+  });
+}
+
+function syncIdleTimerStateFromAutoLogout() {
+  if (!auth.currentUser) {
+    idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+    idleTimerWarningShown = false;
+    updateIdleTimerUi();
+    return;
+  }
+
+  const now = Date.now();
+  const diff = now - lastActivityTime;
+  const remainMs = Math.max(0, AUTO_LOGOUT_TIME - diff);
+  idleTimerRemainSeconds = Math.ceil(remainMs / 1000);
+  updateIdleTimerUi();
+}
+
+function resetIdleTimerState() {
+  if (!auth.currentUser) return;
+  idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+  idleTimerWarningShown = false;
+  updateIdleTimerUi();
+}
+
+export function getIdleTimerHtml() {
+  return `
+    <div class="idle-timer-chip idle-safe" data-idle-timer-chip aria-live="polite">
+      <span class="idle-timer-label">자동 나가기</span>
+      <strong data-idle-timer-text>30:00</strong>
+      <div class="idle-progress-track" aria-hidden="true">
+        <div class="idle-progress-bar" data-idle-timer-progress></div>
+      </div>
+    </div>
+  `;
+}
+
+export function getIdleTimerCss() {
+  return `
+    .idle-timer-chip{
+      min-width:96px;
+      padding:8px 10px;
+      border-radius:18px;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:0 4px 12px rgba(15,23,42,.08);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+
+    .idle-timer-label{
+      font-size:10px;
+      line-height:1;
+      font-weight:700;
+      white-space:nowrap;
+      color:#15803d;
+    }
+
+    .idle-timer-chip strong{
+      font-size:16px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+      color:#166534;
+    }
+
+    .idle-progress-track{
+      width:100%;
+      height:4px;
+      margin-top:4px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+    }
+
+    .idle-progress-bar{
+      width:100%;
+      height:100%;
+      border-radius:999px;
+      background:currentColor;
+      transition:width .25s linear;
+    }
+
+    .idle-timer-chip.idle-safe{
+      background:#ecfdf5;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+    .idle-timer-chip.idle-safe .idle-timer-label{
+      color:#15803d;
+    }
+
+    .idle-timer-chip.idle-warn{
+      background:#fffbeb;
+      border-color:#fde68a;
+      color:#b45309;
+    }
+    .idle-timer-chip.idle-warn .idle-timer-label{
+      color:#b45309;
+    }
+
+    .idle-timer-chip.idle-danger{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#b91c1c;
+      animation:idlePulse 1.2s ease-in-out infinite;
+    }
+    .idle-timer-chip.idle-danger .idle-timer-label{
+      color:#b91c1c;
+    }
+
+    @keyframes idlePulse{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.03); }
+    }
+
+    @media (max-width:420px){
+      .idle-timer-chip{
+        min-width:88px;
+        padding:7px 8px;
+      }
+      .idle-timer-chip strong{
+        font-size:15px;
+      }
+      .idle-timer-label{
+        font-size:9px;
+      }
+    }
+  `;
+}
+
+export function mountIdleTimer({
+  containerSelector,
+  insertPosition = "beforeend"
+} = {}) {
+  ensureAutoLogoutAuthWatcher();
+
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+
+  if (!document.getElementById("idleTimerStyle")) {
+    const style = document.createElement("style");
+    style.id = "idleTimerStyle";
+    style.textContent = getIdleTimerCss();
+    document.head.appendChild(style);
+  }
+
+  if (!container.querySelector("[data-idle-timer-chip]")) {
+    container.insertAdjacentHTML(insertPosition, getIdleTimerHtml());
+  }
+
+  syncIdleTimerStateFromAutoLogout();
+
+  if (auth.currentUser) {
+    startAutoLogoutTimer();
+  }
+}
+
+
+// =========================
+// 관리자 차트 렌더링 (Chart.js 필요)
+// =========================
+
+let visitPathChartInstance = null;
+let loginStatsChartInstance = null;
+
+export async function renderAdminCharts({
+  visitCanvasId = "visitPathChartCanvas",
+  loginCanvasId = "loginStatsChartCanvas"
+} = {}) {
+  if (typeof Chart === "undefined") {
+    console.log("Chart.js not found");
+    return;
+  }
+
+  const [stats, pathStats] = await Promise.all([
+    getTodayStats(),
+    getVisitPathStats()
+  ]);
+
+  const visitCanvas = document.getElementById(visitCanvasId);
+  if (visitCanvas) {
+    const labels = (pathStats || []).map(item => item.page);
+    const values = (pathStats || []).map(item => item.count);
+
+    if (visitPathChartInstance) visitPathChartInstance.destroy();
+
+    visitPathChartInstance = new Chart(visitCanvas, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "방문 수",
+          data: values,
+          backgroundColor: [
+            "rgba(15,23,42,.92)",
+            "rgba(37,99,235,.88)",
+            "rgba(239,68,68,.82)",
+            "rgba(245,158,11,.82)",
+            "rgba(14,165,233,.82)"
+          ],
+          borderRadius: 14,
+          borderSkipped: false,
+          barThickness: 26,
+          maxBarThickness: 30
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(15,23,42,.92)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            padding: 12,
+            cornerRadius: 12
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#64748b", font: { size: 11, weight: "700" } },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#64748b", precision: 0, font: { weight: "700" } },
+            grid: { color: "rgba(15,23,42,.06)" }
+          }
+        }
+      }
+    });
+  }
+
+  const loginCanvas = document.getElementById(loginCanvasId);
+  if (loginCanvas) {
+    if (loginStatsChartInstance) loginStatsChartInstance.destroy();
+
+    loginStatsChartInstance = new Chart(loginCanvas, {
+      type: "doughnut",
+      data: {
+        labels: ["성공", "실패", "차단"],
+        datasets: [{
+          data: [stats?.successCount || 0, stats?.failCount || 0, stats?.blockedCount || 0],
+          backgroundColor: [
+            "rgba(34,197,94,.88)",
+            "rgba(245,158,11,.88)",
+            "rgba(239,68,68,.88)"
+          ],
+          borderColor: "#ffffff",
+          borderWidth: 4,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "72%",
+        plugins: {
+          tooltip: {
+            backgroundColor: "rgba(15,23,42,.92)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            padding: 12,
+            cornerRadius: 12
+          },
+          legend: {
+            position: "bottom",
+            labels: {
+              boxWidth: 12,
+              usePointStyle: true,
+              pointStyle: "circle",
+              color: "#475569",
+              font: { size: 12, weight: "700" },
+              padding: 16
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+export async function refreshAdminDashboard({
+  statsContainerId = "adminStatsCards",
+  chartContainerId = "visitPathChart",
+  userListContainerId = "userActivityList",
+  recentListContainerId = "recentActivityList",
+  visitCanvasId = "visitPathChartCanvas",
+  loginCanvasId = "loginStatsChartCanvas"
+} = {}) {
+  await renderAdminStatsUI({
+    statsContainerId,
+    chartContainerId,
+    userListContainerId,
+    recentListContainerId
+  });
+
+  await renderAdminCharts({
+    visitCanvasId,
+    loginCanvasId
+  });
+}

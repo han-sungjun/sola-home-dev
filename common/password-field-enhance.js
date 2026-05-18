@@ -1,1 +1,125 @@
-function _0x3bc7(_0x1f514f,_0x48e656){_0x1f514f=_0x1f514f-0x1e5;const _0x1938a5=_0x1938();let _0x3bc707=_0x1938a5[_0x1f514f];return _0x3bc707;}function _0x1938(){const _0x33629a=['textContent','970497sjQWGF','solaPasswordEnhanced','aria-describedby','split','matches','760hKUkXy','querySelectorAll','\x0a\x20\x20\x20\x20\x20\x20.sola-password-wrap{position:relative;display:block;width:100%;}\x0a\x20\x20\x20\x20\x20\x20.sola-password-wrap\x20>\x20input[type=\x22password\x22],\x0a\x20\x20\x20\x20\x20\x20.sola-password-wrap\x20>\x20input[data-sola-password-enhanced=\x221\x22]{padding-right:48px!important;}\x0a\x20\x20\x20\x20\x20\x20.sola-password-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:12px;background:transparent;color:#64748b;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background-color\x20.15s\x20ease,color\x20.15s\x20ease,box-shadow\x20.15s\x20ease;}\x0a\x20\x20\x20\x20\x20\x20.sola-password-toggle\x20svg{width:20px;height:20px;display:block;pointer-events:none;}\x0a\x20\x20\x20\x20\x20\x20.sola-password-toggle:hover{background:rgba(15,23,42,.06);color:#0f172a;}\x0a\x20\x20\x20\x20\x20\x20.sola-password-toggle:focus-visible{outline:3px\x20solid\x20rgba(14,165,233,.35);outline-offset:2px;}\x0a\x20\x20\x20\x20\x20\x20.sola-caps-warning{display:none;margin:7px\x200\x200;font-size:12.5px;font-weight:700;line-height:1.35;color:#ef4444;}\x0a\x20\x20\x20\x20\x20\x20.sola-caps-warning.is-visible{display:flex;align-items:center;gap:6px;}\x0a\x20\x20\x20\x20\x20\x20.sola-caps-warning::before{content:\x27!\x27;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:999px;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:900;}\x0a\x20\x20\x20\x20\x20\x20.sola-password-wrap.is-caps-on\x20>\x20input{border-color:#ef4444!important;box-shadow:0\x200\x200\x203px\x20rgba(239,68,68,.12)!important;}\x0a\x20\x20\x20\x20','toggle','documentElement','sola-caps-warning','비밀번호\x20표시','6932DshsDH','value','sola-password-field-enhance-style','807050nscFQv','observe','3676986RvAqHP','<svg\x20viewBox=\x220\x200\x2024\x2024\x22\x20aria-hidden=\x22true\x22\x20focusable=\x22false\x22><path\x20d=\x22M12\x205.5c5.1\x200\x208.5\x204.6\x209.6\x206.2.2.3.2.7\x200\x201C20.5\x2014.4\x2017.1\x2019\x2012\x2019s-8.5-4.6-9.6-6.2a.9.9\x200\x200\x201\x200-1C3.5\x2010.1\x206.9\x205.5\x2012\x205.5Zm0\x202C8.4\x207.5\x205.7\x2010.4\x204.4\x2012c1.3\x201.6\x204\x204.5\x207.6\x204.5s6.3-2.9\x207.6-4.5c-1.3-1.6-4-4.5-7.6-4.5Zm0\x201.5a3\x203\x200\x201\x201\x200\x206\x203\x203\x200\x200\x201\x200-6Zm0\x202a1\x201\x200\x201\x200\x200\x202\x201\x201\x200\x200\x200\x200-2Z\x22\x20fill=\x22currentColor\x22/></svg>','9jhgmNe','type','getModifierState','input[type=\x22password\x22]','focus','length','dataset','addedNodes','parentNode','21367885hcZrRo','forEach','ownerDocument','is-caps-on','blur','sola-password-wrap','65jFGZuM','getAttribute','head','4837qGTQax','CapsLock','setAttribute','loading','325140mqKkAc','DOMContentLoaded','function','aria-live','keyup','117WgHJiC','createElement','className'];_0x1938=function(){return _0x33629a;};return _0x1938();}(function(_0x473b8e,_0x20f1fd){const _0x1525df=_0x3bc7,_0x5c8b29=_0x473b8e();while(!![]){try{const _0x10bf97=parseInt(_0x1525df(0x1fa))/0x1+parseInt(_0x1525df(0x206))/0x2*(-parseInt(_0x1525df(0x1f6))/0x3)+parseInt(_0x1525df(0x1f1))/0x4*(parseInt(_0x1525df(0x1ea))/0x5)+parseInt(_0x1525df(0x20b))/0x6+parseInt(_0x1525df(0x1ed))/0x7*(-parseInt(_0x1525df(0x1ff))/0x8)+-parseInt(_0x1525df(0x20d))/0x9*(-parseInt(_0x1525df(0x209))/0xa)+-parseInt(_0x1525df(0x216))/0xb;if(_0x10bf97===_0x20f1fd)break;else _0x5c8b29['push'](_0x5c8b29['shift']());}catch(_0x58444c){_0x5c8b29['push'](_0x5c8b29['shift']());}}}(_0x1938,0x8cf68),!(function(){'use strict';const _0x5d3a8a=_0x3bc7;const _0x21fff5=_0x5d3a8a(0x208),_0x14461a=_0x5d3a8a(0x20c);function _0x5de839(_0xf12f82){const _0x303f30=_0x5d3a8a;try{if(_0xf12f82&&_0x303f30(0x1f3)==typeof _0xf12f82[_0x303f30(0x20f)])return!!_0xf12f82['getModifierState'](_0x303f30(0x1ee));}catch(_0x16e73c){}return!0x1;}function _0x128b16(_0x2ae68d){const _0x5055f4=_0x5d3a8a;if(!_0x2ae68d||'1'===_0x2ae68d['dataset'][_0x5055f4(0x1fb)])return;if('password'!==_0x2ae68d[_0x5055f4(0x20e)])return;!(function(){const _0x357117=_0x5055f4;if(document['getElementById'](_0x21fff5))return;const _0xc3876b=document[_0x357117(0x1f7)]('style');_0xc3876b['id']=_0x21fff5,_0xc3876b[_0x357117(0x1f9)]=_0x357117(0x201),document[_0x357117(0x1ec)]['appendChild'](_0xc3876b);}()),_0x2ae68d[_0x5055f4(0x213)]['solaPasswordEnhanced']='1';const _0xc6a1d3=_0x2ae68d['ownerDocument'];let _0x1aabf4=_0x2ae68d['closest']('.sola-password-wrap');_0x1aabf4||(_0x1aabf4=_0xc6a1d3[_0x5055f4(0x1f7)]('div'),_0x1aabf4['className']=_0x5055f4(0x1e9),_0x2ae68d[_0x5055f4(0x215)]['insertBefore'](_0x1aabf4,_0x2ae68d),_0x1aabf4['appendChild'](_0x2ae68d));const _0x1cbe7d=_0xc6a1d3[_0x5055f4(0x1f7)]('button');_0x1cbe7d['type']='button',_0x1cbe7d['className']='sola-password-toggle',_0x1cbe7d['setAttribute']('aria-label','비밀번호\x20표시'),_0x1cbe7d[_0x5055f4(0x1ef)]('aria-pressed','false'),_0x1cbe7d['innerHTML']=_0x14461a,_0x1aabf4['appendChild'](_0x1cbe7d);const _0xddc1c2=function(_0x58b4f4,_0x51c81e){const _0x54a04b=_0x5055f4,_0xdecdba=_0x58b4f4[_0x54a04b(0x1e6)];let _0x46740f=_0x58b4f4['id']?_0x58b4f4['id']+'CapsLockWarning':'',_0x11c131=_0x46740f?_0xdecdba['getElementById'](_0x46740f):null;return _0x11c131||(_0x11c131=_0xdecdba['createElement']('p'),_0x11c131[_0x54a04b(0x1f8)]=_0x54a04b(0x204),_0x11c131[_0x54a04b(0x1ef)](_0x54a04b(0x1f4),'polite'),_0x11c131['textContent']='Caps\x20Lock이\x20켜져\x20있습니다.',_0x46740f&&(_0x11c131['id']=_0x46740f),_0x51c81e['insertAdjacentElement']('afterend',_0x11c131)),_0x11c131;}(_0x2ae68d,_0x1aabf4),_0x578ba4=new Set(String(_0x2ae68d[_0x5055f4(0x1eb)]('aria-describedby')||'')[_0x5055f4(0x1fd)](/\s+/)['filter'](Boolean));function _0x13173d(_0x48390f){const _0xafa36d=_0x5055f4;_0xddc1c2['classList'][_0xafa36d(0x202)]('is-visible',!!_0x48390f),_0x1aabf4['classList'][_0xafa36d(0x202)](_0xafa36d(0x1e7),!!_0x48390f);}_0xddc1c2['id']&&(_0x578ba4['add'](_0xddc1c2['id']),_0x2ae68d[_0x5055f4(0x1ef)](_0x5055f4(0x1fc),Array['from'](_0x578ba4)['join']('\x20'))),_0x1cbe7d['addEventListener']('click',()=>{const _0x124ed4=_0x5055f4,_0x371052='text'===_0x2ae68d[_0x124ed4(0x20e)];_0x2ae68d[_0x124ed4(0x20e)]=_0x371052?'password':'text',_0x1cbe7d['setAttribute']('aria-label',_0x371052?_0x124ed4(0x205):'비밀번호\x20숨기기'),_0x1cbe7d[_0x124ed4(0x1ef)]('aria-pressed',String(!_0x371052)),_0x1cbe7d['innerHTML']=_0x371052?_0x14461a:'<svg\x20viewBox=\x220\x200\x2024\x2024\x22\x20aria-hidden=\x22true\x22\x20focusable=\x22false\x22><path\x20d=\x22M3.3\x202.3\x2021.7\x2020.7l-1.4\x201.4-3.2-3.2A10.8\x2010.8\x200\x200\x201\x2012\x2020c-5.2\x200-8.7-4.6-9.8-6.3a1.2\x201.2\x200\x200\x201\x200-1.4\x2019\x2019\x200\x200\x201\x204-4.5L1.9\x203.7l1.4-1.4Zm4.4\x207A17\x2017\x200\x200\x200\x204.1\x2013c1.2\x201.6\x204\x205\x207.9\x205\x201.3\x200\x202.5-.4\x203.6-1l-2.1-2.1A3.4\x203.4\x200\x200\x201\x209.1\x2010.5L7.7\x209.3ZM12\x206c5.2\x200\x208.7\x204.6\x209.8\x206.3.3.4.3\x201\x200\x201.4a18.8\x2018.8\x200\x200\x201-2.5\x203.1l-1.4-1.4a16.6\x2016.6\x200\x200\x200\x202-2.4c-1.2-1.6-4-5-7.9-5-.8\x200-1.6.1-2.3.4L8.1\x206.8A10.4\x2010.4\x200\x200\x201\x2012\x206Zm0\x203.6a3.4\x203.4\x200\x200\x201\x203.4\x203.4v.3l-4-4c.2\x200\x20.4-.1.6-.1Z\x22\x20fill=\x22currentColor\x22/></svg>',_0x2ae68d[_0x124ed4(0x211)]({'preventScroll':!0x0});const _0x3c9fc6=_0x2ae68d[_0x124ed4(0x207)][_0x124ed4(0x212)];try{_0x2ae68d['setSelectionRange'](_0x3c9fc6,_0x3c9fc6);}catch(_0x54b92e){}}),['keydown',_0x5055f4(0x1f5)][_0x5055f4(0x1e5)](_0x19fe20=>{_0x2ae68d['addEventListener'](_0x19fe20,_0x2c42fc=>_0x13173d(_0x5de839(_0x2c42fc)));}),_0x2ae68d['addEventListener']('focus',_0x5e504a=>_0x13173d(_0x5de839(_0x5e504a))),_0x2ae68d['addEventListener'](_0x5055f4(0x1e8),()=>_0x13173d(!0x1));}function _0x3e2d24(){document['querySelectorAll']('input[type=\x22password\x22]')['forEach'](_0x128b16);}_0x5d3a8a(0x1f0)===document['readyState']?document['addEventListener'](_0x5d3a8a(0x1f2),_0x3e2d24,{'once':!0x0}):_0x3e2d24(),new MutationObserver(_0x175be5=>{const _0x44aea4=_0x5d3a8a;for(const _0x4fb494 of _0x175be5)for(const _0x448318 of _0x4fb494[_0x44aea4(0x214)])_0x448318 instanceof Element&&(_0x448318[_0x44aea4(0x1fe)]?.(_0x44aea4(0x210))&&_0x128b16(_0x448318),_0x448318[_0x44aea4(0x200)]?.(_0x44aea4(0x210))[_0x44aea4(0x1e5)](_0x128b16));})[_0x5d3a8a(0x20a)](document[_0x5d3a8a(0x203)],{'childList':!0x0,'subtree':!0x0});}()));
+/* 더운정픽 공통 비밀번호 입력 UX
+   - 모든 password input에 보기/숨기기 SVG 버튼 자동 삽입
+   - Caps Lock 감지 안내 자동 표시
+   - 동적으로 생성되는 비밀번호 입력란도 MutationObserver로 적용 */
+(function(){
+  'use strict';
+
+  const STYLE_ID = 'sola-password-field-enhance-style';
+  const ICON_EYE = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5.5c5.1 0 8.5 4.6 9.6 6.2.2.3.2.7 0 1C20.5 14.4 17.1 19 12 19s-8.5-4.6-9.6-6.2a.9.9 0 0 1 0-1C3.5 10.1 6.9 5.5 12 5.5Zm0 2C8.4 7.5 5.7 10.4 4.4 12c1.3 1.6 4 4.5 7.6 4.5s6.3-2.9 7.6-4.5c-1.3-1.6-4-4.5-7.6-4.5Zm0 1.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z" fill="currentColor"/></svg>';
+  const ICON_EYE_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.3 2.3 21.7 20.7l-1.4 1.4-3.2-3.2A10.8 10.8 0 0 1 12 20c-5.2 0-8.7-4.6-9.8-6.3a1.2 1.2 0 0 1 0-1.4 19 19 0 0 1 4-4.5L1.9 3.7l1.4-1.4Zm4.4 7A17 17 0 0 0 4.1 13c1.2 1.6 4 5 7.9 5 1.3 0 2.5-.4 3.6-1l-2.1-2.1A3.4 3.4 0 0 1 9.1 10.5L7.7 9.3ZM12 6c5.2 0 8.7 4.6 9.8 6.3.3.4.3 1 0 1.4a18.8 18.8 0 0 1-2.5 3.1l-1.4-1.4a16.6 16.6 0 0 0 2-2.4c-1.2-1.6-4-5-7.9-5-.8 0-1.6.1-2.3.4L8.1 6.8A10.4 10.4 0 0 1 12 6Zm0 3.6a3.4 3.4 0 0 1 3.4 3.4v.3l-4-4c.2 0 .4-.1.6-.1Z" fill="currentColor"/></svg>';
+
+  function injectStyle(){
+    if(document.getElementById(STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = `
+      .sola-password-wrap{position:relative;display:block;width:100%;}
+      .sola-password-wrap > input[type="password"],
+      .sola-password-wrap > input[data-sola-password-enhanced="1"]{padding-right:48px!important;}
+      .sola-password-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:12px;background:transparent;color:#64748b;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background-color .15s ease,color .15s ease,box-shadow .15s ease;}
+      .sola-password-toggle svg{width:20px;height:20px;display:block;pointer-events:none;}
+      .sola-password-toggle:hover{background:rgba(15,23,42,.06);color:#0f172a;}
+      .sola-password-toggle:focus-visible{outline:3px solid rgba(14,165,233,.35);outline-offset:2px;}
+      .sola-caps-warning{display:none;margin:7px 0 0;font-size:12.5px;font-weight:700;line-height:1.35;color:#ef4444;}
+      .sola-caps-warning.is-visible{display:flex;align-items:center;gap:6px;}
+      .sola-caps-warning::before{content:'!';display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:999px;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:900;}
+      .sola-password-wrap.is-caps-on > input{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.12)!important;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getCapsState(event){
+    try{
+      if(event && typeof event.getModifierState === 'function') return !!event.getModifierState('CapsLock');
+    }catch(_){/* noop */}
+    return false;
+  }
+
+  function ensureWarning(input, wrap){
+    const doc = input.ownerDocument;
+    let warningId = input.id ? `${input.id}CapsLockWarning` : '';
+    let warning = warningId ? doc.getElementById(warningId) : null;
+    if(!warning){
+      warning = doc.createElement('p');
+      warning.className = 'sola-caps-warning';
+      warning.setAttribute('aria-live','polite');
+      warning.textContent = 'Caps Lock이 켜져 있습니다.';
+      if(warningId) warning.id = warningId;
+      wrap.insertAdjacentElement('afterend', warning);
+    }
+    return warning;
+  }
+
+  function enhanceInput(input){
+    if(!input || input.dataset.solaPasswordEnhanced === '1') return;
+    if(input.type !== 'password') return;
+
+    injectStyle();
+    input.dataset.solaPasswordEnhanced = '1';
+
+    const doc = input.ownerDocument;
+    let wrap = input.closest('.sola-password-wrap');
+    if(!wrap){
+      wrap = doc.createElement('div');
+      wrap.className = 'sola-password-wrap';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+    }
+
+    const btn = doc.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sola-password-toggle';
+    btn.setAttribute('aria-label','비밀번호 표시');
+    btn.setAttribute('aria-pressed','false');
+    btn.innerHTML = ICON_EYE;
+    wrap.appendChild(btn);
+
+    const warning = ensureWarning(input, wrap);
+    const describedBy = new Set(String(input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+    if(warning.id){
+      describedBy.add(warning.id);
+      input.setAttribute('aria-describedby', Array.from(describedBy).join(' '));
+    }
+
+    function setCapsVisible(visible){
+      warning.classList.toggle('is-visible', !!visible);
+      wrap.classList.toggle('is-caps-on', !!visible);
+    }
+
+    btn.addEventListener('click', () => {
+      const visible = input.type === 'text';
+      input.type = visible ? 'password' : 'text';
+      btn.setAttribute('aria-label', visible ? '비밀번호 표시' : '비밀번호 숨기기');
+      btn.setAttribute('aria-pressed', String(!visible));
+      btn.innerHTML = visible ? ICON_EYE : ICON_EYE_OFF;
+      input.focus({preventScroll:true});
+      const len = input.value.length;
+      try{ input.setSelectionRange(len, len); }catch(_){/* noop */}
+    });
+
+    ['keydown','keyup'].forEach(type => {
+      input.addEventListener(type, (event) => setCapsVisible(getCapsState(event)));
+    });
+    input.addEventListener('focus', (event) => setCapsVisible(getCapsState(event)));
+    input.addEventListener('blur', () => setCapsVisible(false));
+  }
+
+  function run(){
+    document.querySelectorAll('input[type="password"]').forEach(enhanceInput);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, {once:true});
+  else run();
+
+  const observer = new MutationObserver((mutations) => {
+    for(const mutation of mutations){
+      for(const node of mutation.addedNodes){
+        if(!(node instanceof Element)) continue;
+        if(node.matches?.('input[type="password"]')) enhanceInput(node);
+        node.querySelectorAll?.('input[type="password"]').forEach(enhanceInput);
+      }
+    }
+  });
+  observer.observe(document.documentElement, {childList:true, subtree:true});
+})();

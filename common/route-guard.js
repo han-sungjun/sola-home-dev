@@ -1,1 +1,81 @@
-function _0x1849(){const _0x12ac57=['log','warn','12AVmaQd','replace','pendingDeepLink','9950402QYvcju','82086uczIJm','/admin','role','160Xnbwag','938003wvTIoV','비입장\x20접근\x20차단:','525361bbbYng','6Farrjw','null','619389YGdvyI','loginUser','3656840MKszVZ','983118vjFzDw','/phone-verify','includes','10ErnLiP'];_0x1849=function(){return _0x12ac57;};return _0x1849();}function _0x58f7(_0x3b1f9f,_0x5f35a1){_0x3b1f9f=_0x3b1f9f-0x1bc;const _0x184999=_0x1849();let _0x58f7f3=_0x184999[_0x3b1f9f];return _0x58f7f3;}(function(_0x5b1e14,_0x256a53){const _0x50166d=_0x58f7,_0x3f033a=_0x5b1e14();while(!![]){try{const _0x2c2e28=-parseInt(_0x50166d(0x1c1))/0x1*(parseInt(_0x50166d(0x1c2))/0x2)+parseInt(_0x50166d(0x1c7))/0x3*(-parseInt(_0x50166d(0x1cd))/0x4)+parseInt(_0x50166d(0x1c6))/0x5+parseInt(_0x50166d(0x1d1))/0x6+parseInt(_0x50166d(0x1d0))/0x7+-parseInt(_0x50166d(0x1be))/0x8*(-parseInt(_0x50166d(0x1c4))/0x9)+-parseInt(_0x50166d(0x1ca))/0xa*(parseInt(_0x50166d(0x1bf))/0xb);if(_0x2c2e28===_0x256a53)break;else _0x3f033a['push'](_0x3f033a['shift']());}catch(_0x377312){_0x3f033a['push'](_0x3f033a['shift']());}}}(_0x1849,0xdb5b1),!(function(){const _0x26efd5=_0x58f7;console[_0x26efd5(0x1cb)]('route-guard\x20active');const _0x8e55bc=location['pathname'];function _0x50f6a9(_0xee2247){const _0xa18209=_0x26efd5;location['pathname']!==_0xee2247&&location[_0xa18209(0x1ce)](_0xee2247);}const _0x25b05e=(function(){const _0x2dde68=_0x26efd5;try{return JSON['parse'](localStorage['getItem'](_0x2dde68(0x1c5))||_0x2dde68(0x1c3));}catch(_0x317d0d){return null;}}()),_0x218287=['/','/signup',_0x26efd5(0x1c8),'/error']['includes'](_0x8e55bc),_0xdfa181=[_0x26efd5(0x1bc)][_0x26efd5(0x1c9)](_0x8e55bc);if(!_0x25b05e&&!_0x218287)return console[_0x26efd5(0x1cc)](_0x26efd5(0x1c0),_0x8e55bc),sessionStorage['setItem'](_0x26efd5(0x1cf),location['href']),void _0x50f6a9('/');if(_0x25b05e&&!0x1===_0x25b05e['phoneVerified']&&'/phone-verify'!==_0x8e55bc)return console[_0x26efd5(0x1cc)]('휴대폰\x20인증\x20필요'),void _0x50f6a9('/phone-verify');if(_0x25b05e&&_0x25b05e['approvalStatus']&&'approved'!==_0x25b05e['approvalStatus']&&!_0x218287)return console['warn']('승인되지\x20않은\x20계정'),void _0x50f6a9('/');if(_0x25b05e&&_0xdfa181){const _0x3bee33=_0x25b05e[_0x26efd5(0x1bd)]||_0x25b05e['userRole']||'';if(!('root'===_0x3bee33||'admin'===_0x3bee33||'superAdmin'===_0x3bee33))return console[_0x26efd5(0x1cc)]('관리자\x20권한\x20없음'),void _0x50f6a9('/app');}_0x25b05e&&'/'===_0x8e55bc&&_0x50f6a9('/app');}()));
+(function () {
+  console.log("route-guard active");
+
+  const path = location.pathname;
+
+  const PUBLIC_PAGES = [
+    "/",
+    "/signup",
+    "/phone-verify",
+    "/error"
+  ];
+
+  const ADMIN_PAGES = [
+    "/admin"
+  ];
+
+  function go(url) {
+    if (location.pathname !== url) {
+      location.replace(url);
+    }
+  }
+
+  function getLoginUser() {
+    try {
+      return JSON.parse(localStorage.getItem("loginUser") || "null");
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const loginUser = getLoginUser();
+
+  const isPublicPage = PUBLIC_PAGES.includes(path);
+  const isAdminPage = ADMIN_PAGES.includes(path);
+
+  if (!loginUser && !isPublicPage) {
+    console.warn("비입장 접근 차단:", path);
+
+    sessionStorage.setItem("pendingDeepLink", location.href);
+
+    go("/");
+    return;
+  }
+
+  if (loginUser && loginUser.phoneVerified === false && path !== "/phone-verify") {
+    console.warn("휴대폰 인증 필요");
+    go("/phone-verify");
+    return;
+  }
+
+  if (
+    loginUser &&
+    loginUser.approvalStatus &&
+    loginUser.approvalStatus !== "approved" &&
+    !isPublicPage
+  ) {
+    console.warn("승인되지 않은 계정");
+    go("/");
+    return;
+  }
+
+  if (loginUser && isAdminPage) {
+    const role = loginUser.role || loginUser.userRole || "";
+
+    const isAdmin =
+      role === "root" ||
+      role === "admin" ||
+      role === "superAdmin";
+
+    if (!isAdmin) {
+      console.warn("관리자 권한 없음");
+      go("/app");
+      return;
+    }
+  }
+
+  if (loginUser && (path === "/")) {
+    go("/app");
+    return;
+  }
+})();

@@ -1,1 +1,146 @@
-(function(_0x4fedd5,_0x61228e){var _0x11caec=_0x26ca,_0x532988=_0x4fedd5();while(!![]){try{var _0x560df1=-parseInt(_0x11caec(0xa5))/0x1+parseInt(_0x11caec(0xba))/0x2+parseInt(_0x11caec(0xbd))/0x3+parseInt(_0x11caec(0xbe))/0x4+parseInt(_0x11caec(0xb8))/0x5+-parseInt(_0x11caec(0xa0))/0x6+-parseInt(_0x11caec(0xb9))/0x7;if(_0x560df1===_0x61228e)break;else _0x532988['push'](_0x532988['shift']());}catch(_0x5694e2){_0x532988['push'](_0x532988['shift']());}}}(_0x20a3,0x8666f),!(function(){'use strict';var _0x537433=_0x26ca;function _0x5af873(_0x4733fc,_0x5af1ab){return(_0x5af1ab||document)['querySelector'](_0x4733fc);}function _0x320e0f(_0x2e27c2,_0x394afc){var _0x2e93c0=_0x26ca;return Array['from']((_0x394afc||document)[_0x2e93c0(0xad)](_0x2e27c2));}function _0x2eb770(_0x138355){var _0x213a78=_0x26ca,_0x5d6d9c=_0x5af873(_0x138355);return _0x5d6d9c&&_0x5d6d9c[_0x213a78(0xbc)]('.gnb-settings-section');}function _0x5c0ec4(_0x115141){var _0x126045=document['createElement']('template');return _0x126045['innerHTML']=_0x115141['trim'](),_0x126045['content']['firstElementChild'];}function _0x288fdb(){var _0x3e6544=_0x26ca,_0x9b487c=_0x5af873('#gnbCommonModalStash');return _0x9b487c||((_0x9b487c=document[_0x3e6544(0xbf)]('div'))['id']=_0x3e6544(0xb4),_0x9b487c['className']=_0x3e6544(0xac),document['body']['appendChild'](_0x9b487c)),_0x9b487c;}function _0xd67eef(_0x4f5e3e,_0x40247e){var _0x5a9b2e=_0x26ca;_0x320e0f('[data-manage-tab]',_0x4f5e3e)[_0x5a9b2e(0xa8)](function(_0x16107a){var _0x2d7794=_0x5a9b2e,_0x3f2e52=_0x16107a['dataset']['manageTab']===_0x40247e;_0x16107a[_0x2d7794(0xb0)][_0x2d7794(0xa9)]('active',_0x3f2e52),_0x16107a[_0x2d7794(0xb7)]('aria-selected',_0x3f2e52?'true':'false');}),_0x320e0f('[data-manage-panel]',_0x4f5e3e)['forEach'](function(_0x450ba7){var _0x1d08a8=_0x5a9b2e,_0x25d423=_0x450ba7['dataset']['managePanel']===_0x40247e;_0x450ba7[_0x1d08a8(0xb0)][_0x1d08a8(0xa9)]('active',_0x25d423),_0x450ba7['hidden']=!_0x25d423;});}function _0x4ecbb0(_0xe635f4,_0x2c3b41,_0x43817d){var _0x4609e2=_0x26ca;_0xe635f4&&(_0xd67eef(_0xe635f4,_0x2c3b41||'notice'),window['CommonModal']&&'function'==typeof window['CommonModal'][_0x4609e2(0xab)]?window[_0x4609e2(0xb5)]['open']({'content':_0xe635f4,'stageClass':_0x4609e2(0xb3),'labelledby':_0xe635f4['getAttribute']('aria-labelledby')||'','initialFocusSelector':_0x43817d||'[data-manage-tab].active,\x20.gnb-manage-close'}):document['body']['appendChild'](_0xe635f4));}function _0x5e58bf(){var _0x472bd7=_0x26ca;window['CommonModal']&&'function'==typeof window[_0x472bd7(0xb5)]['close']&&window[_0x472bd7(0xb5)]['close']();}function _0x54192c(){!(function(){var _0x173967=_0x26ca,_0x174e7c=_0x5af873('#gnbSettingsAccountSummary'),_0x55a207=_0x174e7c&&_0x5af873(_0x173967(0xaa),_0x174e7c),_0x3f9b69=_0x5af873('#gnbPushStatusPill');if(_0x174e7c&&_0x55a207&&!_0x5af873('#openGnbAccountManageBtn')){var _0x5a87ff=_0x5c0ec4('<div\x20class=\x22gnb-summary-actions\x22></div>');_0x3f9b69&&_0x5a87ff['appendChild'](_0x3f9b69);var _0x55094a=_0x5c0ec4('<button\x20class=\x22gnb-manage-open-btn\x22\x20id=\x22openGnbAccountManageBtn\x22\x20type=\x22button\x22><img\x20alt=\x22\x22\x20class=\x22upick-inline-icon\x22\x20loading=\x22lazy\x22\x20src=\x22/icons/internal/shield-check.svg\x22><span>계정\x20관리</span></button>');_0x5a87ff['appendChild'](_0x55094a),_0x55a207['appendChild'](_0x5a87ff);var _0x3121ca=_0x5c0ec4('\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-dialog\x22\x20id=\x22gnbAccountManageModal\x22\x20aria-labelledby=\x22gnbAccountManageTitle\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-shell\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-head\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22gnb-management-kicker\x22>설정\x20모음</span>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20id=\x22gnbAccountManageTitle\x22>계정\x20관리</h3>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p>자주\x20보지\x20않는\x20알림·계정·보안·삭제\x20기능을\x20탭으로\x20모았습니다.</p>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22gnb-manage-close\x22\x20type=\x22button\x22\x20aria-label=\x22계정\x20관리\x20닫기\x22>✕</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-tabs\x22\x20role=\x22tablist\x22\x20aria-label=\x22계정\x20관리\x20탭\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22notice\x22\x20class=\x22active\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22true\x22>알림</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22account\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22false\x22>계정</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22security\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22false\x22>보안</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22delete\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22false\x22>삭제</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-body\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22notice\x22\x20class=\x22gnb-management-panel\x20active\x22></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22account\x22\x20class=\x22gnb-management-panel\x22\x20hidden></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22security\x22\x20class=\x22gnb-management-panel\x22\x20hidden></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22delete\x22\x20class=\x22gnb-management-panel\x22\x20hidden></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>');_0x288fdb()['appendChild'](_0x3121ca);var _0x47d038=_0x2eb770('#gnbEnablePushBtn'),_0x2ae280=_0x2eb770('#openAccountEditBtn'),_0x5a5795=_0x2eb770(_0x173967(0xbb));if(_0x47d038&&_0x5af873(_0x173967(0xa3),_0x3121ca)['appendChild'](_0x47d038),_0x2ae280){var _0xed9f1e=_0x5af873(_0x173967(0xc2),_0x3121ca);_0x5af873('[data-manage-panel=\x22account\x22]',_0x3121ca)[_0x173967(0xc1)](_0x2ae280);var _0x39c368=_0x5af873('#openPasswordChangeBtn'),_0x523251=_0x5af873('#logoutBtn');if(_0xed9f1e&&(_0x39c368||_0x523251)){var _0x33c437=_0x5c0ec4(_0x173967(0xaf)),_0x32aed2=_0x5af873('.gnb-action-grid',_0x33c437);_0x39c368&&_0x32aed2['appendChild'](_0x39c368),_0x523251&&_0x32aed2[_0x173967(0xc1)](_0x523251),_0xed9f1e['appendChild'](_0x33c437);}}_0x5a5795&&_0x5af873('[data-manage-panel=\x22delete\x22]',_0x3121ca)['appendChild'](_0x5a5795),_0x320e0f('[data-manage-tab]',_0x3121ca)['forEach'](function(_0x161974){_0x161974['addEventListener']('click',function(){var _0x33a96e=_0x26ca;_0xd67eef(_0x3121ca,_0x161974['dataset'][_0x33a96e(0xc0)]);});}),_0x5af873('.gnb-manage-close',_0x3121ca)[_0x173967(0xa2)]('click',_0x5e58bf),_0x55094a[_0x173967(0xa2)]('click',function(){var _0x5779ca=_0x173967;_0x4ecbb0(_0x3121ca,_0x5779ca(0xb1));});}}()),(function(){var _0x22011b=_0x26ca,_0x23b44e=_0x5af873('.gnb-admin-premium'),_0x2af126=_0x5af873(_0x22011b(0xa1));if(_0x23b44e&&_0x2af126&&!_0x5af873(_0x22011b(0xae))){var _0x2a06c9=_0x5af873('.gnb-admin-actions',_0x23b44e),_0x2f71ef=_0x5af873('[data-view-link=\x22shareinsights\x22]',_0x2a06c9||_0x23b44e),_0x594cf5=_0x5af873('#openAdminPageFromGnbBtn'),_0x3f32eb=_0x5af873('.gnb-root-panel',_0x23b44e);_0x2a06c9&&_0x2a06c9[_0x22011b(0x9f)]&&_0x2a06c9[_0x22011b(0xb6)](),_0x3f32eb&&_0x3f32eb['parentElement']&&_0x3f32eb['remove']();var _0x593387=_0x5c0ec4(_0x22011b(0xb2));_0x288fdb()['appendChild'](_0x593387),_0x2f71ef&&_0x5af873('#gnbShareActionSlot',_0x593387)['appendChild'](_0x2f71ef),_0x594cf5&&_0x5af873(_0x22011b(0xa4),_0x593387)[_0x22011b(0xc1)](_0x594cf5),_0x3f32eb&&_0x5af873(_0x22011b(0xc3),_0x593387)['appendChild'](_0x3f32eb),_0x320e0f('[data-manage-tab]',_0x593387)[_0x22011b(0xa8)](function(_0x589629){var _0x4b1def=_0x22011b;_0x589629[_0x4b1def(0xa2)]('click',function(){_0xd67eef(_0x593387,_0x589629['dataset']['manageTab']);});}),_0x5af873('.gnb-manage-close',_0x593387)['addEventListener']('click',_0x5e58bf),_0x2af126[_0x22011b(0xa2)]('click',function(){var _0xb3427e=_0x22011b;_0x4ecbb0(_0x593387,_0xb3427e(0xa7));});}}());}'loading'===document[_0x537433(0xa6)]?document[_0x537433(0xa2)]('DOMContentLoaded',_0x54192c,{'once':!0x0}):_0x54192c();}()));function _0x26ca(_0x5a0d87,_0x45b2a6){_0x5a0d87=_0x5a0d87-0x9f;var _0x20a31d=_0x20a3();var _0x26ca1d=_0x20a31d[_0x5a0d87];return _0x26ca1d;}function _0x20a3(){var _0x3ac2a6=['#openGnbOperationManageBtn','addEventListener','[data-manage-panel=\x22notice\x22]','#gnbAdminActionSlot','881825rxWVBv','readyState','share','forEach','toggle','.gnb-settings-section-header','open','common-modal-stash','querySelectorAll','#gnbOperationManageModal','<div\x20class=\x22gnb-settings-section\x20gnb-management-cloned-section\x22><div\x20class=\x22gnb-settings-section-header\x22><div><h4\x20class=\x22gnb-settings-section-title\x22>보안\x20및\x20입장\x20상태</h4><p\x20class=\x22gnb-settings-section-desc\x22>비밀번호\x20변경과\x20현재\x20공간\x20나가기를\x20이곳에서\x20관리합니다.</p></div></div><div\x20class=\x22gnb-action-grid\x22\x20style=\x22margin-top:12px;\x22></div></div>','classList','notice','\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-dialog\x20gnb-operation-dialog\x22\x20id=\x22gnbOperationManageModal\x22\x20aria-labelledby=\x22gnbOperationManageTitle\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-shell\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-head\x20operation\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22gnb-management-kicker\x22>관리자\x20전용</span>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20id=\x22gnbOperationManageTitle\x22>운영\x20관리</h3>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p>공유\x20흐름,\x20관리자\x20페이지,\x20Root\x20보조\x20기능을\x20탭으로\x20관리합니다.</p>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22gnb-manage-close\x22\x20type=\x22button\x22\x20aria-label=\x22운영\x20관리\x20닫기\x22>✕</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-tabs\x22\x20role=\x22tablist\x22\x20aria-label=\x22운영\x20관리\x20탭\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22share\x22\x20class=\x22active\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22true\x22>공유</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22admin\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22false\x22>관리자</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20data-manage-tab=\x22root\x22\x20class=\x22root-only-panel\x22\x20type=\x22button\x22\x20role=\x22tab\x22\x20aria-selected=\x22false\x22>Root</button>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22gnb-management-body\x22>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22share\x22\x20class=\x22gnb-management-panel\x20active\x22><div\x20class=\x22gnb-management-action-slot\x22\x20id=\x22gnbShareActionSlot\x22></div></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22admin\x22\x20class=\x22gnb-management-panel\x22\x20hidden><div\x20class=\x22gnb-management-action-slot\x22\x20id=\x22gnbAdminActionSlot\x22></div></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<section\x20data-manage-panel=\x22root\x22\x20class=\x22gnb-management-panel\x22\x20hidden><div\x20id=\x22gnbRootActionSlot\x22></div></section>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','common-modal-stage--gnb','gnbCommonModalStash','CommonModal','remove','setAttribute','4214295xMAQma','1316413qGpktr','1810874IOiNxi','#withdrawBtn','closest','1725684MLIlsa','351796oiRRuo','createElement','manageTab','appendChild','[data-manage-panel=\x22security\x22]','#gnbRootActionSlot','parentElement','4746468dnLnCt'];_0x20a3=function(){return _0x3ac2a6;};return _0x20a3();}
+(function(){
+        'use strict';
+        function qs(sel, root){ return (root || document).querySelector(sel); }
+        function qsa(sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
+        function closestSection(sel){ var el = qs(sel); return el && el.closest('.gnb-settings-section'); }
+        function makeEl(html){ var t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstElementChild; }
+        function modalStash(){ var el=qs('#gnbCommonModalStash'); if(!el){ el=document.createElement('div'); el.id='gnbCommonModalStash'; el.className='common-modal-stash'; document.body.appendChild(el); } return el; }
+        function activateTab(scope, name){
+          qsa('[data-manage-tab]', scope).forEach(function(btn){
+            var on = btn.dataset.manageTab === name;
+            btn.classList.toggle('active', on);
+            btn.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          qsa('[data-manage-panel]', scope).forEach(function(panel){
+            var on = panel.dataset.managePanel === name;
+            panel.classList.toggle('active', on);
+            panel.hidden = !on;
+          });
+        }
+        function openManageModal(panel, firstTab, focusSelector){
+          if(!panel) return;
+          activateTab(panel, firstTab || 'notice');
+          if(window.CommonModal && typeof window.CommonModal.open === 'function'){
+            window.CommonModal.open({
+              content: panel,
+              stageClass: 'common-modal-stage--gnb',
+              labelledby: panel.getAttribute('aria-labelledby') || '',
+              initialFocusSelector: focusSelector || '[data-manage-tab].active, .gnb-manage-close'
+            });
+          }else{
+            document.body.appendChild(panel);
+          }
+        }
+        function closeManageModal(){
+          if(window.CommonModal && typeof window.CommonModal.close === 'function') window.CommonModal.close();
+        }
+        function initAccountManageModal(){
+          var summary = qs('#gnbSettingsAccountSummary');
+          var header = summary && qs('.gnb-settings-section-header', summary);
+          var pill = qs('#gnbPushStatusPill');
+          if(!summary || !header || qs('#openGnbAccountManageBtn')) return;
+
+          var actions = makeEl('<div class="gnb-summary-actions"></div>');
+          if(pill) actions.appendChild(pill);
+          var openBtn = makeEl('<button class="gnb-manage-open-btn" id="openGnbAccountManageBtn" type="button"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/shield-check.svg"><span>계정 관리</span></button>');
+          actions.appendChild(openBtn);
+          header.appendChild(actions);
+
+          var modalPanel = makeEl('\
+            <div class="gnb-management-dialog" id="gnbAccountManageModal" aria-labelledby="gnbAccountManageTitle">\
+              <div class="gnb-management-shell">\
+                <div class="gnb-management-head">\
+                  <div>\
+                    <span class="gnb-management-kicker">설정 모음</span>\
+                    <h3 id="gnbAccountManageTitle">계정 관리</h3>\
+                    <p>자주 보지 않는 알림·계정·보안·삭제 기능을 탭으로 모았습니다.</p>\
+                  </div>\
+                  <button class="gnb-manage-close" type="button" aria-label="계정 관리 닫기">✕</button>\
+                </div>\
+                <div class="gnb-management-tabs" role="tablist" aria-label="계정 관리 탭">\
+                  <button data-manage-tab="notice" class="active" type="button" role="tab" aria-selected="true">알림</button>\
+                  <button data-manage-tab="account" type="button" role="tab" aria-selected="false">계정</button>\
+                  <button data-manage-tab="security" type="button" role="tab" aria-selected="false">보안</button>\
+                  <button data-manage-tab="delete" type="button" role="tab" aria-selected="false">삭제</button>\
+                </div>\
+                <div class="gnb-management-body">\
+                  <section data-manage-panel="notice" class="gnb-management-panel active"></section>\
+                  <section data-manage-panel="account" class="gnb-management-panel" hidden></section>\
+                  <section data-manage-panel="security" class="gnb-management-panel" hidden></section>\
+                  <section data-manage-panel="delete" class="gnb-management-panel" hidden></section>\
+                </div>\
+              </div>\
+            </div>');
+
+          modalStash().appendChild(modalPanel);
+
+          var noticeSection = closestSection('#gnbEnablePushBtn');
+          var accountSection = closestSection('#openAccountEditBtn');
+          var deleteSection = closestSection('#withdrawBtn');
+          if(noticeSection) qs('[data-manage-panel="notice"]', modalPanel).appendChild(noticeSection);
+          if(accountSection){
+            var securityPanel = qs('[data-manage-panel="security"]', modalPanel);
+            var accountPanel = qs('[data-manage-panel="account"]', modalPanel);
+            accountPanel.appendChild(accountSection);
+            var pw = qs('#openPasswordChangeBtn');
+            var logout = qs('#logoutBtn');
+            if(securityPanel && (pw || logout)){
+              var sec = makeEl('<div class="gnb-settings-section gnb-management-cloned-section"><div class="gnb-settings-section-header"><div><h4 class="gnb-settings-section-title">보안 및 입장 상태</h4><p class="gnb-settings-section-desc">비밀번호 변경과 현재 공간 나가기를 이곳에서 관리합니다.</p></div></div><div class="gnb-action-grid" style="margin-top:12px;"></div></div>');
+              var grid = qs('.gnb-action-grid', sec);
+              if(pw) grid.appendChild(pw);
+              if(logout) grid.appendChild(logout);
+              securityPanel.appendChild(sec);
+            }
+          }
+          if(deleteSection) qs('[data-manage-panel="delete"]', modalPanel).appendChild(deleteSection);
+
+          qsa('[data-manage-tab]', modalPanel).forEach(function(btn){ btn.addEventListener('click', function(){ activateTab(modalPanel, btn.dataset.manageTab); }); });
+          qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
+          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, 'notice'); });
+        }
+        function initOperationManageModal(){
+          var admin = qs('.gnb-admin-premium');
+          var openBtn = qs('#openGnbOperationManageBtn');
+          if(!admin || !openBtn || qs('#gnbOperationManageModal')) return;
+          var oldActions = qs('.gnb-admin-actions', admin);
+          var shareBtn = qs('[data-view-link="shareinsights"]', oldActions || admin);
+          var adminBtn = qs('#openAdminPageFromGnbBtn');
+          var rootPanel = qs('.gnb-root-panel', admin);
+          if(oldActions && oldActions.parentElement) oldActions.remove();
+          if(rootPanel && rootPanel.parentElement) rootPanel.remove();
+
+          var modalPanel = makeEl('\
+            <div class="gnb-management-dialog gnb-operation-dialog" id="gnbOperationManageModal" aria-labelledby="gnbOperationManageTitle">\
+              <div class="gnb-management-shell">\
+                <div class="gnb-management-head operation">\
+                  <div>\
+                    <span class="gnb-management-kicker">관리자 전용</span>\
+                    <h3 id="gnbOperationManageTitle">운영 관리</h3>\
+                    <p>공유 흐름, 관리자 페이지, Root 보조 기능을 탭으로 관리합니다.</p>\
+                  </div>\
+                  <button class="gnb-manage-close" type="button" aria-label="운영 관리 닫기">✕</button>\
+                </div>\
+                <div class="gnb-management-tabs" role="tablist" aria-label="운영 관리 탭">\
+                  <button data-manage-tab="share" class="active" type="button" role="tab" aria-selected="true">공유</button>\
+                  <button data-manage-tab="admin" type="button" role="tab" aria-selected="false">관리자</button>\
+                  <button data-manage-tab="root" class="root-only-panel" type="button" role="tab" aria-selected="false">Root</button>\
+                </div>\
+                <div class="gnb-management-body">\
+                  <section data-manage-panel="share" class="gnb-management-panel active"><div class="gnb-management-action-slot" id="gnbShareActionSlot"></div></section>\
+                  <section data-manage-panel="admin" class="gnb-management-panel" hidden><div class="gnb-management-action-slot" id="gnbAdminActionSlot"></div></section>\
+                  <section data-manage-panel="root" class="gnb-management-panel" hidden><div id="gnbRootActionSlot"></div></section>\
+                </div>\
+              </div>\
+            </div>');
+          modalStash().appendChild(modalPanel);
+          if(shareBtn) qs('#gnbShareActionSlot', modalPanel).appendChild(shareBtn);
+          if(adminBtn) qs('#gnbAdminActionSlot', modalPanel).appendChild(adminBtn);
+          if(rootPanel) qs('#gnbRootActionSlot', modalPanel).appendChild(rootPanel);
+          qsa('[data-manage-tab]', modalPanel).forEach(function(btn){ btn.addEventListener('click', function(){ activateTab(modalPanel, btn.dataset.manageTab); }); });
+          qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
+          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, 'share'); });
+        }
+        function init(){ initAccountManageModal(); initOperationManageModal(); }
+        if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+        else init();
+      })();

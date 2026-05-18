@@ -1,1 +1,133 @@
-function _0x2b75(_0x2e66fa,_0x258081){_0x2e66fa=_0x2e66fa-0x1d2;var _0x5186af=_0x5186();var _0x2b75b5=_0x5186af[_0x2e66fa];return _0x2b75b5;}function _0x5186(){var _0x1dbd8b=['963SYCDWt','8kcOdyH','scrollTop','removeEventListener','div','10863013fPEZNR','createElement','preventDefault','336580IDhzWa','overlayClass','15207597SQWPBJ','addEventListener','classList','187ygZBqY','common-modal-lock','parentNode','presentation','commonModalRoot','focus','common-modal-root','aria-labelledby','setAttribute','3243660NGfcIY','className','style','top','documentElement','stopPropagation','328TfLRuc','labelledby','aria-modal','234679UHUrzA','common-modal-placeholder','body','loading','6658pAgWIT','CommonModal','appendChild','createComment','removeChild','add','DOMContentLoaded','target','85955wSeWQz'];_0x5186=function(){return _0x1dbd8b;};return _0x5186();}(function(_0x3cdb70,_0x2aa2fd){var _0x819f2=_0x2b75,_0x53dda6=_0x3cdb70();while(!![]){try{var _0x81e71c=parseInt(_0x819f2(0x1fc))/0x1+-parseInt(_0x819f2(0x1d4))/0x2*(-parseInt(_0x819f2(0x1dd))/0x3)+-parseInt(_0x819f2(0x1f9))/0x4*(parseInt(_0x819f2(0x1dc))/0x5)+parseInt(_0x819f2(0x1f3))/0x6+parseInt(_0x819f2(0x1e2))/0x7+-parseInt(_0x819f2(0x1de))/0x8*(parseInt(_0x819f2(0x1e7))/0x9)+parseInt(_0x819f2(0x1e5))/0xa*(parseInt(_0x819f2(0x1ea))/0xb);if(_0x81e71c===_0x2aa2fd)break;else _0x53dda6['push'](_0x53dda6['shift']());}catch(_0x26ea3d){_0x53dda6['push'](_0x53dda6['shift']());}}}(_0x5186,0xd40c4),!(function(){'use strict';var _0x12c944=_0x2b75;var _0x49c0cc=null,_0x2c22be=null,_0x2d1761=null,_0x43e45e=0x0,_0x11b69c=null,_0x346a39=null,_0x548859=null,_0xc79581=!0x1;function _0x41a183(){var _0x5a2535=_0x2b75;return _0x49c0cc||((_0x49c0cc=document['getElementById'](_0x5a2535(0x1ee)))||((_0x49c0cc=document['createElement']('div'))['id']=_0x5a2535(0x1ee),_0x49c0cc['className']=_0x5a2535(0x1f0),document[_0x5a2535(0x1d2)]['appendChild'](_0x49c0cc)),_0x49c0cc);}function _0x325eb1(){var _0x5b952e=_0x2b75;if(_0x2c22be){var _0x3038b0=_0x346a39||{},_0x7b0532=_0x11b69c;_0x7b0532&&_0x548859&&_0x548859['parentNode']?(_0x548859['parentNode']['insertBefore'](_0x7b0532,_0x548859),_0x548859['remove']()):_0x7b0532&&_0x7b0532['parentNode']&&_0x7b0532[_0x5b952e(0x1ec)][_0x5b952e(0x1d8)](_0x7b0532),document[_0x5b952e(0x1e0)]('keydown',_0x14b62f,!0x0),_0x2c22be['remove'](),_0x2c22be=null,_0x2d1761=null,_0x11b69c=null,_0x346a39=null,_0x548859=null,document['documentElement']['classList']['remove']('common-modal-lock'),document[_0x5b952e(0x1d2)][_0x5b952e(0x1e9)]['remove'](_0x5b952e(0x1eb)),document['body'][_0x5b952e(0x1f5)][_0x5b952e(0x1f6)]='',window['scrollTo'](0x0,_0x43e45e||0x0),'function'==typeof _0x3038b0['onClose']&&_0x3038b0['onClose'](_0x7b0532);}}function _0x14b62f(_0x9c425a){var _0x3cb98f=_0x2b75;_0x2c22be&&'Escape'===_0x9c425a['key']&&(_0x9c425a[_0x3cb98f(0x1e4)](),_0x9c425a[_0x3cb98f(0x1f8)](),_0x346a39&&!0x0===_0x346a39['allowEscClose']&&_0x325eb1());}function _0x1e6fe3(){_0xc79581||(_0xc79581=!0x0,_0x41a183());}window[_0x12c944(0x1d5)]={'init':_0x1e6fe3,'open':function(_0x5d38ce){var _0x32197a=_0x12c944;_0x5d38ce=_0x5d38ce||{},_0x325eb1(),_0x41a183();var _0x58cd57,_0x286501=_0x5d38ce['content'];if('string'==typeof _0x286501){var _0x1730f9=document['createElement']('template');_0x1730f9['innerHTML']=_0x286501['trim'](),_0x286501=_0x1730f9['content']['firstElementChild'];}return _0x286501?((_0x2c22be=document[_0x32197a(0x1e3)](_0x32197a(0x1e1)))[_0x32197a(0x1f4)]='common-modal-overlay'+(_0x5d38ce['overlayClass']?'\x20'+_0x5d38ce[_0x32197a(0x1e6)]:''),_0x2c22be['setAttribute']('role',_0x32197a(0x1ed)),(_0x2d1761=document['createElement'](_0x32197a(0x1e1)))['className']='common-modal-stage'+(_0x5d38ce['stageClass']?'\x20'+_0x5d38ce['stageClass']:''),_0x2d1761[_0x32197a(0x1f2)]('role','dialog'),_0x2d1761['setAttribute'](_0x32197a(0x1fb),'true'),_0x5d38ce['labelledby']&&_0x2d1761[_0x32197a(0x1f2)](_0x32197a(0x1f1),_0x5d38ce[_0x32197a(0x1fa)]),_0x286501[_0x32197a(0x1ec)]&&(_0x548859=document[_0x32197a(0x1d7)](_0x32197a(0x1fd)),_0x286501['parentNode']['insertBefore'](_0x548859,_0x286501)),_0x2d1761[_0x32197a(0x1d6)](_0x286501),_0x2c22be['appendChild'](_0x2d1761),_0x49c0cc['appendChild'](_0x2c22be),_0x2c22be['addEventListener']('click',function(_0x490505){var _0xb2d625=_0x32197a;_0x490505[_0xb2d625(0x1db)]===_0x2c22be&&(_0x490505['preventDefault'](),_0x490505['stopPropagation']());},!0x0),document[_0x32197a(0x1e8)]('keydown',_0x14b62f,!0x0),_0x11b69c=_0x286501,_0x346a39=_0x5d38ce,_0x43e45e=window['scrollY']||document[_0x32197a(0x1f7)][_0x32197a(0x1df)]||0x0,document['documentElement']['classList']['add'](_0x32197a(0x1eb)),document[_0x32197a(0x1d2)][_0x32197a(0x1e9)][_0x32197a(0x1d9)]('common-modal-lock'),document['body'][_0x32197a(0x1f5)][_0x32197a(0x1f6)]='-'+_0x43e45e+'px',_0x58cd57=_0x5d38ce['initialFocusSelector'],window['setTimeout'](function(){var _0x258f1a=_0x32197a,_0x24f3e7=_0x58cd57&&_0x2d1761?_0x2d1761['querySelector'](_0x58cd57):null;!_0x24f3e7&&_0x2d1761&&(_0x24f3e7=_0x2d1761['querySelector']('[autofocus],\x20button,\x20[href],\x20input,\x20select,\x20textarea,\x20[tabindex]:not([tabindex=\x22-1\x22])')),_0x24f3e7&&_0x24f3e7[_0x258f1a(0x1ef)]&&_0x24f3e7['focus']({'preventScroll':!0x0});},0x1e),_0x286501):null;},'close':_0x325eb1,'isOpen':function(){return!!_0x2c22be;}},_0x12c944(0x1d3)===document['readyState']?document['addEventListener'](_0x12c944(0x1da),_0x1e6fe3,{'once':!0x0}):_0x1e6fe3();}()));
+(function(){
+  'use strict';
+
+  var root = null;
+  var overlay = null;
+  var stage = null;
+  var scrollY = 0;
+  var currentContent = null;
+  var currentOptions = null;
+  var currentPlaceholder = null;
+  var initialized = false;
+
+  function ensureRoot(){
+    if(root) return root;
+    root = document.getElementById('commonModalRoot');
+    if(!root){
+      root = document.createElement('div');
+      root.id = 'commonModalRoot';
+      root.className = 'common-modal-root';
+      document.body.appendChild(root);
+    }
+    return root;
+  }
+
+  function lockBody(){
+    scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.documentElement.classList.add('common-modal-lock');
+    document.body.classList.add('common-modal-lock');
+    document.body.style.top = '-' + scrollY + 'px';
+  }
+
+  function unlockBody(){
+    document.documentElement.classList.remove('common-modal-lock');
+    document.body.classList.remove('common-modal-lock');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY || 0);
+  }
+
+  function focusFirst(selector){
+    window.setTimeout(function(){
+      var target = selector && stage ? stage.querySelector(selector) : null;
+      if(!target && stage) target = stage.querySelector('[autofocus], button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(target && target.focus) target.focus({preventScroll:true});
+    }, 30);
+  }
+
+  function close(){
+    if(!overlay) return;
+    var opts = currentOptions || {};
+    var content = currentContent;
+    if(content && currentPlaceholder && currentPlaceholder.parentNode){
+      currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
+      currentPlaceholder.remove();
+    }else if(content && content.parentNode){
+      content.parentNode.removeChild(content);
+    }
+    document.removeEventListener('keydown', trapEsc, true);
+    overlay.remove();
+    overlay = null;
+    stage = null;
+    currentContent = null;
+    currentOptions = null;
+    currentPlaceholder = null;
+    unlockBody();
+    if(typeof opts.onClose === 'function') opts.onClose(content);
+  }
+
+  function open(options){
+    options = options || {};
+    close();
+    ensureRoot();
+
+    var content = options.content;
+    if(typeof content === 'string'){
+      var template = document.createElement('template');
+      template.innerHTML = content.trim();
+      content = template.content.firstElementChild;
+    }
+    if(!content) return null;
+
+    overlay = document.createElement('div');
+    overlay.className = 'common-modal-overlay' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.setAttribute('role','presentation');
+
+    stage = document.createElement('div');
+    stage.className = 'common-modal-stage' + (options.stageClass ? ' ' + options.stageClass : '');
+    stage.setAttribute('role','dialog');
+    stage.setAttribute('aria-modal','true');
+    if(options.labelledby) stage.setAttribute('aria-labelledby', options.labelledby);
+
+    if(content.parentNode){
+      currentPlaceholder = document.createComment('common-modal-placeholder');
+      content.parentNode.insertBefore(currentPlaceholder, content);
+    }
+    stage.appendChild(content);
+    overlay.appendChild(stage);
+    root.appendChild(overlay);
+
+    overlay.addEventListener('click', function(event){
+      if(event.target === overlay){
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+    document.addEventListener('keydown', trapEsc, true);
+
+    currentContent = content;
+    currentOptions = options;
+    lockBody();
+    focusFirst(options.initialFocusSelector);
+    return content;
+  }
+
+  function trapEsc(event){
+    if(!overlay) return;
+    if(event.key === 'Escape'){
+      event.preventDefault();
+      event.stopPropagation();
+      if(currentOptions && currentOptions.allowEscClose === true) close();
+    }
+  }
+
+  function init(){
+    if(initialized) return;
+    initialized = true;
+    ensureRoot();
+  }
+
+  window.CommonModal = { init:init, open:open, close:close, isOpen:function(){ return !!overlay; } };
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+})();

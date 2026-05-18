@@ -1,1 +1,147 @@
-function _0x1317(){var _0x1d90bf=['14RIRltH','stopImmediatePropagation','readyState','slice','preventDefault','4484060gMlhRY','activeElement','prototype','aria-modal','upick-photo-viewer-open','13660SjbVqL','key','stopPropagation','1904073VaGrzL','show','function','1133HWqxLL','setAttribute','getElementById','focus','textarea:not([disabled])','Escape','86969oPDyhu','loading','length','addEventListener','328gKlmPZ','true','106510oydtiB','77652TJmbeI','target','click','155mVgqjO','803940EUSwhW','select:not([disabled])','input:not([disabled])','role','observe','[tabindex]:not([tabindex=\x22-1\x22])','body','presentation','call'];_0x1317=function(){return _0x1d90bf;};return _0x1317();}function _0x29e0(_0x310996,_0x282b0a){_0x310996=_0x310996-0xd4;var _0x1317d7=_0x1317();var _0x29e0a7=_0x1317d7[_0x310996];return _0x29e0a7;}(function(_0x3fb65c,_0x372bac){var _0x3588aa=_0x29e0,_0x34f724=_0x3fb65c();while(!![]){try{var _0x1a1dfc=-parseInt(_0x3588aa(0xe8))/0x1*(parseInt(_0x3588aa(0xfc))/0x2)+parseInt(_0x3588aa(0xdf))/0x3+-parseInt(_0x3588aa(0xdc))/0x4*(-parseInt(_0x3588aa(0xf2))/0x5)+parseInt(_0x3588aa(0xf3))/0x6+-parseInt(_0x3588aa(0xd7))/0x7+-parseInt(_0x3588aa(0xec))/0x8*(parseInt(_0x3588aa(0xef))/0x9)+-parseInt(_0x3588aa(0xee))/0xa*(-parseInt(_0x3588aa(0xe2))/0xb);if(_0x1a1dfc===_0x372bac)break;else _0x34f724['push'](_0x34f724['shift']());}catch(_0x2d2bbd){_0x34f724['push'](_0x34f724['shift']());}}}(_0x1317,0x59f68),!(function(){'use strict';var _0xeb7b39=_0x29e0;var _0x1c51e7=null,_0x224871=null,_0xc6603c=null;function _0x57eb2d(_0x400775,_0x186a0b){return(_0x186a0b||document)['querySelector'](_0x400775);}function _0x442d0f(){var _0x4caac4=_0x29e0;return document[_0x4caac4(0xe4)]('benefitPhotoZoomViewer');}function _0x22cb5f(){var _0xf0c059=_0x29e0;return!(!(_0x1c51e7=_0x442d0f())||!_0x1c51e7['classList']['contains'](_0xf0c059(0xe0)));}function _0x3009de(){var _0x53095a=_0x29e0;_0x22cb5f()&&(_0x224871=_0x57eb2d('.photo-viewer-close',_0x1c51e7))&&(_0x224871[_0x53095a(0xe3)]('type','button'),_0x224871[_0x53095a(0xe3)]('aria-label',_0x224871['getAttribute']('aria-label')||'닫기'),requestAnimationFrame(function(){try{_0x224871['focus']({'preventScroll':!0x0});}catch(_0xd9c5b2){_0x224871['focus']();}}));}function _0x4e9a29(_0x2b13ba){var _0x4233e1=_0x29e0;if(_0x22cb5f())return _0x2b13ba[_0x4233e1(0xf0)]===_0x1c51e7?(_0x2b13ba[_0x4233e1(0xd6)](),_0x2b13ba[_0x4233e1(0xde)](),_0x4233e1(0xe1)==typeof _0x2b13ba[_0x4233e1(0xfd)]&&_0x2b13ba['stopImmediatePropagation'](),_0x3009de(),!0x1):void 0x0;}function _0x5bfd84(_0xd769a1){var _0x31adc4=_0x29e0;if(_0x22cb5f()){if(_0x31adc4(0xe7)===_0xd769a1[_0x31adc4(0xdd)])return _0xd769a1['preventDefault'](),_0xd769a1['stopPropagation'](),void(_0x22cb5f()&&(_0x224871?_0x224871['click']():_0x1c51e7['classList']['remove']('show'),_0xc6603c&&_0x31adc4(0xe1)==typeof _0xc6603c['focus']&&requestAnimationFrame(function(){try{_0xc6603c['focus']({'preventScroll':!0x0});}catch(_0x3ceff9){_0xc6603c['focus']();}})));if('Tab'===_0xd769a1[_0x31adc4(0xdd)]){var _0x2a6be3,_0xe525de=_0x57eb2d('.photo-viewer-card',_0x1c51e7)||_0x1c51e7,_0x1f2ffb=(_0x2a6be3=_0xe525de)?Array[_0x31adc4(0xd9)][_0x31adc4(0xd5)][_0x31adc4(0xfb)](_0x2a6be3['querySelectorAll'](['button:not([disabled])','a[href]',_0x31adc4(0xf5),_0x31adc4(0xf4),_0x31adc4(0xe6),_0x31adc4(0xf8)]['join'](',')))['filter'](function(_0x50d001){var _0x411cf3=_0x31adc4;return!!(_0x50d001['offsetWidth']||_0x50d001['offsetHeight']||_0x50d001['getClientRects']()[_0x411cf3(0xea)]);}):[];if(!_0x1f2ffb['length'])return _0xd769a1['preventDefault'](),void _0x3009de();var _0x333ee2=_0x1f2ffb[0x0],_0x248582=_0x1f2ffb[_0x1f2ffb['length']-0x1],_0x8149cc=document[_0x31adc4(0xd8)];_0xd769a1['shiftKey']&&_0x8149cc===_0x333ee2?(_0xd769a1['preventDefault'](),_0x248582[_0x31adc4(0xe5)]()):(_0xd769a1['shiftKey']||_0x8149cc!==_0x248582)&&_0xe525de['contains'](_0x8149cc)||(_0xd769a1['preventDefault'](),_0x333ee2[_0x31adc4(0xe5)]());}}}function _0x2c1c74(){var _0x10ad30=_0x29e0;_0x22cb5f()?(document['documentElement']['classList']['add']('upick-photo-viewer-open'),document['body']['classList']['add']('upick-photo-viewer-open'),_0x1c51e7['dataset']['a11yFocused']||(_0x1c51e7['dataset']['a11yFocused']='1',_0xc6603c=document['activeElement'],_0x3009de())):(document['documentElement']['classList']['remove']('upick-photo-viewer-open'),document['body']['classList']['remove'](_0x10ad30(0xdb)),_0x1c51e7&&delete _0x1c51e7['dataset']['a11yFocused']);}function _0x343a2e(){var _0x4dd56d=_0x29e0;(_0x1c51e7=_0x442d0f())&&('1'!==_0x1c51e7['dataset']['photoA11yBound']&&(_0x1c51e7['dataset']['photoA11yBound']='1',_0x1c51e7['setAttribute'](_0x4dd56d(0xda),_0x4dd56d(0xed)),_0x1c51e7['setAttribute'](_0x4dd56d(0xf6),_0x1c51e7['getAttribute'](_0x4dd56d(0xf6))||_0x4dd56d(0xfa)),_0x1c51e7[_0x4dd56d(0xeb)](_0x4dd56d(0xf1),_0x4e9a29,!0x0),document[_0x4dd56d(0xeb)]('keydown',_0x5bfd84,!0x0),new MutationObserver(_0x2c1c74)['observe'](_0x1c51e7,{'attributes':!0x0,'attributeFilter':['class','style','aria-hidden']}),_0x2c1c74()));}function _0x16350f(){var _0x22c70b=_0x29e0;_0x343a2e(),new MutationObserver(_0x343a2e)[_0x22c70b(0xf7)](document[_0x22c70b(0xf9)],{'childList':!0x0,'subtree':!0x0});}_0xeb7b39(0xe9)===document[_0xeb7b39(0xd4)]?document['addEventListener']('DOMContentLoaded',_0x16350f,{'once':!0x0}):_0x16350f();}()));
+(function(){
+  'use strict';
+
+  var viewer = null;
+  var closeBtn = null;
+  var lastFocus = null;
+
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+
+  function getViewer(){
+    return document.getElementById('benefitPhotoZoomViewer');
+  }
+
+  function isOpen(){
+    viewer = getViewer();
+    return !!(viewer && viewer.classList.contains('show'));
+  }
+
+  function getFocusable(root){
+    if(!root) return [];
+    return Array.prototype.slice.call(root.querySelectorAll([
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(','))).filter(function(el){
+      return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    });
+  }
+
+  function focusClose(){
+    if(!isOpen()) return;
+    closeBtn = qs('.photo-viewer-close', viewer);
+    if(closeBtn){
+      closeBtn.setAttribute('type', 'button');
+      closeBtn.setAttribute('aria-label', closeBtn.getAttribute('aria-label') || '닫기');
+      requestAnimationFrame(function(){
+        try{ closeBtn.focus({preventScroll:true}); }
+        catch(_){ closeBtn.focus(); }
+      });
+    }
+  }
+
+  function closeViewer(){
+    if(!isOpen()) return;
+    if(closeBtn) closeBtn.click();
+    else viewer.classList.remove('show');
+    if(lastFocus && typeof lastFocus.focus === 'function'){
+      requestAnimationFrame(function(){
+        try{ lastFocus.focus({preventScroll:true}); }
+        catch(_){ lastFocus.focus(); }
+      });
+    }
+  }
+
+  function onClick(event){
+    if(!isOpen()) return;
+
+    // 대표 사진 팝업은 바깥 영역 클릭으로 닫히지 않도록 차단합니다.
+    if(event.target === viewer){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      focusClose();
+      return false;
+    }
+  }
+
+  function onKeydown(event){
+    if(!isOpen()) return;
+
+    if(event.key === 'Escape'){
+      event.preventDefault();
+      event.stopPropagation();
+      closeViewer();
+      return;
+    }
+
+    if(event.key !== 'Tab') return;
+
+    var card = qs('.photo-viewer-card', viewer) || viewer;
+    var focusables = getFocusable(card);
+    if(!focusables.length){
+      event.preventDefault();
+      focusClose();
+      return;
+    }
+
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    var active = document.activeElement;
+
+    if(event.shiftKey && active === first){
+      event.preventDefault();
+      last.focus();
+    }else if(!event.shiftKey && active === last){
+      event.preventDefault();
+      first.focus();
+    }else if(!card.contains(active)){
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function syncOpenState(){
+    if(isOpen()){
+      document.documentElement.classList.add('upick-photo-viewer-open');
+      document.body.classList.add('upick-photo-viewer-open');
+      if(!viewer.dataset.a11yFocused){
+        viewer.dataset.a11yFocused = '1';
+        lastFocus = document.activeElement;
+        focusClose();
+      }
+    }else{
+      document.documentElement.classList.remove('upick-photo-viewer-open');
+      document.body.classList.remove('upick-photo-viewer-open');
+      if(viewer) delete viewer.dataset.a11yFocused;
+    }
+  }
+
+  function bind(){
+    viewer = getViewer();
+    if(!viewer) return;
+    if(viewer.dataset.photoA11yBound === '1') return;
+    viewer.dataset.photoA11yBound = '1';
+
+    viewer.setAttribute('aria-modal', 'true');
+    viewer.setAttribute('role', viewer.getAttribute('role') || 'presentation');
+
+    viewer.addEventListener('click', onClick, true);
+    document.addEventListener('keydown', onKeydown, true);
+
+    var observer = new MutationObserver(syncOpenState);
+    observer.observe(viewer, {attributes:true, attributeFilter:['class', 'style', 'aria-hidden']});
+    syncOpenState();
+  }
+
+  function init(){
+    bind();
+    new MutationObserver(bind).observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+})();

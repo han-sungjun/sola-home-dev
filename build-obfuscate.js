@@ -1,1 +1,262 @@
-const _0x8f7e9b=_0x1f1a;(function(_0x118ef1,_0x482920){const _0x3f45fb=_0x1f1a,_0x280c60=_0x118ef1();while(!![]){try{const _0x2a727f=parseInt(_0x3f45fb(0xdc))/0x1+-parseInt(_0x3f45fb(0xcf))/0x2*(parseInt(_0x3f45fb(0xda))/0x3)+-parseInt(_0x3f45fb(0xd1))/0x4+-parseInt(_0x3f45fb(0xe2))/0x5+-parseInt(_0x3f45fb(0xdf))/0x6+parseInt(_0x3f45fb(0xec))/0x7+parseInt(_0x3f45fb(0xca))/0x8;if(_0x2a727f===_0x482920)break;else _0x280c60['push'](_0x280c60['shift']());}catch(_0x4c455c){_0x280c60['push'](_0x280c60['shift']());}}}(_0x5274,0x3c4de));const fs=require('fs'),path=require('path'),{minify:minifyJs}=require(_0x8f7e9b(0xd4)),JavaScriptObfuscator=require('javascript-obfuscator'),{minify:minifyHtml}=require('html-minifier-terser'),CleanCSS=require('clean-css'),ROOT=__dirname,DIST=path[_0x8f7e9b(0xd6)](ROOT,'dist'),SKIP_DIRS=new Set([_0x8f7e9b(0xc3),'.git','.vercel',_0x8f7e9b(0xe0)]),COPY_ONLY_EXTENSIONS=new Set(['.png','.jpg','.jpeg','.gif','.svg','.ico',_0x8f7e9b(0xd3),_0x8f7e9b(0xe4),'.woff','.woff2','.ttf','.otf',_0x8f7e9b(0xdb),'.mp3',_0x8f7e9b(0xeb),'.pdf']),COPY_ONLY_FILES=new Set(['firebase-messaging-sw.js','common/env-config.js',_0x8f7e9b(0xc6)]),COPY_ONLY_PREFIXES=[_0x8f7e9b(0xcb)];function _0x1f1a(_0x356d44,_0x2a07e){_0x356d44=_0x356d44-0xc1;const _0x527469=_0x5274();let _0x1f1a7e=_0x527469[_0x356d44];return _0x1f1a7e;}function toPosix(_0x399f39){const _0x210e46=_0x8f7e9b;return _0x399f39['split'](path['sep'])[_0x210e46(0xd6)]('/');}function ensureDir(_0x51ba29){fs['mkdirSync'](_0x51ba29,{'recursive':!0x0});}function removeDir(_0x46bc37){fs['existsSync'](_0x46bc37)&&fs['rmSync'](_0x46bc37,{'recursive':!0x0,'force':!0x0});}function read(_0xc50e64){const _0x43d4ec=_0x8f7e9b;return fs[_0x43d4ec(0xc5)](_0xc50e64,_0x43d4ec(0xe8));}function write(_0xb78583,_0x41d8c5){const _0x25938a=_0x8f7e9b;ensureDir(path['dirname'](_0xb78583)),fs[_0x25938a(0xc2)](_0xb78583,_0x41d8c5,'utf8');}function copyFile(_0x266332,_0x2099c8){ensureDir(path['dirname'](_0x2099c8)),fs['copyFileSync'](_0x266332,_0x2099c8);}function isCopyOnly(_0x530eef){const _0x378ace=_0x8f7e9b,_0x511377=toPosix(_0x530eef);return!!COPY_ONLY_FILES[_0x378ace(0xe1)](_0x511377)||!!COPY_ONLY_PREFIXES['some'](_0x4dbcbb=>_0x511377[_0x378ace(0xc1)](_0x4dbcbb));}function isLikelyModule(_0x48f674,_0x1dcdc4){const _0x4ade26=_0x8f7e9b,_0xa9b0b3=toPosix(_0x1dcdc4);return _0x4ade26(0xd2)===_0xa9b0b3||_0x4ade26(0xd9)===_0xa9b0b3||_0x4ade26(0xc8)===_0xa9b0b3||/(^|\n)\s*(import\s+[^(']|export\s+)/['test'](_0x48f674);}async function processJs(_0xa45c39,_0x3daaa7,_0x3a2b6f){const _0x45addc=_0x8f7e9b;if(isCopyOnly(_0x3a2b6f))return copyFile(_0xa45c39,_0x3daaa7),'copy-only-js';const _0x2ae11f=read(_0xa45c39),_0x3b89f0=isLikelyModule(_0x2ae11f,_0x3a2b6f),_0x360b0d=(await minifyJs(_0x2ae11f,{'module':_0x3b89f0,'compress':{'passes':0x1,'drop_console':!0x1},'mangle':!_0x3b89f0,'format':{'comments':!0x1}}))['code']||_0x2ae11f;if(_0x3b89f0)return write(_0x3daaa7,_0x360b0d),_0x45addc(0xee);return write(_0x3daaa7,JavaScriptObfuscator['obfuscate'](_0x360b0d,{'compact':!0x0,'controlFlowFlattening':!0x1,'deadCodeInjection':!0x1,'debugProtection':!0x1,'disableConsoleOutput':!0x1,'identifierNamesGenerator':'hexadecimal','renameGlobals':!0x1,'rotateStringArray':!0x0,'selfDefending':!0x1,'splitStrings':!0x1,'stringArray':!0x0,'stringArrayEncoding':[],'stringArrayThreshold':0.35,'transformObjectKeys':!0x1,'unicodeEscapeSequence':!0x1})['getObfuscatedCode']()),'obfuscated-js';}async function processCss(_0x2d88fc,_0x17ef59){const _0x108d15=_0x8f7e9b,_0x2e63ea=read(_0x2d88fc),_0x1223c7=new CleanCSS({'level':0x2})['minify'](_0x2e63ea);return _0x1223c7['errors']&&_0x1223c7['errors']['length']?(console[_0x108d15(0xe6)]('[css\x20warning]\x20'+_0x2d88fc,_0x1223c7['errors']),copyFile(_0x2d88fc,_0x17ef59),_0x108d15(0xef)):(write(_0x17ef59,_0x1223c7['styles']||_0x2e63ea),'minified-css');}async function processHtml(_0xe91c89,_0x322dba){const _0x3493ae=read(_0xe91c89);return write(_0x322dba,await minifyHtml(_0x3493ae,{'collapseWhitespace':!0x0,'conservativeCollapse':!0x0,'removeComments':!0x0,'removeRedundantAttributes':!0x1,'removeScriptTypeAttributes':!0x1,'removeStyleLinkTypeAttributes':!0x0,'minifyCSS':!0x0,'minifyJS':!0x1,'keepClosingSlash':!0x0})),'minified-html';}async function processFile(_0x582ba0,_0x5c21bf,_0x1756aa){const _0x2d69de=_0x8f7e9b,_0x575aad=path['extname'](_0x582ba0)[_0x2d69de(0xe9)](),_0x361583=path['join'](DIST,_0x5c21bf);if(COPY_ONLY_EXTENSIONS[_0x2d69de(0xe1)](_0x575aad)||isCopyOnly(_0x5c21bf))return copyFile(_0x582ba0,_0x361583),void(_0x1756aa['copied']+=0x1);try{if(_0x2d69de(0xe3)===_0x575aad){const _0x35f231=await processJs(_0x582ba0,_0x361583,_0x5c21bf);return void(_0x1756aa[_0x35f231]=(_0x1756aa[_0x35f231]||0x0)+0x1);}if('.css'===_0x575aad)return await processCss(_0x582ba0,_0x361583),void(_0x1756aa[_0x2d69de(0xc7)]+=0x1);if('.html'===_0x575aad)return await processHtml(_0x582ba0,_0x361583),void(_0x1756aa['minified-html']+=0x1);copyFile(_0x582ba0,_0x361583),_0x1756aa['copied']+=0x1;}catch(_0x4027c7){console['warn'](_0x2d69de(0xc9)+_0x5c21bf+_0x2d69de(0xc4),_0x4027c7['message']),copyFile(_0x582ba0,_0x361583),_0x1756aa['copied']+=0x1,_0x1756aa[_0x2d69de(0xd5)]+=0x1;}}async function walk(_0xb6ebfb,_0x558c57,_0x5f05bd){const _0x203cbc=_0x8f7e9b,_0x5d776c=fs['readdirSync'](_0xb6ebfb,{'withFileTypes':!0x0});for(const _0x10c41f of _0x5d776c){if(_0x10c41f[_0x203cbc(0xcd)]()&&SKIP_DIRS['has'](_0x10c41f['name']))continue;if('package-lock.json'===_0x10c41f[_0x203cbc(0xce)])continue;const _0x1448b9=path['join'](_0xb6ebfb,_0x10c41f[_0x203cbc(0xce)]),_0x14d487=path['relative'](_0x558c57,_0x1448b9);_0x10c41f['isDirectory']()?await walk(_0x1448b9,_0x558c57,_0x5f05bd):await processFile(_0x1448b9,_0x14d487,_0x5f05bd);}}function normalizeBaseUrl(_0x155cf0){const _0x49559f=_0x8f7e9b;if(!_0x155cf0)return'';const _0x178513=String(_0x155cf0)['trim']()['replace'](/\/+$/,'');return _0x178513?/^https?:\/\//i['test'](_0x178513)?_0x178513:_0x49559f(0xea)+_0x178513:'';}function replaceBaseUrlInDist(){const _0x27d3cd=_0x8f7e9b,_0x2444ba=normalizeBaseUrl(process['env']['__BASE_URL__']||process['env']['BASE_URL']||process[_0x27d3cd(0xe7)]['PUBLIC_APP_URL']||process['env']['NEXT_PUBLIC_BASE_URL'])||(_0x27d3cd(0xdd)===process[_0x27d3cd(0xe7)]['VERCEL_ENV']?'https://theunjeongpick.com':'https://www.sola-home-dev.kr'),_0x5831b6=[_0x27d3cd(0xde),_0x27d3cd(0xd8),'signup.html','phone-verify.html','error.html',_0x27d3cd(0xed)];for(const _0x25c78f of _0x5831b6){const _0x40385c=path[_0x27d3cd(0xd6)](DIST,_0x25c78f);if(!fs['existsSync'](_0x40385c))continue;write(_0x40385c,read(_0x40385c)['replace'](/__BASE_URL__/g,_0x2444ba)),console[_0x27d3cd(0xd0)](_0x25c78f+_0x27d3cd(0xd7)+_0x2444ba);}}async function main(){const _0x4b5092=_0x8f7e9b;removeDir(DIST),ensureDir(DIST);const _0x577acd={'copied':0x0,'fallback':0x0,'obfuscated-js':0x0,'minified-module-js':0x0,'copy-only-js':0x0,'minified-css':0x0,'minified-html':0x0};await walk(ROOT,ROOT,_0x577acd),replaceBaseUrlInDist(),console[_0x4b5092(0xd0)]('\x0a더운정픽\x20배포용\x20빌드\x20완료:\x20dist/'),console[_0x4b5092(0xe5)](_0x577acd);}main()['catch'](_0x236129=>{const _0x23dd1d=_0x8f7e9b;console['error'](_0x236129),process[_0x23dd1d(0xcc)](0x1);});function _0x5274(){const _0x59f165=['fallback','join','\x20→\x20','app.html','js/account-recovery.js','19521hbZhVP','.eot','406127oURqfC','production','index.html','2958618ZjTtyB','dist','has','103300qhYeTN','.js','.avif','table','warn','env','utf8','toLowerCase','https://','.wav','1998388ZZATtO','admin.html','minified-module-js','copy-css-error','startsWith','writeFileSync','node_modules','\x20처리\x20실패\x20→\x20원본\x20복사','readFileSync','common/firebase-config.js','minified-css','js/phone-verify-core.js','[build\x20warning]\x20','6626168bCHeDD','api/','exit','isDirectory','name','106WRbWsL','log','1656968JmVRWV','js/app.js','.webp','terser'];_0x5274=function(){return _0x59f165;};return _0x5274();}
+/*
+ * 더운정픽 배포용 빌드 스크립트
+ * - 원본 파일은 유지합니다.
+ * - dist/ 폴더에만 HTML/CSS/JS 압축 및 JS 난독화를 적용합니다.
+ * - env-config, firebase-config, service worker, ES module export 파일은 안정성을 위해 강한 난독화를 피합니다.
+ */
+const fs = require('fs');
+const path = require('path');
+const { minify: minifyJs } = require('terser');
+const JavaScriptObfuscator = require('javascript-obfuscator');
+const { minify: minifyHtml } = require('html-minifier-terser');
+const CleanCSS = require('clean-css');
+
+const ROOT = __dirname;
+const DIST = path.join(ROOT, 'dist');
+
+const SKIP_DIRS = new Set(['node_modules', '.git', '.vercel', 'dist']);
+const COPY_ONLY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.avif',
+  '.woff', '.woff2', '.ttf', '.otf', '.eot', '.mp3', '.wav', '.pdf'
+]);
+
+// 기능 깨짐 방지를 위해 강한 난독화에서 제외할 파일입니다.
+// 이 파일들은 필요 시 압축만 적용하거나 그대로 복사합니다.
+const COPY_ONLY_FILES = new Set([
+  'firebase-messaging-sw.js',
+  'common/env-config.js',
+  'common/firebase-config.js'
+]);
+
+// Vercel 서버리스 함수는 브라우저에 직접 노출되는 정적 파일이 아니므로 원본 그대로 둡니다.
+const COPY_ONLY_PREFIXES = [
+  'api/'
+];
+
+function toPosix(relativePath) {
+  return relativePath.split(path.sep).join('/');
+}
+
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+function removeDir(dir) {
+  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+}
+
+function read(file) {
+  return fs.readFileSync(file, 'utf8');
+}
+
+function write(file, contents) {
+  ensureDir(path.dirname(file));
+  fs.writeFileSync(file, contents, 'utf8');
+}
+
+function copyFile(src, dest) {
+  ensureDir(path.dirname(dest));
+  fs.copyFileSync(src, dest);
+}
+
+function isCopyOnly(relativePath) {
+  const posix = toPosix(relativePath);
+  if (COPY_ONLY_FILES.has(posix)) return true;
+  if (COPY_ONLY_PREFIXES.some((prefix) => posix.startsWith(prefix))) return true;
+  return false;
+}
+
+function isLikelyModule(code, relativePath) {
+  const posix = toPosix(relativePath);
+  if (posix === 'js/app.js' || posix === 'js/account-recovery.js' || posix === 'js/phone-verify-core.js') return true;
+  return /(^|\n)\s*(import\s+[^(']|export\s+)/.test(code);
+}
+
+async function processJs(src, dest, relativePath) {
+  if (isCopyOnly(relativePath)) {
+    copyFile(src, dest);
+    return 'copy-only-js';
+  }
+
+  const code = read(src);
+  const moduleFile = isLikelyModule(code, relativePath);
+
+  const minified = await minifyJs(code, {
+    module: moduleFile,
+    compress: {
+      passes: 1,
+      drop_console: false
+    },
+    mangle: moduleFile ? false : true,
+    format: {
+      comments: false
+    }
+  });
+
+  const minifiedCode = minified.code || code;
+
+  // ES module은 export/import 이름 보존이 중요해서 minify까지만 적용합니다.
+  // classic script만 강한 난독화를 적용합니다.
+  if (moduleFile) {
+    write(dest, minifiedCode);
+    return 'minified-module-js';
+  }
+
+  const obfuscated = JavaScriptObfuscator.obfuscate(minifiedCode, {
+    compact: true,
+    controlFlowFlattening: false,
+    deadCodeInjection: false,
+    debugProtection: false,
+    disableConsoleOutput: false,
+    identifierNamesGenerator: 'hexadecimal',
+    renameGlobals: false,
+    rotateStringArray: true,
+    selfDefending: false,
+    splitStrings: false,
+    stringArray: true,
+    stringArrayEncoding: [],
+    stringArrayThreshold: 0.35,
+    transformObjectKeys: false,
+    unicodeEscapeSequence: false
+  });
+
+  write(dest, obfuscated.getObfuscatedCode());
+  return 'obfuscated-js';
+}
+
+async function processCss(src, dest) {
+  const input = read(src);
+  const result = new CleanCSS({ level: 2 }).minify(input);
+  if (result.errors && result.errors.length) {
+    console.warn(`[css warning] ${src}`, result.errors);
+    copyFile(src, dest);
+    return 'copy-css-error';
+  }
+  write(dest, result.styles || input);
+  return 'minified-css';
+}
+
+async function processHtml(src, dest) {
+  const html = read(src);
+  const result = await minifyHtml(html, {
+    collapseWhitespace: true,
+    conservativeCollapse: true,
+    removeComments: true,
+    removeRedundantAttributes: false,
+    removeScriptTypeAttributes: false,
+    removeStyleLinkTypeAttributes: true,
+    minifyCSS: true,
+    minifyJS: false,
+    keepClosingSlash: true
+  });
+  write(dest, result);
+  return 'minified-html';
+}
+
+async function processFile(src, relativePath, stats) {
+  const ext = path.extname(src).toLowerCase();
+  const dest = path.join(DIST, relativePath);
+
+  if (COPY_ONLY_EXTENSIONS.has(ext) || isCopyOnly(relativePath)) {
+    copyFile(src, dest);
+    stats.copied += 1;
+    return;
+  }
+
+  try {
+    if (ext === '.js') {
+      const mode = await processJs(src, dest, relativePath);
+      stats[mode] = (stats[mode] || 0) + 1;
+      return;
+    }
+    if (ext === '.css') {
+      await processCss(src, dest);
+      stats['minified-css'] += 1;
+      return;
+    }
+    if (ext === '.html') {
+      await processHtml(src, dest);
+      stats['minified-html'] += 1;
+      return;
+    }
+
+    copyFile(src, dest);
+    stats.copied += 1;
+  } catch (error) {
+    console.warn(`[build warning] ${relativePath} 처리 실패 → 원본 복사`, error.message);
+    copyFile(src, dest);
+    stats.copied += 1;
+    stats.fallback += 1;
+  }
+}
+
+async function walk(currentDir, baseDir, stats) {
+  const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (entry.isDirectory() && SKIP_DIRS.has(entry.name)) continue;
+    if (entry.name === 'package-lock.json') continue;
+
+    const fullPath = path.join(currentDir, entry.name);
+    const relativePath = path.relative(baseDir, fullPath);
+
+    if (entry.isDirectory()) {
+      await walk(fullPath, baseDir, stats);
+    } else {
+      await processFile(fullPath, relativePath, stats);
+    }
+  }
+}
+
+function normalizeBaseUrl(value) {
+  if (!value) return '';
+  const trimmed = String(value).trim().replace(/\/+$/, '');
+  if (!trimmed) return '';
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function replaceBaseUrlInDist() {
+  const baseUrl = normalizeBaseUrl(
+    process.env.__BASE_URL__ ||
+    process.env.BASE_URL ||
+    process.env.PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL
+  ) || (process.env.VERCEL_ENV === 'production'
+    ? 'https://theunjeongpick.com'
+    : 'https://www.sola-home-dev.kr');
+
+  const files = ['index.html', 'app.html', 'signup.html', 'phone-verify.html', 'error.html', 'admin.html'];
+  for (const file of files) {
+    const target = path.join(DIST, file);
+    if (!fs.existsSync(target)) continue;
+    const html = read(target).replace(/__BASE_URL__/g, baseUrl);
+    write(target, html);
+    console.log(`${file} → ${baseUrl}`);
+  }
+}
+
+async function main() {
+  removeDir(DIST);
+  ensureDir(DIST);
+
+  const stats = {
+    copied: 0,
+    fallback: 0,
+    'obfuscated-js': 0,
+    'minified-module-js': 0,
+    'copy-only-js': 0,
+    'minified-css': 0,
+    'minified-html': 0
+  };
+
+  await walk(ROOT, ROOT, stats);
+  replaceBaseUrlInDist();
+
+  console.log('\n더운정픽 배포용 빌드 완료: dist/');
+  console.table(stats);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

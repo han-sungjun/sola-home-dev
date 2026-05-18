@@ -1,1 +1,165 @@
-function _0x3d52(_0x2ab063,_0x48b29f){_0x2ab063=_0x2ab063-0x12b;const _0x12112f=_0x1211();let _0x3d5240=_0x12112f[_0x2ab063];return _0x3d5240;}(function(_0x25dfcc,_0x3fc4e7){const _0x2e78ac=_0x3d52,_0x3f03d2=_0x25dfcc();while(!![]){try{const _0x471ad7=-parseInt(_0x2e78ac(0x13b))/0x1*(-parseInt(_0x2e78ac(0x146))/0x2)+-parseInt(_0x2e78ac(0x14a))/0x3*(-parseInt(_0x2e78ac(0x134))/0x4)+parseInt(_0x2e78ac(0x137))/0x5+-parseInt(_0x2e78ac(0x14c))/0x6+parseInt(_0x2e78ac(0x149))/0x7+parseInt(_0x2e78ac(0x133))/0x8*(parseInt(_0x2e78ac(0x142))/0x9)+-parseInt(_0x2e78ac(0x148))/0xa*(parseInt(_0x2e78ac(0x145))/0xb);if(_0x471ad7===_0x3fc4e7)break;else _0x3f03d2['push'](_0x3f03d2['shift']());}catch(_0x3c92e4){_0x3f03d2['push'](_0x3f03d2['shift']());}}}(_0x1211,0x26737));function _0x1211(){const _0x592484=['406640whIHCI','showCommonAlert','SESSION_CONFLICT','phoneVerified','6166SbvEEd','uid','/phone-verify','function','approvalStatus','doc','users','117yeTOzF','removeItem','BLOCKED_ACCOUNT_ACCESS','1611984gougfm','36FjWteI','exists','10ZmFcmZ','1050623WOHbII','6UpirxN','관리자\x20승인\x20후\x20이용\x20가능합니다.','1370214tuZcbx','loginId','보안\x20정책에\x20따라\x20차단된\x20계정입니다.','blocked','replace','approved','log','loginUser','accountStatus','98584GFdkEW','59608zRJRSo','중복\x20입장\x20감지','superAdmin'];_0x1211=function(){return _0x592484;};return _0x1211();}async function upickSessionAlert(_0x4217bd){const _0x222699=_0x3d52;'undefined'==typeof window||_0x222699(0x13e)!=typeof window['showCommonAlert']?alert(_0x4217bd):await window[_0x222699(0x138)]({'message':_0x4217bd});}async function sessionCheck(_0xbded60={}){const _0xf71cdb=_0x3d52;console['log']('Firestore\x20세션\x20검증\x20시작');const {requireAdmin:_0x40d6ca=!0x1,adminRoles:_0x52c65e=['root','admin',_0xf71cdb(0x136)]}=_0xbded60,_0x4a1be0=localStorage['getItem']('loginUser');if(!_0x4a1be0)return location[_0xf71cdb(0x12e)]('/'),!0x1;let _0x277d47;try{_0x277d47=JSON['parse'](_0x4a1be0);}catch(_0x447231){return localStorage['removeItem']('loginUser'),location[_0xf71cdb(0x12e)]('/'),!0x1;}const _0x485543=_0x277d47[_0xf71cdb(0x13c)],_0x33d283=_0x277d47['sessionId']||'';if(!_0x485543)return localStorage[_0xf71cdb(0x143)](_0xf71cdb(0x131)),location['replace']('/'),!0x1;try{const _0x1669c5=firebase['firestore']()['collection'](_0xf71cdb(0x141))[_0xf71cdb(0x140)](_0x485543),_0x537b8e=await _0x1669c5['get']();if(!_0x537b8e[_0xf71cdb(0x147)])return console['warn']('사용자\x20문서\x20없음'),_0xf71cdb(0x13e)==typeof writeSecurityLog&&await writeSecurityLog('USER_DOC_NOT_FOUND',{'uid':_0x485543}),localStorage['removeItem'](_0xf71cdb(0x131)),location['replace']('/'),!0x1;const _0x1e5cb8=_0x537b8e['data'](),_0x37e584=_0x1e5cb8['activeSessionId']||'';if(_0x37e584&&_0x33d283&&_0x33d283!==_0x37e584)return console['warn'](_0xf71cdb(0x135)),'function'==typeof writeSecurityLog&&await writeSecurityLog(_0xf71cdb(0x139),{'localSessionId':_0x33d283,'serverSessionId':_0x37e584}),await upickSessionAlert('다른\x20기기에서\x20입장되어\x20현재\x20세션이\x20종료되었습니다.'),localStorage['removeItem'](_0xf71cdb(0x131)),location[_0xf71cdb(0x12e)]('/'),!0x1;if('withdrawn'===_0x1e5cb8[_0xf71cdb(0x132)])return'function'==typeof writeSecurityLog&&await writeSecurityLog('WITHDRAWN_ACCOUNT_ACCESS',{'accountStatus':_0x1e5cb8['accountStatus']}),await upickSessionAlert('탈퇴된\x20계정입니다.'),localStorage['removeItem'](_0xf71cdb(0x131)),location['replace']('/'),!0x1;if(_0xf71cdb(0x12d)===_0x1e5cb8['accountStatus'])return _0xf71cdb(0x13e)==typeof writeSecurityLog&&await writeSecurityLog(_0xf71cdb(0x144),{'accountStatus':_0x1e5cb8['accountStatus'],'blockedReason':_0x1e5cb8['blockedReason']||''}),await upickSessionAlert(_0xf71cdb(0x12c)),localStorage['removeItem']('loginUser'),location['replace']('/'),!0x1;if(_0xf71cdb(0x12f)!==_0x1e5cb8['approvalStatus'])return'function'==typeof writeSecurityLog&&await writeSecurityLog('UNAPPROVED_ACCESS',{'approvalStatus':_0x1e5cb8['approvalStatus']||''}),await upickSessionAlert(_0xf71cdb(0x14b)),localStorage[_0xf71cdb(0x143)]('loginUser'),location[_0xf71cdb(0x12e)]('/'),!0x1;if(!0x0!==_0x1e5cb8[_0xf71cdb(0x13a)])return location[_0xf71cdb(0x12e)](_0xf71cdb(0x13d)),!0x1;const _0x1c0caa=_0x1e5cb8['role']||_0x1e5cb8['userRole']||'';return _0x40d6ca&&!_0x52c65e['includes'](_0x1c0caa)?('function'==typeof writeSecurityLog&&await writeSecurityLog('ADMIN_ACCESS_DENIED',{'role':_0x1c0caa}),await upickSessionAlert('관리자\x20권한이\x20없습니다.'),location[_0xf71cdb(0x12e)]('/app'),!0x1):(localStorage['setItem']('loginUser',JSON['stringify']({'uid':_0x485543,'loginId':_0x277d47['loginId']||_0x1e5cb8[_0xf71cdb(0x12b)]||'','sessionId':_0x33d283||_0x37e584||'','role':_0x1c0caa,'approvalStatus':_0x1e5cb8[_0xf71cdb(0x13f)],'phoneVerified':_0x1e5cb8['phoneVerified'],'accountStatus':_0x1e5cb8['accountStatus']||'active'})),console[_0xf71cdb(0x130)]('세션\x20검증\x20완료'),!0x0);}catch(_0x5d258b){return console['error']('세션\x20검증\x20오류:',_0x5d258b),_0xf71cdb(0x13e)==typeof writeSecurityLog&&await writeSecurityLog('SESSION_CHECK_ERROR',{'message':_0x5d258b['message']||String(_0x5d258b)}),localStorage[_0xf71cdb(0x143)]('loginUser'),location[_0xf71cdb(0x12e)]('/'),!0x1;}}
+async function upickSessionAlert(message) {
+  if (typeof window !== "undefined" && typeof window.showCommonAlert === "function") {
+    await window.showCommonAlert({ message });
+    return;
+  }
+  alert(message);
+}
+
+async function sessionCheck(options = {}) {
+  console.log("Firestore 세션 검증 시작");
+
+  const {
+    requireAdmin = false,
+    adminRoles = ["root", "admin", "superAdmin"]
+  } = options;
+
+  const raw = localStorage.getItem("loginUser");
+
+  if (!raw) {
+    location.replace("/");
+    return false;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    localStorage.removeItem("loginUser");
+    location.replace("/");
+    return false;
+  }
+
+  const uid = parsed.uid;
+  const localSessionId = parsed.sessionId || "";
+
+  if (!uid) {
+    localStorage.removeItem("loginUser");
+    location.replace("/");
+    return false;
+  }
+
+  try {
+    const docRef = firebase.firestore().collection("users").doc(uid);
+    const snap = await docRef.get();
+
+    if (!snap.exists) {
+      console.warn("사용자 문서 없음");
+
+      if (typeof writeSecurityLog === "function") {
+        await writeSecurityLog("USER_DOC_NOT_FOUND", { uid });
+      }
+
+      localStorage.removeItem("loginUser");
+      location.replace("/");
+      return false;
+    }
+
+    const user = snap.data();
+
+    // 중복 입장 차단
+    const serverSessionId = user.activeSessionId || "";
+
+    if (serverSessionId && localSessionId && localSessionId !== serverSessionId) {
+      console.warn("중복 입장 감지");
+
+      if (typeof writeSecurityLog === "function") {
+        await writeSecurityLog("SESSION_CONFLICT", {
+          localSessionId,
+          serverSessionId
+        });
+      }
+
+      await upickSessionAlert("다른 기기에서 입장되어 현재 세션이 종료되었습니다.");
+      localStorage.removeItem("loginUser");
+      location.replace("/");
+      return false;
+    }
+
+    if (user.accountStatus === "withdrawn") {
+      if (typeof writeSecurityLog === "function") {
+        await writeSecurityLog("WITHDRAWN_ACCOUNT_ACCESS", {
+          accountStatus: user.accountStatus
+        });
+      }
+
+      await upickSessionAlert("탈퇴된 계정입니다.");
+      localStorage.removeItem("loginUser");
+      location.replace("/");
+      return false;
+    }
+
+    if (user.accountStatus === "blocked") {
+      if (typeof writeSecurityLog === "function") {
+        await writeSecurityLog("BLOCKED_ACCOUNT_ACCESS", {
+          accountStatus: user.accountStatus,
+          blockedReason: user.blockedReason || ""
+        });
+      }
+
+      await upickSessionAlert("보안 정책에 따라 차단된 계정입니다.");
+      localStorage.removeItem("loginUser");
+      location.replace("/");
+      return false;
+    }
+
+    if (user.approvalStatus !== "approved") {
+      if (typeof writeSecurityLog === "function") {
+        await writeSecurityLog("UNAPPROVED_ACCESS", {
+          approvalStatus: user.approvalStatus || ""
+        });
+      }
+
+      await upickSessionAlert("관리자 승인 후 이용 가능합니다.");
+      localStorage.removeItem("loginUser");
+      location.replace("/");
+      return false;
+    }
+
+    if (user.phoneVerified !== true) {
+      location.replace("/phone-verify");
+      return false;
+    }
+
+    const role = user.role || user.userRole || "";
+
+    if (requireAdmin && !adminRoles.includes(role)) {
+      if (typeof writeSecurityLog === "function") {
+        await writeSecurityLog("ADMIN_ACCESS_DENIED", {
+          role
+        });
+      }
+
+      await upickSessionAlert("관리자 권한이 없습니다.");
+      location.replace("/app");
+      return false;
+    }
+
+    // 중요: sessionId 유지 저장
+    localStorage.setItem("loginUser", JSON.stringify({
+      uid,
+      loginId: parsed.loginId || user.loginId || "",
+      sessionId: localSessionId || serverSessionId || "",
+      role,
+      approvalStatus: user.approvalStatus,
+      phoneVerified: user.phoneVerified,
+      accountStatus: user.accountStatus || "active"
+    }));
+
+    console.log("세션 검증 완료");
+    return true;
+
+  } catch (err) {
+    console.error("세션 검증 오류:", err);
+
+    if (typeof writeSecurityLog === "function") {
+      await writeSecurityLog("SESSION_CHECK_ERROR", {
+        message: err.message || String(err)
+      });
+    }
+
+    localStorage.removeItem("loginUser");
+    location.replace("/");
+    return false;
+  }
+}
