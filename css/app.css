@@ -21737,3 +21737,94 @@ body.gnb-manage-scroll-lock{
     z-index:10 !important;
   }
 }
+
+/* ===== v20260518 Benefit ribbon v12: stable split for PC/Mobile + Card/List ===== */
+/* 날짜 배지 때문에 할인율 배지를 별도로 밀지 않음 */
+#cardList .benefit-badge-stack.has-date-badge .badge,
+#favoriteList .benefit-badge-stack.has-date-badge .badge,
+#cardList.view-list .benefit-badge-stack.has-date-badge .badge,
+#favoriteList.view-list .benefit-badge-stack.has-date-badge .badge{
+  margin-top:0 !important;
+}
+
+#cardList .benefit-badge-stack,
+#favoriteList .benefit-badge-stack{
+  position:relative !important;
+  overflow:visible !important;
+}
+
+/* PC 카드형 */
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-12px !important;
+  padding:3px 7px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  z-index:12 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+
+/* PC 리스트형 */
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  left:-28px !important;
+  top:-4px !important;
+  padding:3px 7px !important;
+  font-size:8.5px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  z-index:12 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+
+@media(max-width:520px){
+  /* 모바일 카드형: 할인율 위에만 걸치고 제목 영역 침범 방지 */
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+    left:-28px !important;
+    top:-8px !important;
+    padding:3px 6px !important;
+    font-size:7px !important;
+    line-height:1 !important;
+    transform:rotate(-28deg) !important;
+    transform-origin:left center !important;
+    z-index:12 !important;
+    max-width:64px !important;
+    white-space:nowrap !important;
+  }
+
+  /* 모바일 리스트형: 더 왼쪽으로 분리해서 제목 글자와 겹치지 않게 처리 */
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    left:-34px !important;
+    top:-2px !important;
+    padding:3px 6px !important;
+    font-size:7px !important;
+    line-height:1 !important;
+    transform:rotate(-30deg) !important;
+    transform-origin:left center !important;
+    z-index:12 !important;
+    max-width:64px !important;
+    white-space:nowrap !important;
+  }
+}
+
+@media(max-width:380px){
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    left:-36px !important;
+    top:-2px !important;
+    font-size:6.5px !important;
+    padding:3px 5px !important;
+  }
+}
