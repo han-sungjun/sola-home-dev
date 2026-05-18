@@ -3852,12 +3852,21 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
  return `<div class="benefit-end-badge ${status.className} benefit-date-scope-${safeScope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
  }
+ function formatBenefitEndDateLabel(value){
+ const date=parseBenefitLocalDate(value);
+ if(!date) return String(value||'').trim();
+ return `${date.getFullYear()}년 ${date.getMonth()+1}월 ${date.getDate()}일`;
+ }
  function benefitEndStatusChipHtml(item={}, options={}){
  const status=getBenefitEndDateStatus(item);
  if(!status || status.key==='ended') return '';
  const compact=!!options.compact;
  if(compact) return '';
- return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(status.endDate)} 기준" aria-label="${escapeHtml(status.label)}">${escapeHtml(status.label)}</span></div>`;
+ const endDateLabel=formatBenefitEndDateLabel(status.endDate);
+ const chipLabel=status.key==='today'
+ ? `${status.label} · ${endDateLabel}`
+ : `${status.label} · 종료일 ${endDateLabel}`;
+ return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(endDateLabel)} 기준" aria-label="${escapeHtml(chipLabel)}">${escapeHtml(chipLabel)}</span></div>`;
  }
  function isStaleBenefitEndReason(text=''){
  const raw=String(text||'').trim();
