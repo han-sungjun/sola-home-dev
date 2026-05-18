@@ -22620,3 +22620,59 @@ body.gnb-manage-scroll-lock{
     display:none !important;
   }
 }
+
+/* ===== v20260518 Benefit ribbon v26: use same shine animation as 전체 기능 HOT badge ===== */
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card,
+#detailModal .benefit-date-status-chip{
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:auto !important;
+}
+
+/* 이전 강한 광택 레이어는 제거하고, 전체 기능 HOT 배지와 같은 after 광택만 사용 */
+#cardList .benefit-end-badge.benefit-date-scope-card::before,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::before,
+#detailModal .benefit-date-status-chip::before{
+  content:none !important;
+  display:none !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+#detailModal .benefit-date-status-chip::after{
+  content:"" !important;
+  position:absolute !important;
+  top:-35% !important;
+  left:-55% !important;
+  width:30% !important;
+  height:160% !important;
+  opacity:.55 !important;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0)) !important;
+  transform:rotate(24deg) !important;
+  animation:badgeShineSoft 3.8s ease-in-out infinite !important;
+  pointer-events:none !important;
+  z-index:1 !important;
+  mix-blend-mode:normal !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card.urgent::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card.urgent::after,
+#detailModal .benefit-date-status-chip.status-benefit-date-urgent::after{
+  animation-delay:.15s !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card.today::after,
+#favoriteList .benefit-end-badge.benefit-date-scope-card.today::after,
+#detailModal .benefit-date-status-chip.status-benefit-date-today::after{
+  animation-delay:.3s !important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #cardList .benefit-end-badge.benefit-date-scope-card::after,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card::after,
+  #detailModal .benefit-date-status-chip::after{
+    animation:none !important;
+    display:none !important;
+  }
+}
