@@ -3921,12 +3921,25 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
  return `<div class="benefit-end-badge ${status.className} benefit-date-scope-${safeScope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
  }
+ function formatBenefitEndDateLabel(value){
+ const raw=String(value||'').trim();
+ if(!raw) return '';
+ const match=raw.match(/^(\d{4})[-.\/](\d{1,2})[-.\/](\d{1,2})/);
+ if(!match) return raw;
+ const y=match[1];
+ const m=String(Number(match[2])).padStart(2,'0');
+ const d=String(Number(match[3])).padStart(2,'0');
+ return `${y}.${m}.${d}`;
+ }
  function benefitEndStatusChipHtml(item={}, options={}){
  const status=getBenefitEndDateStatus(item);
  if(!status || status.key==='ended') return '';
  const compact=!!options.compact;
  if(compact) return '';
- return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(status.endDate)} 기준" aria-label="${escapeHtml(status.label)}">${escapeHtml(status.label)}</span></div>`;
+ const endDateLabel=formatBenefitEndDateLabel(status.endDate);
+ const chipLabel=endDateLabel?`${status.label} · 종료일 ${endDateLabel}`:status.label;
+ const chipTitle=endDateLabel?`${status.label} · ${endDateLabel} 기준`:`${status.label}`;
+ return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(chipTitle)}" aria-label="${escapeHtml(chipLabel)}">${escapeHtml(chipLabel)}</span></div>`;
  }
  function isStaleBenefitEndReason(text=''){
  const raw=String(text||'').trim();

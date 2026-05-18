@@ -22785,3 +22785,11 @@ dialog[open] button,
 .modal-alert button {
   pointer-events: auto !important;
 }
+
+/* ===== v22: benefit detail end-date text in urgent badge ===== */
+#detailModal .benefit-date-status-chip{
+  max-width:100%;
+  white-space:normal;
+  line-height:1.35;
+  text-align:left;
+}
