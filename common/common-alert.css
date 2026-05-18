@@ -129,3 +129,31 @@ body.upick-alert-open .app-alert-card{touch-action:auto!important;}
   .app-alert-actions.is-confirm .app-alert-confirm{grid-column:2!important;}
   .app-alert-cancel,.app-alert-confirm{width:100%!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}
 }
+
+
+/* ===== Patch: alert/modal must stay clickable above global loading ===== */
+#appAlert,
+#appAlert[open],
+dialog#appAlert,
+.app-alert,
+.modal-alert,
+.common-alert,
+.alert-backdrop,
+.common-alert-backdrop,
+dialog[open] {
+  z-index: 2147483600 !important;
+  pointer-events: auto !important;
+}
+
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  z-index: 2147483000 !important;
+}
+
+body:has(dialog[open]) #globalLoadingBar,
+body:has(dialog[open]) .global-loading,
+body:has(.common-alert.show) #globalLoadingBar,
+body:has(.common-alert.show) .global-loading {
+  pointer-events: none !important;
+}

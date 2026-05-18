@@ -6,14 +6,6 @@
     "firebase-admin": "^12.7.0"
   },
   "scripts": {
-    "build": "node build-obfuscate.js",
-    "build:env": "node common/replace-env.js",
-    "deploy": "npm run build && vercel --prod"
-  },
-  "devDependencies": {
-    "clean-css": "^5.3.3",
-    "html-minifier-terser": "^7.2.0",
-    "javascript-obfuscator": "^4.1.1",
-    "terser": "^5.31.6"
+    "build": "node common/replace-env.js"
   }
 }

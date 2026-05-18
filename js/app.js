@@ -2164,8 +2164,8 @@ function updatePasswordChangeMatchMessage(){
     msg.textContent = '';
     return;
   }
-  if(pw.length > 0 && pw.length < 6){
-    msg.textContent = '새 비밀번호는 6자 이상 입력해주세요.';
+  if(pw.length > 0 && pw.length < 8){
+    msg.textContent = '새 비밀번호는 8자 이상 입력해주세요.';
     msg.classList.add('error');
     return;
   }
@@ -2209,8 +2209,8 @@ async function submitPasswordChange(event){
     await openModalAlert('기존 비밀번호를 입력해주세요.', qs('#currentPasswordInput'));
     return;
   }
-  if(!newPassword || newPassword.length < 6){
-    await openModalAlert('새 비밀번호는 6자 이상 입력해주세요.', qs('#newPasswordInput'));
+  if(!newPassword || newPassword.length < 8){
+    await openModalAlert('새 비밀번호는 8자 이상 입력해주세요.', qs('#newPasswordInput'));
     return;
   }
   if(newPassword !== newPasswordConfirm){
@@ -5928,7 +5928,7 @@ ${item.content || ''}`);
  wrap.classList.add('view-list');
  wrap.classList.remove('view-card');
  }
- if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
+ if(!items.length){wrap.innerHTML='<div class="panel empty">현재 조건에 맞는 혜택을 찾지 못했어요.</div>';return;}
  items.forEach(item=>{
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
@@ -12111,4 +12111,53 @@ document.addEventListener('keydown', (event) => {
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, {once:true});
   else bindObserver();
+})();
+
+
+/* ===== Patch: keep alert buttons clickable when loading overlay is active ===== */
+(function(){
+  function disableLoadingPointerWhenDialogOpen(){
+    var hasDialog = !!document.querySelector('dialog[open], .common-alert.show, .app-alert.show, #appAlert[open]');
+    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(el){
+      if(hasDialog){
+        el.style.pointerEvents = 'none';
+      } else {
+        el.style.pointerEvents = '';
+      }
+    });
+  }
+  var mo = new MutationObserver(disableLoadingPointerWhenDialogOpen);
+  mo.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['open','class','style'] });
+  document.addEventListener('click', disableLoadingPointerWhenDialogOpen, true);
+  document.addEventListener('DOMContentLoaded', disableLoadingPointerWhenDialogOpen);
+  window.addEventListener('load', disableLoadingPointerWhenDialogOpen);
+})();
+
+
+/* ===== Patch: prepare distance-based benefit display on first entry ===== */
+(function(){
+  function hasDistanceSortButton(){
+    return !!document.querySelector('[data-sort-value="distance"], [data-sort="distance"], #sortDistance, .distance-filter-panel');
+  }
+  function triggerDistanceReady(){
+    if(!hasDistanceSortButton()) return;
+    try {
+      if (typeof window.refreshCurrentPosition === 'function') window.refreshCurrentPosition();
+      if (typeof window.updateUserLocation === 'function') window.updateUserLocation();
+      if (typeof window.requestUserLocation === 'function') window.requestUserLocation({ silent:true, initial:true });
+      if (typeof window.ensureUserLocation === 'function') window.ensureUserLocation({ silent:true, initial:true });
+      if (typeof window.calculateBenefitDistances === 'function') window.calculateBenefitDistances();
+      if (typeof window.updateBenefitDistances === 'function') window.updateBenefitDistances();
+      if (typeof window.renderBenefits === 'function') window.renderBenefits();
+      if (typeof window.renderBenefitList === 'function') window.renderBenefitList();
+    } catch(e) {}
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(triggerDistanceReady, 300);
+    setTimeout(triggerDistanceReady, 1200);
+    setTimeout(triggerDistanceReady, 2500);
+  });
+  window.addEventListener('load', function(){
+    setTimeout(triggerDistanceReady, 500);
+  });
 })();
