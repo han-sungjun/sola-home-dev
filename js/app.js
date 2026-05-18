@@ -12201,3 +12201,21 @@ document.addEventListener('keydown', (event) => {
   else releaseLoadingPointer();
   window.addEventListener('load', releaseLoadingPointer, { once:true });
 })();
+
+
+/* ===== Fix v4: session alert unlock hook ===== */
+(function(){
+  function run(){
+    if(typeof window.__upickUnlockForAlertClick === 'function'){
+      window.__upickUnlockForAlertClick();
+    }
+  }
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')) run();
+  }, true);
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('load', run);
+  setTimeout(run, 100);
+  setTimeout(run, 500);
+  setTimeout(run, 1200);
+})();

@@ -22730,3 +22730,58 @@ dialog[open],
   pointer-events: auto !important;
   z-index: 2147483600 !important;
 }
+
+
+/* ===== Fix v4: 알럿 표시 중 body/html 잠금이 확인 버튼을 막지 않도록 해제 ===== */
+html:has(dialog[open]),
+body:has(dialog[open]),
+html:has(#appAlert[open]),
+body:has(#appAlert[open]),
+html:has(.common-alert.show),
+body:has(.common-alert.show),
+html:has(.app-alert.show),
+body:has(.app-alert.show),
+html:has(.modal-alert.show),
+body:has(.modal-alert.show) {
+  overflow: auto !important;
+  overscroll-behavior: auto !important;
+  touch-action: auto !important;
+  pointer-events: auto !important;
+}
+
+html:has(dialog[open]) #globalLoadingBar,
+body:has(dialog[open]) #globalLoadingBar,
+html:has(#appAlert[open]) #globalLoadingBar,
+body:has(#appAlert[open]) #globalLoadingBar,
+html:has(.common-alert.show) #globalLoadingBar,
+body:has(.common-alert.show) #globalLoadingBar,
+html:has(.app-alert.show) #globalLoadingBar,
+body:has(.app-alert.show) #globalLoadingBar,
+html:has(.modal-alert.show) #globalLoadingBar,
+body:has(.modal-alert.show) #globalLoadingBar,
+html:has(dialog[open]) .global-loading,
+body:has(dialog[open]) .global-loading,
+html:has(.common-alert.show) .global-loading,
+body:has(.common-alert.show) .global-loading {
+  display: none !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+dialog[open],
+#appAlert[open],
+#appAlert.show,
+.common-alert.show,
+.app-alert.show,
+.modal-alert.show {
+  pointer-events: auto !important;
+  z-index: 2147483600 !important;
+}
+
+dialog[open] button,
+#appAlert button,
+.common-alert button,
+.app-alert button,
+.modal-alert button {
+  pointer-events: auto !important;
+}
