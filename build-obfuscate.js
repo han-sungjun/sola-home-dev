@@ -3,6 +3,8 @@
  * - 원본 파일은 유지합니다.
  * - dist/ 폴더에만 HTML/CSS/JS 압축 및 JS 난독화를 적용합니다.
  * - env-config, firebase-config, service worker, ES module export 파일은 안정성을 위해 강한 난독화를 피합니다.
+ * - 운영 배포본에서는 console.log/info/debug/trace/table/time/group/count와 debugger를 제거합니다.
+ * - console.warn/error는 운영 장애 확인을 위해 유지합니다.
  */
 const fs = require('fs');
 const path = require('path');
@@ -59,11 +61,53 @@ function copyFile(src, dest) {
   fs.copyFileSync(src, dest);
 }
 
-function isCopyOnly(relativePath) {
+function isCopyOnlyFile(relativePath) {
+  return COPY_ONLY_FILES.has(toPosix(relativePath));
+}
+
+function isCopyOnlyPrefix(relativePath) {
   const posix = toPosix(relativePath);
-  if (COPY_ONLY_FILES.has(posix)) return true;
-  if (COPY_ONLY_PREFIXES.some((prefix) => posix.startsWith(prefix))) return true;
-  return false;
+  return COPY_ONLY_PREFIXES.some((prefix) => posix.startsWith(prefix));
+}
+
+function isCopyOnly(relativePath) {
+  return isCopyOnlyFile(relativePath) || isCopyOnlyPrefix(relativePath);
+}
+
+
+function getProductionTerserOptions(moduleFile, { mangle = true } = {}) {
+  return {
+    module: moduleFile,
+    compress: {
+      passes: 1,
+      drop_console: false,
+      drop_debugger: true,
+      pure_funcs: [
+        'console.log',
+        'console.info',
+        'console.debug',
+        'console.trace',
+        'console.table',
+        'console.group',
+        'console.groupCollapsed',
+        'console.groupEnd',
+        'console.time',
+        'console.timeEnd',
+        'console.count',
+        'console.countReset'
+      ]
+    },
+    mangle,
+    format: {
+      comments: false
+    }
+  };
+}
+
+async function minifyJsForProduction(code, relativePath, { mangle = true } = {}) {
+  const moduleFile = isLikelyModule(code, relativePath);
+  const minified = await minifyJs(code, getProductionTerserOptions(moduleFile, { mangle }));
+  return { code: minified.code || code, moduleFile };
 }
 
 function isLikelyModule(code, relativePath) {
@@ -73,27 +117,25 @@ function isLikelyModule(code, relativePath) {
 }
 
 async function processJs(src, dest, relativePath) {
-  if (isCopyOnly(relativePath)) {
+  const code = read(src);
+
+  // Vercel 서버리스 함수는 사용자 브라우저에 내려가는 정적 JS가 아니므로 원본 그대로 둡니다.
+  if (isCopyOnlyPrefix(relativePath)) {
     copyFile(src, dest);
     return 'copy-only-js';
   }
 
-  const code = read(src);
-  const moduleFile = isLikelyModule(code, relativePath);
+  // 서비스워커/환경설정 파일은 난독화하지 않고 안전 압축만 적용합니다.
+  // 운영 배포본에서는 정보성 console과 debugger를 제거하되, console.warn/error는 유지합니다.
+  if (isCopyOnlyFile(relativePath)) {
+    const safeMinified = await minifyJsForProduction(code, relativePath, { mangle: false });
+    write(dest, safeMinified.code);
+    return 'safe-minified-js';
+  }
 
-  const minified = await minifyJs(code, {
-    module: moduleFile,
-    compress: {
-      passes: 1,
-      drop_console: false
-    },
-    mangle: moduleFile ? false : true,
-    format: {
-      comments: false
-    }
+  const { code: minifiedCode, moduleFile } = await minifyJsForProduction(code, relativePath, {
+    mangle: !isLikelyModule(code, relativePath)
   });
-
-  const minifiedCode = minified.code || code;
 
   // ES module은 export/import 이름 보존이 중요해서 minify까지만 적용합니다.
   // classic script만 강한 난독화를 적용합니다.
@@ -244,6 +286,7 @@ async function main() {
     fallback: 0,
     'obfuscated-js': 0,
     'minified-module-js': 0,
+    'safe-minified-js': 0,
     'copy-only-js': 0,
     'minified-css': 0,
     'minified-html': 0
