@@ -22253,3 +22253,101 @@ body.gnb-manage-scroll-lock{
     transform:translate(-22%, -52%) rotate(-28deg) !important;
   }
 }
+
+
+/* ===== v20260518 Benefit date ribbon v17: 할인율 바로 위 앵커 최종 보정 ===== */
+#cardList .benefit-badge-stack,
+#favoriteList .benefit-badge-stack,
+#cardList .benefit-badge-stack.has-date-badge,
+#favoriteList .benefit-badge-stack.has-date-badge{
+  position:relative !important;
+  display:inline-block !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+}
+
+#cardList .benefit-badge-stack .badge,
+#favoriteList .benefit-badge-stack .badge{
+  margin:0 !important;
+}
+
+#cardList .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.benefit-date-scope-card{
+  position:absolute !important;
+  left:0 !important;
+  top:0 !important;
+  z-index:30 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:max-content !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:3px 7px !important;
+  border:0 !important;
+  border-radius:999px !important;
+  color:#fff !important;
+  font-size:8.5px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  letter-spacing:-.06em !important;
+  white-space:nowrap !important;
+  word-break:keep-all !important;
+  writing-mode:horizontal-tb !important;
+  pointer-events:none !important;
+  box-sizing:border-box !important;
+  box-shadow:0 7px 14px rgba(249,115,22,.22) !important;
+  transform-origin:left center !important;
+  transform:translate(-4%, -42%) rotate(-18deg) !important;
+}
+
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+  transform:translate(-4%, -42%) rotate(-18deg) !important;
+}
+
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  transform:translate(-4%, -42%) rotate(-18deg) !important;
+}
+
+@media(max-width:520px){
+  #cardList .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card{
+    padding:3px 6px !important;
+    font-size:7.8px !important;
+    transform:translate(-2%, -40%) rotate(-18deg) !important;
+  }
+
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    transform:translate(-2%, -40%) rotate(-18deg) !important;
+  }
+}
+
+@media(max-width:380px){
+  #cardList .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card{
+    padding:3px 5px !important;
+    font-size:7.2px !important;
+    transform:translate(-1%, -38%) rotate(-18deg) !important;
+  }
+
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    transform:translate(-1%, -38%) rotate(-18deg) !important;
+  }
+}
