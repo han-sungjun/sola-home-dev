@@ -22082,3 +22082,31 @@ body.gnb-manage-scroll-lock{
     font-size:7px !important;
   }
 }
+
+/* ===== v20260518 Benefit date ribbon v15: 리본 세로 위치 하향 보정 ===== */
+/* 할인율 정렬은 그대로 두고, 날짜 리본만 너무 위로 뜨지 않도록 아래로 보정 */
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+  top:clamp(0px, .35vw, 4px) !important;
+}
+
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  top:clamp(1px, .45vw, 5px) !important;
+}
+
+@media(max-width:520px){
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+    top:2px !important;
+  }
+
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    top:3px !important;
+  }
+}
