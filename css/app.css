@@ -21632,3 +21632,46 @@ body.gnb-manage-scroll-lock{
     transform:rotate(-30deg) !important;
   }
 }
+
+/* ===== v20260518 Benefit ribbon v10: mobile layout fix ===== */
+@media(max-width:520px){
+  /* 모바일 카드형: PC용 과한 좌측 돌출/기울기 완화 */
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+    left:-10px !important;
+    top:-10px !important;
+    padding:3px 6px !important;
+    font-size:8px !important;
+    line-height:1 !important;
+    transform:rotate(-18deg) !important;
+    transform-origin:left center !important;
+    z-index:8 !important;
+  }
+
+  /* 모바일 리스트형: 카드형과 분리하여 더 안쪽으로 배치 */
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    left:-9px !important;
+    top:-6px !important;
+    padding:3px 6px !important;
+    font-size:7.5px !important;
+    line-height:1 !important;
+    transform:rotate(-18deg) !important;
+    transform-origin:left center !important;
+    z-index:8 !important;
+  }
+
+  #cardList.view-card .benefit-badge-stack,
+  #cardList:not(.view-list) .benefit-badge-stack,
+  #favoriteList.view-card .benefit-badge-stack,
+  #favoriteList:not(.view-list) .benefit-badge-stack{
+    overflow:visible !important;
+  }
+
+  #cardList.view-list .benefit-badge-stack,
+  #favoriteList.view-list .benefit-badge-stack{
+    overflow:visible !important;
+  }
+}
