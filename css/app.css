@@ -21675,3 +21675,65 @@ body.gnb-manage-scroll-lock{
     overflow:visible !important;
   }
 }
+
+/* ===== v20260518 Benefit ribbon v11: PC/Mobile + Card/List final split ===== */
+#cardList .benefit-badge-stack.has-date-badge .badge,
+#favoriteList .benefit-badge-stack.has-date-badge .badge,
+#cardList.view-list .benefit-badge-stack.has-date-badge .badge,
+#favoriteList.view-list .benefit-badge-stack.has-date-badge .badge{
+  margin-top:0 !important;
+}
+
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-12px !important;
+  padding:3px 7px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  z-index:10 !important;
+}
+
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+  left:-24px !important;
+  top:-4px !important;
+  padding:3px 7px !important;
+  font-size:8.5px !important;
+  line-height:1 !important;
+  transform:rotate(-30deg) !important;
+  transform-origin:left center !important;
+  z-index:10 !important;
+}
+
+@media(max-width:520px){
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card{
+    left:-18px !important;
+    top:-10px !important;
+    padding:3px 6px !important;
+    font-size:7.5px !important;
+    line-height:1 !important;
+    transform:rotate(-26deg) !important;
+    transform-origin:left center !important;
+    z-index:10 !important;
+  }
+
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card{
+    left:-24px !important;
+    top:-4px !important;
+    padding:3px 6px !important;
+    font-size:7.5px !important;
+    line-height:1 !important;
+    transform:rotate(-30deg) !important;
+    transform-origin:left center !important;
+    z-index:10 !important;
+  }
+}
