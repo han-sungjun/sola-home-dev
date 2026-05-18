@@ -22489,3 +22489,38 @@ body.gnb-manage-scroll-lock{
     transform: translate(-11%, 180%) rotate(-30deg) !important;
   }
 }
+
+/* ===== v21: benefit detail date status integration ===== */
+#detailModal .benefit-detail-main > .benefit-end-badge.detail{
+  display:none !important;
+}
+#detailModal .benefit-status-group{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+  margin-top:8px;
+}
+#detailModal .benefit-date-status-row{
+  margin-top:0 !important;
+}
+#detailModal .benefit-date-status-chip{
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+#detailModal .benefit-date-status-chip.status-benefit-date-soon{
+  background:#fff7ed;
+  border-color:#fed7aa;
+  color:#c2410c;
+}
+#detailModal .benefit-date-status-chip.status-benefit-date-urgent{
+  background:#fef2f2;
+  border-color:#fecaca;
+  color:#b91c1c;
+}
+#detailModal .benefit-date-status-chip.status-benefit-date-today{
+  background:#7f1d1d;
+  border-color:#7f1d1d;
+  color:#fff;
+  box-shadow:0 8px 18px rgba(127,29,29,.16);
+}

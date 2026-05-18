@@ -3852,10 +3852,22 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
  return `<div class="benefit-end-badge ${status.className} benefit-date-scope-${safeScope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
  }
+ function benefitEndStatusChipHtml(item={}, options={}){
+ const status=getBenefitEndDateStatus(item);
+ if(!status || status.key==='ended') return '';
+ const compact=!!options.compact;
+ if(compact) return '';
+ return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(status.endDate)} 기준" aria-label="${escapeHtml(status.label)}">${escapeHtml(status.label)}</span></div>`;
+ }
+ function isStaleBenefitEndReason(text=''){
+ const raw=String(text||'').trim();
+ if(!raw) return false;
+ return /혜택\s*(기간\s*)?종료|종료일\s*경과|기간\s*만료|혜택\s*만료/.test(raw);
+ }
  function isPubliclyVisibleBenefit(item={}){return item.visible!==false && normalizeBenefitStoreStatus(item)!=='hidden' && isBenefitDateActive(item);}
  function isRecommendableBenefit(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);return isPubliclyVisibleBenefit(item) && ['active','reopened'].includes(store) && ['active','resumed'].includes(benefit);}
- function benefitStatusChipsHtml(item={}, options={}){const compact=!!options.compact;const storeKey=normalizeBenefitStoreStatus(item);const benefitKey=normalizeResidentBenefitStatus(item);const store=STORE_STATUS_META[storeKey]||STORE_STATUS_META.active;const benefit=BENEFIT_STATUS_META[benefitKey]||BENEFIT_STATUS_META.active;const storeText=compact?'':store.label;const benefitText=compact?'':benefit.label;const storeTitle=escapeHtml(store.label);const benefitTitle=escapeHtml(benefit.label);return `<div class="benefit-status-row"><span class="status-chip ${store.cls}${compact?` compact-status compact-store-${storeKey}`:''}" title="${storeTitle}" aria-label="${storeTitle}">${storeText}</span><span class="status-chip ${benefit.cls}${compact?` compact-status compact-benefit-${benefitKey}`:''}" title="${benefitTitle}" aria-label="${benefitTitle}">${benefitText}</span></div>`;}
- function benefitStatusReasonHtml(item={}){const lines=[];const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(item.storeStatusReason)lines.push(item.storeStatusReason);if(benefit==='ended'&&item.benefitEndedAt)lines.push(`${item.benefitEndedAt} 혜택 종료`);if(item.benefitStatusReason)lines.push(item.benefitStatusReason);return lines.length?`<div class="status-reason-line">${escapeHtml(lines.join(' · '))}</div>`:'';}
+ function benefitStatusChipsHtml(item={}, options={}){const compact=!!options.compact;const includeDate=!!options.includeDate;const storeKey=normalizeBenefitStoreStatus(item);const benefitKey=normalizeResidentBenefitStatus(item);const store=STORE_STATUS_META[storeKey]||STORE_STATUS_META.active;const benefit=BENEFIT_STATUS_META[benefitKey]||BENEFIT_STATUS_META.active;const storeText=compact?'':store.label;const benefitText=compact?'':benefit.label;const storeTitle=escapeHtml(store.label);const benefitTitle=escapeHtml(benefit.label);const dateChip=includeDate?benefitEndStatusChipHtml(item,{compact}):'';return `<div class="benefit-status-group"><div class="benefit-status-row"><span class="status-chip ${store.cls}${compact?` compact-status compact-store-${storeKey}`:''}" title="${storeTitle}" aria-label="${storeTitle}">${storeText}</span><span class="status-chip ${benefit.cls}${compact?` compact-status compact-benefit-${benefitKey}`:''}" title="${benefitTitle}" aria-label="${benefitTitle}">${benefitText}</span></div>${dateChip}</div>`;}
+ function benefitStatusReasonHtml(item={}){const lines=[];const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(item.storeStatusReason)lines.push(item.storeStatusReason);if(benefit==='ended'&&item.benefitEndedAt)lines.push(`${item.benefitEndedAt} 혜택 종료`);const reason=String(item.benefitStatusReason||'').trim();if(reason && (benefit==='ended' || !isStaleBenefitEndReason(reason)))lines.push(reason);return lines.length?`<div class="status-reason-line">${escapeHtml(lines.join(' · '))}</div>`:'';}
  function benefitCardStatusClass(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(store==='shutdown')return 'status-shutdown status-muted';if(['paused','closed'].includes(store)||['ended','none'].includes(benefit))return 'status-muted';return '';}
 
  function sanitizeBenefit(item={},id=''){
@@ -6647,7 +6659,7 @@ function renderCalendarDayModal(){
  const photoHtml = imageUrl
  ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
  : '';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main">${benefitEndBadgeHtml(item,'detail')}<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
  }
 
  function openDetail(item, options = {}){
