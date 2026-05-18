@@ -421,3 +421,26 @@ dialog[open],
   z-index: 2147483600 !important;
   pointer-events: auto !important;
 }
+
+
+/* ===== Fix v3: 로딩바와 알럿 동시 노출 시 확인 버튼 클릭 보장 ===== */
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  pointer-events: none !important;
+  z-index: 2147483000 !important;
+}
+
+dialog[open],
+#appAlert,
+#appAlert[open],
+.common-alert,
+.common-alert.show,
+.app-alert,
+.app-alert.show,
+.modal-alert,
+.alert-backdrop,
+.common-alert-backdrop {
+  pointer-events: auto !important;
+  z-index: 2147483600 !important;
+}

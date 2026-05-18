@@ -1265,9 +1265,24 @@ showForegroundPushToast({
    globalLoadingBar.classList.add('show');
    globalLoadingBar.setAttribute('aria-hidden', 'false');
  }
+ // 로딩바와 알럿이 동시에 떠도 확인 버튼 클릭을 막지 않도록 로딩바는 클릭을 받지 않습니다.
+ globalLoadingBar.style.pointerEvents = 'none';
  }
 
- function hideGlobalLoading(delay=160){
+ 
+function keepModalAlertAboveLoading(){
+ const loader = qs('#globalLoadingBar') || document.getElementById('globalLoadingBar');
+ if(loader){
+   loader.style.pointerEvents = 'none';
+   loader.style.zIndex = '2147483000';
+ }
+ qsa('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert, .alert-backdrop, .common-alert-backdrop').forEach((el) => {
+   el.style.zIndex = '2147483600';
+   el.style.pointerEvents = 'auto';
+ });
+}
+
+function hideGlobalLoading(delay=160){
  if(!globalLoadingBar) return;
  clearTimeout(globalLoadingTimer);
  globalLoadingTimer = setTimeout(() => {
@@ -3213,46 +3228,56 @@ function formatTravelDuration(minutes){
 
 
 /* ===== Fix: 혜택 최초 진입 시에도 거리 태그 준비 ===== */
+
 function prepareInitialBenefitDistances(){
+  // 최초 혜택 진입에서도 거리 태그가 보이도록 기본 상태에서도 한 번만 거리 계산을 수행합니다.
+  if(prepareInitialBenefitDistances._running || prepareInitialBenefitDistances._done) return Promise.resolve(false);
   if(!navigator.geolocation) return Promise.resolve(false);
+
+  const repaintBenefitLists = () => {
+    try {
+      recalculateBenefitDistances();
+      renderList('#cardList', getFilteredBenefits());
+      renderList('#favoriteList', getVisibleBenefits().filter((item) => state.favoriteIds.includes(item.id)));
+      updateDistanceFilterHelp();
+    } catch(_) {}
+  };
+
   if(hasFreshUserLocation()){
-    recalculateBenefitDistances();
-    if(typeof renderCards === 'function'){
-      try {
-        renderCards('#cardList', getFilteredBenefits());
-        renderCards('#favoriteList', getVisibleBenefits().filter((item) => state.favoriteIds.includes(item.id)));
-      } catch(_) {}
-    }
+    state.distanceStatus = 'ready';
+    repaintBenefitLists();
+    prepareInitialBenefitDistances._done = true;
     return Promise.resolve(true);
   }
+
+  prepareInitialBenefitDistances._running = true;
   state.distanceStatus = 'loading';
   updateDistanceFilterHelp();
+
   return getReliableCurrentPosition()
     .then(() => {
       state.distanceStatus = 'ready';
-      updateDistanceFilterHelp();
-      if(typeof renderCards === 'function'){
-        try {
-          renderCards('#cardList', getFilteredBenefits());
-          renderCards('#favoriteList', getVisibleBenefits().filter((item) => state.favoriteIds.includes(item.id)));
-        } catch(_) {}
-      }
+      repaintBenefitLists();
+      prepareInitialBenefitDistances._done = true;
       return true;
     })
-    .catch((error) => {
+    .catch(() => {
       state.distanceStatus = 'idle';
       updateDistanceFilterHelp();
       return false;
+    })
+    .finally(() => {
+      prepareInitialBenefitDistances._running = false;
     });
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  setTimeout(prepareInitialBenefitDistances, 700);
-  setTimeout(prepareInitialBenefitDistances, 1800);
+  setTimeout(prepareInitialBenefitDistances, 900);
 });
 window.addEventListener('load', function(){
-  setTimeout(prepareInitialBenefitDistances, 500);
+  setTimeout(prepareInitialBenefitDistances, 700);
 });
+
 
 
  function updateDistanceText(item = {}){
@@ -4052,6 +4077,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  renderAll();
  handleCleanDeepLink();
  markInitialDataLoaded('benefits');
+ setTimeout(prepareInitialBenefitDistances, 300);
  }, () => {
  state.loading = false;
  qs('#homeLoading').textContent = '정보를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';
