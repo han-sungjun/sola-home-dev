@@ -630,8 +630,8 @@ function updatePasswordResetUi() {
   }
 
   const canSubmit =
-    pw.length >= 8 &&
-    confirm.length >= 8 &&
+    pw.length >= 6 &&
+    confirm.length >= 6 &&
     pw === confirm &&
     strength !== 'weak';
 
