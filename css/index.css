@@ -4836,16 +4836,19 @@ body {
 .save-id-check input[type="checkbox"]::after{
   content:"" !important;
   position:absolute !important;
-  left:50% !important;
-  top:50% !important;
-  width:10px !important;
-  height:6px !important;
-  border-left:2.4px solid #f2b633 !important;
-  border-bottom:2.4px solid #f2b633 !important;
-  border-radius:1px !important;
-  transform:translate(-50%,-60%) rotate(-45deg) !important;
-  opacity:.58 !important;
-  transition:opacity .18s ease,transform .18s ease !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='24 30 56 44'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='35' y1='66' x2='68' y2='38' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23b68b42'/%3E%3Cstop offset='1' stop-color='%23d7b36f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M35 54.5 45 66 68 38' fill='none' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:13px 13px !important;
+  opacity:.60 !important;
+  transform:translateY(-.2px) scale(.96) !important;
+  transform-origin:center !important;
+  transition:opacity .18s ease,transform .18s ease,filter .18s ease !important;
 }
 
 .login-premium-hero-shell .save-id-check input[type="checkbox"]:checked,
@@ -4860,7 +4863,8 @@ body {
 .login-support-row .save-id-check input[type="checkbox"]:checked::after,
 .save-id-check input[type="checkbox"]:checked::after{
   opacity:1 !important;
-  transform:translate(-50%,-60%) rotate(-45deg) scale(1.04) !important;
+  transform:translateY(-.2px) scale(1.04) !important;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.12)) !important;
 }
 
 .login-premium-hero-shell .save-id-check:hover input[type="checkbox"],
