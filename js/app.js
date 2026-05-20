@@ -3397,33 +3397,40 @@ window.addEventListener('load', function(){
 
  
 function normalizeSupportProgramsForDetail(item = {}){
+ return normalizeSupportProgramItemsForDetail(item).map(row => row.name).filter(Boolean);
+}
+function normalizeSupportProgramItemsForDetail(item = {}){
+ const rows = [];
+ const pushRow = (row = {}) => {
+   const name = String(row.name || row.title || row.label || row.program || row.type || row.supportName || '').trim();
+   const startedAt = String(row.startedAt || row.startDate || row.supportProgramStartedAt || row.supportProgramStartDate || '').trim();
+   const endedAt = String(row.endedAt || row.endDate || row.supportProgramEndedAt || row.supportProgramEndDate || '').trim();
+   if(name) rows.push({ name, startedAt, endedAt });
+ };
+ const rawItems = item.supportProgramItems || item.supportPrograms?.items || item.governmentSupportItems || item.supportProgramRows || [];
+ if(Array.isArray(rawItems)) rawItems.forEach(pushRow);
  const raw = item.supportPrograms ?? item.supportProgram ?? item.governmentSupport ?? item.supportProgramNames ?? item.supportProgramList ?? {};
  let programs = [];
-
- if(Array.isArray(raw)) {
-   programs = raw;
- } else if(raw && typeof raw === 'object') {
+ if(Array.isArray(raw)) programs = raw;
+ else if(raw && typeof raw === 'object') {
    if(Array.isArray(raw.programs)) programs = raw.programs;
-   else if(Array.isArray(raw.items)) programs = raw.items;
+   else if(Array.isArray(raw.items) && !rows.length) programs = raw.items;
    else if(Array.isArray(raw.names)) programs = raw.names;
-   else {
-     programs = Object.entries(raw)
-       .filter(([key, value]) => key !== 'enabled' && value)
-       .map(([key, value]) => typeof value === 'string' ? value : key);
-   }
- } else if(typeof raw === 'string') {
-   programs = raw.split(/[·,，\n]/);
- }
-
- if(!programs.length && typeof item.supportProgramsText === 'string') {
-   programs = item.supportProgramsText.split(/[·,，\n]/);
- }
-
- programs = programs
-   .map(v => String(v || '').trim())
-   .filter(Boolean);
-
- return [...new Set(programs)];
+   else programs = Object.entries(raw).filter(([key, value]) => key !== 'enabled' && value).map(([key, value]) => typeof value === 'string' ? value : key);
+ } else if(typeof raw === 'string') programs = raw.split(/[·,，\n]/);
+ if(!programs.length && typeof item.supportProgramsText === 'string') programs = item.supportProgramsText.split(/[·,，\n]/);
+ const legacyStartedAt = item.supportProgramStartedAt || item.supportProgramStartDate || item.governmentSupportStartedAt || item.governmentSupportStartDate || '';
+ const legacyEndedAt = item.supportProgramEndedAt || item.supportProgramEndDate || item.governmentSupportEndedAt || item.governmentSupportEndDate || '';
+ programs.map(v => String(v || '').trim()).filter(Boolean).forEach(name => {
+   if(!rows.some(row => row.name === name)) rows.push({ name, startedAt:legacyStartedAt, endedAt:legacyEndedAt });
+ });
+ const seen = new Set();
+ return rows.filter(row => {
+   const key = `${row.name}|${row.startedAt}|${row.endedAt}`;
+   if(seen.has(key)) return false;
+   seen.add(key);
+   return true;
+ });
 }
 
 function getSupportProgramIconSvg(name = ''){
@@ -3437,10 +3444,12 @@ function getSupportProgramIconSvg(name = ''){
  }
  return `<span class="support-program-svg-icon card" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 9h18M7 14h4"/></svg></span>`;
 }
-function supportProgramChipHtml(name = ''){
- const label = String(name || '').trim();
+function supportProgramChipHtml(row = ''){
+ const item = typeof row === 'string' ? { name:row } : (row || {});
+ const label = String(item.name || '').trim();
  if(!label) return '';
- return `<span class="support-program-detail-chip" title="${escapeAttr(label)}">${getSupportProgramIconSvg(label)}<span class="support-program-chip-label">${escapeHtml(label)}</span></span>`;
+ const period = supportProgramPeriodText(item);
+ return `<span class="support-program-detail-chip" title="${escapeAttr(label)}">${getSupportProgramIconSvg(label)}<span class="support-program-chip-label">${escapeHtml(label)}</span>${period ? `<em class="support-program-chip-period">${escapeHtml(period)}</em>` : ''}</span>`;
 }
 
 function parseDateOnlyValue(value){
@@ -3462,34 +3471,42 @@ function formatSupportProgramDate(value){
  const d = String(date.getDate()).padStart(2, '0');
  return `${y}.${m}.${d}`;
 }
-function getSupportProgramPeriod(item = {}){
- const startedAt = item.supportProgramStartedAt || item.supportProgramStartDate || item.governmentSupportStartedAt || item.governmentSupportStartDate || '';
- const endedAt = item.supportProgramEndedAt || item.supportProgramEndDate || item.governmentSupportEndedAt || item.governmentSupportEndDate || '';
- return { startedAt, endedAt };
-}
-function isSupportProgramExpired(item = {}){
- const { endedAt } = getSupportProgramPeriod(item);
- const end = parseDateOnlyValue(endedAt);
- if(!end) return false;
+function isSupportProgramRowActive(row = {}){
  const today = new Date();
  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
- return end < todayOnly;
+ const start = parseDateOnlyValue(row.startedAt);
+ const end = parseDateOnlyValue(row.endedAt);
+ if(start && start > todayOnly) return false;
+ if(end && end < todayOnly) return false;
+ return true;
+}
+function isSupportProgramExpired(item = {}){
+ const rows = normalizeSupportProgramItemsForDetail(item);
+ return rows.length > 0 && rows.every(row => {
+   const end = parseDateOnlyValue(row.endedAt);
+   if(!end) return false;
+   const today = new Date();
+   const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+   return end < todayOnly;
+ });
+}
+function supportProgramPeriodText(row = {}){
+ const startText = formatSupportProgramDate(row.startedAt);
+ const endText = formatSupportProgramDate(row.endedAt);
+ if(!startText && !endText) return '';
+ return startText && endText ? `${startText} ~ ${endText}` : (endText ? `${endText}까지` : `${startText}부터`);
 }
 function supportProgramPeriodHtml(item = {}){
- const { startedAt, endedAt } = getSupportProgramPeriod(item);
- const startText = formatSupportProgramDate(startedAt);
- const endText = formatSupportProgramDate(endedAt);
- if(!startText && !endText) return '';
- const periodText = startText && endText ? `${startText} ~ ${endText}` : (endText ? `${endText}까지` : `${startText}부터`);
- return `<p class="support-program-period-note"><strong>유효기간</strong> ${escapeHtml(periodText)}</p>`;
+ const rows = normalizeSupportProgramItemsForDetail(item).filter(isSupportProgramRowActive);
+ const rowsWithPeriod = rows.map(supportProgramPeriodText).filter(Boolean);
+ if(!rowsWithPeriod.length) return '';
+ return `<p class="support-program-period-note"><strong>유효기간</strong> ${escapeHtml([...new Set(rowsWithPeriod)].join(' · '))}</p>`;
 }
 function supportProgramsPanelHtml(item = {}){
- if(isSupportProgramExpired(item)) return '';
- const programs = normalizeSupportProgramsForDetail(item);
- if(!programs.length) return '';
- const names = programs.map(v => supportProgramChipHtml(v)).join('');
- const period = supportProgramPeriodHtml(item);
- return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div>${period}<p class="support-program-detail-note">매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
+ const rows = normalizeSupportProgramItemsForDetail(item).filter(isSupportProgramRowActive);
+ if(!rows.length) return '';
+ const names = rows.map(v => supportProgramChipHtml(v)).join('');
+ return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div><p class="support-program-detail-note">지원금별 유효기간이 다를 수 있습니다. 매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
 }
 function normalizeCouponLinksForDetail(item = {}){
  const raw = item.couponLinks || item.coupons || item.couponList || item.couponUrls || [];
@@ -4035,6 +4052,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
  externalLinks:item.externalLinks||{},
  serviceTags:item.serviceTags||{},
+ supportProgramItems:item.supportProgramItems||item.supportPrograms?.items||item.governmentSupportItems||item.supportProgramRows||[],
  supportPrograms:item.supportPrograms||item.supportProgram||item.governmentSupport||item.supportProgramNames||item.supportProgramList||null,
  supportProgramsText:item.supportProgramsText||'',
  supportProgramStartedAt:item.supportProgramStartedAt||item.supportProgramStartDate||item.governmentSupportStartedAt||item.governmentSupportStartDate||'',
