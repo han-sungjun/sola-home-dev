@@ -22818,3 +22818,47 @@ dialog[open] button,
   text-shadow:0 1px 0 rgba(0,0,0,.12) !important;
   box-shadow:0 7px 14px rgba(8,38,90,.24) !important;
 }
+
+
+/* ===== v20260520 NEW benefit ribbon unified with end-date ribbon =====
+   NEW도 기존 혜택 종료 예정/임박 리본과 동일한 리본 시스템을 사용합니다.
+   - 동일 위치/회전/둥근 리본/광택/그림자
+   - 색상만 더운정픽 브랜드 네이비 + 골드로 분리
+*/
+#cardList .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList .benefit-end-badge.benefit-date-scope-card.new{
+  background:linear-gradient(135deg,#08265a 0%,#0b3f91 58%,#1d4ed8 100%) !important;
+  color:#f2b633 !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.14) !important;
+  box-shadow:0 7px 14px rgba(8,38,90,.24) !important;
+  min-width:34px !important;
+}
+
+/* 기존 종료 리본과 같은 형태를 강제로 공유 */
+#cardList .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList .benefit-end-badge.benefit-date-scope-card.new,
+#cardList.view-card .benefit-end-badge.benefit-date-scope-card.new,
+#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
+#cardList.view-list .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card.new{
+  left:0 !important;
+  top:0 !important;
+  transform:translate(-11%, 180%) rotate(-30deg) !important;
+  transform-origin:left center !important;
+  z-index:40 !important;
+}
+
+@media(max-width:520px){
+  #cardList .benefit-end-badge.benefit-date-scope-card.new,
+  #favoriteList .benefit-end-badge.benefit-date-scope-card.new,
+  #cardList.view-card .benefit-end-badge.benefit-date-scope-card.new,
+  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
+  #cardList.view-list .benefit-end-badge.benefit-date-scope-card.new,
+  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card.new,
+  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
+  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card.new{
+    transform:translate(-11%, 180%) rotate(-30deg) !important;
+  }
+}
