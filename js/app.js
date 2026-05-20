@@ -3443,11 +3443,53 @@ function supportProgramChipHtml(name = ''){
  return `<span class="support-program-detail-chip" title="${escapeAttr(label)}">${getSupportProgramIconSvg(label)}<span class="support-program-chip-label">${escapeHtml(label)}</span></span>`;
 }
 
+function parseDateOnlyValue(value){
+ const text = String(value || '').trim();
+ if(!text) return null;
+ const match = text.match(/^(\d{4})[-.](\d{1,2})[-.](\d{1,2})/);
+ if(!match) return null;
+ const y = Number(match[1]);
+ const m = Number(match[2]);
+ const d = Number(match[3]);
+ if(!y || !m || !d) return null;
+ return new Date(y, m - 1, d);
+}
+function formatSupportProgramDate(value){
+ const date = parseDateOnlyValue(value);
+ if(!date) return '';
+ const y = date.getFullYear();
+ const m = String(date.getMonth() + 1).padStart(2, '0');
+ const d = String(date.getDate()).padStart(2, '0');
+ return `${y}.${m}.${d}`;
+}
+function getSupportProgramPeriod(item = {}){
+ const startedAt = item.supportProgramStartedAt || item.supportProgramStartDate || item.governmentSupportStartedAt || item.governmentSupportStartDate || '';
+ const endedAt = item.supportProgramEndedAt || item.supportProgramEndDate || item.governmentSupportEndedAt || item.governmentSupportEndDate || '';
+ return { startedAt, endedAt };
+}
+function isSupportProgramExpired(item = {}){
+ const { endedAt } = getSupportProgramPeriod(item);
+ const end = parseDateOnlyValue(endedAt);
+ if(!end) return false;
+ const today = new Date();
+ const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+ return end < todayOnly;
+}
+function supportProgramPeriodHtml(item = {}){
+ const { startedAt, endedAt } = getSupportProgramPeriod(item);
+ const startText = formatSupportProgramDate(startedAt);
+ const endText = formatSupportProgramDate(endedAt);
+ if(!startText && !endText) return '';
+ const periodText = startText && endText ? `${startText} ~ ${endText}` : (endText ? `${endText}까지` : `${startText}부터`);
+ return `<p class="support-program-period-note"><strong>유효기간</strong> ${escapeHtml(periodText)}</p>`;
+}
 function supportProgramsPanelHtml(item = {}){
+ if(isSupportProgramExpired(item)) return '';
  const programs = normalizeSupportProgramsForDetail(item);
  if(!programs.length) return '';
  const names = programs.map(v => supportProgramChipHtml(v)).join('');
- return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div><p class="support-program-detail-note">매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
+ const period = supportProgramPeriodHtml(item);
+ return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div>${period}<p class="support-program-detail-note">매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
 }
 function normalizeCouponLinksForDetail(item = {}){
  const raw = item.couponLinks || item.coupons || item.couponList || item.couponUrls || [];
@@ -3995,6 +4037,10 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  serviceTags:item.serviceTags||{},
  supportPrograms:item.supportPrograms||item.supportProgram||item.governmentSupport||item.supportProgramNames||item.supportProgramList||null,
  supportProgramsText:item.supportProgramsText||'',
+ supportProgramStartedAt:item.supportProgramStartedAt||item.supportProgramStartDate||item.governmentSupportStartedAt||item.governmentSupportStartDate||'',
+ supportProgramStartDate:item.supportProgramStartDate||item.supportProgramStartedAt||item.governmentSupportStartedAt||item.governmentSupportStartDate||'',
+ supportProgramEndedAt:item.supportProgramEndedAt||item.supportProgramEndDate||item.governmentSupportEndedAt||item.governmentSupportEndDate||'',
+ supportProgramEndDate:item.supportProgramEndDate||item.supportProgramEndedAt||item.governmentSupportEndedAt||item.governmentSupportEndDate||'',
  couponLinks:item.couponLinks||item.coupons||item.couponList||item.couponUrls||[],
  newsItems:item.newsItems||item.news||item.storeNews||item.noticeLinks||[],
  lat:Number.isFinite(lat)?lat:null,

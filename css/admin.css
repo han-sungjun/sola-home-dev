@@ -6087,3 +6087,29 @@ img.brand-icon[src*="home.svg"],
 .admin-benefit-date-badge.urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
 .admin-benefit-date-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;}
 .admin-benefit-date-badge.ended{background:#f1f5f9;border-color:#cbd5e1;color:#475569;}
+
+/* v20260520 정부지원금 유효기간 입력 */
+.support-program-period-grid{
+  margin-top:10px;
+  gap:10px;
+}
+.support-program-period-grid .sub-field-label{
+  display:block;
+  margin:0 0 6px;
+  font-size:12px;
+  font-weight:800;
+  color:#64748b;
+}
+.support-program-period-help{
+  margin-top:8px;
+}
+.support-program-period-badge{
+  border-color:#bfdbfe !important;
+  background:#eff6ff !important;
+  color:#1d4ed8 !important;
+}
+.support-program-period-badge.expired{
+  border-color:#fecaca !important;
+  background:#fef2f2 !important;
+  color:#b91c1c !important;
+}
