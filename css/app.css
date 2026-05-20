@@ -22934,3 +22934,75 @@ dialog[open] button,
   text-shadow: 0 1px 0 rgba(0,0,0,.12) !important;
   box-shadow: 0 7px 14px rgba(8,38,90,.24) !important;
 }
+
+
+/* ===== v20260520 NEW ribbon final: 기존 종료 리본 구조 유지 + 할인율 박스 위치 고정 ===== */
+#cardList .card-top,
+#favoriteList .card-top{
+  position:relative !important;
+  overflow:visible !important;
+}
+
+#cardList .card-top .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList .card-top .benefit-end-badge.benefit-date-scope-card.new{
+  position:absolute !important;
+  z-index:40 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:max-content !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:4px 8px !important;
+  border:0 !important;
+  border-radius:999px !important;
+  background:linear-gradient(135deg,#08265a,#1d4ed8) !important;
+  color:#f2b633 !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.12) !important;
+  box-shadow:0 7px 14px rgba(8,38,90,.24) !important;
+  font-size:9px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  letter-spacing:-.06em !important;
+  white-space:nowrap !important;
+  word-break:keep-all !important;
+  writing-mode:horizontal-tb !important;
+  transform-origin:left center !important;
+  pointer-events:none !important;
+  box-sizing:border-box !important;
+}
+
+/* 리스트형: 할인율 박스는 그대로 두고, NEW 리본만 할인율 위에 겹쳐 표시 */
+#cardList.view-list .card-top .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList.view-list .card-top .benefit-end-badge.benefit-date-scope-card.new{
+  left:-12px !important;
+  top:9px !important;
+  transform:translate(-11%,0%) rotate(-30deg) !important;
+}
+
+/* 카드형: 카드형 할인율 박스 기준에 맞춰 조금 더 아래로 걸쳐 표시 */
+#cardList.view-card .card-top .benefit-end-badge.benefit-date-scope-card.new,
+#cardList:not(.view-list) .card-top .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList.view-card .card-top .benefit-end-badge.benefit-date-scope-card.new,
+#favoriteList:not(.view-list) .card-top .benefit-end-badge.benefit-date-scope-card.new{
+  left:-12px !important;
+  top:9px !important;
+  transform:translate(-2%,110%) rotate(-30deg) !important;
+}
+
+#cardList .card-top .benefit-end-badge.benefit-date-scope-card.new::after,
+#favoriteList .card-top .benefit-end-badge.benefit-date-scope-card.new::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.32) 45%,transparent 70%);
+  transform:translateX(-140%);
+  animation:benefitRibbonShine 2.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* 종료 리본은 기존 색/위치 우선. NEW만 별도 최종 보정 */
