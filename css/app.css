@@ -22902,7 +22902,7 @@ dialog[open] button,
   white-space: nowrap !important;
   word-break: keep-all !important;
   writing-mode: horizontal-tb !important;
-  transform: rotate(-30deg) !important;
+  transform: translate(-20%,10%) rotate(-30deg)!important;
   transform-origin: left center !important;
   pointer-events: none !important;
   box-sizing: border-box !important;
@@ -22912,7 +22912,7 @@ dialog[open] button,
 #favoriteList.view-list .card-top > .benefit-end-badge.benefit-date-scope-card{
   left: -12px !important;
   top: 9px !important;
-  transform: rotate(-30deg) !important;
+  transform: translate(-2%,110%) rotate(-30deg)!important;
 }
 
 #cardList .card-top > .benefit-end-badge.benefit-date-scope-card.soon,
@@ -22980,7 +22980,6 @@ dialog[open] button,
 #favoriteList.view-list .card-top .benefit-end-badge.benefit-date-scope-card.new{
   left:-12px !important;
   top:9px !important;
-  transform:translate(-11%,0%) rotate(-30deg) !important;
 }
 
 /* 카드형: 카드형 할인율 박스 기준에 맞춰 조금 더 아래로 걸쳐 표시 */
@@ -22990,7 +22989,7 @@ dialog[open] button,
 #favoriteList:not(.view-list) .card-top .benefit-end-badge.benefit-date-scope-card.new{
   left:-12px !important;
   top:9px !important;
-  transform:translate(-2%,110%) rotate(-30deg) !important;
+  transform:translate(-20%,10%) rotate(-30deg) !important;
 }
 
 #cardList .card-top .benefit-end-badge.benefit-date-scope-card.new::after,
