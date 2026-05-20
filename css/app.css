@@ -22820,45 +22820,82 @@ dialog[open] button,
 }
 
 
-/* ===== v20260520 NEW benefit ribbon unified with end-date ribbon =====
-   NEW도 기존 혜택 종료 예정/임박 리본과 동일한 리본 시스템을 사용합니다.
-   - 동일 위치/회전/둥근 리본/광택/그림자
-   - 색상만 더운정픽 브랜드 네이비 + 골드로 분리
-*/
-#cardList .benefit-end-badge.benefit-date-scope-card.new,
-#favoriteList .benefit-end-badge.benefit-date-scope-card.new{
-  background:linear-gradient(135deg,#08265a 0%,#0b3f91 58%,#1d4ed8 100%) !important;
-  color:#f2b633 !important;
-  text-shadow:0 1px 0 rgba(0,0,0,.14) !important;
-  box-shadow:0 7px 14px rgba(8,38,90,.24) !important;
-  min-width:34px !important;
-}
-
-/* 기존 종료 리본과 같은 형태를 강제로 공유 */
-#cardList .benefit-end-badge.benefit-date-scope-card.new,
-#favoriteList .benefit-end-badge.benefit-date-scope-card.new,
-#cardList.view-card .benefit-end-badge.benefit-date-scope-card.new,
-#cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
-#cardList.view-list .benefit-end-badge.benefit-date-scope-card.new,
-#favoriteList.view-card .benefit-end-badge.benefit-date-scope-card.new,
-#favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
-#favoriteList.view-list .benefit-end-badge.benefit-date-scope-card.new{
+/* ===== v20260520 NEW benefit ribbon final: 종료 리본 구조 100% 재사용 =====
+   NEW도 종료 예정/임박/당일 리본과 같은 위치·각도·크기·광택 계층을 사용합니다. */
+#cardList .benefit-end-badge.new.benefit-date-scope-card,
+#favoriteList .benefit-end-badge.new.benefit-date-scope-card,
+#cardList.view-card .benefit-end-badge.new.benefit-date-scope-card,
+#cardList:not(.view-list) .benefit-end-badge.new.benefit-date-scope-card,
+#cardList.view-list .benefit-end-badge.new.benefit-date-scope-card,
+#favoriteList.view-card .benefit-end-badge.new.benefit-date-scope-card,
+#favoriteList:not(.view-list) .benefit-end-badge.new.benefit-date-scope-card,
+#favoriteList.view-list .benefit-end-badge.new.benefit-date-scope-card{
+  position:absolute !important;
   left:0 !important;
   top:0 !important;
+  z-index:40 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:max-content !important;
+  max-width:none !important;
+  min-width:34px !important;
+  min-height:0 !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:3px 7px !important;
+  border:0 !important;
+  border-radius:999px !important;
+  font-size:9px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  letter-spacing:-.04em !important;
+  white-space:nowrap !important;
+  word-break:keep-all !important;
+  writing-mode:horizontal-tb !important;
   transform:translate(-11%, 180%) rotate(-30deg) !important;
   transform-origin:left center !important;
-  z-index:40 !important;
+  pointer-events:none !important;
+  box-sizing:border-box !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+
+  /* NEW 전용 색상만 다르게, 형태는 종료 리본과 동일 */
+  background:linear-gradient(135deg,#08265a,#1d4ed8) !important;
+  color:#f2b633 !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.12) !important;
+  box-shadow:0 7px 14px rgba(8,38,90,.24) !important;
+}
+
+#cardList .benefit-end-badge.new.benefit-date-scope-card::after,
+#favoriteList .benefit-end-badge.new.benefit-date-scope-card::after{
+  content:"" !important;
+  position:absolute !important;
+  top:-55% !important;
+  left:-78%;
+  width:46% !important;
+  height:210% !important;
+  transform:rotate(24deg) !important;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.82),rgba(255,255,255,0)) !important;
+  animation-name:benefitEndBadgeShineMove !important;
+  animation-duration:2.7s !important;
+  animation-timing-function:ease-in-out !important;
+  animation-iteration-count:infinite !important;
+  pointer-events:none !important;
+  z-index:2 !important;
 }
 
 @media(max-width:520px){
-  #cardList .benefit-end-badge.benefit-date-scope-card.new,
-  #favoriteList .benefit-end-badge.benefit-date-scope-card.new,
-  #cardList.view-card .benefit-end-badge.benefit-date-scope-card.new,
-  #cardList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
-  #cardList.view-list .benefit-end-badge.benefit-date-scope-card.new,
-  #favoriteList.view-card .benefit-end-badge.benefit-date-scope-card.new,
-  #favoriteList:not(.view-list) .benefit-end-badge.benefit-date-scope-card.new,
-  #favoriteList.view-list .benefit-end-badge.benefit-date-scope-card.new{
+  #cardList .benefit-end-badge.new.benefit-date-scope-card,
+  #favoriteList .benefit-end-badge.new.benefit-date-scope-card,
+  #cardList.view-card .benefit-end-badge.new.benefit-date-scope-card,
+  #cardList:not(.view-list) .benefit-end-badge.new.benefit-date-scope-card,
+  #cardList.view-list .benefit-end-badge.new.benefit-date-scope-card,
+  #favoriteList.view-card .benefit-end-badge.new.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .benefit-end-badge.new.benefit-date-scope-card,
+  #favoriteList.view-list .benefit-end-badge.new.benefit-date-scope-card{
     transform:translate(-11%, 180%) rotate(-30deg) !important;
+    padding:3px 7px !important;
+    font-size:9px !important;
   }
 }

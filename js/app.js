@@ -3984,7 +3984,7 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  function benefitNewBadgeHtml(item={},scope='card'){
  if(!isRecentItem(item,7)) return '';
  const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
- return `<div class="benefit-end-badge new benefit-date-scope-${safeScope}" title="등록일 기준 7일 동안 표시됩니다">NEW</div>`;
+ return `<div class="benefit-end-badge soon new benefit-date-scope-${safeScope}" title="등록일 기준 7일 동안 표시됩니다">NEW</div>`;
  }
  function benefitCardRibbonBadgeHtml(item={},scope='card'){
  return benefitEndBadgeHtml(item,scope) || benefitNewBadgeHtml(item,scope);
