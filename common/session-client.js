@@ -139,9 +139,6 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
   }
 
   clearLoginSession();
-  if (reason === 'session_expired') {
-    try{ sessionStorage.setItem('upick_keep_login_auto_suppress', '1'); }catch(_e){}
-  }
   if (reason === 'duplicated_login' || reason === 'abnormal_access' || reason === 'invalid_route_access') {
     clearKeepLoginState();
   }

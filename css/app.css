@@ -22809,3 +22809,40 @@ dialog[open] button,
 /* v20260520 정부지원금 종류별 유효기간 표시 */
 .support-program-detail-chip{border-radius:16px;white-space:normal;align-items:flex-start;}
 .support-program-chip-period{display:block;width:100%;margin-top:3px;font-style:normal;font-size:11px;font-weight:800;color:#1d4ed8;line-height:1.25;padding-left:26px;}
+
+
+/* 혜택 상세 연락처: 연락처 텍스트 자체를 모바일 전화 링크로 사용 */
+.benefit-contact-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:30px;
+  max-width:100%;
+  color:var(--text, #0f172a);
+  font-weight:800;
+  text-decoration:none;
+  border-radius:12px;
+  padding:2px 4px;
+  margin-left:-4px;
+  transition:background-color .16s ease, color .16s ease, transform .12s ease, box-shadow .16s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.benefit-contact-link:hover{
+  color:#0b2a5b;
+  background:rgba(37,99,235,.07);
+}
+.benefit-contact-link:active{
+  transform:scale(.99);
+}
+.benefit-contact-link:focus-visible{
+  outline:3px solid rgba(242,182,51,.28);
+  outline-offset:3px;
+  box-shadow:0 0 0 1px rgba(11,42,91,.12);
+}
+.benefit-contact-link.is-emergency{
+  color:#dc2626;
+  margin-top:6px;
+}
+.benefit-contact-link .upick-contact-icon{
+  flex:0 0 auto;
+}
