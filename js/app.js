@@ -3981,6 +3981,14 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
  return `<div class="benefit-end-badge ${status.className} benefit-date-scope-${safeScope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
  }
+ function benefitNewBadgeHtml(item={},scope='card'){
+ if(!isRecentItem(item,7)) return '';
+ const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
+ return `<div class="benefit-end-badge new benefit-date-scope-${safeScope}" title="등록일 기준 7일 동안 표시됩니다">NEW</div>`;
+ }
+ function benefitCardRibbonBadgeHtml(item={},scope='card'){
+ return benefitEndBadgeHtml(item,scope) || benefitNewBadgeHtml(item,scope);
+ }
  function formatBenefitEndDateLabel(value){
  const raw=String(value||'').trim();
  if(!raw) return '';
@@ -6029,10 +6037,10 @@ ${item.content || ''}`);
  const favIcon = `<img class="upick-fav-icon-img" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">`;
  const fullAddress = getBenefitDisplayAddress(item);
  const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
- const dateBadgeHtml = benefitEndBadgeHtml(item);
+ const ribbonBadgeHtml = benefitCardRibbonBadgeHtml(item);
  return `${benefitTopBadgeHtml(item)}
  <div class="card-top">
- ${dateBadgeHtml}<div class="${getBadgeClass(item)}">${item.discountText}</div>
+ <span class="benefit-badge-stack ${ribbonBadgeHtml ? 'has-date-badge' : ''}">${ribbonBadgeHtml}<div class="${getBadgeClass(item)}">${item.discountText}</div></span>
  <div class="card-info">
  <h4>${item.name}</h4>
  <div class="meta">${item.condition}</div>
@@ -6765,24 +6773,12 @@ function renderCalendarDayModal(){
  if(!text) return '';
  return `<div class="panel price-details-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">세부 내용 및 비용</strong><div class="price-details-body">${escapeHtml(text)}</div></div>`;
 }
- function normalizeTelNumber(phone=''){
- const raw = String(phone || '').trim();
- if(!raw) return '';
- return raw.replace(/[^0-9+]/g, '');
- }
-
  function benefitContactHtml(item={}){
  const phone = String(item.phone || item.contact?.phone || '').trim();
  const emergency = String(item.emergencyPhone || item.contact?.emergency || '').trim();
  const rows = [];
- if(phone){
- const tel = normalizeTelNumber(phone);
- rows.push(`<a class="benefit-contact-link" href="tel:${escapeAttr(tel || phone)}" aria-label="${escapeAttr(phone)} 전화걸기"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async"><span>${escapeHtml(phone)}</span></a>`);
- }
- if(emergency){
- const emergencyTel = normalizeTelNumber(emergency);
- rows.push(`<a class="benefit-contact-link is-emergency" href="tel:${escapeAttr(emergencyTel || emergency)}" aria-label="비상연락처 ${escapeAttr(emergency)} 전화걸기"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async"><span>비상연락처: ${escapeHtml(emergency)}</span></a>`);
- }
+ if(phone) rows.push(`<div><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async">${escapeHtml(phone)}</div>`);
+ if(emergency) rows.push(`<div style="margin-top:6px;color:#dc2626;font-weight:800;"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async">비상연락처: ${escapeHtml(emergency)}</div>`);
  return rows.length ? rows.join('') : '등록된 전화번호가 없습니다.';
  }
 
@@ -6834,7 +6830,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${escapeAttr(normalizeTelNumber(item.phone || item.contact?.phone || ''))}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
