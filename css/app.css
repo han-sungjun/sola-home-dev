@@ -23035,3 +23035,105 @@ dialog[open] button,
 }
 
 /* 종료 리본은 기존 색/위치 우선. NEW만 별도 최종 보정 */
+
+/* v20260522 혜택 상세 액션/연락처 정리: 중복 하단 버튼 제거 후 상단 아이콘화 */
+.benefit-detail-topline{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.benefit-detail-quick-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.benefit-detail-icon-btn{
+  min-height:40px;
+  min-width:40px;
+  padding:8px 10px;
+  border:1px solid rgba(191,219,254,.95);
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff 0%,#f7fbff 100%);
+  color:#0f2f66;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:-.03em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  box-shadow:0 8px 20px rgba(37,99,235,.10), inset 0 1px 0 rgba(255,255,255,.9);
+  cursor:pointer;
+  -webkit-tap-highlight-color:rgba(37,99,235,.12);
+}
+.benefit-detail-icon-btn img{
+  width:16px;
+  height:16px;
+  display:block;
+  object-fit:contain;
+}
+.benefit-detail-icon-btn:hover{
+  border-color:#93c5fd;
+  background:linear-gradient(180deg,#eff6ff 0%,#fff 100%);
+  transform:translateY(-1px);
+}
+.benefit-detail-icon-btn:active{transform:scale(.98);}
+.benefit-detail-icon-btn:focus-visible{
+  outline:3px solid rgba(37,99,235,.24);
+  outline-offset:3px;
+}
+.benefit-contact-panel .benefit-contact-link{
+  width:100%;
+  min-height:48px;
+  padding:12px 14px;
+  margin-left:0;
+  border:1px solid rgba(147,197,253,.95);
+  border-radius:18px;
+  background:linear-gradient(180deg,#f8fbff 0%,#eef6ff 100%);
+  color:#08245a;
+  box-shadow:0 10px 22px rgba(37,99,235,.10), inset 0 1px 0 rgba(255,255,255,.9);
+  text-decoration:none;
+}
+.benefit-contact-panel .benefit-contact-link:hover{
+  color:#08245a;
+  border-color:#60a5fa;
+  text-decoration:none;
+  transform:translateY(-1px);
+}
+.benefit-contact-panel .benefit-contact-link .upick-contact-icon{
+  width:18px;
+  height:18px;
+  margin-right:2px;
+}
+.benefit-contact-panel .benefit-contact-link span{
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:-.02em;
+}
+.benefit-contact-cta{
+  margin-left:auto;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#0b3d91;
+  color:#fff;
+  font-size:12px;
+  font-style:normal;
+  font-weight:1000;
+  white-space:nowrap;
+  box-shadow:0 8px 16px rgba(11,61,145,.18);
+}
+@media(max-width:420px){
+  .benefit-detail-topline{gap:8px;}
+  .benefit-detail-quick-actions{gap:6px;}
+  .benefit-detail-icon-btn{min-height:42px;min-width:42px;padding:8px 9px;}
+  .benefit-detail-icon-btn span{font-size:11px;}
+  .benefit-contact-panel .benefit-contact-link{min-height:50px;padding:12px;}
+}
+@media(max-width:360px){
+  .benefit-detail-icon-btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .benefit-detail-icon-btn{padding:8px;}
+  .benefit-contact-cta{padding:6px 8px;font-size:11px;}
+}

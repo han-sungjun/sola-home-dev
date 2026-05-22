@@ -6783,7 +6783,7 @@ function renderCalendarDayModal(){
 
  if(phone){
  rows.push(phoneTel
- ? `<a class="benefit-contact-link" href="tel:${escapeAttr(phoneTel)}" aria-label="${escapeAttr(phone)} 전화걸기"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async"><span>${escapeHtml(phone)}</span></a>`
+ ? `<a class="benefit-contact-link benefit-contact-phone" href="tel:${escapeAttr(phoneTel)}" data-benefit-contact-call="true" aria-label="${escapeAttr(phone)} 전화걸기"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async"><span>${escapeHtml(phone)}</span><em class="benefit-contact-cta">전화걸기</em></a>`
  : `<div class="benefit-contact-link is-disabled" aria-label="등록된 연락처"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async"><span>${escapeHtml(phone)}</span></div>`);
  }
  if(emergency){
@@ -6829,11 +6829,13 @@ function renderCalendarDayModal(){
 
  function benefitDetailHeroHtml(item = {}){
  const imageUrl = getBenefitRepresentativeImage(item);
+ const isFav = getFavorites().includes(item.id);
  const isFavClass = imageUrl ? '' : ' no-photo';
  const photoHtml = imageUrl
  ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
  : '';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ const actionHtml = `<div class="benefit-detail-quick-actions" aria-label="혜택 빠른 기능"><button class="benefit-detail-icon-btn" type="button" id="modalFavBtn" aria-pressed="${isFav ? 'true' : 'false'}" aria-label="${isFav ? '즐겨찾기 해제' : '즐겨찾기 추가'}"><img class="upick-svg-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async"><span>${isFav ? '저장됨' : '즐겨찾기'}</span></button><button class="benefit-detail-icon-btn" type="button" id="openCalendarReservationBtn" aria-label="방문 알림 추가"><img class="upick-svg-icon" src="/icons/internal/calendar.svg" alt="" loading="lazy" decoding="async"><span>방문 알림</span></button></div>`;
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="benefit-detail-topline"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div>${actionHtml}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
  }
 
  function openDetail(item, options = {}){
@@ -6842,7 +6844,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -6863,9 +6865,15 @@ function renderCalendarDayModal(){
  qs('#modalFavBtn').onclick=async ()=>{
  const isFavorite = await toggleFavorite(item.id, item.name);
  const btn = qs('#modalFavBtn');
- if (btn) btn.innerHTML = `<img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}`;
+ if (btn){
+   btn.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
+   btn.setAttribute('aria-label', isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가');
+   btn.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async"><span>${isFavorite ? '저장됨' : '즐겨찾기'}</span>`;
+ }
  };
- qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
+ qsa('[data-benefit-contact-call]').forEach(btn=>{
+   btn.addEventListener('click',()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');});
+ });
  qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
  qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
  bindBenefitSocialLinks(item);
