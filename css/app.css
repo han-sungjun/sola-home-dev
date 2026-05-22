@@ -23181,3 +23181,51 @@ dialog[open] button,
     font-size:12.5px!important;
   }
 }
+
+
+/* ===== 혜택 상세 섹션 제목/내용 구분 강화 ===== */
+#detailModal .modal-body .benefit-condition-panel,
+#detailModal .modal-body .location-panel{
+  padding:18px 16px!important;
+}
+
+#detailModal .modal-body .benefit-condition-panel .benefit-detail-panel-title,
+#detailModal .modal-body .location-panel .location-title{
+  margin-bottom:10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+}
+
+#detailModal .modal-body .location-panel .location-title{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+}
+
+#detailModal .modal-body .benefit-condition-panel .benefit-detail-body-text,
+#detailModal .modal-body .location-panel .location-address{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+}
+
+#detailModal .modal-body .location-panel .location-address{
+  margin-bottom:10px!important;
+}
+
+@media(max-width:390px){
+  #detailModal .modal-body .benefit-condition-panel,
+  #detailModal .modal-body .location-panel{
+    padding:16px 14px!important;
+  }
+  #detailModal .modal-body .benefit-condition-panel .benefit-detail-body-text,
+  #detailModal .modal-body .location-panel .location-address{
+    padding:9px 10px!important;
+    border-radius:13px!important;
+  }
+}
