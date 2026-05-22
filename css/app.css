@@ -669,6 +669,47 @@ body.gnb-open .bottom-nav{
 #accountEditModal .modal-head{padding:18px 20px 10px;align-items:center;}
 #accountEditModal .modal-body{padding:0 20px 22px;}
 .account-edit-help{margin:0 0 16px;color:#475569;font-size:14px;line-height:1.7;}
+
+/* 비밀번호 변경 모달 안내 박스: 계정 찾기와 동일한 읽기 흐름 */
+.password-change-note-list{
+ margin:0 0 16px;
+ padding:12px 14px;
+ list-style:none;
+ display:grid;
+ gap:7px;
+ border:1px solid #edf1f7;
+ border-radius:16px;
+ background:#f8fafc;
+ color:#6b7688;
+ font-size:13px;
+ line-height:1.55;
+ font-weight:600;
+ letter-spacing:-0.035em;
+}
+.password-change-note-list li{
+ position:relative;
+ padding-left:13px;
+ margin:0;
+ word-break:keep-all;
+ overflow-wrap:anywhere;
+}
+.password-change-note-list li::before{
+ content:'•';
+ position:absolute;
+ left:0;
+ top:0;
+ color:#9aa7b8;
+ font-size:11px;
+ line-height:1.75;
+}
+@media (max-width:420px){
+ .password-change-note-list{
+  margin-bottom:15px;
+  padding:12px 13px;
+  border-radius:15px;
+  font-size:12.5px;
+ }
+}
 .account-edit-form{display:grid;gap:12px;}
 .account-edit-field{display:grid;gap:8px;}
 .account-edit-field label{font-size:13px;font-weight:800;color:#334155;}
@@ -23309,10 +23350,20 @@ dialog[open] button,
   width:100%!important;
   box-sizing:border-box!important;
   margin:0 0 10px!important;
-  padding:10px 12px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  display:grid!important;
+  gap:8px!important;
+}
+#detailModal .modal-body .support-program-detail-panel .support-program-detail-chip{
+  width:100%!important;
+  box-sizing:border-box!important;
+  justify-content:flex-start!important;
   border-radius:14px!important;
-  border:1px solid rgba(125,211,252,.82)!important;
-  background:rgba(236,254,255,.62)!important;
+  padding:11px 12px!important;
+  background:rgba(236,254,255,.82)!important;
+  border:1px solid rgba(125,211,252,.9)!important;
 }
 #detailModal .modal-body .support-program-detail-panel .support-program-detail-note{
   margin:0!important;
@@ -23325,8 +23376,56 @@ dialog[open] button,
   #detailModal .modal-body .support-program-detail-panel{
     padding:16px 14px!important;
   }
-  #detailModal .modal-body .support-program-detail-panel .support-program-detail-list{
-    padding:9px 10px!important;
+  #detailModal .modal-body .support-program-detail-panel .support-program-detail-chip{
+    padding:10px 11px!important;
     border-radius:13px!important;
+  }
+}
+
+/* ===== 공지 상세: 제목/내용 영역 구분 강화 ===== */
+#noticeModal .modal-body .notice-detail-panel{
+  padding:18px 16px!important;
+  background:#fff!important;
+  border:1px solid rgba(219,234,254,.86)!important;
+  box-shadow:0 14px 30px rgba(15,23,42,.06)!important;
+}
+#noticeModal .modal-body .notice-detail-panel > strong:first-child{
+  display:block!important;
+  margin:0 0 10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+  color:#64748b!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+#noticeModal .modal-body .notice-detail-content{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:12px 13px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+  color:#334155!important;
+  font-size:14px!important;
+  font-weight:700!important;
+  line-height:1.72!important;
+  letter-spacing:-.025em!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+#noticeModal .modal-body .notice-detail-wrap{
+  gap:16px!important;
+}
+@media(max-width:390px){
+  #noticeModal .modal-body .notice-detail-panel{
+    padding:16px 14px!important;
+  }
+  #noticeModal .modal-body .notice-detail-content{
+    padding:10px 11px!important;
+    border-radius:13px!important;
+    font-size:13.5px!important;
   }
 }
