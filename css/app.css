@@ -23127,3 +23127,57 @@ dialog[open] button,
   height:18px!important;
   margin:0!important;
 }
+
+/* ===== 혜택 상세 본문 톤 통일 / 등록 정보 한 줄 표시 ===== */
+#detailModal .modal-body .benefit-condition-panel,
+#detailModal .modal-body .location-panel,
+#detailModal .modal-body .benefit-date-panel{
+  color:#475569!important;
+}
+
+#detailModal .modal-body .benefit-detail-panel-title,
+#detailModal .modal-body .location-title strong{
+  display:block!important;
+  margin-bottom:6px!important;
+  font-size:13px!important;
+  color:#64748b!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+
+#detailModal .modal-body .benefit-detail-body-text,
+#detailModal .modal-body .location-address,
+#detailModal .modal-body .benefit-detail-date-line{
+  color:#334155!important;
+  font-size:14px!important;
+  font-weight:700!important;
+  line-height:1.65!important;
+  letter-spacing:-.025em!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+
+#detailModal .modal-body .benefit-detail-date-line{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+  font-size:13px!important;
+}
+
+#detailModal .modal-body .benefit-detail-date-separator{
+  color:#94a3b8!important;
+  font-weight:900!important;
+}
+
+@media(max-width:390px){
+  #detailModal .modal-body .benefit-detail-body-text,
+  #detailModal .modal-body .location-address{
+    font-size:13.5px!important;
+  }
+  #detailModal .modal-body .benefit-detail-date-line{
+    gap:6px!important;
+    font-size:12.5px!important;
+  }
+}
