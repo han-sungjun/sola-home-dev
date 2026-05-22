@@ -670,7 +670,8 @@ body.gnb-open .bottom-nav{
 #accountEditModal .modal-body{padding:0 20px 22px;}
 .account-edit-help{margin:0 0 16px;color:#475569;font-size:14px;line-height:1.7;}
 
-/* 비밀번호 변경 모달 안내 박스: 계정 찾기와 동일한 읽기 흐름 */
+/* 계정 정보 수정/비밀번호 변경 모달 안내 박스: 계정 찾기와 동일한 읽기 흐름 */
+.account-edit-note-list,
 .password-change-note-list{
  margin:0 0 16px;
  padding:12px 14px;
@@ -686,6 +687,7 @@ body.gnb-open .bottom-nav{
  font-weight:600;
  letter-spacing:-0.035em;
 }
+.account-edit-note-list li,
 .password-change-note-list li{
  position:relative;
  padding-left:13px;
@@ -693,6 +695,7 @@ body.gnb-open .bottom-nav{
  word-break:keep-all;
  overflow-wrap:anywhere;
 }
+.account-edit-note-list li::before,
 .password-change-note-list li::before{
  content:'•';
  position:absolute;
@@ -703,6 +706,7 @@ body.gnb-open .bottom-nav{
  line-height:1.75;
 }
 @media (max-width:420px){
+ .account-edit-note-list,
  .password-change-note-list{
   margin-bottom:15px;
   padding:12px 13px;
