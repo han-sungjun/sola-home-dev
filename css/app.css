@@ -23229,3 +23229,64 @@ dialog[open] button,
     border-radius:13px!important;
   }
 }
+
+/* ===== 혜택 상세: 매장 링크/연락처/등록 정보 제목-내용 구분 강화 ===== */
+#detailModal .modal-body .benefit-extra-panel,
+#detailModal .modal-body .benefit-contact-panel,
+#detailModal .modal-body .benefit-date-panel{
+  padding:18px 16px!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel > strong:first-child,
+#detailModal .modal-body .benefit-contact-panel > strong:first-child,
+#detailModal .modal-body .benefit-date-panel .benefit-detail-panel-title{
+  display:block!important;
+  margin:0 0 10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+  color:#64748b!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel{
+  gap:10px!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel .benefit-extra-services,
+#detailModal .modal-body .benefit-extra-panel .benefit-extra-links{
+  margin:0!important;
+  padding:0!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel .benefit-extra-memo{
+  margin-top:2px!important;
+  color:#334155!important;
+  font-size:13.5px!important;
+  font-weight:700!important;
+  line-height:1.65!important;
+  border-color:rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+}
+
+#detailModal .modal-body .benefit-date-panel .benefit-detail-date-line{
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+}
+
+@media(max-width:390px){
+  #detailModal .modal-body .benefit-extra-panel,
+  #detailModal .modal-body .benefit-contact-panel,
+  #detailModal .modal-body .benefit-date-panel{
+    padding:16px 14px!important;
+  }
+  #detailModal .modal-body .benefit-date-panel .benefit-detail-date-line{
+    padding:9px 10px!important;
+    border-radius:13px!important;
+  }
+}
