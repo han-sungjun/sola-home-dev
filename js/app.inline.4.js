@@ -9,31 +9,53 @@
     legacy.remove();
   }
 
-  function guardLegacyOpen(){
-    removeLegacyViewer();
+  function getSliderFromTarget(target){
+    return target && target.closest && target.closest('#detailModal .benefit-detail-photo-slider');
   }
 
-  // 키보드(Enter/Space) 접근은 app.js의 신규 상세 사진 슬라이드 팝업 핸들러가 처리합니다.
-  // 여기서는 이벤트 전파를 막지 않고, 기존 단일 대표사진 팝업만 제거해서
-  // 키보드 접근 시에도 신규 다중 사진 팝업이 정상적으로 열리도록 합니다.
-  document.addEventListener('keydown', function(event){
-    if(event.key !== 'Enter' && event.key !== ' ') return;
-    var target = event.target;
-    if(target && target.closest && target.closest('#detailModal .benefit-detail-photo-slider')){
-      removeLegacyViewer();
+  function openUnifiedFromSlider(slider, event){
+    if(!slider) return false;
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    }
+    removeLegacyViewer();
+    var opener = window.__upickOpenBenefitImagePreview;
+    if(typeof opener === 'function'){
+      var title = (document.querySelector('#detailModal .benefit-detail-main h3') || {}).textContent || '혜택 사진';
+      opener(slider, Number(slider.dataset.currentIndex || 0), title.trim() || '혜택 사진');
       window.setTimeout(removeLegacyViewer, 0);
       window.setTimeout(removeLegacyViewer, 80);
+      return true;
+    }
+    return false;
+  }
+
+  document.addEventListener('keydown', function(event){
+    if(event.key !== 'Enter' && event.key !== ' ') return;
+    var slider = getSliderFromTarget(event.target);
+    if(!slider) return;
+    openUnifiedFromSlider(slider, event);
+  }, true);
+
+  document.addEventListener('click', function(event){
+    var slider = getSliderFromTarget(event.target);
+    if(!slider){
+      removeLegacyViewer();
+      return;
+    }
+    if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
+      openUnifiedFromSlider(slider, event);
     }
   }, true);
 
-  document.addEventListener('click', function(){
-    removeLegacyViewer();
-  }, true);
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', guardLegacyOpen, {once:true});
-  else guardLegacyOpen();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', removeLegacyViewer, {once:true});
+  else removeLegacyViewer();
 
   new MutationObserver(function(){
-    removeLegacyViewer();
+    var unified = document.querySelector('.benefit-image-preview-overlay.show');
+    var legacy = document.getElementById('benefitPhotoZoomViewer');
+    if(unified && legacy) removeLegacyViewer();
   }).observe(document.documentElement, {childList:true, subtree:true});
 })();

@@ -7082,10 +7082,10 @@ function renderCalendarDayModal(){
    overlay = document.createElement('div');
    overlay.className = 'benefit-image-preview-overlay';
    overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
-   const host = document.getElementById('detailModal') || document.body;
+   const host = document.body;
    host.appendChild(overlay);
  }else{
-   const host = document.getElementById('detailModal') || document.body;
+   const host = document.body;
    if(overlay.parentElement !== host) host.appendChild(overlay);
  }
  const body = overlay.querySelector('.benefit-image-preview-body');
@@ -7093,6 +7093,7 @@ function renderCalendarDayModal(){
  const count = overlay.querySelector('.benefit-image-preview-count');
  const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
+ const closeBtn = overlay.querySelector('.benefit-image-preview-close');
  const render = (animate = true) => {
    if(track){
      track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div>`).join('');
@@ -7106,7 +7107,7 @@ function renderCalendarDayModal(){
      dotsEl.innerHTML = images.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('');
    }
  };
- const close = () => { overlay.classList.remove('show'); document.body.classList.remove('benefit-image-preview-open'); };
+ const close = () => { overlay.classList.remove('show'); overlay.setAttribute('aria-hidden','true'); document.body.classList.remove('benefit-image-preview-open'); try{ (slider?.querySelector('.benefit-detail-photo-slide.active') || slider)?.focus?.({preventScroll:true}); }catch(_){} };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
    render(animate);
@@ -7123,7 +7124,9 @@ function renderCalendarDayModal(){
    track.style.transform = `translate3d(${-index * 100}%,0,0)`;
  };
  overlay.onclick = (event) => {
-   if(event.target.closest('.benefit-image-preview-close')) close();
+   const closeTarget = event.target.closest('.benefit-image-preview-close');
+   if(closeTarget){ event.preventDefault(); event.stopPropagation(); close(); return; }
+   event.stopPropagation();
  };
  overlay.addEventListener('click', (event) => {
    if(event.target === overlay){
@@ -7193,10 +7196,14 @@ function renderCalendarDayModal(){
  render(false);
  removeLegacyBenefitPhotoViewer();
  overlay.classList.add('show');
+ overlay.setAttribute('aria-hidden','false');
  document.body.classList.add('benefit-image-preview-open');
+ requestAnimationFrame(() => { try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){} });
  setTimeout(removeLegacyBenefitPhotoViewer, 0);
  setTimeout(removeLegacyBenefitPhotoViewer, 80);
  }
+ window.__upickOpenBenefitImagePreview = openBenefitImagePreview;
+ window.__upickRemoveLegacyBenefitPhotoViewer = removeLegacyBenefitPhotoViewer;
 
  function openDetail(item, options = {}){
  const { skipUrlUpdate = false } = options;
@@ -7219,6 +7226,24 @@ function renderCalendarDayModal(){
    headFavBtn.title = isFav ? '즐겨찾기 해제' : '즐겨찾기 추가';
  }
  bindBenefitPhotoSlider(item);
+ const photoSliderEl = qs('#modalBody .benefit-detail-photo-slider');
+ if(photoSliderEl){
+   photoSliderEl.onclick = (event) => {
+     if(event.defaultPrevented) return;
+     if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
+       event.preventDefault();
+       event.stopPropagation();
+       openBenefitImagePreview(photoSliderEl, Number(photoSliderEl.dataset.currentIndex || 0), item.name || '혜택 사진');
+     }
+   };
+   photoSliderEl.onkeydown = (event) => {
+     if(event.key !== 'Enter' && event.key !== ' ') return;
+     event.preventDefault();
+     event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     openBenefitImagePreview(photoSliderEl, Number(photoSliderEl.dataset.currentIndex || 0), item.name || '혜택 사진');
+   };
+ }
  qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
  qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));

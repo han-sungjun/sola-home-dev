@@ -23706,3 +23706,35 @@ dialog[open] button,
   visibility:hidden !important;
   pointer-events:none !important;
 }
+
+/* v20260523 상세 사진 확대 팝업 최종 보정: 단일 팝업, 포커스, 레이어 */
+.benefit-image-preview-overlay{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483640!important;
+  pointer-events:auto!important;
+}
+.benefit-image-preview-overlay.show{display:flex!important;}
+.benefit-image-preview-dialog{
+  position:relative!important;
+  z-index:2147483641!important;
+}
+.benefit-image-preview-close:focus-visible{
+  outline:3px solid rgba(37,99,235,.7)!important;
+  outline-offset:3px!important;
+}
+#detailModal .benefit-detail-photo-slide:focus,
+#detailModal .benefit-detail-photo-slide:focus-visible{
+  outline:0!important;
+}
+#detailModal .benefit-detail-photo-slider:focus-within{
+  box-shadow:0 0 0 3px rgba(37,99,235,.48)!important;
+}
+#detailModal .benefit-detail-photo-slide img{
+  pointer-events:none!important;
+}
+#benefitPhotoZoomViewer{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
