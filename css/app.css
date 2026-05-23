@@ -23699,3 +23699,10 @@ dialog[open] button,
   position:relative;
   z-index:2147483001!important;
 }
+
+/* 상세 사진 확대는 benefit-image-preview-overlay로 통합합니다. 기존 대표사진 팝업은 비활성화합니다. */
+#benefitPhotoZoomViewer{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}

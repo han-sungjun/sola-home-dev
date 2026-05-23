@@ -7052,14 +7052,26 @@ function renderCalendarDayModal(){
  }, true);
  slider.addEventListener('keydown', (event) => {
    if(event.key !== 'Enter' && event.key !== ' ') return;
-   if(consumePreviewClickBlock()) return;
    event.preventDefault();
+   event.stopPropagation();
+   if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+   if(consumePreviewClickBlock()) return;
    openCurrentPreview();
- });
+ }, true);
  resetTrack(false);
  }
 
+ function removeLegacyBenefitPhotoViewer(){
+ const legacy = document.getElementById('benefitPhotoZoomViewer');
+ if(legacy){
+   legacy.classList.remove('show');
+   legacy.setAttribute('aria-hidden','true');
+   legacy.remove();
+ }
+ }
+
  function openBenefitImagePreview(slider, startIndex = 0, title = '혜택 사진'){
+ removeLegacyBenefitPhotoViewer();
  let images = [];
  try{ images = JSON.parse(slider?.dataset?.benefitPhotoImages || '[]'); }catch(_){ images = []; }
  images = images.filter(Boolean);
@@ -7179,8 +7191,11 @@ function renderCalendarDayModal(){
    body.addEventListener('touchcancel', (event) => finish(event, 'touch'), { passive:false });
  }
  render(false);
+ removeLegacyBenefitPhotoViewer();
  overlay.classList.add('show');
  document.body.classList.add('benefit-image-preview-open');
+ setTimeout(removeLegacyBenefitPhotoViewer, 0);
+ setTimeout(removeLegacyBenefitPhotoViewer, 80);
  }
 
  function openDetail(item, options = {}){
