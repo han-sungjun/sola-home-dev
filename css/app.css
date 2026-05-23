@@ -23547,3 +23547,22 @@ dialog[open] button,
     padding-right:3px!important;
   }
 }
+
+/* ===== v60 혜택 상세 다중 이미지 슬라이드 ===== */
+#detailModal .benefit-detail-photo-slider{position:relative;overflow:hidden;isolation:isolate;}
+#detailModal .benefit-detail-photo-slide{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;margin:0;border-radius:inherit;background:transparent;opacity:0;pointer-events:none;transition:opacity .22s ease;cursor:zoom-in;}
+#detailModal .benefit-detail-photo-slide.active{opacity:1;pointer-events:auto;}
+#detailModal .benefit-detail-photo-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+#detailModal .benefit-detail-photo-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:26px;height:34px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(15,23,42,.56);color:#fff;font-size:20px;font-weight:900;display:grid;place-items:center;backdrop-filter:blur(8px);}
+#detailModal .benefit-detail-photo-nav.prev{left:6px;}#detailModal .benefit-detail-photo-nav.next{right:6px;}
+#detailModal .benefit-detail-photo-count{position:absolute;left:8px;bottom:8px;z-index:5;padding:3px 7px;border-radius:999px;background:rgba(15,23,42,.62);color:#fff;font-size:10px;font-weight:900;}
+#detailModal .benefit-detail-photo-dots{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);z-index:5;display:flex;gap:4px;}
+#detailModal .benefit-detail-photo-dots span{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.62);}#detailModal .benefit-detail-photo-dots span.active{width:12px;background:#fff;}
+.benefit-image-preview-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.68);backdrop-filter:blur(14px);}
+.benefit-image-preview-overlay.show{display:flex;}.benefit-image-preview-dialog{width:min(920px,96vw);max-height:88vh;border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 30px 80px rgba(15,23,42,.35);}
+.benefit-image-preview-head{height:58px;padding:0 14px 0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(148,163,184,.22);}.benefit-image-preview-head strong{font-size:15px;color:#0f172a;}
+.benefit-image-preview-close{width:42px;height:42px;border:1px solid rgba(191,219,254,.75);border-radius:16px;background:#fff;font-size:26px;color:#0f172a;}
+.benefit-image-preview-body{position:relative;display:grid;place-items:center;min-height:260px;max-height:calc(88vh - 58px);background:#0f172a;}.benefit-image-preview-body img{max-width:100%;max-height:calc(88vh - 58px);object-fit:contain;display:block;}
+.benefit-image-preview-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:46px;height:46px;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(15,23,42,.62);color:#fff;font-size:30px;font-weight:900;}.benefit-image-preview-nav.prev{left:14px;}.benefit-image-preview-nav.next{right:14px;}
+.benefit-image-preview-count{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);padding:6px 10px;border-radius:999px;background:rgba(15,23,42,.7);color:#fff;font-size:12px;font-weight:900;}
+@media(max-width:560px){#detailModal .benefit-detail-photo-nav{width:24px;height:30px;font-size:18px;}.benefit-image-preview-overlay{padding:10px;}.benefit-image-preview-dialog{border-radius:22px;width:96vw;}.benefit-image-preview-nav{width:40px;height:40px;font-size:26px;}}

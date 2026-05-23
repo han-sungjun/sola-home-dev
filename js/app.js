@@ -6830,13 +6830,105 @@ function renderCalendarDayModal(){
  return url || '';
  }
 
+ function getBenefitDetailImages(item = {}){
+ const representative = getBenefitRepresentativeImage(item);
+ const rawGroups = [item.detailImages,item.detailImageUrls,item.benefitDetailImages,item.galleryImages,item.galleryImageUrls,item.additionalImages,item.extraImages];
+ const list = [];
+ if(representative) list.push(representative);
+ rawGroups.forEach((raw) => {
+   let rows = [];
+   if(Array.isArray(raw)) rows = raw;
+   else if(typeof raw === 'string') rows = raw.split(/[\n,，]/);
+   rows.forEach((row) => {
+     const value = typeof row === 'string' ? row : (row?.url || row?.imageUrl || row?.src || '');
+     const url = toAbsoluteUrl(String(value || '').trim());
+     if(url && !list.includes(url)) list.push(url);
+   });
+ });
+ return list;
+ }
+
+ function benefitDetailImageSliderHtml(item = {}){
+ const images = getBenefitDetailImages(item);
+ if(!images.length) return '';
+ const slides = images.map((url, index) => `<button type="button" class="benefit-detail-photo-slide${index === 0 ? ' active' : ''}" data-benefit-photo-index="${index}" data-benefit-photo-url="${escapeAttr(url)}" aria-label="${escapeAttr(item.name || '혜택 사진')} ${index + 1}번째 확대"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.name || '매장 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo-slide')?.remove();"></button>`).join('');
+ const dots = images.length > 1 ? `<div class="benefit-detail-photo-dots" aria-hidden="true">${images.map((_, index) => `<span class="${index === 0 ? 'active' : ''}"></span>`).join('')}</div>` : '';
+ const controls = images.length > 1 ? `<button type="button" class="benefit-detail-photo-nav prev" data-benefit-photo-nav="prev" aria-label="이전 사진">‹</button><button type="button" class="benefit-detail-photo-nav next" data-benefit-photo-nav="next" aria-label="다음 사진">›</button><span class="benefit-detail-photo-count">1/${images.length}</span>` : '';
+ return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}">${slides}<span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${controls}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
+ }
+
  function benefitDetailHeroHtml(item = {}){
- const imageUrl = getBenefitRepresentativeImage(item);
- const isFavClass = imageUrl ? '' : ' no-photo';
- const photoHtml = imageUrl
- ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
- : '';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ const imageHtml = benefitDetailImageSliderHtml(item);
+ const isFavClass = imageHtml ? '' : ' no-photo';
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
+ }
+
+ function setBenefitPhotoSlide(slider, nextIndex){
+ if(!slider) return;
+ const slides = [...slider.querySelectorAll('.benefit-detail-photo-slide')];
+ if(!slides.length) return;
+ const max = slides.length;
+ const index = ((Number(nextIndex) || 0) + max) % max;
+ slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+ slider.querySelectorAll('.benefit-detail-photo-dots span').forEach((dot, i) => dot.classList.toggle('active', i === index));
+ const count = slider.querySelector('.benefit-detail-photo-count');
+ if(count) count.textContent = `${index + 1}/${max}`;
+ slider.dataset.currentIndex = String(index);
+ }
+
+ function bindBenefitPhotoSlider(item = {}){
+ const slider = qs('#modalBody .benefit-detail-photo-slider');
+ if(!slider || slider.dataset.bound === '1') return;
+ slider.dataset.bound = '1';
+ slider.addEventListener('click', (event) => {
+   const nav = event.target.closest('[data-benefit-photo-nav]');
+   if(nav){
+     event.preventDefault();
+     event.stopPropagation();
+     const current = Number(slider.dataset.currentIndex || 0);
+     setBenefitPhotoSlide(slider, current + (nav.dataset.benefitPhotoNav === 'next' ? 1 : -1));
+     return;
+   }
+   const slide = event.target.closest('.benefit-detail-photo-slide');
+   if(slide){
+     const index = Number(slide.dataset.benefitPhotoIndex || slider.dataset.currentIndex || 0);
+     openBenefitImagePreview(slider, index, item.name || '혜택 사진');
+   }
+ });
+ }
+
+ function openBenefitImagePreview(slider, startIndex = 0, title = '혜택 사진'){
+ let images = [];
+ try{ images = JSON.parse(slider?.dataset?.benefitPhotoImages || '[]'); }catch(_){ images = []; }
+ images = images.filter(Boolean);
+ if(!images.length) return;
+ let index = Math.max(0, Math.min(images.length - 1, Number(startIndex) || 0));
+ let overlay = document.querySelector('.benefit-image-preview-overlay');
+ if(!overlay){
+   overlay = document.createElement('div');
+   overlay.className = 'benefit-image-preview-overlay';
+   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><button type="button" class="benefit-image-preview-nav prev" aria-label="이전 사진">‹</button><img alt=""><button type="button" class="benefit-image-preview-nav next" aria-label="다음 사진">›</button><span class="benefit-image-preview-count"></span></div></div>`;
+   document.body.appendChild(overlay);
+ }
+ const img = overlay.querySelector('img');
+ const count = overlay.querySelector('.benefit-image-preview-count');
+ const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
+ const render = () => {
+   img.src = images[index];
+   img.alt = title;
+   if(count) count.textContent = `${index + 1}/${images.length}`;
+   if(titleEl) titleEl.textContent = title;
+   overlay.querySelectorAll('.benefit-image-preview-nav').forEach(btn => btn.hidden = images.length < 2);
+ };
+ const close = () => { overlay.classList.remove('show'); document.body.classList.remove('benefit-image-preview-open'); };
+ overlay.onclick = (event) => {
+   if(event.target === overlay || event.target.closest('.benefit-image-preview-close')) close();
+   else if(event.target.closest('.benefit-image-preview-nav.next')){ index = (index + 1) % images.length; render(); }
+   else if(event.target.closest('.benefit-image-preview-nav.prev')){ index = (index - 1 + images.length) % images.length; render(); }
+ };
+ render();
+ overlay.classList.add('show');
+ document.body.classList.add('benefit-image-preview-open');
  }
 
  function openDetail(item, options = {}){
@@ -6859,6 +6951,7 @@ function renderCalendarDayModal(){
    headFavBtn.setAttribute('aria-label', isFav ? '즐겨찾기 해제' : '즐겨찾기 추가');
    headFavBtn.title = isFav ? '즐겨찾기 해제' : '즐겨찾기 추가';
  }
+ bindBenefitPhotoSlider(item);
  qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
  qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
