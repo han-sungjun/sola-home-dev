@@ -7030,7 +7030,8 @@ function renderCalendarDayModal(){
      setBenefitPhotoSlide(slider, getCurrent() + (dx < 0 ? 1 : -1));
    }else{
      resetTrack(true);
-     if(isTapLikeTouch){
+     const isTapLikePointer = inputType === 'pointer' && !horizontalDragForClick && Math.abs(dx) <= 8 && dy <= 8;
+     if(isTapLikeTouch || isTapLikePointer){
        event.preventDefault();
        event.stopPropagation();
        openCurrentPreview();
@@ -7097,6 +7098,9 @@ function renderCalendarDayModal(){
  let overlay = document.querySelector('dialog.benefit-image-preview-overlay');
  const oldOverlay = document.querySelector('.benefit-image-preview-overlay:not(dialog)');
  if(oldOverlay) oldOverlay.remove();
+ // 매번 새 dialog를 만들어 이전 open의 swipe/click 클로저가 남아 인덱스가 어긋나는 문제를 방지합니다.
+ if(overlay) overlay.remove();
+ overlay = null;
  if(!overlay){
    overlay = document.createElement('dialog');
    overlay.className = 'benefit-image-preview-overlay';

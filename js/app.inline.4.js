@@ -45,9 +45,11 @@
       removeLegacyViewer();
       return;
     }
-    if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
-      openUnifiedFromSlider(slider, event);
-    }
+    if(event.button != null && event.button !== 0) return;
+    if(event.target.closest('.benefit-detail-photo-count,.benefit-detail-photo-dots')) return;
+    if(slider.dataset.photoDragging === '1' || slider.dataset.photoDragSuppressNextClick === '1') return;
+    // 사진/트랙/확대 아이콘 어디를 클릭해도 현재 인덱스 기준으로 확대 팝업을 엽니다.
+    openUnifiedFromSlider(slider, event);
   }, true);
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', removeLegacyViewer, {once:true});
