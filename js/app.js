@@ -6874,7 +6874,7 @@ function renderCalendarDayModal(){
  function benefitDetailImageSliderHtml(item = {}){
  const images = getBenefitDetailImages(item);
  if(!images.length) return '';
- const slides = images.map((url, index) => `<button type="button" class="benefit-detail-photo-slide${index === 0 ? ' active' : ''}" data-benefit-photo-index="${index}" data-benefit-photo-url="${escapeAttr(url)}" aria-label="${escapeAttr(item.name || '혜택 사진')} ${index + 1}번째 확대"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.name || '매장 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo-slide')?.remove();"></button>`).join('');
+ const slides = images.map((url, index) => `<div class="benefit-detail-photo-slide${index === 0 ? ' active' : ''}" data-benefit-photo-index="${index}" data-benefit-photo-url="${escapeAttr(url)}" role="button" tabindex="0" aria-label="${escapeAttr(item.name || '혜택 사진')} ${index + 1}번째 확대"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.name || '매장 사진')}" loading="lazy" decoding="async" draggable="false" onerror="this.closest('.benefit-detail-photo-slide')?.remove();"></div>`).join('');
  const dots = images.length > 1 ? `<div class="benefit-detail-photo-dots" aria-hidden="true">${images.map((_, index) => `<span class="${index === 0 ? 'active' : ''}"></span>`).join('')}</div>` : '';
  const count = images.length > 1 ? `<span class="benefit-detail-photo-count">1/${images.length}</span>` : '';
  return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}"><div class="benefit-detail-photo-track">${slides}</div><span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${count}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
@@ -6924,10 +6924,25 @@ function renderCalendarDayModal(){
  let moved = false;
  let didDrag = false;
  let pointerId = null;
- const blockPreviewClick = () => {
-   slider.dataset.photoDragSuppressUntil = String(Date.now() + 450);
+ let dragSuppressUntil = 0;
+ const blockPreviewClick = (ms = 700) => {
+   dragSuppressUntil = Date.now() + ms;
+   slider.dataset.photoDragSuppressUntil = String(dragSuppressUntil);
  };
- const isPreviewClickBlocked = () => Number(slider.dataset.photoDragSuppressUntil || 0) > Date.now();
+ const isPreviewClickBlocked = () => Math.max(Number(slider.dataset.photoDragSuppressUntil || 0), dragSuppressUntil || 0) > Date.now();
+ const blockDragGeneratedClick = (event) => {
+   if(!slider.contains(event.target)) return;
+   if(!isPreviewClickBlocked()) return;
+   event.preventDefault();
+   event.stopPropagation();
+   if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+ };
+ document.addEventListener('click', blockDragGeneratedClick, true);
+ document.addEventListener('auxclick', blockDragGeneratedClick, true);
+ slider.addEventListener('dragstart', (event) => {
+   event.preventDefault();
+   blockPreviewClick(900);
+ }, true);
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
@@ -6943,6 +6958,7 @@ function renderCalendarDayModal(){
    moved = false;
    didDrag = false;
    dragging = true;
+   slider.classList.add('is-dragging');
    pointerId = event.pointerId ?? null;
    if(track) track.style.transition = 'none';
    if(event.pointerId != null && slider.setPointerCapture){
@@ -6954,10 +6970,13 @@ function renderCalendarDayModal(){
    const point = getPointerClient(event);
    dx = point.x - startX;
    const dy = point.y - startY;
-   if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
+   if(Math.abs(dx) > 3 || Math.abs(dy) > 3){
      moved = true;
+     blockPreviewClick(900);
+   }
+   if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
      didDrag = true;
-     blockPreviewClick();
+     blockPreviewClick(900);
      event.preventDefault();
      if(track){
        const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
@@ -6969,14 +6988,15 @@ function renderCalendarDayModal(){
  const end = (event) => {
    if(!dragging) return;
    dragging = false;
+   slider.classList.remove('is-dragging');
    if(pointerId != null && slider.releasePointerCapture){
      try{ slider.releasePointerCapture(pointerId); }catch(_){ }
    }
    const dy = Math.abs((getPointerClient(event).y || startY) - startY);
    const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
    const threshold = Math.min(80, Math.max(36, width * 0.22));
-   if(didDrag || Math.abs(dx) > 8){
-     blockPreviewClick();
+   if(moved || didDrag || Math.abs(dx) > 3){
+     blockPreviewClick(900);
    }
    if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
      event.preventDefault();
@@ -7009,6 +7029,12 @@ function renderCalendarDayModal(){
      event.stopPropagation();
    }
  }, true);
+ slider.addEventListener('keydown', (event) => {
+   if(event.key !== 'Enter' && event.key !== ' ') return;
+   if(isPreviewClickBlocked()) return;
+   event.preventDefault();
+   openCurrentPreview();
+ });
  resetTrack(false);
  }
 

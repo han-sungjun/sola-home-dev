@@ -23676,3 +23676,15 @@ dialog[open] button,
   user-select:none;
 }
 .benefit-image-preview-body > img{display:none!important;}
+
+
+/* v20260523: PC 드래그 중 이미지 확대 팝업 오작동 방지 */
+#detailModal .benefit-detail-photo-slider,
+#detailModal .benefit-detail-photo-slider *{
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#detailModal .benefit-detail-photo-slider.is-dragging .benefit-detail-photo-slide{
+  pointer-events: none;
+}
