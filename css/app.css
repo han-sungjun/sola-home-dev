@@ -23738,3 +23738,42 @@ dialog[open] button,
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+/* v20260523 혜택 상세 이미지 확대 팝업: dialog top-layer 적용 */
+dialog.benefit-image-preview-overlay{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  max-width:none!important;
+  height:100dvh!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:18px!important;
+  border:0!important;
+  background:rgba(7,18,42,.78)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+dialog.benefit-image-preview-overlay::backdrop{
+  background:rgba(7,18,42,.72)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+}
+dialog.benefit-image-preview-overlay.show,
+dialog.benefit-image-preview-overlay[open]{
+  display:flex!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  position:relative!important;
+  width:min(920px,96vw)!important;
+  max-height:88dvh!important;
+  z-index:1!important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay{padding:10px!important;}
+  dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{width:96vw!important;}
+}

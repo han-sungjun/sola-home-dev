@@ -7077,16 +7077,17 @@ function renderCalendarDayModal(){
  images = images.filter(Boolean);
  if(!images.length) return;
  let index = Math.max(0, Math.min(images.length - 1, Number(startIndex) || 0));
- let overlay = document.querySelector('.benefit-image-preview-overlay');
+ let overlay = document.querySelector('dialog.benefit-image-preview-overlay');
+ const oldOverlay = document.querySelector('.benefit-image-preview-overlay:not(dialog)');
+ if(oldOverlay) oldOverlay.remove();
  if(!overlay){
-   overlay = document.createElement('div');
+   overlay = document.createElement('dialog');
    overlay.className = 'benefit-image-preview-overlay';
-   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
-   const host = document.body;
-   host.appendChild(overlay);
- }else{
-   const host = document.body;
-   if(overlay.parentElement !== host) host.appendChild(overlay);
+   overlay.setAttribute('aria-label', '혜택 사진 확대');
+   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="document"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
+   document.body.appendChild(overlay);
+ }else if(overlay.parentElement !== document.body){
+   document.body.appendChild(overlay);
  }
  const body = overlay.querySelector('.benefit-image-preview-body');
  const track = overlay.querySelector('.benefit-image-preview-track');
@@ -7107,7 +7108,13 @@ function renderCalendarDayModal(){
      dotsEl.innerHTML = images.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('');
    }
  };
- const close = () => { overlay.classList.remove('show'); overlay.setAttribute('aria-hidden','true'); document.body.classList.remove('benefit-image-preview-open'); try{ (slider?.querySelector('.benefit-detail-photo-slide.active') || slider)?.focus?.({preventScroll:true}); }catch(_){} };
+ const close = () => {
+   overlay.classList.remove('show');
+   overlay.setAttribute('aria-hidden','true');
+   try{ if(typeof overlay.close === 'function' && overlay.open) overlay.close(); }catch(_){}
+   document.body.classList.remove('benefit-image-preview-open');
+   try{ (slider?.querySelector('.benefit-detail-photo-slide.active') || slider)?.focus?.({preventScroll:true}); }catch(_){}
+ };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
    render(animate);
@@ -7127,6 +7134,10 @@ function renderCalendarDayModal(){
    const closeTarget = event.target.closest('.benefit-image-preview-close');
    if(closeTarget){ event.preventDefault(); event.stopPropagation(); close(); return; }
    event.stopPropagation();
+ };
+ overlay.oncancel = (event) => {
+   event.preventDefault();
+   close();
  };
  overlay.addEventListener('click', (event) => {
    if(event.target === overlay){
@@ -7195,9 +7206,14 @@ function renderCalendarDayModal(){
  }
  render(false);
  removeLegacyBenefitPhotoViewer();
- overlay.classList.add('show');
  overlay.setAttribute('aria-hidden','false');
  document.body.classList.add('benefit-image-preview-open');
+ try{
+   if(typeof overlay.showModal === 'function' && !overlay.open) overlay.showModal();
+ }catch(_){
+   try{ overlay.setAttribute('open',''); }catch(__){}
+ }
+ overlay.classList.add('show');
  requestAnimationFrame(() => { try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){} });
  setTimeout(removeLegacyBenefitPhotoViewer, 0);
  setTimeout(removeLegacyBenefitPhotoViewer, 80);
