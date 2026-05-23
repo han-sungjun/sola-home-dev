@@ -24656,3 +24656,47 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
     bottom:14px !important;
   }
 }
+
+/* ===== 혜택 상세 상단 액션 포커스링 보정: 즐겨찾기/일정 버튼도 닫기 버튼과 동일한 가시성 확보 ===== */
+#detailModal .modal-head,
+#detailModal .detail-head-actions{
+  overflow:visible!important;
+}
+
+#detailModal .detail-head-actions{
+  gap:10px!important;
+  padding:4px!important;
+  margin:-4px -4px -4px auto!important;
+}
+
+#detailModal .detail-icon-action{
+  position:relative!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+  flex:0 0 44px!important;
+}
+
+#detailModal .detail-icon-action:focus,
+#detailModal .detail-icon-action:focus-visible{
+  outline:3px solid rgba(37,99,235,.78)!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 6px rgba(59,130,246,.18)!important;
+  z-index:20!important;
+}
+
+#detailModal .detail-icon-action.is-favorite:focus,
+#detailModal .detail-icon-action.is-favorite:focus-visible{
+  outline-color:rgba(249,115,22,.72)!important;
+  box-shadow:0 0 0 6px rgba(249,115,22,.18)!important;
+}
+
+@media(max-width:390px){
+  #detailModal .detail-head-actions{
+    gap:8px!important;
+    padding:4px!important;
+    margin:-4px -4px -4px auto!important;
+  }
+  #detailModal .detail-icon-action{
+    flex-basis:42px!important;
+  }
+}
