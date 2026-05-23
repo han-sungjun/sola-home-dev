@@ -24266,3 +24266,16 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
     bottom:14px !important;
   }
 }
+
+/* v20260523 혜택 사진 확대 팝업: 상단 파란 라인을 헤더 바로 위로 고정
+   - 소식 이미지 팝업처럼 카드 자체의 top border로 처리합니다.
+   - overlay/viewport 상단에 떠 보이는 라인이 아니라, 팝업 헤더 위에 붙도록 합니다. */
+dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  border-top:4px solid #3b82f6 !important;
+  background:#fff !important;
+  overflow:hidden !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-head{
+  margin-top:0 !important;
+  border-radius:0 !important;
+}
