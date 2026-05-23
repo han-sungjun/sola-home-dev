@@ -24152,3 +24152,55 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
     max-height:calc(100dvh - 82px) !important;
   }
 }
+
+/* v20260523 혜택 사진 확대 팝업: 인덱스 영역 보장 최종 보정
+   - 사진 프레임 하단에 카운터/도트 전용 안전 영역을 확보합니다.
+   - 1/2, 2/2가 이미지 가장자리나 둥근 모서리에 걸려 잘리지 않도록 합니다. */
+dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+  --benefit-preview-index-safe-h: 34px;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  box-sizing:border-box !important;
+  padding:0 0 var(--benefit-preview-index-safe-h) 0 !important;
+  overflow:hidden !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+  width:100% !important;
+  height:calc(100% - var(--benefit-preview-index-safe-h)) !important;
+  max-width:100% !important;
+  max-height:calc(100% - var(--benefit-preview-index-safe-h)) !important;
+  object-fit:contain !important;
+  display:block !important;
+  align-self:center !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-count{
+  right:12px !important;
+  bottom:9px !important;
+  min-width:34px !important;
+  height:20px !important;
+  padding:0 8px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
+  bottom:15px !important;
+  height:8px !important;
+  display:flex !important;
+  align-items:center !important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+    --benefit-preview-index-safe-h: 32px;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame-count{
+    right:10px !important;
+    bottom:8px !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
+    bottom:14px !important;
+  }
+}
