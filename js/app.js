@@ -7159,31 +7159,52 @@ function renderCalendarDayModal(){
    if(titleEl) titleEl.textContent = title;
    if(dotsEl){ dotsEl.hidden = true; dotsEl.innerHTML = ''; }
  };
- const getPreviewIndex = () => {
+ const readPreviewIndexFromDom = () => {
    const saved = Number(overlay?.dataset?.previewCurrentIndex);
-   return Number.isFinite(saved) ? Math.max(0, Math.min(images.length - 1, saved)) : index;
+   if(Number.isFinite(saved)) return Math.max(0, Math.min(images.length - 1, saved));
+   const activeSlide = overlay?.querySelector?.('.benefit-image-preview-slide.active');
+   if(activeSlide && track){
+     const domIndex = Array.from(track.querySelectorAll('.benefit-image-preview-slide')).indexOf(activeSlide);
+     if(domIndex >= 0) return Math.max(0, Math.min(images.length - 1, domIndex));
+   }
+   const activeImg = activeSlide?.querySelector?.('img');
+   const activeSrc = activeImg?.getAttribute?.('src') || activeImg?.src || '';
+   if(activeSrc){
+     const urlIndex = images.findIndex((url) => String(url) === String(activeSrc));
+     if(urlIndex >= 0) return urlIndex;
+   }
+   return Math.max(0, Math.min(images.length - 1, index));
  };
- const syncDetailSlider = (animate = true) => {
-   const syncIndex = getPreviewIndex();
+ const getPreviewIndex = () => readPreviewIndexFromDom();
+ const syncDetailSlider = (animate = true, forceIndex = null) => {
+   const syncIndex = forceIndex == null ? getPreviewIndex() : Math.max(0, Math.min(images.length - 1, Number(forceIndex) || 0));
    index = syncIndex;
+   if(overlay) overlay.dataset.previewCurrentIndex = String(syncIndex);
+   window.__upickBenefitPreviewLastIndex = syncIndex;
    try{
      if(slider) slider.dataset.currentIndex = String(syncIndex);
      setBenefitPhotoSlide(slider, syncIndex, { animate });
    }catch(_){ }
  };
  const close = () => {
-   syncDetailSlider(false);
+   const closingIndex = getPreviewIndex();
+   syncDetailSlider(false, closingIndex);
    overlay.classList.remove('show');
    overlay.setAttribute('aria-hidden','true');
    try{ if(typeof overlay.close === 'function' && overlay.open) overlay.close(); }catch(_){}
    document.body.classList.remove('benefit-image-preview-open');
-   try{ (slider?.querySelector('.benefit-detail-photo-slide.active') || slider)?.focus?.({preventScroll:true}); }catch(_){}
+   // dialog close/focus 복귀 과정에서 상세 썸네일 focus 이벤트가 다시 실행될 수 있어
+   // 닫힌 직후와 다음 프레임에 동일 index를 한 번 더 고정합니다.
+   requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
+   window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
+   try{ slider?.focus?.({preventScroll:true}); }catch(_){}
  };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
    if(overlay) overlay.dataset.previewCurrentIndex = String(index);
+   window.__upickBenefitPreviewLastIndex = index;
    render(animate);
-   syncDetailSlider(animate);
+   syncDetailSlider(animate, index);
  };
  let startX = 0;
  let startY = 0;
