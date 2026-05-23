@@ -7070,7 +7070,11 @@ function renderCalendarDayModal(){
    overlay = document.createElement('div');
    overlay.className = 'benefit-image-preview-overlay';
    overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
-   document.body.appendChild(overlay);
+   const host = document.getElementById('detailModal') || document.body;
+   host.appendChild(overlay);
+ }else{
+   const host = document.getElementById('detailModal') || document.body;
+   if(overlay.parentElement !== host) host.appendChild(overlay);
  }
  const body = overlay.querySelector('.benefit-image-preview-body');
  const track = overlay.querySelector('.benefit-image-preview-track');
@@ -7107,8 +7111,14 @@ function renderCalendarDayModal(){
    track.style.transform = `translate3d(${-index * 100}%,0,0)`;
  };
  overlay.onclick = (event) => {
-   if(event.target === overlay || event.target.closest('.benefit-image-preview-close')) close();
+   if(event.target.closest('.benefit-image-preview-close')) close();
  };
+ overlay.addEventListener('click', (event) => {
+   if(event.target === overlay){
+     event.preventDefault();
+     event.stopPropagation();
+   }
+ }, true);
  if(body && body.dataset.previewSwipeBound !== '2'){
    body.dataset.previewSwipeBound = '2';
    const start = (event, inputType = 'pointer') => {

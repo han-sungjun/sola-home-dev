@@ -23688,3 +23688,14 @@ dialog[open] button,
 #detailModal .benefit-detail-photo-slider.is-dragging .benefit-detail-photo-slide{
   pointer-events: none;
 }
+
+
+/* v20260523 혜택 상세 사진 확대 팝업: 상세 모달 위 표시 + 바깥 클릭 닫힘 방지 */
+#detailModal .benefit-image-preview-overlay,
+.benefit-image-preview-overlay{
+  z-index:2147483000!important;
+}
+#detailModal .benefit-image-preview-dialog{
+  position:relative;
+  z-index:2147483001!important;
+}
