@@ -7006,6 +7006,7 @@ function renderCalendarDayModal(){
    const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
    const threshold = Math.min(80, Math.max(36, width * 0.22));
    const horizontalDragForClick = didDrag || (Math.abs(dx) > 14 && Math.abs(dx) > dy * 1.15);
+   const isTapLikeTouch = inputType === 'touch' && !horizontalDragForClick && Math.abs(dx) <= 8 && dy <= 8;
    if(horizontalDragForClick){
      markClickSuppressed();
    }
@@ -7015,6 +7016,12 @@ function renderCalendarDayModal(){
      setBenefitPhotoSlide(slider, getCurrent() + (dx < 0 ? 1 : -1));
    }else{
      resetTrack(true);
+     if(isTapLikeTouch){
+       event.preventDefault();
+       event.stopPropagation();
+       openCurrentPreview();
+       markClickSuppressed();
+     }
    }
    window.setTimeout(() => { moved = false; didDrag = false; dx = 0; }, 0);
  };
