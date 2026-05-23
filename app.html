@@ -1803,6 +1803,8 @@
     var dy = p.y - sy;
     if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
       moved = true;
+    }
+    if(Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.15){
       suppressNextClick = true;
       window.__upickBenefitPhotoSuppressNextClick = true;
     }
@@ -1813,7 +1815,7 @@
     var p = point(e);
     var dx = p.x - sx;
     var dy = p.y - sy;
-    if(moved || Math.abs(dx) > 6 || Math.abs(dy) > 6){
+    if(Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.15){
       suppressNextClick = true;
       window.__upickBenefitPhotoSuppressNextClick = true;
     }

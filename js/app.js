@@ -7005,7 +7005,8 @@ function renderCalendarDayModal(){
    const dy = Math.abs((getPointerClient(event).y || startY) - startY);
    const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
    const threshold = Math.min(80, Math.max(36, width * 0.22));
-   if(moved || didDrag || Math.abs(dx) > 3){
+   const horizontalDragForClick = didDrag || (Math.abs(dx) > 14 && Math.abs(dx) > dy * 1.15);
+   if(horizontalDragForClick){
      markClickSuppressed();
    }
    if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
@@ -7026,7 +7027,8 @@ function renderCalendarDayModal(){
  slider.addEventListener('touchend', (event) => end(event, 'touch'), { passive:false });
  slider.addEventListener('touchcancel', (event) => end(event, 'touch'), { passive:false });
  slider.addEventListener('click', (event) => {
-   if(consumePreviewClickBlock() || moved || didDrag || Math.abs(dx) > 8){
+   const horizontalDragClick = didDrag || (Math.abs(dx) > 14);
+   if(consumePreviewClickBlock() || horizontalDragClick){
      event.preventDefault();
      event.stopPropagation();
      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
