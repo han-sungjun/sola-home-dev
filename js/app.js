@@ -4050,6 +4050,16 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  url:item.url||'',
  imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',
  thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.thumbnail||item.photoUrl||item.image||'',
+ // 혜택 상세 전용 다중 사진 필드는 대표 썸네일과 분리해서 공개앱까지 그대로 전달합니다.
+ // 대표사진(imageUrl/thumbnailUrl)은 카카오 공유/목록 썸네일에 계속 사용하고,
+ // 아래 배열/문자열 필드는 혜택 상세 슬라이드에만 사용됩니다.
+ detailImages:item.detailImages||item.detailImageUrls||item.detailImageUrl||item.detailPhotoUrls||item.detailPhotoUrl||item.benefitDetailImages||item.galleryImages||item.galleryImageUrls||item.additionalImages||item.extraImages||[],
+ detailImageUrls:item.detailImageUrls||item.detailImages||item.detailImageUrl||item.detailPhotoUrls||item.detailPhotoUrl||item.benefitDetailImages||item.galleryImages||item.galleryImageUrls||item.additionalImages||item.extraImages||[],
+ benefitDetailImages:item.benefitDetailImages||item.detailImages||item.detailImageUrls||item.detailImageUrl||[],
+ galleryImages:item.galleryImages||item.galleryImageUrls||[],
+ galleryImageUrls:item.galleryImageUrls||item.galleryImages||[],
+ additionalImages:item.additionalImages||[],
+ extraImages:item.extraImages||[],
  homepageUrl:item.homepageUrl||item.externalLinks?.homepage||'',
  blogUrl:item.blogUrl||item.externalLinks?.blog||'',
  instagramUrl:item.instagramUrl||item.externalLinks?.instagram||'',
@@ -6832,7 +6842,20 @@ function renderCalendarDayModal(){
 
  function getBenefitDetailImages(item = {}){
  const representative = getBenefitRepresentativeImage(item);
- const rawGroups = [item.detailImages,item.detailImageUrls,item.benefitDetailImages,item.galleryImages,item.galleryImageUrls,item.additionalImages,item.extraImages];
+ const rawGroups = [
+ item.detailImages,
+ item.detailImageUrls,
+ item.detailImageUrl,
+ item.detailPhotoUrls,
+ item.detailPhotoUrl,
+ item.benefitDetailImages,
+ item.galleryImages,
+ item.galleryImageUrls,
+ item.additionalImages,
+ item.extraImages,
+ item.slideImages,
+ item.sliderImages
+ ];
  const list = [];
  if(representative) list.push(representative);
  rawGroups.forEach((raw) => {
