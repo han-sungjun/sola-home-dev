@@ -7119,30 +7119,25 @@ function renderCalendarDayModal(){
  if(overlay) overlay.dataset.previewCurrentIndex = String(index);
  const fitDialogToActiveImage = () => {
    const dialog = overlay?.querySelector('.benefit-image-preview-dialog');
-   const activeImg = overlay?.querySelector('.benefit-image-preview-slide.active img');
-   if(!dialog || !body || !track || !activeImg) return;
+   if(!dialog || !body) return;
    const vw = Math.max(320, window.innerWidth || document.documentElement.clientWidth || 0);
    const vh = Math.max(320, window.innerHeight || document.documentElement.clientHeight || 0);
-   const overlayPad = vw <= 560 ? 24 : 36;
-   const headH = 58;
-   // 인덱스/도트 안전영역은 이미지 높이에 포함하지 않습니다.
-   // body는 이미지 높이 + 안전영역으로 잡고, 실제 사진은 --benefit-preview-h 만큼만 표시합니다.
-   const indexSafeH = images.length > 1 ? (vw <= 560 ? 32 : 34) : 0;
-   const maxW = Math.min(920, vw - overlayPad);
-   const maxH = Math.max(220, vh - overlayPad - headH - indexSafeH);
-   const naturalW = activeImg.naturalWidth || maxW;
-   const naturalH = activeImg.naturalHeight || maxH;
-   const ratio = naturalW > 0 && naturalH > 0 ? naturalW / naturalH : 1;
-   let displayW = Math.min(maxW, naturalW, maxH * ratio);
-   let displayH = displayW / ratio;
-   if(displayH > maxH){
-     displayH = maxH;
-     displayW = displayH * ratio;
-   }
-   displayW = Math.max(Math.min(maxW, displayW), Math.min(280, maxW));
-   displayH = Math.min(maxH, displayW / ratio);
-   dialog.style.setProperty('--benefit-preview-w', `${Math.round(displayW)}px`);
-   dialog.style.setProperty('--benefit-preview-h', `${Math.round(displayH)}px`);
+   const isMobile = vw <= 560;
+   const outerPad = isMobile ? 24 : 48;
+   const headH = isMobile ? 54 : 58;
+   const topLineH = 4;
+   const indexSafeH = images.length > 1 ? (isMobile ? 32 : 34) : 0;
+
+   // v20260523: 사진마다 팝업 크기가 바뀌지 않도록 전체 팝업 프레임을 고정합니다.
+   // 이미지는 고정된 body 안에서 object-fit: contain으로 비율에 맞춰 표시됩니다.
+   const fixedW = Math.min(920, vw - outerPad);
+   const fixedDialogH = Math.max(360, vh - outerPad);
+   const fixedBodyH = Math.max(260, fixedDialogH - headH - topLineH);
+
+   dialog.style.setProperty('--benefit-preview-w', `${Math.round(fixedW)}px`);
+   dialog.style.setProperty('--benefit-preview-dialog-h', `${Math.round(fixedDialogH)}px`);
+   dialog.style.setProperty('--benefit-preview-h', `${Math.round(fixedBodyH - indexSafeH)}px`);
+   dialog.style.setProperty('--benefit-preview-body-h', `${Math.round(fixedBodyH)}px`);
    resetTrack(false);
  };
  const render = (animate = true) => {
