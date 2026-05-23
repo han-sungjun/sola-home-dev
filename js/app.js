@@ -7117,6 +7117,31 @@ function renderCalendarDayModal(){
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
  const closeBtn = overlay.querySelector('.benefit-image-preview-close');
  if(overlay) overlay.dataset.previewCurrentIndex = String(index);
+ const fitDialogToActiveImage = () => {
+   const dialog = overlay?.querySelector('.benefit-image-preview-dialog');
+   const activeImg = overlay?.querySelector('.benefit-image-preview-slide.active img');
+   if(!dialog || !body || !track || !activeImg) return;
+   const vw = Math.max(320, window.innerWidth || document.documentElement.clientWidth || 0);
+   const vh = Math.max(320, window.innerHeight || document.documentElement.clientHeight || 0);
+   const overlayPad = vw <= 560 ? 24 : 36;
+   const headH = 58;
+   const maxW = Math.min(920, vw - overlayPad);
+   const maxH = Math.max(220, vh - overlayPad - headH);
+   const naturalW = activeImg.naturalWidth || maxW;
+   const naturalH = activeImg.naturalHeight || maxH;
+   const ratio = naturalW > 0 && naturalH > 0 ? naturalW / naturalH : 1;
+   let displayW = Math.min(maxW, naturalW, maxH * ratio);
+   let displayH = displayW / ratio;
+   if(displayH > maxH){
+     displayH = maxH;
+     displayW = displayH * ratio;
+   }
+   displayW = Math.max(Math.min(maxW, displayW), Math.min(280, maxW));
+   displayH = Math.min(maxH, displayW / ratio);
+   dialog.style.setProperty('--benefit-preview-w', `${Math.round(displayW)}px`);
+   dialog.style.setProperty('--benefit-preview-h', `${Math.round(displayH)}px`);
+   resetTrack(false);
+ };
  const render = (animate = true) => {
    const dotsHtml = images.length > 1 ? `<div class="benefit-image-preview-frame-dots" aria-hidden="true">${images.map((_, dotIndex) => `<span class="${dotIndex === index ? 'active' : ''}"></span>`).join('')}</div>` : '';
    const countHtml = images.length > 1 ? `<span class="benefit-image-preview-frame-count">${index + 1}/${images.length}</span>` : '';
@@ -7124,6 +7149,11 @@ function renderCalendarDayModal(){
      track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false">${i === index ? countHtml + dotsHtml : ''}</div></div>`).join('');
      track.style.transition = animate ? '' : 'none';
      track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+     const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
+     if(activeImg){
+       if(activeImg.complete) requestAnimationFrame(fitDialogToActiveImage);
+       else activeImg.addEventListener('load', fitDialogToActiveImage, { once:true });
+     }
    }
    if(count){ count.textContent = ''; count.hidden = true; }
    if(titleEl) titleEl.textContent = title;
@@ -7252,6 +7282,7 @@ function renderCalendarDayModal(){
    body.addEventListener('touchcancel', (event) => finish(event, 'touch'), { passive:false });
  }
  render(false);
+ window.addEventListener('resize', fitDialogToActiveImage, { passive:true });
  syncDetailSlider(false);
  removeLegacyBenefitPhotoViewer();
  overlay.setAttribute('aria-hidden','false');

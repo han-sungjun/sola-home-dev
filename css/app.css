@@ -23956,3 +23956,199 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
     max-height:calc(100dvh - 82px) !important;
   }
 }
+
+/* v20260523 혜택 사진 확대 팝업: 소식 이미지 팝업 구조 참고 - 헤더/바디 깨짐 보정 */
+dialog.benefit-image-preview-overlay{
+  padding:18px!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  width:var(--benefit-preview-w, min(920px, calc(100vw - 36px)))!important;
+  max-width:calc(100vw - 36px)!important;
+  height:auto!important;
+  max-height:calc(100dvh - 36px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  background:#fff!important;
+  box-shadow:0 30px 80px rgba(0,0,0,.35)!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-head{
+  flex:0 0 58px!important;
+  height:58px!important;
+  min-height:58px!important;
+  padding:0 14px 0 20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(148,163,184,.24)!important;
+  box-sizing:border-box!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+  flex:0 0 var(--benefit-preview-h, auto)!important;
+  width:100%!important;
+  height:var(--benefit-preview-h, auto)!important;
+  min-height:0!important;
+  max-height:calc(100dvh - 94px)!important;
+  overflow:hidden!important;
+  background:#0b1730!important;
+  display:block!important;
+  position:relative!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-track{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  display:flex!important;
+  align-items:stretch!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-slide{
+  flex:0 0 100%!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  position:relative!important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay{
+    padding:12px!important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+    width:var(--benefit-preview-w, calc(100vw - 24px))!important;
+    max-width:calc(100vw - 24px)!important;
+    border-radius:22px!important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+    max-height:calc(100dvh - 82px)!important;
+  }
+}
+
+
+/* v20260523 혜택 사진 확대 팝업: 바깥 파란 영역 깨짐 최종 보정
+   - 소식 이미지 팝업처럼 카드 프레임은 하나로 유지
+   - 파란 배경이 이미지보다 넓게 남지 않도록 실제 이미지 표시 크기에 맞춤 */
+dialog.benefit-image-preview-overlay{
+  padding:18px !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  width:var(--benefit-preview-w, min(920px, calc(100vw - 36px))) !important;
+  max-width:calc(100vw - 36px) !important;
+  height:auto !important;
+  max-height:calc(100dvh - 36px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  background:#fff !important;
+  border-radius:24px !important;
+  overflow:hidden !important;
+  box-shadow:0 30px 80px rgba(0,0,0,.35) !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-head{
+  flex:0 0 58px !important;
+  width:100% !important;
+  height:58px !important;
+  min-height:58px !important;
+  margin:0 !important;
+  padding:0 14px 0 20px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  background:#fff !important;
+  border-bottom:1px solid rgba(226,232,240,.95) !important;
+  box-sizing:border-box !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+  flex:0 0 var(--benefit-preview-h, auto) !important;
+  width:var(--benefit-preview-w, 100%) !important;
+  height:var(--benefit-preview-h, auto) !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  max-width:100% !important;
+  max-height:calc(100dvh - 94px) !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  background:#0b1730 !important;
+  position:relative !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-track{
+  width:var(--benefit-preview-w, 100%) !important;
+  height:var(--benefit-preview-h, 100%) !important;
+  min-height:0 !important;
+  display:flex !important;
+  align-items:stretch !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-slide{
+  flex:0 0 var(--benefit-preview-w, 100%) !important;
+  width:var(--benefit-preview-w, 100%) !important;
+  height:var(--benefit-preview-h, 100%) !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  max-height:none !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:#0b1730 !important;
+  box-sizing:border-box !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:relative !important;
+  background:#0b1730 !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  display:block !important;
+  object-fit:contain !important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay{padding:12px !important;}
+  dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+    width:var(--benefit-preview-w, calc(100vw - 24px)) !important;
+    max-width:calc(100vw - 24px) !important;
+    max-height:calc(100dvh - 24px) !important;
+    border-radius:22px !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+    max-height:calc(100dvh - 82px) !important;
+  }
+}
