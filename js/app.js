@@ -6924,32 +6924,40 @@ function renderCalendarDayModal(){
  let moved = false;
  let didDrag = false;
  let pointerId = null;
+ let activeInput = '';
  let suppressNextPreviewClick = false;
- const blockPreviewClick = () => {
+ let ignoreClickUntil = 0;
+ const markClickSuppressed = () => {
    suppressNextPreviewClick = true;
+   ignoreClickUntil = Date.now() + 420;
    slider.dataset.photoDragSuppressNextClick = '1';
    window.__upickBenefitPhotoSuppressNextClick = true;
  };
- const isPreviewClickBlocked = () => suppressNextPreviewClick || slider.dataset.photoDragSuppressNextClick === '1' || window.__upickBenefitPhotoSuppressNextClick === true;
- const consumePreviewClickBlock = () => {
-   if(!isPreviewClickBlocked()) return false;
+ const clearClickSuppressed = () => {
    suppressNextPreviewClick = false;
    delete slider.dataset.photoDragSuppressNextClick;
    window.__upickBenefitPhotoSuppressNextClick = false;
+   ignoreClickUntil = 0;
+ };
+ const consumePreviewClickBlock = () => {
+   const blocked = suppressNextPreviewClick || slider.dataset.photoDragSuppressNextClick === '1' || window.__upickBenefitPhotoSuppressNextClick === true || Date.now() < ignoreClickUntil;
+   if(!blocked) return false;
+   clearClickSuppressed();
    return true;
  };
  slider.addEventListener('dragstart', (event) => {
    event.preventDefault();
-   blockPreviewClick();
+   markClickSuppressed();
  }, true);
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
    track.style.transform = `translate3d(${(-getCurrent() * 100)}%,0,0)`;
  };
- const start = (event) => {
+ const start = (event, inputType = 'pointer') => {
    if(getMax() < 2) return;
-   if(event.button != null && event.button !== 0) return;
+   if(inputType === 'pointer' && event.pointerType === 'touch') return;
+   if(inputType === 'pointer' && event.button != null && event.button !== 0) return;
    const point = getPointerClient(event);
    startX = point.x;
    startY = point.y;
@@ -6957,26 +6965,26 @@ function renderCalendarDayModal(){
    moved = false;
    didDrag = false;
    dragging = true;
+   activeInput = inputType;
    slider.classList.add('is-dragging');
    slider.dataset.photoDragging = '1';
    pointerId = event.pointerId ?? null;
    if(track) track.style.transition = 'none';
-   if(event.pointerId != null && slider.setPointerCapture){
+   if(inputType === 'pointer' && event.pointerId != null && slider.setPointerCapture){
      try{ slider.setPointerCapture(event.pointerId); }catch(_){ }
    }
  };
- const move = (event) => {
-   if(!dragging) return;
+ const move = (event, inputType = 'pointer') => {
+   if(!dragging || activeInput !== inputType) return;
    const point = getPointerClient(event);
    dx = point.x - startX;
    const dy = point.y - startY;
    if(Math.abs(dx) > 3 || Math.abs(dy) > 3){
      moved = true;
-     blockPreviewClick();
    }
    if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
      didDrag = true;
-     blockPreviewClick();
+     markClickSuppressed();
      event.preventDefault();
      if(track){
        const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
@@ -6985,19 +6993,20 @@ function renderCalendarDayModal(){
      }
    }
  };
- const end = (event) => {
-   if(!dragging) return;
+ const end = (event, inputType = 'pointer') => {
+   if(!dragging || activeInput !== inputType) return;
    dragging = false;
+   activeInput = '';
    slider.classList.remove('is-dragging');
    delete slider.dataset.photoDragging;
-   if(pointerId != null && slider.releasePointerCapture){
+   if(inputType === 'pointer' && pointerId != null && slider.releasePointerCapture){
      try{ slider.releasePointerCapture(pointerId); }catch(_){ }
    }
    const dy = Math.abs((getPointerClient(event).y || startY) - startY);
    const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
    const threshold = Math.min(80, Math.max(36, width * 0.22));
    if(moved || didDrag || Math.abs(dx) > 3){
-     blockPreviewClick();
+     markClickSuppressed();
    }
    if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
      event.preventDefault();
@@ -7008,10 +7017,14 @@ function renderCalendarDayModal(){
    }
    window.setTimeout(() => { moved = false; didDrag = false; dx = 0; }, 0);
  };
- slider.addEventListener('pointerdown', start);
- slider.addEventListener('pointermove', move, { passive:false });
- slider.addEventListener('pointerup', end, { passive:false });
- slider.addEventListener('pointercancel', end, { passive:false });
+ slider.addEventListener('pointerdown', (event) => start(event, 'pointer'));
+ slider.addEventListener('pointermove', (event) => move(event, 'pointer'), { passive:false });
+ slider.addEventListener('pointerup', (event) => end(event, 'pointer'), { passive:false });
+ slider.addEventListener('pointercancel', (event) => end(event, 'pointer'), { passive:false });
+ slider.addEventListener('touchstart', (event) => start(event, 'touch'), { passive:true });
+ slider.addEventListener('touchmove', (event) => move(event, 'touch'), { passive:false });
+ slider.addEventListener('touchend', (event) => end(event, 'touch'), { passive:false });
+ slider.addEventListener('touchcancel', (event) => end(event, 'touch'), { passive:false });
  slider.addEventListener('click', (event) => {
    if(consumePreviewClickBlock() || moved || didDrag || Math.abs(dx) > 8){
      event.preventDefault();
@@ -7028,9 +7041,9 @@ function renderCalendarDayModal(){
      openCurrentPreview();
    }
  }, true);
-  slider.addEventListener('keydown', (event) => {
+ slider.addEventListener('keydown', (event) => {
    if(event.key !== 'Enter' && event.key !== ' ') return;
-   if(isPreviewClickBlocked()) return;
+   if(consumePreviewClickBlock()) return;
    event.preventDefault();
    openCurrentPreview();
  });
@@ -7078,6 +7091,7 @@ function renderCalendarDayModal(){
  let dx = 0;
  let dragging = false;
  let pointerId = null;
+ let activeInput = '';
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
@@ -7086,24 +7100,26 @@ function renderCalendarDayModal(){
  overlay.onclick = (event) => {
    if(event.target === overlay || event.target.closest('.benefit-image-preview-close')) close();
  };
- if(body && body.dataset.previewSwipeBound !== '1'){
-   body.dataset.previewSwipeBound = '1';
-   body.addEventListener('pointerdown', (event) => {
+ if(body && body.dataset.previewSwipeBound !== '2'){
+   body.dataset.previewSwipeBound = '2';
+   const start = (event, inputType = 'pointer') => {
      if(images.length < 2) return;
-     if(event.button != null && event.button !== 0) return;
+     if(inputType === 'pointer' && event.pointerType === 'touch') return;
+     if(inputType === 'pointer' && event.button != null && event.button !== 0) return;
      const point = getPointerClient(event);
      startX = point.x;
      startY = point.y;
      dx = 0;
      dragging = true;
+     activeInput = inputType;
      pointerId = event.pointerId ?? null;
      if(track) track.style.transition = 'none';
-     if(event.pointerId != null && body.setPointerCapture){
+     if(inputType === 'pointer' && event.pointerId != null && body.setPointerCapture){
        try{ body.setPointerCapture(event.pointerId); }catch(_){ }
      }
-   });
-   body.addEventListener('pointermove', (event) => {
-     if(!dragging) return;
+   };
+   const move = (event, inputType = 'pointer') => {
+     if(!dragging || activeInput !== inputType) return;
      const point = getPointerClient(event);
      dx = point.x - startX;
      const dy = point.y - startY;
@@ -7115,11 +7131,12 @@ function renderCalendarDayModal(){
          track.style.transform = `translate3d(${(-index * 100) + percent}%,0,0)`;
        }
      }
-   }, { passive:false });
-   const finish = (event) => {
-     if(!dragging) return;
+   };
+   const finish = (event, inputType = 'pointer') => {
+     if(!dragging || activeInput !== inputType) return;
      dragging = false;
-     if(pointerId != null && body.releasePointerCapture){
+     activeInput = '';
+     if(inputType === 'pointer' && pointerId != null && body.releasePointerCapture){
        try{ body.releasePointerCapture(pointerId); }catch(_){ }
      }
      const dy = Math.abs((getPointerClient(event).y || startY) - startY);
@@ -7131,9 +7148,16 @@ function renderCalendarDayModal(){
      }else{
        resetTrack(true);
      }
+     dx = 0;
    };
-   body.addEventListener('pointerup', finish, { passive:false });
-   body.addEventListener('pointercancel', finish, { passive:false });
+   body.addEventListener('pointerdown', (event) => start(event, 'pointer'));
+   body.addEventListener('pointermove', (event) => move(event, 'pointer'), { passive:false });
+   body.addEventListener('pointerup', (event) => finish(event, 'pointer'), { passive:false });
+   body.addEventListener('pointercancel', (event) => finish(event, 'pointer'), { passive:false });
+   body.addEventListener('touchstart', (event) => start(event, 'touch'), { passive:true });
+   body.addEventListener('touchmove', (event) => move(event, 'touch'), { passive:false });
+   body.addEventListener('touchend', (event) => finish(event, 'touch'), { passive:false });
+   body.addEventListener('touchcancel', (event) => finish(event, 'touch'), { passive:false });
  }
  render(false);
  overlay.classList.add('show');
