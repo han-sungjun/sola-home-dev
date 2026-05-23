@@ -6928,8 +6928,9 @@ function renderCalendarDayModal(){
  const blockPreviewClick = (ms = 700) => {
    dragSuppressUntil = Date.now() + ms;
    slider.dataset.photoDragSuppressUntil = String(dragSuppressUntil);
+   window.__upickBenefitPhotoDragSuppressUntil = dragSuppressUntil;
  };
- const isPreviewClickBlocked = () => Math.max(Number(slider.dataset.photoDragSuppressUntil || 0), dragSuppressUntil || 0) > Date.now();
+ const isPreviewClickBlocked = () => Math.max(Number(slider.dataset.photoDragSuppressUntil || 0), Number(window.__upickBenefitPhotoDragSuppressUntil || 0), dragSuppressUntil || 0) > Date.now();
  const blockDragGeneratedClick = (event) => {
    if(!slider.contains(event.target)) return;
    if(!isPreviewClickBlocked()) return;
@@ -6959,6 +6960,7 @@ function renderCalendarDayModal(){
    didDrag = false;
    dragging = true;
    slider.classList.add('is-dragging');
+   slider.dataset.photoDragging = '1';
    pointerId = event.pointerId ?? null;
    if(track) track.style.transition = 'none';
    if(event.pointerId != null && slider.setPointerCapture){
@@ -6989,6 +6991,7 @@ function renderCalendarDayModal(){
    if(!dragging) return;
    dragging = false;
    slider.classList.remove('is-dragging');
+   delete slider.dataset.photoDragging;
    if(pointerId != null && slider.releasePointerCapture){
      try{ slider.releasePointerCapture(pointerId); }catch(_){ }
    }
@@ -7015,6 +7018,7 @@ function renderCalendarDayModal(){
    if(isPreviewClickBlocked() || moved || didDrag || Math.abs(dx) > 8){
      event.preventDefault();
      event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
      return;
    }
    if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
@@ -7027,6 +7031,7 @@ function renderCalendarDayModal(){
    if(isPreviewClickBlocked()){
      event.preventDefault();
      event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
    }
  }, true);
  slider.addEventListener('keydown', (event) => {
