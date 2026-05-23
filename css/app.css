@@ -23904,3 +23904,55 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots span.acti
     bottom:11px !important;
   }
 }
+
+
+/* v20260523 혜택 사진 확대 팝업: 모바일/PC 깨짐 보정 + 현재 index 닫기 동기화 */
+dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  width:min(920px,calc(100vw - 36px)) !important;
+  max-height:calc(100dvh - 36px) !important;
+  height:auto !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:calc(100dvh - 94px) !important;
+  display:block !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-track{
+  height:auto !important;
+  min-height:0 !important;
+  align-items:center !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-slide{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:calc(100dvh - 94px) !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:calc(100dvh - 94px) !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+  max-height:calc(100dvh - 94px) !important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay{
+    padding:12px !important;
+    align-items:center !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+    width:calc(100vw - 24px) !important;
+    max-height:calc(100dvh - 24px) !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-body,
+  dialog.benefit-image-preview-overlay .benefit-image-preview-slide,
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+    max-height:calc(100dvh - 82px) !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+    max-height:calc(100dvh - 82px) !important;
+  }
+}

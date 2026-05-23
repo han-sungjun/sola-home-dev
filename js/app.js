@@ -7116,6 +7116,7 @@ function renderCalendarDayModal(){
  const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
  const closeBtn = overlay.querySelector('.benefit-image-preview-close');
+ if(overlay) overlay.dataset.previewCurrentIndex = String(index);
  const render = (animate = true) => {
    const dotsHtml = images.length > 1 ? `<div class="benefit-image-preview-frame-dots" aria-hidden="true">${images.map((_, dotIndex) => `<span class="${dotIndex === index ? 'active' : ''}"></span>`).join('')}</div>` : '';
    const countHtml = images.length > 1 ? `<span class="benefit-image-preview-frame-count">${index + 1}/${images.length}</span>` : '';
@@ -7128,6 +7129,18 @@ function renderCalendarDayModal(){
    if(titleEl) titleEl.textContent = title;
    if(dotsEl){ dotsEl.hidden = true; dotsEl.innerHTML = ''; }
  };
+ const getPreviewIndex = () => {
+   const saved = Number(overlay?.dataset?.previewCurrentIndex);
+   return Number.isFinite(saved) ? Math.max(0, Math.min(images.length - 1, saved)) : index;
+ };
+ const syncDetailSlider = (animate = true) => {
+   const syncIndex = getPreviewIndex();
+   index = syncIndex;
+   try{
+     if(slider) slider.dataset.currentIndex = String(syncIndex);
+     setBenefitPhotoSlide(slider, syncIndex, { animate });
+   }catch(_){ }
+ };
  const close = () => {
    syncDetailSlider(false);
    overlay.classList.remove('show');
@@ -7136,11 +7149,9 @@ function renderCalendarDayModal(){
    document.body.classList.remove('benefit-image-preview-open');
    try{ (slider?.querySelector('.benefit-detail-photo-slide.active') || slider)?.focus?.({preventScroll:true}); }catch(_){}
  };
- const syncDetailSlider = (animate = true) => {
-   try{ setBenefitPhotoSlide(slider, index, { animate }); }catch(_){ }
- };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
+   if(overlay) overlay.dataset.previewCurrentIndex = String(index);
    render(animate);
    syncDetailSlider(animate);
  };
