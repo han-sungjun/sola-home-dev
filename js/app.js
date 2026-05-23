@@ -7058,9 +7058,12 @@ function renderCalendarDayModal(){
      dx = 0;
      return;
    }
-   if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
+   const isInsidePhoto = slider.contains(event.target);
+   const isPassiveUi = !!event.target.closest('.benefit-detail-photo-count,.benefit-detail-photo-dots');
+   if(isInsidePhoto && !isPassiveUi){
      event.preventDefault();
      event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
      openCurrentPreview();
    }
  }, true);
@@ -7110,17 +7113,16 @@ function renderCalendarDayModal(){
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
  const closeBtn = overlay.querySelector('.benefit-image-preview-close');
  const render = (animate = true) => {
+   const dotsHtml = images.length > 1 ? `<div class="benefit-image-preview-frame-dots" aria-hidden="true">${images.map((_, dotIndex) => `<span class="${dotIndex === index ? 'active' : ''}"></span>`).join('')}</div>` : '';
+   const countHtml = images.length > 1 ? `<span class="benefit-image-preview-frame-count">${index + 1}/${images.length}</span>` : '';
    if(track){
-     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div>`).join('');
+     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false">${i === index ? countHtml + dotsHtml : ''}</div></div>`).join('');
      track.style.transition = animate ? '' : 'none';
      track.style.transform = `translate3d(${-index * 100}%,0,0)`;
    }
-   if(count) count.textContent = images.length > 1 ? `${index + 1}/${images.length}` : '';
+   if(count){ count.textContent = ''; count.hidden = true; }
    if(titleEl) titleEl.textContent = title;
-   if(dotsEl){
-     dotsEl.hidden = images.length < 2;
-     dotsEl.innerHTML = images.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('');
-   }
+   if(dotsEl){ dotsEl.hidden = true; dotsEl.innerHTML = ''; }
  };
  const close = () => {
    syncDetailSlider(false);

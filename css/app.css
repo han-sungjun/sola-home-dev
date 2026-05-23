@@ -23794,3 +23794,113 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
 .benefit-image-preview-dots{
   pointer-events:none!important;
 }
+
+/* v20260523 혜택 상세 사진: PC 클릭 확대 + 확대 팝업 이미지 기준 카운터/도트 보정 */
+#detailModal .benefit-detail-photo-slider{
+  cursor: zoom-in !important;
+}
+#detailModal .benefit-detail-photo-track,
+#detailModal .benefit-detail-photo-slide{
+  cursor: zoom-in !important;
+}
+
+dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border-radius:28px !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-head{
+  flex:0 0 58px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+  position:relative !important;
+  overflow:hidden !important;
+  display:block !important;
+  min-height:0 !important;
+  background:#0b1730 !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-track{
+  height:100% !important;
+  min-height:0 !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-slide{
+  height:100% !important;
+  min-height:260px !important;
+  max-height:calc(88dvh - 58px) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  position:relative !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  max-width:100% !important;
+  max-height:calc(88dvh - 58px) !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+  width:auto !important;
+  height:auto !important;
+  max-width:100% !important;
+  max-height:calc(88dvh - 58px) !important;
+  object-fit:contain !important;
+  display:block !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-body > .benefit-image-preview-count,
+dialog.benefit-image-preview-overlay .benefit-image-preview-body > .benefit-image-preview-dots{
+  display:none !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-count{
+  position:absolute !important;
+  right:12px !important;
+  bottom:12px !important;
+  z-index:4 !important;
+  padding:5px 9px !important;
+  border-radius:999px !important;
+  background:rgba(15,23,42,.72) !important;
+  color:#fff !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  pointer-events:none !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
+  position:absolute !important;
+  left:50% !important;
+  bottom:13px !important;
+  transform:translateX(-50%) !important;
+  z-index:4 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:5px !important;
+  pointer-events:none !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots span{
+  width:6px !important;
+  height:6px !important;
+  border-radius:999px !important;
+  background:rgba(255,255,255,.58) !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots span.active{
+  width:14px !important;
+  background:#fff !important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
+    border-radius:22px !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame-count{
+    right:10px !important;
+    bottom:10px !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
+    bottom:11px !important;
+  }
+}
