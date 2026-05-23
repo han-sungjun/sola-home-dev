@@ -24204,3 +24204,65 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
     bottom:14px !important;
   }
 }
+
+/* v20260523 혜택 사진 확대 팝업: 프레임/인덱스 안전영역 최종 보정
+   - --benefit-preview-h는 실제 사진 높이로만 사용합니다.
+   - 파란 body 영역은 사진 높이 + 인덱스 안전영역만큼만 확보하여 하단/우측이 깨져 보이지 않게 합니다. */
+dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+  --benefit-preview-index-safe-h: 34px;
+  height:calc(var(--benefit-preview-h, 0px) + var(--benefit-preview-index-safe-h)) !important;
+  flex:0 0 calc(var(--benefit-preview-h, 0px) + var(--benefit-preview-index-safe-h)) !important;
+  max-height:calc(100dvh - 94px) !important;
+  background:#0b1730 !important;
+  overflow:hidden !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-track,
+dialog.benefit-image-preview-overlay .benefit-image-preview-slide,
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  height:calc(var(--benefit-preview-h, 0px) + var(--benefit-preview-index-safe-h)) !important;
+  max-height:calc(var(--benefit-preview-h, 0px) + var(--benefit-preview-index-safe-h)) !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+  padding:0 0 var(--benefit-preview-index-safe-h) 0 !important;
+  box-sizing:border-box !important;
+  background:#0b1730 !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+  width:100% !important;
+  height:var(--benefit-preview-h, auto) !important;
+  max-height:var(--benefit-preview-h, none) !important;
+  object-fit:contain !important;
+  display:block !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-count{
+  right:14px !important;
+  bottom:9px !important;
+  z-index:5 !important;
+}
+dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
+  bottom:15px !important;
+  z-index:4 !important;
+}
+@media(max-width:560px){
+  dialog.benefit-image-preview-overlay .benefit-image-preview-body{
+    --benefit-preview-index-safe-h:32px;
+    max-height:calc(100dvh - 82px) !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-track,
+  dialog.benefit-image-preview-overlay .benefit-image-preview-slide,
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame{
+    height:calc(var(--benefit-preview-h, 0px) + var(--benefit-preview-index-safe-h)) !important;
+    max-height:calc(var(--benefit-preview-h, 0px) + var(--benefit-preview-index-safe-h)) !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame img{
+    height:var(--benefit-preview-h, auto) !important;
+    max-height:var(--benefit-preview-h, none) !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame-count{
+    right:12px !important;
+    bottom:8px !important;
+  }
+  dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
+    bottom:14px !important;
+  }
+}

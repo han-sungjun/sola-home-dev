@@ -7125,8 +7125,11 @@ function renderCalendarDayModal(){
    const vh = Math.max(320, window.innerHeight || document.documentElement.clientHeight || 0);
    const overlayPad = vw <= 560 ? 24 : 36;
    const headH = 58;
+   // 인덱스/도트 안전영역은 이미지 높이에 포함하지 않습니다.
+   // body는 이미지 높이 + 안전영역으로 잡고, 실제 사진은 --benefit-preview-h 만큼만 표시합니다.
+   const indexSafeH = images.length > 1 ? (vw <= 560 ? 32 : 34) : 0;
    const maxW = Math.min(920, vw - overlayPad);
-   const maxH = Math.max(220, vh - overlayPad - headH);
+   const maxH = Math.max(220, vh - overlayPad - headH - indexSafeH);
    const naturalW = activeImg.naturalWidth || maxW;
    const naturalH = activeImg.naturalHeight || maxH;
    const ratio = naturalW > 0 && naturalH > 0 ? naturalW / naturalH : 1;
