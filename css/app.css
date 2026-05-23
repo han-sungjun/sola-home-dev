@@ -23777,3 +23777,20 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{
   dialog.benefit-image-preview-overlay{padding:10px!important;}
   dialog.benefit-image-preview-overlay .benefit-image-preview-dialog{width:96vw!important;}
 }
+
+/* v20260523 혜택 상세/확대 사진 index 매핑 보정 */
+#detailModal .benefit-detail-photo-slide[aria-current="true"]{
+  z-index:1;
+}
+#detailModal .benefit-detail-photo-slide:focus-visible{
+  outline:3px solid rgba(37,99,235,.72)!important;
+  outline-offset:3px!important;
+  border-radius:inherit;
+}
+#detailModal .benefit-detail-photo-count,
+#detailModal .benefit-detail-photo-dots,
+#detailModal .benefit-photo-zoom-icon,
+.benefit-image-preview-count,
+.benefit-image-preview-dots{
+  pointer-events:none!important;
+}

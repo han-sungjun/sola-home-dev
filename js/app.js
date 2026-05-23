@@ -6902,11 +6902,17 @@ function renderCalendarDayModal(){
    track.style.transition = options.animate === false ? 'none' : '';
    track.style.transform = `translate3d(${-index * 100}%,0,0)`;
  }
- slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+ slides.forEach((slide, i) => {
+   const active = i === index;
+   slide.classList.toggle('active', active);
+   slide.setAttribute('aria-current', active ? 'true' : 'false');
+   slide.setAttribute('aria-label', `${slider.dataset.benefitPhotoTitle || '혜택 사진'} ${i + 1}번째 사진 크게 보기, 총 ${max}장`);
+ });
  slider.querySelectorAll('.benefit-detail-photo-dots span').forEach((dot, i) => dot.classList.toggle('active', i === index));
  const count = slider.querySelector('.benefit-detail-photo-count');
  if(count) count.textContent = `${index + 1}/${max}`;
  slider.dataset.currentIndex = String(index);
+ slider.setAttribute('aria-label', `${slider.dataset.benefitPhotoTitle || '혜택 사진'} 사진 영역, 현재 ${index + 1}번째 / 총 ${max}장`);
  }
 
  function bindBenefitPhotoSlider(item = {}){
@@ -6914,9 +6920,17 @@ function renderCalendarDayModal(){
  if(!slider || slider.dataset.bound === '1') return;
  slider.dataset.bound = '1';
  const track = slider.querySelector('.benefit-detail-photo-track');
+ slider.dataset.benefitPhotoTitle = item.name || '혜택 사진';
  const getCurrent = () => Number(slider.dataset.currentIndex || 0);
  const getMax = () => Math.max(1, slider.querySelectorAll('.benefit-detail-photo-slide').length);
  const openCurrentPreview = () => openBenefitImagePreview(slider, getCurrent(), item.name || '혜택 사진');
+ setBenefitPhotoSlide(slider, getCurrent(), { animate:false });
+ slider.querySelectorAll('.benefit-detail-photo-slide').forEach((slide) => {
+   slide.addEventListener('focus', () => {
+     const focusIndex = Number(slide.dataset.benefitPhotoIndex || 0);
+     if(Number.isFinite(focusIndex)) setBenefitPhotoSlide(slider, focusIndex, { animate:false });
+   });
+ });
  let startX = 0;
  let startY = 0;
  let dx = 0;
@@ -7109,15 +7123,20 @@ function renderCalendarDayModal(){
    }
  };
  const close = () => {
+   syncDetailSlider(false);
    overlay.classList.remove('show');
    overlay.setAttribute('aria-hidden','true');
    try{ if(typeof overlay.close === 'function' && overlay.open) overlay.close(); }catch(_){}
    document.body.classList.remove('benefit-image-preview-open');
    try{ (slider?.querySelector('.benefit-detail-photo-slide.active') || slider)?.focus?.({preventScroll:true}); }catch(_){}
  };
+ const syncDetailSlider = (animate = true) => {
+   try{ setBenefitPhotoSlide(slider, index, { animate }); }catch(_){ }
+ };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
    render(animate);
+   syncDetailSlider(animate);
  };
  let startX = 0;
  let startY = 0;
@@ -7138,6 +7157,17 @@ function renderCalendarDayModal(){
  overlay.oncancel = (event) => {
    event.preventDefault();
    close();
+ };
+ overlay.onkeydown = (event) => {
+   if(event.key === 'Escape'){
+     event.preventDefault();
+     close();
+     return;
+   }
+   if(images.length > 1 && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')){
+     event.preventDefault();
+     moveTo(index + (event.key === 'ArrowRight' ? 1 : -1));
+   }
  };
  overlay.addEventListener('click', (event) => {
    if(event.target === overlay){
@@ -7205,6 +7235,7 @@ function renderCalendarDayModal(){
    body.addEventListener('touchcancel', (event) => finish(event, 'touch'), { passive:false });
  }
  render(false);
+ syncDetailSlider(false);
  removeLegacyBenefitPhotoViewer();
  overlay.setAttribute('aria-hidden','false');
  document.body.classList.add('benefit-image-preview-open');
