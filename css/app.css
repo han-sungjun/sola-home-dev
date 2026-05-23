@@ -23610,3 +23610,69 @@ dialog[open] button,
   right:14px!important;
   transform:none!important;
 }
+
+/* ===== v62 혜택 상세/확대 사진: PC/모바일 드래그 연동 슬라이드 ===== */
+#detailModal .benefit-detail-photo-slider{
+  overflow:hidden!important;
+  cursor:grab;
+  touch-action:pan-y;
+  user-select:none;
+}
+#detailModal .benefit-detail-photo-slider:active{cursor:grabbing;}
+#detailModal .benefit-detail-photo-track{
+  display:flex;
+  width:100%;
+  height:100%;
+  transform:translate3d(0,0,0);
+  transition:transform .26s cubic-bezier(.22,.61,.36,1);
+  will-change:transform;
+}
+#detailModal .benefit-detail-photo-slide{
+  position:relative!important;
+  inset:auto!important;
+  flex:0 0 100%;
+  width:100%!important;
+  height:100%!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  transform:none!important;
+  transition:none!important;
+  cursor:zoom-in;
+}
+#detailModal .benefit-detail-photo-slide img{
+  pointer-events:none;
+  -webkit-user-drag:none;
+  user-select:none;
+}
+.benefit-image-preview-body{
+  overflow:hidden;
+  cursor:grab;
+  touch-action:pan-y;
+}
+.benefit-image-preview-body:active{cursor:grabbing;}
+.benefit-image-preview-track{
+  display:flex;
+  width:100%;
+  height:100%;
+  transform:translate3d(0,0,0);
+  transition:transform .28s cubic-bezier(.22,.61,.36,1);
+  will-change:transform;
+}
+.benefit-image-preview-slide{
+  flex:0 0 100%;
+  width:100%;
+  min-height:260px;
+  max-height:calc(88vh - 58px);
+  display:grid;
+  place-items:center;
+}
+.benefit-image-preview-slide img{
+  max-width:100%;
+  max-height:calc(88vh - 58px);
+  object-fit:contain;
+  display:block;
+  pointer-events:none;
+  -webkit-user-drag:none;
+  user-select:none;
+}
+.benefit-image-preview-body > img{display:none!important;}

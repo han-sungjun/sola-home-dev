@@ -6877,7 +6877,7 @@ function renderCalendarDayModal(){
  const slides = images.map((url, index) => `<button type="button" class="benefit-detail-photo-slide${index === 0 ? ' active' : ''}" data-benefit-photo-index="${index}" data-benefit-photo-url="${escapeAttr(url)}" aria-label="${escapeAttr(item.name || '혜택 사진')} ${index + 1}번째 확대"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.name || '매장 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo-slide')?.remove();"></button>`).join('');
  const dots = images.length > 1 ? `<div class="benefit-detail-photo-dots" aria-hidden="true">${images.map((_, index) => `<span class="${index === 0 ? 'active' : ''}"></span>`).join('')}</div>` : '';
  const count = images.length > 1 ? `<span class="benefit-detail-photo-count">1/${images.length}</span>` : '';
- return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}">${slides}<span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${count}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
+ return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}"><div class="benefit-detail-photo-track">${slides}</div><span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${count}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
  }
 
  function benefitDetailHeroHtml(item = {}){
@@ -6886,12 +6886,22 @@ function renderCalendarDayModal(){
  return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
  }
 
- function setBenefitPhotoSlide(slider, nextIndex){
+ function getPointerClient(event){
+ const source = event?.touches?.[0] || event?.changedTouches?.[0] || event;
+ return { x: Number(source?.clientX || 0), y: Number(source?.clientY || 0) };
+ }
+
+ function setBenefitPhotoSlide(slider, nextIndex, options = {}){
  if(!slider) return;
  const slides = [...slider.querySelectorAll('.benefit-detail-photo-slide')];
  if(!slides.length) return;
  const max = slides.length;
  const index = ((Number(nextIndex) || 0) + max) % max;
+ const track = slider.querySelector('.benefit-detail-photo-track');
+ if(track){
+   track.style.transition = options.animate === false ? 'none' : '';
+   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+ }
  slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
  slider.querySelectorAll('.benefit-detail-photo-dots span').forEach((dot, i) => dot.classList.toggle('active', i === index));
  const count = slider.querySelector('.benefit-detail-photo-count');
@@ -6903,48 +6913,75 @@ function renderCalendarDayModal(){
  const slider = qs('#modalBody .benefit-detail-photo-slider');
  if(!slider || slider.dataset.bound === '1') return;
  slider.dataset.bound = '1';
- let touchStartX = 0;
- let touchStartY = 0;
- let touchMoved = false;
+ const track = slider.querySelector('.benefit-detail-photo-track');
  const getCurrent = () => Number(slider.dataset.currentIndex || 0);
+ const getMax = () => Math.max(1, slider.querySelectorAll('.benefit-detail-photo-slide').length);
  const openCurrentPreview = () => openBenefitImagePreview(slider, getCurrent(), item.name || '혜택 사진');
- slider.addEventListener('touchstart', (event) => {
-   const touch = event.touches && event.touches[0];
-   if(!touch) return;
-   touchStartX = touch.clientX;
-   touchStartY = touch.clientY;
-   touchMoved = false;
- }, { passive: true });
- slider.addEventListener('touchmove', (event) => {
-   const touch = event.touches && event.touches[0];
-   if(!touch) return;
-   const dx = touch.clientX - touchStartX;
-   const dy = touch.clientY - touchStartY;
-   if(Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
-     touchMoved = true;
-     event.preventDefault();
+ let startX = 0;
+ let startY = 0;
+ let dx = 0;
+ let dragging = false;
+ let moved = false;
+ let pointerId = null;
+ const resetTrack = (animate = true) => {
+   if(!track) return;
+   track.style.transition = animate ? '' : 'none';
+   track.style.transform = `translate3d(${(-getCurrent() * 100)}%,0,0)`;
+ };
+ const start = (event) => {
+   if(getMax() < 2) return;
+   if(event.button != null && event.button !== 0) return;
+   const point = getPointerClient(event);
+   startX = point.x;
+   startY = point.y;
+   dx = 0;
+   moved = false;
+   dragging = true;
+   pointerId = event.pointerId ?? null;
+   if(track) track.style.transition = 'none';
+   if(event.pointerId != null && slider.setPointerCapture){
+     try{ slider.setPointerCapture(event.pointerId); }catch(_){ }
    }
- }, { passive: false });
- slider.addEventListener('touchend', (event) => {
-   const touch = event.changedTouches && event.changedTouches[0];
-   if(!touch) return;
-   const dx = touch.clientX - touchStartX;
-   const dy = touch.clientY - touchStartY;
-   if(Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.2){
+ };
+ const move = (event) => {
+   if(!dragging) return;
+   const point = getPointerClient(event);
+   dx = point.x - startX;
+   const dy = point.y - startY;
+   if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
+     moved = true;
+     event.preventDefault();
+     if(track){
+       const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
+       const percent = (dx / width) * 100;
+       track.style.transform = `translate3d(${(-getCurrent() * 100) + percent}%,0,0)`;
+     }
+   }
+ };
+ const end = (event) => {
+   if(!dragging) return;
+   dragging = false;
+   if(pointerId != null && slider.releasePointerCapture){
+     try{ slider.releasePointerCapture(pointerId); }catch(_){ }
+   }
+   const dy = Math.abs((getPointerClient(event).y || startY) - startY);
+   const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
+   const threshold = Math.min(80, Math.max(36, width * 0.22));
+   if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
      event.preventDefault();
      event.stopPropagation();
      setBenefitPhotoSlide(slider, getCurrent() + (dx < 0 ? 1 : -1));
-     return;
+   }else{
+     resetTrack(true);
    }
- }, { passive: false });
+   window.setTimeout(() => { moved = false; }, 80);
+ };
+ slider.addEventListener('pointerdown', start);
+ slider.addEventListener('pointermove', move, { passive:false });
+ slider.addEventListener('pointerup', end, { passive:false });
+ slider.addEventListener('pointercancel', end, { passive:false });
  slider.addEventListener('click', (event) => {
-   if(touchMoved){
-     event.preventDefault();
-     event.stopPropagation();
-     touchMoved = false;
-     return;
-   }
-   if(event.target.closest('[data-benefit-photo-nav]')){
+   if(moved || Math.abs(dx) > 8){
      event.preventDefault();
      event.stopPropagation();
      return;
@@ -6955,6 +6992,7 @@ function renderCalendarDayModal(){
      openCurrentPreview();
    }
  });
+ resetTrack(false);
  }
 
  function openBenefitImagePreview(slider, startIndex = 0, title = '혜택 사진'){
@@ -6967,18 +7005,20 @@ function renderCalendarDayModal(){
  if(!overlay){
    overlay = document.createElement('div');
    overlay.className = 'benefit-image-preview-overlay';
-   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><img alt=""><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
+   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
    document.body.appendChild(overlay);
  }
- const img = overlay.querySelector('img');
+ const body = overlay.querySelector('.benefit-image-preview-body');
+ const track = overlay.querySelector('.benefit-image-preview-track');
  const count = overlay.querySelector('.benefit-image-preview-count');
  const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
- let previewStartX = 0;
- let previewStartY = 0;
- const render = () => {
-   img.src = images[index];
-   img.alt = title;
+ const render = (animate = true) => {
+   if(track){
+     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div>`).join('');
+     track.style.transition = animate ? '' : 'none';
+     track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+   }
    if(count) count.textContent = images.length > 1 ? `${index + 1}/${images.length}` : '';
    if(titleEl) titleEl.textContent = title;
    if(dotsEl){
@@ -6987,35 +7027,73 @@ function renderCalendarDayModal(){
    }
  };
  const close = () => { overlay.classList.remove('show'); document.body.classList.remove('benefit-image-preview-open'); };
- const move = (delta) => { index = (index + delta + images.length) % images.length; render(); };
+ const moveTo = (nextIndex, animate = true) => {
+   index = (nextIndex + images.length) % images.length;
+   render(animate);
+ };
+ let startX = 0;
+ let startY = 0;
+ let dx = 0;
+ let dragging = false;
+ let pointerId = null;
+ const resetTrack = (animate = true) => {
+   if(!track) return;
+   track.style.transition = animate ? '' : 'none';
+   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+ };
  overlay.onclick = (event) => {
    if(event.target === overlay || event.target.closest('.benefit-image-preview-close')) close();
  };
- overlay.ontouchstart = (event) => {
-   const touch = event.touches && event.touches[0];
-   if(!touch) return;
-   previewStartX = touch.clientX;
-   previewStartY = touch.clientY;
- };
- overlay.ontouchmove = (event) => {
-   const touch = event.touches && event.touches[0];
-   if(!touch) return;
-   const dx = touch.clientX - previewStartX;
-   const dy = touch.clientY - previewStartY;
-   if(Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) event.preventDefault();
- };
- overlay.ontouchend = (event) => {
-   if(images.length < 2) return;
-   const touch = event.changedTouches && event.changedTouches[0];
-   if(!touch) return;
-   const dx = touch.clientX - previewStartX;
-   const dy = touch.clientY - previewStartY;
-   if(Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.2){
-     event.preventDefault();
-     move(dx < 0 ? 1 : -1);
-   }
- };
- render();
+ if(body && body.dataset.previewSwipeBound !== '1'){
+   body.dataset.previewSwipeBound = '1';
+   body.addEventListener('pointerdown', (event) => {
+     if(images.length < 2) return;
+     if(event.button != null && event.button !== 0) return;
+     const point = getPointerClient(event);
+     startX = point.x;
+     startY = point.y;
+     dx = 0;
+     dragging = true;
+     pointerId = event.pointerId ?? null;
+     if(track) track.style.transition = 'none';
+     if(event.pointerId != null && body.setPointerCapture){
+       try{ body.setPointerCapture(event.pointerId); }catch(_){ }
+     }
+   });
+   body.addEventListener('pointermove', (event) => {
+     if(!dragging) return;
+     const point = getPointerClient(event);
+     dx = point.x - startX;
+     const dy = point.y - startY;
+     if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
+       event.preventDefault();
+       if(track){
+         const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
+         const percent = (dx / width) * 100;
+         track.style.transform = `translate3d(${(-index * 100) + percent}%,0,0)`;
+       }
+     }
+   }, { passive:false });
+   const finish = (event) => {
+     if(!dragging) return;
+     dragging = false;
+     if(pointerId != null && body.releasePointerCapture){
+       try{ body.releasePointerCapture(pointerId); }catch(_){ }
+     }
+     const dy = Math.abs((getPointerClient(event).y || startY) - startY);
+     const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
+     const threshold = Math.min(120, Math.max(48, width * 0.18));
+     if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
+       event.preventDefault();
+       moveTo(index + (dx < 0 ? 1 : -1));
+     }else{
+       resetTrack(true);
+     }
+   };
+   body.addEventListener('pointerup', finish, { passive:false });
+   body.addEventListener('pointercancel', finish, { passive:false });
+ }
+ render(false);
  overlay.classList.add('show');
  document.body.classList.add('benefit-image-preview-open');
  }
