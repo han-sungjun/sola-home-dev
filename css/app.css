@@ -23566,3 +23566,47 @@ dialog[open] button,
 .benefit-image-preview-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:46px;height:46px;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(15,23,42,.62);color:#fff;font-size:30px;font-weight:900;}.benefit-image-preview-nav.prev{left:14px;}.benefit-image-preview-nav.next{right:14px;}
 .benefit-image-preview-count{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);padding:6px 10px;border-radius:999px;background:rgba(15,23,42,.7);color:#fff;font-size:12px;font-weight:900;}
 @media(max-width:560px){#detailModal .benefit-detail-photo-nav{width:24px;height:30px;font-size:18px;}.benefit-image-preview-overlay{padding:10px;}.benefit-image-preview-dialog{border-radius:22px;width:96vw;}.benefit-image-preview-nav{width:40px;height:40px;font-size:26px;}}
+
+/* ===== v61 혜택 상세/확대 사진: 버튼 제거 + 스와이프 전용 ===== */
+#detailModal .benefit-detail-photo-slider{
+  touch-action: pan-y;
+  user-select: none;
+}
+#detailModal .benefit-detail-photo-nav,
+.benefit-image-preview-nav{
+  display:none!important;
+}
+#detailModal .benefit-detail-photo-slide{
+  -webkit-tap-highlight-color: transparent;
+}
+.benefit-image-preview-body{
+  touch-action: pan-y;
+  user-select:none;
+}
+.benefit-image-preview-dots{
+  position:absolute;
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%);
+  z-index:3;
+  display:flex;
+  gap:5px;
+  align-items:center;
+  justify-content:center;
+}
+.benefit-image-preview-dots[hidden]{display:none!important;}
+.benefit-image-preview-dots span{
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:rgba(255,255,255,.55);
+}
+.benefit-image-preview-dots span.active{
+  width:14px;
+  background:#fff;
+}
+.benefit-image-preview-count{
+  left:auto!important;
+  right:14px!important;
+  transform:none!important;
+}

@@ -6876,8 +6876,8 @@ function renderCalendarDayModal(){
  if(!images.length) return '';
  const slides = images.map((url, index) => `<button type="button" class="benefit-detail-photo-slide${index === 0 ? ' active' : ''}" data-benefit-photo-index="${index}" data-benefit-photo-url="${escapeAttr(url)}" aria-label="${escapeAttr(item.name || '혜택 사진')} ${index + 1}번째 확대"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.name || '매장 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo-slide')?.remove();"></button>`).join('');
  const dots = images.length > 1 ? `<div class="benefit-detail-photo-dots" aria-hidden="true">${images.map((_, index) => `<span class="${index === 0 ? 'active' : ''}"></span>`).join('')}</div>` : '';
- const controls = images.length > 1 ? `<button type="button" class="benefit-detail-photo-nav prev" data-benefit-photo-nav="prev" aria-label="이전 사진">‹</button><button type="button" class="benefit-detail-photo-nav next" data-benefit-photo-nav="next" aria-label="다음 사진">›</button><span class="benefit-detail-photo-count">1/${images.length}</span>` : '';
- return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}">${slides}<span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${controls}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
+ const count = images.length > 1 ? `<span class="benefit-detail-photo-count">1/${images.length}</span>` : '';
+ return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}">${slides}<span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${count}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
  }
 
  function benefitDetailHeroHtml(item = {}){
@@ -6903,19 +6903,56 @@ function renderCalendarDayModal(){
  const slider = qs('#modalBody .benefit-detail-photo-slider');
  if(!slider || slider.dataset.bound === '1') return;
  slider.dataset.bound = '1';
- slider.addEventListener('click', (event) => {
-   const nav = event.target.closest('[data-benefit-photo-nav]');
-   if(nav){
+ let touchStartX = 0;
+ let touchStartY = 0;
+ let touchMoved = false;
+ const getCurrent = () => Number(slider.dataset.currentIndex || 0);
+ const openCurrentPreview = () => openBenefitImagePreview(slider, getCurrent(), item.name || '혜택 사진');
+ slider.addEventListener('touchstart', (event) => {
+   const touch = event.touches && event.touches[0];
+   if(!touch) return;
+   touchStartX = touch.clientX;
+   touchStartY = touch.clientY;
+   touchMoved = false;
+ }, { passive: true });
+ slider.addEventListener('touchmove', (event) => {
+   const touch = event.touches && event.touches[0];
+   if(!touch) return;
+   const dx = touch.clientX - touchStartX;
+   const dy = touch.clientY - touchStartY;
+   if(Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
+     touchMoved = true;
+     event.preventDefault();
+   }
+ }, { passive: false });
+ slider.addEventListener('touchend', (event) => {
+   const touch = event.changedTouches && event.changedTouches[0];
+   if(!touch) return;
+   const dx = touch.clientX - touchStartX;
+   const dy = touch.clientY - touchStartY;
+   if(Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.2){
      event.preventDefault();
      event.stopPropagation();
-     const current = Number(slider.dataset.currentIndex || 0);
-     setBenefitPhotoSlide(slider, current + (nav.dataset.benefitPhotoNav === 'next' ? 1 : -1));
+     setBenefitPhotoSlide(slider, getCurrent() + (dx < 0 ? 1 : -1));
      return;
    }
-   const slide = event.target.closest('.benefit-detail-photo-slide');
-   if(slide){
-     const index = Number(slide.dataset.benefitPhotoIndex || slider.dataset.currentIndex || 0);
-     openBenefitImagePreview(slider, index, item.name || '혜택 사진');
+ }, { passive: false });
+ slider.addEventListener('click', (event) => {
+   if(touchMoved){
+     event.preventDefault();
+     event.stopPropagation();
+     touchMoved = false;
+     return;
+   }
+   if(event.target.closest('[data-benefit-photo-nav]')){
+     event.preventDefault();
+     event.stopPropagation();
+     return;
+   }
+   if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
+     event.preventDefault();
+     event.stopPropagation();
+     openCurrentPreview();
    }
  });
  }
@@ -6930,24 +6967,53 @@ function renderCalendarDayModal(){
  if(!overlay){
    overlay = document.createElement('div');
    overlay.className = 'benefit-image-preview-overlay';
-   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><button type="button" class="benefit-image-preview-nav prev" aria-label="이전 사진">‹</button><img alt=""><button type="button" class="benefit-image-preview-nav next" aria-label="다음 사진">›</button><span class="benefit-image-preview-count"></span></div></div>`;
+   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="dialog" aria-modal="true" aria-label="혜택 사진 확대"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><img alt=""><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
    document.body.appendChild(overlay);
  }
  const img = overlay.querySelector('img');
  const count = overlay.querySelector('.benefit-image-preview-count');
  const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
+ const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
+ let previewStartX = 0;
+ let previewStartY = 0;
  const render = () => {
    img.src = images[index];
    img.alt = title;
-   if(count) count.textContent = `${index + 1}/${images.length}`;
+   if(count) count.textContent = images.length > 1 ? `${index + 1}/${images.length}` : '';
    if(titleEl) titleEl.textContent = title;
-   overlay.querySelectorAll('.benefit-image-preview-nav').forEach(btn => btn.hidden = images.length < 2);
+   if(dotsEl){
+     dotsEl.hidden = images.length < 2;
+     dotsEl.innerHTML = images.map((_, i) => `<span class="${i === index ? 'active' : ''}"></span>`).join('');
+   }
  };
  const close = () => { overlay.classList.remove('show'); document.body.classList.remove('benefit-image-preview-open'); };
+ const move = (delta) => { index = (index + delta + images.length) % images.length; render(); };
  overlay.onclick = (event) => {
    if(event.target === overlay || event.target.closest('.benefit-image-preview-close')) close();
-   else if(event.target.closest('.benefit-image-preview-nav.next')){ index = (index + 1) % images.length; render(); }
-   else if(event.target.closest('.benefit-image-preview-nav.prev')){ index = (index - 1 + images.length) % images.length; render(); }
+ };
+ overlay.ontouchstart = (event) => {
+   const touch = event.touches && event.touches[0];
+   if(!touch) return;
+   previewStartX = touch.clientX;
+   previewStartY = touch.clientY;
+ };
+ overlay.ontouchmove = (event) => {
+   const touch = event.touches && event.touches[0];
+   if(!touch) return;
+   const dx = touch.clientX - previewStartX;
+   const dy = touch.clientY - previewStartY;
+   if(Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) event.preventDefault();
+ };
+ overlay.ontouchend = (event) => {
+   if(images.length < 2) return;
+   const touch = event.changedTouches && event.changedTouches[0];
+   if(!touch) return;
+   const dx = touch.clientX - previewStartX;
+   const dy = touch.clientY - previewStartY;
+   if(Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.2){
+     event.preventDefault();
+     move(dx < 0 ? 1 : -1);
+   }
  };
  render();
  overlay.classList.add('show');
