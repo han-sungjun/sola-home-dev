@@ -1779,20 +1779,13 @@
   var sx = 0;
   var sy = 0;
   var moved = false;
-  var suppressUntil = 0;
+  var suppressNextClick = false;
   function point(e){
     var s = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
     return { x: Number(s.clientX || 0), y: Number(s.clientY || 0) };
   }
   function isSliderTarget(target){
     return !!(target && target.closest && target.closest('#detailModal .benefit-detail-photo-slider'));
-  }
-  function suppress(ms){
-    suppressUntil = Date.now() + (ms || 900);
-    window.__upickBenefitPhotoDragSuppressUntil = suppressUntil;
-  }
-  function isSuppressed(){
-    return Math.max(suppressUntil || 0, Number(window.__upickBenefitPhotoDragSuppressUntil || 0)) > Date.now();
   }
   function down(e){
     if(e.button != null && e.button !== 0) return;
@@ -1808,9 +1801,10 @@
     var p = point(e);
     var dx = p.x - sx;
     var dy = p.y - sy;
-    if(Math.abs(dx) > 5 || Math.abs(dy) > 5){
+    if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
       moved = true;
-      suppress(1000);
+      suppressNextClick = true;
+      window.__upickBenefitPhotoSuppressNextClick = true;
     }
   }
   function up(e){
@@ -1819,14 +1813,17 @@
     var p = point(e);
     var dx = p.x - sx;
     var dy = p.y - sy;
-    if(moved || Math.abs(dx) > 5 || Math.abs(dy) > 5){
-      suppress(1200);
+    if(moved || Math.abs(dx) > 6 || Math.abs(dy) > 6){
+      suppressNextClick = true;
+      window.__upickBenefitPhotoSuppressNextClick = true;
     }
-    setTimeout(function(){ moved = false; }, 350);
+    setTimeout(function(){ moved = false; }, 0);
   }
   function block(e){
     if(!isSliderTarget(e.target)) return;
-    if(!isSuppressed()) return;
+    if(!suppressNextClick && window.__upickBenefitPhotoSuppressNextClick !== true) return;
+    suppressNextClick = false;
+    window.__upickBenefitPhotoSuppressNextClick = false;
     e.preventDefault();
     e.stopPropagation();
     if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
@@ -1836,14 +1833,7 @@
   document.addEventListener('pointermove', move, true);
   document.addEventListener('pointerup', up, true);
   document.addEventListener('pointercancel', up, true);
-  document.addEventListener('mousedown', down, true);
-  document.addEventListener('mousemove', move, true);
-  document.addEventListener('mouseup', up, true);
-  document.addEventListener('touchstart', down, {capture:true, passive:true});
-  document.addEventListener('touchmove', move, {capture:true, passive:true});
-  document.addEventListener('touchend', up, true);
   document.addEventListener('click', block, true);
-  document.addEventListener('auxclick', block, true);
 })();
 </script>
     <script src="/js/app.js?v=benefit-shine-v31" type="module">

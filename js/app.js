@@ -6924,25 +6924,23 @@ function renderCalendarDayModal(){
  let moved = false;
  let didDrag = false;
  let pointerId = null;
- let dragSuppressUntil = 0;
- const blockPreviewClick = (ms = 700) => {
-   dragSuppressUntil = Date.now() + ms;
-   slider.dataset.photoDragSuppressUntil = String(dragSuppressUntil);
-   window.__upickBenefitPhotoDragSuppressUntil = dragSuppressUntil;
+ let suppressNextPreviewClick = false;
+ const blockPreviewClick = () => {
+   suppressNextPreviewClick = true;
+   slider.dataset.photoDragSuppressNextClick = '1';
+   window.__upickBenefitPhotoSuppressNextClick = true;
  };
- const isPreviewClickBlocked = () => Math.max(Number(slider.dataset.photoDragSuppressUntil || 0), Number(window.__upickBenefitPhotoDragSuppressUntil || 0), dragSuppressUntil || 0) > Date.now();
- const blockDragGeneratedClick = (event) => {
-   if(!slider.contains(event.target)) return;
-   if(!isPreviewClickBlocked()) return;
-   event.preventDefault();
-   event.stopPropagation();
-   if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+ const isPreviewClickBlocked = () => suppressNextPreviewClick || slider.dataset.photoDragSuppressNextClick === '1' || window.__upickBenefitPhotoSuppressNextClick === true;
+ const consumePreviewClickBlock = () => {
+   if(!isPreviewClickBlocked()) return false;
+   suppressNextPreviewClick = false;
+   delete slider.dataset.photoDragSuppressNextClick;
+   window.__upickBenefitPhotoSuppressNextClick = false;
+   return true;
  };
- document.addEventListener('click', blockDragGeneratedClick, true);
- document.addEventListener('auxclick', blockDragGeneratedClick, true);
  slider.addEventListener('dragstart', (event) => {
    event.preventDefault();
-   blockPreviewClick(900);
+   blockPreviewClick();
  }, true);
  const resetTrack = (animate = true) => {
    if(!track) return;
@@ -6974,11 +6972,11 @@ function renderCalendarDayModal(){
    const dy = point.y - startY;
    if(Math.abs(dx) > 3 || Math.abs(dy) > 3){
      moved = true;
-     blockPreviewClick(900);
+     blockPreviewClick();
    }
    if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
      didDrag = true;
-     blockPreviewClick(900);
+     blockPreviewClick();
      event.preventDefault();
      if(track){
        const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
@@ -6999,7 +6997,7 @@ function renderCalendarDayModal(){
    const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
    const threshold = Math.min(80, Math.max(36, width * 0.22));
    if(moved || didDrag || Math.abs(dx) > 3){
-     blockPreviewClick(900);
+     blockPreviewClick();
    }
    if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
      event.preventDefault();
@@ -7008,17 +7006,20 @@ function renderCalendarDayModal(){
    }else{
      resetTrack(true);
    }
-   window.setTimeout(() => { moved = false; didDrag = false; }, 220);
+   window.setTimeout(() => { moved = false; didDrag = false; dx = 0; }, 0);
  };
  slider.addEventListener('pointerdown', start);
  slider.addEventListener('pointermove', move, { passive:false });
  slider.addEventListener('pointerup', end, { passive:false });
  slider.addEventListener('pointercancel', end, { passive:false });
  slider.addEventListener('click', (event) => {
-   if(isPreviewClickBlocked() || moved || didDrag || Math.abs(dx) > 8){
+   if(consumePreviewClickBlock() || moved || didDrag || Math.abs(dx) > 8){
      event.preventDefault();
      event.stopPropagation();
      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     moved = false;
+     didDrag = false;
+     dx = 0;
      return;
    }
    if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
@@ -7027,14 +7028,7 @@ function renderCalendarDayModal(){
      openCurrentPreview();
    }
  }, true);
- slider.addEventListener('click', (event) => {
-   if(isPreviewClickBlocked()){
-     event.preventDefault();
-     event.stopPropagation();
-     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-   }
- }, true);
- slider.addEventListener('keydown', (event) => {
+  slider.addEventListener('keydown', (event) => {
    if(event.key !== 'Enter' && event.key !== ' ') return;
    if(isPreviewClickBlocked()) return;
    event.preventDefault();
