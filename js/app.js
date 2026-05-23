@@ -6922,7 +6922,12 @@ function renderCalendarDayModal(){
  let dx = 0;
  let dragging = false;
  let moved = false;
+ let didDrag = false;
  let pointerId = null;
+ const blockPreviewClick = () => {
+   slider.dataset.photoDragSuppressUntil = String(Date.now() + 450);
+ };
+ const isPreviewClickBlocked = () => Number(slider.dataset.photoDragSuppressUntil || 0) > Date.now();
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
@@ -6936,6 +6941,7 @@ function renderCalendarDayModal(){
    startY = point.y;
    dx = 0;
    moved = false;
+   didDrag = false;
    dragging = true;
    pointerId = event.pointerId ?? null;
    if(track) track.style.transition = 'none';
@@ -6950,6 +6956,8 @@ function renderCalendarDayModal(){
    const dy = point.y - startY;
    if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
      moved = true;
+     didDrag = true;
+     blockPreviewClick();
      event.preventDefault();
      if(track){
        const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
@@ -6967,6 +6975,9 @@ function renderCalendarDayModal(){
    const dy = Math.abs((getPointerClient(event).y || startY) - startY);
    const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
    const threshold = Math.min(80, Math.max(36, width * 0.22));
+   if(didDrag || Math.abs(dx) > 8){
+     blockPreviewClick();
+   }
    if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
      event.preventDefault();
      event.stopPropagation();
@@ -6974,14 +6985,14 @@ function renderCalendarDayModal(){
    }else{
      resetTrack(true);
    }
-   window.setTimeout(() => { moved = false; }, 80);
+   window.setTimeout(() => { moved = false; didDrag = false; }, 220);
  };
  slider.addEventListener('pointerdown', start);
  slider.addEventListener('pointermove', move, { passive:false });
  slider.addEventListener('pointerup', end, { passive:false });
  slider.addEventListener('pointercancel', end, { passive:false });
  slider.addEventListener('click', (event) => {
-   if(moved || Math.abs(dx) > 8){
+   if(isPreviewClickBlocked() || moved || didDrag || Math.abs(dx) > 8){
      event.preventDefault();
      event.stopPropagation();
      return;
@@ -6991,7 +7002,13 @@ function renderCalendarDayModal(){
      event.stopPropagation();
      openCurrentPreview();
    }
- });
+ }, true);
+ slider.addEventListener('click', (event) => {
+   if(isPreviewClickBlocked()){
+     event.preventDefault();
+     event.stopPropagation();
+   }
+ }, true);
  resetTrack(false);
  }
 
