@@ -3533,6 +3533,45 @@ window.addEventListener('load', function(){
  }
 
  
+
+function getNaverReservationInfo(item = {}){
+ const rawUrl = String(item.naverReservationUrl || item.naverBookingUrl || item.reservationUrl || item.reservation?.url || item.externalLinks?.naverReservation || '').trim();
+ const enabled = !!(item.naverReservationEnabled || item.naverBookingEnabled || item.reservationEnabled || item.reservation?.enabled || rawUrl);
+ let url = rawUrl;
+ if(url && !/^https?:\/\//i.test(url)) url = `https://${url.replace(/^\/+/, '')}`;
+ const isNaverReservation = /booking\.naver\.com|m\.booking\.naver\.com|naver\.me|naver\.com/i.test(url);
+ return { enabled, url, isNaverReservation };
+}
+function hasNaverReservation(item = {}){ return getNaverReservationInfo(item).enabled; }
+function naverReservationBadgeHtml(item = {}){
+ const info = getNaverReservationInfo(item);
+ if(!info.enabled) return '';
+ return '<span class="tag naver-reservation-tag"><img class="upick-svg-icon" src="/icons/internal/calendar.svg" alt="" loading="lazy"> 네이버 예약</span>';
+}
+function naverReservationPanelHtml(item = {}){
+ const info = getNaverReservationInfo(item);
+ if(!info.enabled) return '';
+ const button = info.url
+   ? `<a class="btn btn-primary naver-reservation-btn" href="${escapeAttr(info.url)}" target="_blank" rel="noopener noreferrer" data-naver-reservation-url="${escapeAttr(info.url)}" data-benefit-id="${escapeAttr(item.id || '')}">네이버 예약하러 가기</a>`
+   : '<span class="naver-reservation-muted">예약 가능 매장입니다. 예약 URL은 관리자 등록 후 연결됩니다.</span>';
+ return `<div class="panel naver-reservation-panel"><strong class="benefit-detail-panel-title">네이버 예약 가능</strong><div class="benefit-detail-body-text">방문 전 네이버 예약 페이지에서 예약 가능 여부를 확인해보세요. 실시간 웨이팅 여부는 매장 상황에 따라 달라질 수 있습니다.</div><div class="naver-reservation-actions">${button}</div></div>`;
+}
+function bindNaverReservationButtons(scope){
+ const root = scope || document;
+ root.querySelectorAll('[data-naver-reservation-url]').forEach((el)=>{
+   if(el.dataset.naverReservationBound === '1') return;
+   el.dataset.naverReservationBound = '1';
+   el.addEventListener('click', ()=>{
+     const id = el.dataset.benefitId || '';
+     if(id){
+       const item = (state.benefits || []).find(v => String(v.id) === String(id)) || {};
+       increaseStat(id, item.name || '', 'reservationClickCount');
+       logBenefitEvent(id, 'naver_reservation_click');
+     }
+   });
+ });
+}
+
 function normalizeSupportProgramsForDetail(item = {}){
  return normalizeSupportProgramItemsForDetail(item).map(row => row.name).filter(Boolean);
 }
@@ -4719,6 +4758,13 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  facebookUrl:item.facebookUrl||item.externalLinks?.facebook||'',
  smartstoreUrl:item.smartstoreUrl||item.externalLinks?.smartstore||item.externalLinks?.smartStore||'',
  bandUrl:item.bandUrl||item.externalLinks?.band||'',
+ naverReservationEnabled:!!(item.naverReservationEnabled||item.naverBookingEnabled||item.reservationEnabled||item.reservation?.enabled||item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url),
+ naverBookingEnabled:!!(item.naverReservationEnabled||item.naverBookingEnabled||item.reservationEnabled||item.reservation?.enabled||item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url),
+ reservationEnabled:!!(item.naverReservationEnabled||item.naverBookingEnabled||item.reservationEnabled||item.reservation?.enabled||item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url),
+ naverReservationUrl:item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url||item.externalLinks?.naverReservation||'',
+ naverBookingUrl:item.naverBookingUrl||item.naverReservationUrl||item.reservationUrl||item.reservation?.url||item.externalLinks?.naverReservation||'',
+ reservationUrl:item.reservationUrl||item.naverReservationUrl||item.naverBookingUrl||item.reservation?.url||item.externalLinks?.naverReservation||'',
+ reservation:item.reservation||{},
  deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
  takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
  serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
@@ -6742,6 +6788,7 @@ ${item.content || ''}`);
  </div>
  <div class="card-tags">
  <span class="tag category-text-tag">${item.category}</span>
+ ${naverReservationBadgeHtml(item)}
  ${benefitOperationBadgesHtml(item)}
  ${distanceTag}
 
@@ -7559,7 +7606,7 @@ function renderCalendarDayModal(){
  function benefitDetailHeroHtml(item = {}){
  const imageHtml = benefitDetailImageSliderHtml(item);
  const isFavClass = imageHtml ? '' : ' no-photo';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${naverReservationBadgeHtml(item)}${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
  }
 
  function getPointerClient(event){
@@ -8001,7 +8048,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -8039,6 +8086,7 @@ function renderCalendarDayModal(){
  qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
+ bindNaverReservationButtons(qs('#modalBody'));
  updateDistanceText(item);
  setTimeout(() => renderDetailMiniMap(item), 120);
  setTimeout(() => {
@@ -9251,6 +9299,9 @@ function getAiAttachmentType(item={}){
  roadAddress: item.roadAddress || '',
  phone: pickAiPhone(item),
  link: item.link || item.url || item.naverUrl || '',
+ naverReservationEnabled: hasNaverReservation(item),
+ naverReservationUrl: getNaverReservationInfo(item).url,
+ reservationText: hasNaverReservation(item) ? '네이버 예약 가능' : '',
  lat: pos.lat ?? item.lat ?? item.latitude ?? null,
  lng: pos.lng ?? item.lng ?? item.lon ?? item.longitude ?? null,
  isOpenNow: item.isOpenNow,

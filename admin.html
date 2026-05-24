@@ -873,6 +873,24 @@
                     <input id="bandUrl" placeholder="밴드 URL">
                   </div>
                 </div>
+
+                <div class="field naver-reservation-field">
+                  <label>
+                    네이버 예약
+                    <span style="font-weight:600;color:#94a3b8;">
+                      (선택)
+                    </span>
+                  </label>
+                  <label class="check-row" style="margin-bottom:8px;">
+                    <input id="naverReservationEnabled" type="checkbox">
+                    <span>네이버 예약 가능 매장으로 표시</span>
+                  </label>
+                  <input id="naverReservationUrl" placeholder="네이버 예약 URL을 입력하세요. 예: https://booking.naver.com/...">
+                  <div class="benefit-extra-help">
+                    공개앱 혜택 카드와 상세에 예약 가능 배지와 예약하러 가기 버튼이 표시됩니다. 실시간 예약/웨이팅 현황은 확정하지 않고 예약 페이지로 연결합니다.
+                  </div>
+                </div>
+
                 <div class="field support-program-field">
                   <label>
                     정부지원금 / 바우처 사용 가능
@@ -2080,7 +2098,7 @@
         </div>
       </div>
     </div>
-    <script src="/js/admin.js?v=20260518-benefit-status-auto01">
+    <script src="/js/admin.js?v=20260524-naver-reservation-v37">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
