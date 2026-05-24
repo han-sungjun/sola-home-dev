@@ -24777,20 +24777,28 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   min-height:32px!important;
   padding:0 10px!important;
   box-sizing:border-box!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
   overflow:hidden!important;
   white-space:nowrap!important;
   cursor:pointer!important;
-  transform:translateX(-6px)!important;
+  transform:translateX(6px)!important;
+}
+.ai-location-detail-card .ai-map-marker-store .ai-map-marker-pin{
+  flex:0 0 auto!important;
+  width:13px!important;
+  height:13px!important;
+  filter:brightness(0) invert(1)!important;
+  opacity:.95!important;
 }
 .ai-location-detail-card .ai-map-marker-store span{
   display:block!important;
   min-width:0!important;
-  width:100%!important;
+  flex:1 1 auto!important;
   overflow:hidden!important;
   white-space:nowrap!important;
   text-overflow:ellipsis!important;
-  text-align:center!important;
+  text-align:left!important;
 }
 @media(max-width:420px){
   .ai-location-detail-card .ai-map-marker-store{

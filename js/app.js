@@ -8960,13 +8960,13 @@ function getAiAttachmentType(item={}){
  ensureDetailMiniMapZoomControls(mapEl, map);
 
  const markerName = item.name || item.storeName || item.title || '매장';
- const markerHtml = `<div class="map-marker-store ai-map-marker-store" role="button" tabindex="0" title="${escapeAttr(markerName)}"><span>${escapeHtml(markerName)}</span></div>`;
+ const markerHtml = `<div class="map-marker-store ai-map-marker-store" role="button" tabindex="0" title="${escapeAttr(markerName)}"><img class="upick-svg-icon ai-map-marker-pin" src="/icons/internal/pin.svg" alt="" loading="lazy"><span>${escapeHtml(markerName)}</span></div>`;
  const storeMarker = new nm.Marker({
  position: store,
  map,
- // AI 지도에서는 매장명이 카드 우측에서 잘리지 않도록 좌표가 말풍선의 우측 하단에 오게 합니다.
- // 상세 페이지 지도와 동일하게 검은 말풍선 형태는 유지하되, 긴 매장명은 내부 span에서만 말줄임 처리합니다.
- icon: { content: markerHtml, anchor: new nm.Point(132,34) },
+ // AI 지도에서는 매장 좌표를 말풍선 왼쪽 기준에 맞춰 매장명 말풍선이 오른쪽으로 펼쳐지게 합니다.
+ // 긴 매장명은 내부 span에서만 말줄임 처리하고, 앞쪽에는 위치 마커 아이콘을 함께 표시합니다.
+ icon: { content: markerHtml, anchor: new nm.Point(0,16) },
  zIndex: 100
  });
  nm.Event.addListener(storeMarker, 'click', () => {
