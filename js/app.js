@@ -3872,31 +3872,8 @@ function isLatLngInPolygon(pos, polygon){
 }
 
 
-// 스타필드 생활권 경계 매장 보정
-// 일부 매장은 관리자 좌표가 건물 중심/도로측으로 저장되어 polygon 판별이 실제 체감 상권과 반대로 나올 수 있어
-// 운영 기준이 명확한 경계 매장만 보정합니다. 일반 매장은 계속 위도/경도 polygon 기준을 사용합니다.
-const STARFIELD_ZONE_EDGE_OVERRIDES = [
-  { type:'starfield_inside', names:['그라츠커피랩','테이블린'] },
-  { type:'outside_area', names:['공터영어','노가리세상'] }
-];
-
-function normalizeStoreNameForZone(value=''){
- return String(value || '').replace(/\s+/g,'').replace(/[()\[\]{}·ㆍ._-]/g,'').toLowerCase();
-}
-
-function getBenefitZoneEdgeOverride(item={}){
- const rawName = String(item.name || item.storeName || item.title || item.placeName || '').trim();
- const normalizedName = normalizeStoreNameForZone(rawName);
- if(!normalizedName) return '';
- for(const row of STARFIELD_ZONE_EDGE_OVERRIDES){
-   const matched = (row.names || []).some((name)=>{
-     const key = normalizeStoreNameForZone(name);
-     return key && (normalizedName.includes(key) || key.includes(normalizedName));
-   });
-   if(matched) return row.type;
- }
- return '';
-}
+// 스타필드 생활권은 매장명 보정 없이 관리자 등록 좌표 + polygon만으로 판별합니다.
+// 경계 매장을 이름으로 강제 분류하면 신규/수정 매장 유지보수가 어려워지므로 사용하지 않습니다.
 
 function normalizeZoneType(value=''){
  const raw = String(value || '').trim().toLowerCase();
@@ -3907,10 +3884,6 @@ function normalizeZoneType(value=''){
 }
 
 function getBenefitZoneInfo(item={}){
- const edgeOverride = getBenefitZoneEdgeOverride(item);
- if(edgeOverride === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'경계 매장 보정 기준' };
- if(edgeOverride === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'경계 매장 보정 기준' };
-
  // 좌표가 있는 일반 매장은 관리자 페이지에 등록된 위도/경도 polygon 기준으로 판별합니다.
  const pos = getBenefitLatLng(item);
  if(pos){
@@ -3938,46 +3911,152 @@ function getBenefitEngagementScore(item={}){
  return Number(row?.popularScore || row?.score || item.popularScore || item.score || item.detailViewCount || item.clickCount || 0) || 0;
 }
 
+function numberFromAny(...values){
+ for(const value of values){
+   if(value == null || value === '') continue;
+   const n = Number(String(value).replace(/[^0-9.\-]/g,''));
+   if(Number.isFinite(n)) return n;
+ }
+ return 0;
+}
+
+function getBenefitActionMetric(item={}, names=[]){
+ let total = 0;
+ for(const name of names){
+   total += numberFromAny(item[name]);
+ }
+ return total;
+}
+
+function getTimestampMs(value){
+ if(!value) return 0;
+ if(typeof value === 'number') return value > 1e12 ? value : value * 1000;
+ if(typeof value === 'string'){
+   const t = Date.parse(value);
+   return Number.isFinite(t) ? t : 0;
+ }
+ if(typeof value === 'object'){
+   if(typeof value.toMillis === 'function') return Number(value.toMillis()) || 0;
+   if(typeof value.toDate === 'function'){
+     const d = value.toDate();
+     return d instanceof Date ? d.getTime() : 0;
+   }
+   if('seconds' in value) return Number(value.seconds) * 1000 + Math.round(Number(value.nanoseconds || 0) / 1e6);
+   if('_seconds' in value) return Number(value._seconds) * 1000 + Math.round(Number(value._nanoseconds || 0) / 1e6);
+ }
+ return 0;
+}
+
+function getRecentActionBoost(item={}, now=Date.now()){
+ const candidates = [
+   ['lastClickAt','lastDetailViewAt','lastViewedAt','updatedAt'],
+   ['lastMapClickAt','lastMapViewAt','lastRouteClickAt','lastDirectionClickAt','lastDirectionsAt'],
+   ['lastPhoneClickAt','lastCallClickAt'],
+   ['lastFavoriteAt','lastSavedAt']
+ ].flat();
+ const latest = Math.max(...candidates.map((key)=>getTimestampMs(item[key])), 0);
+ if(!latest) return { points:0, reason:'' };
+ const minutes = Math.max(0, (now - latest) / 60000);
+ if(minutes <= 10) return { points:12, reason:'최근 10분 관심 증가' };
+ if(minutes <= 30) return { points:8, reason:'최근 30분 관심 증가' };
+ if(minutes <= 60) return { points:5, reason:'최근 1시간 관심 증가' };
+ if(minutes <= 180) return { points:2, reason:'최근 관심 기록' };
+ return { points:0, reason:'' };
+}
+
+function clampCrowdScore(score){
+ return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function classifyCrowdScore(score){
+ if(score >= 85) return { level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음' };
+ if(score >= 66) return { level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능' };
+ if(score >= 36) return { level:'normal', label:'보통', waitLabel:'대기 가능성 보통' };
+ return { level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음' };
+}
+
+function getSeoulNow(){
+ try{ return new Date(new Date().toLocaleString('en-US', { timeZone:'Asia/Seoul' })); }
+ catch(_){ return new Date(); }
+}
+
 function getBenefitCrowdInfo(item={}){
  const manual = String(item.crowdLevel || item.crowdStatus || item.waitingLevel || '').trim().toLowerCase();
  const manualMap = {
-   low:{level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음'},
-   normal:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통'},
-   medium:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통'},
-   busy:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능'},
-   high:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능'},
-   very_high:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음'},
-   waiting_likely:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음'}
+   low:{level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', score:25},
+   normal:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통', score:50},
+   medium:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통', score:50},
+   busy:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', score:72},
+   high:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', score:72},
+   very_high:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음', score:90},
+   waiting_likely:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음', score:90}
  };
- if(manualMap[manual]) return { ...manualMap[manual], reason:item.crowdReason || '관리자 등록 기준' };
+ if(manualMap[manual]) return { ...manualMap[manual], reason:String(item.crowdReason || '관리자 등록 기준'), dynamic:false };
 
- const now = new Date();
+ const now = getSeoulNow();
+ const nowMs = now.getTime();
  const day = now.getDay();
  const hour = now.getHours();
+ const minute = now.getMinutes();
  const isWeekend = day === 0 || day === 6;
- const category = String(item.category || item.storeCategory || '').toLowerCase();
- const nameText = String(item.name || item.storeName || item.title || '').toLowerCase();
- const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|pub|bar|cafe|coffee|pizza/.test(category + ' ' + nameText);
- const peakLunch = hour >= 11 && hour <= 13;
- const peakDinner = hour >= 17 && hour <= 20;
+ const isFriday = day === 5;
+ const hay = [item.category,item.type,item.name,item.storeName,item.title,item.tags,item.aiTags].flat().join(' ').toLowerCase();
+ const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|pub|bar|cafe|coffee|pizza|떡볶|밥|국수|샐러드|브런치/.test(hay);
+ const cafeLike = /카페|커피|디저트|베이커리|브런치|cafe|coffee|bakery/.test(hay);
+ const educationMedicalLike = /학원|영어|수학|교육|병원|의원|약국|치과|피부|관리|케어/.test(hay);
+ const zone = getBenefitZoneInfo(item);
  const rank = getBenefitPopularRank(item);
  const score = getBenefitEngagementScore(item);
- let points = 0;
+ const detailCount = getBenefitActionMetric(item, ['detailViewCount','viewCount','clickCount','cardClickCount']);
+ const mapCount = getBenefitActionMetric(item, ['mapClickCount','mapViewCount','routeClickCount','directionClickCount','directionsClickCount','naverMapClickCount','naverDirectionClickCount']);
+ const phoneCount = getBenefitActionMetric(item, ['phoneClickCount','callClickCount','telClickCount']);
+ const favoriteCount = getBenefitActionMetric(item, ['favoriteCount','saveCount','savedCount']);
+ const shareCount = getBenefitActionMetric(item, ['shareClickCount','shareCount','sharedCount']);
+ const recent = getRecentActionBoost(item, nowMs);
+ const peakLunch = hour >= 11 && hour <= 13;
+ const peakCafe = cafeLike && ((hour >= 13 && hour <= 17) || (isWeekend && hour >= 11 && hour <= 18));
+ const peakDinner = hour >= 17 && hour <= 20;
+ const lateEvening = hour >= 21 || hour < 8;
+ let crowdScore = 18;
  const reasons = [];
- if(foodLike){ points += 1; reasons.push('외식/카페 업종'); }
- if(isWeekend){ points += 1; reasons.push('주말'); }
- if(peakLunch || peakDinner){ points += foodLike ? 2 : 1; reasons.push(peakLunch ? '점심 피크 시간대' : '저녁 피크 시간대'); }
- if(rank && rank <= 3){ points += 2; reasons.push('인기 TOP3'); }
- else if(rank && rank <= 5){ points += 1; reasons.push('인기 TOP5'); }
- if(score >= 200){ points += 2; reasons.push('최근 관심도 높음'); }
- else if(score >= 80){ points += 1; reasons.push('최근 관심도 있음'); }
 
- if(points >= 6) return { level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음', reason:reasons.join(' · ') || '시간대/관심도 기준' };
- if(points >= 4) return { level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', reason:reasons.join(' · ') || '시간대/관심도 기준' };
- if(points >= 2) return { level:'normal', label:'보통', waitLabel:'대기 가능성 보통', reason:reasons.join(' · ') || '일반 시간대 기준' };
- return { level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', reason:reasons.join(' · ') || '피크 시간대 아님' };
+ if(foodLike){ crowdScore += 10; reasons.push(cafeLike ? '카페/디저트 업종' : '외식 업종'); }
+ if(educationMedicalLike){ crowdScore -= 5; }
+ if(zone.type === 'starfield_inside'){ crowdScore += isWeekend ? 8 : 4; reasons.push(zone.shortLabel + ' 상권'); }
+ if(isWeekend){ crowdScore += 13; reasons.push('주말'); }
+ else if(isFriday && hour >= 17){ crowdScore += 8; reasons.push('금요일 저녁'); }
+ if(peakLunch){ crowdScore += foodLike ? 18 : 8; reasons.push('점심 피크 시간대'); }
+ if(peakDinner){ crowdScore += foodLike ? 22 : 9; reasons.push('저녁 피크 시간대'); }
+ if(peakCafe){ crowdScore += 14; reasons.push('카페 이용 집중 시간대'); }
+ if(lateEvening){ crowdScore -= foodLike ? 12 : 18; reasons.push('늦은 시간대'); }
+ if(rank && rank <= 3){ crowdScore += 14; reasons.push('인기 TOP3'); }
+ else if(rank && rank <= 5){ crowdScore += 9; reasons.push('인기 TOP5'); }
+ if(score >= 250){ crowdScore += 13; reasons.push('누적 관심도 높음'); }
+ else if(score >= 100){ crowdScore += 8; reasons.push('누적 관심도 있음'); }
+ else if(score >= 40){ crowdScore += 4; }
+ if(detailCount >= 100){ crowdScore += 8; reasons.push('상세 조회 많음'); }
+ else if(detailCount >= 30){ crowdScore += 4; }
+ if(mapCount >= 20){ crowdScore += 13; reasons.push('길찾기/지도 관심 높음'); }
+ else if(mapCount >= 5){ crowdScore += 7; reasons.push('지도 관심 있음'); }
+ if(phoneCount >= 10){ crowdScore += 9; reasons.push('전화 문의 많음'); }
+ else if(phoneCount >= 3){ crowdScore += 4; }
+ if(favoriteCount >= 20){ crowdScore += 7; reasons.push('즐겨찾기 많음'); }
+ else if(favoriteCount >= 5){ crowdScore += 3; }
+ if(shareCount >= 10){ crowdScore += 5; }
+ if(recent.points){ crowdScore += recent.points; reasons.push(recent.reason); }
+ // 분 단위 미세 변화를 둬서 현재 시간 기준으로 자연스럽게 갱신되도록 합니다.
+ crowdScore += Math.sin((hour * 60 + minute) / 32) * 2;
+ crowdScore = clampCrowdScore(crowdScore);
+ const classified = classifyCrowdScore(crowdScore);
+ const mainReasons = reasons.filter(Boolean).slice(0, 4);
+ return {
+   ...classified,
+   score: crowdScore,
+   dynamic: true,
+   updatedAtText: `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')} 기준`,
+   reason: mainReasons.join(' · ') || '현재 시간대 기준'
+ };
 }
-
 function mapMarkerInlineBadgesHtml(item={}){
  const zone = getBenefitZoneInfo(item);
  const crowd = getBenefitCrowdInfo(item);
@@ -11396,6 +11475,20 @@ async function askAiAssistant(rawQuestion=''){
  qs('#gnbOverlay')?.classList.remove('show');
 }
  const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();renderCalendarReservations();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+
+// 혼잡도는 현재 시각에 따라 계속 변하므로 지도/혜택 상세 표시를 주기적으로 가볍게 갱신합니다.
+let __upickCrowdRefreshTimer = null;
+function startCrowdDynamicRefresh(){
+ if(__upickCrowdRefreshTimer) return;
+ __upickCrowdRefreshTimer = setInterval(()=>{
+   try{
+     if(state.view === 'map') renderMapMode();
+     const modal = qs('#detailModal');
+     if(modal?.open && state.selectedBenefit) openDetail(state.selectedBenefit);
+   }catch(error){ console.warn('혼잡도 동적 갱신 실패', error); }
+ }, 5 * 60 * 1000);
+}
+startCrowdDynamicRefresh();
  qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
  qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';updateFilterIconLabels();changeView('benefits');};
  qs('#benefitCardModeBtn')?.addEventListener('click', () => setBenefitViewMode('card'));
