@@ -42,6 +42,7 @@
 
   var boundLoaders = new WeakMap();
   var hideTimer = null;
+  var FADE_OUT_MS = 340;
 
   function isAdminPage(){
     return /(?:^|\/)admin(?:\.html)?(?:\/|$)/i.test(location.pathname) || /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page') || document.body.dataset.loadingMode === 'admin';
@@ -176,6 +177,7 @@
     if(!loader) return false;
     return loader.classList.contains('show') ||
       loader.classList.contains('is-visible') ||
+      loader.classList.contains('is-hiding') ||
       loader.getAttribute('aria-hidden') === 'false';
   }
 
@@ -256,11 +258,17 @@
 
   function hideOne(loader){
     if(!loader) return;
+    loader.classList.add('is-hiding');
     loader.classList.remove('show','is-visible');
-    loader.setAttribute('aria-hidden','true');
-    // 핵심: dialog top-layer는 display:none이어도 클릭을 막을 수 있어 반드시 close() 처리합니다.
-    closeTopLayer(loader);
-    if(loader.dataset) delete loader.dataset.initialAppLoading;
+
+    window.setTimeout(function(){
+      loader.classList.remove('is-hiding');
+      loader.setAttribute('aria-hidden','true');
+      // 핵심: dialog top-layer는 display:none이어도 클릭을 막을 수 있어 반드시 close() 처리합니다.
+      closeTopLayer(loader);
+      if(loader.dataset) delete loader.dataset.initialAppLoading;
+      syncLock();
+    }, FADE_OUT_MS);
   }
 
   function init(){
@@ -290,8 +298,9 @@
         if(main && message) main.textContent = message;
         if(sub && subMessage) sub.textContent = subMessage;
       }
-      loader.classList.add('show');
+      loader.classList.remove('is-hiding');
       loader.setAttribute('aria-hidden','false');
+      loader.classList.add('show','is-visible');
       openTopLayer(loader);
       syncLock();
       return loader;

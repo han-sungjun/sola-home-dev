@@ -38,7 +38,7 @@
   width:100vw!important;
   height:100dvh!important;
   min-height:100dvh!important;
-  display:none!important;
+  display:flex!important;
   align-items:center!important;
   justify-content:center!important;
   padding:24px!important;
@@ -50,11 +50,15 @@
   backdrop-filter:blur(20px) saturate(1.18)!important;
   -webkit-backdrop-filter:blur(20px) saturate(1.18)!important;
   z-index:2147483000!important;
-  opacity:1!important;
-  visibility:visible!important;
-  pointer-events:auto!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
   box-sizing:border-box!important;
   isolation:isolate!important;
+  transition:
+    opacity .36s cubic-bezier(.22,.72,.22,1),
+    visibility 0s linear .36s!important;
+  will-change:opacity!important;
 }
 
 #pageLoader.show,
@@ -72,15 +76,35 @@
 #commonLoadingDialog[aria-hidden="false"],
 .page-loader[aria-hidden="false"],
 .global-loading[aria-hidden="false"]{
-  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:
+    opacity .36s cubic-bezier(.22,.72,.22,1),
+    visibility 0s linear 0s!important;
 }
 
-#pageLoader[aria-hidden="true"]:not(.show):not(.is-visible),
-#globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible),
-#commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible),
-.page-loader[aria-hidden="true"]:not(.show):not(.is-visible),
-.global-loading[aria-hidden="true"]:not(.show):not(.is-visible){
-  display:none!important;
+#pageLoader.is-hiding,
+#globalLoadingBar.is-hiding,
+#commonLoadingDialog.is-hiding,
+.page-loader.is-hiding,
+.global-loading.is-hiding{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  transition:
+    opacity .32s cubic-bezier(.4,0,.2,1),
+    visibility 0s linear .32s!important;
+}
+
+#pageLoader[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
+#globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
+#commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
+.page-loader[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
+.global-loading[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
 }
 
 #pageLoader::before,
@@ -487,10 +511,11 @@ dialog#commonLoadingDialog.page-loader{
   pointer-events:auto!important;
 }
 dialog#commonLoadingDialog::backdrop{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
-dialog#commonLoadingDialog:not([open]){display:none!important;pointer-events:none!important;}
+dialog#commonLoadingDialog:not([open]){display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 dialog#commonLoadingDialog[open].show,
 dialog#commonLoadingDialog[open].is-visible,
-dialog#commonLoadingDialog[open][aria-hidden="false"]{display:flex!important;}
+dialog#commonLoadingDialog[open][aria-hidden="false"]{display:flex!important;opacity:1!important;visibility:visible!important;}
+dialog#commonLoadingDialog[open].is-hiding{display:flex!important;opacity:0!important;visibility:visible!important;}
 
 /* 알럿/확인 버튼은 로딩바보다 항상 위에서 클릭 가능 */
 #appAlert,
