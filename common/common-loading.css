@@ -97,6 +97,21 @@
     visibility 0s linear .32s!important;
 }
 
+
+/* 퇴장 시에는 배경이 먼저 부드럽게 사라지고, 로고/문구는 아주 짧게 따라오며 사라지도록 분리합니다. */
+#pageLoader.is-hiding .loader-content,
+#globalLoadingBar.is-hiding .loader-content,
+#commonLoadingDialog.is-hiding .loader-content,
+.page-loader.is-hiding .loader-content,
+.global-loading.is-hiding .loader-content{
+  opacity:0!important;
+  transform:translateY(-1px) scale(.988)!important;
+  transition:
+    opacity .24s cubic-bezier(.4,0,.2,1) .06s,
+    transform .24s cubic-bezier(.4,0,.2,1) .06s!important;
+  animation:none!important;
+}
+
 #pageLoader[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
 #globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
 #commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
@@ -160,6 +175,10 @@
   width:min(92vw,520px)!important;
   min-width:0!important;
   text-align:center!important;
+  opacity:1!important;
+  transition:
+    opacity .28s cubic-bezier(.22,.72,.22,1),
+    transform .28s cubic-bezier(.22,.72,.22,1)!important;
 }
 
 #pageLoader .loader-mark,
@@ -414,6 +433,26 @@ body.upick-loading-lock{
   100%{background-position:-210% 0;opacity:.54;transform:scaleX(.82)}
 }
 
+
+@media(max-width:640px), (hover:none) and (pointer:coarse){
+  #pageLoader,
+  #globalLoadingBar,
+  #commonLoadingDialog,
+  .page-loader,
+  .global-loading{
+    backdrop-filter:blur(12px) saturate(1.08)!important;
+    -webkit-backdrop-filter:blur(12px) saturate(1.08)!important;
+  }
+  #pageLoader::before,
+  #globalLoadingBar::before,
+  #commonLoadingDialog::before,
+  .page-loader::before,
+  .global-loading::before{
+    animation-duration:9s!important;
+    opacity:.86!important;
+  }
+}
+
 @media(max-width:430px){
   #pageLoader .loader-content,
   #globalLoadingBar .loader-content,
@@ -483,6 +522,29 @@ body.upick-loading-lock{
   #commonLoadingDialog .loader-content::after,
   .page-loader .loader-content::after,
   .global-loading .loader-content::after{animation:none!important;}
+}
+
+
+@media (prefers-reduced-motion:reduce){
+  #pageLoader,
+  #globalLoadingBar,
+  #commonLoadingDialog,
+  .page-loader,
+  .global-loading{
+    transition:opacity .18s ease, visibility 0s linear .18s!important;
+  }
+  #pageLoader.is-visible,
+  #globalLoadingBar.is-visible,
+  #commonLoadingDialog.is-visible,
+  .page-loader.is-visible,
+  .global-loading.is-visible,
+  #pageLoader.show,
+  #globalLoadingBar.show,
+  #commonLoadingDialog.show,
+  .page-loader.show,
+  .global-loading.show{
+    transition:opacity .18s ease, visibility 0s linear 0s!important;
+  }
 }
 
 /* dialog 기반 최상위 로딩: showModal() top-layer로 기존 dialog 위에 표시 */

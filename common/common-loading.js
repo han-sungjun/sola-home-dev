@@ -42,7 +42,9 @@
 
   var boundLoaders = new WeakMap();
   var hideTimer = null;
-  var FADE_OUT_MS = 340;
+  var FADE_OUT_MS = 420;
+  var MIN_VISIBLE_MS = 520;
+  var lastShowAt = 0;
 
   function isAdminPage(){
     return /(?:^|\/)admin(?:\.html)?(?:\/|$)/i.test(location.pathname) || /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page') || document.body.dataset.loadingMode === 'admin';
@@ -258,21 +260,29 @@
 
   function hideOne(loader){
     if(!loader) return;
+    if(loader._upickHideFinalizeTimer){
+      clearTimeout(loader._upickHideFinalizeTimer);
+      loader._upickHideFinalizeTimer = null;
+    }
     loader.classList.add('is-hiding');
     loader.classList.remove('show','is-visible');
 
-    window.setTimeout(function(){
+    loader._upickHideFinalizeTimer = window.setTimeout(function(){
       loader.classList.remove('is-hiding');
       loader.setAttribute('aria-hidden','true');
       // 핵심: dialog top-layer는 display:none이어도 클릭을 막을 수 있어 반드시 close() 처리합니다.
       closeTopLayer(loader);
       if(loader.dataset) delete loader.dataset.initialAppLoading;
+      loader._upickHideFinalizeTimer = null;
       syncLock();
     }, FADE_OUT_MS);
   }
 
   function init(){
-    document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(bind);
+    document.querySelectorAll('#pageLoader,#globalLoadingBar,#commonLoadingDialog,.page-loader,.global-loading').forEach(function(loader){
+      bind(loader);
+      if(isVisible(loader) && !lastShowAt) lastShowAt = Date.now();
+    });
     var observer = new MutationObserver(function(mutations){
       mutations.forEach(function(mutation){
         mutation.addedNodes && Array.prototype.forEach.call(mutation.addedNodes, function(node){
@@ -290,6 +300,11 @@
     show: function(message, subMessage){
       if(hideTimer){ clearTimeout(hideTimer); hideTimer = null; }
       var loader = ensureLoader(false);
+      if(loader._upickHideFinalizeTimer){
+        clearTimeout(loader._upickHideFinalizeTimer);
+        loader._upickHideFinalizeTimer = null;
+      }
+      lastShowAt = Date.now();
       bind(loader);
       ensureMarkup(loader);
       if(message || subMessage){
@@ -307,11 +322,13 @@
     },
     hide: function(){
       if(hideTimer) clearTimeout(hideTimer);
+      var elapsed = Date.now() - lastShowAt;
+      var wait = Math.max(0, MIN_VISIBLE_MS - elapsed);
       hideTimer = window.setTimeout(function(){
         document.querySelectorAll('#commonLoadingDialog,#pageLoader,#globalLoadingBar,.page-loader,.global-loading').forEach(hideOne);
         syncLock();
         hideTimer = null;
-      }, 0);
+      }, wait);
     },
     bind: bind,
     refresh: init,
