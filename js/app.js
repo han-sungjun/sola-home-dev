@@ -8050,7 +8050,8 @@ function renderCalendarDayModal(){
  if(!targetBubble) return;
  const formatted = formatAiStreamingText(rawText);
  const isApartmentPhone = isApartmentLifePhoneQuestion(question, formatted);
- const cards = isApartmentPhone ? [] : mapAiBenefitsForQuestion(question, formatted, 3);
+ const isNoResultStreaming = typeof isAiNoResultAnswerText === 'function' && isAiNoResultAnswerText(formatted);
+ const cards = (isApartmentPhone || isNoResultStreaming) ? [] : mapAiBenefitsForQuestion(question, formatted, 3);
  const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
  if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
  lastRendered = formatted;
@@ -8077,8 +8078,8 @@ function renderCalendarDayModal(){
  targetBubble.innerHTML = `
  <div class="ai-stream-shell">
  <div class="ai-stream-status">
- <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>${isApartmentPhone ? '아파트 생활 연락처를 확인하고 있습니다' : 'AI가 답변을 작성하면서 혜택을 매칭 중입니다'}</span>
- <span>${isApartmentPhone ? '생활정보 확인 중' : (cards.length ? '추천 카드 준비 완료' : '답변 준비 중')}</span>
+ <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>${isNoResultStreaming ? '등록된 안내를 확인하고 있습니다' : (isApartmentPhone ? '아파트 생활 연락처를 확인하고 있습니다' : 'AI가 답변을 작성하면서 혜택을 매칭 중입니다')}</span>
+ <span>${isNoResultStreaming ? '안내 확인 중' : (isApartmentPhone ? '생활정보 확인 중' : (cards.length ? '추천 카드 준비 완료' : '답변 준비 중'))}</span>
  </div>
  <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
  ${liveCards}
@@ -9583,7 +9584,7 @@ function isAiDialogRejectAnswer(question='', answer=''){
 
 function isAiNoResultAnswerText(answer=''){
  const compact = String(answer || '').replace(/\s+/g, '');
- return /현재등록된안내에서찾지못했습니다|등록된안내에서찾지못했습니다|찾지못했습니다|검색결과가없습니다|답변을준비하는중문제가발생했습니다|잠시후다시질문해/i.test(compact);
+ return /현재등록된안내에서찾지못했습니다|등록된안내를찾지못했어요|등록된안내에서찾지못했습니다|찾지못했습니다|찾지못했어요|검색결과가없습니다|답변을준비하는중문제가발생했습니다|잠시후다시질문해/i.test(compact);
 }
 
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
@@ -9749,6 +9750,10 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  function bindAiAnswerActions(scope){
  const root = scope || qs('#aiChatWindow');
  if(!root) return;
+ try{
+   const retryButtons = Array.from(root.querySelectorAll('[data-ai-error-retry]'));
+   retryButtons.forEach((btn, idx) => { if(idx > 0) btn.remove(); });
+ }catch(_error){}
  bindAiDownloadButtons(root);
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
    if(btn.dataset.aiRetryBound === 'true') return;
