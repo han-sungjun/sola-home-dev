@@ -3756,6 +3756,7 @@ function normalizeNewsItemsForDetail(item = {}){
    date:row.date || '',
    url:row.url || '',
    createdAt:row.createdAt || row.created || row.createdDate || row.createdAtText || row.publishedAt || row.newsDate || row.date || '',
+   registeredAt:row.registeredAt || row.registered || row.registeredDate || '',
    updatedAt:row.updatedAt || row.updated || ''
  })).sort((a,b)=>{
    const toMs = (v) => {
@@ -3766,7 +3767,7 @@ function normalizeNewsItemsForDetail(item = {}){
      const t = Date.parse(String(v).replace(/\./g,'-'));
      return Number.isFinite(t) ? t : 0;
    };
-   return Math.max(toMs(b.createdAt), toMs(b.updatedAt)) - Math.max(toMs(a.createdAt), toMs(a.updatedAt));
+   return Math.max(toMs(b.createdAt), toMs(b.registeredAt), toMs(b.updatedAt), toMs(b.date)) - Math.max(toMs(a.createdAt), toMs(a.registeredAt), toMs(a.updatedAt), toMs(a.date));
  });
 }
 
