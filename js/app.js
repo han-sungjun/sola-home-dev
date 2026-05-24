@@ -3980,7 +3980,158 @@ function getSeoulNow(){
  catch(_){ return new Date(); }
 }
 
+
+function timeTextToMinutes(value){
+ const text = String(value || '').trim();
+ let m = text.match(/^(\d{1,2})\s*:\s*(\d{2})$/);
+ if(m) return Number(m[1]) * 60 + Number(m[2]);
+ m = text.match(/^(\d{1,2})\s*시\s*(\d{1,2})?\s*분?$/);
+ if(m) return Number(m[1]) * 60 + Number(m[2] || 0);
+ return null;
+}
+
+function isMinuteInRange(nowMin, startText, endText){
+ const start = timeTextToMinutes(startText);
+ const end = timeTextToMinutes(endText);
+ if(start == null || end == null || nowMin == null) return false;
+ if(start <= end) return nowMin >= start && nowMin < end;
+ return nowMin >= start || nowMin < end;
+}
+
+function formatMinutesAsTime(min){
+ if(min == null || !Number.isFinite(min)) return '';
+ const normalized = ((Math.round(min) % 1440) + 1440) % 1440;
+ return `${String(Math.floor(normalized / 60)).padStart(2,'0')}:${String(normalized % 60).padStart(2,'0')}`;
+}
+
+function extractTimeRangesFromText(text=''){
+ const source = String(text || '').replace(/오전\s*/g,'').replace(/오후\s*/g,'');
+ const ranges = [];
+ const re = /(\d{1,2})(?:\s*[:시]\s*(\d{2})\s*분?)?\s*(?:~|-|–|—|부터|to)\s*(\d{1,2})(?:\s*[:시]\s*(\d{2})\s*분?)?/gi;
+ let match;
+ while((match = re.exec(source))){
+   const start = `${String(match[1]).padStart(2,'0')}:${String(match[2] || '00').padStart(2,'0')}`;
+   const end = `${String(match[3]).padStart(2,'0')}:${String(match[4] || '00').padStart(2,'0')}`;
+   if(timeTextToMinutes(start) != null && timeTextToMinutes(end) != null) ranges.push({ start, end });
+ }
+ return ranges;
+}
+
+function getSeoulDayKey(now=getSeoulNow()){
+ return ['sun','mon','tue','wed','thu','fri','sat'][now.getDay()] || 'mon';
+}
+
+function getTodayHoursRowFromObject(obj={}, dayKey=getSeoulDayKey()){
+ if(!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+ const ko = { sun:'일', mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토' }[dayKey];
+ const long = { sun:'sunday', mon:'monday', tue:'tuesday', wed:'wednesday', thu:'thursday', fri:'friday', sat:'saturday' }[dayKey];
+ const candidates = [dayKey, long, ko, `${ko}요일`, String(['sun','mon','tue','wed','thu','fri','sat'].indexOf(dayKey)), 'daily', 'everyday', '매일', 'all'];
+ for(const key of candidates){
+   const row = obj[key];
+   if(row) return Array.isArray(row) ? (row[0] || null) : row;
+ }
+ return null;
+}
+
+function getBenefitHoursSources(item={}){
+ const objectSources = [
+   item.openingHoursManual, item.businessHoursManual, item.manualBusinessHours, item.adminBusinessHours,
+   item.openingHours, item.businessHours, item.hours, item.storeHours, item.operatingHours,
+   item.naverMapHours?.openingHours, item.naverSearchHours?.openingHours
+ ].filter(v => v && typeof v === 'object' && !Array.isArray(v));
+ const textSources = [
+   item.todayOpenText, item.openStatusText, item.adminHoursText, item.hoursText, item.openHoursText,
+   item.businessHoursText, item.openingHoursText, item.operatingHoursText, item.businessHoursManual,
+   item.manualBusinessHours, item.adminBusinessHours, item.openingHoursManual,
+   item.naverMapHours?.todayOpenText, item.naverMapHours?.openStatusText,
+   item.naverSearchHours?.todayOpenText, item.naverSearchHours?.openStatusText
+ ].filter(v => typeof v === 'string' && v.trim());
+ return { objectSources, textSources };
+}
+
+function normalizeHoursRow(row){
+ if(!row) return null;
+ if(typeof row === 'string'){
+   const ranges = extractTimeRangesFromText(row);
+   return {
+     closed: /휴무|정기\s*휴무|closed|쉬는\s*날/i.test(row),
+     open: ranges[0]?.start || '',
+     close: ranges[0]?.end || '',
+     breakStart: (/브레이크|break/i.test(row) ? ranges[1]?.start : '') || '',
+     breakEnd: (/브레이크|break/i.test(row) ? ranges[1]?.end : '') || '',
+     note: row
+   };
+ }
+ if(typeof row === 'object'){
+   return {
+     closed: row.closed === true || row.isClosed === true || row.holiday === true || row.isHoliday === true || /휴무|closed/i.test(String(row.status || row.openStatus || row.note || '')),
+     open: String(row.open || row.start || row.from || row.openTime || row.openingTime || '').trim(),
+     close: String(row.close || row.end || row.to || row.closeTime || row.closingTime || '').trim(),
+     breakStart: String(row.breakStart || row.break_start || row.breakOpen || row.breakFrom || '').trim(),
+     breakEnd: String(row.breakEnd || row.break_end || row.breakClose || row.breakTo || '').trim(),
+     lastOrder: String(row.lastOrder || row.last_order || row.orderEnd || '').trim(),
+     note: String(row.note || row.memo || row.remark || row.description || row.status || '').trim()
+   };
+ }
+ return null;
+}
+
+function evaluateBenefitOpenState(item={}, now=getSeoulNow()){
+ const dayKey = getSeoulDayKey(now);
+ const dayLabel = { sun:'일', mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토' }[dayKey] || '오늘';
+ const nowMin = now.getHours() * 60 + now.getMinutes();
+ const { objectSources, textSources } = getBenefitHoursSources(item);
+ let row = null;
+ for(const source of objectSources){
+   row = normalizeHoursRow(getTodayHoursRowFromObject(source, dayKey));
+   if(row) break;
+ }
+ if(!row){
+   const joined = textSources.join('\n');
+   if(joined) row = normalizeHoursRow(joined);
+ }
+ const manualOpen = String(item.openTime || item.open || item.startTime || '').trim();
+ const manualClose = String(item.closeTime || item.close || item.endTime || '').trim();
+ if(!row && manualOpen && manualClose) row = normalizeHoursRow({ open: manualOpen, close: manualClose, breakStart:item.breakStart, breakEnd:item.breakEnd, lastOrder:item.lastOrder, note:item.hoursNote });
+ if(!row) return { status:'unknown', canVisitNow:null, label:'영업정보 없음', message:'영업시간 정보가 없어 혼잡도만 예상합니다.' };
+ const note = row.note || '';
+ const openMin = timeTextToMinutes(row.open);
+ const closeMin = timeTextToMinutes(row.close);
+ if(row.closed){
+   return { status:'closed', canVisitNow:false, label:'휴무', message:`오늘(${dayLabel})은 휴무로 표시되어 혼잡도 예측보다 휴무 안내를 우선합니다.${note ? ` (${note})` : ''}` };
+ }
+ if(openMin != null && closeMin != null && !isMinuteInRange(nowMin, row.open, row.close)){
+   if(openMin > closeMin ? (nowMin < openMin && nowMin >= closeMin) : nowMin < openMin){
+     return { status:'before_open', canVisitNow:false, label:'영업 전', message:`아직 영업 시작 전입니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
+   }
+   return { status:'closed_now', canVisitNow:false, label:'영업 종료', message:`현재는 영업시간이 아닙니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
+ }
+ if(row.breakStart && row.breakEnd && isMinuteInRange(nowMin, row.breakStart, row.breakEnd)){
+   return { status:'break_time', canVisitNow:false, label:'브레이크', message:`지금은 브레이크타임입니다. 브레이크타임은 ${row.breakStart} - ${row.breakEnd}입니다.` };
+ }
+ if(row.lastOrder && timeTextToMinutes(row.lastOrder) != null && nowMin >= timeTextToMinutes(row.lastOrder)){
+   return { status:'last_order_passed', canVisitNow:false, label:'주문 마감', message:`라스트오더(${row.lastOrder})가 지난 시간입니다. 방문 전 확인을 추천드립니다.` };
+ }
+ if(openMin != null && closeMin != null){
+   return { status:'open_now', canVisitNow:true, label:'영업 중', message:`현재 영업 중입니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
+ }
+ return { status:'unknown', canVisitNow:null, label:'영업정보 확인', message:'영업시간 형식을 확인할 수 없어 혼잡도만 예상합니다.' };
+}
+
 function getBenefitCrowdInfo(item={}){
+ const openState = evaluateBenefitOpenState(item);
+ if(openState && openState.canVisitNow === false){
+   return {
+     level:'closed',
+     label:openState.label || '영업시간 외',
+     waitLabel:'방문 전 확인 권장',
+     score:0,
+     dynamic:true,
+     openState,
+     updatedAtText: `${String(getSeoulNow().getHours()).padStart(2,'0')}:${String(getSeoulNow().getMinutes()).padStart(2,'0')} 기준`,
+     reason:openState.message || '영업시간 기준'
+   };
+ }
  const manual = String(item.crowdLevel || item.crowdStatus || item.waitingLevel || '').trim().toLowerCase();
  const manualMap = {
    low:{level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', score:25},
@@ -4074,7 +4225,8 @@ function benefitContextBadgesHtml(item={}, {compact=false}={}){
 function benefitContextPanelHtml(item={}){
  const zone = getBenefitZoneInfo(item);
  const crowd = getBenefitCrowdInfo(item);
- return `<div class="benefit-context-panel" aria-label="상권 및 예상 혼잡도"><div class="benefit-context-main"><span class="benefit-context-badge zone ${zone.type}">${escapeHtml(zone.label)}</span><span class="benefit-context-badge crowd ${crowd.level}">${escapeHtml(crowd.label)}</span><span class="benefit-context-wait">${escapeHtml(crowd.waitLabel)}</span></div><p>${escapeHtml(crowd.reason)} 기준의 예상입니다. 실제 웨이팅은 매장 상황에 따라 달라질 수 있어요.</p></div>`;
+ const isClosedState = crowd.openState && crowd.openState.canVisitNow === false;
+ return `<div class="benefit-context-panel" aria-label="상권 및 예상 혼잡도"><div class="benefit-context-main"><span class="benefit-context-badge zone ${zone.type}">${escapeHtml(zone.label)}</span><span class="benefit-context-badge crowd ${crowd.level}">${escapeHtml(crowd.label)}</span><span class="benefit-context-wait">${escapeHtml(crowd.waitLabel)}</span></div><p>${escapeHtml(crowd.reason)}${isClosedState ? '' : ' 기준의 예상입니다. 실제 웨이팅은 매장 상황에 따라 달라질 수 있어요.'}</p></div>`;
 }
  function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
  function normalizeMapCoord(value){const n=Number(value); return Number.isFinite(n)?n.toFixed(6):'';}
