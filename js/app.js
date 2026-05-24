@@ -61,7 +61,7 @@
    });
  }
  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
- import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+ import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
  import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
  const firebaseConfig = FIREBASE_CONFIG[ENV];
@@ -915,7 +915,7 @@ showForegroundPushToast({
  }
  }
 
- const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],aiKnowledge:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
+ const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],benefitStatsMap:{},aiKnowledge:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
  benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
  };
 
@@ -2625,10 +2625,58 @@ async function refreshPushStatus(){
  if(key === 'cardClickCount') return 1;
  if(key === 'favoriteCount') return 3;
  if(key === 'shareClickCount') return 5;
+ if(key === 'mapClickCount') return 2;
+ if(key === 'directionClickCount') return 4;
+ if(key === 'callClickCount') return 3;
  if(key === 'smartstoreClickCount') return 4;
  if(key === 'bandClickCount') return 3;
  if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount','snsClickCount'].includes(key)) return 2;
  return 0;
+ }
+
+ function getCrowdActionWeight(field){
+ const key = String(field || '');
+ const weights = {
+   detailViewCount: 2.5,
+   cardClickCount: 1.8,
+   mapClickCount: 4.5,
+   directionClickCount: 7.5,
+   callClickCount: 6.5,
+   favoriteCount: 4,
+   shareClickCount: 5.5,
+   smartstoreClickCount: 5,
+   bandClickCount: 3.5,
+   snsClickCount: 2.5
+ };
+ if(Object.prototype.hasOwnProperty.call(weights, key)) return weights[key];
+ if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount'].includes(key)) return 2.5;
+ return 1.2;
+ }
+
+ function getLastActionFieldName(field){
+ const key = String(field || '');
+ const map = {
+   detailViewCount:'lastDetailViewAt',
+   cardClickCount:'lastCardClickAt',
+   mapClickCount:'lastMapClickAt',
+   directionClickCount:'lastDirectionClickAt',
+   callClickCount:'lastCallClickAt',
+   favoriteCount:'lastFavoriteAt',
+   shareClickCount:'lastSharedAt',
+   smartstoreClickCount:'lastSmartstoreClickAt',
+   bandClickCount:'lastBandClickAt',
+   snsClickCount:'lastSnsClickAt'
+ };
+ return map[key] || `last${key.charAt(0).toUpperCase()}${key.slice(1).replace(/Count$/,'')}At`;
+ }
+
+ function getDecayedCrowdPulseFromStat(stat={}, nowMs=Date.now()){
+ const raw = Number(stat.recentCrowdPulse || stat.crowdPulse || 0) || 0;
+ const last = getTimestampMs(stat.recentCrowdLastAt || stat.lastCrowdPulseAt || stat.updatedAt);
+ if(!raw || !last) return 0;
+ const minutes = Math.max(0, (nowMs - last) / 60000);
+ // 30분 반감기: 최근 행동은 강하게, 1~2시간 전 행동은 자연스럽게 약해집니다.
+ return Math.max(0, raw * Math.pow(0.5, minutes / 30));
  }
 
  async function increaseStat(benefitId, benefitName, field){
@@ -2636,22 +2684,27 @@ async function refreshPushStatus(){
  try{
  const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
  const popularWeight = getPopularScoreWeight(field);
- await setDoc(statRef, {
- benefitId,
- name: benefitName || '',
- updatedAt: serverTimestamp()
- }, { merge:true });
-
- const updatePayload = {
- [field]: increment(1),
- updatedAt: serverTimestamp()
- };
-
- if(popularWeight > 0){
- updatePayload.popularScore = increment(popularWeight);
- }
-
- await updateDoc(statRef, updatePayload);
+ const actionWeight = getCrowdActionWeight(field);
+ const lastActionField = getLastActionFieldName(field);
+ const nowMs = Date.now();
+ await runTransaction(db, async (tx) => {
+   const snap = await tx.get(statRef);
+   const prev = snap.exists() ? (snap.data() || {}) : {};
+   const decayedPulse = getDecayedCrowdPulseFromStat(prev, nowMs);
+   const nextPulse = Math.min(100, decayedPulse + actionWeight);
+   const payload = {
+     benefitId,
+     name: benefitName || prev.name || '',
+     [field]: increment(1),
+     [lastActionField]: serverTimestamp(),
+     lastActionType: field,
+     recentCrowdPulse: nextPulse,
+     recentCrowdLastAt: serverTimestamp(),
+     updatedAt: serverTimestamp()
+   };
+   if(popularWeight > 0) payload.popularScore = increment(popularWeight);
+   tx.set(statRef, payload, { merge:true });
+ });
  }catch(error){
  console.error('통계 증가 실패', field, benefitId, error);
  }
@@ -3900,6 +3953,12 @@ function getBenefitZoneInfo(item={}){
  return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'기본 분류' };
 }
 
+function getBenefitStatsRow(item={}){
+ const id = String(item.id || item.benefitId || '');
+ if(!id) return null;
+ return state.benefitStatsMap?.[id] || (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === id) || null;
+}
+
 function getBenefitPopularRank(item={}){
  const id = String(item.id || item.benefitId || '');
  const row = (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === id);
@@ -3907,7 +3966,7 @@ function getBenefitPopularRank(item={}){
 }
 
 function getBenefitEngagementScore(item={}){
- const row = (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === String(item.id || ''));
+ const row = getBenefitStatsRow(item);
  return Number(row?.popularScore || row?.score || item.popularScore || item.score || item.detailViewCount || item.clickCount || 0) || 0;
 }
 
@@ -3921,9 +3980,10 @@ function numberFromAny(...values){
 }
 
 function getBenefitActionMetric(item={}, names=[]){
+ const stat = getBenefitStatsRow(item) || {};
  let total = 0;
  for(const name of names){
-   total += numberFromAny(item[name]);
+   total += numberFromAny(item[name], stat[name]);
  }
  return total;
 }
@@ -3948,20 +4008,41 @@ function getTimestampMs(value){
 }
 
 function getRecentActionBoost(item={}, now=Date.now()){
+ const stat = getBenefitStatsRow(item) || {};
  const candidates = [
-   ['lastClickAt','lastDetailViewAt','lastViewedAt','updatedAt'],
-   ['lastMapClickAt','lastMapViewAt','lastRouteClickAt','lastDirectionClickAt','lastDirectionsAt'],
-   ['lastPhoneClickAt','lastCallClickAt'],
-   ['lastFavoriteAt','lastSavedAt']
- ].flat();
- const latest = Math.max(...candidates.map((key)=>getTimestampMs(item[key])), 0);
- if(!latest) return { points:0, reason:'' };
- const minutes = Math.max(0, (now - latest) / 60000);
- if(minutes <= 10) return { points:12, reason:'최근 10분 관심 증가' };
- if(minutes <= 30) return { points:8, reason:'최근 30분 관심 증가' };
- if(minutes <= 60) return { points:5, reason:'최근 1시간 관심 증가' };
- if(minutes <= 180) return { points:2, reason:'최근 관심 기록' };
- return { points:0, reason:'' };
+   'lastClickAt','lastDetailViewAt','lastViewedAt','lastCardClickAt','updatedAt',
+   'lastMapClickAt','lastMapViewAt','lastRouteClickAt','lastDirectionClickAt','lastDirectionsAt',
+   'lastPhoneClickAt','lastCallClickAt','lastFavoriteAt','lastSavedAt','lastSharedAt'
+ ];
+ const latest = Math.max(...candidates.map((key)=>Math.max(getTimestampMs(item[key]), getTimestampMs(stat[key]))), 0);
+ const pulse = getDecayedCrowdPulseFromStat(stat, now);
+ let points = Math.min(22, pulse * 0.42);
+ let reason = points >= 12 ? '최근 실시간 관심 급증' : (points >= 6 ? '최근 실시간 관심 증가' : '');
+ if(latest){
+   const minutes = Math.max(0, (now - latest) / 60000);
+   if(minutes <= 10){ points += 7; reason = reason || '최근 10분 관심 증가'; }
+   else if(minutes <= 30){ points += 4; reason = reason || '최근 30분 관심 증가'; }
+   else if(minutes <= 60){ points += 2; reason = reason || '최근 1시간 관심 증가'; }
+ }
+ points = Math.min(26, Math.round(points));
+ return { points, reason };
+}
+
+function getHistoricalTimePatternBoost(item={}, now=getSeoulNow()){
+ const stat = getBenefitStatsRow(item) || {};
+ const hour = now.getHours();
+ const day = now.getDay();
+ const isWeekend = day === 0 || day === 6;
+ const total = numberFromAny(stat.popularScore, stat.detailViewCount, stat.cardClickCount, item.popularScore, item.detailViewCount);
+ if(total < 20) return { points:0, reason:'' };
+ let points = 0;
+ const hay = [item.category,item.type,item.name,item.storeName,item.title,item.tags,item.aiTags].flat().join(' ').toLowerCase();
+ const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|cafe|coffee|pizza|떡볶|밥|국수|샐러드|브런치/.test(hay);
+ const cafeLike = /카페|커피|디저트|베이커리|브런치|cafe|coffee|bakery/.test(hay);
+ if(foodLike && ((hour >= 11 && hour <= 13) || (hour >= 17 && hour <= 20))) points += Math.min(8, Math.floor(total / 80) + 3);
+ if(cafeLike && hour >= 13 && hour <= 18) points += Math.min(7, Math.floor(total / 90) + 2);
+ if(isWeekend && total >= 80) points += 5;
+ return points ? { points, reason:'요일·시간대 누적 패턴' } : { points:0, reason:'' };
 }
 
 function clampCrowdScore(score){
@@ -4164,6 +4245,7 @@ function getBenefitCrowdInfo(item={}){
  const favoriteCount = getBenefitActionMetric(item, ['favoriteCount','saveCount','savedCount']);
  const shareCount = getBenefitActionMetric(item, ['shareClickCount','shareCount','sharedCount']);
  const recent = getRecentActionBoost(item, nowMs);
+ const pattern = getHistoricalTimePatternBoost(item, now);
  const peakLunch = hour >= 11 && hour <= 13;
  const peakCafe = cafeLike && ((hour >= 13 && hour <= 17) || (isWeekend && hour >= 11 && hour <= 18));
  const peakDinner = hour >= 17 && hour <= 20;
@@ -4195,6 +4277,7 @@ function getBenefitCrowdInfo(item={}){
  else if(favoriteCount >= 5){ crowdScore += 3; }
  if(shareCount >= 10){ crowdScore += 5; }
  if(recent.points){ crowdScore += recent.points; reasons.push(recent.reason); }
+ if(pattern.points){ crowdScore += pattern.points; reasons.push(pattern.reason); }
  // 분 단위 미세 변화를 둬서 현재 시간 기준으로 자연스럽게 갱신되도록 합니다.
  crowdScore += Math.sin((hour * 60 + minute) / 32) * 2;
  crowdScore = clampCrowdScore(crowdScore);
@@ -5655,10 +5738,11 @@ ${item.content || ''}`);
  const popularQuery = query(
  collection(db, BENEFIT_STATS_COLLECTION),
  orderBy('popularScore', 'desc'),
- limit(80)
+ limit(300)
  );
 
  popularStatsUnsubscribe = onSnapshot(popularQuery, (snapshot) => {
+ state.benefitStatsMap = Object.fromEntries(snapshot.docs.map((d) => [d.id, { id:d.id, ...(d.data() || {}) }]));
  const runtimePreviousRanks = new Map(
  (state.popularItems || []).map((item, index) => [item.id, index + 1])
  );
@@ -5687,6 +5771,18 @@ ${item.content || ''}`);
  clickCount,
  favoriteCount,
  shareClickCount,
+ mapClickCount: Number(data.mapClickCount || 0),
+ directionClickCount: Number(data.directionClickCount || 0),
+ callClickCount: Number(data.callClickCount || data.phoneClickCount || 0),
+ recentCrowdPulse: Number(data.recentCrowdPulse || 0),
+ recentCrowdLastAt: data.recentCrowdLastAt || null,
+ lastDetailViewAt: data.lastDetailViewAt || null,
+ lastCardClickAt: data.lastCardClickAt || null,
+ lastMapClickAt: data.lastMapClickAt || null,
+ lastDirectionClickAt: data.lastDirectionClickAt || null,
+ lastCallClickAt: data.lastCallClickAt || null,
+ lastFavoriteAt: data.lastFavoriteAt || null,
+ lastSharedAt: data.lastSharedAt || null,
  likeCount: Number(data.likeCount || 0),
  recommendCount: Number(data.recommendCount || 0),
  hotCount: Number(data.hotCount || 0),
@@ -7857,7 +7953,7 @@ function renderCalendarDayModal(){
    link.addEventListener('click', () => { increaseStat(item.id, item.name, 'callClickCount'); logBenefitEvent(item.id, 'call_click'); });
  });
  qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
- qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
+ qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'directionClickCount');logBenefitEvent(item.id, 'direction_click');};
  bindBenefitSocialLinks(item);
  }
 
