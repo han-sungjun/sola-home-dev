@@ -2916,7 +2916,9 @@ function formatKoreanDate(value){
  }
 
  function getBenefitLatLng(item = {}){
- return normalizeKoreaLatLng(item.lat, item.lng);
+ const rawLat = item.lat ?? item.latitude ?? item.storeLat ?? item.storeLatitude ?? item.mapLat ?? item.y;
+ const rawLng = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.storeLongitude ?? item.mapLng ?? item.x;
+ return normalizeKoreaLatLng(rawLat, rawLng);
  }
 
 
@@ -3757,9 +3759,9 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
 }
 function markerHtmlForItem(item){
  const label = getMapMarkerLabel(item);
- // 지도 마커는 높이가 고정된 캡슐 구조라 배지를 2줄로 넣으면 겹침이 발생합니다.
- // 마커에는 상권 구분만 1줄 inline으로 표시하고, 혼잡도/웨이팅은 혜택 상세/카드에서 표시합니다.
- return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'">'+mapMarkerZoneBadgeHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
+ // 지도 마커는 한 줄 캡슐 구조를 유지합니다.
+ // 상권 구분 + 예상 혼잡도 + 매장명을 모두 inline으로 배치해 높이 증가로 인한 깨짐을 막습니다.
+ return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'">'+mapMarkerInlineBadgesHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
 }
 
 
@@ -3866,9 +3868,11 @@ function getBenefitCrowdInfo(item={}){
  return { level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', reason:reasons.join(' · ') || '피크 시간대 아님' };
 }
 
-function mapMarkerZoneBadgeHtml(item={}){
+function mapMarkerInlineBadgesHtml(item={}){
  const zone = getBenefitZoneInfo(item);
- return `<span class="map-marker-zone-badge ${zone.type}">${escapeHtml(zone.shortLabel || zone.label)}</span>`;
+ const crowd = getBenefitCrowdInfo(item);
+ const crowdLabel = String(crowd.label || '').replace(' 예상','');
+ return `<span class="map-marker-zone-badge ${zone.type}">${escapeHtml(zone.shortLabel || zone.label)}</span><span class="map-marker-crowd-badge ${crowd.level}">${escapeHtml(crowdLabel)}</span>`;
 }
 
 function benefitContextBadgesHtml(item={}, {compact=false}={}){
