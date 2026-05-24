@@ -9580,6 +9580,12 @@ function isAiDialogRejectAnswer(question='', answer=''){
  return negativeQuestion && rejectAnswer;
 }
 
+
+function isAiNoResultAnswerText(answer=''){
+ const compact = String(answer || '').replace(/\s+/g, '');
+ return /현재등록된안내에서찾지못했습니다|등록된안내에서찾지못했습니다|찾지못했습니다|검색결과가없습니다|답변을준비하는중문제가발생했습니다|잠시후다시질문해/i.test(compact);
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const downloadPayload = extractAiDownloadPayload(String(parsedDialog.text || '답변을 생성하지 못했습니다.'));
@@ -9589,6 +9595,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const isDialogRejectAnswer = isAiDialogRejectAnswer(question, cleaned);
  const isRecentNoticeGuideAnswer = isAiRecentNoticeGuideQuestion(question, cleaned);
  const isNotificationGuideAnswer = isAiNotificationTroubleshootingQuestion(question, cleaned);
+ const isNoResultAnswer = isAiNoResultAnswerText(cleaned);
  const aiDownloadButtonsHtml = buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
@@ -9613,16 +9620,16 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
  </div>`;
  }
- const dialogButtons = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer)
+ const dialogButtons = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer || isNoResultAnswer)
    ? ''
    : buildAiDialogActionButtons(parsedDialog.actions);
- const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
+ const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer || isNoResultAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
  const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
- const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
- const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
+ const matchedPhoneCard = (!isNoResultAnswer && !apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
+ const phoneCards = isNoResultAnswer ? '' : (apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned))));
  const personalSummary = getAiPersonalSummary();
- const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
- const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
+ const locationMapCard = isNoResultAnswer ? '' : buildAiLocationMapCardHtml(mappedCards, question, cleaned);
+ const aiAttachmentHtml = (!isNoResultAnswer && shouldShowAiKnowledgeAttachments(question, cleaned)) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
@@ -9656,6 +9663,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
    !isDialogRejectAnswer &&
    !isRecentNoticeGuideAnswer &&
    !isNotificationGuideAnswer &&
+   !isNoResultAnswer &&
    !isApartmentLifePhoneQuestion(question, cleaned) &&
    !isMultimodalAnalysisAnswer &&
    !shouldHideBenefitCardsForKnowledge &&
@@ -9665,14 +9673,14 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
  ${buildAiTtsControlsHtml(isMultimodalAnalysisAnswer ? 'file' : (isExplicitBenefitCardIntent ? 'benefit' : 'default'))}
- ${!isAppInstallGuideAnswer && !isRecentNoticeGuideAnswer && !isNotificationGuideAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+ ${!isAppInstallGuideAnswer && !isRecentNoticeGuideAnswer && !isNotificationGuideAnswer && !isNoResultAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
  ${phoneCards}
  ${dialogButtons}
  ${locationMapCard}
  ${aiAttachmentHtml}
  ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  ${aiDownloadButtonsHtml}
- <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isNotificationGuideAnswer ? '알림 설정 방법을 안내했어요.' : (isRecentNoticeGuideAnswer ? '최근 공지를 안내했어요.' : '상황에 맞는 정보를 준비했어요.')))}</span>
+ <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isNotificationGuideAnswer ? '알림 설정 방법을 안내했어요.' : (isRecentNoticeGuideAnswer ? '최근 공지를 안내했어요.' : (isNoResultAnswer ? '등록된 안내를 찾지 못했어요.' : '상황에 맞는 정보를 준비했어요.'))))}</span>
  </div>`;
  }
 
@@ -11089,19 +11097,12 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const backgroundInterrupted = isAiLikelyBackgroundInterruption(error);
- const errorMessageHtml = backgroundInterrupted
- ? '앱이 백그라운드로 이동하면서 답변 연결이 잠시 끊겼습니다.<br><small>다시 질문해 주시면 이어서 확인해드릴게요.</small>'
- : '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
- const retryQuestion = String(displayQuestion || question || '').trim();
- const retryButtonHtml = retryQuestion
-   ? `<button class="ai-error-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">↻ 다시 보내기</button>`
-   : '';
+ const fallbackText = '현재 등록된 안내에서 찾지 못했습니다.';
  if(pendingBubble){
-   pendingBubble.innerHTML = `${errorMessageHtml}${retryButtonHtml}`;
+   pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question);
    bindAiAnswerActions(pendingBubble);
  } else {
-   appendAiMessage('bot', `${backgroundInterrupted ? '앱 전환 중 답변 연결이 끊겼습니다. 다시 질문해 주세요.' : '답변 생성 중 오류가 발생했습니다.'}${retryButtonHtml}`);
+   appendAiMessage('bot', buildAiEnhancedAnswerHtml(fallbackText, question));
  }
  }finally{
  setAiAssistantBusy(false);
