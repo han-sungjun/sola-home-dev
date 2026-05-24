@@ -9528,11 +9528,26 @@ async function playAiTtsFromButton(button){
  }
 }
 
+
+function isAiAppInstallGuideQuestion(question='', answer=''){
+ const q = String(question || '').trim();
+ const a = String(answer || '').trim();
+ const text = `${q} ${a}`;
+ const compact = text.replace(/\s+/g, '');
+ const hasInstallTarget = /앱|어플|더운정픽|바로가기|홈\s*화면|홈화면|다운|다운로드|설치|저장|추가|PWA|웹앱|아이폰|갤럭시|안드로이드|사파리|크롬|삼성\s*인터넷/i.test(text)
+   || /앱설치|어플설치|앱다운|어플다운|다운기능|홈화면추가|바로가기추가|바로가기만들기|저장하려면|지정하려면|설치경로/i.test(compact);
+ const asksInstall = /설치|다운|다운로드|저장|추가|바로가기|홈\s*화면|홈화면|앱처럼|어플처럼|경로|방법|어떻게|하게해|해줘|알려|지정/i.test(text)
+   || /설치하게|다운기능|저장하려면|지정하려면|설치경로|앱처럼쓰기|어플처럼쓰기/i.test(compact);
+ const guideAnswer = /앱스토어에서 받는 앱이 아니라|홈 화면에 추가|웹앱 방식|Safari로 더운정픽|Chrome 또는 삼성 인터넷/i.test(a);
+ return (hasInstallTarget && asksInstall) || guideAnswer;
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const downloadPayload = extractAiDownloadPayload(String(parsedDialog.text || '답변을 생성하지 못했습니다.'));
  const text = String(downloadPayload.text || '답변을 생성하지 못했습니다.');
  const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
+ const isAppInstallGuideAnswer = isAiAppInstallGuideQuestion(question, cleaned);
  const aiDownloadButtonsHtml = buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
@@ -9558,7 +9573,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  </div>`;
  }
  const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
- const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+ const mappedCards = isAppInstallGuideAnswer ? [] : extractAiBenefitCards(cleaned, 4, question);
  const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
  const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
  const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
@@ -9594,6 +9609,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const isMultimodalAnalysisAnswer = /\[첨부파일 분석 결과\]|\[보정 자막\]|\[화자 분리 보정 자막\]|\[핵심 요약\]|자막\/텍스트 다운로드/i.test(cleaned) || !!aiDownloadButtonsHtml;
  const shouldHideBenefitCardsForKnowledge = isApartmentLifeKnowledgeQuestion(question, cleaned) && !isExplicitBenefitCardIntent;
  const shouldShowBenefitCards =
+   !isAppInstallGuideAnswer &&
    !isApartmentLifePhoneQuestion(question, cleaned) &&
    !isMultimodalAnalysisAnswer &&
    !shouldHideBenefitCardsForKnowledge &&
@@ -9603,14 +9619,14 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
  ${buildAiTtsControlsHtml(isMultimodalAnalysisAnswer ? 'file' : (isExplicitBenefitCardIntent ? 'benefit' : 'default'))}
- ${!isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+ ${!isAppInstallGuideAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
  ${phoneCards}
  ${dialogButtons}
  ${locationMapCard}
  ${aiAttachmentHtml}
  ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  ${aiDownloadButtonsHtml}
- <span class="ai-mode-pill upgraded">상황에 맞는 정보를 준비했어요.</span>
+ <span class="ai-mode-pill upgraded">${isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : '상황에 맞는 정보를 준비했어요.'}</span>
  </div>`;
  }
 
@@ -10124,7 +10140,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
 
  function appendAiRecommendationCardsSafe(data, question=''){
  const mode = String(data?.retrievalMode || '');
- if(isApartmentLifePhoneQuestion(question) || mode.includes('direct-apartment-life-phone')) return;
+ if(isApartmentLifePhoneQuestion(question) || isAiAppInstallGuideQuestion(question, data?.answerText || '') || mode.includes('direct-apartment-life-phone') || mode.includes('app_install_pwa_guide_direct')) return;
  if(data?.suppressRelatedItems || data?.suppressFollowupButtons || data?.analysisStatus === 'no_analyzable_files') return;
  if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
  }
