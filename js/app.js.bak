@@ -9604,9 +9604,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
  </div>`;
  }
- const dialogButtons = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer)
-   ? ''
-   : buildAiDialogActionButtons(parsedDialog.actions);
+ const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
  const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
  const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
  const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
