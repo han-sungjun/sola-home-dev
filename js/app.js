@@ -8966,7 +8966,7 @@ function getAiAttachmentType(item={}){
  map,
  // AI 지도에서는 매장 좌표를 말풍선 왼쪽 기준에 맞춰 매장명 말풍선이 오른쪽으로 펼쳐지게 합니다.
  // 긴 매장명은 내부 span에서만 말줄임 처리하고, 앞쪽에는 위치 마커 아이콘을 함께 표시합니다.
- icon: { content: markerHtml, anchor: new nm.Point(18,16) },
+ icon: { content: markerHtml, anchor: new nm.Point(0,16) },
  zIndex: 100
  });
  nm.Event.addListener(storeMarker, 'click', () => {
@@ -9742,6 +9742,17 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const root = scope || qs('#aiChatWindow');
  if(!root) return;
  bindAiDownloadButtons(root);
+ root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
+   if(btn.dataset.aiRetryBound === 'true') return;
+   btn.dataset.aiRetryBound = 'true';
+   btn.addEventListener('click', (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+     const retryQuestion = String(btn.dataset.aiRetryQuestion || '').trim();
+     if(!retryQuestion) return;
+     if(!guardAiAssistantBusy()) askAiAssistant(retryQuestion);
+   });
+ });
  root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  if(btn.dataset.aiDialogBound === 'true') return;
  btn.dataset.aiDialogBound = 'true';
@@ -11082,8 +11093,16 @@ async function askAiAssistant(rawQuestion=''){
  const errorMessageHtml = backgroundInterrupted
  ? '앱이 백그라운드로 이동하면서 답변 연결이 잠시 끊겼습니다.<br><small>다시 질문해 주시면 이어서 확인해드릴게요.</small>'
  : '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
- if(pendingBubble) pendingBubble.innerHTML = errorMessageHtml;
- else appendAiMessage('bot', backgroundInterrupted ? '앱 전환 중 답변 연결이 끊겼습니다. 다시 질문해 주세요.' : '답변 생성 중 오류가 발생했습니다.');
+ const retryQuestion = String(displayQuestion || question || '').trim();
+ const retryButtonHtml = retryQuestion
+   ? `<button class="ai-error-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">↻ 다시 보내기</button>`
+   : '';
+ if(pendingBubble){
+   pendingBubble.innerHTML = `${errorMessageHtml}${retryButtonHtml}`;
+   bindAiAnswerActions(pendingBubble);
+ } else {
+   appendAiMessage('bot', `${backgroundInterrupted ? '앱 전환 중 답변 연결이 끊겼습니다. 다시 질문해 주세요.' : '답변 생성 중 오류가 발생했습니다.'}${retryButtonHtml}`);
+ }
  }finally{
  setAiAssistantBusy(false);
  }

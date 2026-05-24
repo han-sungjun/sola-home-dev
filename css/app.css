@@ -24782,14 +24782,14 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   overflow:hidden!important;
   white-space:nowrap!important;
   cursor:pointer!important;
-  transform:translateX(-2px)!important;
+  transform:translateX(6px)!important;
 }
 .ai-location-detail-card .ai-map-marker-store .ai-map-marker-pin{
   flex:0 0 auto!important;
   width:13px!important;
   height:13px!important;
-  filter:none!important;
-  opacity:1!important;
+  filter:brightness(0) invert(1)!important;
+  opacity:.95!important;
 }
 .ai-location-detail-card .ai-map-marker-store span{
   display:block!important;
@@ -24807,4 +24807,17 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
     font-size:11px!important;
     padding:0 8px!important;
   }
+}
+
+
+/* ===== AI 오류 재전송 버튼 단일 표시 보정 v15 ===== */
+.ai-message .ai-bubble .ai-error-retry-btn{
+  margin-top:14px;
+}
+.ai-message.user .ai-error-retry-btn,
+.ai-chat-window > .ai-error-retry-btn{
+  display:none!important;
+}
+.ai-message.bot .ai-bubble .ai-error-retry-btn + .ai-error-retry-btn{
+  display:none!important;
 }
