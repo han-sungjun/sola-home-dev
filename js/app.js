@@ -3757,12 +3757,14 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
 }
 function markerHtmlForItem(item){
  const label = getMapMarkerLabel(item);
- return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'"><span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div>';
+ // 지도 마커는 높이가 고정된 캡슐 구조라 배지를 2줄로 넣으면 겹침이 발생합니다.
+ // 마커에는 상권 구분만 1줄 inline으로 표시하고, 혼잡도/웨이팅은 혜택 상세/카드에서 표시합니다.
+ return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'">'+mapMarkerZoneBadgeHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
 }
 
 
 // ===== 스타필드 내/외부 + 혼잡도/웨이팅 가능성 안내 =====
-// 관리자 필드가 있으면 우선 사용하고, 없으면 매장명/주소/좌표 기반으로 보조 판별합니다.
+// 관리자 필드가 있으면 우선 사용하고, 없으면 관리자 페이지에 등록된 위도/경도 좌표로 판별합니다.
 // 좌표 경계는 운영 중 실제 스타필드 건물 외곽 좌표를 window.UPICK_STARFIELD_BOUNDS 또는 localStorage로 보정할 수 있습니다.
 const DEFAULT_STARFIELD_BOUNDS = {
   // 넉넉한 기본값입니다. 실제 운영 좌표에 맞춰 min/max 값을 보정하면 정확도가 올라갑니다.
@@ -3806,10 +3808,6 @@ function getBenefitZoneInfo(item={}){
  const manual = normalizeZoneType(item.zoneType || item.locationZone || item.marketZone || item.commercialZone || item.starfieldZone);
  if(manual === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'관리자 등록 기준' };
  if(manual === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'관리자 등록 기준' };
- const text = `${item.name||''} ${item.storeName||''} ${item.title||''} ${item.address||''} ${item.roadAddress||''} ${item.locationGuide||''}`;
- if(/스타필드|스타필드빌리지|starfield/i.test(text)){
-   return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'매장명/주소 기준' };
- }
  const pos = getBenefitLatLng(item);
  if(isLatLngInBounds(pos, getConfiguredStarfieldBounds())){
    return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'좌표 기준' };
@@ -3866,6 +3864,11 @@ function getBenefitCrowdInfo(item={}){
  if(points >= 4) return { level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', reason:reasons.join(' · ') || '시간대/관심도 기준' };
  if(points >= 2) return { level:'normal', label:'보통', waitLabel:'대기 가능성 보통', reason:reasons.join(' · ') || '일반 시간대 기준' };
  return { level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', reason:reasons.join(' · ') || '피크 시간대 아님' };
+}
+
+function mapMarkerZoneBadgeHtml(item={}){
+ const zone = getBenefitZoneInfo(item);
+ return `<span class="map-marker-zone-badge ${zone.type}">${escapeHtml(zone.shortLabel || zone.label)}</span>`;
 }
 
 function benefitContextBadgesHtml(item={}, {compact=false}={}){
