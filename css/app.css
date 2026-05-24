@@ -24744,3 +24744,50 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   cursor:pointer;
   text-overflow:ellipsis;
 }
+
+
+/* ===== AI 생활도우미 미니지도 안정화: 상세 지도와 동일한 컨트롤/마커 기준 ===== */
+.ai-location-detail-card .detail-map-box{
+  position:relative!important;
+  overflow:hidden!important;
+  padding-right:0!important;
+  border-radius:20px!important;
+  contain:layout paint!important;
+}
+.ai-location-detail-card .ai-location-map-canvas{
+  width:100%!important;
+  height:178px!important;
+  min-height:178px!important;
+  max-height:178px!important;
+  display:block!important;
+  overflow:hidden!important;
+  border-radius:20px!important;
+  background:#eef2f7!important;
+}
+.ai-location-detail-card .detail-mini-zoom-controls{
+  top:10px!important;
+  right:10px!important;
+  z-index:60!important;
+}
+.ai-location-detail-card .ai-map-marker-store{
+  width:132px!important;
+  max-width:132px!important;
+  min-width:0!important;
+  height:32px!important;
+  min-height:32px!important;
+  padding:0 10px!important;
+  box-sizing:border-box!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+  cursor:pointer!important;
+}
+@media(max-width:420px){
+  .ai-location-detail-card .ai-map-marker-store{
+    width:118px!important;
+    max-width:118px!important;
+    font-size:11px!important;
+    padding:0 8px!important;
+  }
+}

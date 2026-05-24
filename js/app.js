@@ -8950,19 +8950,22 @@ function getAiAttachmentType(item={}){
  const map = new nm.Map(mapEl, {
  center: store,
  zoom: 16,
- zoomControl: true,
- zoomControlOptions: { position: nm.Position.TOP_RIGHT },
+ // AI 미니지도도 상세 페이지 지도처럼 네이버 기본 줌 컨트롤을 끄고
+ // 박스 내부 커스텀 컨트롤을 사용합니다. 기본 컨트롤은 모바일/좁은 카드에서 잘릴 수 있습니다.
+ zoomControl: false,
  scrollWheel: true,
  draggable: true,
  pinchZoom: true
  });
+ ensureDetailMiniMapZoomControls(mapEl, map);
 
  const markerName = item.name || item.storeName || item.title || '매장';
  const markerHtml = `<div class="map-marker-store ai-map-marker-store" role="button" tabindex="0" title="${escapeAttr(markerName)}">${escapeHtml(markerName)}</div>`;
  const storeMarker = new nm.Marker({
  position: store,
  map,
- icon: { content: markerHtml, anchor: new nm.Point(44,34) },
+ // 긴 매장명이 우측으로 밀려 잘리지 않도록 고정 폭 마커의 가운데를 좌표에 맞춥니다.
+ icon: { content: markerHtml, anchor: new nm.Point(66,34) },
  zIndex: 100
  });
  nm.Event.addListener(storeMarker, 'click', () => {
