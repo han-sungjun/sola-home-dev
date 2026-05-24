@@ -3857,14 +3857,17 @@ function markerHtmlForItem(item){
 // 매장명/주소 문자열이 아니라 관리자 페이지에 등록된 위도/경도 좌표를 기준으로 판별합니다.
 // 스타필드 빌리지 운정은 스트리트몰까지 포함해야 하므로 사각형 bounds가 아닌 polygon으로 판단합니다.
 // 운영 중 보정이 필요하면 window.UPICK_STARFIELD_POLYGON 또는 localStorage(UPICK_STARFIELD_POLYGON)에 좌표 배열을 넣어 덮어쓸 수 있습니다.
+const DEFAULT_STARFIELD_POLYGON_VERSION = '2026-05-24-final-shift-east-v35';
 const DEFAULT_STARFIELD_POLYGON = [
   // 스타필드 빌리지 운정 + 스트리트몰 최종 생활권 기준입니다.
-  // 사용자가 지정한 4개 꼭짓점(1→2→4→3)을 순서대로 연결합니다.
-  // 매장명/주소가 아니라 관리자에 등록된 위도/경도만으로 내부/외부를 판별합니다.
-  { lat: 37.73192, lng: 126.76403 }, // 1. 북서측 경계
-  { lat: 37.73178, lng: 126.76652 }, // 2. 북동측 경계
-  { lat: 37.72472, lng: 126.76523 }, // 4. 남동측 스트리트몰 경계
-  { lat: 37.72482, lng: 126.76304 }  // 3. 남서측 스트리트몰 경계
+  // 기준: 성준님이 지정한 4개 꼭짓점(1→2→4→3) 생활권 polygon.
+  // 주의: 공터영어/노가리세상 서측 외부 상권은 제외하고,
+  // 그라츠커피랩/테이블린 등 스타필드 주소권 매장은 포함되도록 서측 경계를 동쪽으로 재보정했습니다.
+  // 매장명/주소 하드코딩 없이 관리자 등록 위도/경도만으로 내부/외부를 판별합니다.
+  { lat: 37.73190, lng: 126.76470 }, // 1. 북서측 경계(외부 상권 제외선)
+  { lat: 37.73175, lng: 126.76720 }, // 2. 북동측 경계
+  { lat: 37.72455, lng: 126.76630 }, // 4. 남동측 스트리트몰 경계
+  { lat: 37.72470, lng: 126.76425 }  // 3. 남서측 스트리트몰 경계
 ];
 
 const DEFAULT_STARFIELD_BOUNDS = (() => {
@@ -3890,7 +3893,11 @@ function normalizePolygonPoint(point){
 function getConfiguredStarfieldPolygon(){
  try{
    const runtime = window.UPICK_STARFIELD_POLYGON || window.STARFIELD_POLYGON;
-   const saved = !runtime ? JSON.parse(localStorage.getItem('UPICK_STARFIELD_POLYGON') || 'null') : null;
+   const allowSavedOverride = window.UPICK_ALLOW_STARFIELD_POLYGON_OVERRIDE === true
+     || localStorage.getItem('UPICK_ALLOW_STARFIELD_POLYGON_OVERRIDE') === 'true';
+   const saved = (!runtime && allowSavedOverride)
+     ? JSON.parse(localStorage.getItem('UPICK_STARFIELD_POLYGON') || 'null')
+     : null;
    const source = runtime || saved;
    if(Array.isArray(source)){
      const polygon = source.map(normalizePolygonPoint).filter(Boolean);
