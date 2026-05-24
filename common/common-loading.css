@@ -56,9 +56,12 @@
   box-sizing:border-box!important;
   isolation:isolate!important;
   transition:
-    opacity .36s cubic-bezier(.22,.72,.22,1),
-    visibility 0s linear .36s!important;
-  will-change:opacity!important;
+    opacity .38s cubic-bezier(.22,.72,.22,1),
+    visibility 0s linear .38s!important;
+  will-change:opacity,transform!important;
+  transform:translateZ(0)!important;
+  backface-visibility:hidden!important;
+  contain:layout paint style!important;
 }
 
 #pageLoader.show,
@@ -80,7 +83,7 @@
   visibility:visible!important;
   pointer-events:auto!important;
   transition:
-    opacity .36s cubic-bezier(.22,.72,.22,1),
+    opacity .38s cubic-bezier(.22,.72,.22,1),
     visibility 0s linear 0s!important;
 }
 
@@ -93,23 +96,62 @@
   visibility:visible!important;
   pointer-events:none!important;
   transition:
-    opacity .32s cubic-bezier(.4,0,.2,1),
-    visibility 0s linear .32s!important;
+    opacity .38s cubic-bezier(.4,0,.2,1) .16s,
+    visibility 0s linear .54s!important;
 }
 
-
-/* 퇴장 시에는 배경이 먼저 부드럽게 사라지고, 로고/문구는 아주 짧게 따라오며 사라지도록 분리합니다. */
+/* 퇴장 시에는 로고 → 문구 → 캡슐바 → 배경 순서로 아주 짧게 차이를 둡니다. */
 #pageLoader.is-hiding .loader-content,
 #globalLoadingBar.is-hiding .loader-content,
 #commonLoadingDialog.is-hiding .loader-content,
 .page-loader.is-hiding .loader-content,
 .global-loading.is-hiding .loader-content{
-  opacity:0!important;
-  transform:translateY(-1px) scale(.988)!important;
-  transition:
-    opacity .24s cubic-bezier(.4,0,.2,1) .06s,
-    transform .24s cubic-bezier(.4,0,.2,1) .06s!important;
   animation:none!important;
+}
+
+#pageLoader.is-hiding .loader-mark,
+#globalLoadingBar.is-hiding .loader-mark,
+#commonLoadingDialog.is-hiding .loader-mark,
+.page-loader.is-hiding .loader-mark,
+.global-loading.is-hiding .loader-mark{
+  opacity:0!important;
+  transform:translateY(-2px) scale(.972)!important;
+  transition:
+    opacity .20s cubic-bezier(.4,0,.2,1),
+    transform .20s cubic-bezier(.4,0,.2,1)!important;
+}
+
+#pageLoader.is-hiding .loader-copy,
+#globalLoadingBar.is-hiding .loader-copy,
+#commonLoadingDialog.is-hiding .loader-copy,
+.page-loader.is-hiding .loader-copy,
+.global-loading.is-hiding .loader-copy{
+  opacity:0!important;
+  transform:translateY(3px)!important;
+  transition:
+    opacity .22s cubic-bezier(.4,0,.2,1) .06s,
+    transform .22s cubic-bezier(.4,0,.2,1) .06s!important;
+}
+
+#pageLoader.is-hiding .loader-content::after,
+#globalLoadingBar.is-hiding .loader-content::after,
+#commonLoadingDialog.is-hiding .loader-content::after,
+.page-loader.is-hiding .loader-content::after,
+.global-loading.is-hiding .loader-content::after{
+  opacity:0!important;
+  transform:scaleX(.62)!important;
+  transition:
+    opacity .22s cubic-bezier(.4,0,.2,1) .10s,
+    transform .22s cubic-bezier(.4,0,.2,1) .10s!important;
+}
+
+#pageLoader.is-hiding .loader-content::before,
+#globalLoadingBar.is-hiding .loader-content::before,
+#commonLoadingDialog.is-hiding .loader-content::before,
+.page-loader.is-hiding .loader-content::before,
+.global-loading.is-hiding .loader-content::before{
+  opacity:0!important;
+  transition:opacity .20s cubic-bezier(.4,0,.2,1) .12s!important;
 }
 
 #pageLoader[aria-hidden="true"]:not(.show):not(.is-visible):not(.is-hiding),
@@ -204,7 +246,9 @@
   place-items:center!important;
   position:relative!important;
   overflow:visible!important;
-  transform:none!important;
+  transform:translateZ(0)!important;
+  will-change:transform,opacity!important;
+  backface-visibility:hidden!important;
   animation:upickCommonLoaderFloat 1.75s ease-in-out infinite!important;
 }
 
@@ -263,17 +307,19 @@
 .global-loading .loader-mark .loader-orbit{
   display:block!important;
   visibility:visible!important;
-  opacity:.78!important;
+  opacity:.62!important;
   position:absolute!important;
   inset:6px!important;
   border-radius:26px!important;
   overflow:hidden!important;
   pointer-events:none!important;
   background:
-    linear-gradient(115deg,transparent 0%,transparent 34%,rgba(255,255,255,.84) 46%,rgba(147,197,253,.26) 53%,transparent 66%,transparent 100%)!important;
+    linear-gradient(115deg,transparent 0%,transparent 34%,rgba(255,255,255,.68) 46%,rgba(147,197,253,.18) 53%,transparent 66%,transparent 100%)!important;
   background-size:260% 100%!important;
   mix-blend-mode:screen!important;
-  animation:upickCommonLogoSweep 2.9s cubic-bezier(.45,0,.2,1) infinite!important;
+  will-change:background-position,opacity!important;
+  transform:translateZ(0)!important;
+  animation:upickCommonLogoSweep 3.25s cubic-bezier(.45,0,.2,1) infinite!important;
 }
 
 #pageLoader .loader-mark img,
@@ -375,14 +421,28 @@
   border-radius:999px!important;
   margin-top:4px!important;
   background:
-    linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,255,255,.86),rgba(147,197,253,.98),rgba(37,99,235,.42),rgba(255,255,255,.86),rgba(255,255,255,.18))!important;
+    linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,255,255,.76),rgba(147,197,253,.82),rgba(37,99,235,.32),rgba(255,255,255,.76),rgba(255,255,255,.18))!important;
   background-size:240% 100%!important;
   border:1px solid rgba(255,255,255,.58)!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.68),
-    0 10px 28px rgba(37,99,235,.18),
-    0 0 20px rgba(147,197,253,.24)!important;
-  animation:upickCommonLoaderFlow 1.24s ease-in-out infinite!important;
+    0 10px 26px rgba(37,99,235,.14),
+    0 0 18px rgba(147,197,253,.18)!important;
+  will-change:background-position,opacity,transform!important;
+  transform:translateZ(0) scaleX(.82)!important;
+  animation:upickCommonLoaderFlow 1.42s cubic-bezier(.4,0,.2,1) infinite!important;
+}
+
+
+/* 최초 진입 1프레임 깜빡임 방지: JS가 is-visible을 붙이기 전에는 완전히 투명하게 유지합니다. */
+#pageLoader.is-preparing,
+#globalLoadingBar.is-preparing,
+#commonLoadingDialog.is-preparing,
+.page-loader.is-preparing,
+.global-loading.is-preparing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
 }
 
 html.upick-loading-lock,
@@ -405,9 +465,9 @@ body.upick-loading-lock{
   100%{opacity:1;transform:translateY(-6px) scale(1)}
 }
 @keyframes upickCommonLogoSweep{
-  0%,18%{background-position:170% 0;opacity:.05}
-  48%{opacity:.72}
-  78%,100%{background-position:-170% 0;opacity:.08}
+  0%,20%{background-position:170% 0;opacity:.04}
+  48%{opacity:.54}
+  78%,100%{background-position:-170% 0;opacity:.06}
 }
 @keyframes upickCommonLoaderFloat{
   0%,100%{transform:translateY(0) scale(1)}
@@ -428,9 +488,9 @@ body.upick-loading-lock{
   50%{opacity:.72;transform:translateX(-50%) scaleX(1)}
 }
 @keyframes upickCommonLoaderFlow{
-  0%{background-position:210% 0;opacity:.54;transform:scaleX(.82)}
-  48%{opacity:1;transform:scaleX(1)}
-  100%{background-position:-210% 0;opacity:.54;transform:scaleX(.82)}
+  0%{background-position:210% 0;opacity:.48;transform:translateZ(0) scaleX(.80)}
+  45%{opacity:.88;transform:translateZ(0) scaleX(1)}
+  100%{background-position:-210% 0;opacity:.48;transform:translateZ(0) scaleX(.80)}
 }
 
 

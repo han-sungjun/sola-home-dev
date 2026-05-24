@@ -42,8 +42,8 @@
 
   var boundLoaders = new WeakMap();
   var hideTimer = null;
-  var FADE_OUT_MS = 420;
-  var MIN_VISIBLE_MS = 520;
+  var FADE_OUT_MS = 620;
+  var MIN_VISIBLE_MS = 580;
   var lastShowAt = 0;
 
   function isAdminPage(){
@@ -265,7 +265,7 @@
       loader._upickHideFinalizeTimer = null;
     }
     loader.classList.add('is-hiding');
-    loader.classList.remove('show','is-visible');
+    loader.classList.remove('show','is-visible','is-preparing');
 
     loader._upickHideFinalizeTimer = window.setTimeout(function(){
       loader.classList.remove('is-hiding');
@@ -313,11 +313,20 @@
         if(main && message) main.textContent = message;
         if(sub && subMessage) sub.textContent = subMessage;
       }
-      loader.classList.remove('is-hiding');
+      loader.classList.remove('is-hiding','show','is-visible');
+      loader.classList.add('is-preparing');
       loader.setAttribute('aria-hidden','false');
-      loader.classList.add('show','is-visible');
       openTopLayer(loader);
       syncLock();
+
+      // 첫 프레임 깜빡임 방지: 준비 상태로 한 프레임 고정 후 fade-in을 시작합니다.
+      window.requestAnimationFrame(function(){
+        window.requestAnimationFrame(function(){
+          loader.classList.remove('is-preparing');
+          loader.classList.add('show','is-visible');
+          syncLock();
+        });
+      });
       return loader;
     },
     hide: function(){
