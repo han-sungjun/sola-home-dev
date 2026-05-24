@@ -8511,7 +8511,7 @@ function getAiAttachmentType(item={}){
  function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
  try{
  return (state.benefits || [])
- .filter(item => item && item.visible !== false && item.id)
+ .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
  .map(item => scoreAiBenefitMatch(item, question, answerText))
  .filter(v => v.score >= 3)
  .sort((a,b) => b.score - a.score)
@@ -8537,7 +8537,7 @@ function getAiAttachmentType(item={}){
  const tokens = getAiSearchTokens(question);
  const qNorm = normalizeAiSearchText(question);
  const pool = [];
- (state.benefits || []).forEach(item => pool.push({ type:'benefit', item }));
+ (state.benefits || []).filter(item => !item || typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)).forEach(item => pool.push({ type:'benefit', item }));
  (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
  (state.aiKnowledge || []).forEach(item => pool.push({ type:item.type || 'ai', item }));
 
@@ -8629,7 +8629,7 @@ function getAiAttachmentType(item={}){
  const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|아이랑|아이하고|아이들과|자녀|키즈|부모님|부모|어르신|어른|시니어|노인|10대|십대|청소년|학생|20대|이십대|청년|젊은|30대|삼십대|40대|사십대|50대|오십대|60대|육십대|70대|칠십대|80대|팔십대|고령|데이트|혼밥|혼자|운동|헬스|필라테스|요가|스포츠|미용|헤어|네일|피부|뷰티|갈만한|갈만한곳|가기좋은|가기 좋은|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
  if(explicitRecommendation){
    const fallback = (state.benefits || [])
-     .filter(item => item && item.visible !== false && item.id)
+     .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
      .map(item => {
        const score = Number(item.popularScore || item.score || item.recommendScore || 0)
          + Number(item.favoriteCount || 0) * 2
@@ -8650,7 +8650,7 @@ function getAiAttachmentType(item={}){
  const text = normalizeAiSearchText(finalText);
  if(!text) return [];
  return (state.benefits || [])
- .filter(item => item && item.visible !== false && item.id)
+ .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
  .map(item => {
  const name = item.name || item.storeName || item.title || '';
  const n = normalizeAiSearchText(name);
@@ -8957,11 +8957,16 @@ function getAiAttachmentType(item={}){
  pinchZoom: true
  });
 
- new nm.Marker({
+ const markerName = item.name || item.storeName || item.title || '매장';
+ const markerHtml = `<div class="map-marker-store ai-map-marker-store" role="button" tabindex="0" title="${escapeAttr(markerName)}">${escapeHtml(markerName)}</div>`;
+ const storeMarker = new nm.Marker({
  position: store,
  map,
- icon: { content: '<div class="map-marker-store">매장</div>', anchor: new nm.Point(20,34) },
+ icon: { content: markerHtml, anchor: new nm.Point(44,34) },
  zIndex: 100
+ });
+ nm.Event.addListener(storeMarker, 'click', () => {
+   if(item?.id && typeof openDetail === 'function') openDetail(item);
  });
 
  const distanceEl = root.querySelector?.(`[data-ai-distance-benefit-id="${CSS.escape(String(benefitId))}"]`);

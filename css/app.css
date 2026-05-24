@@ -24714,3 +24714,33 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
 .benefit-image-preview-overlay .benefit-image-preview-close *{
   pointer-events:none!important;
 }
+
+
+/* v20260524 AI 생활도우미 미니지도 보정: 확대/축소 버튼 잘림 방지 + 매장명 마커 */
+.ai-location-detail-card .detail-map-box{
+  overflow:hidden!important;
+  padding-right:8px;
+  box-sizing:border-box;
+}
+.ai-location-detail-card .ai-location-map-canvas{
+  width:100%!important;
+  border-radius:20px;
+}
+.ai-location-detail-card .ai-location-map-canvas [class*="zoom"],
+.ai-location-detail-card .ai-location-map-canvas [class*="Zoom"],
+.ai-location-detail-card .ai-location-map-canvas [class*="control"],
+.ai-location-detail-card .ai-location-map-canvas [class*="Control"]{
+  right:8px!important;
+}
+.ai-map-marker-store{
+  max-width:132px;
+  min-width:auto;
+  height:auto;
+  min-height:30px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1.2;
+  cursor:pointer;
+  text-overflow:ellipsis;
+}
