@@ -874,20 +874,25 @@
                   </div>
                 </div>
 
-                <div class="field naver-reservation-field">
+                <div class="field naver-reservation-field naver-service-field">
                   <label>
-                    네이버 예약
+                    네이버 연동 / 문의 옵션
                     <span style="font-weight:600;color:#94a3b8;">
                       (선택)
                     </span>
                   </label>
-                  <label class="check-row" style="margin-bottom:8px;">
-                    <input id="naverReservationEnabled" type="checkbox">
-                    <span>네이버 예약 가능 매장으로 표시</span>
-                  </label>
-                  <input id="naverReservationUrl" placeholder="네이버 예약 URL을 입력하세요. 예: https://booking.naver.com/...">
                   <div class="benefit-extra-help">
-                    공개앱 혜택 카드와 상세에 예약 가능 배지와 예약하러 가기 버튼이 표시됩니다. 실시간 예약/웨이팅 현황은 확정하지 않고 예약 페이지로 연결합니다.
+                    매장별로 제공되는 네이버 예약·주문·배달·톡톡 링크를 등록합니다. 공개앱 카드와 상세, AI 생활도우미 안내에 함께 표시됩니다.
+                  </div>
+                  <div class="benefit-extra-grid naver-service-grid">
+                    <label class="check-row"><input id="naverReservationEnabled" type="checkbox"><span>네이버 예약 가능</span></label>
+                    <input id="naverReservationUrl" placeholder="네이버 예약 URL 예: https://booking.naver.com/...">
+                    <label class="check-row"><input id="naverOrderEnabled" type="checkbox"><span>네이버 주문 가능</span></label>
+                    <input id="naverOrderUrl" placeholder="네이버 주문 URL">
+                    <label class="check-row"><input id="naverDeliveryEnabled" type="checkbox"><span>네이버 배달 가능</span></label>
+                    <input id="naverDeliveryUrl" placeholder="네이버 배달 URL">
+                    <label class="check-row"><input id="naverTalkEnabled" type="checkbox"><span>톡톡 문의 가능</span></label>
+                    <input id="naverTalkUrl" placeholder="네이버 톡톡 URL">
                   </div>
                 </div>
 
@@ -2098,7 +2103,7 @@
         </div>
       </div>
     </div>
-    <script src="/js/admin.js?v=20260524-naver-reservation-v37">
+    <script src="/js/admin.js?v=20260524-naver-services-v38">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
