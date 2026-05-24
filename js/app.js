@@ -2916,9 +2916,14 @@ function formatKoreanDate(value){
  }
 
  function getBenefitLatLng(item = {}){
- const rawLat = item.lat ?? item.latitude ?? item.storeLat ?? item.storeLatitude ?? item.mapLat ?? item.y;
- const rawLng = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.storeLongitude ?? item.mapLng ?? item.x;
- return normalizeKoreaLatLng(rawLat, rawLng);
+ const candidates = typeof getBenefitLatLngCandidateObjects === 'function' ? getBenefitLatLngCandidateObjects(item) : [item];
+ for(const source of candidates){
+   const rawLat = getStarfieldBoundaryValue(source, ['lat','latitude','_lat','storeLat','storeLatitude','mapLat','naverLat','placeLat','benefitLat','y']);
+   const rawLng = getStarfieldBoundaryValue(source, ['lng','lon','longitude','_lng','_long','storeLng','storeLongitude','mapLng','naverLng','placeLng','benefitLng','x']);
+   const normalized = normalizeKoreaLatLng(rawLat, rawLng);
+   if(normalized) return normalized;
+ }
+ return null;
  }
 
 
@@ -3766,36 +3771,112 @@ function markerHtmlForItem(item){
 
 
 // ===== 스타필드 내/외부 + 혼잡도/웨이팅 가능성 안내 =====
-// 관리자 필드가 있으면 우선 사용하고, 없으면 관리자 페이지에 등록된 위도/경도 좌표로 판별합니다.
-// 좌표 경계는 운영 중 실제 스타필드 건물 외곽 좌표를 window.UPICK_STARFIELD_BOUNDS 또는 localStorage로 보정할 수 있습니다.
-const DEFAULT_STARFIELD_BOUNDS = {
-  // 넉넉한 기본값입니다. 실제 운영 좌표에 맞춰 min/max 값을 보정하면 정확도가 올라갑니다.
-  minLat: 37.7140,
-  maxLat: 37.7248,
-  minLng: 126.7460,
-  maxLng: 126.7608
-};
+// 매장명/주소 문자열이 아니라 관리자 페이지에 등록된 위도/경도 좌표를 기준으로 판별합니다.
+// 스타필드 빌리지 운정은 스트리트몰까지 포함해야 하므로 사각형 bounds가 아닌 polygon으로 판단합니다.
+// 운영 중 보정이 필요하면 window.UPICK_STARFIELD_POLYGON 또는 localStorage(UPICK_STARFIELD_POLYGON)에 좌표 배열을 넣어 덮어쓸 수 있습니다.
+const DEFAULT_STARFIELD_POLYGON = [
+  // 북서쪽 IBK/몬로얄 방면 → 북동쪽 철길/수로 방면
+  { lat: 37.73195, lng: 126.76255 },
+  { lat: 37.73202, lng: 126.76675 },
+  { lat: 37.73168, lng: 126.76765 },
+  // 동쪽 수로를 따라 남하
+  { lat: 37.72982, lng: 126.76805 },
+  { lat: 37.72782, lng: 126.76735 },
+  { lat: 37.72592, lng: 126.76660 },
+  // 남쪽 와석순환로/스트리트몰 끝단
+  { lat: 37.72482, lng: 126.76545 },
+  { lat: 37.72472, lng: 126.76288 },
+  // 서쪽 와석순환로515번길을 따라 북상
+  { lat: 37.72645, lng: 126.76255 },
+  { lat: 37.72865, lng: 126.76225 },
+  { lat: 37.73072, lng: 126.76228 }
+];
 
-function getConfiguredStarfieldBounds(){
+const DEFAULT_STARFIELD_BOUNDS = (() => {
+  const lats = DEFAULT_STARFIELD_POLYGON.map(p => p.lat);
+  const lngs = DEFAULT_STARFIELD_POLYGON.map(p => p.lng);
+  return { minLat: Math.min(...lats), maxLat: Math.max(...lats), minLng: Math.min(...lngs), maxLng: Math.max(...lngs) };
+})();
+
+function normalizePolygonPoint(point){
+ if(Array.isArray(point) && point.length >= 2){
+   const lat = Number(point[0]);
+   const lng = Number(point[1]);
+   return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+ }
+ if(point && typeof point === 'object'){
+   const lat = Number(point.lat ?? point.latitude ?? point._lat ?? point.y);
+   const lng = Number(point.lng ?? point.lon ?? point.longitude ?? point._long ?? point._lng ?? point.x);
+   return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+ }
+ return null;
+}
+
+function getConfiguredStarfieldPolygon(){
  try{
-   const runtime = window.UPICK_STARFIELD_BOUNDS || window.STARFIELD_BOUNDARY;
-   const saved = !runtime ? JSON.parse(localStorage.getItem('UPICK_STARFIELD_BOUNDS') || 'null') : null;
-   const source = runtime || saved || DEFAULT_STARFIELD_BOUNDS;
-   const minLat = Number(source.minLat ?? source.south ?? source.swLat);
-   const maxLat = Number(source.maxLat ?? source.north ?? source.neLat);
-   const minLng = Number(source.minLng ?? source.west ?? source.swLng);
-   const maxLng = Number(source.maxLng ?? source.east ?? source.neLng);
-   if([minLat,maxLat,minLng,maxLng].every(Number.isFinite)){
-     return { minLat:Math.min(minLat,maxLat), maxLat:Math.max(minLat,maxLat), minLng:Math.min(minLng,maxLng), maxLng:Math.max(minLng,maxLng) };
+   const runtime = window.UPICK_STARFIELD_POLYGON || window.STARFIELD_POLYGON;
+   const saved = !runtime ? JSON.parse(localStorage.getItem('UPICK_STARFIELD_POLYGON') || 'null') : null;
+   const source = runtime || saved;
+   if(Array.isArray(source)){
+     const polygon = source.map(normalizePolygonPoint).filter(Boolean);
+     if(polygon.length >= 3) return polygon;
    }
  }catch(_){ }
- return DEFAULT_STARFIELD_BOUNDS;
+ return DEFAULT_STARFIELD_POLYGON;
+}
+
+function getConfiguredStarfieldBounds(){
+ const polygon = getConfiguredStarfieldPolygon();
+ const lats = polygon.map(p => p.lat);
+ const lngs = polygon.map(p => p.lng);
+ return { minLat: Math.min(...lats), maxLat: Math.max(...lats), minLng: Math.min(...lngs), maxLng: Math.max(...lngs) };
+}
+
+function getStarfieldBoundaryValue(source, keys){
+ for(const key of keys){
+   const value = source?.[key];
+   if(value && typeof value === 'object'){
+     const nested = Number(value.latitude ?? value.lat ?? value._lat ?? value.longitude ?? value.lng ?? value._long);
+     if(Number.isFinite(nested)) return nested;
+   }
+   const n = Number(value);
+   if(Number.isFinite(n)) return n;
+ }
+ return NaN;
+}
+
+function getBenefitLatLngCandidateObjects(item={}){
+ const candidates = [item];
+ ['location','position','coord','coords','coordinate','coordinates','geo','geoPoint','geopoint','naverMap','map','place','storeLocation'].forEach((key)=>{
+   const value = item?.[key];
+   if(value && typeof value === 'object') candidates.push(value);
+ });
+ return candidates;
 }
 
 function isLatLngInBounds(pos, bounds){
  if(!pos || !bounds) return false;
  const lat = Number(pos.lat), lng = Number(pos.lng);
  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= bounds.minLat && lat <= bounds.maxLat && lng >= bounds.minLng && lng <= bounds.maxLng;
+}
+
+function isLatLngInPolygon(pos, polygon){
+ if(!pos || !Array.isArray(polygon) || polygon.length < 3) return false;
+ const lat = Number(pos.lat);
+ const lng = Number(pos.lng);
+ if(!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+ // 빠른 배제: polygon 바깥 사각영역이면 내부 검사 생략
+ const lats = polygon.map(p => Number(p.lat));
+ const lngs = polygon.map(p => Number(p.lng));
+ if(lat < Math.min(...lats) || lat > Math.max(...lats) || lng < Math.min(...lngs) || lng > Math.max(...lngs)) return false;
+ let inside = false;
+ for(let i = 0, j = polygon.length - 1; i < polygon.length; j = i++){
+   const yi = Number(polygon[i].lat), xi = Number(polygon[i].lng);
+   const yj = Number(polygon[j].lat), xj = Number(polygon[j].lng);
+   const intersects = ((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi);
+   if(intersects) inside = !inside;
+ }
+ return inside;
 }
 
 function normalizeZoneType(value=''){
@@ -3807,14 +3888,19 @@ function normalizeZoneType(value=''){
 }
 
 function getBenefitZoneInfo(item={}){
+ const pos = getBenefitLatLng(item);
+ if(pos){
+   const polygon = getConfiguredStarfieldPolygon();
+   if(isLatLngInPolygon(pos, polygon)){
+     return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'좌표 polygon 기준' };
+   }
+   return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'좌표 polygon 기준' };
+ }
+ // 좌표가 없는 예외 매장만 관리자 수동 필드를 보조적으로 사용합니다.
  const manual = normalizeZoneType(item.zoneType || item.locationZone || item.marketZone || item.commercialZone || item.starfieldZone);
  if(manual === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'관리자 등록 기준' };
  if(manual === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'관리자 등록 기준' };
- const pos = getBenefitLatLng(item);
- if(isLatLngInBounds(pos, getConfiguredStarfieldBounds())){
-   return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'좌표 기준' };
- }
- return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:pos ? '좌표 기준' : '기본 분류' };
+ return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'기본 분류' };
 }
 
 function getBenefitPopularRank(item={}){
@@ -3878,7 +3964,8 @@ function mapMarkerInlineBadgesHtml(item={}){
 function benefitContextBadgesHtml(item={}, {compact=false}={}){
  const zone = getBenefitZoneInfo(item);
  const crowd = getBenefitCrowdInfo(item);
- return `<span class="benefit-context-badges${compact?' compact':''}" aria-label="상권 및 혼잡도 안내"><span class="benefit-context-badge zone ${zone.type}">${escapeHtml(zone.shortLabel || zone.label)}</span><span class="benefit-context-badge crowd ${crowd.level}">${escapeHtml(compact ? crowd.label.replace(' 예상','') : crowd.label)}</span></span>`;
+ const crowdLabel = compact ? String(crowd.label || '').replace(' 예상','') : String(crowd.label || '');
+ return `<span class="benefit-context-badges${compact?' compact':''}" aria-label="상권 및 혼잡도 안내"><span class="benefit-context-badge combined ${zone.type} ${crowd.level}">${escapeHtml(zone.shortLabel || zone.label)} · ${escapeHtml(crowdLabel)}</span></span>`;
 }
 
 function benefitContextPanelHtml(item={}){
