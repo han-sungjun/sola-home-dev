@@ -1,25 +1,69 @@
 (function(){
   'use strict';
 
-  var DEFAULT_STEPS = [
-    { at: 0, main: '입주민 전용 서비스를 연결하고 있어요', sub: '잠시만 기다려주세요' },
-    { at: 1200, main: '편리한 혜택 정보를 준비하고 있어요', sub: '곧 이용하실 수 있어요' },
-    { at: 3200, main: '안전하게 데이터를 확인하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
-    { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
-  ];
-
-  var ADMIN_STEPS = [
-    { at: 0, main: '운영자 전용 서비스를 연결하고 있어요', sub: '잠시만 기다려주세요' },
-    { at: 1200, main: '관리자 데이터를 확인하고 있어요', sub: '운영 화면을 준비 중입니다' },
-    { at: 3200, main: '안전하게 권한을 확인하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
-    { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
-  ];
+  var LOADING_STEPS = {
+    default: [
+      { at: 0, main: '입주민 전용 서비스를 연결하고 있어요', sub: '잠시만 기다려주세요' },
+      { at: 1200, main: '편리한 혜택 정보를 준비하고 있어요', sub: '곧 이용하실 수 있어요' },
+      { at: 3200, main: '안전하게 데이터를 확인하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+      { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+    ],
+    public: [
+      { at: 0, main: '입주민 전용 혜택을 불러오고 있어요', sub: '잠시만 기다려주세요' },
+      { at: 1200, main: '오늘의 혜택 정보를 정리하고 있어요', sub: '곧 이용하실 수 있어요' },
+      { at: 3200, main: '매장 정보와 즐겨찾기를 확인하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+      { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+    ],
+    admin: [
+      { at: 0, main: '운영자 전용 서비스를 연결하고 있어요', sub: '잠시만 기다려주세요' },
+      { at: 1200, main: '관리자 데이터를 확인하고 있어요', sub: '운영 화면을 준비 중입니다' },
+      { at: 3200, main: '안전하게 권한을 확인하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+      { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+    ],
+    entrance: [
+      { at: 0, main: '입장 화면을 준비하고 있어요', sub: '잠시만 기다려주세요' },
+      { at: 1200, main: '안전한 입장 환경을 확인하고 있어요', sub: '곧 이용하실 수 있어요' },
+      { at: 3200, main: '계정 정보를 연결할 준비를 하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+      { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+    ],
+    signup: [
+      { at: 0, main: '계정 만들기 화면을 준비하고 있어요', sub: '잠시만 기다려주세요' },
+      { at: 1200, main: '안전한 입력 환경을 확인하고 있어요', sub: '곧 이용하실 수 있어요' },
+      { at: 3200, main: '입주민 전용 계정 절차를 준비하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+      { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+    ],
+    verify: [
+      { at: 0, main: '휴대폰 인증 화면을 준비하고 있어요', sub: '잠시만 기다려주세요' },
+      { at: 1200, main: '안전한 인증 환경을 확인하고 있어요', sub: '곧 이용하실 수 있어요' },
+      { at: 3200, main: '인증 정보를 보호하며 연결하고 있어요', sub: '네트워크 상태에 따라 조금 더 걸릴 수 있어요' },
+      { at: 5600, main: '거의 준비가 완료되었어요', sub: '잠시 후 자동으로 연결됩니다' }
+    ]
+  };
 
   var boundLoaders = new WeakMap();
   var hideTimer = null;
 
   function isAdminPage(){
     return /(?:^|\/)admin(?:\.html)?(?:\/|$)/i.test(location.pathname) || /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page') || document.body.dataset.loadingMode === 'admin';
+  }
+
+  function getLoadingMode(loader){
+    var bodyMode = document.body && document.body.dataset ? document.body.dataset.loadingMode : '';
+    var loaderMode = loader && loader.dataset ? loader.dataset.loadingMode : '';
+    var path = location.pathname || '';
+    var mode = loaderMode || bodyMode;
+    if(mode) return mode;
+    if(isAdminPage()) return 'admin';
+    if(/(?:^|\/)app(?:\.html)?(?:\/|$)/i.test(path)) return 'public';
+    if(/(?:^|\/)signup(?:\.html)?(?:\/|$)/i.test(path)) return 'signup';
+    if(/(?:^|\/)phone-verify(?:\.html)?(?:\/|$)/i.test(path)) return 'verify';
+    if(/(?:^|\/)index(?:\.html)?$/i.test(path) || path === '/' || path === '') return 'entrance';
+    return 'default';
+  }
+
+  function getSteps(loader){
+    var mode = getLoadingMode(loader);
+    return LOADING_STEPS[mode] || LOADING_STEPS.default;
   }
 
   function supportsDialog(){
@@ -99,6 +143,13 @@
       content.insertBefore(mark, content.firstChild);
     }
     mark.setAttribute('aria-label','로딩 중');
+    var orbit = mark.querySelector('.loader-orbit');
+    if(!orbit){
+      orbit = document.createElement('span');
+      orbit.className = 'loader-orbit';
+      orbit.setAttribute('aria-hidden','true');
+      mark.appendChild(orbit);
+    }
 
     var copy = content.querySelector('.loader-copy') || loader.querySelector('.loader-copy');
     if(!copy){
@@ -165,7 +216,7 @@
 
     function start(){
       clearTimers();
-      var steps = loader.dataset.loadingMode === 'admin' || isAdminPage() ? ADMIN_STEPS : DEFAULT_STEPS;
+      var steps = getSteps(loader);
       steps.forEach(function(step){
         state.timers.push(window.setTimeout(function(){ setMessage(step); }, step.at));
       });
