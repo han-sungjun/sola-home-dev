@@ -2670,6 +2670,47 @@ async function refreshPushStatus(){
  return map[key] || `last${key.charAt(0).toUpperCase()}${key.slice(1).replace(/Count$/,'')}At`;
  }
 
+ function getCrowdPatternKeys(now = getSeoulNow()){
+ const date = now instanceof Date ? now : getSeoulNow();
+ const day = Math.max(0, Math.min(6, Number(date.getDay()) || 0));
+ const hour = Math.max(0, Math.min(23, Number(date.getHours()) || 0));
+ const isWeekend = day === 0 || day === 6;
+ return {
+   day,
+   hour,
+   isWeekend,
+   hourKey: `crowdHour_${hour}`,
+   dayHourKey: `crowdDayHour_${day}_${hour}`,
+   segmentHourKey: `${isWeekend ? 'crowdWeekendHour' : 'crowdWeekdayHour'}_${hour}`
+ };
+ }
+
+ function buildCrowdPatternDeltas(actionWeight = 0, now = getSeoulNow()){
+ const weight = Math.max(0, toSafeFiniteNumber(actionWeight, 0));
+ if(!weight) return {};
+ const keys = getCrowdPatternKeys(now);
+ return {
+   [keys.hourKey]: weight,
+   [keys.dayHourKey]: weight,
+   [keys.segmentHourKey]: weight,
+   crowdHistoryTotal: weight,
+   crowdHistoryEvents: 1
+ };
+ }
+
+ function getCrowdHistoricalSignal(stat = {}, now = getSeoulNow()){
+ const keys = getCrowdPatternKeys(now);
+ const hourPulse = toSafeFiniteNumber(stat[keys.hourKey], 0);
+ const dayHourPulse = toSafeFiniteNumber(stat[keys.dayHourKey], 0);
+ const segmentPulse = toSafeFiniteNumber(stat[keys.segmentHourKey], 0);
+ const total = toSafeFiniteNumber(stat.crowdHistoryTotal, 0);
+ const events = toSafeFiniteNumber(stat.crowdHistoryEvents, 0);
+ const signal = dayHourPulse * 0.9 + segmentPulse * 0.45 + hourPulse * 0.22;
+ const average = events > 0 ? total / Math.max(1, events) : 0;
+ const concentration = total > 0 ? signal / Math.max(1, total) : 0;
+ return { ...keys, hourPulse, dayHourPulse, segmentPulse, total, events, signal, average, concentration };
+ }
+
 
  function toSafeFiniteNumber(value, fallback = 0){
  const n = Number(value);
@@ -2713,8 +2754,11 @@ async function refreshPushStatus(){
      name: benefitName || prev.name || '',
      ...buildSafeStatNumberUpdates(prev, {
        [field]: 1,
-       ...(popularWeight > 0 ? { popularScore: popularWeight } : {})
+       ...(popularWeight > 0 ? { popularScore: popularWeight } : {}),
+       ...buildCrowdPatternDeltas(actionWeight, getSeoulNow())
      }),
+     lastCrowdPatternDay: getCrowdPatternKeys(getSeoulNow()).day,
+     lastCrowdPatternHour: getCrowdPatternKeys(getSeoulNow()).hour,
      [lastActionField]: serverTimestamp(),
      lastActionType: field,
      recentCrowdPulse: nextPulse,
@@ -4053,15 +4097,24 @@ function getRecentActionBoost(item={}, now=Date.now()){
  ];
  const latest = Math.max(...candidates.map((key)=>Math.max(getTimestampMs(item[key]), getTimestampMs(stat[key]))), 0);
  const pulse = getDecayedCrowdPulseFromStat(stat, now);
- let points = Math.min(22, pulse * 0.42);
+ const historical = getCrowdHistoricalSignal(stat, getSeoulNow());
+ let points = Math.min(24, pulse * 0.42);
  let reason = points >= 12 ? '최근 실시간 관심 급증' : (points >= 6 ? '최근 실시간 관심 증가' : '');
+
+ // 평소 같은 요일·시간대보다 지금 반응이 강하면 추가 보정합니다.
+ if(pulse >= 10 && historical.signal >= 12){
+   const ratio = pulse / Math.max(6, historical.signal * 0.22);
+   if(ratio >= 2.4){ points += 8; reason = '평소 대비 관심 급상승'; }
+   else if(ratio >= 1.6){ points += 5; reason = reason || '평소 대비 관심 증가'; }
+ }
+
  if(latest){
    const minutes = Math.max(0, (now - latest) / 60000);
-   if(minutes <= 10){ points += 7; reason = reason || '최근 10분 관심 증가'; }
-   else if(minutes <= 30){ points += 4; reason = reason || '최근 30분 관심 증가'; }
+   if(minutes <= 10){ points += 8; reason = reason || '최근 10분 관심 증가'; }
+   else if(minutes <= 30){ points += 5; reason = reason || '최근 30분 관심 증가'; }
    else if(minutes <= 60){ points += 2; reason = reason || '최근 1시간 관심 증가'; }
  }
- points = Math.min(26, Math.round(points));
+ points = Math.min(30, Math.round(points));
  return { points, reason };
 }
 
@@ -4071,7 +4124,8 @@ function getHistoricalTimePatternBoost(item={}, now=getSeoulNow()){
  const day = now.getDay();
  const isWeekend = day === 0 || day === 6;
  const total = numberFromAny(stat.popularScore, stat.detailViewCount, stat.cardClickCount, item.popularScore, item.detailViewCount);
- if(total < 20) return { points:0, reason:'' };
+ const historical = getCrowdHistoricalSignal(stat, now);
+ if(total < 20 && historical.total < 15) return { points:0, reason:'' };
  let points = 0;
  const hay = [item.category,item.type,item.name,item.storeName,item.title,item.tags,item.aiTags].flat().join(' ').toLowerCase();
  const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|cafe|coffee|pizza|떡볶|밥|국수|샐러드|브런치/.test(hay);
@@ -4079,7 +4133,15 @@ function getHistoricalTimePatternBoost(item={}, now=getSeoulNow()){
  if(foodLike && ((hour >= 11 && hour <= 13) || (hour >= 17 && hour <= 20))) points += Math.min(8, Math.floor(total / 80) + 3);
  if(cafeLike && hour >= 13 && hour <= 18) points += Math.min(7, Math.floor(total / 90) + 2);
  if(isWeekend && total >= 80) points += 5;
- return points ? { points, reason:'요일·시간대 누적 패턴' } : { points:0, reason:'' };
+
+ // 실제 입주민 행동이 쌓인 시간대라면 업종 추정치보다 우선 보정합니다.
+ if(historical.signal >= 60) points += 9;
+ else if(historical.signal >= 30) points += 6;
+ else if(historical.signal >= 14) points += 3;
+
+ if(historical.concentration >= 0.18 && historical.total >= 30) points += 4;
+ points = Math.min(16, Math.round(points));
+ return points ? { points, reason: historical.signal >= 14 ? '매장별 시간대 이용 패턴' : '요일·시간대 누적 패턴' } : { points:0, reason:'' };
 }
 
 function clampCrowdScore(score){
@@ -5761,7 +5823,12 @@ ${item.content || ''}`);
  const likeCount = Number(data.likeCount || 0);
  const recommendCount = Number(data.recommendCount || 0);
  const hotCount = Number(data.hotCount || 0);
- return detailViewCount + clickCount + cardClickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6;
+ const mapClickCount = Number(data.mapClickCount || 0);
+ const directionClickCount = Number(data.directionClickCount || data.routeClickCount || 0);
+ const callClickCount = Number(data.callClickCount || data.phoneClickCount || 0);
+ const smartstoreClickCount = Number(data.smartstoreClickCount || 0);
+ const bandClickCount = Number(data.bandClickCount || 0);
+ return detailViewCount + clickCount + cardClickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6 + mapClickCount * 2 + directionClickCount * 4 + callClickCount * 3 + smartstoreClickCount * 4 + bandClickCount * 3;
  }
 
  function getShareBestItemId(items = []) {
