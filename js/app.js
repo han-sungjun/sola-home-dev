@@ -9529,6 +9529,14 @@ async function playAiTtsFromButton(button){
 }
 
 
+
+function isAiRecentNoticeGuideQuestion(question='', answer=''){
+ const text = `${question || ''} ${answer || ''}`;
+ const compact = String(text || '').replace(/\s+/g, '');
+ return /(최근\s*공지|공지\s*알려|공지사항|공지)/i.test(text)
+   || /(최근공지|공지알려|공지사항)/i.test(compact);
+}
+
 function isAiNotificationTroubleshootingQuestion(question='', answer=''){
  const text = `${question || ''} ${answer || ''}`;
  const compact = String(text || '').replace(/\s+/g, '');
@@ -9570,6 +9578,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
  const isAppInstallGuideAnswer = isAiAppInstallGuideQuestion(question, cleaned);
  const isDialogRejectAnswer = isAiDialogRejectAnswer(question, cleaned);
+ const isRecentNoticeGuideAnswer = isAiRecentNoticeGuideQuestion(question, cleaned);
+ const isNotificationGuideAnswer = isAiNotificationTroubleshootingQuestion(question, cleaned);
  const aiDownloadButtonsHtml = buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
@@ -9595,7 +9605,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  </div>`;
  }
  const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
- const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
+ const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
  const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
  const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
  const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
@@ -9633,6 +9643,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const shouldShowBenefitCards =
    !isAppInstallGuideAnswer &&
    !isDialogRejectAnswer &&
+   !isRecentNoticeGuideAnswer &&
+   !isNotificationGuideAnswer &&
    !isApartmentLifePhoneQuestion(question, cleaned) &&
    !isMultimodalAnalysisAnswer &&
    !shouldHideBenefitCardsForKnowledge &&
@@ -9642,14 +9654,14 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
  ${buildAiTtsControlsHtml(isMultimodalAnalysisAnswer ? 'file' : (isExplicitBenefitCardIntent ? 'benefit' : 'default'))}
- ${!isAppInstallGuideAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+ ${!isAppInstallGuideAnswer && !isRecentNoticeGuideAnswer && !isNotificationGuideAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
  ${phoneCards}
  ${dialogButtons}
  ${locationMapCard}
  ${aiAttachmentHtml}
  ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  ${aiDownloadButtonsHtml}
- <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isAiNotificationTroubleshootingQuestion(question, cleaned) ? '알림 설정 방법을 안내했어요.' : '상황에 맞는 정보를 준비했어요.'))}</span>
+ <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isNotificationGuideAnswer ? '알림 설정 방법을 안내했어요.' : (isRecentNoticeGuideAnswer ? '최근 공지를 안내했어요.' : '상황에 맞는 정보를 준비했어요.')))}</span>
  </div>`;
  }
 
@@ -10163,7 +10175,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
 
  function appendAiRecommendationCardsSafe(data, question=''){
  const mode = String(data?.retrievalMode || '');
- if(isApartmentLifePhoneQuestion(question) || isAiAppInstallGuideQuestion(question, data?.answerText || '') || mode.includes('direct-apartment-life-phone') || mode.includes('app_install_pwa_guide_direct')) return;
+ if(isApartmentLifePhoneQuestion(question) || isAiAppInstallGuideQuestion(question, data?.answerText || '') || isAiNotificationTroubleshootingQuestion(question, data?.answerText || '') || isAiRecentNoticeGuideQuestion(question, data?.answerText || '') || mode.includes('direct-apartment-life-phone') || mode.includes('app_install_pwa_guide_direct') || mode.includes('notification_trouble_guide_direct') || mode.includes('recent_notice_direct_quick') || mode.includes('dialog_candidate_rejected')) return;
  if(data?.suppressRelatedItems || data?.suppressFollowupButtons || data?.analysisStatus === 'no_analyzable_files') return;
  if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
  }
