@@ -3871,6 +3871,33 @@ function isLatLngInPolygon(pos, polygon){
  return inside;
 }
 
+
+// 스타필드 생활권 경계 매장 보정
+// 일부 매장은 관리자 좌표가 건물 중심/도로측으로 저장되어 polygon 판별이 실제 체감 상권과 반대로 나올 수 있어
+// 운영 기준이 명확한 경계 매장만 보정합니다. 일반 매장은 계속 위도/경도 polygon 기준을 사용합니다.
+const STARFIELD_ZONE_EDGE_OVERRIDES = [
+  { type:'starfield_inside', names:['그라츠커피랩','테이블린'] },
+  { type:'outside_area', names:['공터영어','노가리세상'] }
+];
+
+function normalizeStoreNameForZone(value=''){
+ return String(value || '').replace(/\s+/g,'').replace(/[()\[\]{}·ㆍ._-]/g,'').toLowerCase();
+}
+
+function getBenefitZoneEdgeOverride(item={}){
+ const rawName = String(item.name || item.storeName || item.title || item.placeName || '').trim();
+ const normalizedName = normalizeStoreNameForZone(rawName);
+ if(!normalizedName) return '';
+ for(const row of STARFIELD_ZONE_EDGE_OVERRIDES){
+   const matched = (row.names || []).some((name)=>{
+     const key = normalizeStoreNameForZone(name);
+     return key && (normalizedName.includes(key) || key.includes(normalizedName));
+   });
+   if(matched) return row.type;
+ }
+ return '';
+}
+
 function normalizeZoneType(value=''){
  const raw = String(value || '').trim().toLowerCase();
  if(!raw) return '';
@@ -3880,6 +3907,11 @@ function normalizeZoneType(value=''){
 }
 
 function getBenefitZoneInfo(item={}){
+ const edgeOverride = getBenefitZoneEdgeOverride(item);
+ if(edgeOverride === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'경계 매장 보정 기준' };
+ if(edgeOverride === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'경계 매장 보정 기준' };
+
+ // 좌표가 있는 일반 매장은 관리자 페이지에 등록된 위도/경도 polygon 기준으로 판별합니다.
  const pos = getBenefitLatLng(item);
  if(pos){
    const polygon = getConfiguredStarfieldPolygon();
