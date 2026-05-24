@@ -3,3 +3,94 @@
   outline-offset: 4px !important;
   box-shadow: 0 0 0 5px rgba(255,255,255,0.92), 0 12px 26px rgba(15,23,42,0.22) !important;
 }
+/* ===== 공개앱 초기 로딩 로고 모션 복구 v1 =====
+   app.css에 누적된 이전 loader 보정값(transform:none / content:none / background-logo 고정)이
+   공개앱 초기 #globalLoadingBar에서 로고 모션을 막는 경우가 있어, 가장 마지막 CSS에서 다시 고정합니다. */
+#globalLoadingBar.global-loading .loader-mark,
+#pageLoader.page-loader .loader-mark,
+.global-loading .loader-mark,
+.page-loader .loader-mark{
+  transform-origin:center center !important;
+  will-change:transform, box-shadow !important;
+  overflow:visible !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88)) !important;
+  animation:upickPublicLoaderMarkFloatFix 1.28s ease-in-out infinite !important;
+}
+
+#globalLoadingBar.global-loading .loader-mark::before,
+#pageLoader.page-loader .loader-mark::before,
+.global-loading .loader-mark::before,
+.page-loader .loader-mark::before{
+  content:"" !important;
+  display:block !important;
+  width:76px !important;
+  height:76px !important;
+  position:relative !important;
+  z-index:3 !important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
+  transform-origin:center center !important;
+  will-change:transform, filter, opacity !important;
+  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16)) !important;
+  animation:upickPublicLoaderLogoBreatheFix 1.28s ease-in-out infinite !important;
+  pointer-events:none !important;
+}
+
+#globalLoadingBar.global-loading .loader-mark::after,
+#pageLoader.page-loader .loader-mark::after,
+.global-loading .loader-mark::after,
+.page-loader .loader-mark::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  left:22px !important;
+  right:22px !important;
+  bottom:12px !important;
+  top:auto !important;
+  width:auto !important;
+  height:4px !important;
+  border:0 !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,rgba(96,165,250,.04),rgba(96,165,250,.30),rgba(37,99,235,.44),rgba(96,165,250,.04)) !important;
+  box-shadow:0 0 18px rgba(37,99,235,.18) !important;
+  opacity:.72 !important;
+  transform-origin:center center !important;
+  will-change:transform, opacity !important;
+  animation:upickPublicLoaderLineFlowFix 1.24s ease-in-out infinite !important;
+  pointer-events:none !important;
+}
+
+@keyframes upickPublicLoaderMarkFloatFix{
+  0%,100%{transform:translate3d(0,0,0) scale(1);}
+  50%{transform:translate3d(0,-7px,0) scale(1.018);}
+}
+@keyframes upickPublicLoaderLogoBreatheFix{
+  0%,100%{transform:translateY(0) scale(1) rotate(0deg);opacity:.98;filter:drop-shadow(0 8px 18px rgba(7,26,61,.16));}
+  45%{transform:translateY(-3px) scale(1.055) rotate(-1deg);opacity:1;filter:drop-shadow(0 13px 24px rgba(37,99,235,.24));}
+  72%{transform:translateY(-1px) scale(1.025) rotate(.65deg);}
+}
+@keyframes upickPublicLoaderLineFlowFix{
+  0%,100%{opacity:.34;transform:scaleX(.72);}
+  50%{opacity:.86;transform:scaleX(1);}
+}
+
+@media(max-width:480px){
+  #globalLoadingBar.global-loading .loader-mark::before,
+  #pageLoader.page-loader .loader-mark::before,
+  .global-loading .loader-mark::before,
+  .page-loader .loader-mark::before{width:70px !important;height:70px !important;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #globalLoadingBar.global-loading .loader-mark,
+  #pageLoader.page-loader .loader-mark,
+  .global-loading .loader-mark,
+  .page-loader .loader-mark,
+  #globalLoadingBar.global-loading .loader-mark::before,
+  #pageLoader.page-loader .loader-mark::before,
+  .global-loading .loader-mark::before,
+  .page-loader .loader-mark::before,
+  #globalLoadingBar.global-loading .loader-mark::after,
+  #pageLoader.page-loader .loader-mark::after,
+  .global-loading .loader-mark::after,
+  .page-loader .loader-mark::after{animation:none !important;}
+}
