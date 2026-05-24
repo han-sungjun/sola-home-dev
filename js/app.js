@@ -3905,6 +3905,7 @@ function benefitBusinessHoursPanelHtml(item = {}){
  </div>`;
 }
 
+
  function locationPanelHtml(item = {}){
  const address = String(getBenefitDisplayAddress(item) || '').trim();
  const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
@@ -4899,6 +4900,17 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  reservation:item.reservation||{},
  deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
  takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
+ // 관리자에 등록된 요일별 영업시간/휴무/브레이크타임/라스트오더를 공개앱에서도 그대로 사용합니다.
+ openingHoursManual:item.openingHoursManual||item.openingHours||item.businessHours||null,
+ openingHours:item.openingHoursManual||item.openingHours||item.businessHours||null,
+ businessHours:item.businessHours||item.openingHoursManual||item.openingHours||null,
+ businessHoursManual:item.businessHoursManual||item.manualBusinessHours||item.adminBusinessHours||item.adminHoursText||'',
+ manualBusinessHours:item.manualBusinessHours||item.businessHoursManual||item.adminBusinessHours||item.adminHoursText||'',
+ todayOpenText:item.todayOpenText||item.hoursText||item.openHoursText||item.businessHoursManual||item.manualBusinessHours||item.adminBusinessHours||item.adminHoursText||'',
+ openStatusText:item.openStatusText||'',
+ breakStart:item.breakStart||'',
+ breakEnd:item.breakEnd||'',
+ lastOrder:item.lastOrder||'',
  serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
  directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
  externalLinks:item.externalLinks||{},

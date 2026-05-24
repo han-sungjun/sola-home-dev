@@ -23558,7 +23558,8 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
 /* Loading UI styles are centralized in /common/common-loading.css.
    Page-specific loader overrides were removed to keep app/admin/index/signup/phone-verify consistent. */
 
-/* ===== 혜택 상세: 영업시간 안내 ===== */
+
+/* ===== 혜택 상세 영업시간 패널 ===== */
 .business-hours-panel{
   border:1px solid rgba(191,219,254,.9);
   background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,251,255,.94));
@@ -23657,3 +23658,4 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   font-size:12px;
   line-height:1.45;
 }
+
