@@ -1,6 +1,6 @@
 /* 더운정픽 공통 로딩 UI
-   - 로그인 화면 로딩바를 기준으로 전 페이지 공통화
-   - 페이지별 CSS에 남아 있는 loader 스타일보다 항상 뒤에서 우선 적용 */
+   - 모든 페이지(app/index/admin/signup/phone-verify)는 이 파일만으로 로딩바 디자인을 사용합니다.
+   - 각 페이지 CSS에는 로딩바 전용 스타일을 두지 않습니다. */
 :root{
   --upick-loading-symbol:url('/icons/internal/brand-symbol-real.png');
 }
@@ -35,13 +35,14 @@
   padding:24px!important;
   margin:0!important;
   overflow:hidden!important;
-  background:rgba(7,18,42,.46)!important;
-  backdrop-filter:blur(14px)!important;
-  -webkit-backdrop-filter:blur(14px)!important;
-  z-index:2147483900!important;
+  background:rgba(226,234,245,.72)!important;
+  backdrop-filter:blur(15px) saturate(1.08)!important;
+  -webkit-backdrop-filter:blur(15px) saturate(1.08)!important;
+  z-index:2147483000!important;
   opacity:1!important;
   visibility:visible!important;
   pointer-events:auto!important;
+  box-sizing:border-box!important;
 }
 
 #pageLoader.show,
@@ -78,7 +79,10 @@
   content:""!important;
   position:absolute!important;
   inset:0!important;
-  background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(37,99,235,.34), transparent 31%),
+    radial-gradient(ellipse at 50% 55%, rgba(255,255,255,.78), transparent 42%),
+    linear-gradient(180deg, rgba(9,37,86,.28) 0%, rgba(255,255,255,.40) 54%, rgba(238,231,219,.42) 100%)!important;
   pointer-events:none!important;
 }
 
@@ -94,6 +98,8 @@
   align-items:center!important;
   justify-content:center!important;
   gap:22px!important;
+  transform:translateY(-6px)!important;
+  width:min(92vw,520px)!important;
   min-width:0!important;
   text-align:center!important;
 }
@@ -103,20 +109,22 @@
 #commonLoadingDialog .loader-mark,
 .page-loader .loader-mark,
 .global-loading .loader-mark{
-  width:108px!important;
-  height:108px!important;
-  min-width:108px!important;
-  min-height:108px!important;
-  border-radius:34px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
-  border:1px solid rgba(191,219,254,.92)!important;
-  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  width:92px!important;
+  height:92px!important;
+  min-width:92px!important;
+  min-height:92px!important;
+  border-radius:29px!important;
+  background:
+    var(--upick-loading-symbol) center/64px 64px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.74),rgba(221,237,255,.46))!important;
+  border:1px solid rgba(255,255,255,.50)!important;
+  box-shadow:0 22px 50px rgba(15,44,92,.16), inset 0 1px 0 rgba(255,255,255,.74), inset 0 -1px 0 rgba(96,165,250,.12)!important;
   display:grid!important;
   place-items:center!important;
   position:relative!important;
   overflow:visible!important;
   transform:none!important;
-  animation:upickCommonLoaderFloat 1.3s ease-in-out infinite!important;
+  animation:upickCommonLoaderFloat 1.65s ease-in-out infinite!important;
 }
 
 #pageLoader .loader-mark::before,
@@ -125,13 +133,12 @@
 .page-loader .loader-mark::before,
 .global-loading .loader-mark::before{
   content:""!important;
-  width:76px!important;
-  height:76px!important;
-  background:var(--upick-loading-symbol) center/contain no-repeat!important;
-  display:block!important;
-  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;
-  transform-origin:center!important;
-  animation:upickCommonLoaderLogo 1.3s ease-in-out infinite!important;
+  position:absolute!important;
+  inset:0!important;
+  border-radius:inherit!important;
+  background:transparent!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
+  pointer-events:none!important;
 }
 
 #pageLoader .loader-mark::after,
@@ -141,22 +148,21 @@
 .global-loading .loader-mark::after{
   content:""!important;
   position:absolute!important;
-  inset:-10px!important;
+  inset:-6px!important;
   width:auto!important;
   height:auto!important;
-  left:-10px!important;
-  right:-10px!important;
-  top:-10px!important;
-  bottom:-10px!important;
-  border-radius:42px!important;
-  border:2px solid rgba(96,165,250,.20)!important;
-  border-top-color:#60a5fa!important;
-  border-right-color:#2563eb!important;
+  border-radius:35px!important;
+  border:1.5px solid rgba(191,219,254,.13)!important;
+  border-top-color:rgba(147,197,253,.82)!important;
+  border-right-color:rgba(59,130,246,.58)!important;
+  border-bottom-color:rgba(191,219,254,.055)!important;
   background:none!important;
-  transform:none!important;
-  opacity:1!important;
-  animation:upickCommonLoaderRing 1.05s linear infinite!important;
-  box-shadow:0 0 24px rgba(37,99,235,.18)!important;
+  box-shadow:0 0 18px rgba(96,165,250,.22),0 0 34px rgba(37,99,235,.095)!important;
+  filter:blur(.15px)!important;
+  opacity:.74!important;
+  transform-origin:center center!important;
+  animation:upickCommonLoaderOrbitSoft 2.35s linear infinite!important;
+  pointer-events:none!important;
 }
 
 #pageLoader .loader-mark img,
@@ -189,12 +195,15 @@
 #commonLoadingDialog .loader-copy,
 .page-loader .loader-copy,
 .global-loading .loader-copy{
-  display:grid!important;
-  gap:6px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-height:54px!important;
+  color:#50637d!important;
   text-align:center!important;
-  transform:translateY(0)!important;
-  opacity:1!important;
-  transition:opacity .18s ease, transform .18s ease!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.38)!important;
+  transition:opacity .24s ease,transform .24s ease!important;
 }
 
 #pageLoader .loader-copy.is-changing,
@@ -202,7 +211,7 @@
 #commonLoadingDialog .loader-copy.is-changing,
 .page-loader .loader-copy.is-changing,
 .global-loading .loader-copy.is-changing{
-  opacity:.62!important;
+  opacity:.28!important;
   transform:translateY(2px)!important;
 }
 
@@ -212,12 +221,11 @@
 .page-loader .loader-message,
 .global-loading .loader-message{
   margin:0!important;
-  color:#fff!important;
-  font-size:15px!important;
-  font-weight:900!important;
-  letter-spacing:-.02em!important;
-  line-height:1.45!important;
-  text-shadow:0 10px 28px rgba(0,0,0,.24)!important;
+  font-size:clamp(19px,4.2vw,23px)!important;
+  font-weight:800!important;
+  letter-spacing:-.045em!important;
+  line-height:1.22!important;
+  color:rgba(62,82,112,.90)!important;
 }
 
 #pageLoader .loader-sub-message,
@@ -226,11 +234,11 @@
 .page-loader .loader-sub-message,
 .global-loading .loader-sub-message{
   margin:0!important;
-  color:rgba(226,232,240,.86)!important;
-  font-size:12px!important;
-  font-weight:800!important;
-  letter-spacing:-.01em!important;
-  line-height:1.45!important;
+  font-size:clamp(13px,3.2vw,15px)!important;
+  font-weight:650!important;
+  letter-spacing:-.035em!important;
+  line-height:1.28!important;
+  color:rgba(78,98,130,.68)!important;
 }
 
 #pageLoader .loader-content::after,
@@ -256,20 +264,37 @@ body.upick-loading-lock{
 }
 
 @keyframes upickCommonLoaderFloat{
-  0%,100%{transform:translate3d(0,0,0) scale(1)}
-  50%{transform:translate3d(0,-8px,0) scale(1.018)}
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
 }
-@keyframes upickCommonLoaderLogo{
-  0%,100%{transform:scale(1);opacity:1}
-  50%{transform:scale(1.055);opacity:.96}
-}
-@keyframes upickCommonLoaderRing{
-  to{transform:rotate(360deg)}
+@keyframes upickCommonLoaderOrbitSoft{
+  0%{transform:rotate(0deg);opacity:.56}
+  35%{opacity:.82}
+  70%{opacity:.68}
+  100%{transform:rotate(360deg);opacity:.56}
 }
 @keyframes upickCommonLoaderFlow{
   0%{background-position:200% 0;opacity:.28}
   50%{opacity:1}
   100%{background-position:-200% 0;opacity:.28}
+}
+
+@media(max-width:430px){
+  #pageLoader .loader-content,
+  #globalLoadingBar .loader-content,
+  #commonLoadingDialog .loader-content,
+  .page-loader .loader-content,
+  .global-loading .loader-content{gap:20px!important;transform:translateY(-4px)!important;}
+  #pageLoader .loader-mark,
+  #globalLoadingBar .loader-mark,
+  #commonLoadingDialog .loader-mark,
+  .page-loader .loader-mark,
+  .global-loading .loader-mark{width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;background-size:61px 61px,auto!important;}
+  #pageLoader .loader-mark::after,
+  #globalLoadingBar .loader-mark::after,
+  #commonLoadingDialog .loader-mark::after,
+  .page-loader .loader-mark::after,
+  .global-loading .loader-mark::after{border-radius:34px!important;}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -278,12 +303,8 @@ body.upick-loading-lock{
   #commonLoadingDialog .loader-mark,
   .page-loader .loader-mark,
   .global-loading .loader-mark,
-  #pageLoader .loader-mark::before,
-  #globalLoadingBar .loader-mark::before,
-  #commonLoadingDialog .loader-mark::before,
-  .page-loader .loader-mark::before,
-  .global-loading .loader-mark::before,
   #pageLoader .loader-mark::after,
+  #globalLoadingBar .loader-mark::after,
   #commonLoadingDialog .loader-mark::after,
   .page-loader .loader-mark::after,
   .global-loading .loader-mark::after,
@@ -291,45 +312,15 @@ body.upick-loading-lock{
   #globalLoadingBar .loader-content::after,
   #commonLoadingDialog .loader-content::after,
   .page-loader .loader-content::after,
-  .global-loading .loader-content::after{
-    animation:none!important;
-  }
+  .global-loading .loader-content::after{animation:none!important;}
 }
-
 
 /* dialog 기반 최상위 로딩: showModal() top-layer로 기존 dialog 위에 표시 */
-#commonLoadingDialog{
-  border:0!important;
-  max-width:none!important;
-  max-height:none!important;
-  box-sizing:border-box!important;
-  color:inherit!important;
-}
-#commonLoadingDialog::backdrop{
-  background:transparent!important;
-  backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
-}
-#commonLoadingDialog[open],
-#commonLoadingDialog.show,
-#commonLoadingDialog.is-visible,
-#commonLoadingDialog[aria-hidden="false"]{
-  display:flex!important;
-}
-
-
-/* v2026051606: dialog top-layer 로딩 안정화
-   - 일반 dialog 공통 스타일(app.css dialog{})의 영향을 받지 않게 전체 화면으로 강제
-   - 닫힘 후 top-layer가 클릭을 막지 않도록 JS에서 close()와 함께 사용 */
 dialog#commonLoadingDialog.upick-loading-dialog,
 dialog#commonLoadingDialog.global-loading,
 dialog#commonLoadingDialog.page-loader{
   position:fixed!important;
   inset:0!important;
-  left:0!important;
-  top:0!important;
-  right:0!important;
-  bottom:0!important;
   width:100vw!important;
   max-width:100vw!important;
   min-width:100vw!important;
@@ -342,7 +333,6 @@ dialog#commonLoadingDialog.page-loader{
   outline:0!important;
   border-radius:0!important;
   box-sizing:border-box!important;
-  background:rgba(7,18,42,.54)!important;
   color:inherit!important;
   overflow:hidden!important;
   box-shadow:none!important;
@@ -350,152 +340,36 @@ dialog#commonLoadingDialog.page-loader{
   justify-content:center!important;
   pointer-events:auto!important;
 }
-dialog#commonLoadingDialog.upick-loading-dialog:not([open]),
-dialog#commonLoadingDialog.global-loading:not([open]){
-  display:none!important;
-  pointer-events:none!important;
-}
-dialog#commonLoadingDialog.upick-loading-dialog[open][aria-hidden="true"]:not(.show):not(.is-visible),
-dialog#commonLoadingDialog.global-loading[open][aria-hidden="true"]:not(.show):not(.is-visible){
-  display:none!important;
-  pointer-events:none!important;
-}
-dialog#commonLoadingDialog.upick-loading-dialog[open].show,
-dialog#commonLoadingDialog.upick-loading-dialog[open].is-visible,
-dialog#commonLoadingDialog.upick-loading-dialog[open][aria-hidden="false"]{
-  display:flex!important;
-}
-dialog#commonLoadingDialog.upick-loading-dialog::backdrop{
-  background:transparent!important;
-  backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
-}
+dialog#commonLoadingDialog::backdrop{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+dialog#commonLoadingDialog:not([open]){display:none!important;pointer-events:none!important;}
+dialog#commonLoadingDialog[open].show,
+dialog#commonLoadingDialog[open].is-visible,
+dialog#commonLoadingDialog[open][aria-hidden="false"]{display:flex!important;}
 
-/* ===== Fix: 알럿/확인 버튼은 로딩바보다 항상 위에서 클릭 가능 ===== */
+/* 알럿/확인 버튼은 로딩바보다 항상 위에서 클릭 가능 */
 #appAlert,
 #appAlert[open],
 dialog#appAlert,
-.common-alert,
-.common-alert.show,
-.common-alert-backdrop,
-.modal-alert,
-.modal-alert.show,
-dialog[open],
-[role="dialog"][aria-modal="true"] {
-  z-index: 2147483600 !important;
-  pointer-events: auto !important;
-}
-
-#globalLoadingBar,
-.global-loading,
-.page-loader {
-  z-index: 2147483000 !important;
-}
-
-body:has(dialog[open]) #globalLoadingBar,
-body:has(dialog[open]) .global-loading,
-body:has(.common-alert.show) #globalLoadingBar,
-body:has(.common-alert.show) .global-loading,
-body:has(.modal-alert.show) #globalLoadingBar,
-body:has(.modal-alert.show) .global-loading {
-  pointer-events: none !important;
-}
-
-
-
-/* ===== Performance Fix: loading overlay must not block alert buttons ===== */
-#globalLoadingBar,
-.global-loading,
-.page-loader {
-  pointer-events: none !important;
-}
-#appAlert,
-#appAlert[open],
-dialog#appAlert,
-dialog[open],
-.common-alert,
-.common-alert.show,
-.modal-alert,
-.modal-alert.show,
-[role="dialog"][aria-modal="true"] {
-  z-index: 2147483600 !important;
-  pointer-events: auto !important;
-}
-
-
-/* ===== Fix v3: 로딩바와 알럿 동시 노출 시 확인 버튼 클릭 보장 ===== */
-#globalLoadingBar,
-.global-loading,
-.page-loader {
-  pointer-events: none !important;
-  z-index: 2147483000 !important;
-}
-
-dialog[open],
-#appAlert,
-#appAlert[open],
+dialog[open]:not(#commonLoadingDialog),
 .common-alert,
 .common-alert.show,
 .app-alert,
 .app-alert.show,
 .modal-alert,
+.modal-alert.show,
+.common-alert-backdrop,
 .alert-backdrop,
-.common-alert-backdrop {
-  pointer-events: auto !important;
-  z-index: 2147483600 !important;
+[role="dialog"][aria-modal="true"]:not(#commonLoadingDialog){
+  z-index:2147483600!important;
+  pointer-events:auto!important;
 }
-
-
-/* ===== Fix v4: 알럿 표시 중 body/html 잠금이 확인 버튼을 막지 않도록 해제 ===== */
-html:has(dialog[open]),
-body:has(dialog[open]),
-html:has(#appAlert[open]),
-body:has(#appAlert[open]),
-html:has(.common-alert.show),
-body:has(.common-alert.show),
-html:has(.app-alert.show),
-body:has(.app-alert.show),
-html:has(.modal-alert.show),
-body:has(.modal-alert.show) {
-  overflow: auto !important;
-  overscroll-behavior: auto !important;
-  touch-action: auto !important;
-  pointer-events: auto !important;
-}
-
-html:has(dialog[open]) #globalLoadingBar,
-body:has(dialog[open]) #globalLoadingBar,
-html:has(#appAlert[open]) #globalLoadingBar,
-body:has(#appAlert[open]) #globalLoadingBar,
-html:has(.common-alert.show) #globalLoadingBar,
+body:has(dialog[open]:not(#commonLoadingDialog)) #globalLoadingBar,
+body:has(dialog[open]:not(#commonLoadingDialog)) .global-loading:not(#commonLoadingDialog),
 body:has(.common-alert.show) #globalLoadingBar,
-html:has(.app-alert.show) #globalLoadingBar,
+body:has(.common-alert.show) .global-loading:not(#commonLoadingDialog),
 body:has(.app-alert.show) #globalLoadingBar,
-html:has(.modal-alert.show) #globalLoadingBar,
+body:has(.app-alert.show) .global-loading:not(#commonLoadingDialog),
 body:has(.modal-alert.show) #globalLoadingBar,
-html:has(dialog[open]) .global-loading,
-body:has(dialog[open]) .global-loading,
-html:has(.common-alert.show) .global-loading,
-body:has(.common-alert.show) .global-loading {
-  display: none !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-dialog[open],
-#appAlert[open],
-#appAlert.show,
-.common-alert.show,
-.app-alert.show,
-.modal-alert.show {
-  pointer-events: auto !important;
-  z-index: 2147483600 !important;
-}
-
-dialog[open] button,
-#appAlert button,
-.common-alert button,
-.app-alert button,
-.modal-alert button {
-  pointer-events: auto !important;
+body:has(.modal-alert.show) .global-loading:not(#commonLoadingDialog){
+  pointer-events:none!important;
 }

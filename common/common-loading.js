@@ -19,7 +19,7 @@
   var hideTimer = null;
 
   function isAdminPage(){
-    return /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page');
+    return /(?:^|\/)admin(?:\.html)?(?:\/|$)/i.test(location.pathname) || /sola-admin/i.test(location.pathname) || document.body.classList.contains('admin-page') || document.body.dataset.loadingMode === 'admin';
   }
 
   function supportsDialog(){
