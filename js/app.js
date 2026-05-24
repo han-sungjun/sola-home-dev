@@ -2670,6 +2670,22 @@ async function refreshPushStatus(){
  return map[key] || `last${key.charAt(0).toUpperCase()}${key.slice(1).replace(/Count$/,'')}At`;
  }
 
+
+ function toSafeFiniteNumber(value, fallback = 0){
+ const n = Number(value);
+ return Number.isFinite(n) ? n : fallback;
+ }
+
+ function buildSafeStatNumberUpdates(prev = {}, deltaMap = {}){
+ const out = {};
+ Object.entries(deltaMap || {}).forEach(([key, delta]) => {
+   const before = toSafeFiniteNumber(prev?.[key], 0);
+   const next = Math.max(0, before + toSafeFiniteNumber(delta, 0));
+   out[key] = next;
+ });
+ return out;
+ }
+
  function getDecayedCrowdPulseFromStat(stat={}, nowMs=Date.now()){
  const raw = Number(stat.recentCrowdPulse || stat.crowdPulse || 0) || 0;
  const last = getTimestampMs(stat.recentCrowdLastAt || stat.lastCrowdPulseAt || stat.updatedAt);
@@ -2695,14 +2711,16 @@ async function refreshPushStatus(){
    const payload = {
      benefitId,
      name: benefitName || prev.name || '',
-     [field]: increment(1),
+     ...buildSafeStatNumberUpdates(prev, {
+       [field]: 1,
+       ...(popularWeight > 0 ? { popularScore: popularWeight } : {})
+     }),
      [lastActionField]: serverTimestamp(),
      lastActionType: field,
      recentCrowdPulse: nextPulse,
      recentCrowdLastAt: serverTimestamp(),
      updatedAt: serverTimestamp()
    };
-   if(popularWeight > 0) payload.popularScore = increment(popularWeight);
    tx.set(statRef, payload, { merge:true });
  });
  }catch(error){
@@ -2765,12 +2783,18 @@ async function refreshPushStatus(){
    // 이미 반응한 상태면 취소: count -1, popularScore -points
    if(existing?.exists?.()){
      await deleteDoc(reactionRef);
-     await setDoc(statRef, {
-       benefitId,
-       [statField]: increment(-1),
-       popularScore: increment(-points),
-       updatedAt: serverTimestamp()
-     }, { merge:true });
+     await runTransaction(db, async (tx) => {
+       const snap = await tx.get(statRef);
+       const prev = snap.exists() ? (snap.data() || {}) : {};
+       tx.set(statRef, {
+         benefitId,
+         ...buildSafeStatNumberUpdates(prev, {
+           [statField]: -1,
+           popularScore: -points
+         }),
+         updatedAt: serverTimestamp()
+       }, { merge:true });
+     });
 
      return {
        active:false,
@@ -2788,12 +2812,18 @@ async function refreshPushStatus(){
      createdAt: serverTimestamp()
    }, { merge:true });
 
-   await setDoc(statRef, {
-     benefitId,
-     [statField]: increment(1),
-     popularScore: increment(points),
-     updatedAt: serverTimestamp()
-   }, { merge:true });
+   await runTransaction(db, async (tx) => {
+     const snap = await tx.get(statRef);
+     const prev = snap.exists() ? (snap.data() || {}) : {};
+     tx.set(statRef, {
+       benefitId,
+       ...buildSafeStatNumberUpdates(prev, {
+         [statField]: 1,
+         popularScore: points
+       }),
+       updatedAt: serverTimestamp()
+     }, { merge:true });
+   });
 
    await recordResidentActivity(reactionType, points, benefitId);
 
@@ -5001,14 +5031,20 @@ function getShareTrackingParams(){
 
  if(event === 'kakao_share_open' && type === 'benefit' && item?.id){
  const statRef = doc(db, BENEFIT_STATS_COLLECTION, item.id);
- await setDoc(statRef, {
- benefitId: item.id,
- name: item.name || item.title || '',
- shareClickCount: increment(1),
- popularScore: increment(5),
- lastSharedAt: serverTimestamp(),
- updatedAt: serverTimestamp()
- }, { merge:true });
+ await runTransaction(db, async (tx) => {
+   const snap = await tx.get(statRef);
+   const prev = snap.exists() ? (snap.data() || {}) : {};
+   tx.set(statRef, {
+     benefitId: item.id,
+     name: item.name || item.title || prev.name || '',
+     ...buildSafeStatNumberUpdates(prev, {
+       shareClickCount: 1,
+       popularScore: 5
+     }),
+     lastSharedAt: serverTimestamp(),
+     updatedAt: serverTimestamp()
+   }, { merge:true });
+ });
  await recordResidentActivity('share', 5, item.id);
  }
  }catch(error){
