@@ -3669,6 +3669,7 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
  <div class="location-title"><strong>위치 안내</strong></div>
  <div class="location-address">${address || '등록된 주소가 없습니다.'}</div>
  ${renderStationAccessBadges(item)}
+ ${benefitContextPanelHtml(item)}
  ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
  <div class="detail-map-box">${pos ? '<div id="detailNaverMap" class="detail-map-canvas"></div>' : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}</div>
  <div class="location-distance muted" id="distanceText"${distanceAttr}>${distanceText}</div>
@@ -3756,7 +3757,127 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
 }
 function markerHtmlForItem(item){
  const label = getMapMarkerLabel(item);
- return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</div>';
+ return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'"><span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div>';
+}
+
+
+// ===== 스타필드 내/외부 + 혼잡도/웨이팅 가능성 안내 =====
+// 관리자 필드가 있으면 우선 사용하고, 없으면 매장명/주소/좌표 기반으로 보조 판별합니다.
+// 좌표 경계는 운영 중 실제 스타필드 건물 외곽 좌표를 window.UPICK_STARFIELD_BOUNDS 또는 localStorage로 보정할 수 있습니다.
+const DEFAULT_STARFIELD_BOUNDS = {
+  // 넉넉한 기본값입니다. 실제 운영 좌표에 맞춰 min/max 값을 보정하면 정확도가 올라갑니다.
+  minLat: 37.7140,
+  maxLat: 37.7248,
+  minLng: 126.7460,
+  maxLng: 126.7608
+};
+
+function getConfiguredStarfieldBounds(){
+ try{
+   const runtime = window.UPICK_STARFIELD_BOUNDS || window.STARFIELD_BOUNDARY;
+   const saved = !runtime ? JSON.parse(localStorage.getItem('UPICK_STARFIELD_BOUNDS') || 'null') : null;
+   const source = runtime || saved || DEFAULT_STARFIELD_BOUNDS;
+   const minLat = Number(source.minLat ?? source.south ?? source.swLat);
+   const maxLat = Number(source.maxLat ?? source.north ?? source.neLat);
+   const minLng = Number(source.minLng ?? source.west ?? source.swLng);
+   const maxLng = Number(source.maxLng ?? source.east ?? source.neLng);
+   if([minLat,maxLat,minLng,maxLng].every(Number.isFinite)){
+     return { minLat:Math.min(minLat,maxLat), maxLat:Math.max(minLat,maxLat), minLng:Math.min(minLng,maxLng), maxLng:Math.max(minLng,maxLng) };
+   }
+ }catch(_){ }
+ return DEFAULT_STARFIELD_BOUNDS;
+}
+
+function isLatLngInBounds(pos, bounds){
+ if(!pos || !bounds) return false;
+ const lat = Number(pos.lat), lng = Number(pos.lng);
+ return Number.isFinite(lat) && Number.isFinite(lng) && lat >= bounds.minLat && lat <= bounds.maxLat && lng >= bounds.minLng && lng <= bounds.maxLng;
+}
+
+function normalizeZoneType(value=''){
+ const raw = String(value || '').trim().toLowerCase();
+ if(!raw) return '';
+ if(['starfield_inside','inside','in','internal','스타필드 내부','스타필드내부','내부'].includes(raw)) return 'starfield_inside';
+ if(['outside_area','outside','out','external','외부 상권','외부상권','외부'].includes(raw)) return 'outside_area';
+ return '';
+}
+
+function getBenefitZoneInfo(item={}){
+ const manual = normalizeZoneType(item.zoneType || item.locationZone || item.marketZone || item.commercialZone || item.starfieldZone);
+ if(manual === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'관리자 등록 기준' };
+ if(manual === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'관리자 등록 기준' };
+ const text = `${item.name||''} ${item.storeName||''} ${item.title||''} ${item.address||''} ${item.roadAddress||''} ${item.locationGuide||''}`;
+ if(/스타필드|스타필드빌리지|starfield/i.test(text)){
+   return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'매장명/주소 기준' };
+ }
+ const pos = getBenefitLatLng(item);
+ if(isLatLngInBounds(pos, getConfiguredStarfieldBounds())){
+   return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'좌표 기준' };
+ }
+ return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:pos ? '좌표 기준' : '기본 분류' };
+}
+
+function getBenefitPopularRank(item={}){
+ const id = String(item.id || item.benefitId || '');
+ const row = (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === id);
+ return row ? Number(row.rank || 0) : 0;
+}
+
+function getBenefitEngagementScore(item={}){
+ const row = (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === String(item.id || ''));
+ return Number(row?.popularScore || row?.score || item.popularScore || item.score || item.detailViewCount || item.clickCount || 0) || 0;
+}
+
+function getBenefitCrowdInfo(item={}){
+ const manual = String(item.crowdLevel || item.crowdStatus || item.waitingLevel || '').trim().toLowerCase();
+ const manualMap = {
+   low:{level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음'},
+   normal:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통'},
+   medium:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통'},
+   busy:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능'},
+   high:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능'},
+   very_high:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음'},
+   waiting_likely:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음'}
+ };
+ if(manualMap[manual]) return { ...manualMap[manual], reason:item.crowdReason || '관리자 등록 기준' };
+
+ const now = new Date();
+ const day = now.getDay();
+ const hour = now.getHours();
+ const isWeekend = day === 0 || day === 6;
+ const category = String(item.category || item.storeCategory || '').toLowerCase();
+ const nameText = String(item.name || item.storeName || item.title || '').toLowerCase();
+ const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|pub|bar|cafe|coffee|pizza/.test(category + ' ' + nameText);
+ const peakLunch = hour >= 11 && hour <= 13;
+ const peakDinner = hour >= 17 && hour <= 20;
+ const rank = getBenefitPopularRank(item);
+ const score = getBenefitEngagementScore(item);
+ let points = 0;
+ const reasons = [];
+ if(foodLike){ points += 1; reasons.push('외식/카페 업종'); }
+ if(isWeekend){ points += 1; reasons.push('주말'); }
+ if(peakLunch || peakDinner){ points += foodLike ? 2 : 1; reasons.push(peakLunch ? '점심 피크 시간대' : '저녁 피크 시간대'); }
+ if(rank && rank <= 3){ points += 2; reasons.push('인기 TOP3'); }
+ else if(rank && rank <= 5){ points += 1; reasons.push('인기 TOP5'); }
+ if(score >= 200){ points += 2; reasons.push('최근 관심도 높음'); }
+ else if(score >= 80){ points += 1; reasons.push('최근 관심도 있음'); }
+
+ if(points >= 6) return { level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음', reason:reasons.join(' · ') || '시간대/관심도 기준' };
+ if(points >= 4) return { level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', reason:reasons.join(' · ') || '시간대/관심도 기준' };
+ if(points >= 2) return { level:'normal', label:'보통', waitLabel:'대기 가능성 보통', reason:reasons.join(' · ') || '일반 시간대 기준' };
+ return { level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', reason:reasons.join(' · ') || '피크 시간대 아님' };
+}
+
+function benefitContextBadgesHtml(item={}, {compact=false}={}){
+ const zone = getBenefitZoneInfo(item);
+ const crowd = getBenefitCrowdInfo(item);
+ return `<span class="benefit-context-badges${compact?' compact':''}" aria-label="상권 및 혼잡도 안내"><span class="benefit-context-badge zone ${zone.type}">${escapeHtml(zone.shortLabel || zone.label)}</span><span class="benefit-context-badge crowd ${crowd.level}">${escapeHtml(compact ? crowd.label.replace(' 예상','') : crowd.label)}</span></span>`;
+}
+
+function benefitContextPanelHtml(item={}){
+ const zone = getBenefitZoneInfo(item);
+ const crowd = getBenefitCrowdInfo(item);
+ return `<div class="benefit-context-panel" aria-label="상권 및 예상 혼잡도"><div class="benefit-context-main"><span class="benefit-context-badge zone ${zone.type}">${escapeHtml(zone.label)}</span><span class="benefit-context-badge crowd ${crowd.level}">${escapeHtml(crowd.label)}</span><span class="benefit-context-wait">${escapeHtml(crowd.waitLabel)}</span></div><p>${escapeHtml(crowd.reason)} 기준의 예상입니다. 실제 웨이팅은 매장 상황에 따라 달라질 수 있어요.</p></div>`;
 }
  function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
  function normalizeMapCoord(value){const n=Number(value); return Number.isFinite(n)?n.toFixed(6):'';}
@@ -3794,7 +3915,7 @@ function getDistanceSpreadMapPosition(nm, center, item, index, count, clusterIte
 function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:center.lat,lng:center.lng}; return getDistanceSpreadMapPosition(nm, center, fakeItem, index, count, []);}
  function renderSpreadClusterMarkers(nm, cluster){const center={lat:Number(cluster.lat),lng:Number(cluster.lng)}; const count=cluster.items.length; const sortedItems=[...(cluster.items||[])].sort((a,b)=>{const pa=getBenefitLatLng(a)||center; const pb=getBenefitLatLng(b)||center; const da=getDistanceMeters(center.lat,center.lng,pa.lat,pa.lng); const db=getDistanceMeters(center.lat,center.lng,pb.lat,pb.lng); return da-db;}); sortedItems.forEach((item,index)=>{const spreadPosition=getDistanceSpreadMapPosition(nm, center, item, index, count, sortedItems); const marker=new nm.Marker({position:spreadPosition,map:benefitMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(18,34)},zIndex:180+index}); nm.Event.addListener(marker,'click',()=>openDetail(item)); benefitMapMarkers.push(marker);});}
  function renderSpreadSamePositionMarkers(nm, cluster){renderSpreadClusterMarkers(nm, cluster);}
- function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span></div><span>보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{card.addEventListener('click',()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);});});}
+ function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div><span>보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{card.addEventListener('click',()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);});});}
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){benefitMapExpandedClusterKey=''; setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false)); nm.Event.addListener(benefitMapInstance,'click',()=>{if(benefitMapExpandedClusterKey){benefitMapExpandedClusterKey=''; renderMapMarkers(false); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}});}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; const zoom=benefitMapInstance.getZoom?Number(benefitMapInstance.getZoom()||15):15; const autoSpreadZoom=zoom>=17; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,zoom); const hasExpandedCluster=clusters.some(c=>getSamePositionClusterKey(c.items)===benefitMapExpandedClusterKey); if(benefitMapExpandedClusterKey&&!hasExpandedCluster) benefitMapExpandedClusterKey=''; clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const samePositionKey=getSamePositionClusterKey(c.items); if(c.items.length>1 && (autoSpreadZoom || (samePositionKey&&benefitMapExpandedClusterKey===samePositionKey))){renderSpreadClusterMarkers(nm,c); return;} const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapExpandedClusterKey=samePositionKey||''; benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.max(17, Math.min(19, Number(benefitMapInstance.getZoom()||15)+1))); renderMapMarkers(false); setMapModeStatus('확대된 지도에서는 모든 클러스터가 실제 거리와 방향을 기준으로 자동으로 펼쳐집니다.','muted');}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
@@ -8847,6 +8968,7 @@ function getAiAttachmentType(item={}){
  <div class="location-title"><strong>위치 안내</strong></div>
  <div class="location-address">${escapeHtml(address)}</div>
  ${renderStationAccessBadges(item)}
+ ${benefitContextPanelHtml(item)}
  ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
  ${buildAiSocialHintHtml(item)}
  <div class="detail-map-box">
