@@ -8964,7 +8964,7 @@ function getAiAttachmentType(item={}){
  const storeMarker = new nm.Marker({
  position: store,
  map,
- // AI 지도에서는 매장 좌표를 말풍선 왼쪽 기준에 맞춰 매장명 말풍선이 오른쪽으로 펼쳐지게 합니다.
+ // AI 지도에서는 매장 좌표를 말풍선 왼쪽 기준에 맞춰 매장명 말풍선이 매장 기준 오른쪽으로 펼쳐지되 너무 밀리지 않게 보정합니다.
  // 긴 매장명은 내부 span에서만 말줄임 처리하고, 앞쪽에는 위치 마커 아이콘을 함께 표시합니다.
  icon: { content: markerHtml, anchor: new nm.Point(0,16) },
  zIndex: 100

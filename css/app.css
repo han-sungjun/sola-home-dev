@@ -24782,14 +24782,14 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   overflow:hidden!important;
   white-space:nowrap!important;
   cursor:pointer!important;
-  transform:translateX(6px)!important;
+  transform:translateX(-8px)!important;
 }
 .ai-location-detail-card .ai-map-marker-store .ai-map-marker-pin{
   flex:0 0 auto!important;
   width:13px!important;
   height:13px!important;
-  filter:brightness(0) invert(1)!important;
-  opacity:.95!important;
+  filter:none!important;
+  opacity:1!important;
 }
 .ai-location-detail-card .ai-map-marker-store span{
   display:block!important;
