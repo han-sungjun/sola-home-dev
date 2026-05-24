@@ -1,1 +1,0 @@
-공개앱(app.css)에 남아 있던 전용 로딩바/로더 스타일을 제거하고 common/common-loading.css를 단일 공통 로딩 UI 기준으로 유지했습니다.
