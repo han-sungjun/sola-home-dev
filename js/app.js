@@ -9529,17 +9529,38 @@ async function playAiTtsFromButton(button){
 }
 
 
+function isAiNotificationTroubleshootingQuestion(question='', answer=''){
+ const text = `${question || ''} ${answer || ''}`;
+ const compact = String(text || '').replace(/\s+/g, '');
+ return /(알림|알람|푸시|push|notification)/i.test(text)
+   || /(알림안|알람안|푸시안|알림이안|알람이안|알림허용|알림설정|푸시설정)/i.test(compact);
+}
+
 function isAiAppInstallGuideQuestion(question='', answer=''){
  const q = String(question || '').trim();
  const a = String(answer || '').trim();
- const text = `${q} ${a}`;
- const compact = text.replace(/\s+/g, '');
- const hasInstallTarget = /앱|어플|더운정픽|바로가기|홈\s*화면|홈화면|다운|다운로드|설치|저장|추가|PWA|웹앱|아이폰|갤럭시|안드로이드|사파리|크롬|삼성\s*인터넷/i.test(text)
-   || /앱설치|어플설치|앱다운|어플다운|다운기능|홈화면추가|바로가기추가|바로가기만들기|저장하려면|지정하려면|설치경로/i.test(compact);
- const asksInstall = /설치|다운|다운로드|저장|추가|바로가기|홈\s*화면|홈화면|앱처럼|어플처럼|경로|방법|어떻게|하게해|해줘|알려|지정/i.test(text)
-   || /설치하게|다운기능|저장하려면|지정하려면|설치경로|앱처럼쓰기|어플처럼쓰기/i.test(compact);
- const guideAnswer = /앱스토어에서 받는 앱이 아니라|홈 화면에 추가|웹앱 방식|Safari로 더운정픽|Chrome 또는 삼성 인터넷/i.test(a);
- return (hasInstallTarget && asksInstall) || guideAnswer;
+ const compactQ = q.replace(/\s+/g, '');
+ const compactA = a.replace(/\s+/g, '');
+
+ // 알림/푸시 문제 답변은 홈 화면·바로가기 문구가 함께 나와도 앱 설치 안내로 분류하지 않습니다.
+ if(isAiNotificationTroubleshootingQuestion(q, a)) return false;
+
+ const hasInstallTargetInQuestion = /앱|어플|바로가기|홈\s*화면|홈화면|다운|다운로드|설치|저장|추가|PWA|웹앱|아이폰|갤럭시|안드로이드|사파리|크롬|삼성\s*인터넷/i.test(q)
+   || /앱설치|어플설치|앱다운|어플다운|다운기능|홈화면추가|바로가기추가|바로가기만들기|저장하려면|지정하려면|설치경로/i.test(compactQ);
+ const asksInstallInQuestion = /설치|다운|다운로드|저장|추가|바로가기|홈\s*화면|홈화면|앱처럼|어플처럼|경로|방법|어떻게|하게해|해줘|알려|지정/i.test(q)
+   || /설치하게|다운기능|저장하려면|지정하려면|설치경로|앱처럼쓰기|어플처럼쓰기/i.test(compactQ);
+ const guideAnswer = /앱스토어에서 받는 앱이 아니라|홈 화면에 추가|웹앱 방식|Safari로 더운정픽|Chrome 또는 삼성 인터넷/i.test(a)
+   && !isAiNotificationTroubleshootingQuestion(q, a);
+ return (hasInstallTargetInQuestion && asksInstallInQuestion) || guideAnswer;
+}
+
+function isAiDialogRejectAnswer(question='', answer=''){
+ const q = String(question || '').replace(/[\s.!?。！？~～ㅋㅎㅠㅜ]+/g, '').toLowerCase();
+ const a = String(answer || '').replace(/\s+/g, '');
+ const negativeQuestion = /^(아니|아냐|아뇨|아니요|아닙니다|아니에요|아님|ㄴㄴ|노노|no|nope|틀려|틀렸|잘못|다른거|다른매장)/i.test(q)
+   || /(그거|그건|그게|그매장).*(아님|아니|틀려|잘못)/i.test(q);
+ const rejectAnswer = /알겠습니다.*(다른매장|다른안내|다시입력|다시검색)|해당매장은선택하지않겠습니다|해당안내는선택하지않겠습니다/i.test(a);
+ return negativeQuestion && rejectAnswer;
 }
 
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
@@ -9548,6 +9569,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const text = String(downloadPayload.text || '답변을 생성하지 못했습니다.');
  const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
  const isAppInstallGuideAnswer = isAiAppInstallGuideQuestion(question, cleaned);
+ const isDialogRejectAnswer = isAiDialogRejectAnswer(question, cleaned);
  const aiDownloadButtonsHtml = buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
@@ -9573,7 +9595,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  </div>`;
  }
  const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
- const mappedCards = isAppInstallGuideAnswer ? [] : extractAiBenefitCards(cleaned, 4, question);
+ const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
  const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
  const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
  const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
@@ -9610,6 +9632,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const shouldHideBenefitCardsForKnowledge = isApartmentLifeKnowledgeQuestion(question, cleaned) && !isExplicitBenefitCardIntent;
  const shouldShowBenefitCards =
    !isAppInstallGuideAnswer &&
+   !isDialogRejectAnswer &&
    !isApartmentLifePhoneQuestion(question, cleaned) &&
    !isMultimodalAnalysisAnswer &&
    !shouldHideBenefitCardsForKnowledge &&
@@ -9626,7 +9649,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  ${aiAttachmentHtml}
  ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  ${aiDownloadButtonsHtml}
- <span class="ai-mode-pill upgraded">${isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : '상황에 맞는 정보를 준비했어요.'}</span>
+ <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isAiNotificationTroubleshootingQuestion(question, cleaned) ? '알림 설정 방법을 안내했어요.' : '상황에 맞는 정보를 준비했어요.'))}</span>
  </div>`;
  }
 
