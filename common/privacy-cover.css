@@ -555,3 +555,13 @@ html.env-dev .policy-hero-card .policy-badge-row .policy-env-badge,
 body.env-dev .policy-hero-card .policy-badge-row .policy-env-badge {
   display: inline-flex !important;
 }
+
+
+
+/* v86: 정책 페이지 개발계 감지 class 적용 후 DEV 배지 표시 */
+html.env-dev body .policy-hero-card .policy-badge-row .policy-env-badge,
+body.env-dev .policy-hero-card .policy-badge-row .policy-env-badge,
+html.env-dev .policy-env-badge,
+body.env-dev .policy-env-badge {
+  display: inline-flex !important;
+}
