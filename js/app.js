@@ -8573,6 +8573,8 @@ function renderCalendarDayModal(){
  row.innerHTML = `<div class="ai-bubble">${html}</div>`;
  win.appendChild(row);
  bindAiAnswerActions(row);
+ scheduleAiRetryButtonNormalize(win);
+ initAiRetryButtonSingletonObserver();
  win.scrollTop = win.scrollHeight;
  return row;
  }
@@ -10479,12 +10481,11 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const aiDownloadButtonsHtml = isNoResultAnswer ? '' : buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isNoResultAnswer){
- return buildAiAssistantStateCardHtml({
-   type: 'empty',
-   title: '등록된 안내를 찾지 못했어요.',
-   message: cleaned || '다른 표현으로 다시 질문해 주세요.',
-   question
- });
+ return `
+ <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
+ <div class="ai-answer-summary">${safe}</div>
+ <span class="ai-mode-pill upgraded">등록된 안내를 찾지 못했어요.</span>
+ </div>`;
  }
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
  return `
@@ -10634,25 +10635,52 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  return result;
  }
 
- function normalizeAiRetryButtons(scope){
+
+ function normalizeAiErrorRetryButtons(scope){
  const chatRoot = qs('#aiChatWindow');
  const root = chatRoot || scope || document;
- if(!root) return null;
- const buttons = Array.from(root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn'));
- if(!buttons.length) return null;
- const keep = buttons[buttons.length - 1];
- buttons.forEach((btn) => {
-   if(btn !== keep) btn.remove();
- });
- root.querySelectorAll('.ai-state-action-row').forEach((row) => {
-   if(!row.querySelector('[data-ai-error-retry], .ai-error-retry-btn')) row.remove();
- });
- return keep;
+ if(!root) return;
+ try{
+   const retrySelector = '[data-ai-error-retry], .ai-error-retry-btn';
+   const retryButtons = Array.from(root.querySelectorAll(retrySelector));
+   const lastRetry = retryButtons.length ? retryButtons[retryButtons.length - 1] : null;
+   retryButtons.forEach((btn) => {
+     if(btn !== lastRetry) btn.remove();
+   });
+   root.querySelectorAll('.ai-state-action-row, .ai-error-action-row, .ai-actions, .ai-retry-action-row').forEach((row) => {
+     if(!row.querySelector('button, a, input, select, textarea')) row.remove();
+   });
+ }catch(_error){}
+ }
+
+ function scheduleAiRetryButtonNormalize(scope){
+ try{
+   const target = scope || qs('#aiChatWindow');
+   normalizeAiErrorRetryButtons(target);
+   requestAnimationFrame(() => normalizeAiErrorRetryButtons(target));
+   setTimeout(() => normalizeAiErrorRetryButtons(target), 80);
+ }catch(_error){}
+ }
+
+ function initAiRetryButtonSingletonObserver(){
+ const win = qs('#aiChatWindow');
+ if(!win || win.dataset.aiRetrySingletonObserver === 'true') return;
+ win.dataset.aiRetrySingletonObserver = 'true';
+ let timer = null;
+ const run = () => {
+   if(timer) clearTimeout(timer);
+   timer = setTimeout(() => normalizeAiErrorRetryButtons(win), 20);
+ };
+ try{
+   new MutationObserver(run).observe(win, { childList:true, subtree:true });
+ }catch(_error){}
+ scheduleAiRetryButtonNormalize(win);
  }
 
  function bindAiAnswerActions(scope){
  const root = scope || qs('#aiChatWindow');
  if(!root) return;
+ scheduleAiRetryButtonNormalize(qs('#aiChatWindow') || root);
  try{
    const looksLikeNoResultOrServerError = (node) => {
      const text = String(node?.innerText || node?.textContent || '').replace(/\s+/g, '');
@@ -10662,15 +10690,12 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
    const targets = root.matches?.('.ai-bubble,.ai-answer') ? [root] : Array.from(root.querySelectorAll('.ai-bubble,.ai-answer'));
    targets.forEach((node) => {
      if(!looksLikeNoResultOrServerError(node)) return;
-     if(!node.querySelector?.('[data-ai-state-card]')){
-       node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
-     }
+     node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
      node.querySelectorAll('[data-ai-tts-actions], .ai-tts-actions').forEach((el) => el.remove());
    });
-   normalizeAiRetryButtons(root);
+   normalizeAiErrorRetryButtons(qs('#aiChatWindow') || root);
  }catch(_error){}
  bindAiDownloadButtons(root);
- normalizeAiRetryButtons(root);
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
    if(btn.dataset.aiRetryBound === 'true') return;
    btn.dataset.aiRetryBound = 'true';
@@ -11906,35 +11931,6 @@ function buildDirectApartmentLifeLocalAnswer(question=''){
  }
 
 
-
-function buildAiAssistantStateCardHtml({ type='empty', title='', message='', question='' } = {}){
- const normalizedType = String(type || 'empty').toLowerCase();
- const isError = normalizedType === 'error';
- const cleanMessage = String(message || '').replace(/등록된 안내를 찾지 못했어요\.?/g, '').replace(/현재 등록된 안내에서 답변을 찾지 못했습니다\.?/g, '').trim();
- const safeMessage = escapeHtml(cleanMessage || (isError ? '잠시 후 다시 질문해 주세요.' : '다른 표현으로 다시 질문해 주세요.')).replace(/\n/g, '<br>');
- const retryQuestion = String(question || '').trim();
- const suggestions = [
-   '앱 설치 방법 알려줘',
-   '최근 공지 알려줘',
-   '혜택 매장 추천해줘'
- ];
- return `
- <div class="ai-answer ai-answer-upgrade ai-state-card ${isError ? 'is-error' : 'is-empty'}" data-ai-state-card="${isError ? 'error' : 'empty'}" data-ai-no-result="${isError ? 'false' : 'true'}">
-   <div class="ai-state-card-head">
-     <span class="ai-state-card-icon"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy" decoding="async"></span>
-     <div>
-       <strong>${escapeHtml(title || (isError ? '답변을 다시 준비할게요.' : '등록된 안내를 찾지 못했어요.'))}</strong>
-       <p>${isError ? '일시적으로 연결이 고르지 않았습니다.' : '질문을 조금 바꾸면 더 정확하게 찾을 수 있습니다.'}</p>
-     </div>
-   </div>
-   <div class="ai-state-card-body">${safeMessage}</div>
-   <div class="ai-state-suggestion-row" aria-label="추천 질문">
-     ${suggestions.map(item => `<button class="ai-state-suggestion-btn" type="button" data-ai-dialog-question="${escapeAttr(item)}">${escapeHtml(item)}</button>`).join('')}
-   </div>
-   ${isError && retryQuestion ? `<div class="ai-state-action-row"><button class="ai-error-retry-btn ai-state-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">다시 질문하기</button></div>` : ''}
- </div>`;
-}
-
 function scrollAiAnswerIntoView(rowOrBubble, options = {}){
  const target = rowOrBubble?.closest?.('.ai-message') || rowOrBubble;
  const win = qs('#aiChatWindow');
@@ -12037,6 +12033,7 @@ async function askAiAssistant(rawQuestion=''){
  if(pendingBubble){
  pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
  bindAiAnswerActions(pendingBubble);
+ scheduleAiRetryButtonNormalize(qs('#aiChatWindow') || pendingBubble);
  scrollAiAnswerIntoView(pendingRow || pendingBubble, { delay: filesForThisQuestion.length ? 120 : 80, secondDelay: filesForThisQuestion.length ? 700 : 420 });
  }
  if(pendingRow) delete pendingRow.dataset.pending;
@@ -12047,17 +12044,12 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const fallbackHtml = buildAiAssistantStateCardHtml({
-   type: 'empty',
-   title: '등록된 안내를 찾지 못했어요.',
-   message: '질문을 조금 다르게 입력하거나 아래 추천 질문을 눌러 다시 확인해 주세요.',
-   question
- });
+ const fallbackText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
  if(pendingBubble){
-   pendingBubble.innerHTML = fallbackHtml;
+   pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question);
    bindAiAnswerActions(pendingBubble);
  } else {
-   const fallbackRow = appendAiMessage('bot', fallbackHtml);
+   const fallbackRow = appendAiMessage('bot', buildAiEnhancedAnswerHtml(fallbackText, question));
    bindAiAnswerActions(fallbackRow || qs('#aiChatWindow'));
  }
  }finally{
@@ -12082,7 +12074,7 @@ async function askAiAssistant(rawQuestion=''){
  qs('#gnbSheet')?.classList.remove('show');
  qs('#gnbOverlay')?.classList.remove('show');
 }
- const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();renderCalendarReservations();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+ const renderAll=()=>{initAiRetryButtonSingletonObserver();createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();renderCalendarReservations();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
 
 // 혼잡도는 현재 시각에 따라 계속 변하므로 지도/혜택 상세 표시를 주기적으로 가볍게 갱신합니다.
 let __upickCrowdRefreshTimer = null;
