@@ -2339,7 +2339,10 @@ function fillForm(item){
               </div>
               <div class="member-summary-side">
                 <div class="tags">${statusTags.join('')}</div>
-                <span class="accordion-arrow">⌄</span>
+                <span class="accordion-arrow" aria-hidden="true">
+                  <img class="accordion-chevron accordion-chevron-down" alt="" loading="lazy" src="/icons/internal/chevron-down.svg">
+                  <img class="accordion-chevron accordion-chevron-up" alt="" loading="lazy" src="/icons/internal/chevron-up.svg">
+                </span>
               </div>
             </summary>
 
