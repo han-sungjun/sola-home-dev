@@ -743,3 +743,82 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
   padding-right: 14px !important;
   white-space: nowrap !important;
 }
+
+
+
+/* v77: 공개앱 홈 Hero 배지 DOM 통합 후 정렬 고정 */
+#upickGlobalHero .hero > .hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
+
+#upickGlobalHero .hero > .hero-badge-row .eyebrow,
+#upickGlobalHero .hero > .hero-badge-row #globalEnvBadge {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+#upickGlobalHero .hero > .hero-badge-row #globalEnvBadge {
+  padding: 0 14px !important;
+  flex: 0 0 auto !important;
+}
+
+#upickGlobalHero .hero > .hero-badge-row .eyebrow {
+  flex: 0 1 auto !important;
+}
+
+
+
+/* v78: 공개앱 JS 렌더 Hero 배지 행 통합 */
+#upickGlobalHero .hero .hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
+
+#upickGlobalHero .hero .hero-badge-row .eyebrow,
+#upickGlobalHero .hero .hero-badge-row #globalEnvBadge {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+#upickGlobalHero .hero .hero-badge-row #globalEnvBadge {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
