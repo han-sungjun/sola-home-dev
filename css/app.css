@@ -24294,3 +24294,61 @@ body.env-dev [id$="EnvBadge"] {
     grid-template-columns:1fr;
   }
 }
+
+/* ===== 2026-05-25 GNB 계정 관리 단일 패널 통합 ===== */
+.gnb-account-dialog--unified .gnb-management-tabs{
+  display:none!important;
+}
+.gnb-account-dialog--unified .gnb-account-unified-body{
+  padding:16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+  background:#fff!important;
+}
+.gnb-account-dialog--unified .gnb-account-unified-section{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+}
+.gnb-account-dialog--unified .gnb-account-unified-section[hidden]{
+  display:none!important;
+}
+.gnb-account-dialog--unified .gnb-settings-section{
+  margin:0!important;
+  border-radius:22px!important;
+  border:1px solid rgba(226,232,240,.95)!important;
+  background:linear-gradient(180deg,#fff,#f8fafc)!important;
+  box-shadow:0 16px 36px rgba(15,23,42,.06)!important;
+}
+.gnb-account-dialog--unified .gnb-settings-section-header{
+  margin-bottom:12px!important;
+}
+.gnb-account-dialog--unified .gnb-info-grid{
+  margin-top:0!important;
+}
+.gnb-account-dialog--unified .gnb-action-grid{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:10px!important;
+  margin-top:12px!important;
+}
+.gnb-account-dialog--unified .gnb-action-btn,
+.gnb-account-dialog--unified .account-edit-trigger{
+  min-height:52px!important;
+  border-radius:18px!important;
+  margin:0!important;
+}
+.gnb-account-dialog--unified .gnb-danger-note{
+  margin-top:10px!important;
+  border-radius:18px!important;
+}
+@media (max-width:520px){
+  .gnb-account-dialog--unified .gnb-account-unified-body{
+    padding:14px!important;
+    gap:12px!important;
+  }
+  .gnb-account-dialog--unified .gnb-settings-section{
+    border-radius:20px!important;
+  }
+}

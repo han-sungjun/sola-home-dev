@@ -47,56 +47,54 @@
           header.appendChild(actions);
 
           var modalPanel = makeEl('\
-            <div class="gnb-management-dialog" id="gnbAccountManageModal" aria-labelledby="gnbAccountManageTitle">\
+            <div class="gnb-management-dialog gnb-account-dialog--unified" id="gnbAccountManageModal" aria-labelledby="gnbAccountManageTitle">\
               <div class="gnb-management-shell">\
                 <div class="gnb-management-head">\
                   <div>\
-                    <span class="gnb-management-kicker">설정 모음</span>\
+                    <span class="gnb-management-kicker">설정</span>\
                     <h3 id="gnbAccountManageTitle">계정 관리</h3>\
-                    <p>알림, 계정, 보안 설정을 한곳에서 관리할 수 있습니다.</p>\
+                    <p>알림, 계정 정보, 보안, 삭제를 한 화면에서 관리합니다.</p>\
                   </div>\
                   <button class="gnb-manage-close" type="button" aria-label="계정 관리 닫기">✕</button>\
                 </div>\
-                <div class="gnb-management-tabs" role="tablist" aria-label="계정 관리 탭">\
-                  <button data-manage-tab="notice" class="active" type="button" role="tab" aria-selected="true">알림</button>\
-                  <button data-manage-tab="account" type="button" role="tab" aria-selected="false">계정</button>\
-                  <button data-manage-tab="security" type="button" role="tab" aria-selected="false">보안</button>\
-                  <button data-manage-tab="delete" type="button" role="tab" aria-selected="false">삭제</button>\
-                </div>\
-                <div class="gnb-management-body">\
-                  <section data-manage-panel="notice" class="gnb-management-panel active"></section>\
-                  <section data-manage-panel="account" class="gnb-management-panel" hidden></section>\
-                  <section data-manage-panel="security" class="gnb-management-panel" hidden></section>\
-                  <section data-manage-panel="delete" class="gnb-management-panel" hidden></section>\
+                <div class="gnb-management-body gnb-account-unified-body" aria-label="계정 관리 항목">\
+                  <section class="gnb-account-unified-section" id="gnbAccountNoticeSlot"></section>\
+                  <section class="gnb-account-unified-section" id="gnbAccountMainSlot"></section>\
+                  <section class="gnb-account-unified-section gnb-account-delete-section" id="gnbAccountDeleteSlot"></section>\
                 </div>\
               </div>\
             </div>');
 
           modalStash().appendChild(modalPanel);
 
+          function setSectionCopy(section, title, desc){
+            if(!section) return;
+            var titleEl = qs('.gnb-settings-section-title', section);
+            var descEl = qs('.gnb-settings-section-desc', section);
+            if(titleEl) titleEl.textContent = title;
+            if(descEl) descEl.textContent = desc;
+          }
+
           var noticeSection = closestSection('#gnbEnablePushBtn');
           var accountSection = closestSection('#openAccountEditBtn');
           var deleteSection = closestSection('#withdrawBtn');
-          if(noticeSection) qs('[data-manage-panel="notice"]', modalPanel).appendChild(noticeSection);
-          if(accountSection){
-            var securityPanel = qs('[data-manage-panel="security"]', modalPanel);
-            var accountPanel = qs('[data-manage-panel="account"]', modalPanel);
-            accountPanel.appendChild(accountSection);
-            var pw = qs('#openPasswordChangeBtn');
-            var logout = qs('#logoutBtn');
-            if(securityPanel && (pw || logout)){
-              var sec = makeEl('<div class="gnb-settings-section gnb-management-cloned-section"><div class="gnb-settings-section-header"><div><h4 class="gnb-settings-section-title">보안 및 입장 상태</h4><p class="gnb-settings-section-desc">비밀번호 변경과 현재 공간 나가기를 이곳에서 관리합니다.</p></div></div><div class="gnb-action-grid" style="margin-top:12px;"></div></div>');
-              var grid = qs('.gnb-action-grid', sec);
-              if(pw) grid.appendChild(pw);
-              if(logout) grid.appendChild(logout);
-              securityPanel.appendChild(sec);
-            }
-          }
-          if(deleteSection) qs('[data-manage-panel="delete"]', modalPanel).appendChild(deleteSection);
 
-          qsa('[data-manage-tab]', modalPanel).forEach(function(btn){ btn.addEventListener('click', function(){ activateTab(modalPanel, btn.dataset.manageTab); }); });
+          setSectionCopy(noticeSection, '알림 관리', '이 기기의 공지와 주요 안내 수신 상태를 관리합니다.');
+          setSectionCopy(accountSection, '계정 및 보안', '닉네임, 비밀번호 변경, 현재 공간 나가기를 관리합니다.');
+          setSectionCopy(deleteSection, '계정 삭제', '삭제 전 내용을 확인한 뒤 신중하게 진행해 주세요.');
+
+          if(noticeSection) qs('#gnbAccountNoticeSlot', modalPanel).appendChild(noticeSection);
+          if(accountSection) qs('#gnbAccountMainSlot', modalPanel).appendChild(accountSection);
+          if(deleteSection) qs('#gnbAccountDeleteSlot', modalPanel).appendChild(deleteSection);
+
+          qsa('.gnb-account-unified-section', modalPanel).forEach(function(slot){
+            if(!slot.children.length) slot.hidden = true;
+          });
+
           qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
-          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, 'notice'); });
+          openBtn.addEventListener('click', function(){
+            openManageModal(modalPanel, null, '.gnb-manage-close, #gnbEnablePushBtn, #openAccountEditBtn');
+          });
         }
         function initOperationManageModal(){
           var admin = qs('.gnb-admin-premium');
