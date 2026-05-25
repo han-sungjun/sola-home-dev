@@ -25411,3 +25411,57 @@ body.env-dev [id$="EnvBadge"] {
   }
   .settings-suite-dialog .gnb-management-body{padding:12px!important;}
 }
+
+/* v24: 계정 요약 상단 액션 통합 */
+.gnb-account-summary-header{
+  align-items:flex-start!important;
+  gap:12px!important;
+}
+.gnb-account-summary-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  width:100%;
+  max-width:390px;
+}
+.gnb-status-pill--button,
+.gnb-summary-settings-btn{
+  min-height:48px!important;
+  border-radius:18px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-weight:800!important;
+  letter-spacing:-.03em!important;
+  cursor:pointer!important;
+}
+.gnb-status-pill--button:focus-visible,
+.gnb-summary-settings-btn:focus-visible{
+  outline:3px solid rgba(37,99,235,.3)!important;
+  outline-offset:3px!important;
+}
+.gnb-account-card + .gnb-account-quick-actions{
+  display:none!important;
+}
+.settings-suite-dialog .gnb-account-actions-section .gnb-settings-section-header{
+  margin-bottom:10px!important;
+}
+@media (max-width:640px){
+  .gnb-account-summary-header{
+    display:block!important;
+  }
+  .gnb-account-summary-actions{
+    max-width:none;
+    margin-top:12px;
+  }
+}
+@media (max-width:380px){
+  .gnb-account-summary-actions{
+    gap:8px;
+  }
+  .gnb-status-pill--button,
+  .gnb-summary-settings-btn{
+    min-height:46px!important;
+    font-size:13px!important;
+  }
+}

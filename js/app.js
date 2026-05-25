@@ -1326,8 +1326,6 @@ function setPushStatusUi(enabled){
  const disableBtn = qs('#disablePushBtn');
  const gnbStatusPill = qs('#gnbPushStatusPill');
  const gnbStatusText = qs('#gnbPushStatusText');
- const gnbEnableBtn = qs('#gnbEnablePushBtn');
- const gnbDisableBtn = qs('#gnbDisablePushBtn');
 
  state.isPushEnabledForThisDevice = !!enabled;
 
@@ -1353,17 +1351,9 @@ function setPushStatusUi(enabled){
  ? '현재 브라우저에서 공지와 주요 안내를 바로 받을 수 있습니다.'
  : '아직 이 기기는 등록되지 않았습니다. 버튼을 눌러 알림을 켤 수 있습니다.';
  }
- if(gnbEnableBtn){
-   gnbEnableBtn.classList.toggle('hidden', !!enabled);
-   const label = gnbEnableBtn.querySelector('span:not(.desc)') || gnbEnableBtn;
-   label.textContent = '푸시 알림 꺼짐';
-   gnbEnableBtn.setAttribute('aria-label','푸시 알림 켜기');
- }
- if(gnbDisableBtn){
-   gnbDisableBtn.classList.toggle('hidden', !enabled);
-   const label = gnbDisableBtn.querySelector('span:not(.desc)') || gnbDisableBtn;
-   label.textContent = '푸시 알림 켜짐';
-   gnbDisableBtn.setAttribute('aria-label','푸시 알림 끄기');
+ if(gnbStatusPill){
+   gnbStatusPill.setAttribute('aria-label', enabled ? '푸시 알림 끄기' : '푸시 알림 켜기');
+   gnbStatusPill.dataset.pushEnabled = enabled ? 'true' : 'false';
  }
  }
 
@@ -13832,8 +13822,13 @@ document.addEventListener('keydown', (event) => {
 
  qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
  qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
- qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
- qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
+ qs('#gnbPushStatusPill')?.addEventListener('click', () => {
+   if(state.isPushEnabledForThisDevice){
+     disablePushNotifications();
+   } else {
+     enablePushNotifications();
+   }
+ });
  qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
  qs('#openPasswordChangeBtn')?.addEventListener('click', openPasswordChangeModal);
  qs('#closePasswordChangeModal')?.addEventListener('click', closePasswordChangeModal);
