@@ -848,3 +848,35 @@ body{
     flex-basis:50px!important;
   }
 }
+
+
+/* v83: policy close button uses X mark instead of home icon */
+.policy-home-btn img{display:none!important;}
+.policy-home-btn .policy-close-mark{
+  position:relative;
+  width:28px;
+  height:28px;
+  display:block;
+}
+.policy-home-btn .policy-close-mark::before,
+.policy-home-btn .policy-close-mark::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:26px;
+  height:3px;
+  border-radius:999px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 1px 8px rgba(255,255,255,.18);
+  transform-origin:center;
+}
+.policy-home-btn .policy-close-mark::before{transform:translate(-50%,-50%) rotate(45deg);}
+.policy-home-btn .policy-close-mark::after{transform:translate(-50%,-50%) rotate(-45deg);}
+.policy-home-btn:hover .policy-close-mark::before,
+.policy-home-btn:hover .policy-close-mark::after{background:#fff;}
+@media (max-width:560px){
+  .policy-home-btn .policy-close-mark{width:24px;height:24px;}
+  .policy-home-btn .policy-close-mark::before,
+  .policy-home-btn .policy-close-mark::after{width:23px;height:2.6px;}
+}
