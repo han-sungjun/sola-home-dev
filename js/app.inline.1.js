@@ -40,11 +40,14 @@
           var pill = qs('#gnbPushStatusPill');
           if(!summary || !header || qs('#openGnbAccountManageBtn')) return;
 
-          var actions = makeEl('<div class="gnb-summary-actions"></div>');
-          if(pill) actions.appendChild(pill);
-          var openBtn = makeEl('<button class="gnb-manage-open-btn" id="openGnbAccountManageBtn" type="button"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/shield-check.svg"><span>설정 모음</span></button>');
-          actions.appendChild(openBtn);
-          header.appendChild(actions);
+          var openBtn = qs('#openSettingsSuiteBtn') || qs('#openGnbAccountManageBtn');
+          if(!openBtn){
+            var actions = makeEl('<div class="gnb-summary-actions"></div>');
+            if(pill) actions.appendChild(pill);
+            openBtn = makeEl('<button class="gnb-manage-open-btn" id="openGnbAccountManageBtn" type="button"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/settings.svg"><span>설정 모음</span></button>');
+            actions.appendChild(openBtn);
+            header.appendChild(actions);
+          }
 
           var modalPanel = makeEl('\
             <div class="gnb-management-dialog gnb-account-dialog--unified" id="gnbAccountManageModal" aria-labelledby="gnbAccountManageTitle">\
@@ -53,7 +56,7 @@
                   <div>\
                     <span class="gnb-management-kicker">설정</span>\
                     <h3 id="gnbAccountManageTitle">설정 모음</h3>\
-                    <p>알림, 글자 크기, 하단 네비바, 계정 설정을 한 화면에서 관리합니다.</p>\
+                    <p>글자 크기, 하단 네비바, 계정 설정을 한 화면에서 관리합니다.</p>\
                   </div>\
                   <button class="gnb-manage-close" type="button" aria-label="설정 모음 닫기">✕</button>\
                 </div>\
@@ -75,19 +78,15 @@
             if(descEl) descEl.textContent = desc;
           }
 
-          var noticeSection = closestSection('#gnbEnablePushBtn');
+          var noticeSection = null;
           var fontSection = qs('#fontSizeSettingsSection');
           var bottomNavSection = qs('#userBottomNavSettingsSection');
           var accountSection = closestSection('#openAccountEditBtn');
           var deleteSection = closestSection('#withdrawBtn');
 
-          setSectionCopy(noticeSection, '푸시 알림', '공지와 주요 안내를 이 기기에서 받을지 설정합니다.');
           setSectionCopy(accountSection, '계정 설정', '계정 정보, 비밀번호, 나가기와 삭제를 한곳에서 관리합니다.');
 
           // 설정 모음 팝업은 GNB 안에 흩어진 개인 설정을 한 곳으로 모읍니다.
-          if(noticeSection){
-            qs('#gnbAccountNoticeSlot', modalPanel).appendChild(noticeSection);
-          }
           if(fontSection){
             qs('#gnbAccountNoticeSlot', modalPanel).appendChild(fontSection);
           }
@@ -120,7 +119,7 @@
 
           qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
           openBtn.addEventListener('click', function(){
-            openManageModal(modalPanel, null, '.gnb-manage-close, #gnbEnablePushBtn, #gnbDisablePushBtn, .font-size-option, #openAccountEditBtn');
+            openManageModal(modalPanel, null, '.gnb-manage-close, .font-size-option, #openAccountEditBtn');
           });
         }
         function initOperationManageModal(){

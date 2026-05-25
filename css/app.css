@@ -25369,3 +25369,45 @@ body.env-dev [id$="EnvBadge"] {
 .gnb-account-dialog--unified .gnb-management-head h3#gnbAccountManageTitle{
   letter-spacing:-.04em!important;
 }
+
+/* v23: 계정 요약 빠른 설정 + 설정 모음 팝업 */
+.gnb-account-quick-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+.gnb-account-quick-actions .gnb-action-btn{
+  min-height:48px;
+  justify-content:center;
+  text-align:center;
+}
+.gnb-account-quick-actions .gnb-push-toggle-btn.hidden{
+  display:none!important;
+}
+.settings-suite-dialog .gnb-management-body{
+  display:grid;
+  gap:12px;
+}
+.settings-suite-dialog .gnb-settings-section{
+  margin:0!important;
+}
+.settings-suite-dialog .gnb-account-actions-section .gnb-action-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.settings-suite-dialog .gnb-account-actions-section .gnb-action-btn,
+.settings-suite-dialog .gnb-account-actions-section .account-edit-trigger{
+  min-height:48px;
+  justify-content:center;
+  text-align:center;
+}
+@media (max-width:420px){
+  .gnb-account-quick-actions,
+  .settings-suite-dialog .gnb-account-actions-section .gnb-action-grid{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .settings-suite-dialog .gnb-management-body{padding:12px!important;}
+}
