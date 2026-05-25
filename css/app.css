@@ -24214,3 +24214,83 @@ body.env-dev [id$="EnvBadge"] {
 .ai-chat-window > .ai-error-retry-btn{
   display:none!important;
 }
+
+/* ===== 2026-05-25 GNB 운영 관리 단일 패널 통합 ===== */
+.gnb-operation-dialog--unified .gnb-management-tabs{
+  display:none!important;
+}
+.gnb-operation-dialog--unified .gnb-operation-unified-body{
+  padding:16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+  background:#fff!important;
+}
+.gnb-operation-unified-section{
+  width:100%;
+  box-sizing:border-box;
+  padding:18px 16px;
+  border-radius:22px;
+  border:1px solid rgba(226,232,240,.95);
+  background:linear-gradient(180deg,#fff,#f8fafc);
+  box-shadow:0 16px 36px rgba(15,23,42,.06);
+}
+.gnb-operation-section-head{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-bottom:12px;
+}
+.gnb-operation-section-head strong{
+  color:#0f172a;
+  font-size:15px;
+  font-weight:950;
+  letter-spacing:-.04em;
+}
+.gnb-operation-section-head span{
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.45;
+}
+.gnb-operation-action-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.gnb-operation-dialog--unified .gnb-management-action-slot{
+  min-width:0;
+}
+.gnb-operation-dialog--unified .gnb-management-action-slot:empty{
+  display:none;
+}
+.gnb-operation-dialog--unified .gnb-menu-item,
+.gnb-operation-dialog--unified .gnb-action-btn{
+  width:100%!important;
+  min-height:52px!important;
+  border-radius:18px!important;
+  margin:0!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.gnb-operation-dialog--unified .gnb-root-panel{
+  margin:0!important;
+  box-shadow:none!important;
+}
+.gnb-operation-dialog--unified #gnbRootUnifiedSection:not(.root-only-panel),
+.gnb-operation-dialog--unified .root-only-panel[hidden]{
+  display:none!important;
+}
+@media (max-width:520px){
+  .gnb-operation-dialog--unified .gnb-operation-unified-body{
+    padding:14px!important;
+    gap:12px!important;
+  }
+  .gnb-operation-unified-section{
+    padding:16px 14px;
+    border-radius:20px;
+  }
+  .gnb-operation-action-grid{
+    grid-template-columns:1fr;
+  }
+}

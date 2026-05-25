@@ -19,7 +19,7 @@
         }
         function openManageModal(panel, firstTab, focusSelector){
           if(!panel) return;
-          activateTab(panel, firstTab || 'notice');
+          if(firstTab && qs('[data-manage-tab]', panel)) activateTab(panel, firstTab);
           if(window.CommonModal && typeof window.CommonModal.open === 'function'){
             window.CommonModal.open({
               content: panel,
@@ -110,25 +110,30 @@
           if(rootPanel && rootPanel.parentElement) rootPanel.remove();
 
           var modalPanel = makeEl('\
-            <div class="gnb-management-dialog gnb-operation-dialog" id="gnbOperationManageModal" aria-labelledby="gnbOperationManageTitle">\
+            <div class="gnb-management-dialog gnb-operation-dialog gnb-operation-dialog--unified" id="gnbOperationManageModal" aria-labelledby="gnbOperationManageTitle">\
               <div class="gnb-management-shell">\
                 <div class="gnb-management-head operation">\
                   <div>\
                     <span class="gnb-management-kicker">관리자 전용</span>\
                     <h3 id="gnbOperationManageTitle">운영 관리</h3>\
-                    <p>공유 흐름, 관리자 페이지, Root 보조 기능을 탭으로 관리합니다.</p>\
+                    <p>공유 흐름, 관리자 페이지, Root 보조 기능을 한곳에서 관리합니다.</p>\
                   </div>\
                   <button class="gnb-manage-close" type="button" aria-label="운영 관리 닫기">✕</button>\
                 </div>\
-                <div class="gnb-management-tabs" role="tablist" aria-label="운영 관리 탭">\
-                  <button data-manage-tab="share" class="active" type="button" role="tab" aria-selected="true">공유</button>\
-                  <button data-manage-tab="admin" type="button" role="tab" aria-selected="false">관리자</button>\
-                  <button data-manage-tab="root" class="root-only-panel" type="button" role="tab" aria-selected="false">Root</button>\
-                </div>\
-                <div class="gnb-management-body">\
-                  <section data-manage-panel="share" class="gnb-management-panel active"><div class="gnb-management-action-slot" id="gnbShareActionSlot"></div></section>\
-                  <section data-manage-panel="admin" class="gnb-management-panel" hidden><div class="gnb-management-action-slot" id="gnbAdminActionSlot"></div></section>\
-                  <section data-manage-panel="root" class="gnb-management-panel" hidden><div id="gnbRootActionSlot"></div></section>\
+                <div class="gnb-management-body gnb-operation-unified-body">\
+                  <section class="gnb-operation-unified-section">\
+                    <div class="gnb-operation-section-head">\
+                      <strong>공유 및 관리자</strong>\
+                      <span>운영 흐름 확인과 관리자 페이지 이동</span>\
+                    </div>\
+                    <div class="gnb-operation-action-grid">\
+                      <div class="gnb-management-action-slot" id="gnbShareActionSlot"></div>\
+                      <div class="gnb-management-action-slot" id="gnbAdminActionSlot"></div>\
+                    </div>\
+                  </section>\
+                  <section class="gnb-operation-unified-section root-only-panel" id="gnbRootUnifiedSection">\
+                    <div id="gnbRootActionSlot"></div>\
+                  </section>\
                 </div>\
               </div>\
             </div>');
@@ -136,9 +141,8 @@
           if(shareBtn) qs('#gnbShareActionSlot', modalPanel).appendChild(shareBtn);
           if(adminBtn) qs('#gnbAdminActionSlot', modalPanel).appendChild(adminBtn);
           if(rootPanel) qs('#gnbRootActionSlot', modalPanel).appendChild(rootPanel);
-          qsa('[data-manage-tab]', modalPanel).forEach(function(btn){ btn.addEventListener('click', function(){ activateTab(modalPanel, btn.dataset.manageTab); }); });
           qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
-          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, 'share'); });
+          openBtn.addEventListener('click', function(){ openManageModal(modalPanel, null, '.gnb-manage-close, #gnbShareActionSlot button, #gnbAdminActionSlot button'); });
         }
         function init(){ initAccountManageModal(); initOperationManageModal(); }
         if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
