@@ -12859,6 +12859,20 @@ async function loadGnbMenusFromDb(){
   return n === 1 ? '<span class="gnb-rank-badge rank-1">1위</span>' : '';
  }
 
+ function getGnbRecentBadge(rank){
+  const n = Number(rank || 0);
+  return n === 1 ? '<span class="gnb-recent-badge">최신</span>' : '';
+ }
+
+ function formatGnbRecentDate(value){
+  const d = toMenuDate(value);
+  if(!d) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}.${m}.${day}`;
+ }
+
  function syncGnbPersonalBanner(preferred){
   const banner = qs('#gnbPersonalBanner');
   const textEl = qs('#gnbPersonalBannerText');
@@ -12887,10 +12901,14 @@ async function loadGnbMenusFromDb(){
 
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
   const rank = Number(menu?.__gnbRank || 0);
+  const recentRank = Number(menu?.__gnbRecentRank || 0);
   const rankClass = mode === 'popular' && rank ? ` gnb-popular-rank gnb-popular-rank-${rank}` : '';
+  const recentClass = mode === 'recent' && recentRank ? ` gnb-recent-rank gnb-recent-rank-${recentRank}` : '';
   const rankBadge = mode === 'popular' ? getGnbMenuRankBadge(rank) : '';
-  const label = `<span class="gnb-menu-label"><span class="gnb-menu-mainline"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span><span class="gnb-menu-name">${escapeHtml(menu.name || '')}</span></span>${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>${rankBadge}`;
-  return `<button class="${className}${rankClass}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
+  const recentBadge = mode === 'recent' ? getGnbRecentBadge(recentRank) : '';
+  const metaClass = mode === 'recent' ? 'gnb-menu-date' : 'gnb-menu-count';
+  const label = `<span class="gnb-menu-label"><span class="gnb-menu-mainline"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span><span class="gnb-menu-name">${escapeHtml(menu.name || '')}</span></span>${countText ? `<span class="${metaClass}">${escapeHtml(countText)}</span>` : ''}</span>${rankBadge}${recentBadge}`;
+  return `<button class="${className}${rankClass}${recentClass}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
   const newMenus = gnbMenuCache.filter(m => m.sections.includes('new'));
@@ -13192,9 +13210,9 @@ async function trackGnbMenuVisitByView(view){
   const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
   try{
    const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(3)));
-   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,3);
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,3).map((m, index) => ({ ...m, __gnbRecentRank: index + 1, __gnbRecentDateText: formatGnbRecentDate(m.lastVisitedAt || m.updatedAt || m.createdAt) }));
    recentGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
-   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', m.__gnbRecentDateText || '', 'recent')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
    if(rows[0]) syncGnbPersonalBanner({ type:'recent', menu: rows[0] }); else syncGnbPersonalBanner();
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }

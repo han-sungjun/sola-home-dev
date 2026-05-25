@@ -24694,3 +24694,65 @@ body.env-dev [id$="EnvBadge"] {
   #gnbPopularMenus .gnb-rank-badge{ right:9px!important; top:9px!important; min-width:34px!important; height:26px!important; font-size:12px!important; }
   #gnbPopularMenus .gnb-chip .gnb-menu-count{ margin-left:30px!important; font-size:12px!important; }
 }
+
+/* ===== v14: GNB recent menu cards like dashboard mockup ===== */
+#gnbRecentMenus .gnb-chip{
+  position:relative!important;
+  min-height:88px!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#gnbRecentMenus .gnb-chip .gnb-menu-label{
+  width:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:8px!important;
+}
+#gnbRecentMenus .gnb-chip .gnb-menu-date{
+  display:block!important;
+  margin-left:32px!important;
+  margin-top:0!important;
+  font-size:13px!important;
+  line-height:1.1!important;
+  color:#64748b!important;
+  font-weight:800!important;
+  letter-spacing:-.02em!important;
+}
+#gnbRecentMenus .gnb-recent-badge{
+  position:absolute!important;
+  right:12px!important;
+  top:12px!important;
+  min-width:38px!important;
+  height:28px!important;
+  padding:0 10px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:13px!important;
+  font-weight:950!important;
+  letter-spacing:-.03em!important;
+  background:#eff6ff!important;
+  color:#2563eb!important;
+  border:1px solid rgba(147,197,253,.68)!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.08)!important;
+}
+#gnbRecentMenus .gnb-recent-rank-1{
+  background:linear-gradient(135deg,#ffffff 0%,#eff6ff 100%)!important;
+  border-color:rgba(147,197,253,.48)!important;
+}
+#gnbRecentMenus .gnb-recent-rank-2{
+  background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%)!important;
+}
+#gnbRecentMenus .gnb-recent-rank-3{
+  background:linear-gradient(135deg,#ffffff 0%,#f9fafb 100%)!important;
+}
+@media (max-width:520px){
+  #gnbRecentMenus .gnb-chip{ min-height:84px!important; padding:14px 12px!important; }
+  #gnbRecentMenus .gnb-recent-badge{ right:9px!important; top:9px!important; min-width:34px!important; height:26px!important; font-size:12px!important; }
+  #gnbRecentMenus .gnb-chip .gnb-menu-date{ margin-left:30px!important; font-size:12px!important; }
+}
