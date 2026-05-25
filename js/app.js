@@ -10479,11 +10479,12 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const aiDownloadButtonsHtml = isNoResultAnswer ? '' : buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isNoResultAnswer){
- return `
- <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
- <div class="ai-answer-summary">${safe}</div>
- <span class="ai-mode-pill upgraded">등록된 안내를 찾지 못했어요.</span>
- </div>`;
+ return buildAiAssistantStateCardHtml({
+   type: 'empty',
+   title: '등록된 안내를 찾지 못했어요.',
+   message: cleaned || '다른 표현으로 다시 질문해 주세요.',
+   question
+ });
  }
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
  return `
@@ -10645,7 +10646,9 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
    const targets = root.matches?.('.ai-bubble,.ai-answer') ? [root] : Array.from(root.querySelectorAll('.ai-bubble,.ai-answer'));
    targets.forEach((node) => {
      if(!looksLikeNoResultOrServerError(node)) return;
-     node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
+     if(!node.querySelector?.('[data-ai-state-card]')){
+       node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
+     }
      node.querySelectorAll('[data-ai-tts-actions], .ai-tts-actions').forEach((el) => el.remove());
    });
    const retryButtons = Array.from(root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn'));
@@ -11892,6 +11895,36 @@ function buildDirectApartmentLifeLocalAnswer(question=''){
  }
 
 
+
+function buildAiAssistantStateCardHtml({ type='empty', title='', message='', question='' } = {}){
+ const normalizedType = String(type || 'empty').toLowerCase();
+ const isError = normalizedType === 'error';
+ const cleanMessage = String(message || '').replace(/등록된 안내를 찾지 못했어요\.?/g, '').replace(/현재 등록된 안내에서 답변을 찾지 못했습니다\.?/g, '').trim();
+ const safeMessage = escapeHtml(cleanMessage || (isError ? '잠시 후 다시 질문해 주세요.' : '다른 표현으로 다시 질문해 주세요.')).replace(/
+/g, '<br>');
+ const retryQuestion = String(question || '').trim();
+ const suggestions = [
+   '앱 설치 방법 알려줘',
+   '최근 공지 알려줘',
+   '혜택 매장 추천해줘'
+ ];
+ return `
+ <div class="ai-answer ai-answer-upgrade ai-state-card ${isError ? 'is-error' : 'is-empty'}" data-ai-state-card="${isError ? 'error' : 'empty'}" data-ai-no-result="${isError ? 'false' : 'true'}">
+   <div class="ai-state-card-head">
+     <span class="ai-state-card-icon"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy" decoding="async"></span>
+     <div>
+       <strong>${escapeHtml(title || (isError ? '답변을 다시 준비할게요.' : '등록된 안내를 찾지 못했어요.'))}</strong>
+       <p>${isError ? '일시적으로 연결이 고르지 않았습니다.' : '질문을 조금 바꾸면 더 정확하게 찾을 수 있습니다.'}</p>
+     </div>
+   </div>
+   <div class="ai-state-card-body">${safeMessage}</div>
+   <div class="ai-state-suggestion-row" aria-label="추천 질문">
+     ${suggestions.map(item => `<button class="ai-state-suggestion-btn" type="button" data-ai-dialog-question="${escapeAttr(item)}">${escapeHtml(item)}</button>`).join('')}
+   </div>
+   ${isError && retryQuestion ? `<div class="ai-state-action-row"><button class="ai-error-retry-btn ai-state-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">다시 질문하기</button></div>` : ''}
+ </div>`;
+}
+
 function scrollAiAnswerIntoView(rowOrBubble, options = {}){
  const target = rowOrBubble?.closest?.('.ai-message') || rowOrBubble;
  const win = qs('#aiChatWindow');
@@ -12004,12 +12037,17 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const fallbackText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
+ const fallbackHtml = buildAiAssistantStateCardHtml({
+   type: 'empty',
+   title: '등록된 안내를 찾지 못했어요.',
+   message: '질문을 조금 다르게 입력하거나 아래 추천 질문을 눌러 다시 확인해 주세요.',
+   question
+ });
  if(pendingBubble){
-   pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question);
+   pendingBubble.innerHTML = fallbackHtml;
    bindAiAnswerActions(pendingBubble);
  } else {
-   const fallbackRow = appendAiMessage('bot', buildAiEnhancedAnswerHtml(fallbackText, question));
+   const fallbackRow = appendAiMessage('bot', fallbackHtml);
    bindAiAnswerActions(fallbackRow || qs('#aiChatWindow'));
  }
  }finally{
