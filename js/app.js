@@ -10468,7 +10468,7 @@ function isAiNoResultAnswerText(answer=''){
  return /현재등록된안내에서찾지못했습니다|등록된안내를찾지못했어요|등록된안내에서찾지못했습니다|찾지못했습니다|찾지못했어요|검색결과가없습니다|답변을준비하는중문제가발생했습니다|잠시후다시질문해/i.test(compact);
 }
 
-function buildAiEnhancedAnswerHtml(finalText='', question=''){
+function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestion=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const downloadPayload = extractAiDownloadPayload(String(parsedDialog.text || '답변을 생성하지 못했습니다.'));
  const text = String(downloadPayload.text || '답변을 생성하지 못했습니다.');
@@ -10483,7 +10483,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  if(isNoResultAnswer){
  const noResultText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
  const noResultSafe = escapeHtml(noResultText).replace(/\n/g, '<br>');
- const retryQuestion = String(question || '').trim();
+ const retryQuestion = String(retrySourceQuestion || question || '').trim();
  return `
  <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
  <div class="ai-answer-summary">${noResultSafe}</div>
@@ -10684,7 +10684,27 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  scheduleAiRetryButtonNormalize(win);
  }
 
- function bindAiAnswerActions(scope){
+ 
+function getAiRetryQuestionFromButton(btn){
+ const direct = String(btn?.dataset?.aiRetryQuestion || '').trim();
+ if(direct) return direct;
+ try{
+   const row = btn?.closest?.('.ai-message');
+   let cur = row?.previousElementSibling || null;
+   while(cur){
+     if(cur.classList?.contains('ai-message') && cur.classList?.contains('user')){
+       const clone = cur.cloneNode(true);
+       clone.querySelectorAll('small,button,a,script,style').forEach(el => el.remove());
+       const text = String(clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim();
+       if(text) return text;
+     }
+     cur = cur.previousElementSibling;
+   }
+ }catch(_error){}
+ return '';
+}
+
+function bindAiAnswerActions(scope){
  const root = scope || qs('#aiChatWindow');
  if(!root) return;
  scheduleAiRetryButtonNormalize(qs('#aiChatWindow') || root);
@@ -10711,7 +10731,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
    btn.addEventListener('click', (event) => {
      event.preventDefault();
      event.stopPropagation();
-     const retryQuestion = String(btn.dataset.aiRetryQuestion || '').trim();
+     const retryQuestion = getAiRetryQuestionFromButton(btn);
      if(!retryQuestion) return;
      if(!guardAiAssistantBusy()) askAiAssistant(retryQuestion);
    });
@@ -12040,7 +12060,7 @@ async function askAiAssistant(rawQuestion=''){
  finalText = finalText || (streamRenderer ? streamRenderer.flush() : '') || '답변을 생성하지 못했습니다.';
  rememberAiConfirmCandidate(finalText);
  if(pendingBubble){
- pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
+ pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question, displayQuestion);
  bindAiAnswerActions(pendingBubble);
  scheduleAiRetryButtonNormalize(qs('#aiChatWindow') || pendingBubble);
  scrollAiAnswerIntoView(pendingRow || pendingBubble, { delay: filesForThisQuestion.length ? 120 : 80, secondDelay: filesForThisQuestion.length ? 700 : 420 });
@@ -12055,10 +12075,10 @@ async function askAiAssistant(rawQuestion=''){
  console.error('AI Cloud Run 스트리밍 실패', error);
  const fallbackText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
  if(pendingBubble){
-   pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question);
+   pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question, displayQuestion);
    bindAiAnswerActions(pendingBubble);
  } else {
-   const fallbackRow = appendAiMessage('bot', buildAiEnhancedAnswerHtml(fallbackText, question));
+   const fallbackRow = appendAiMessage('bot', buildAiEnhancedAnswerHtml(fallbackText, question, displayQuestion));
    bindAiAnswerActions(fallbackRow || qs('#aiChatWindow'));
  }
  }finally{
