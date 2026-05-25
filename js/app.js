@@ -10634,6 +10634,22 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  return result;
  }
 
+ function normalizeAiRetryButtons(scope){
+ const chatRoot = qs('#aiChatWindow');
+ const root = chatRoot || scope || document;
+ if(!root) return null;
+ const buttons = Array.from(root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn'));
+ if(!buttons.length) return null;
+ const keep = buttons[buttons.length - 1];
+ buttons.forEach((btn) => {
+   if(btn !== keep) btn.remove();
+ });
+ root.querySelectorAll('.ai-state-action-row').forEach((row) => {
+   if(!row.querySelector('[data-ai-error-retry], .ai-error-retry-btn')) row.remove();
+ });
+ return keep;
+ }
+
  function bindAiAnswerActions(scope){
  const root = scope || qs('#aiChatWindow');
  if(!root) return;
@@ -10651,15 +10667,10 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
      }
      node.querySelectorAll('[data-ai-tts-actions], .ai-tts-actions').forEach((el) => el.remove());
    });
-   const retryButtons = Array.from(root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn'));
-   const seenByBubble = new Set();
-   retryButtons.forEach((btn) => {
-     const bubble = btn.closest('.ai-bubble') || btn.parentElement || root;
-     if(seenByBubble.has(bubble)) btn.remove();
-     else seenByBubble.add(bubble);
-   });
+   normalizeAiRetryButtons(root);
  }catch(_error){}
  bindAiDownloadButtons(root);
+ normalizeAiRetryButtons(root);
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
    if(btn.dataset.aiRetryBound === 'true') return;
    btn.dataset.aiRetryBound = 'true';
