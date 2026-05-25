@@ -25648,3 +25648,31 @@ select:not(.sr-only-filter)::-ms-expand{display:none;}
 .ai-composer-row .ai-send-btn{
   box-shadow:0 10px 22px rgba(37,99,235,.16)!important;
 }
+
+/* ===== v28: 입력 계열 색상/검색 아이콘 유지 보정 ===== */
+.gnb-search-box::before{
+  z-index:4!important;
+}
+.gnb-search-box input,
+.gnb-search-box input:focus{
+  background:transparent!important;
+  -webkit-box-shadow:none!important;
+  box-shadow:none!important;
+}
+.gnb-search-box:focus-within{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10)!important;
+}
+input[type="checkbox"]:not(:checked),
+input[type="radio"]:not(:checked){
+  background:#eff6ff!important;
+  border-color:#bfdbfe!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 6px 14px rgba(37,99,235,.06)!important;
+}
+input[type="checkbox"]:not(:checked):focus-visible,
+input[type="radio"]:not(:checked):focus-visible{
+  outline:0!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75)!important;
+}
