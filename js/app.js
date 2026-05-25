@@ -1328,6 +1328,7 @@ function setPushStatusUi(enabled){
  const gnbStatusText = qs('#gnbPushStatusText');
  const gnbEnableBtn = qs('#gnbEnablePushBtn');
  const gnbDisableBtn = qs('#gnbDisablePushBtn');
+ const gnbToggleBtn = qs('#gnbPushToggleBtn');
 
  state.isPushEnabledForThisDevice = !!enabled;
 
@@ -1344,9 +1345,12 @@ function setPushStatusUi(enabled){
 
  if(gnbStatusPill){
  gnbStatusPill.textContent = enabled ? '푸시 알림 켜짐' : '푸시 알림 꺼짐';
- gnbStatusPill.style.background = enabled ? '#eff6ff' : '#f8fafc';
- gnbStatusPill.style.color = enabled ? '#1d4ed8' : '#475569';
- gnbStatusPill.style.borderColor = enabled ? '#bfdbfe' : '#e2e8f0';
+ }
+ if(gnbToggleBtn){
+ gnbToggleBtn.classList.toggle('is-off', !enabled);
+ gnbToggleBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+ gnbToggleBtn.setAttribute('aria-label', enabled ? '푸시 알림 해제' : '푸시 알림 설정');
+ gnbToggleBtn.title = enabled ? '클릭하면 현재 기기 알림을 해제합니다.' : '클릭하면 현재 기기 알림을 설정합니다.';
  }
  if(gnbStatusText){
  gnbStatusText.textContent = enabled
@@ -13823,7 +13827,7 @@ document.addEventListener('keydown', (event) => {
  qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
  qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
  qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
- qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
+ qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications); qs('#gnbPushToggleBtn')?.addEventListener('click', () => state.isPushEnabledForThisDevice ? disablePushNotifications() : enablePushNotifications());
  qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
  qs('#openPasswordChangeBtn')?.addEventListener('click', openPasswordChangeModal);
  qs('#closePasswordChangeModal')?.addEventListener('click', closePasswordChangeModal);
