@@ -24195,3 +24195,22 @@ body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+
+/* ===== AI 안내 없음 카드 내부 다시 보내기 버튼 정리 v16 ===== */
+.ai-answer-no-result .ai-answer-summary{
+  line-height:1.72;
+}
+.ai-answer-no-result .ai-no-result-action-row{
+  margin-top:14px;
+  display:flex;
+  justify-content:flex-start;
+}
+.ai-answer-no-result .ai-error-retry-btn{
+  margin-top:0!important;
+}
+.ai-message.bot .ai-bubble > .ai-error-retry-btn,
+.ai-message.bot > .ai-error-retry-btn,
+.ai-chat-window > .ai-error-retry-btn{
+  display:none!important;
+}

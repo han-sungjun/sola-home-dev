@@ -10481,9 +10481,15 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const aiDownloadButtonsHtml = isNoResultAnswer ? '' : buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isNoResultAnswer){
+ const noResultText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
+ const noResultSafe = escapeHtml(noResultText).replace(/\n/g, '<br>');
+ const retryQuestion = String(question || '').trim();
  return `
  <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
- <div class="ai-answer-summary">${safe}</div>
+ <div class="ai-answer-summary">${noResultSafe}</div>
+ <div class="ai-state-action-row ai-no-result-action-row">
+ <button class="ai-error-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">↻ 다시 보내기</button>
+ </div>
  <span class="ai-mode-pill upgraded">등록된 안내를 찾지 못했어요.</span>
  </div>`;
  }
@@ -10643,9 +10649,10 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  try{
    const retrySelector = '[data-ai-error-retry], .ai-error-retry-btn';
    const retryButtons = Array.from(root.querySelectorAll(retrySelector));
-   const lastRetry = retryButtons.length ? retryButtons[retryButtons.length - 1] : null;
+   const internalRetries = retryButtons.filter((btn) => !!btn.closest('.ai-answer-no-result[data-ai-no-result="true"]'));
+   const keeper = internalRetries.length ? internalRetries[internalRetries.length - 1] : (retryButtons.length ? retryButtons[retryButtons.length - 1] : null);
    retryButtons.forEach((btn) => {
-     if(btn !== lastRetry) btn.remove();
+     if(btn !== keeper) btn.remove();
    });
    root.querySelectorAll('.ai-state-action-row, .ai-error-action-row, .ai-actions, .ai-retry-action-row').forEach((row) => {
      if(!row.querySelector('button, a, input, select, textarea')) row.remove();
@@ -10690,7 +10697,9 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
    const targets = root.matches?.('.ai-bubble,.ai-answer') ? [root] : Array.from(root.querySelectorAll('.ai-bubble,.ai-answer'));
    targets.forEach((node) => {
      if(!looksLikeNoResultOrServerError(node)) return;
-     node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
+     node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => {
+       if(!btn.closest('.ai-answer-no-result[data-ai-no-result="true"]')) btn.remove();
+     });
      node.querySelectorAll('[data-ai-tts-actions], .ai-tts-actions').forEach((el) => el.remove());
    });
    normalizeAiErrorRetryButtons(qs('#aiChatWindow') || root);
@@ -12044,7 +12053,7 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const fallbackText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
+ const fallbackText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
  if(pendingBubble){
    pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question);
    bindAiAnswerActions(pendingBubble);
