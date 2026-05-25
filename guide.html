@@ -7,27 +7,25 @@
 <title>사용가이드 | 더운정픽</title>
 <meta name="description" content="더운정픽 사용가이드"/>
 <link rel="icon" href="/icons/favicon.ico?v=20260511"/>
-<link rel="stylesheet" href="/css/policy.css?v=2026052502"/>
+<link rel="stylesheet" href="/css/policy.css?v=2026052503"/>
 </head>
 <body>
 <main class="policy-shell">
   <section class="policy-hero upick-policy-hero-shell">
     <div class="policy-topbar">
-      <a class="policy-brand-card" href="/app" aria-label="더운정픽 앱으로 돌아가기">
+      <div class="policy-brand-card" aria-label="더운정픽 브랜드">
         <span class="policy-logo"><img src="/icons/internal/brand-symbol-real.png" alt=""/></span>
         <span class="policy-brand-copy"><strong>더운정픽</strong><em>입주민 전용 혜택 플랫폼</em></span>
-      </a>
-      <nav class="policy-quick-nav" aria-label="정책 바로가기">
-        <a href="/guide" aria-label="사용가이드"><img src="/icons/internal/home.svg" alt=""/></a>
-        <a href="/policy" aria-label="운영정책"><img src="/icons/internal/crown.svg" alt=""/></a>
-        <a href="/app" aria-label="앱으로 돌아가기"><img src="/icons/internal/all-menu.svg" alt=""/></a>
-      </nav>
+      </div>
+      <button type="button" class="policy-home-btn" data-policy-close aria-label="이전 화면으로 돌아가기">
+        <img src="/icons/internal/home.svg" alt=""/>
+      </button>
     </div>
     <div class="policy-hero-card">
       <div class="policy-pill">처음 이용할 때</div>
       <h1>사용가이드</h1>
       <p>더운정픽의 주요 기능을 빠르게 이해하고 편하게 사용할 수 있도록 정리한 안내입니다.</p>
-      <div class="policy-actions"><a href="/app">앱으로 돌아가기</a><a class="secondary" href="/guide">사용가이드</a><a class="secondary" href="/policy">운영정책</a></div>
+      <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide">사용가이드</a><a class="secondary" href="/policy">운영정책</a><a class="secondary" href="/terms">이용약관</a><a class="secondary" href="/privacy">개인정보처리방침</a></div>
       <div class="policy-stats" aria-label="페이지 요약"><div class="policy-stat"><strong>혜택 찾기</strong><span>입주민 혜택 확인</span></div><div class="policy-stat"><strong>AI 생활도우미</strong><span>생활 질문 안내</span></div><div class="policy-stat"><strong>지도/거리</strong><span>주변 혜택 확인</span></div></div>
     </div>
   </section>
@@ -43,5 +41,20 @@
 
   <p class="footer-note">더운정픽은 입주민 생활 편의를 위해 지속적으로 개선됩니다.</p>
 </main>
+
+<script>
+(function(){
+  function closePolicyPage(){
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    window.location.replace('/app');
+  }
+  document.querySelectorAll('[data-policy-close]').forEach(function(btn){
+    btn.addEventListener('click', closePolicyPage);
+  });
+})();
+</script>
 </body>
 </html>

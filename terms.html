@@ -7,27 +7,25 @@
 <title>이용약관 | 더운정픽</title>
 <meta name="description" content="더운정픽 이용약관"/>
 <link rel="icon" href="/icons/favicon.ico?v=20260511"/>
-<link rel="stylesheet" href="/css/policy.css?v=2026052502"/>
+<link rel="stylesheet" href="/css/policy.css?v=2026052503"/>
 </head>
 <body>
 <main class="policy-shell">
   <section class="policy-hero upick-policy-hero-shell">
     <div class="policy-topbar">
-      <a class="policy-brand-card" href="/app" aria-label="더운정픽 앱으로 돌아가기">
+      <div class="policy-brand-card" aria-label="더운정픽 브랜드">
         <span class="policy-logo"><img src="/icons/internal/brand-symbol-real.png" alt=""/></span>
         <span class="policy-brand-copy"><strong>더운정픽</strong><em>입주민 전용 혜택 플랫폼</em></span>
-      </a>
-      <nav class="policy-quick-nav" aria-label="정책 바로가기">
-        <a href="/guide" aria-label="사용가이드"><img src="/icons/internal/home.svg" alt=""/></a>
-        <a href="/policy" aria-label="운영정책"><img src="/icons/internal/crown.svg" alt=""/></a>
-        <a href="/app" aria-label="앱으로 돌아가기"><img src="/icons/internal/all-menu.svg" alt=""/></a>
-      </nav>
+      </div>
+      <button type="button" class="policy-home-btn" data-policy-close aria-label="이전 화면으로 돌아가기">
+        <img src="/icons/internal/home.svg" alt=""/>
+      </button>
     </div>
     <div class="policy-hero-card">
       <div class="policy-pill">서비스 이용 규칙</div>
       <h1>이용약관</h1>
       <p>더운정픽 이용자가 서비스를 안전하고 원활하게 사용하기 위한 기본 약관입니다.</p>
-      <div class="policy-actions"><a href="/app">앱으로 돌아가기</a><a class="secondary" href="/guide">사용가이드</a><a class="secondary" href="/policy">운영정책</a></div>
+      <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide">사용가이드</a><a class="secondary" href="/policy">운영정책</a><a class="secondary" href="/terms">이용약관</a><a class="secondary" href="/privacy">개인정보처리방침</a></div>
       <div class="policy-stats" aria-label="페이지 요약"><div class="policy-stat"><strong>서비스 범위</strong><span>혜택·지도·AI</span></div><div class="policy-stat"><strong>계정 관리</strong><span>본인 계정 사용</span></div><div class="policy-stat"><strong>정보 한계</strong><span>현장 안내 우선</span></div></div>
     </div>
   </section>
@@ -40,5 +38,20 @@
 
   <p class="footer-note">더운정픽은 입주민 생활 편의를 위해 지속적으로 개선됩니다.</p>
 </main>
+
+<script>
+(function(){
+  function closePolicyPage(){
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    window.location.replace('/app');
+  }
+  document.querySelectorAll('[data-policy-close]').forEach(function(btn){
+    btn.addEventListener('click', closePolicyPage);
+  });
+})();
+</script>
 </body>
 </html>
