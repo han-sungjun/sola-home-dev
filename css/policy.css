@@ -1305,3 +1305,50 @@ section.hero .policy-env-badge {
   inset: auto !important;
   transform: none !important;
 }
+
+
+
+/* v85: 정책/가이드 Hero 보조 배지와 DEV 배지를 같은 행으로 통합 */
+.policy-hero-card .policy-badge-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 22px !important;
+}
+
+.policy-hero-card .policy-badge-row .policy-pill,
+.policy-hero-card .policy-badge-row .policy-env-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.policy-hero-card .policy-badge-row .policy-pill {
+  flex: 0 1 auto !important;
+}
+
+.policy-hero-card .policy-badge-row .policy-env-badge {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+  display: none !important;
+}
+
+html.env-dev .policy-hero-card .policy-badge-row .policy-env-badge,
+body.env-dev .policy-hero-card .policy-badge-row .policy-env-badge {
+  display: inline-flex !important;
+}
