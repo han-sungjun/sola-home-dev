@@ -7,7 +7,7 @@
 <title>이용약관 | 더운정픽</title>
 <meta name="description" content="더운정픽 이용약관"/>
 <link rel="icon" href="/icons/favicon.ico?v=20260511"/>
-<link rel="stylesheet" href="/css/policy.css?v=2026052503"/>
+<link rel="stylesheet" href="/css/policy.css?v=2026052504"/>
 </head>
 <body>
 <main class="policy-shell">
@@ -17,7 +17,7 @@
         <span class="policy-logo"><img src="/icons/internal/brand-symbol-real.png" alt=""/></span>
         <span class="policy-brand-copy"><strong>더운정픽</strong><em>입주민 전용 혜택 플랫폼</em></span>
       </div>
-      <button type="button" class="policy-home-btn" data-policy-close aria-label="이전 화면으로 돌아가기">
+      <button type="button" class="policy-home-btn" data-policy-close aria-label="현재 정책 페이지 닫기">
         <img src="/icons/internal/home.svg" alt=""/>
       </button>
     </div>
@@ -42,14 +42,13 @@
 <script>
 (function(){
   function closePolicyPage(){
-    if (window.history.length > 1) {
-      window.history.back();
-      return;
-    }
-    window.location.replace('/app');
+    window.close();
   }
   document.querySelectorAll('[data-policy-close]').forEach(function(btn){
-    btn.addEventListener('click', closePolicyPage);
+    btn.addEventListener('click', function(event){
+      event.preventDefault();
+      closePolicyPage();
+    });
   });
 })();
 </script>

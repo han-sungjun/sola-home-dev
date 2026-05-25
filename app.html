@@ -1810,5 +1810,21 @@
 <link href="./css/app.inline.1.css" rel="stylesheet"/>
 <script src="./js/app.inline.5.js"></script>
 <link href="./css/app.inline.2.css" rel="stylesheet"/>
+
+<script id="upick-policy-window-open-v69">
+(function(){
+  document.addEventListener('click', function(event){
+    var link = event.target && event.target.closest && event.target.closest('a.gnb-policy-link');
+    if(!link) return;
+    event.preventDefault();
+    var opened = window.open(link.href, '_blank');
+    if(opened){
+      try { opened.focus(); } catch(e) {}
+    }else{
+      location.href = link.href;
+    }
+  }, true);
+})();
+</script>
 </body>
 </html>
