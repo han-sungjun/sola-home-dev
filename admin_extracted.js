@@ -2340,8 +2340,11 @@ function fillForm(item){
               <div class="member-summary-side">
                 <div class="tags">${statusTags.join('')}</div>
                 <span class="accordion-arrow" aria-hidden="true">
-                  <svg class="accordion-arrow-icon" viewBox="0 0 24 24" fill="none" focusable="false">
-                    <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <svg class="chevron-down-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                  <svg class="chevron-up-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 15l6-6 6 6"></path>
                   </svg>
                 </span>
               </div>
