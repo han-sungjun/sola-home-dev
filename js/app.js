@@ -10733,7 +10733,9 @@ function bindAiAnswerActions(scope){
      event.stopPropagation();
      const retryQuestion = getAiRetryQuestionFromButton(btn);
      if(!retryQuestion) return;
-     if(!guardAiAssistantBusy()) askAiAssistant(retryQuestion);
+     if(guardAiAssistantBusy()) return;
+     setAiRetryControlsDisabled(true);
+     askAiAssistant(retryQuestion);
    });
  });
  root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
@@ -11209,6 +11211,29 @@ function bindAiAnswerActions(scope){
  });
  }
 
+ function setAiRetryControlsDisabled(disabled){
+ const chatRoot = qs('#aiChatWindow') || document;
+ if(!chatRoot) return;
+ qsa('[data-ai-error-retry], .ai-error-retry-btn', chatRoot).forEach((el) => {
+ if(!el) return;
+ el.disabled = !!disabled;
+ el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+ el.classList.toggle('ai-locked-control', !!disabled);
+ el.classList.toggle('is-disabled', !!disabled);
+ });
+ }
+
+ function removeAiRetryControls(scope){
+ const root = scope || qs('#aiChatWindow') || document;
+ if(!root) return;
+ try{
+ root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((el) => el.remove());
+ root.querySelectorAll('.ai-state-action-row, .ai-error-action-row, .ai-actions, .ai-retry-action-row').forEach((row) => {
+ if(!row.querySelector('button, a, input, select, textarea')) row.remove();
+ });
+ }catch(_error){}
+ }
+
  function setAiAssistantBusy(isBusy){
  aiAssistantBusy = !!isBusy;
  const aiView = qs('#view-ai');
@@ -11217,6 +11242,7 @@ function bindAiAnswerActions(scope){
  setAiControlDisabled('#aiQuickRow .ai-quick-btn, [data-ai-dialog-question]', aiAssistantBusy);
  setAiControlDisabled('#aiAskBtn', aiAssistantBusy);
  setAiControlDisabled('#aiVoiceBtn', aiAssistantBusy);
+ setAiRetryControlsDisabled(aiAssistantBusy);
 
  const input = qs('#aiQuestionInput');
  if(input){
@@ -11991,6 +12017,7 @@ function scrollAiAnswerIntoView(rowOrBubble, options = {}){
 
 async function askAiAssistant(rawQuestion=''){
  if(guardAiAssistantBusy()) return;
+ removeAiRetryControls(qs('#aiChatWindow'));
  stopAiTts();
  if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
  if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
