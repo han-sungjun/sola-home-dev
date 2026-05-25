@@ -104,3 +104,61 @@ body.privacy-cover-active {
     line-height: 1 !important;
     font-weight: 700 !important;
 }
+
+
+
+/* v73: Hero 상단 보조 배지와 DEV 배지 높이/정렬 통일 */
+.hero-panel .hero-meta,
+.hero-panel .hero-kicker,
+.hero-panel .hero-badge,
+.hero-panel .hero-chip,
+.hero-panel .dev-env,
+.hero-panel .dev-env-badge,
+.hero-panel .dev-badge,
+.hero-panel .env-badge,
+.auth-hero .hero-meta,
+.auth-hero .hero-kicker,
+.auth-hero .hero-badge,
+.auth-hero .hero-chip,
+.auth-hero .dev-env,
+.auth-hero .dev-env-badge,
+.auth-hero .dev-badge,
+.auth-hero .env-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.hero-panel .dev-env,
+.hero-panel .dev-env-badge,
+.hero-panel .dev-badge,
+.hero-panel .env-badge,
+.auth-hero .dev-env,
+.auth-hero .dev-env-badge,
+.auth-hero .dev-badge,
+.auth-hero .env-badge {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  white-space: nowrap !important;
+  align-self: center !important;
+  transform: none !important;
+}
+
+.hero-panel .hero-card-top,
+.hero-panel .hero-head,
+.hero-panel .hero-top,
+.hero-panel .hero-row,
+.hero-panel .hero-meta-row,
+.auth-hero .hero-card-top,
+.auth-hero .hero-head,
+.auth-hero .hero-top,
+.auth-hero .hero-row,
+.auth-hero .hero-meta-row {
+  align-items: center !important;
+}
