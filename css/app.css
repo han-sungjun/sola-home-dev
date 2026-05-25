@@ -25732,3 +25732,61 @@ input[type="radio"]:not(:checked):focus-visible{
     border-radius:13px !important;
   }
 }
+
+/* ===== v30: GNB 검색 아이콘 z-index / 개인화 배너 화살표 중앙 정렬 최종 보정 ===== */
+.gnb-search-box{
+  position:relative!important;
+}
+.gnb-search-box::before{
+  z-index:20!important;
+  pointer-events:none!important;
+}
+.gnb-search-box input,
+.gnb-search-box input:focus{
+  position:relative!important;
+  z-index:1!important;
+  background:transparent!important;
+}
+.gnb-personal-banner{
+  grid-template-columns:auto minmax(0,1fr) 32px!important;
+  align-items:center!important;
+}
+.gnb-personal-banner .gnb-banner-arrow{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  font-size:0!important;
+  text-indent:-9999px!important;
+  overflow:hidden!important;
+}
+.gnb-personal-banner .gnb-banner-arrow::before{
+  content:''!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  margin:0!important;
+  border-top:2px solid currentColor!important;
+  border-right:2px solid currentColor!important;
+  transform:translate(-58%,-50%) rotate(45deg)!important;
+}
+@media (max-width:520px){
+  .gnb-personal-banner .gnb-banner-arrow{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+  }
+  .gnb-personal-banner .gnb-banner-arrow::before{
+    width:7px!important;
+    height:7px!important;
+    transform:translate(-58%,-50%) rotate(45deg)!important;
+  }
+}
