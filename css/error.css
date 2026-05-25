@@ -366,3 +366,24 @@
     .topbar-userbar{min-width:0}
     .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+
+/* DEV 배지 높이 정렬 */
+.hero-top-row,
+.hero-chip-row,
+.hero-header-row {
+    align-items: center !important;
+}
+
+.dev-env-badge,
+.dev-badge,
+.hero-dev-badge {
+    min-height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 16px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+}

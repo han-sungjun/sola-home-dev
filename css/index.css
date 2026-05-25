@@ -397,7 +397,7 @@
     }
 
 
-    /* ===== DEV ENV badge: signup page hero style override ===== */
+    /* ===== DEV badge: signup page hero style override ===== */
     .hero > .eyebrow,
     .hero > h1,
     .hero > p{
@@ -3147,3 +3147,24 @@ body {
 
 /* Loading UI styles are centralized in /common/common-loading.css.
    Page-specific loader overrides were removed to keep app/admin/index/signup/phone-verify consistent. */
+
+
+
+/* DEV 배지 높이 정렬 */
+.hero-top-row,
+.hero-chip-row,
+.hero-header-row {
+    align-items: center !important;
+}
+
+.dev-env-badge,
+.dev-badge,
+.hero-dev-badge {
+    min-height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 16px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+}
