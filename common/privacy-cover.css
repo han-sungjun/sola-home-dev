@@ -475,3 +475,36 @@ body.env-dev .policy-hero .env-badge,
 body.env-dev .policy-hero .hero-env {
   display: inline-flex !important;
 }
+
+
+
+/* v84: 운영정책/사용가이드 DEV 배지 표시 보정 */
+.policy-env-badge {
+  display: none !important;
+}
+
+html.env-dev .policy-env-badge,
+body.env-dev .policy-env-badge {
+  display: inline-flex !important;
+}
+
+.policy-hero .policy-env-badge,
+.guide-hero .policy-env-badge,
+.terms-hero .policy-env-badge,
+.privacy-hero .policy-env-badge,
+section.hero .policy-env-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+  margin-left: 10px !important;
+  vertical-align: middle !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+}
