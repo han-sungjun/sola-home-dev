@@ -7,9 +7,9 @@
 <title>이용약관 | 더운정픽</title>
 <meta name="description" content="더운정픽 이용약관"/>
 <link rel="icon" href="/icons/favicon.ico?v=20260511"/>
-<link rel="stylesheet" href="/css/policy.css?v=2026052508"/>
+<link rel="stylesheet" href="/css/policy.css?v=2026052510"/>
 </head>
-<body>
+<body class="policy-page-terms">
 <main class="policy-shell">
   <section class="policy-hero upick-policy-hero-shell">
     <div class="policy-topbar">
@@ -25,7 +25,7 @@
       <div class="policy-pill">서비스 이용 규칙</div>
       <h1>이용약관</h1>
       <p>더운정픽 이용자가 서비스를 안전하고 원활하게 사용하기 위한 기본 약관입니다.</p>
-      <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide">사용가이드</a><a class="secondary" href="/policy">운영정책</a><a class="secondary" href="/terms">이용약관</a><a class="secondary" href="/privacy">개인정보처리방침</a></div>
+      <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide" data-policy-route="/guide">사용가이드</a><a class="secondary" href="/policy" data-policy-route="/policy">운영정책</a><a class="secondary" href="/terms" data-policy-route="/terms">이용약관</a><a class="secondary" href="/privacy" data-policy-route="/privacy">개인정보처리방침</a></div>
       <div class="policy-stats" aria-label="페이지 요약"><div class="policy-stat"><strong>서비스 범위</strong><span>혜택·지도·AI</span></div><div class="policy-stat"><strong>계정 관리</strong><span>본인 계정 사용</span></div><div class="policy-stat"><strong>정보 한계</strong><span>현장 안내 우선</span></div></div>
     </div>
   </section>
@@ -43,11 +43,24 @@
 (function(){
   function closePolicyPage(){
     window.close();
+    window.setTimeout(function(){
+      if(!window.closed){
+        window.location.replace('/app');
+      }
+    }, 180);
   }
   document.querySelectorAll('[data-policy-close]').forEach(function(btn){
     btn.addEventListener('click', function(event){
       event.preventDefault();
       closePolicyPage();
+    });
+  });
+  document.querySelectorAll('[data-policy-route]').forEach(function(link){
+    link.addEventListener('click', function(event){
+      var target = link.getAttribute('data-policy-route');
+      if(!target) return;
+      event.preventDefault();
+      window.location.replace(target);
     });
   });
 })();

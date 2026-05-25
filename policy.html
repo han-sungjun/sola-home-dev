@@ -7,9 +7,9 @@
 <title>운영정책 | 더운정픽</title>
 <meta name="description" content="더운정픽 운영정책"/>
 <link rel="icon" href="/icons/favicon.ico?v=20260511"/>
-<link rel="stylesheet" href="/css/policy.css?v=2026052508"/>
+<link rel="stylesheet" href="/css/policy.css?v=2026052510"/>
 </head>
-<body>
+<body class="policy-page-policy">
 <main class="policy-shell">
   <section class="policy-hero upick-policy-hero-shell">
     <div class="policy-topbar">
@@ -25,8 +25,8 @@
       <div class="policy-pill">서비스 운영 기준</div>
       <h1>운영정책</h1>
       <p>더운정픽 서비스 운영과 관련된 주요 정책을 한곳에서 확인할 수 있습니다.</p>
-      <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide">사용가이드</a><a class="secondary" href="/policy">운영정책</a><a class="secondary" href="/terms">이용약관</a><a class="secondary" href="/privacy">개인정보처리방침</a></div>
-      <div class="policy-stats" aria-label="페이지 요약"><div class="policy-stat"><strong>이용약관</strong><span>서비스 이용 규칙</span></div><div class="policy-stat"><strong>개인정보</strong><span>보호 기준</span></div><div class="policy-stat"><strong>AI 정책</strong><span>참고용 안내</span></div></div>
+      <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide" data-policy-route="/guide">사용가이드</a><a class="secondary" href="/policy" data-policy-route="/policy">운영정책</a><a class="secondary" href="/terms" data-policy-route="/terms">이용약관</a><a class="secondary" href="/privacy" data-policy-route="/privacy">개인정보처리방침</a></div>
+      <div class="policy-stats" aria-label="페이지 요약"><div class="policy-stat"><strong>이용약관</strong><span>서비스 이용 규칙</span></div><div class="policy-stat"><strong>개인정보</strong><span>보호 기준</span></div><div class="policy-stat"><strong>AI 정책</strong><span>참고용 안내</span></div><div class="policy-stat"><strong>혜택 정책</strong><span>운영 기준</span></div></div>
     </div>
   </section>
   
@@ -48,7 +48,7 @@
   <ul><li>입주민 전용 혜택 정보, 검색, 즐겨찾기, TOP5, 지도, 공지, 캘린더 기능을 제공합니다.</li><li>AI 생활도우미를 통해 생활형 안내와 혜택 관련 참고 답변을 제공합니다.</li><li>서비스 품질 개선을 위해 기능이 추가, 변경 또는 일시 제한될 수 있습니다.</li></ul>
   <h3>이용 기준</h3>
   <ul><li>이용자는 본인의 계정 정보를 안전하게 관리해야 합니다.</li><li>타인의 계정 사용, 허위 정보 입력, 서비스 운영 방해 행위는 제한될 수 있습니다.</li><li>서비스 화면, 데이터, 운영 구조를 무단 복제하거나 악용해서는 안 됩니다.</li></ul>
-  <p><a class="inline-policy-link" href="/terms">이용약관 전체 보기</a></p>
+  <p><a class="inline-policy-link" href="/terms" data-policy-route="/terms">이용약관 전체 보기</a></p>
 </section>
 <section class="policy-card" id="privacy-policy">
   <h2>2. 개인정보처리방침</h2>
@@ -57,7 +57,7 @@
   <ul><li>계정 정보: 아이디, 닉네임, 비밀번호 등 계정 생성에 필요한 정보</li><li>서비스 이용 정보: 즐겨찾기, 접속 기록, 기기 정보, 알림 토큰 등 기능 제공에 필요한 정보</li><li>선택 정보: 프로필 이미지, 위치 기반 기능 이용 시 기기 위치 또는 좌표 기반 거리 정보</li></ul>
   <h3>보관과 삭제</h3>
   <ul><li>개인정보는 서비스 제공에 필요한 기간 동안 보관됩니다.</li><li>계정 삭제 시 계정 정보와 일부 개인 설정은 삭제 또는 비활성화됩니다.</li><li>법령상 보관이 필요한 정보는 해당 기간 동안 별도 보관될 수 있습니다.</li></ul>
-  <p><a class="inline-policy-link" href="/privacy">개인정보처리방침 전체 보기</a></p>
+  <p><a class="inline-policy-link" href="/privacy" data-policy-route="/privacy">개인정보처리방침 전체 보기</a></p>
 </section>
 <section class="policy-card" id="ai-policy">
   <h2>3. AI 생활도우미 운영정책</h2>
@@ -78,11 +78,24 @@
 (function(){
   function closePolicyPage(){
     window.close();
+    window.setTimeout(function(){
+      if(!window.closed){
+        window.location.replace('/app');
+      }
+    }, 180);
   }
   document.querySelectorAll('[data-policy-close]').forEach(function(btn){
     btn.addEventListener('click', function(event){
       event.preventDefault();
       closePolicyPage();
+    });
+  });
+  document.querySelectorAll('[data-policy-route]').forEach(function(link){
+    link.addEventListener('click', function(event){
+      var target = link.getAttribute('data-policy-route');
+      if(!target) return;
+      event.preventDefault();
+      window.location.replace(target);
     });
   });
 })();
