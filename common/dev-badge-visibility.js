@@ -12,67 +12,34 @@
     );
   }
 
-  function getBadges() {
-    return document.querySelectorAll(
-      '#globalEnvBadge, #envBadge, #signupEnvBadge, #loginEnvBadge, #policyPillEnvBadge, ' +
-      '.env-badge, .hero-env, .dev-badge, .dev-env, [id$="EnvBadge"]'
-    );
-  }
+  var isDev = isDevHost();
+
+  document.documentElement.classList.toggle('env-dev', isDev);
 
   function syncDevBadge() {
-    var isDev = isDevHost();
-
-    document.documentElement.classList.toggle('env-dev', isDev);
-
     if (document.body) {
       document.body.classList.toggle('env-dev', isDev);
     }
 
-    getBadges().forEach(function (badge) {
-      badge.classList.toggle('show', isDev);
+    document.querySelectorAll(
+      '.env-badge, .hero-env, .dev-badge, .dev-env, [id$="EnvBadge"]'
+    ).forEach(function (badge) {
       badge.hidden = !isDev;
+      badge.classList.toggle('show', isDev);
       badge.setAttribute('aria-hidden', isDev ? 'false' : 'true');
-
-      if (isDev) {
-        badge.style.removeProperty('display');
-      } else {
-        badge.style.setProperty('display', 'none', 'important');
-      }
-    });
-  }
-
-  function startObserver() {
-    if (!document.body || window.__devBadgeVisibilityObserver) return;
-
-    window.__devBadgeVisibilityObserver = new MutationObserver(function () {
-      syncDevBadge();
-    });
-
-    window.__devBadgeVisibilityObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style', 'hidden']
+      badge.style.removeProperty('display');
+      badge.style.removeProperty('visibility');
+      badge.style.removeProperty('opacity');
+      badge.style.removeProperty('pointer-events');
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      syncDevBadge();
-      startObserver();
-    });
+    document.addEventListener('DOMContentLoaded', syncDevBadge, { once: true });
   } else {
     syncDevBadge();
-    startObserver();
   }
 
   window.addEventListener('pageshow', syncDevBadge);
-  window.addEventListener('load', function () {
-    syncDevBadge();
-    startObserver();
-  });
-
-  [0, 100, 300, 800, 1500, 3000].forEach(function (delay) {
-    setTimeout(syncDevBadge, delay);
-  });
+  window.syncDevBadgeVisibility = syncDevBadge;
 })();
