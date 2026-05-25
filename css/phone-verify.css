@@ -636,3 +636,61 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
   padding: 0 14px !important;
   white-space: nowrap !important;
 }
+
+
+
+/* v75: 공개앱/입장/계정 만들기 Hero DEV 배지 위치 방식 통일 */
+.hero-badge-row .hero-env,
+.hero-badge-row .env-badge.hero-env,
+.hero-badge-row .env-badge,
+.hero-badge-row .dev-env,
+.hero-badge-row .dev-badge {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+.hero-badge-row .eyebrow,
+.hero-badge-row .hero-kicker,
+.hero-badge-row .hero-chip,
+.hero-badge-row .hero-meta {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  flex: 0 1 auto !important;
+}
+
+.hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
