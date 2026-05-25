@@ -100,3 +100,15 @@
   background:none!important;
   box-shadow:none!important;
 }
+
+
+/* v71: brand card owns the glass effect; logo symbol stays flat/transparent */
+.policy-brand-card .policy-logo,
+.policy-logo{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.policy-brand-card .policy-logo img{
+  display:block;
+}
