@@ -25200,3 +25200,84 @@ body.env-dev [id$="EnvBadge"] {
     font-size:11.2px!important;
   }
 }
+
+/* ===== v19: 계정 관리 팝업 액션 중심 압축 ===== */
+.gnb-account-dialog--unified .gnb-account-unified-body{
+  gap:12px!important;
+}
+.gnb-account-dialog--unified #gnbAccountDeleteSlot{
+  display:none!important;
+}
+.gnb-account-dialog--unified .gnb-settings-section-header{
+  margin-bottom:10px!important;
+}
+.gnb-account-dialog--unified .gnb-settings-section-desc{
+  margin-top:4px!important;
+  line-height:1.45!important;
+}
+.gnb-account-dialog--unified .gnb-info-grid,
+.gnb-account-dialog--unified .gnb-danger-note{
+  display:none!important;
+}
+.gnb-account-dialog--unified .gnb-action-grid.gnb-account-actions-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin-top:8px!important;
+}
+.gnb-account-dialog--unified .gnb-action-grid.gnb-account-actions-grid > button{
+  width:100%!important;
+  min-width:0!important;
+  min-height:50px!important;
+  justify-content:center!important;
+  text-align:center!important;
+  padding:0 12px!important;
+}
+.gnb-account-dialog--unified .gnb-action-grid.gnb-account-actions-grid > button span:not(.desc){
+  width:auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+.gnb-account-dialog--unified .gnb-action-grid.gnb-account-actions-grid .desc{
+  display:none!important;
+}
+.gnb-account-dialog--unified #openAccountEditBtn,
+.gnb-account-dialog--unified #openPasswordChangeBtn{
+  border-color:rgba(191,219,254,.9)!important;
+  background:linear-gradient(180deg,#ffffff,#f8fbff)!important;
+  color:#0f2346!important;
+}
+.gnb-account-dialog--unified #logoutBtn{
+  border-color:rgba(203,213,225,.95)!important;
+  background:linear-gradient(180deg,#f8fafc,#f1f5f9)!important;
+  color:#334155!important;
+}
+.gnb-account-dialog--unified #withdrawBtn,
+.gnb-account-dialog--unified .gnb-account-danger-action{
+  border-color:rgba(254,202,202,.95)!important;
+  background:linear-gradient(180deg,#fff7f7,#fff1f2)!important;
+  color:#b91c1c!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid{
+  margin-top:8px!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid > button{
+  justify-content:center!important;
+  text-align:center!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid .desc{
+  display:none!important;
+}
+@media (max-width:420px){
+  .gnb-account-dialog--unified .gnb-action-grid.gnb-account-actions-grid{
+    gap:8px!important;
+  }
+  .gnb-account-dialog--unified .gnb-action-grid.gnb-account-actions-grid > button{
+    min-height:48px!important;
+    padding:0 8px!important;
+    font-size:13px!important;
+  }
+}

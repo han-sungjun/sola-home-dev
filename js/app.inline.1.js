@@ -79,13 +79,34 @@
           var accountSection = closestSection('#openAccountEditBtn');
           var deleteSection = closestSection('#withdrawBtn');
 
-          setSectionCopy(noticeSection, '알림 관리', '이 기기의 공지와 주요 안내 수신 상태를 관리합니다.');
-          setSectionCopy(accountSection, '계정 및 보안', '닉네임, 비밀번호 변경, 현재 공간 나가기를 관리합니다.');
-          setSectionCopy(deleteSection, '계정 삭제', '삭제 전 내용을 확인한 뒤 신중하게 진행해 주세요.');
+          setSectionCopy(noticeSection, '알림 관리', '이 기기의 알림 수신 상태만 간단하게 관리합니다.');
+          setSectionCopy(accountSection, '계정 관리', '계정 정보, 비밀번호, 나가기와 삭제를 한곳에서 관리합니다.');
 
-          if(noticeSection) qs('#gnbAccountNoticeSlot', modalPanel).appendChild(noticeSection);
-          if(accountSection) qs('#gnbAccountMainSlot', modalPanel).appendChild(accountSection);
-          if(deleteSection) qs('#gnbAccountDeleteSlot', modalPanel).appendChild(deleteSection);
+          // 계정 관리 팝업은 정보성 설명이 과해지지 않도록 액션 중심으로 정리합니다.
+          if(noticeSection){
+            qsa('.gnb-info-grid, .gnb-info-item', noticeSection).forEach(function(el){ el.remove(); });
+            qsa('.desc', noticeSection).forEach(function(el){ el.remove(); });
+            qs('#gnbAccountNoticeSlot', modalPanel).appendChild(noticeSection);
+          }
+          if(accountSection){
+            qsa('.gnb-info-grid, .gnb-info-item', accountSection).forEach(function(el){ el.remove(); });
+            qsa('.desc', accountSection).forEach(function(el){ el.remove(); });
+            var accountGrid = qs('.gnb-action-grid', accountSection);
+            if(accountGrid) accountGrid.classList.add('gnb-account-actions-grid');
+            if(deleteSection){
+              var deleteBtn = qs('#withdrawBtn', deleteSection);
+              if(deleteBtn){
+                qsa('.desc', deleteBtn).forEach(function(el){ el.remove(); });
+                deleteBtn.classList.add('gnb-account-danger-action');
+                if(accountGrid) accountGrid.appendChild(deleteBtn);
+              }
+              deleteSection.remove();
+            }
+            qs('#gnbAccountMainSlot', modalPanel).appendChild(accountSection);
+          }else if(deleteSection){
+            qsa('.gnb-info-grid, .gnb-info-item, .gnb-danger-note, .desc', deleteSection).forEach(function(el){ el.remove(); });
+            qs('#gnbAccountMainSlot', modalPanel).appendChild(deleteSection);
+          }
 
           qsa('.gnb-account-unified-section', modalPanel).forEach(function(slot){
             if(!slot.children.length) slot.hidden = true;
