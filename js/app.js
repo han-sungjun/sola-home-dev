@@ -12847,6 +12847,38 @@ async function loadGnbMenusFromDb(){
   };
  }
 
+ function formatGnbMenuCount(value){
+  const n = Number(value || 0);
+  if(!Number.isFinite(n) || n <= 0) return '';
+  return `${n.toLocaleString('ko-KR')}회`;
+ }
+
+ function syncGnbPersonalBanner(preferred){
+  const banner = qs('#gnbPersonalBanner');
+  const textEl = qs('#gnbPersonalBannerText');
+  const iconEl = banner?.querySelector('.gnb-banner-icon .upick-svg-icon');
+  if(!banner || !textEl) return;
+  const setBanner = (text, view, icon) => {
+    textEl.textContent = text;
+    banner.dataset.viewLink = view || 'all';
+    if(iconEl && icon) iconEl.src = icon;
+  };
+  if(preferred && preferred.type === 'recent' && preferred.menu){
+    setBanner('최근 본 메뉴로 바로 이어서 확인해보세요!', preferred.menu.view || preferred.menu.route || preferred.menu.menuId, '/icons/internal/clock.svg');
+    return;
+  }
+  if(preferred && preferred.type === 'popular' && preferred.menu){
+    setBanner('요즘 많이 찾는 메뉴를 확인해보세요!', preferred.menu.view || preferred.menu.route || preferred.menu.menuId, '/icons/internal/top5.svg');
+    return;
+  }
+  const day = new Date().getDay();
+  if(day === 0 || day === 6){
+    setBanner('주말에 많이 찾는 혜택을 확인해보세요!', 'top5', '/icons/internal/gift.svg');
+    return;
+  }
+  setBanner('입주민 혜택을 한 번에 찾아보세요!', 'all', '/icons/internal/user.svg');
+ }
+
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
   const label = `<span class="gnb-menu-label"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span> ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
   return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
@@ -13150,10 +13182,11 @@ async function trackGnbMenuVisitByView(view){
  async function loadRecentGnbMenus(){
   const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
   try{
-   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(1)));
-   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId));
+   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(3)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,3);
    recentGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
+   if(rows[0]) syncGnbPersonalBanner({ type:'recent', menu: rows[0] }); else syncGnbPersonalBanner();
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
  }
@@ -13161,11 +13194,11 @@ async function trackGnbMenuVisitByView(view){
   const el = qs('#gnbPopularMenus'); if(!el || !db) return;
   try{
    const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
-   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1);
-      popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,3);
+   popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
    popularGnbStatsMap = new Map(rows.map(m => [String(m.menuId), m]));
-popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
-   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`, 'popular')).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', formatGnbMenuCount(m.totalClickCount||m.clickCount||0), 'popular')).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
+   if(!recentGnbMenuIdSet.size && rows[0]) syncGnbPersonalBanner({ type:'popular', menu: rows[0] });
    renderDynamicAllMenus();
   }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
  }
@@ -13177,6 +13210,7 @@ popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId))
   box.classList.remove('hidden');
   box.innerHTML = `<div class="gnb-search-result-title">통합검색 결과</div>` + (rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">검색 결과가 없습니다.</div>');
  }
+ syncGnbPersonalBanner();
  qs('#gnbMenuSearchInput')?.addEventListener('input', (event)=>renderGnbMenuSearch(event.target.value));
  document.addEventListener('click', (event) => {
   const btn = event.target.closest('[data-view-link]');

@@ -1179,14 +1179,17 @@
 </div>
 </div>
 <div class="gnb-body">
-<div class="gnb-banner">
-<span>
+<button class="gnb-banner gnb-personal-banner" id="gnbPersonalBanner" type="button" data-view-link="all" aria-label="맞춤 메뉴 바로가기">
+<span class="gnb-banner-icon" aria-hidden="true">
+<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg"/>
+</span>
+<span class="gnb-banner-text" id="gnbPersonalBannerText">
             입주민 혜택을 한 번에 찾아보세요!
           </span>
-<span>
+<span class="gnb-banner-arrow" aria-hidden="true">
             ›
           </span>
-</div>
+</button>
 <section class="gnb-section gnb-search-section">
 <h3 class="gnb-section-title premium-section-title section-animate">
 <span class="title-icon">
@@ -1232,16 +1235,15 @@
             </div>
 </div>
 </section>
-<section class="gnb-section">
-<div class="gnb-menu-group">
-<h4 class="gnb-menu-group-title">
+<section class="gnb-section gnb-new-menu-section">
+<h3 class="gnb-section-title premium-section-title section-animate">
 <span class="title-icon">
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/pin-blue.svg"/>
 </span>
 <span class="title-text">
               새로 나온 메뉴
             </span>
-</h4>
+</h3>
 <div class="gnb-new-section">
 <div class="gnb-menu-list" id="gnbNewMenus">
 <div class="gnb-empty">
@@ -1249,21 +1251,20 @@
                 </div>
 </div>
 </div>
-</div>
-<div class="gnb-menu-group">
-<h4 class="gnb-menu-group-title">
+</section>
+<section class="gnb-section gnb-main-menu-section">
+<h3 class="gnb-section-title premium-section-title section-animate">
 <span class="title-icon">
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg"/>
 </span>
 <span class="title-text">
               더운정픽
             </span>
-</h4>
+</h3>
 <div class="gnb-menu-sublist" id="gnbMainMenus">
 <div class="gnb-empty">
                 메뉴를 불러오는 중입니다.
               </div>
-</div>
 </div>
 </section>
 <section aria-label="관리자 전용 메뉴" class="gnb-section admin-only-menu gnb-admin-section-source">
