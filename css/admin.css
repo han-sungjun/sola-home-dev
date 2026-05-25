@@ -5740,3 +5740,117 @@ select::-ms-expand{display:none;}
 .accordion-arrow .chevron-up-icon{display:none}
 .member-accordion[open] .accordion-arrow .chevron-down-icon{display:none}
 .member-accordion[open] .accordion-arrow .chevron-up-icon{display:block}
+
+/* ===== v69: GNB menu form option groups alignment cleanup ===== */
+#menusView .menu-section-row,
+#menusView .menu-badge-row,
+#menusView .menu-role-row,
+#menusView .check-row{
+  width:100%;
+  box-sizing:border-box;
+  align-items:stretch;
+}
+
+#menusView .menu-section-row,
+#menusView .menu-role-row{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:10px;
+  padding:12px;
+  border:1px solid rgba(191,219,254,.9);
+  border-radius:16px;
+  background:rgba(255,255,255,.78);
+}
+
+#menusView .menu-badge-row{
+  display:grid !important;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:10px;
+  margin-top:8px;
+}
+
+#menusView .menu-section-row label,
+#menusView .menu-role-row label,
+#menusView .menu-badge-row label,
+#menusView .check-row label{
+  min-width:0 !important;
+  width:100%;
+  box-sizing:border-box;
+  display:flex !important;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  line-height:1.25;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:normal;
+  text-align:left;
+}
+
+#menusView .menu-section-row label,
+#menusView .menu-role-row label{
+  min-height:42px;
+  padding:10px 12px;
+  border:1px solid rgba(226,232,240,.95);
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98));
+  color:#334155;
+  font-size:13px;
+  font-weight:800;
+}
+
+#menusView .menu-badge-row label{
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid rgba(226,232,240,.95);
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98));
+  color:#334155;
+  font-size:13px;
+  font-weight:900;
+}
+
+#menusView .menu-section-row input[type="checkbox"],
+#menusView .menu-role-row input[type="checkbox"],
+#menusView .menu-badge-row input[type="checkbox"],
+#menusView .check-row input[type="checkbox"]{
+  flex:0 0 auto;
+  width:16px;
+  height:16px;
+  margin:0;
+  accent-color:#1d4ed8;
+}
+
+#menusView .menu-badge-row label span,
+#menusView .menu-section-row label span,
+#menusView .menu-role-row label span{
+  min-width:0;
+}
+
+@media (max-width:560px){
+  #menusView .menu-section-row,
+  #menusView .menu-role-row{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+    padding:10px;
+  }
+  #menusView .menu-badge-row{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+  }
+  #menusView .menu-section-row label,
+  #menusView .menu-role-row label,
+  #menusView .menu-badge-row label{
+    min-height:40px;
+    padding:9px 10px;
+    font-size:12.5px;
+  }
+}
+
+@media (max-width:380px){
+  #menusView .menu-section-row,
+  #menusView .menu-role-row,
+  #menusView .menu-badge-row{
+    grid-template-columns:1fr;
+  }
+}
