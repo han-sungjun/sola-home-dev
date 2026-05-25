@@ -11900,8 +11900,7 @@ function buildAiAssistantStateCardHtml({ type='empty', title='', message='', que
  const normalizedType = String(type || 'empty').toLowerCase();
  const isError = normalizedType === 'error';
  const cleanMessage = String(message || '').replace(/등록된 안내를 찾지 못했어요\.?/g, '').replace(/현재 등록된 안내에서 답변을 찾지 못했습니다\.?/g, '').trim();
- const safeMessage = escapeHtml(cleanMessage || (isError ? '잠시 후 다시 질문해 주세요.' : '다른 표현으로 다시 질문해 주세요.')).replace(/
-/g, '<br>');
+ const safeMessage = escapeHtml(cleanMessage || (isError ? '잠시 후 다시 질문해 주세요.' : '다른 표현으로 다시 질문해 주세요.')).replace(/\n/g, '<br>');
  const retryQuestion = String(question || '').trim();
  const suggestions = [
    '앱 설치 방법 알려줘',
