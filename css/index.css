@@ -3650,3 +3650,19 @@ input[type="radio"]:not(:checked):focus-visible{
   border-color:#93c5fd!important;
   box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75)!important;
 }
+
+/* ===== v29: 입장 페이지 체크박스 미선택 톤 보정 ===== */
+.login-premium-hero-shell .save-id-check input[type="checkbox"]:not(:checked),
+.login-support-row .save-id-check input[type="checkbox"]:not(:checked),
+.save-id-check input[type="checkbox"]:not(:checked){
+  background:#eff6ff !important;
+  border-color:#bfdbfe !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 6px 14px rgba(37,99,235,.06),inset 0 0 0 1px rgba(242,182,51,.12) !important;
+}
+.login-premium-hero-shell .save-id-check input[type="checkbox"]:not(:checked):focus-visible,
+.login-support-row .save-id-check input[type="checkbox"]:not(:checked):focus-visible,
+.save-id-check input[type="checkbox"]:not(:checked):focus-visible{
+  outline:0 !important;
+  border-color:#93c5fd !important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
