@@ -112,3 +112,91 @@
 .policy-brand-card .policy-logo img{
   display:block;
 }
+
+
+/* v74: match entrance/account hero typography, compact policy hero, restore watermark only */
+.upick-policy-hero-shell{
+  gap:12px!important;
+  padding:14px!important;
+}
+.policy-hero-card{
+  padding:22px!important;
+  min-height:0!important;
+}
+.policy-hero-card::after{
+  display:block!important;
+  content:""!important;
+  position:absolute!important;
+  right:28px!important;
+  bottom:26px!important;
+  width:116px!important;
+  height:116px!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  opacity:.16!important;
+  filter:drop-shadow(0 16px 28px rgba(0,0,0,.16))!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+.policy-pill{
+  margin-bottom:16px!important;
+  padding:8px 12px!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+.policy-hero h1{
+  margin:10px 0 10px!important;
+  font-size:clamp(30px,7.4vw,42px)!important;
+  line-height:1.12!important;
+  letter-spacing:-.075em!important;
+  font-weight:1000!important;
+  text-shadow:0 3px 12px rgba(0,0,0,.18)!important;
+}
+.policy-hero p{
+  max-width:520px!important;
+  font-size:15px!important;
+  line-height:1.72!important;
+  font-weight:800!important;
+  letter-spacing:-.045em!important;
+}
+.policy-actions--links{
+  margin-top:18px!important;
+  gap:9px!important;
+}
+.policy-actions a{
+  min-height:38px!important;
+  padding:0 14px!important;
+  font-size:12px!important;
+  font-weight:950!important;
+}
+.policy-stats{
+  margin-top:18px!important;
+}
+.policy-stat{
+  padding:15px 16px!important;
+}
+.policy-stat strong{
+  font-size:17px!important;
+}
+.policy-logo img{
+  width:34px!important;
+  height:34px!important;
+}
+@media(max-width:560px){
+  .upick-policy-hero-shell{padding:12px!important;gap:10px!important;border-radius:28px!important}
+  .policy-hero-card{padding:20px!important;border-radius:24px!important}
+  .policy-hero h1{font-size:35px!important;line-height:1.12!important;margin:12px 0 9px!important}
+  .policy-hero p{font-size:14px!important;line-height:1.68!important;font-weight:800!important}
+  .policy-actions--links{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:16px!important}
+  .policy-actions--links a{min-height:36px!important;font-size:11px!important}
+  .policy-stats{margin-top:16px!important;gap:8px!important}
+  .policy-stat{padding:12px 10px!important;border-radius:16px!important}
+  .policy-stat strong{font-size:14px!important}
+  .policy-stat span{font-size:11px!important}
+  .policy-hero-card::after{right:18px!important;bottom:18px!important;width:92px!important;height:92px!important;opacity:.13!important}
+  .policy-logo img{width:32px!important;height:32px!important}
+}
+@media(max-width:390px){
+  .policy-hero h1{font-size:32px!important}
+  .policy-hero-card{padding:18px!important}
+  .policy-stat strong{font-size:13px!important}
+}
