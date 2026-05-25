@@ -25281,3 +25281,36 @@ body.env-dev [id$="EnvBadge"] {
     font-size:13px!important;
   }
 }
+
+
+/* ===== 계정 관리 패널 간소화 v20 ===== */
+.gnb-account-label{display:none!important;}
+.gnb-account-actions-section{padding-top:14px!important;}
+.gnb-account-action-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.gnb-account-action-grid .gnb-action-btn,
+.gnb-account-action-grid .account-edit-trigger{
+  min-height:48px!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.gnb-account-action-grid .desc{display:none!important;}
+.gnb-account-action-grid .logout-action{
+  background:#f8fbff!important;
+  border-color:#d7e1ef!important;
+  color:#27364a!important;
+}
+.gnb-account-action-grid .withdraw-action{
+  background:#fff5f5!important;
+  border-color:#ffd0d0!important;
+  color:#b42318!important;
+}
+@media (max-width:520px){
+  .gnb-account-actions-section{padding:12px 14px 14px!important;}
+  .gnb-account-action-grid{gap:8px!important;}
+  .gnb-account-action-grid .gnb-action-btn,
+  .gnb-account-action-grid .account-edit-trigger{min-height:44px!important;}
+}
