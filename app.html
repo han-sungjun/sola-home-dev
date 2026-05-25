@@ -1329,7 +1329,7 @@
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/settings.svg"/>
 </span>
 <span class="title-text">
-              설정 모음
+              설정
             </span>
 </h3>
 <div class="gnb-settings-wrap">
@@ -1340,13 +1340,12 @@
                     계정 요약
                   </h4>
 <p class="gnb-settings-section-desc">
-                    현재 입장 상태와 알림 수신 상태를 한눈에 확인합니다.
+                    현재 입장한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
                   </p>
 </div>
-<button class="gnb-push-toggle" id="gnbPushToggleBtn" type="button" aria-pressed="false" aria-label="푸시 알림 설정 전환">
-                  <span class="gnb-push-toggle-copy" id="gnbPushStatusPill">상태 확인 중</span>
-                  <span class="gnb-push-toggle-switch" aria-hidden="true"><i></i></span>
-                </button>
+<div class="gnb-status-pill" id="gnbPushStatusPill">
+                  상태 확인 중
+                </div>
 </div>
 <div class="gnb-account-card">
 <div class="gnb-account">
@@ -1480,12 +1479,52 @@
                 </div>
 </div>
 </div>
-<div class="gnb-settings-section gnb-account-actions-section">
-<div class="gnb-settings-section-header compact">
-  <div>
-    <h4 class="gnb-settings-section-title">계정 및 보안</h4>
-  </div>
+<div class="gnb-settings-section">
+<div class="gnb-settings-section-header">
+<div>
+<h4 class="gnb-settings-section-title">
+                    알림
+                  </h4>
+<p class="gnb-settings-section-desc">
+                    이 브라우저에서 공지와 주요 안내를 바로 받을 수 있도록 기기 기준으로 관리합니다.
+                  </p>
 </div>
+</div>
+<div class="gnb-info-grid">
+<div class="gnb-info-item">
+<div class="gnb-info-icon">
+<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/notification.svg"/>
+</div>
+<div class="gnb-info-copy">
+<strong>
+                      푸시 알림 상태
+                    </strong>
+<p id="gnbPushStatusText">
+                      현재 브라우저의 알림 수신 상태를 확인하고 있습니다.
+                    </p>
+</div>
+</div>
+</div>
+<div class="gnb-action-grid" style="margin-top:12px;">
+<button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
+<span>
+                    푸시 알림 꺼짐
+                  </span>
+<span class="desc">
+                    이 기기 등록
+                  </span>
+</button>
+<button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
+<span>
+                    푸시 알림 켜짐
+                  </span>
+<span class="desc">
+                    이 기기 해제
+                  </span>
+</button>
+</div>
+</div>
+<div class="gnb-settings-section gnb-account-actions-section">
 <div class="gnb-action-grid gnb-account-action-grid">
 <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
 <span>

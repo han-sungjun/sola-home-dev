@@ -42,7 +42,7 @@
 
           var actions = makeEl('<div class="gnb-summary-actions"></div>');
           if(pill) actions.appendChild(pill);
-          var openBtn = makeEl('<button class="gnb-manage-open-btn" id="openGnbAccountManageBtn" type="button"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/shield-check.svg"><span>계정 관리</span></button>');
+          var openBtn = makeEl('<button class="gnb-manage-open-btn" id="openGnbAccountManageBtn" type="button"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/shield-check.svg"><span>설정 모음</span></button>');
           actions.appendChild(openBtn);
           header.appendChild(actions);
 
@@ -52,12 +52,12 @@
                 <div class="gnb-management-head">\
                   <div>\
                     <span class="gnb-management-kicker">설정</span>\
-                    <h3 id="gnbAccountManageTitle">계정 관리</h3>\
-                    <p>알림, 계정 정보, 보안, 삭제를 한 화면에서 관리합니다.</p>\
+                    <h3 id="gnbAccountManageTitle">설정 모음</h3>\
+                    <p>알림, 글자 크기, 하단 네비바, 계정 설정을 한 화면에서 관리합니다.</p>\
                   </div>\
-                  <button class="gnb-manage-close" type="button" aria-label="계정 관리 닫기">✕</button>\
+                  <button class="gnb-manage-close" type="button" aria-label="설정 모음 닫기">✕</button>\
                 </div>\
-                <div class="gnb-management-body gnb-account-unified-body" aria-label="계정 관리 항목">\
+                <div class="gnb-management-body gnb-account-unified-body" aria-label="설정 모음 항목">\
                   <section class="gnb-account-unified-section" id="gnbAccountNoticeSlot"></section>\
                   <section class="gnb-account-unified-section" id="gnbAccountMainSlot"></section>\
                   <section class="gnb-account-unified-section gnb-account-delete-section" id="gnbAccountDeleteSlot"></section>\
@@ -76,17 +76,23 @@
           }
 
           var noticeSection = closestSection('#gnbEnablePushBtn');
+          var fontSection = qs('#fontSizeSettingsSection');
+          var bottomNavSection = qs('#userBottomNavSettingsSection');
           var accountSection = closestSection('#openAccountEditBtn');
           var deleteSection = closestSection('#withdrawBtn');
 
-          setSectionCopy(noticeSection, '알림 관리', '이 기기의 알림 수신 상태만 간단하게 관리합니다.');
-          setSectionCopy(accountSection, '계정 관리', '계정 정보, 비밀번호, 나가기와 삭제를 한곳에서 관리합니다.');
+          setSectionCopy(noticeSection, '푸시 알림', '공지와 주요 안내를 이 기기에서 받을지 설정합니다.');
+          setSectionCopy(accountSection, '계정 설정', '계정 정보, 비밀번호, 나가기와 삭제를 한곳에서 관리합니다.');
 
-          // 계정 관리 팝업은 정보성 설명이 과해지지 않도록 액션 중심으로 정리합니다.
+          // 설정 모음 팝업은 GNB 안에 흩어진 개인 설정을 한 곳으로 모읍니다.
           if(noticeSection){
-            qsa('.gnb-info-grid, .gnb-info-item', noticeSection).forEach(function(el){ el.remove(); });
-            qsa('.desc', noticeSection).forEach(function(el){ el.remove(); });
             qs('#gnbAccountNoticeSlot', modalPanel).appendChild(noticeSection);
+          }
+          if(fontSection){
+            qs('#gnbAccountNoticeSlot', modalPanel).appendChild(fontSection);
+          }
+          if(bottomNavSection){
+            qs('#gnbAccountNoticeSlot', modalPanel).appendChild(bottomNavSection);
           }
           if(accountSection){
             qsa('.gnb-info-grid, .gnb-info-item', accountSection).forEach(function(el){ el.remove(); });
@@ -114,7 +120,7 @@
 
           qs('.gnb-manage-close', modalPanel).addEventListener('click', closeManageModal);
           openBtn.addEventListener('click', function(){
-            openManageModal(modalPanel, null, '.gnb-manage-close, #gnbEnablePushBtn, #openAccountEditBtn');
+            openManageModal(modalPanel, null, '.gnb-manage-close, #gnbEnablePushBtn, #gnbDisablePushBtn, .font-size-option, #openAccountEditBtn');
           });
         }
         function initOperationManageModal(){

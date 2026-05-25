@@ -1328,7 +1328,6 @@ function setPushStatusUi(enabled){
  const gnbStatusText = qs('#gnbPushStatusText');
  const gnbEnableBtn = qs('#gnbEnablePushBtn');
  const gnbDisableBtn = qs('#gnbDisablePushBtn');
- const gnbToggleBtn = qs('#gnbPushToggleBtn');
 
  state.isPushEnabledForThisDevice = !!enabled;
 
@@ -1345,20 +1344,27 @@ function setPushStatusUi(enabled){
 
  if(gnbStatusPill){
  gnbStatusPill.textContent = enabled ? '푸시 알림 켜짐' : '푸시 알림 꺼짐';
- }
- if(gnbToggleBtn){
- gnbToggleBtn.classList.toggle('is-off', !enabled);
- gnbToggleBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
- gnbToggleBtn.setAttribute('aria-label', enabled ? '푸시 알림 해제' : '푸시 알림 설정');
- gnbToggleBtn.title = enabled ? '클릭하면 현재 기기 알림을 해제합니다.' : '클릭하면 현재 기기 알림을 설정합니다.';
+ gnbStatusPill.style.background = enabled ? '#eff6ff' : '#f8fafc';
+ gnbStatusPill.style.color = enabled ? '#1d4ed8' : '#475569';
+ gnbStatusPill.style.borderColor = enabled ? '#bfdbfe' : '#e2e8f0';
  }
  if(gnbStatusText){
  gnbStatusText.textContent = enabled
  ? '현재 브라우저에서 공지와 주요 안내를 바로 받을 수 있습니다.'
- : '아직 이 기기는 등록되지 않았습니다. 알림 받기를 눌러 등록해 주세요.';
+ : '아직 이 기기는 등록되지 않았습니다. 버튼을 눌러 알림을 켤 수 있습니다.';
  }
- if(gnbEnableBtn) gnbEnableBtn.classList.toggle('hidden', !!enabled);
- if(gnbDisableBtn) gnbDisableBtn.classList.toggle('hidden', !enabled);
+ if(gnbEnableBtn){
+   gnbEnableBtn.classList.toggle('hidden', !!enabled);
+   const label = gnbEnableBtn.querySelector('span:not(.desc)') || gnbEnableBtn;
+   label.textContent = '푸시 알림 꺼짐';
+   gnbEnableBtn.setAttribute('aria-label','푸시 알림 켜기');
+ }
+ if(gnbDisableBtn){
+   gnbDisableBtn.classList.toggle('hidden', !enabled);
+   const label = gnbDisableBtn.querySelector('span:not(.desc)') || gnbDisableBtn;
+   label.textContent = '푸시 알림 켜짐';
+   gnbDisableBtn.setAttribute('aria-label','푸시 알림 끄기');
+ }
  }
 
  function saveCurrentViewScroll(){
@@ -13827,7 +13833,7 @@ document.addEventListener('keydown', (event) => {
  qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
  qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
  qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
- qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications); qs('#gnbPushToggleBtn')?.addEventListener('click', () => state.isPushEnabledForThisDevice ? disablePushNotifications() : enablePushNotifications());
+ qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
  qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
  qs('#openPasswordChangeBtn')?.addEventListener('click', openPasswordChangeModal);
  qs('#closePasswordChangeModal')?.addEventListener('click', closePasswordChangeModal);

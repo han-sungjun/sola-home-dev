@@ -25315,161 +25315,57 @@ body.env-dev [id$="EnvBadge"] {
   .gnb-account-action-grid .account-edit-trigger{min-height:44px!important;}
 }
 
-
-/* ===== v21: 설정 모음 통합 + 푸시 토글 + 계정/입주민 카드 정리 ===== */
-.gnb-settings-wrap{
-  gap:14px!important;
+/* ===== v22: GNB 설정 버튼 + 설정 모음 팝업 재정리 ===== */
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-info-grid,
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-info-item{
+  display:grid!important;
 }
-#gnbSettingsAccountSummary .gnb-settings-section-header{
-  align-items:flex-start!important;
-  gap:12px!important;
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-info-grid{
+  margin-top:0!important;
+  gap:10px!important;
 }
-.gnb-push-toggle{
-  border:1px solid #bfdbfe;
-  background:#eff6ff;
-  color:#1d4ed8;
-  border-radius:999px;
-  padding:6px 7px 6px 12px;
-  display:inline-flex;
-  align-items:center;
-  gap:9px;
-  min-height:36px;
-  font-weight:900;
-  font-size:12px;
-  letter-spacing:-.03em;
-  cursor:pointer;
-  white-space:nowrap;
-  box-shadow:0 8px 18px rgba(37,99,235,.10);
-  transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
-}
-.gnb-push-toggle:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(37,99,235,.14);}
-.gnb-push-toggle:focus-visible{outline:3px solid rgba(37,99,235,.24);outline-offset:3px;}
-.gnb-push-toggle .gnb-push-toggle-switch{
-  width:34px;
-  height:20px;
-  border-radius:999px;
-  background:#2563eb;
-  position:relative;
-  flex:0 0 auto;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.24);
-}
-.gnb-push-toggle .gnb-push-toggle-switch i{
-  position:absolute;
-  width:16px;
-  height:16px;
-  border-radius:50%;
-  top:2px;
-  right:2px;
-  background:#fff;
-  box-shadow:0 2px 6px rgba(15,23,42,.22);
-  transition:left .18s ease,right .18s ease,transform .18s ease;
-}
-.gnb-push-toggle.is-off{
-  background:#f8fafc;
-  color:#475569;
-  border-color:#e2e8f0;
-  box-shadow:none;
-}
-.gnb-push-toggle.is-off .gnb-push-toggle-switch{background:#cbd5e1;}
-.gnb-push-toggle.is-off .gnb-push-toggle-switch i{right:16px;}
-#gnbSettingsAccountSummary .gnb-account-card{
-  border:1px solid rgba(191,219,254,.88)!important;
-  background:linear-gradient(135deg,#ffffff 0%,#eff6ff 100%)!important;
-  border-radius:20px!important;
-  padding:14px!important;
-  box-shadow:0 14px 30px rgba(37,99,235,.08)!important;
-}
-#gnbSettingsAccountSummary .gnb-account-card.role-resident{
-  border-color:rgba(191,219,254,.95)!important;
-  background:linear-gradient(135deg,#fff 0%,#f0f7ff 58%,#eaf3ff 100%)!important;
-}
-#gnbSettingsAccountSummary .gnb-account-card.role-admin{
-  border-color:rgba(251,191,36,.65)!important;
-  background:linear-gradient(135deg,#fff 0%,#fffbeb 58%,#fff7d6 100%)!important;
-}
-#gnbSettingsAccountSummary .gnb-account-card.role-root{
-  border-color:rgba(30,64,175,.42)!important;
-  background:linear-gradient(135deg,#ffffff 0%,#eef2ff 56%,#dbeafe 100%)!important;
-}
-#gnbSettingsAccountSummary .gnb-account-avatar{
-  width:46px!important;
-  height:46px!important;
-  border-radius:17px!important;
-  background:#fff!important;
-  border:1px solid rgba(191,219,254,.82)!important;
-  box-shadow:0 10px 22px rgba(37,99,235,.10)!important;
-}
-#gnbSettingsAccountSummary .gnb-account-name{
-  font-size:16px!important;
-  font-weight:950!important;
-  letter-spacing:-.04em!important;
-  color:#0f172a!important;
-}
-#gnbSettingsAccountSummary .gnb-account-sub{
-  display:inline-flex!important;
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-info-item{
+  grid-template-columns:auto 1fr!important;
   align-items:center!important;
-  width:max-content!important;
-  margin-top:5px!important;
-  padding:4px 9px!important;
-  border-radius:999px!important;
-  background:#eaf2ff!important;
-  color:#1d4ed8!important;
-  font-size:11px!important;
-  font-weight:900!important;
-  line-height:1.2!important;
 }
-.gnb-account-actions-section .gnb-settings-section-header.compact{
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid{
+  grid-template-columns:1fr!important;
+  margin-top:10px!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid > button{
+  width:100%!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid > button.hidden{
+  display:none!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot .gnb-action-grid .desc{
+  display:none!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot #gnbEnablePushBtn,
+.gnb-account-dialog--unified #gnbAccountNoticeSlot #gnbDisablePushBtn{
+  min-height:50px!important;
+  border-radius:18px!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot #gnbEnablePushBtn{
+  background:linear-gradient(180deg,#f8fafc,#f1f5f9)!important;
+  border-color:#dbe4ef!important;
+  color:#475569!important;
+}
+.gnb-account-dialog--unified #gnbAccountNoticeSlot #gnbDisablePushBtn{
+  background:linear-gradient(180deg,#eff6ff,#eaf2ff)!important;
+  border-color:#bfdbfe!important;
+  color:#1d4ed8!important;
+}
+.gnb-account-dialog--unified #fontSizeSettingsSection,
+.gnb-account-dialog--unified #userBottomNavSettingsSection{
+  margin-top:12px!important;
+}
+.gnb-account-dialog--unified #fontSizeSettingsSection .gnb-settings-section-header,
+.gnb-account-dialog--unified #userBottomNavSettingsSection .gnb-settings-section-header{
   margin-bottom:10px!important;
 }
-.gnb-account-action-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:10px!important;
-  margin-top:0!important;
-}
-.gnb-account-action-grid .gnb-action-btn,
-.gnb-account-action-grid .account-edit-trigger{
-  min-height:50px!important;
-  justify-content:center!important;
-  text-align:center!important;
-  padding:10px 8px!important;
-}
-.gnb-account-action-grid .gnb-action-btn span,
-.gnb-account-action-grid .account-edit-trigger span{
-  justify-content:center!important;
-  text-align:center!important;
-}
-.gnb-account-action-grid .logout-action{
-  background:#f8fafc!important;
-  border-color:#cbd5e1!important;
-  color:#334155!important;
-}
-.gnb-account-action-grid .withdraw-action{
-  background:#fff1f2!important;
-  border-color:#fecdd3!important;
-  color:#be123c!important;
-}
-.gnb-policy-section .gnb-policy-kicker{
-  font-size:17px!important;
-  font-weight:950!important;
-  line-height:1.25!important;
+.gnb-account-dialog--unified .gnb-management-head h3#gnbAccountManageTitle{
   letter-spacing:-.04em!important;
-  color:#0f172a!important;
-  margin-bottom:12px!important;
-}
-@media (max-width:520px){
-  #gnbSettingsAccountSummary .gnb-settings-section-header{
-    flex-direction:column!important;
-    align-items:stretch!important;
-  }
-  .gnb-push-toggle{
-    width:100%;
-    justify-content:space-between;
-    min-height:40px;
-  }
-  .gnb-account-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-  .gnb-account-action-grid .gnb-action-btn,
-  .gnb-account-action-grid .account-edit-trigger{
-    min-height:48px!important;
-    font-size:13px!important;
-  }
 }
