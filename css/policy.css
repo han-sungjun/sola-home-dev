@@ -1362,3 +1362,38 @@ html.env-dev .policy-env-badge,
 body.env-dev .policy-env-badge {
   display: inline-flex !important;
 }
+
+
+
+/* v88: 정책/가이드 DEV 배지 pill 스타일 통일 */
+.policy-hero-card .policy-badge-row .policy-env-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 14px !important;
+  gap: 8px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .38) !important;
+  background: rgba(255, 255, 255, .16) !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: .02em !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .18),
+    0 10px 24px rgba(2, 8, 23, .12) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.policy-hero-card .policy-badge-row .policy-env-badge .env-badge-dot {
+  width: 8px !important;
+  height: 8px !important;
+  min-width: 8px !important;
+  border-radius: 999px !important;
+  display: inline-block !important;
+  background: #75a7ff !important;
+  box-shadow:
+    0 0 0 4px rgba(117, 167, 255, .22),
+    0 0 14px rgba(117, 167, 255, .7) !important;
+}
