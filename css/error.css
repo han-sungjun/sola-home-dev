@@ -545,3 +545,52 @@
   gap: 12px !important;
   width: 100% !important;
 }
+
+
+
+/* v76: 공개앱 홈 Hero 배지 행 통합 및 DEV 배지 absolute 해제 */
+#upickGlobalHero .hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
+
+#upickGlobalHero .hero-badge-row .eyebrow,
+#upickGlobalHero .hero-badge-row .env-badge,
+#upickGlobalHero .hero-badge-row .hero-env,
+#upickGlobalHero .hero-badge-row #globalEnvBadge {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+#upickGlobalHero .hero-badge-row .env-badge,
+#upickGlobalHero .hero-badge-row .hero-env,
+#upickGlobalHero .hero-badge-row #globalEnvBadge {
+  flex: 0 0 auto !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  white-space: nowrap !important;
+}
