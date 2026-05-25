@@ -90,3 +90,13 @@
 
 /* v69: remove inner hero symbol watermark area; keep page hero clean like entrance/account pages */
 .policy-hero-card::after{display:none!important;content:none!important;background:none!important;}
+
+/* v70: remove outer hero decorative glass card behind the close icon */
+.upick-policy-hero-shell::after{
+  display:none!important;
+  content:none!important;
+  width:0!important;
+  height:0!important;
+  background:none!important;
+  box-shadow:none!important;
+}
