@@ -1915,3 +1915,45 @@ img.brand-icon[src*="home.svg"],
 .auth-hero .hero-meta-row {
   align-items: center !important;
 }
+
+
+
+/* v74: Hero 보조 배지와 DEV 배지를 하나의 행으로 통합 */
+.hero-badge-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-bottom: 18px !important;
+}
+
+.hero-badge-row .eyebrow,
+.hero-badge-row .env-badge,
+.hero-badge-row .hero-env,
+.hero-badge-row .dev-env,
+.hero-badge-row .dev-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  transform: none !important;
+  align-self: center !important;
+}
+
+.hero-badge-row .eyebrow {
+  flex: 0 1 auto !important;
+}
+
+.hero-badge-row .env-badge,
+.hero-badge-row .hero-env,
+.hero-badge-row .dev-env,
+.hero-badge-row .dev-badge {
+  flex: 0 0 auto !important;
+  padding: 0 14px !important;
+  white-space: nowrap !important;
+}
