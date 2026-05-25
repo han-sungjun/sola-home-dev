@@ -24291,7 +24291,7 @@ body.env-dev [id$="EnvBadge"] {
     border-radius:20px;
   }
   .gnb-operation-action-grid{
-    grid-template-columns:1fr;
+    grid-template-columns:1fr 1fr;
   }
 }
 
@@ -25462,6 +25462,40 @@ body.env-dev [id$="EnvBadge"] {
   .gnb-status-pill--button,
   .gnb-summary-settings-btn{
     min-height:46px!important;
+    font-size:13px!important;
+  }
+}
+
+
+/* ===== 2026-05-25 운영 관리 모바일 버튼 정렬 보정 ===== */
+.gnb-operation-dialog--unified .gnb-operation-action-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.gnb-operation-dialog--unified .gnb-root-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.gnb-operation-dialog--unified .gnb-action-btn .desc{
+  display:none!important;
+}
+.gnb-operation-dialog--unified .gnb-action-btn,
+.gnb-operation-dialog--unified .gnb-menu-item{
+  justify-content:center!important;
+  text-align:center!important;
+  padding-left:12px!important;
+  padding-right:12px!important;
+}
+.gnb-operation-dialog--unified .gnb-action-btn > span:first-child{
+  width:100%;
+  text-align:center;
+}
+@media (max-width:370px){
+  .gnb-operation-dialog--unified .gnb-operation-action-grid,
+  .gnb-operation-dialog--unified .gnb-root-actions{
+    gap:8px!important;
+  }
+  .gnb-operation-dialog--unified .gnb-action-btn,
+  .gnb-operation-dialog--unified .gnb-menu-item{
+    min-height:50px!important;
     font-size:13px!important;
   }
 }
