@@ -5129,11 +5129,11 @@ img.brand-icon[src*="home.svg"],
 
 
 /* v20260520 정부지원금 종류별 유효기간 행 입력 */
-.support-program-rows{display:grid;gap:10px;margin-top:10px;}
-.support-program-row{display:grid;grid-template-columns:minmax(180px,1.25fr) minmax(156px,.85fr) minmax(156px,.85fr) auto;gap:8px;align-items:end;padding:10px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
+.support-program-rows{display:grid;gap:10px;margin-top:10px;max-width:100%;overflow:visible;}
+.support-program-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.82fr) minmax(145px,.82fr) 46px;gap:6px;align-items:end;max-width:100%;box-sizing:border-box;padding:8px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
 .support-program-row .sub-field-label{display:block;margin:0 0 6px;font-size:12px;font-weight:900;color:#64748b;}
 .support-program-row input{width:100%;min-width:0;box-sizing:border-box;}
-.support-program-row input[type="date"]{font-size:14px;padding-left:12px;padding-right:8px;letter-spacing:-.02em;}
+.support-program-row input[type="date"]{font-size:14px;padding-left:10px;padding-right:6px;letter-spacing:-.03em;}
 .support-program-name-input{
   -webkit-appearance:none;
   appearance:none;
@@ -5145,15 +5145,18 @@ img.brand-icon[src*="home.svg"],
   opacity:0;
 }
 
-.support-program-remove-btn{height:40px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:12px;font-weight:900;padding:0 10px;cursor:pointer;}
+.support-program-remove-btn{width:46px;height:48px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:12px;font-weight:900;padding:0;cursor:pointer;line-height:1.15;white-space:normal;display:inline-flex;align-items:center;justify-content:center;text-align:center;}
 .support-program-add-btn{margin-top:10px;width:100%;justify-content:center;}
 .support-program-chip em{font-style:normal;font-weight:800;opacity:.78;margin-left:2px;}
 .support-program-chip.scheduled{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
 .support-program-chip.expired{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
 @media (max-width:900px){
+  .support-program-row{grid-template-columns:minmax(0,1fr) minmax(145px,.9fr) minmax(145px,.9fr) 46px;}
+}
+@media (max-width:560px){
   .support-program-row{grid-template-columns:1fr 1fr;}
   .support-program-name-cell{grid-column:1 / -1;}
-  .support-program-remove-btn{grid-column:1 / -1;width:100%;}
+  .support-program-remove-btn{grid-column:1 / -1;width:100%;height:40px;white-space:nowrap;}
 }
 @media (max-width:420px){
   .support-program-row{grid-template-columns:1fr;}
