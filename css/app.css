@@ -25124,9 +25124,9 @@ body.env-dev [id$="EnvBadge"] {
 /* ===== v17: GNB recent/popular compact density tuning ===== */
 #gnbRecentMenus .gnb-chip,
 #gnbPopularMenus .gnb-chip{
-  min-height:98px!important;
-  padding:13px 12px 11px!important;
-  gap:5px!important;
+  min-height:90px!important;
+  padding:11px 12px 9px!important;
+  gap:4px!important;
 }
 #gnbRecentMenus .gnb-chip .gnb-menu-label,
 #gnbPopularMenus .gnb-chip .gnb-menu-label{
@@ -25146,9 +25146,9 @@ body.env-dev [id$="EnvBadge"] {
 @media (max-width:520px){
   #gnbRecentMenus .gnb-chip,
   #gnbPopularMenus .gnb-chip{
-    min-height:100px!important;
-    padding:13px 9px 10px!important;
-    gap:5px!important;
+    min-height:88px!important;
+    padding:11px 9px 8px!important;
+    gap:4px!important;
   }
   #gnbRecentMenus .gnb-chip .gnb-menu-label,
   #gnbPopularMenus .gnb-chip .gnb-menu-label{
@@ -25174,8 +25174,9 @@ body.env-dev [id$="EnvBadge"] {
   #gnbRecentMenus .gnb-chip .gnb-menu-date,
   #gnbPopularMenus .gnb-chip .gnb-menu-count{
     margin-left:26px!important;
-    font-size:10.5px!important;
-    min-height:11px!important;
+    font-size:10.2px!important;
+    min-height:10px!important;
+    line-height:1!important;
   }
   #gnbRecentMenus .gnb-recent-badge,
   #gnbPopularMenus .gnb-rank-badge{
@@ -25186,8 +25187,8 @@ body.env-dev [id$="EnvBadge"] {
 @media (max-width:390px){
   #gnbRecentMenus .gnb-chip,
   #gnbPopularMenus .gnb-chip{
-    min-height:96px!important;
-    padding:12px 8px 10px!important;
+    min-height:86px!important;
+    padding:10px 8px 8px!important;
   }
   #gnbRecentMenus .gnb-chip .gnb-menu-date,
   #gnbPopularMenus .gnb-chip .gnb-menu-count{
