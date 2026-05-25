@@ -12856,7 +12856,8 @@ async function loadGnbMenusFromDb(){
 
  function getGnbMenuRankBadge(rank){
   const n = Number(rank || 0);
-  return n === 1 ? '<span class="gnb-rank-badge rank-1">1위</span>' : '';
+  if(![1,2,3].includes(n)) return '';
+  return `<span class="gnb-rank-badge rank-${n}">${n}위</span>`;
  }
 
  function getGnbRecentBadge(rank){
@@ -13455,9 +13456,8 @@ function renderUserBottomNavSettings(){
   picker.innerHTML = candidates.length ? candidates.map(menu => {
     const active = userBottomNavSelectedMenus.includes(menu.menuId);
     const disabled = !active && userBottomNavSelectedMenus.length >= 3;
-    return `<button type="button" class="user-bottom-nav-pick ${active?'active':''} ${disabled?'disabled':''}" data-user-bottom-pick="${escapeHtml(menu.menuId)}">
+    return `<button type="button" class="user-bottom-nav-pick ${active?'active':''} ${disabled?'disabled':''}" data-user-bottom-pick="${escapeHtml(menu.menuId)}" aria-pressed="${active ? 'true' : 'false'}">
       <span>${renderAnyMenuIcon(menu)} ${escapeHtml(menu.name || menu.menuId)}</span>
-      <small>${active?'선택됨':'선택'}</small>
     </button>`;
   }).join('') : '<div class="notice">선택 가능한 메뉴가 없습니다.</div>';
 
