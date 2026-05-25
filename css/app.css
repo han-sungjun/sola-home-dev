@@ -25542,3 +25542,109 @@ select:not(.sr-only-filter)::-ms-expand{display:none;}
 .calendar-field select,
 .community-write-form select,
 .distance-select-wrap select{padding-right:46px !important;}
+
+/* ===== v27: GNB 검색/개인화 배너/AI 질문 영역 입력 UX 보정 ===== */
+.gnb-search-box{
+  position:relative!important;
+  width:100%!important;
+  min-height:52px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:#f8fbff!important;
+  border-color:rgba(147,197,253,.55)!important;
+  cursor:text!important;
+}
+.gnb-search-box::before{
+  position:absolute!important;
+  left:16px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:2!important;
+  pointer-events:none!important;
+}
+.gnb-search-box input{
+  display:block!important;
+  width:100%!important;
+  height:52px!important;
+  min-height:52px!important;
+  padding:0 16px 0 46px!important;
+  margin:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#0f172a!important;
+  font-weight:900!important;
+  border-radius:20px!important;
+}
+.gnb-search-box input:focus,
+.gnb-search-box:focus-within{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10)!important;
+}
+.gnb-search-box input:-webkit-autofill,
+.gnb-search-box input:-webkit-autofill:hover,
+.gnb-search-box input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px transparent inset!important;
+  transition:background-color 9999s ease-out 0s!important;
+}
+.gnb-personal-banner{
+  min-height:54px!important;
+  padding:0 12px!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) 36px!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.gnb-personal-banner .gnb-banner-arrow{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  border-radius:14px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin-left:auto!important;
+  background:#ffffff!important;
+  border:1px solid rgba(191,219,254,.9)!important;
+  color:#1d4ed8!important;
+  font-size:0!important;
+  line-height:1!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.08)!important;
+}
+.gnb-personal-banner .gnb-banner-arrow::before{
+  content:''!important;
+  width:8px!important;
+  height:8px!important;
+  border-top:2px solid currentColor!important;
+  border-right:2px solid currentColor!important;
+  transform:rotate(45deg)!important;
+  margin-left:-2px!important;
+}
+.gnb-personal-banner:hover .gnb-banner-arrow,
+.gnb-personal-banner:focus-visible .gnb-banner-arrow{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+}
+.ai-composer-row{
+  background:linear-gradient(180deg,#f8fbff 0%,#eef6ff 100%)!important;
+  border-color:rgba(147,197,253,.62)!important;
+}
+.ai-composer-row #aiQuestionInput{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.ai-composer-row:focus-within{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10),0 14px 30px rgba(15,23,42,.07)!important;
+}
+.ai-composer-row .ai-composer-icon{
+  background:#f8fbff!important;
+  border-color:#dbeafe!important;
+}
+.ai-composer-row #aiAskBtn,
+.ai-composer-row .ai-send-btn{
+  box-shadow:0 10px 22px rgba(37,99,235,.16)!important;
+}
