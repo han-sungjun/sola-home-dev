@@ -124,19 +124,8 @@
 })();
 </script>
 
-<script data-policy-env-detect-v86>
-  (function () {
-    var host = (location.hostname || "").toLowerCase();
-    var isDev =
-      host.includes("dev") ||
-      host.includes("localhost") ||
-      host === "127.0.0.1" ||
-      host === "0.0.0.0";
 
-    document.documentElement.classList.toggle("env-dev", isDev);
-    document.body && document.body.classList.toggle("env-dev", isDev);
-  })();
-</script>
 
+  <script defer src="/common/policy-env-detect.js"></script>
 </body>
 </html>
