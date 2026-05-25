@@ -5130,9 +5130,10 @@ img.brand-icon[src*="home.svg"],
 
 /* v20260520 정부지원금 종류별 유효기간 행 입력 */
 .support-program-rows{display:grid;gap:10px;margin-top:10px;}
-.support-program-row{display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(130px,.8fr) minmax(130px,.8fr) auto;gap:8px;align-items:end;padding:10px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
+.support-program-row{display:grid;grid-template-columns:minmax(180px,1.25fr) minmax(156px,.85fr) minmax(156px,.85fr) auto;gap:8px;align-items:end;padding:10px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
 .support-program-row .sub-field-label{display:block;margin:0 0 6px;font-size:12px;font-weight:900;color:#64748b;}
-.support-program-row input{width:100%;}
+.support-program-row input{width:100%;min-width:0;box-sizing:border-box;}
+.support-program-row input[type="date"]{font-size:14px;padding-left:12px;padding-right:8px;letter-spacing:-.02em;}
 .support-program-name-input{
   -webkit-appearance:none;
   appearance:none;
@@ -5149,7 +5150,15 @@ img.brand-icon[src*="home.svg"],
 .support-program-chip em{font-style:normal;font-weight:800;opacity:.78;margin-left:2px;}
 .support-program-chip.scheduled{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
 .support-program-chip.expired{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
-@media (max-width:720px){.support-program-row{grid-template-columns:1fr;}.support-program-remove-btn{width:100%;}}
+@media (max-width:900px){
+  .support-program-row{grid-template-columns:1fr 1fr;}
+  .support-program-name-cell{grid-column:1 / -1;}
+  .support-program-remove-btn{grid-column:1 / -1;width:100%;}
+}
+@media (max-width:420px){
+  .support-program-row{grid-template-columns:1fr;}
+  .support-program-name-cell,.support-program-remove-btn{grid-column:auto;}
+}
 
 
 /* ===== v60 혜택 상세 추가 사진 관리자 UI ===== */
