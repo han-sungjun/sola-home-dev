@@ -1464,7 +1464,7 @@ body.env-dev [id$="EnvBadge"] {
 
 
 
-/* v94: DEV 배지는 개발계에서만 생성/표시, 운영계는 DOM 제거 대상 */
+/* v95: DEV 배지는 개발계에서만 표시, 운영계 정적 배지는 JS에서 제거 */
 .env-badge,
 .hero-env,
 .dev-badge,
