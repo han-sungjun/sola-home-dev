@@ -24605,3 +24605,92 @@ body.env-dev [id$="EnvBadge"] {
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
+
+/* ===== v13: GNB popular menu rank cards like dashboard mockup ===== */
+#gnbPopularMenus .gnb-chip{
+  position:relative!important;
+  min-height:88px!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#gnbPopularMenus .gnb-chip .gnb-menu-label{
+  width:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:7px!important;
+}
+#gnbPopularMenus .gnb-chip .gnb-menu-mainline,
+#gnbRecentMenus .gnb-chip .gnb-menu-mainline{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0!important;
+}
+#gnbPopularMenus .gnb-chip .gnb-menu-name,
+#gnbRecentMenus .gnb-chip .gnb-menu-name{
+  font-weight:900!important;
+  color:#0f172a!important;
+  letter-spacing:-.035em!important;
+  white-space:nowrap!important;
+}
+#gnbPopularMenus .gnb-chip .gnb-menu-count{
+  display:block!important;
+  margin-left:32px!important;
+  margin-top:0!important;
+  font-size:13px!important;
+  line-height:1.1!important;
+  color:#64748b!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+#gnbPopularMenus .gnb-rank-badge{
+  position:absolute!important;
+  right:12px!important;
+  top:12px!important;
+  min-width:38px!important;
+  height:28px!important;
+  padding:0 10px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:13px!important;
+  font-weight:950!important;
+  letter-spacing:-.03em!important;
+  background:#fff7df!important;
+  color:#d97706!important;
+  border:1px solid rgba(251,191,36,.55)!important;
+  box-shadow:0 8px 18px rgba(217,119,6,.08)!important;
+}
+#gnbPopularMenus .gnb-popular-rank-1{
+  background:linear-gradient(135deg,#fffaf0 0%,#fff7df 100%)!important;
+  border-color:rgba(251,191,36,.45)!important;
+}
+#gnbPopularMenus .gnb-popular-rank-2{
+  background:linear-gradient(135deg,#f8fbff 0%,#eef6ff 100%)!important;
+  border-color:rgba(147,197,253,.45)!important;
+}
+#gnbPopularMenus .gnb-popular-rank-3{
+  background:linear-gradient(135deg,#fbfff7 0%,#f0fdf4 100%)!important;
+  border-color:rgba(134,239,172,.42)!important;
+}
+#gnbRecentMenus .gnb-chip{
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+}
+#gnbRecentMenus .gnb-chip .gnb-menu-label{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:7px!important;
+}
+@media (max-width:520px){
+  #gnbPopularMenus .gnb-chip{ min-height:84px!important; padding:14px 12px!important; }
+  #gnbPopularMenus .gnb-rank-badge{ right:9px!important; top:9px!important; min-width:34px!important; height:26px!important; font-size:12px!important; }
+  #gnbPopularMenus .gnb-chip .gnb-menu-count{ margin-left:30px!important; font-size:12px!important; }
+}

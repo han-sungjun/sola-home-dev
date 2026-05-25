@@ -12850,7 +12850,13 @@ async function loadGnbMenusFromDb(){
  function formatGnbMenuCount(value){
   const n = Number(value || 0);
   if(!Number.isFinite(n) || n <= 0) return '';
+  // 1,000건 이상도 천 단위 기호를 포함해서 항상 하단에 표시합니다.
   return `${n.toLocaleString('ko-KR')}회`;
+ }
+
+ function getGnbMenuRankBadge(rank){
+  const n = Number(rank || 0);
+  return n === 1 ? '<span class="gnb-rank-badge rank-1">1위</span>' : '';
  }
 
  function syncGnbPersonalBanner(preferred){
@@ -12880,8 +12886,11 @@ async function loadGnbMenusFromDb(){
  }
 
  function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
-  const label = `<span class="gnb-menu-label"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span> ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
-  return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
+  const rank = Number(menu?.__gnbRank || 0);
+  const rankClass = mode === 'popular' && rank ? ` gnb-popular-rank gnb-popular-rank-${rank}` : '';
+  const rankBadge = mode === 'popular' ? getGnbMenuRankBadge(rank) : '';
+  const label = `<span class="gnb-menu-label"><span class="gnb-menu-mainline"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span><span class="gnb-menu-name">${escapeHtml(menu.name || '')}</span></span>${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>${rankBadge}`;
+  return `<button class="${className}${rankClass}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
  }
  function renderDynamicGnbMenus(){
   const newMenus = gnbMenuCache.filter(m => m.sections.includes('new'));
@@ -13194,7 +13203,7 @@ async function trackGnbMenuVisitByView(view){
   const el = qs('#gnbPopularMenus'); if(!el || !db) return;
   try{
    const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
-   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,3);
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,3).map((m, index) => ({ ...m, __gnbRank: index + 1 }));
    popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
    popularGnbStatsMap = new Map(rows.map(m => [String(m.menuId), m]));
    el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', formatGnbMenuCount(m.totalClickCount||m.clickCount||0), 'popular')).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
