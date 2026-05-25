@@ -24916,3 +24916,207 @@ body.env-dev [id$="EnvBadge"] {
     padding:13px 14px!important;
   }
 }
+
+/* ===== v16: GNB mobile dashboard final polish ===== */
+#gnbRecentMenus .gnb-chip,
+#gnbPopularMenus .gnb-chip{
+  min-height:112px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+}
+#gnbRecentMenus .gnb-chip .gnb-menu-label,
+#gnbPopularMenus .gnb-chip .gnb-menu-label{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+}
+#gnbRecentMenus .gnb-chip .gnb-menu-mainline,
+#gnbPopularMenus .gnb-chip .gnb-menu-mainline{
+  padding-right:34px!important;
+}
+#gnbRecentMenus .gnb-chip .gnb-menu-date,
+#gnbPopularMenus .gnb-chip .gnb-menu-count{
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.05!important;
+  letter-spacing:-.045em!important;
+  color:#64748b!important;
+}
+#gnbRecentMenus .gnb-recent-badge,
+#gnbPopularMenus .gnb-rank-badge{
+  right:10px!important;
+  top:10px!important;
+  min-width:30px!important;
+  height:22px!important;
+  padding:0 7px!important;
+  font-size:10.5px!important;
+  line-height:1!important;
+}
+.gnb-main-menu-section .gnb-menu-sublist{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.gnb-main-menu-section .gnb-menu-subitem{
+  min-height:52px!important;
+  padding:12px 10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.gnb-main-menu-section .gnb-menu-subitem .gnb-menu-label,
+.gnb-main-menu-section .gnb-menu-subitem .gnb-menu-mainline{
+  width:auto!important;
+  display:inline-flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+}
+.gnb-main-menu-section .gnb-menu-subitem .gnb-menu-icon{
+  width:21px!important;
+  height:21px!important;
+  min-width:21px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.gnb-main-menu-section .gnb-menu-subitem .gnb-menu-icon img,
+.gnb-main-menu-section .gnb-menu-subitem .gnb-menu-icon svg,
+.gnb-main-menu-section .gnb-menu-subitem .upick-svg-icon{
+  width:21px!important;
+  height:21px!important;
+  display:block!important;
+}
+.gnb-main-menu-section .gnb-menu-subitem .gnb-menu-name{
+  font-size:14px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  letter-spacing:-.035em!important;
+  white-space:nowrap!important;
+}
+.user-bottom-nav-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:9px!important;
+}
+.user-bottom-nav-pick{
+  min-height:48px!important;
+  padding:10px 8px!important;
+}
+.user-bottom-nav-pick > span{
+  font-size:0!important;
+  gap:0!important;
+}
+.user-bottom-nav-pick .upick-svg-icon,
+.user-bottom-nav-pick img,
+.user-bottom-nav-pick svg{
+  width:21px!important;
+  height:21px!important;
+}
+@media (max-width:520px){
+  #gnbRecentMenus.gnb-chip-row,
+  #gnbPopularMenus.gnb-chip-row{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  #gnbRecentMenus .gnb-chip,
+  #gnbPopularMenus .gnb-chip{
+    min-height:116px!important;
+    padding:16px 10px 13px!important;
+  }
+  #gnbRecentMenus .gnb-chip .gnb-menu-mainline,
+  #gnbPopularMenus .gnb-chip .gnb-menu-mainline{
+    grid-template-columns:21px minmax(0,1fr)!important;
+    gap:7px!important;
+    padding-right:30px!important;
+  }
+  #gnbRecentMenus .gnb-chip .gnb-menu-name,
+  #gnbPopularMenus .gnb-chip .gnb-menu-name{
+    font-size:12px!important;
+    line-height:1.25!important;
+    letter-spacing:-.06em!important;
+    -webkit-line-clamp:2!important;
+  }
+  #gnbRecentMenus .gnb-chip .gnb-menu-date,
+  #gnbPopularMenus .gnb-chip .gnb-menu-count{
+    margin-left:28px!important;
+    font-size:10.8px!important;
+    min-height:12px!important;
+    padding-top:0!important;
+  }
+  #gnbRecentMenus .gnb-recent-badge,
+  #gnbPopularMenus .gnb-rank-badge{
+    right:8px!important;
+    top:8px!important;
+    min-width:28px!important;
+    height:20px!important;
+    padding:0 6px!important;
+    font-size:10px!important;
+  }
+  .gnb-main-menu-section .gnb-menu-sublist{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  .gnb-main-menu-section .gnb-menu-subitem{
+    min-height:50px!important;
+    padding:11px 8px!important;
+    border-radius:18px!important;
+  }
+  .gnb-main-menu-section .gnb-menu-subitem .gnb-menu-mainline{
+    gap:6px!important;
+  }
+  .gnb-main-menu-section .gnb-menu-subitem .gnb-menu-icon,
+  .gnb-main-menu-section .gnb-menu-subitem .gnb-menu-icon img,
+  .gnb-main-menu-section .gnb-menu-subitem .gnb-menu-icon svg{
+    width:19px!important;
+    height:19px!important;
+    min-width:19px!important;
+  }
+  .gnb-main-menu-section .gnb-menu-subitem .gnb-menu-name{
+    font-size:12.5px!important;
+    letter-spacing:-.055em!important;
+  }
+  .user-bottom-nav-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .user-bottom-nav-pick{
+    min-height:45px!important;
+    padding:9px 7px!important;
+    border-radius:16px!important;
+  }
+  .user-bottom-nav-pick .upick-svg-icon,
+  .user-bottom-nav-pick img,
+  .user-bottom-nav-pick svg{
+    width:20px!important;
+    height:20px!important;
+  }
+}
+@media (max-width:390px){
+  #gnbRecentMenus .gnb-chip,
+  #gnbPopularMenus .gnb-chip{
+    min-height:112px!important;
+    padding:15px 8px 12px!important;
+  }
+  #gnbRecentMenus .gnb-chip .gnb-menu-date,
+  #gnbPopularMenus .gnb-chip .gnb-menu-count{
+    margin-left:26px!important;
+    font-size:10px!important;
+    letter-spacing:-.07em!important;
+  }
+  #gnbRecentMenus .gnb-chip .gnb-menu-name,
+  #gnbPopularMenus .gnb-chip .gnb-menu-name{
+    font-size:11.5px!important;
+  }
+  .gnb-main-menu-section .gnb-menu-subitem .gnb-menu-name{
+    font-size:12px!important;
+  }
+}
