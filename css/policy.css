@@ -774,3 +774,77 @@ body{
   }
   .policy-split-body li{font-size:13.5px!important;line-height:1.7!important;}
 }
+
+/* v82: match top brand block height to home button */
+.policy-topbar{
+  align-items:center!important;
+}
+.policy-brand-card{
+  width:min(100%,300px)!important;
+  height:54px!important;
+  min-height:54px!important;
+  padding:7px 12px!important;
+  gap:9px!important;
+  border-radius:18px!important;
+}
+.policy-logo{
+  width:36px!important;
+  height:36px!important;
+  flex:0 0 36px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.policy-logo img{
+  width:32px!important;
+  height:32px!important;
+  object-fit:contain!important;
+}
+.policy-brand-copy strong{
+  font-size:22px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-.07em!important;
+}
+.policy-brand-copy em{
+  margin-top:3px!important;
+  font-size:10.5px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+.policy-home-btn{
+  width:54px!important;
+  height:54px!important;
+  flex:0 0 54px!important;
+  border-radius:18px!important;
+}
+@media(max-width:560px){
+  .policy-brand-card{
+    width:min(100%,245px)!important;
+    height:50px!important;
+    min-height:50px!important;
+    padding:6px 10px!important;
+    gap:8px!important;
+    border-radius:17px!important;
+  }
+  .policy-logo{
+    width:34px!important;
+    height:34px!important;
+    flex-basis:34px!important;
+  }
+  .policy-logo img{
+    width:30px!important;
+    height:30px!important;
+  }
+  .policy-brand-copy strong{
+    font-size:20px!important;
+  }
+  .policy-brand-copy em{
+    font-size:9.5px!important;
+  }
+  .policy-home-btn{
+    width:50px!important;
+    height:50px!important;
+    flex-basis:50px!important;
+  }
+}
