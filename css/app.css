@@ -24043,3 +24043,31 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   flex: 0 0 auto !important;
   white-space: nowrap !important;
 }
+
+
+
+/* v81: 공개앱 DEV 배지 로그인/회원가입 스타일과 통일 */
+#upickGlobalHero .hero .hero-badge-row #globalEnvBadge.hero-env {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  border-radius: 999px !important;
+}
