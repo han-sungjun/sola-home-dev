@@ -25950,18 +25950,10 @@ html body #view-benefits .filter-sticky .panel.searchbox .icon-btn#resetBtn{
 }
 
 
-/* ===== Modal open scroll position keep fix =====
-   팝업을 열 때 메인 화면을 top으로 이동시키지 않도록 body 고정 잠금 방식을 중화합니다.
-   실제 스크롤 잠금은 오버레이/dialog와 touchmove 제어로 처리하고, 닫을 때 위치 복원만 수행합니다. */
-html.upick-modal-open,
-body.upick-modal-open,
-html.upick-modal-hard-lock,
-body.upick-modal-hard-lock,
-html.modal-open,
-body.modal-open {
+/* ===== Modal scroll keep targeted fix =====
+   팝업을 열 때 메인 화면이 상단으로 튀지 않도록 body fixed/top 잠금만 해제합니다.
+   dialog 자체 위치와 내부 스크롤 구조는 유지합니다. */
+body.upick-modal-hard-lock {
     position: static !important;
     top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    width: auto !important;
 }
