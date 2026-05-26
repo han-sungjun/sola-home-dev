@@ -25890,3 +25890,19 @@ body.upick-modal-hard-lock{
   left:0!important;
   right:0!important;
 }
+
+
+/* ===== v87 modal scroll rollback: keep body scrollbar, block only outside modal events ===== */
+html.upick-modal-scroll-event-lock,
+body.upick-modal-scroll-event-lock{
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+  touch-action:auto!important;
+}
+body.upick-modal-scroll-event-lock{
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:auto!important;
+}
