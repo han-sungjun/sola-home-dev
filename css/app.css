@@ -26055,3 +26055,14 @@ body.upick-modal-hard-lock {
     opacity: 1 !important;
     transform: translate(-50%, -50%) scale(1) !important;
 }
+
+
+/* ===== Detail/notice visible jump guard =====
+   상세/공지 커스텀 모달 오픈 중에는 body fixed를 쓰지 않고, 배경 문서의 순간 스크롤 변화만 억제합니다. */
+body.upick-detail-notice-open {
+    overscroll-behavior: none !important;
+}
+body.upick-detail-notice-open #detailModal[open].upick-preserve-scroll-dialog,
+body.upick-detail-notice-open #noticeModal[open].upick-preserve-scroll-dialog {
+    contain: layout paint !important;
+}

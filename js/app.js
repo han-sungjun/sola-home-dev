@@ -8191,6 +8191,35 @@ function openDialogPreservePageScroll(dialog){
  const x = window.scrollX || window.pageXOffset || 0;
  const y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
  window.__upickModalSavedScrollY = y;
+
+ const originalScrollTo = window.scrollTo ? window.scrollTo.bind(window) : null;
+ let guardActive = true;
+ const keepScroll = () => {
+   try{
+     if(originalScrollTo) originalScrollTo(x, y);
+   }catch(_){}
+ };
+
+ // 모달 오픈 직후 짧은 시간 동안 window.scrollTo(top:0) 계열을 차단합니다.
+ // 이 구간이 사용자에게 보이는 "위로 튀었다가 복원" 현상의 핵심 구간입니다.
+ try{
+   window.scrollTo = function(){
+     if(guardActive){
+       let targetY = 0;
+       if(arguments.length === 1 && typeof arguments[0] === 'object'){
+         targetY = Number(arguments[0].top || 0);
+       }else{
+         targetY = Number(arguments[1] || 0);
+       }
+       if(targetY === 0 || Math.abs(targetY - y) > 2){
+         if(originalScrollTo) originalScrollTo(x, y);
+         return;
+       }
+     }
+     return originalScrollTo ? originalScrollTo.apply(window, arguments) : undefined;
+   };
+ }catch(_){}
+
  try{
    const active = document.activeElement;
    if(active && typeof active.blur === 'function') active.blur();
@@ -8202,8 +8231,6 @@ function openDialogPreservePageScroll(dialog){
    try{ dialog.removeAttribute('open'); }catch(__){}
  }
 
- // showModal()을 쓰지 않기 때문에 native ::backdrop이 생기지 않습니다.
- // 그래서 상세/공지 팝업 전용 커스텀 백드롭을 만들어 기존 검은 반투명 영역을 유지합니다.
  let backdrop = document.getElementById('upickDetailNoticeBackdrop');
  if(!backdrop){
    backdrop = document.createElement('div');
@@ -8215,23 +8242,13 @@ function openDialogPreservePageScroll(dialog){
  backdrop.classList.add('show');
  document.body.classList.add('upick-detail-notice-open');
 
+ // 열기 전/후 같은 프레임에서 스크롤을 고정해 순간 점프가 화면에 그려지지 않도록 합니다.
+ keepScroll();
  try{ dialog.setAttribute('open', ''); }catch(_){}
  dialog.classList.add('upick-dialog-motion','upick-motion-layer','upick-preserve-scroll-dialog');
  dialog.classList.remove('is-open','is-closing');
  dialog.setAttribute('aria-hidden','true');
-
- // open 속성 적용과 스크롤 복원 이후 레이아웃이 안정된 다음 모션을 시작합니다.
- // 바로 is-open을 붙이면 스크롤 보정/렌더링과 겹쳐 페이드인이 버벅여 보일 수 있습니다.
- requestAnimationFrame(() => {
-   requestAnimationFrame(() => {
-     setTimeout(() => {
-       if(dialog.open){
-         dialog.classList.add('is-open');
-         dialog.setAttribute('aria-hidden','false');
-       }
-     }, 36);
-   });
- });
+ keepScroll();
 
  if(!dialog.__upickPreserveCloseBound){
    dialog.__upickPreserveCloseBound = true;
@@ -8246,11 +8263,26 @@ function openDialogPreservePageScroll(dialog){
    dialog.addEventListener('close', cleanup);
    dialog.addEventListener('cancel', cleanup);
  }
- const restore = () => {
-   try{ window.scrollTo(x, y); }catch(_){}
- };
- // 오픈 페이드인과 충돌하지 않도록 스크롤 복원은 즉시 1회만 처리합니다.
- restore();
+
+ requestAnimationFrame(() => {
+   keepScroll();
+   requestAnimationFrame(() => {
+     keepScroll();
+     setTimeout(() => {
+       keepScroll();
+       if(dialog.open){
+         dialog.classList.add('is-open');
+         dialog.setAttribute('aria-hidden','false');
+       }
+       setTimeout(() => {
+         guardActive = false;
+         try{
+           if(originalScrollTo) window.scrollTo = originalScrollTo;
+         }catch(_){}
+       }, 180);
+     }, 36);
+   });
+ });
 }
 
  function openDetail(item, options = {}){
