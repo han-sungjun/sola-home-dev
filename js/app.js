@@ -2058,7 +2058,7 @@ function openAccountEditModal(){
  fillAccountEditForm();
  const modal = qs('#accountEditModal');
  if(!modal) return;
- if(modal.open) modal.close();
+ if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
  modal.showModal();
  requestAnimationFrame(() => qs('#accountNicknameInput')?.focus());
  }
@@ -2202,7 +2202,7 @@ function openPasswordChangeModal(){
   const modal = qs('#passwordChangeModal');
   if(!modal) return;
   resetPasswordChangeForm();
-  if(modal.open) modal.close();
+  if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
   modal.showModal();
   requestAnimationFrame(() => qs('#currentPasswordInput')?.focus());
 }
@@ -5779,7 +5779,7 @@ function getShareTrackingParams(){
  if(copyBtn) copyBtn.onclick = () => copyShareUrl(type, item);
 
  if(modal){
- if(modal.open) modal.close();
+ if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
  modal.showModal();
  }
  }
@@ -5839,7 +5839,7 @@ ${item.content || ''}`);
 
  body.innerHTML = noticeHtml;
  try{
- if(modal.open) modal.close();
+ if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
  openDialogPreservePageScroll(modal);
  }catch(error){
  console.warn('[notice] 공지 모달 열기 실패', error);
@@ -7437,7 +7437,7 @@ ${item.content || ''}`);
  renderCalendarDayModal();
  const modal = qs('#calendarDayModal');
  if(!modal) return;
- if(modal.open) modal.close();
+ if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
  modal.showModal();
  }
  function moveCalendarDayModal(offset){
@@ -7509,7 +7509,7 @@ function renderCalendarDayModal(){
  qs('#calendarNotifyBefore').value = '30';
  qs('#calendarReservationMemo').value = '';
  modal.dataset.benefitId = item.id || '';
- if(modal.open) modal.close();
+ if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
  modal.showModal();
  }
  function closeCalendarReservationModal(){
@@ -8196,51 +8196,18 @@ function openDialogPreservePageScroll(dialog){
  const y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
  window.__upickModalSavedScrollY = y;
 
- const originalScrollTo = window.scrollTo ? window.scrollTo.bind(window) : null;
- let guardActive = true;
- const releaseOpenScrollGuard = () => {
-   guardActive = false;
-   try{
-     if(originalScrollTo) window.scrollTo = originalScrollTo;
-   }catch(_){}
- };
- window.__upickReleaseDetailNoticeOpenScrollGuard = releaseOpenScrollGuard;
- const keepScroll = () => {
-   try{
-     if(originalScrollTo) originalScrollTo(x, y);
-   }catch(_){}
- };
-
- // 모달 오픈 직후 짧은 시간 동안 window.scrollTo(top:0) 계열을 차단합니다.
- // 이 구간이 사용자에게 보이는 "위로 튀었다가 복원" 현상의 핵심 구간입니다.
- try{
-   window.scrollTo = function(){
-     if(guardActive){
-       let targetY = 0;
-       if(arguments.length === 1 && typeof arguments[0] === 'object'){
-         targetY = Number(arguments[0].top || 0);
-       }else{
-         targetY = Number(arguments[1] || 0);
-       }
-       if(targetY === 0 || Math.abs(targetY - y) > 2){
-         if(originalScrollTo) originalScrollTo(x, y);
-         return;
-       }
-     }
-     return originalScrollTo ? originalScrollTo.apply(window, arguments) : undefined;
-   };
- }catch(_){}
-
  try{
    const active = document.activeElement;
    if(active && typeof active.blur === 'function') active.blur();
  }catch(_){}
 
+ // 중요: 혜택/공지 상세는 native dialog open/showModal을 사용하지 않습니다.
+ // dialog의 open 속성이 붙는 순간 브라우저/기존 scroll-lock 스크립트가 문서를 top으로 이동시키는 현상이 있어
+ // 이 두 팝업만 일반 fixed layer로 표시합니다.
  try{
    if(dialog.open && typeof dialog.close === 'function') dialog.close();
- }catch(_){
-   try{ dialog.removeAttribute('open'); }catch(__){}
- }
+ }catch(_){}
+ try{ dialog.removeAttribute('open'); }catch(_){}
 
  let backdrop = document.getElementById('upickDetailNoticeBackdrop');
  if(!backdrop){
@@ -8253,45 +8220,81 @@ function openDialogPreservePageScroll(dialog){
  backdrop.classList.add('show');
  document.body.classList.add('upick-detail-notice-open');
 
- // 열기 전/후 같은 프레임에서 스크롤을 고정해 순간 점프가 화면에 그려지지 않도록 합니다.
- keepScroll();
- try{ dialog.setAttribute('open', ''); }catch(_){}
- dialog.classList.add('upick-dialog-motion','upick-motion-layer','upick-preserve-scroll-dialog');
+ dialog.classList.add('upick-dialog-motion','upick-motion-layer','upick-preserve-scroll-dialog','upick-layer-open');
  dialog.classList.remove('is-open','is-closing');
  dialog.setAttribute('aria-hidden','true');
- keepScroll();
+ dialog.setAttribute('role','dialog');
+ dialog.setAttribute('aria-modal','true');
 
- if(!dialog.__upickPreserveCloseBound){
-   dialog.__upickPreserveCloseBound = true;
-   const cleanup = () => {
-     const anyOpen = document.querySelector('#detailModal[open].upick-preserve-scroll-dialog, #noticeModal[open].upick-preserve-scroll-dialog');
-     if(!anyOpen){
-       const bd = document.getElementById('upickDetailNoticeBackdrop');
-       if(bd) bd.classList.remove('show');
-       document.body.classList.remove('upick-detail-notice-open');
-     }
-   };
-   dialog.addEventListener('close', cleanup);
-   dialog.addEventListener('cancel', cleanup);
- }
+ const restore = () => {
+   try{ window.scrollTo(x, y); }catch(_){}
+ };
 
+ restore();
  requestAnimationFrame(() => {
-   keepScroll();
+   restore();
    requestAnimationFrame(() => {
-     keepScroll();
      setTimeout(() => {
-       keepScroll();
-       if(dialog.open){
+       restore();
+       if(dialog.classList.contains('upick-layer-open')){
          dialog.classList.add('is-open');
          dialog.setAttribute('aria-hidden','false');
        }
-       setTimeout(() => {
-         releaseOpenScrollGuard();
-       }, 180);
      }, 36);
    });
  });
 }
+
+function closeDialogPreservePageScroll(dialog){
+ if(!dialog) return;
+ const y = Number(window.__upickModalSavedScrollY || window.scrollY || document.documentElement.scrollTop || 0);
+ dialog.classList.add('is-closing');
+ dialog.classList.remove('is-open');
+
+ const cleanup = () => {
+   dialog.classList.remove('upick-layer-open','upick-preserve-scroll-dialog','is-closing');
+   dialog.setAttribute('aria-hidden','true');
+   try{ dialog.removeAttribute('open'); }catch(_){}
+   const anyOpen = document.querySelector('#detailModal.upick-layer-open, #noticeModal.upick-layer-open');
+   if(!anyOpen){
+     const bd = document.getElementById('upickDetailNoticeBackdrop');
+     if(bd) bd.classList.remove('show');
+     document.body.classList.remove('upick-detail-notice-open');
+   }
+   try{ window.scrollTo(0, y); }catch(_){}
+ };
+
+ setTimeout(cleanup, 240);
+}
+
+/* ===== Detail/notice non-dialog close fallback ===== */
+document.addEventListener('click', function(event){
+ const closeDetail = event.target && event.target.closest && event.target.closest('#modalClose, [data-close-detail-modal], #detailModal .modal-close, #detailModal [value="cancel"]');
+ if(closeDetail){
+   event.preventDefault();
+   event.stopPropagation();
+   closeDialogPreservePageScroll(qs('#detailModal'));
+   return;
+ }
+ const closeNotice = event.target && event.target.closest && event.target.closest('#noticeClose, [data-close-notice-modal], #noticeModal .modal-close, #noticeModal [value="cancel"]');
+ if(closeNotice){
+   event.preventDefault();
+   event.stopPropagation();
+   closeDialogPreservePageScroll(qs('#noticeModal'));
+ }
+}, true);
+
+document.addEventListener('keydown', function(event){
+ if(event.key !== 'Escape') return;
+ if(qs('#detailModal')?.classList.contains('upick-layer-open')){
+   event.preventDefault();
+   closeDialogPreservePageScroll(qs('#detailModal'));
+ }else if(qs('#noticeModal')?.classList.contains('upick-layer-open')){
+   event.preventDefault();
+   closeDialogPreservePageScroll(qs('#noticeModal'));
+ }
+}, true);
+
 
  function openDetail(item, options = {}){
  const { skipUrlUpdate = false } = options;
@@ -8302,7 +8305,7 @@ function openDialogPreservePageScroll(dialog){
  qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${benefitBusinessHoursPanelHtml(item)}${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  const modalBody = qs('#modalBody');
- if(modal.open)modal.close();
+ if(modal.open || modal.classList.contains('upick-layer-open')) closeDialogPreservePageScroll(modal);
  if(modalBody) modalBody.scrollTop = 0;
  openDialogPreservePageScroll(modal);
  requestAnimationFrame(() => {
@@ -13909,7 +13912,7 @@ document.addEventListener('keydown', (event) => {
  });
 
  qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
- qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal')?.close(); clearCleanDeepLinkUrl({ replace:true });};
+ qs('#closeNoticeModal').onclick=()=>{closeDialogPreservePageScroll(qs('#noticeModal')); clearCleanDeepLinkUrl({ replace:true });};
  qs('#closeCalendarReservationModal')?.addEventListener('click', closeCalendarReservationModal);
  qs('#cancelCalendarReservationBtn')?.addEventListener('click', closeCalendarReservationModal);
  qs('#calendarReservationForm')?.addEventListener('submit', saveCalendarReservation);
