@@ -321,12 +321,20 @@ async function showAppAlert({
   alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
-  alertEl.classList.remove('show', 'is-closing');
-  alertEl.setAttribute('aria-hidden', 'false');
-  alertEl.offsetHeight;
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => alertEl.classList.add('show'));
-  });
+  if (window.UpickMotion) {
+    window.UpickMotion.open(alertEl, {
+      activeClass: 'show',
+      panel: alertEl.querySelector?.('.app-alert-card'),
+      duration: 240
+    });
+  } else {
+    alertEl.classList.remove('show', 'is-closing');
+    alertEl.setAttribute('aria-hidden', 'false');
+    alertEl.offsetHeight;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => alertEl.classList.add('show'));
+    });
+  }
 
   alertConfirmEl.onclick = null;
   alertCancelEl.onclick = null;
@@ -342,16 +350,11 @@ async function showAppAlert({
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
-      alertEl.classList.add('is-closing');
-      alertEl.classList.remove('show');
-      alertEl.setAttribute('aria-hidden', 'true');
-
       // 현재 알럿 버튼 핸들러를 먼저 비워 다음 알럿과 충돌하지 않게 합니다.
       alertConfirmEl.onclick = null;
       alertCancelEl.onclick = null;
 
-      setTimeout(async () => {
-        alertEl.classList.remove('is-closing');
+      const afterClose = async () => {
         try {
           if (typeof callback === 'function') {
             await callback();
@@ -361,7 +364,24 @@ async function showAppAlert({
         } finally {
           resolve({ action, value: isConfirm });
         }
-      }, 280);
+      };
+
+      if (window.UpickMotion) {
+        window.UpickMotion.close(alertEl, {
+          activeClass: 'show',
+          panel: alertEl.querySelector?.('.app-alert-card'),
+          duration: 240,
+          afterClose
+        });
+      } else {
+        alertEl.classList.add('is-closing');
+        alertEl.classList.remove('show');
+        alertEl.setAttribute('aria-hidden', 'true');
+        setTimeout(async () => {
+          alertEl.classList.remove('is-closing');
+          await afterClose();
+        }, 280);
+      }
     };
 
     alertConfirmEl.onclick = () => finish('confirm');

@@ -12191,10 +12191,15 @@ startCrowdDynamicRefresh();
  if(opener && opener.focus) lastGnbOpener = opener;
  else if(document.activeElement && document.activeElement.closest && !gnbSheet?.contains(document.activeElement)) lastGnbOpener = document.activeElement;
 
- gnbSheet?.classList.remove('is-closing');
- gnbOverlay?.classList.remove('is-closing');
- gnbSheet?.classList.add('show');
- gnbOverlay?.classList.add('show');
+ if(window.UpickMotion){
+   window.UpickMotion.open(gnbOverlay, { activeClass:'show', duration:240 });
+   window.UpickMotion.open(gnbSheet, { activeClass:'show', duration:240 });
+ }else{
+   gnbSheet?.classList.remove('is-closing');
+   gnbOverlay?.classList.remove('is-closing');
+   gnbSheet?.classList.add('show');
+   gnbOverlay?.classList.add('show');
+ }
  gnbSheet?.setAttribute('aria-hidden', 'false');
  gnbSheet?.classList.remove('gnb-enter');
  requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
@@ -12235,19 +12240,27 @@ startCrowdDynamicRefresh();
  [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
  { duration:180, easing:'ease-out' }
  );
- gnbSheet?.classList.add('is-closing');
- gnbOverlay?.classList.add('is-closing');
- gnbSheet?.classList.remove('show');
- gnbOverlay?.classList.remove('show');
- gnbSheet?.setAttribute('aria-hidden', 'true');
- setTimeout(() => {
-   gnbSheet?.classList.remove('is-closing');
-   gnbOverlay?.classList.remove('is-closing');
+ const cleanupGnbClose = () => {
    document.body.style.overflow = '';
    document.body.classList.remove('gnb-open');
    gnbSheet?.style.removeProperty('transform');
    if(options.restoreFocus !== false) restoreGnbOpenerFocus();
- }, 240);
+ };
+ gnbSheet?.setAttribute('aria-hidden', 'true');
+ if(window.UpickMotion){
+   window.UpickMotion.close(gnbOverlay, { activeClass:'show', duration:240 });
+   window.UpickMotion.close(gnbSheet, { activeClass:'show', duration:240, afterClose:cleanupGnbClose });
+ }else{
+   gnbSheet?.classList.add('is-closing');
+   gnbOverlay?.classList.add('is-closing');
+   gnbSheet?.classList.remove('show');
+   gnbOverlay?.classList.remove('show');
+   setTimeout(() => {
+     gnbSheet?.classList.remove('is-closing');
+     gnbOverlay?.classList.remove('is-closing');
+     cleanupGnbClose();
+   }, 240);
+ }
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {
