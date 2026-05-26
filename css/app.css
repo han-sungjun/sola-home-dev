@@ -25974,3 +25974,29 @@ body.upick-modal-hard-lock {
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
 }
+
+
+/* ===== Detail/notice custom backdrop for preserve-scroll open ===== */
+.upick-detail-notice-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10010 !important;
+    background: rgba(15, 23, 42, .46) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity .18s ease !important;
+}
+.upick-detail-notice-backdrop.show {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+#detailModal[open].upick-preserve-scroll-dialog,
+#noticeModal[open].upick-preserve-scroll-dialog {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10020 !important;
+}

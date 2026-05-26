@@ -8196,19 +8196,43 @@ function openDialogPreservePageScroll(dialog){
    if(active && typeof active.blur === 'function') active.blur();
  }catch(_){}
 
- // native showModal()은 일부 브라우저에서 페이지 스크롤을 먼저 top으로 이동시킨 뒤
- // 닫을 때 복원하는 현상을 만들 수 있어, 상세/공지 팝업은 non-modal open으로 표시합니다.
  try{
    if(dialog.open && typeof dialog.close === 'function') dialog.close();
  }catch(_){
    try{ dialog.removeAttribute('open'); }catch(__){}
  }
 
+ // showModal()을 쓰지 않기 때문에 native ::backdrop이 생기지 않습니다.
+ // 그래서 상세/공지 팝업 전용 커스텀 백드롭을 만들어 기존 검은 반투명 영역을 유지합니다.
+ let backdrop = document.getElementById('upickDetailNoticeBackdrop');
+ if(!backdrop){
+   backdrop = document.createElement('div');
+   backdrop.id = 'upickDetailNoticeBackdrop';
+   backdrop.className = 'upick-detail-notice-backdrop';
+   backdrop.setAttribute('aria-hidden', 'true');
+   document.body.appendChild(backdrop);
+ }
+ backdrop.classList.add('show');
+ document.body.classList.add('upick-detail-notice-open');
+
  try{ dialog.setAttribute('open', ''); }catch(_){}
- dialog.classList.add('upick-dialog-motion','upick-motion-layer','is-open');
+ dialog.classList.add('upick-dialog-motion','upick-motion-layer','is-open','upick-preserve-scroll-dialog');
  dialog.classList.remove('is-closing');
  dialog.setAttribute('aria-hidden','false');
 
+ if(!dialog.__upickPreserveCloseBound){
+   dialog.__upickPreserveCloseBound = true;
+   const cleanup = () => {
+     const anyOpen = document.querySelector('#detailModal[open].upick-preserve-scroll-dialog, #noticeModal[open].upick-preserve-scroll-dialog');
+     if(!anyOpen){
+       const bd = document.getElementById('upickDetailNoticeBackdrop');
+       if(bd) bd.classList.remove('show');
+       document.body.classList.remove('upick-detail-notice-open');
+     }
+   };
+   dialog.addEventListener('close', cleanup);
+   dialog.addEventListener('cancel', cleanup);
+ }
  const restore = () => {
    try{ window.scrollTo(x, y); }catch(_){}
  };
