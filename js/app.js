@@ -8220,13 +8220,12 @@ function openDialogPreservePageScroll(dialog){
  dialog.classList.remove('is-open','is-closing');
  dialog.setAttribute('aria-hidden','true');
 
+ // open 속성 적용과 스크롤 복원 이후 한 프레임을 비워 첫 화면을 안정화한 뒤 모션을 시작합니다.
  requestAnimationFrame(() => {
-   requestAnimationFrame(() => {
-     if(dialog.open){
-       dialog.classList.add('is-open');
-       dialog.setAttribute('aria-hidden','false');
-     }
-   });
+   if(dialog.open){
+     dialog.classList.add('is-open');
+     dialog.setAttribute('aria-hidden','false');
+   }
  });
 
  if(!dialog.__upickPreserveCloseBound){
@@ -8245,10 +8244,8 @@ function openDialogPreservePageScroll(dialog){
  const restore = () => {
    try{ window.scrollTo(x, y); }catch(_){}
  };
+ // 오픈 페이드인과 충돌하지 않도록 스크롤 복원은 즉시 1회만 처리합니다.
  restore();
- requestAnimationFrame(restore);
- setTimeout(restore, 0);
- setTimeout(restore, 80);
 }
 
  function openDetail(item, options = {}){

@@ -621,3 +621,17 @@ body.upick-modal-hard-lock {
     opacity: 0 !important;
     transform: translate(-50%, calc(-50% + 8px)) scale(.975) !important;
 }
+
+
+/* ===== Detail/notice open motion tuning =====
+   오픈 시 스크롤 보정과 충돌하지 않도록 첫 프레임 부담을 줄이고,
+   알럿에 가까운 부드러운 페이드인을 유지합니다. */
+#detailModal.upick-preserve-scroll-dialog,
+#noticeModal.upick-preserve-scroll-dialog {
+    transition:
+        opacity .26s cubic-bezier(.22,.8,.24,1),
+        transform .26s cubic-bezier(.22,.8,.24,1) !important;
+    transform-origin: center center !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
