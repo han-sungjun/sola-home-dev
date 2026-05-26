@@ -5851,16 +5851,27 @@ function holdStablePageScrollY(y, duration = 900){
 function resetDetailDialogScroll(modal){
  if(!modal) return;
  const targets = [
- modal,
- modal.querySelector('.modal-body'),
- modal.querySelector('#modalBody'),
- modal.querySelector('#noticeModalBody'),
- modal.querySelector('.notice-detail-wrap'),
- modal.querySelector('.detail-wrap')
+   modal,
+   modal.querySelector('.modal-body'),
+   modal.querySelector('#modalBody'),
+   modal.querySelector('#noticeModalBody'),
+   modal.querySelector('.notice-detail-wrap'),
+   modal.querySelector('.detail-wrap')
  ].filter(Boolean);
  targets.forEach((el) => {
- try{ el.scrollTop = 0; }catch(_){}
- try{ el.scrollLeft = 0; }catch(_){}
+   try{ el.style.scrollBehavior = 'auto'; }catch(_){}
+   try{ el.scrollTop = 0; }catch(_){}
+   try{ el.scrollLeft = 0; }catch(_){}
+   try{ el.scrollTo({ top:0, left:0, behavior:'auto' }); }catch(_){}
+ });
+}
+
+function scheduleDetailDialogScrollReset(modal){
+ if(!modal) return;
+ resetDetailDialogScroll(modal);
+ requestAnimationFrame(() => resetDetailDialogScroll(modal));
+ [0, 40, 90, 180, 320].forEach((delay) => {
+   setTimeout(() => resetDetailDialogScroll(modal), delay);
  });
 }
 
@@ -5868,8 +5879,7 @@ function preservePageScrollForDialogOpen(modal, savedY){
  const y = Math.max(0, Number(savedY) || getStablePageScrollY() || 0);
  window.__upickPendingModalScrollY = y;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(y); }catch(_){}
- requestAnimationFrame(() => resetDetailDialogScroll(modal));
- setTimeout(() => resetDetailDialogScroll(modal), 80);
+ scheduleDetailDialogScrollReset(modal);
 }
 
 function closeDetailDialogPreservingPage(modal){
