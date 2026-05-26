@@ -174,14 +174,16 @@
   var DURATION = 240;
   var nativeDialogLockDepth = 0;
   var nativeDialogScrollY = 0;
+  var pendingNativeDialogScrollY = null;
 
   function getPageScrollY(){
     return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
   }
 
-  function lockNativeDialogScroll(){
+  function lockNativeDialogScroll(savedY){
     if(nativeDialogLockDepth === 0){
-      nativeDialogScrollY = getPageScrollY();
+      nativeDialogScrollY = Number.isFinite(Number(savedY)) ? Number(savedY) : getPageScrollY();
+      window.__upickModalSavedScrollY = nativeDialogScrollY;
       document.documentElement.classList.add('common-modal-lock');
       document.body.classList.add('common-modal-lock');
       document.body.style.top = '-' + nativeDialogScrollY + 'px';
@@ -195,7 +197,9 @@
     document.documentElement.classList.remove('common-modal-lock');
     document.body.classList.remove('common-modal-lock');
     document.body.style.top = '';
-    window.scrollTo(0, nativeDialogScrollY || 0);
+    requestAnimationFrame(function(){ window.scrollTo(0, nativeDialogScrollY || 0); });
+    setTimeout(function(){ window.scrollTo(0, nativeDialogScrollY || 0); }, 0);
+    setTimeout(function(){ window.scrollTo(0, nativeDialogScrollY || 0); }, 80);
   }
 
   function resetDialogScroll(dialog){
@@ -270,24 +274,26 @@
 
   proto.showModal = function(){
     var wasOpen = this.open;
+    var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
     if(!this.open) nativeShowModal.apply(this, arguments);
     if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
       this.__upickNativeScrollLocked = true;
-      lockNativeDialogScroll();
+      lockNativeDialogScroll(savedScrollY);
     }
     resetDialogScroll(this);
     markOpen(this);
   };
   proto.show = function(){
     var wasOpen = this.open;
+    var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
     if(!this.open) nativeShow.apply(this, arguments);
     if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
       this.__upickNativeScrollLocked = true;
-      lockNativeDialogScroll();
+      lockNativeDialogScroll(savedScrollY);
     }
     resetDialogScroll(this);
     markOpen(this);
