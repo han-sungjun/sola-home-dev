@@ -82,7 +82,6 @@ const fields = {
 };
 
 let lastFocus = null;
-let sheetCloseTimer = null;
 let alertResolver = null;
 
 function normalizeLoginId(value = '') {
@@ -135,10 +134,6 @@ function openSheet(mode) {
 
   // display:none 상태에서 show를 바로 붙이면 시작 프레임이 생략되어 정적으로 보일 수 있습니다.
   // 먼저 렌더링 가능한 상태로 만든 뒤, 다음 프레임에 show를 붙여 아래→위 애니메이션을 확실히 실행합니다.
-  if (sheetCloseTimer) {
-    clearTimeout(sheetCloseTimer);
-    sheetCloseTimer = null;
-  }
   modal.classList.remove('show', 'closing');
   modal.classList.add('ready');
   modal.setAttribute('aria-hidden', 'false');
@@ -201,13 +196,11 @@ function closeSheet() {
   modal.classList.add('closing');
   modal.setAttribute('aria-hidden', 'true');
 
-  if (sheetCloseTimer) clearTimeout(sheetCloseTimer);
-  sheetCloseTimer = window.setTimeout(() => {
+  window.setTimeout(() => {
     modal.classList.remove('ready', 'closing');
     resetAccountRecoveryForm();
     lastFocus?.focus?.();
-    sheetCloseTimer = null;
-  }, 380);
+  }, 360);
 }
 function getSheetBody() {
   return modal?.querySelector('.sheet-body') || null;
@@ -301,7 +294,7 @@ async function showAppAlert({
   }
 
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
-    window.showCommonAlert ? window.showCommonAlert({ title, message, confirmText: normalizedConfirmText }) : window.alert(message);
+    window.alert(message);
     if (typeof onConfirm === 'function') onConfirm();
     else if (closeSheetOnConfirm) closeSheet();
     return Promise.resolve({ action: 'confirm', value: true });
@@ -321,12 +314,8 @@ async function showAppAlert({
   alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
-  alertEl.classList.remove('show', 'is-closing');
+  alertEl.classList.add('show');
   alertEl.setAttribute('aria-hidden', 'false');
-  alertEl.offsetHeight;
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => alertEl.classList.add('show'));
-  });
 
   alertConfirmEl.onclick = null;
   alertCancelEl.onclick = null;
@@ -342,7 +331,6 @@ async function showAppAlert({
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
-      alertEl.classList.add('is-closing');
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
 
@@ -350,18 +338,15 @@ async function showAppAlert({
       alertConfirmEl.onclick = null;
       alertCancelEl.onclick = null;
 
-      setTimeout(async () => {
-        alertEl.classList.remove('is-closing');
-        try {
-          if (typeof callback === 'function') {
-            await callback();
-          } else if (shouldCloseSheet) {
-            closeSheet();
-          }
-        } finally {
-          resolve({ action, value: isConfirm });
+      try {
+        if (typeof callback === 'function') {
+          await callback();
+        } else if (shouldCloseSheet) {
+          closeSheet();
         }
-      }, 280);
+      } finally {
+        resolve({ action, value: isConfirm });
+      }
     };
 
     alertConfirmEl.onclick = () => finish('confirm');

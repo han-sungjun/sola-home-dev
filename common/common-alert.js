@@ -10,8 +10,6 @@
   var confirmBtn = null;
   var cancelBtn = null;
   var actionsEl = null;
-  var closeTimer = null;
-  var isClosing = false;
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
   function escapeText(value){ return String(value == null ? '' : value); }
@@ -91,48 +89,29 @@
   function openLayer(){
     ensureAlert();
     lastFocus = document.activeElement;
-    if(closeTimer){ window.clearTimeout(closeTimer); closeTimer = null; }
-    isClosing = false;
-    alertEl.classList.remove('show', 'is-closing');
+    alertEl.classList.add('show');
     alertEl.setAttribute('aria-hidden','false');
     setOpenLock(true);
 
     if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
       try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
     }
-
-    // 첫 호출에서도 opacity:0 상태가 한 프레임 이상 그려진 뒤 show가 붙어야 fade-in이 동작합니다.
-    alertEl.offsetHeight;
     requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        if(!alertEl) return;
-        alertEl.classList.add('show');
-        try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
-      });
+      try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
     });
   }
 
   function closeLayer(){
-    if(!alertEl || isClosing) return;
-    isClosing = true;
-    var focusTarget = lastFocus;
-    alertEl.classList.add('is-closing');
+    if(!alertEl) return;
     alertEl.classList.remove('show');
     alertEl.setAttribute('aria-hidden','true');
-    if(closeTimer) window.clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(function(){
-      if(!alertEl || alertEl.classList.contains('show')) return;
-      alertEl.classList.remove('is-closing');
-      if(alertEl.tagName === 'DIALOG' && alertEl.open){
-        try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
-      }
-      setOpenLock(false);
-      isClosing = false;
-      closeTimer = null;
-      if(focusTarget && typeof focusTarget.focus === 'function'){
-        try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
-      }
-    }, 280);
+    if(alertEl.tagName === 'DIALOG' && alertEl.open){
+      try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
+    }
+    setOpenLock(false);
+    if(lastFocus && typeof lastFocus.focus === 'function'){
+      try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
+    }
     lastFocus = null;
   }
 
