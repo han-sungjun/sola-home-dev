@@ -25957,3 +25957,19 @@ body.upick-modal-hard-lock {
     position: static !important;
     top: auto !important;
 }
+
+
+/* ===== Modal duplicate lock neutralize fix =====
+   common-modal.js가 팝업 표시 전에 스크롤을 잠그도록 통합 처리합니다.
+   예전 app.html/app.js에 남아있는 v8/v9/v10 스크롤 잠금 클래스가
+   뒤늦게 body를 fixed/top 처리하면서 화면이 먼저 맨 위로 튀는 현상을 막습니다.
+   common-modal-lock은 유지하고, 중복 잠금 클래스만 위치 고정을 중화합니다. */
+body.upick-modal-hard-lock,
+body.upick-v9-modal-lock,
+body.upick-modal-lock {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
+}
