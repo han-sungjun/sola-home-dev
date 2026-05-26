@@ -5799,6 +5799,38 @@ function restoreStablePageScrollY(y){
  catch(_){ try{ window.scrollTo(0, top); }catch(__){} }
 }
 
+
+function holdStablePageScrollY(y, duration = 900){
+ const top = Math.max(0, Number(y) || 0);
+ const started = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+ const until = started + Math.max(120, Number(duration) || 900);
+ try{ if('scrollRestoration' in history) history.scrollRestoration = 'manual'; }catch(_){}
+ try{ document.documentElement.style.scrollBehavior = 'auto'; }catch(_){}
+ try{ document.body.style.scrollBehavior = 'auto'; }catch(_){}
+ const keep = () => {
+   const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+   const current = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+   if(Math.abs(current - top) > 2){
+     restoreStablePageScrollY(top);
+   }
+   if(now < until){
+     requestAnimationFrame(keep);
+   }else{
+     setTimeout(() => {
+       const latest = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+       if(Math.abs(latest - top) > 2) restoreStablePageScrollY(top);
+     }, 80);
+   }
+ };
+ restoreStablePageScrollY(top);
+ requestAnimationFrame(keep);
+ setTimeout(() => restoreStablePageScrollY(top), 0);
+ setTimeout(() => restoreStablePageScrollY(top), 60);
+ setTimeout(() => restoreStablePageScrollY(top), 180);
+ setTimeout(() => restoreStablePageScrollY(top), 360);
+ setTimeout(() => restoreStablePageScrollY(top), 720);
+}
+
 function resetDetailDialogScroll(modal){
  if(!modal) return;
  const targets = [
@@ -5834,7 +5866,9 @@ function preservePageScrollForDialogOpen(modal, savedY){
 
 function closeDetailDialogPreservingPage(modal){
  const y = getStablePageScrollY();
+ window.__upickClosingDetailScrollY = y;
  window.__upickDeferNextModalUnlock = true;
+ try{ if('scrollRestoration' in history) history.scrollRestoration = 'manual'; }catch(_){}
  try{
    const active = document.activeElement;
    if(active && active.blur) active.blur();
@@ -5845,13 +5879,9 @@ function closeDetailDialogPreservingPage(modal){
    if(typeof window.__upickUnlockModalBackgroundAt === 'function') window.__upickUnlockModalBackgroundAt(y);
    else if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground();
  }catch(_){}
- restoreStablePageScrollY(y);
- requestAnimationFrame(() => {
-   resetDetailDialogScroll(modal);
-   restoreStablePageScrollY(y);
- });
- setTimeout(() => restoreStablePageScrollY(y), 40);
- setTimeout(() => restoreStablePageScrollY(y), 120);
+ resetDetailDialogScroll(modal);
+ holdStablePageScrollY(y, 1000);
+ setTimeout(() => { window.__upickClosingDetailScrollY = undefined; }, 1100);
 }
 
 function shareActionsHtml(prefix){
@@ -13880,12 +13910,16 @@ document.addEventListener('keydown', (event) => {
  qs('#calendarDayModal')?.addEventListener('close', syncCalendarFocusFromDayModal);
  qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
  qs('#detailModal')?.addEventListener('close', () => {
+ const y = Number(window.__upickClosingDetailScrollY);
  resetDetailDialogScroll(qs('#detailModal'));
  if(parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
+ if(Number.isFinite(y)) holdStablePageScrollY(y, 900);
  });
  qs('#noticeModal')?.addEventListener('close', () => {
+ const y = Number(window.__upickClosingDetailScrollY);
  resetDetailDialogScroll(qs('#noticeModal'));
  if(parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
+ if(Number.isFinite(y)) holdStablePageScrollY(y, 900);
  });
  let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
  qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
