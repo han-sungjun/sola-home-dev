@@ -11246,7 +11246,7 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 #detailModal .modal-body * , #noticeModal .modal-body *{max-width:100%;}
 #detailModal .notice-detail-wrap,#noticeModal .notice-detail-wrap,.detail-wrap{display:grid;gap:14px;}
 #detailModal .detail-content,#noticeModal .notice-detail-content,.notice-detail-content{white-space:pre-wrap!important;word-break:keep-all!important;overflow-wrap:anywhere!important;line-height:1.72!important;}
-html.upick-modal-open,body.upick-modal-open{/* disabled: overflow-only modal lock caused background scroll jump */}
+html.upick-modal-open,body.upick-modal-open{overflow:hidden!important;}
 
 
 /* ===== app.html inline style #34 : upick-v8-modal-scroll-lock-fix ===== */
