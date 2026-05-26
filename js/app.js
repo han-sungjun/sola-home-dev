@@ -5873,8 +5873,20 @@ function closeDetailDialogPreservingPage(modal){
    const active = document.activeElement;
    if(active && active.blur) active.blur();
  }catch(_){}
- try{ modal?.close?.(); }
- catch(_){ try{ modal?.removeAttribute?.('open'); }catch(__){} }
+
+ // 혜택/공지 상세는 native dialog.close()를 쓰지 않습니다.
+ // close()는 브라우저가 이전 포커스를 자동 복귀시키면서 window 스크롤을 0으로 당기는 경우가 있어,
+ // open 속성만 직접 제거하고 close 이벤트는 수동으로 발생시킵니다.
+ try{
+   if(modal){
+     if(modal.hasAttribute && modal.hasAttribute('open')) modal.removeAttribute('open');
+     else if(modal.open) modal.open = false;
+     try{ modal.dispatchEvent(new Event('close', { bubbles:false, cancelable:false })); }catch(__){}
+   }
+ }catch(_){
+   try{ modal?.removeAttribute?.('open'); }catch(__){}
+ }
+
  try{
    if(typeof window.__upickUnlockModalBackgroundAt === 'function') window.__upickUnlockModalBackgroundAt(y);
    else if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground();
@@ -5943,8 +5955,7 @@ ${item.content || ''}`);
  if(modal.open) closeDetailDialogPreservingPage(modal);
  window.__upickPendingModalScrollY = pageScrollY;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(pageScrollY); }catch(_){}
- if(typeof modal.showModal === 'function') modal.showModal();
- else modal.setAttribute('open', '');
+ modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
  }catch(error){
  console.warn('[notice] 공지 모달 열기 실패', error);
@@ -8303,7 +8314,7 @@ function renderCalendarDayModal(){
  if(modal.open) closeDetailDialogPreservingPage(modal);
  window.__upickPendingModalScrollY = pageScrollY;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(pageScrollY); }catch(_){}
- modal.showModal();
+ modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
  const detailHeadActions = qs('#detailHeadActions');
  if(detailHeadActions) detailHeadActions.hidden = false;
