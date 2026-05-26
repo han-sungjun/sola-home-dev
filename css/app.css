@@ -25923,3 +25923,28 @@ html body #view-benefits .filter-sticky .panel.searchbox .icon-btn#resetBtn{
   border:1px solid rgba(191,219,254,.9) !important;
   z-index:1 !important;
 }
+
+
+/* ===== Benefit tab search focus/blur background fix =====
+   기본 상태는 연한 필드 배경, 포커스 상태는 흰색으로 전환.
+   GNB 메뉴 검색과 동일한 UX 흐름을 혜택 탭 검색창에만 적용합니다. */
+#view-benefits .filter-sticky .panel.searchbox {
+    background: var(--upick-field-bg) !important;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox:focus-within {
+    background: #fff !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox input,
+#view-benefits .filter-sticky .panel.searchbox input:not(:focus) {
+    background: transparent !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox input:focus {
+    background: transparent !important;
+}
