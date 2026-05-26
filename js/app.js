@@ -3558,19 +3558,12 @@ function getNaverReservationInfo(item = {}){ return getNaverServiceInfo(item, NA
 function hasNaverReservation(item = {}){ return getNaverReservationInfo(item).enabled; }
 function getEnabledNaverServices(item = {}){ return NAVER_SERVICE_CONFIGS.map(cfg => getNaverServiceInfo(item, cfg)).filter(info => info.enabled); }
 function naverReservationBadgeHtml(item = {}){
- const info = getNaverReservationInfo(item);
- if(!info.enabled) return '';
- return '<span class="tag naver-reservation-tag"><img class="upick-svg-icon" src="/icons/internal/calendar.svg" alt="" loading="lazy"> 네이버 예약</span>';
+ return '';
 }
-function naverServiceBadgesHtml(item = {}, options = {}){
- const excludeKeys = new Set(options.excludeKeys || []);
- return getEnabledNaverServices(item)
-   .filter(info => !excludeKeys.has(info.key))
-   .map(info => `<span class="tag naver-reservation-tag naver-service-tag naver-service-${escapeAttr(info.key)}"><img class="upick-svg-icon" src="${escapeAttr(info.icon)}" alt="" loading="lazy"> ${escapeHtml(info.label)}</span>`)
-   .join('');
-}
-function naverInlineBadgesHtml(item = {}){
- return naverServiceBadgesHtml(item, { excludeKeys: ['reservation', 'talk'] });
+function naverServiceBadgesHtml(item = {}){
+ // 카드와 상세 상단에는 네이버 예약/주문/배달/톡톡 chip을 노출하지 않습니다.
+ // 실제 연결 버튼은 혜택 상세 하단의 '네이버 연동 가능' 패널에서만 제공합니다.
+ return '';
 }
 function naverReservationPanelHtml(item = {}){
  const services = getEnabledNaverServices(item);
@@ -6939,7 +6932,7 @@ ${item.content || ''}`);
  </div>
  <div class="card-tags">
  <span class="tag category-text-tag">${item.category}</span>
- ${naverInlineBadgesHtml(item)}
+ ${naverServiceBadgesHtml(item)}
  ${benefitOperationBadgesHtml(item)}
  ${distanceTag}
 
@@ -7757,7 +7750,7 @@ function renderCalendarDayModal(){
  function benefitDetailHeroHtml(item = {}){
  const imageHtml = benefitDetailImageSliderHtml(item);
  const isFavClass = imageHtml ? '' : ' no-photo';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${naverInlineBadgesHtml(item)}${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${naverServiceBadgesHtml(item)}${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
  }
 
  function getPointerClient(event){
@@ -12153,8 +12146,9 @@ function startCrowdDynamicRefresh(){
 }
 startCrowdDynamicRefresh();
  qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
- qs('#view-benefits .filter-sticky .searchbox')?.addEventListener('click',(e)=>{
-   if(e.target.closest('#resetBtn')) return;
+ const benefitSearchBox = qs('#view-benefits .filter-sticky .searchbox');
+ benefitSearchBox?.addEventListener('click', (event) => {
+   if(event.target?.closest?.('#resetBtn')) return;
    qs('#searchInput')?.focus();
  });
  qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';updateFilterIconLabels();changeView('benefits');};
