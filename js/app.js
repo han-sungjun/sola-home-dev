@@ -8220,12 +8220,17 @@ function openDialogPreservePageScroll(dialog){
  dialog.classList.remove('is-open','is-closing');
  dialog.setAttribute('aria-hidden','true');
 
- // open 속성 적용과 스크롤 복원 이후 한 프레임을 비워 첫 화면을 안정화한 뒤 모션을 시작합니다.
+ // open 속성 적용과 스크롤 복원 이후 레이아웃이 안정된 다음 모션을 시작합니다.
+ // 바로 is-open을 붙이면 스크롤 보정/렌더링과 겹쳐 페이드인이 버벅여 보일 수 있습니다.
  requestAnimationFrame(() => {
-   if(dialog.open){
-     dialog.classList.add('is-open');
-     dialog.setAttribute('aria-hidden','false');
-   }
+   requestAnimationFrame(() => {
+     setTimeout(() => {
+       if(dialog.open){
+         dialog.classList.add('is-open');
+         dialog.setAttribute('aria-hidden','false');
+       }
+     }, 36);
+   });
  });
 
  if(!dialog.__upickPreserveCloseBound){

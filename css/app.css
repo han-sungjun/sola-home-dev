@@ -26040,3 +26040,18 @@ body.upick-modal-hard-lock {
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
 }
+
+
+/* ===== Detail/notice open motion delayed tuning =====
+   페이드인 시작을 살짝 늦춘 만큼 시작 상태를 더 안정적으로 유지합니다. */
+#detailModal.upick-preserve-scroll-dialog:not(.is-open),
+#noticeModal.upick-preserve-scroll-dialog:not(.is-open) {
+    opacity: 0 !important;
+    transform: translate(-50%, calc(-50% + 10px)) scale(.965) !important;
+}
+
+#detailModal.upick-preserve-scroll-dialog.is-open,
+#noticeModal.upick-preserve-scroll-dialog.is-open {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+}
