@@ -5795,8 +5795,23 @@ function getStablePageScrollY(){
 
 function restoreStablePageScrollY(y){
  const top = Math.max(0, Number(y) || 0);
+ releaseDetailModalBodyScrollClasses();
+ try{ document.documentElement.scrollTop = top; }catch(_){}
+ try{ document.body.scrollTop = top; }catch(_){}
  try{ window.scrollTo({ top, left:0, behavior:'auto' }); }
  catch(_){ try{ window.scrollTo(0, top); }catch(__){} }
+}
+
+function releaseDetailModalBodyScrollClasses(){
+ try{
+   document.documentElement.classList.remove('upick-modal-open','upick-modal-lock','upick-modal-hard-lock');
+   document.body.classList.remove('upick-modal-open','upick-modal-lock','upick-modal-hard-lock');
+   document.body.style.position = '';
+   document.body.style.top = '';
+   document.body.style.left = '';
+   document.body.style.right = '';
+   document.body.style.width = '';
+ }catch(_){}
 }
 
 
@@ -5808,6 +5823,7 @@ function holdStablePageScrollY(y, duration = 900){
  try{ document.documentElement.style.scrollBehavior = 'auto'; }catch(_){}
  try{ document.body.style.scrollBehavior = 'auto'; }catch(_){}
  const keep = () => {
+   releaseDetailModalBodyScrollClasses();
    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
    const current = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
    if(Math.abs(current - top) > 2){
@@ -5886,6 +5902,7 @@ function closeDetailDialogPreservingPage(modal){
 	   try{ modal?.removeAttribute?.('open'); }catch(__){}
 	 }
 
+ releaseDetailModalBodyScrollClasses();
  try{
    if(typeof window.__upickUnlockModalBackgroundAt === 'function') window.__upickUnlockModalBackgroundAt(y);
    else if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground();
@@ -13901,8 +13918,8 @@ document.addEventListener('keydown', (event) => {
  await markDailyAiNudgeShown('closed');
  });
 
- qs('#closeModal').onclick=()=>{closeDetailDialogPreservingPage(qs('#detailModal')); clearCleanDeepLinkUrl({ replace:true });};
- qs('#closeNoticeModal').onclick=()=>{closeDetailDialogPreservingPage(qs('#noticeModal')); clearCleanDeepLinkUrl({ replace:true });};
+ qs('#closeModal').onclick=()=>{closeDetailDialogPreservingPage(qs('#detailModal'));};
+ qs('#closeNoticeModal').onclick=()=>{closeDetailDialogPreservingPage(qs('#noticeModal'));};
  qs('#closeCalendarReservationModal')?.addEventListener('click', closeCalendarReservationModal);
  qs('#cancelCalendarReservationBtn')?.addEventListener('click', closeCalendarReservationModal);
  qs('#calendarReservationForm')?.addEventListener('submit', saveCalendarReservation);
