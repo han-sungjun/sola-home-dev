@@ -461,3 +461,226 @@ body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+
+/* ===== v72: 혜택 검색창 전체 영역 배경 확장 보정 =====
+   검색 input 자체가 아니라 panel.searchbox 전체를 하나의 검색 필드처럼 보이게 처리합니다. */
+html body #view-benefits .filter-sticky .panel.searchbox{
+  display:flex !important;
+  align-items:center !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  gap:8px !important;
+  padding:6px 9px !important;
+  min-height:38px !important;
+  border-radius:16px !important;
+  background:#f1f7ff !important;
+  border:1px solid rgba(191,219,254,.78) !important;
+  overflow:hidden !important;
+}
+html body #view-benefits .filter-sticky .panel.searchbox > span{
+  flex:0 0 auto !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#2563eb !important;
+  z-index:1 !important;
+}
+html body #view-benefits .filter-sticky .panel.searchbox input#searchInput,
+html body #view-benefits .filter-sticky .panel.searchbox input[type="text"]{
+  flex:1 1 auto !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:24px !important;
+  height:24px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  background-color:transparent !important;
+}
+html body #view-benefits .filter-sticky .panel.searchbox input#searchInput:focus,
+html body #view-benefits .filter-sticky .panel.searchbox input[type="text"]:focus{
+  background:transparent !important;
+  background-color:transparent !important;
+  box-shadow:none !important;
+}
+html body #view-benefits .filter-sticky .panel.searchbox .icon-btn#resetBtn{
+  flex:0 0 30px !important;
+  width:30px !important;
+  height:30px !important;
+  min-width:30px !important;
+  min-height:30px !important;
+  margin-left:2px !important;
+  background:#fff !important;
+  border:1px solid rgba(191,219,254,.9) !important;
+  z-index:1 !important;
+}
+
+
+/* ===== Benefit tab search focus/blur background fix =====
+   기본 상태는 연한 필드 배경, 포커스 상태는 흰색으로 전환.
+   GNB 메뉴 검색과 동일한 UX 흐름을 혜택 탭 검색창에만 적용합니다. */
+#view-benefits .filter-sticky .panel.searchbox {
+    background: var(--upick-field-bg) !important;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox:focus-within {
+    background: #fff !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox input,
+#view-benefits .filter-sticky .panel.searchbox input:not(:focus) {
+    background: transparent !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox input:focus {
+    background: transparent !important;
+}
+
+
+/* ===== Modal scroll keep targeted fix =====
+   팝업을 열 때 메인 화면이 상단으로 튀지 않도록 body fixed/top 잠금만 해제합니다.
+   dialog 자체 위치와 내부 스크롤 구조는 유지합니다. */
+body.upick-modal-hard-lock {
+    position: static !important;
+    top: auto !important;
+}
+
+
+/* ===== Detail/notice non-native dialog open preserve scroll ===== */
+#detailModal[open],
+#noticeModal[open] {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10020 !important;
+}
+#detailModal[open]::backdrop,
+#noticeModal[open]::backdrop {
+    background: rgba(15, 23, 42, .46) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+
+/* ===== Detail/notice custom backdrop for preserve-scroll open ===== */
+.upick-detail-notice-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10010 !important;
+    background: rgba(15, 23, 42, .46) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity .18s ease !important;
+}
+.upick-detail-notice-backdrop.show {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+#detailModal[open].upick-preserve-scroll-dialog,
+#noticeModal[open].upick-preserve-scroll-dialog {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10020 !important;
+}
+
+
+/* ===== Image/news preview popup position restore =====
+   상세/공지 팝업 위에서 확대 팝업이 우측/하단으로 밀리지 않도록,
+   확대 팝업은 항상 viewport 전체를 기준으로 중앙 정렬합니다. */
+dialog.benefit-image-preview-overlay,
+dialog.news-image-preview-overlay,
+.benefit-image-preview-overlay,
+.news-image-preview-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)) !important;
+    transform: none !important;
+    display: none !important;
+    place-items: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    z-index: 10080 !important;
+}
+
+dialog.benefit-image-preview-overlay[open],
+dialog.news-image-preview-overlay[open],
+.benefit-image-preview-overlay.show,
+.news-image-preview-overlay.show {
+    display: grid !important;
+}
+
+.benefit-image-preview-dialog,
+.news-image-preview-dialog {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: auto !important;
+    max-width: min(920px, 96vw) !important;
+    max-height: calc(88dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.news-image-preview-dialog {
+    max-width: min(720px, 96vw) !important;
+}
+
+
+/* ===== News image preview exact center restore ===== */
+.news-image-preview-overlay,
+dialog.news-image-preview-overlay {
+    display: none !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box !important;
+    align-items: center !important;
+    justify-content: center !important;
+    place-items: center !important;
+    z-index: 10090 !important;
+}
+
+.news-image-preview-overlay.show,
+dialog.news-image-preview-overlay[open] {
+    display: grid !important;
+}
+
+.news-image-preview-dialog {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: auto !important;
+    transform: none !important;
+    width: min(720px, 96vw) !important;
+    max-width: min(720px, 96vw) !important;
+    max-height: calc(88dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+}
