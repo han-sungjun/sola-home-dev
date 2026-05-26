@@ -595,3 +595,29 @@ body.upick-modal-hard-lock {
     transform: translate(-50%, -50%) !important;
     z-index: 10020 !important;
 }
+
+
+/* ===== Detail/notice modal stronger fade-in motion =====
+   알럿 팝업과 비슷하게 혜택 상세/공지 상세 팝업 본체의 등장감을 강화합니다. */
+#detailModal.upick-preserve-scroll-dialog,
+#noticeModal.upick-preserve-scroll-dialog {
+    opacity: 0 !important;
+    transform: translate(-50%, calc(-50% + 10px)) scale(.965) !important;
+    transition:
+        opacity .24s cubic-bezier(.22,.8,.24,1),
+        transform .24s cubic-bezier(.22,.8,.24,1),
+        box-shadow .24s cubic-bezier(.22,.8,.24,1) !important;
+    will-change: opacity, transform !important;
+}
+
+#detailModal.upick-preserve-scroll-dialog.is-open,
+#noticeModal.upick-preserve-scroll-dialog.is-open {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+}
+
+#detailModal.upick-preserve-scroll-dialog.is-closing,
+#noticeModal.upick-preserve-scroll-dialog.is-closing {
+    opacity: 0 !important;
+    transform: translate(-50%, calc(-50% + 8px)) scale(.975) !important;
+}

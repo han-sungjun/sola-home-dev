@@ -8216,9 +8216,18 @@ function openDialogPreservePageScroll(dialog){
  document.body.classList.add('upick-detail-notice-open');
 
  try{ dialog.setAttribute('open', ''); }catch(_){}
- dialog.classList.add('upick-dialog-motion','upick-motion-layer','is-open','upick-preserve-scroll-dialog');
- dialog.classList.remove('is-closing');
- dialog.setAttribute('aria-hidden','false');
+ dialog.classList.add('upick-dialog-motion','upick-motion-layer','upick-preserve-scroll-dialog');
+ dialog.classList.remove('is-open','is-closing');
+ dialog.setAttribute('aria-hidden','true');
+
+ requestAnimationFrame(() => {
+   requestAnimationFrame(() => {
+     if(dialog.open){
+       dialog.classList.add('is-open');
+       dialog.setAttribute('aria-hidden','false');
+     }
+   });
+ });
 
  if(!dialog.__upickPreserveCloseBound){
    dialog.__upickPreserveCloseBound = true;
