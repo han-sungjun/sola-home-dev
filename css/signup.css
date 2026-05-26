@@ -2352,3 +2352,25 @@ input[type="radio"]:not(:checked):focus-visible{
   border-color:#93c5fd!important;
   box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75)!important;
 }
+
+
+/* ===== Benefit search full-width background fix ===== */
+.benefit-search-box,
+.search-input-wrap,
+.search-box,
+.search-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.benefit-search-box input,
+.search-input-wrap input,
+.search-box input,
+.search-container input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    background: transparent !important;
+}

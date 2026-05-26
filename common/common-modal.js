@@ -172,48 +172,6 @@
   var nativeShow = proto.show;
   var nativeClose = proto.close;
   var DURATION = 240;
-  var nativeDialogLockDepth = 0;
-  var nativeDialogScrollY = 0;
-  var pendingNativeDialogScrollY = null;
-
-  function getPageScrollY(){
-    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-  }
-
-  function lockNativeDialogScroll(savedY){
-    if(nativeDialogLockDepth === 0){
-      nativeDialogScrollY = Number.isFinite(Number(savedY)) ? Number(savedY) : getPageScrollY();
-      window.__upickModalSavedScrollY = nativeDialogScrollY;
-      document.documentElement.classList.add('common-modal-lock');
-      document.body.classList.add('common-modal-lock');
-      document.body.style.top = '-' + nativeDialogScrollY + 'px';
-    }
-    nativeDialogLockDepth += 1;
-  }
-
-  function unlockNativeDialogScroll(){
-    nativeDialogLockDepth = Math.max(0, nativeDialogLockDepth - 1);
-    if(nativeDialogLockDepth > 0) return;
-    document.documentElement.classList.remove('common-modal-lock');
-    document.body.classList.remove('common-modal-lock');
-    document.body.style.top = '';
-    requestAnimationFrame(function(){ window.scrollTo(0, nativeDialogScrollY || 0); });
-    setTimeout(function(){ window.scrollTo(0, nativeDialogScrollY || 0); }, 0);
-    setTimeout(function(){ window.scrollTo(0, nativeDialogScrollY || 0); }, 80);
-  }
-
-  function resetDialogScroll(dialog){
-    if(!dialog) return;
-    var targets = [dialog];
-    dialog.querySelectorAll('.modal-body,.sheet-body,.calendar-day-modal-body,.gnb-management-body,.gnb-operation-body,.app-modal-body,[data-modal-scroll]').forEach(function(el){
-      targets.push(el);
-    });
-    requestAnimationFrame(function(){
-      targets.forEach(function(el){
-        try{ el.scrollTop = 0; }catch(_){}
-      });
-    });
-  }
 
   function shouldSkip(dialog){
     return !dialog || dialog.classList.contains('app-alert') || dialog.dataset.motion === 'none';
@@ -273,29 +231,15 @@
   }
 
   proto.showModal = function(){
-    var wasOpen = this.open;
-    var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
     if(!this.open) nativeShowModal.apply(this, arguments);
-    if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
-      this.__upickNativeScrollLocked = true;
-      lockNativeDialogScroll(savedScrollY);
-    }
-    resetDialogScroll(this);
     markOpen(this);
   };
   proto.show = function(){
-    var wasOpen = this.open;
-    var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
     if(!this.open) nativeShow.apply(this, arguments);
-    if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
-      this.__upickNativeScrollLocked = true;
-      lockNativeDialogScroll(savedScrollY);
-    }
-    resetDialogScroll(this);
     markOpen(this);
   };
   proto.close = function(returnValue){
@@ -313,10 +257,6 @@
         dialog.__upickDialogClosing = false;
         dialog.__upickDialogCloseTimer = null;
         dialog.classList.remove('is-closing','is-open','upick-motion-closing','upick-motion-open');
-        if(dialog.__upickNativeScrollLocked){
-          dialog.__upickNativeScrollLocked = false;
-          unlockNativeDialogScroll();
-        }
       }
     };
     if(window.UpickMotion){
