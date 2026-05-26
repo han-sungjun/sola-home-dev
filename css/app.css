@@ -25957,3 +25957,20 @@ body.upick-modal-hard-lock {
     position: static !important;
     top: auto !important;
 }
+
+
+/* ===== Detail/notice non-native dialog open preserve scroll ===== */
+#detailModal[open],
+#noticeModal[open] {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10020 !important;
+}
+#detailModal[open]::backdrop,
+#noticeModal[open]::backdrop {
+    background: rgba(15, 23, 42, .46) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
