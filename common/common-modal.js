@@ -52,8 +52,10 @@
     var opts = currentOptions || {};
     var content = currentContent;
     if(closeTimer) window.clearTimeout(closeTimer);
-
-    var cleanup = function(){
+    targetOverlay.classList.add('is-closing');
+    targetOverlay.classList.remove('is-open');
+    if(targetStage) targetStage.classList.add('is-closing');
+    closeTimer = window.setTimeout(function(){
       if(content && currentPlaceholder && currentPlaceholder.parentNode){
         currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
         currentPlaceholder.remove();
@@ -70,22 +72,7 @@
       closeTimer = null;
       unlockBody();
       if(typeof opts.onClose === 'function') opts.onClose(content);
-    };
-
-    if(window.UpickMotion){
-      window.UpickMotion.close(targetOverlay, {
-        activeClass:'is-open',
-        panel:targetStage,
-        duration:240,
-        afterClose:cleanup
-      });
-      return;
-    }
-
-    targetOverlay.classList.add('is-closing');
-    targetOverlay.classList.remove('is-open');
-    if(targetStage) targetStage.classList.add('is-closing');
-    closeTimer = window.setTimeout(cleanup, 240);
+    }, 240);
   }
 
   function open(options){
@@ -102,11 +89,11 @@
     if(!content) return null;
 
     overlay = document.createElement('div');
-    overlay.className = 'common-modal-overlay upick-motion-layer' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.className = 'common-modal-overlay' + (options.overlayClass ? ' ' + options.overlayClass : '');
     overlay.setAttribute('role','presentation');
 
     stage = document.createElement('div');
-    stage.className = 'common-modal-stage upick-motion-panel' + (options.stageClass ? ' ' + options.stageClass : '');
+    stage.className = 'common-modal-stage' + (options.stageClass ? ' ' + options.stageClass : '');
     stage.setAttribute('role','dialog');
     stage.setAttribute('aria-modal','true');
     if(options.labelledby) stage.setAttribute('aria-labelledby', options.labelledby);
@@ -118,13 +105,9 @@
     stage.appendChild(content);
     overlay.appendChild(stage);
     root.appendChild(overlay);
-    if(window.UpickMotion){
-      window.UpickMotion.open(overlay, { activeClass:'is-open', panel:stage, duration:240 });
-    }else{
-      requestAnimationFrame(function(){
-        if(overlay) overlay.classList.add('is-open');
-      });
-    }
+    requestAnimationFrame(function(){
+      if(overlay) overlay.classList.add('is-open');
+    });
 
     overlay.addEventListener('click', function(event){
       if(event.target === overlay){
@@ -172,48 +155,6 @@
   var nativeShow = proto.show;
   var nativeClose = proto.close;
   var DURATION = 240;
-  var nativeDialogLockDepth = 0;
-  var nativeDialogScrollY = 0;
-  var pendingNativeDialogScrollY = null;
-
-  function getPageScrollY(){
-    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-  }
-
-  function lockNativeDialogScroll(savedY){
-    if(nativeDialogLockDepth === 0){
-      nativeDialogScrollY = Number.isFinite(Number(savedY)) ? Number(savedY) : getPageScrollY();
-      window.__upickModalSavedScrollY = nativeDialogScrollY;
-      document.documentElement.classList.add('common-modal-lock');
-      document.body.classList.add('common-modal-lock');
-      document.body.style.top = '-' + nativeDialogScrollY + 'px';
-    }
-    nativeDialogLockDepth += 1;
-  }
-
-  function unlockNativeDialogScroll(){
-    nativeDialogLockDepth = Math.max(0, nativeDialogLockDepth - 1);
-    if(nativeDialogLockDepth > 0) return;
-    document.documentElement.classList.remove('common-modal-lock');
-    document.body.classList.remove('common-modal-lock');
-    document.body.style.top = '';
-    requestAnimationFrame(function(){ window.scrollTo(0, nativeDialogScrollY || 0); });
-    setTimeout(function(){ window.scrollTo(0, nativeDialogScrollY || 0); }, 0);
-    setTimeout(function(){ window.scrollTo(0, nativeDialogScrollY || 0); }, 80);
-  }
-
-  function resetDialogScroll(dialog){
-    if(!dialog) return;
-    var targets = [dialog];
-    dialog.querySelectorAll('.modal-body,.sheet-body,.calendar-day-modal-body,.gnb-management-body,.gnb-operation-body,.app-modal-body,[data-modal-scroll]').forEach(function(el){
-      targets.push(el);
-    });
-    requestAnimationFrame(function(){
-      targets.forEach(function(el){
-        try{ el.scrollTop = 0; }catch(_){}
-      });
-    });
-  }
 
   function shouldSkip(dialog){
     return !dialog || dialog.classList.contains('app-alert') || dialog.dataset.motion === 'none';
@@ -221,20 +162,17 @@
   function prepareOpen(dialog){
     if(shouldSkip(dialog)) return;
     bindCloseGuards(dialog);
-    dialog.classList.add('upick-dialog-motion','upick-motion-layer');
+    dialog.classList.add('upick-dialog-motion');
     dialog.classList.remove('is-open','is-closing');
     dialog.setAttribute('aria-hidden','true');
   }
   function markOpen(dialog){
     if(shouldSkip(dialog)) return;
     dialog.classList.remove('is-closing');
-    dialog.classList.add('upick-dialog-motion','upick-motion-layer');
+    dialog.classList.add('upick-dialog-motion');
     dialog.setAttribute('aria-hidden','false');
     // 최초 호출 시에도 opacity:0/transform 초기 상태가 먼저 계산되도록 한 프레임을 보장합니다.
-    if(window.UpickMotion){
-      window.UpickMotion.open(dialog, { activeClass:'is-open', duration:DURATION, ariaHidden:true });
-      return;
-    }
+    // showModal() 직후 같은 프레임에 is-open을 붙이면 첫 1회만 페이드가 생략될 수 있습니다.
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         if(dialog.open && !dialog.__upickDialogClosing){
@@ -273,37 +211,15 @@
   }
 
   proto.showModal = function(){
-    var wasOpen = this.open;
-    var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
-
-    // 중요: native showModal() 호출 전에 페이지 스크롤을 먼저 잠급니다.
-    // showModal()이 포커스/렌더링 과정에서 문서를 top으로 이동시키는 것을 막고,
-    // 배경 화면은 현재 위치에 그대로 둔 상태로 팝업만 띄웁니다.
-    if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
-      this.__upickNativeScrollLocked = true;
-      lockNativeDialogScroll(savedScrollY);
-    }
-
     if(!this.open) nativeShowModal.apply(this, arguments);
-    resetDialogScroll(this);
     markOpen(this);
   };
   proto.show = function(){
-    var wasOpen = this.open;
-    var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
-
-    // native show() 역시 먼저 스크롤 잠금 후 표시해야 배경 위치가 흔들리지 않습니다.
-    if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
-      this.__upickNativeScrollLocked = true;
-      lockNativeDialogScroll(savedScrollY);
-    }
-
     if(!this.open) nativeShow.apply(this, arguments);
-    resetDialogScroll(this);
     markOpen(this);
   };
   proto.close = function(returnValue){
@@ -313,29 +229,18 @@
     }
     if(dialog.__upickDialogClosing) return;
     dialog.__upickDialogClosing = true;
-    var finish = function(){
+    dialog.classList.add('is-closing');
+    dialog.classList.remove('is-open');
+    dialog.setAttribute('aria-hidden','true');
+    dialog.__upickDialogCloseTimer = setTimeout(function(){
       dialog.__upickDialogForceClose = true;
       try{ nativeClose.call(dialog, returnValue); }
       finally{
         dialog.__upickDialogForceClose = false;
         dialog.__upickDialogClosing = false;
         dialog.__upickDialogCloseTimer = null;
-        dialog.classList.remove('is-closing','is-open','upick-motion-closing','upick-motion-open');
-        if(dialog.__upickNativeScrollLocked){
-          dialog.__upickNativeScrollLocked = false;
-          unlockNativeDialogScroll();
-        }
+        dialog.classList.remove('is-closing','is-open');
       }
-    };
-    if(window.UpickMotion){
-      window.UpickMotion.close(dialog, { activeClass:'is-open', duration:DURATION, ariaHidden:true, afterClose:finish });
-      return;
-    }
-    dialog.classList.add('is-closing');
-    dialog.classList.remove('is-open');
-    dialog.setAttribute('aria-hidden','true');
-    dialog.__upickDialogCloseTimer = setTimeout(finish, DURATION);
+    }, DURATION);
   };
 })();
-
-/* lock-before-show-fixed */

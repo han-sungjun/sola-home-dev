@@ -21,10 +21,10 @@
     if(!alertEl){
       alertEl = document.createElement('div');
       alertEl.id = 'appAlert';
-      alertEl.className = 'app-alert upick-motion-layer';
+      alertEl.className = 'app-alert';
       alertEl.setAttribute('aria-hidden','true');
       alertEl.innerHTML = ''+
-        '<div class="app-alert-card upick-motion-panel" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">'+
+        '<div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">'+
           '<div class="app-alert-head">'+
             '<div class="app-alert-icon" id="appAlertIcon" aria-hidden="true"></div>'+
             '<h3 class="app-alert-title" id="appAlertTitle">안내</h3>'+
@@ -88,35 +88,20 @@
     }
   }
 
-  function getMotionPanel(){
-    return alertEl ? qs('.app-alert-card', alertEl) : null;
-  }
-
   function openLayer(){
     ensureAlert();
     lastFocus = document.activeElement;
     if(closeTimer){ window.clearTimeout(closeTimer); closeTimer = null; }
     isClosing = false;
+    alertEl.classList.remove('show', 'is-closing');
+    alertEl.setAttribute('aria-hidden','false');
     setOpenLock(true);
 
     if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
       try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
     }
 
-    if(window.UpickMotion){
-      window.UpickMotion.open(alertEl, {
-        activeClass:'show',
-        panel:getMotionPanel(),
-        duration:240,
-        afterOpen:function(){
-          try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
-        }
-      });
-      return;
-    }
-
-    alertEl.classList.remove('show', 'is-closing');
-    alertEl.setAttribute('aria-hidden','false');
+    // 첫 호출에서도 opacity:0 상태가 한 프레임 이상 그려진 뒤 show가 붙어야 fade-in이 동작합니다.
     alertEl.offsetHeight;
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
@@ -131,8 +116,13 @@
     if(!alertEl || isClosing) return;
     isClosing = true;
     var focusTarget = lastFocus;
-    var finish = function(){
+    alertEl.classList.add('is-closing');
+    alertEl.classList.remove('show');
+    alertEl.setAttribute('aria-hidden','true');
+    if(closeTimer) window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function(){
       if(!alertEl || alertEl.classList.contains('show')) return;
+      alertEl.classList.remove('is-closing');
       if(alertEl.tagName === 'DIALOG' && alertEl.open){
         try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
       }
@@ -142,26 +132,6 @@
       if(focusTarget && typeof focusTarget.focus === 'function'){
         try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
       }
-    };
-
-    if(window.UpickMotion){
-      window.UpickMotion.close(alertEl, {
-        activeClass:'show',
-        panel:getMotionPanel(),
-        duration:240,
-        afterClose:finish
-      });
-      lastFocus = null;
-      return;
-    }
-
-    alertEl.classList.add('is-closing');
-    alertEl.classList.remove('show');
-    alertEl.setAttribute('aria-hidden','true');
-    if(closeTimer) window.clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(function(){
-      alertEl.classList.remove('is-closing');
-      finish();
     }, 280);
     lastFocus = null;
   }
