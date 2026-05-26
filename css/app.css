@@ -25906,3 +25906,11 @@ body.upick-modal-scroll-event-lock{
   right:auto!important;
   width:auto!important;
 }
+
+
+/* v89: 상세/공지 모달은 body 스크롤바를 유지하고, JS에서 바깥 입력만 차단합니다. */
+html.upick-modal-scroll-event-lock,
+body.upick-modal-scroll-event-lock{
+  overflow-y:auto!important;
+  overscroll-behavior:auto!important;
+}

@@ -5875,10 +5875,43 @@ function scheduleDetailDialogScrollReset(modal){
  });
 }
 
+function restorePageScrollWithoutBodyLock(y){
+ const top = Math.max(0, Number(y) || 0);
+ if(!Number.isFinite(top)) return;
+ try{ if('scrollRestoration' in history) history.scrollRestoration = 'manual'; }catch(_){}
+ try{ document.documentElement.style.scrollBehavior = 'auto'; }catch(_){}
+ try{ document.body.style.scrollBehavior = 'auto'; }catch(_){}
+ try{ document.documentElement.scrollTop = top; }catch(_){}
+ try{ document.body.scrollTop = top; }catch(_){}
+ try{ window.scrollTo({ top, left:0, behavior:'auto' }); }
+ catch(_){ try{ window.scrollTo(0, top); }catch(__){} }
+}
+
+function holdPageScrollWithoutBodyLock(y, duration = 520){
+ const top = Math.max(0, Number(y) || 0);
+ const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+ const until = start + Math.max(120, Number(duration) || 520);
+ const keep = () => {
+   const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+   const current = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+   if(Math.abs(current - top) > 1) restorePageScrollWithoutBodyLock(top);
+   if(now < until) requestAnimationFrame(keep);
+ };
+ restorePageScrollWithoutBodyLock(top);
+ requestAnimationFrame(keep);
+ setTimeout(() => restorePageScrollWithoutBodyLock(top), 0);
+ setTimeout(() => restorePageScrollWithoutBodyLock(top), 30);
+ setTimeout(() => restorePageScrollWithoutBodyLock(top), 80);
+ setTimeout(() => restorePageScrollWithoutBodyLock(top), 180);
+ setTimeout(() => restorePageScrollWithoutBodyLock(top), 360);
+}
+
 function preservePageScrollForDialogOpen(modal, savedY){
  const y = Math.max(0, Number(savedY) || getStablePageScrollY() || 0);
  window.__upickPendingModalScrollY = y;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(y); }catch(_){}
+ // showModal()/자동 focus가 body 스크롤을 0으로 당기는 경우가 있어, body fixed 없이 같은 프레임 안에서 원위치를 재고정합니다.
+ holdPageScrollWithoutBodyLock(y, 520);
  scheduleDetailDialogScrollReset(modal);
 }
 
@@ -5965,11 +5998,16 @@ ${item.content || ''}`);
  if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
  else modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
+ requestAnimationFrame(() => {
+   try{ (qs('#closeNoticeModal') || modal)?.focus?.({preventScroll:true}); }catch(_){}
+   restorePageScrollWithoutBodyLock(pageScrollY);
+ });
  }catch(error){
  console.warn('[notice] 공지 모달 열기 실패', error);
  if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
  else modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
+ requestAnimationFrame(() => restorePageScrollWithoutBodyLock(pageScrollY));
  }
 
  qs('#noticeCopyShareBtn')?.addEventListener('click', () => copyShareUrl('notice', item));
@@ -8326,6 +8364,10 @@ function renderCalendarDayModal(){
  if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
  else modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
+ requestAnimationFrame(() => {
+   try{ (qs('#closeModal') || modal)?.focus?.({preventScroll:true}); }catch(_){}
+   restorePageScrollWithoutBodyLock(pageScrollY);
+ });
  const detailHeadActions = qs('#detailHeadActions');
  if(detailHeadActions) detailHeadActions.hidden = false;
  const headFavBtn = qs('#modalFavBtn');
