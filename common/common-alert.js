@@ -10,6 +10,8 @@
   var confirmBtn = null;
   var cancelBtn = null;
   var actionsEl = null;
+  var closeTimer = null;
+  var isClosing = false;
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
   function escapeText(value){ return String(value == null ? '' : value); }
@@ -89,6 +91,8 @@
   function openLayer(){
     ensureAlert();
     lastFocus = document.activeElement;
+    if(closeTimer){ window.clearTimeout(closeTimer); closeTimer = null; }
+    isClosing = false;
     alertEl.classList.remove('show', 'is-closing');
     alertEl.setAttribute('aria-hidden','false');
     setOpenLock(true);
@@ -109,22 +113,26 @@
   }
 
   function closeLayer(){
-    if(!alertEl) return;
+    if(!alertEl || isClosing) return;
+    isClosing = true;
     var focusTarget = lastFocus;
     alertEl.classList.add('is-closing');
     alertEl.classList.remove('show');
     alertEl.setAttribute('aria-hidden','true');
-    window.setTimeout(function(){
+    if(closeTimer) window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function(){
       if(!alertEl || alertEl.classList.contains('show')) return;
       alertEl.classList.remove('is-closing');
       if(alertEl.tagName === 'DIALOG' && alertEl.open){
         try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
       }
       setOpenLock(false);
+      isClosing = false;
+      closeTimer = null;
       if(focusTarget && typeof focusTarget.focus === 'function'){
         try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
       }
-    }, 260);
+    }, 280);
     lastFocus = null;
   }
 

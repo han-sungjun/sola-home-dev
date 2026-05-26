@@ -184,8 +184,15 @@
       document.querySelectorAll('dialog[open]').forEach((dialog)=>{
         try{ dialog.close(); }catch(_){ dialog.removeAttribute('open'); }
       });
-      document.querySelectorAll('.app-alert.show,.gnb-overlay.show,.gnb-sheet.show').forEach((el)=>el.classList.remove('show'));
-      document.body.classList.remove('gnb-open');
+      document.querySelectorAll('.app-alert.show,.gnb-overlay.show,.gnb-sheet.show').forEach((el)=>{
+        el.classList.add('is-closing');
+        el.classList.remove('show');
+        el.setAttribute('aria-hidden','true');
+        setTimeout(()=>el.classList.remove('is-closing'), 280);
+      });
+      setTimeout(()=>{
+        document.body.classList.remove('gnb-open');
+      }, 280);
     }
 
     function resetAdminRuntimeState(){
@@ -417,7 +424,11 @@ function resetAdminSensitiveUI(){
       return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
     }
 
+    let adminAlertCloseTimer = null;
+    let adminAlertClosing = false;
     function closeModal(result=false){
+      if(adminAlertClosing) return;
+      adminAlertClosing = true;
       alertEl.classList.add('is-closing');
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
@@ -426,13 +437,16 @@ function resetAdminSensitiveUI(){
       alertResolver = null;
       alertFocusTarget = null;
 
-      setTimeout(() => {
+      if(adminAlertCloseTimer) clearTimeout(adminAlertCloseTimer);
+      adminAlertCloseTimer = setTimeout(() => {
         alertEl.classList.remove('is-closing');
+        adminAlertClosing = false;
+        adminAlertCloseTimer = null;
         if (focusTarget) {
           try { focusTarget.focus({preventScroll:true}); } catch (_) { try { focusTarget.focus(); } catch(__){} }
         }
         if(resolver) resolver(result);
-      }, 260);
+      }, 280);
     }
 
     alertConfirmEl?.addEventListener('click', () => closeModal(true));
@@ -479,10 +493,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       qsa('.admin-view').forEach(el => el.classList.remove('active'));
       (qs(`#view-${view}`) || qs('#view-dashboard'))?.classList.add('active');
       syncAdminNavActive(view);
-      qs('#adminGnbSheet')?.classList.remove('show');
-      qs('#adminGnbOverlay')?.classList.remove('show');
-      document.body.style.overflow = '';
-      document.body.classList.remove('gnb-open');
+      if(document.body.classList.contains('gnb-open')) closeAdminGnb();
       window.scrollTo({ top: 0, behavior: 'auto' });
       if(view === 'community') setTimeout(() => loadAdminCommunityPosts('active'), 80);
       if(view === 'ai') setTimeout(() => openAIManager(aiAdminState.tab || 'faq'), 80);
@@ -3098,6 +3109,7 @@ function fillForm(item){
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
         { duration:180, easing:'ease-out' }
       );
+      if(!document.body.classList.contains('gnb-open') && !adminGnbSheet?.classList.contains('show')) return;
       adminGnbSheet?.classList.add('is-closing');
       adminGnbOverlay?.classList.add('is-closing');
       adminGnbSheet?.classList.remove('show');
@@ -3108,7 +3120,7 @@ function fillForm(item){
         adminGnbOverlay?.classList.remove('is-closing');
         document.body.style.overflow='';
         document.body.classList.remove('gnb-open');
-      }, 240);
+      }, 280);
     }
     adminGnbToggleBtn?.addEventListener('click', openAdminGnb);
     adminGnbCloseBtn?.addEventListener('click', closeAdminGnb);

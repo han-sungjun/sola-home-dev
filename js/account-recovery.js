@@ -82,6 +82,7 @@ const fields = {
 };
 
 let lastFocus = null;
+let sheetCloseTimer = null;
 let alertResolver = null;
 
 function normalizeLoginId(value = '') {
@@ -134,6 +135,10 @@ function openSheet(mode) {
 
   // display:none 상태에서 show를 바로 붙이면 시작 프레임이 생략되어 정적으로 보일 수 있습니다.
   // 먼저 렌더링 가능한 상태로 만든 뒤, 다음 프레임에 show를 붙여 아래→위 애니메이션을 확실히 실행합니다.
+  if (sheetCloseTimer) {
+    clearTimeout(sheetCloseTimer);
+    sheetCloseTimer = null;
+  }
   modal.classList.remove('show', 'closing');
   modal.classList.add('ready');
   modal.setAttribute('aria-hidden', 'false');
@@ -196,11 +201,13 @@ function closeSheet() {
   modal.classList.add('closing');
   modal.setAttribute('aria-hidden', 'true');
 
-  window.setTimeout(() => {
+  if (sheetCloseTimer) clearTimeout(sheetCloseTimer);
+  sheetCloseTimer = window.setTimeout(() => {
     modal.classList.remove('ready', 'closing');
     resetAccountRecoveryForm();
     lastFocus?.focus?.();
-  }, 360);
+    sheetCloseTimer = null;
+  }, 380);
 }
 function getSheetBody() {
   return modal?.querySelector('.sheet-body') || null;
@@ -354,7 +361,7 @@ async function showAppAlert({
         } finally {
           resolve({ action, value: isConfirm });
         }
-      }, 260);
+      }, 280);
     };
 
     alertConfirmEl.onclick = () => finish('confirm');

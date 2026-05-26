@@ -154,13 +154,14 @@
   var nativeShowModal = proto.showModal;
   var nativeShow = proto.show;
   var nativeClose = proto.close;
-  var DURATION = 220;
+  var DURATION = 240;
 
   function shouldSkip(dialog){
     return !dialog || dialog.classList.contains('app-alert') || dialog.dataset.motion === 'none';
   }
   function prepareOpen(dialog){
     if(shouldSkip(dialog)) return;
+    bindCloseGuards(dialog);
     dialog.classList.add('upick-dialog-motion');
     dialog.classList.remove('is-open','is-closing');
     dialog.setAttribute('aria-hidden','true');
@@ -188,6 +189,25 @@
     }
     dialog.__upickDialogClosing = false;
     dialog.classList.remove('is-closing');
+  }
+  function bindCloseGuards(dialog){
+    if(!dialog || dialog.__upickDialogCloseGuardsBound) return;
+    dialog.__upickDialogCloseGuardsBound = true;
+    dialog.addEventListener('cancel', function(event){
+      if(shouldSkip(dialog) || dialog.__upickDialogForceClose) return;
+      event.preventDefault();
+      dialog.close();
+    }, true);
+    dialog.addEventListener('close', function(){
+      if(shouldSkip(dialog)) return;
+      if(dialog.__upickDialogCloseTimer){
+        clearTimeout(dialog.__upickDialogCloseTimer);
+        dialog.__upickDialogCloseTimer = null;
+      }
+      dialog.__upickDialogClosing = false;
+      dialog.classList.remove('is-closing','is-open');
+      dialog.setAttribute('aria-hidden','true');
+    });
   }
 
   proto.showModal = function(){
