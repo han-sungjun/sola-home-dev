@@ -25866,25 +25866,3 @@ input[type="radio"]:not(:checked):focus-visible{
 @media (prefers-reduced-motion:reduce){
   .gnb-overlay,.gnb-sheet{transition:none!important;}
 }
-
-
-/* ===== Benefit search full-width background fix ===== */
-.benefit-search-box,
-.search-input-wrap,
-.search-box,
-.search-container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-}
-
-.benefit-search-box input,
-.search-input-wrap input,
-.search-box input,
-.search-container input {
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    background: transparent !important;
-}
