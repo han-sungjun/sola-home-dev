@@ -25914,3 +25914,38 @@ body.upick-modal-scroll-event-lock{
   overflow-y:auto!important;
   overscroll-behavior:auto!important;
 }
+
+/* ===== v90 detail/notice dialog viewport-center fix =====
+   Body scroll is preserved by event-lock. Detail/notice dialogs are fixed to
+   the viewport so page scroll restoration cannot pull the dialog to the top. */
+#detailModal[open],
+#noticeModal[open]{
+  position:fixed!important;
+  inset:0!important;
+  margin:auto!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  left:0!important;
+  transform:none!important;
+  width:min(460px, calc(100% - 20px))!important;
+  max-height:calc(100dvh - 44px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#noticeModal[open]{
+  width:min(430px, calc(100% - 24px))!important;
+}
+@supports (height: 100svh){
+  #detailModal[open],
+  #noticeModal[open]{
+    max-height:calc(100svh - 44px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+  }
+}
+#detailModal .modal-body,
+#noticeModal .modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+}
