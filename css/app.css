@@ -25811,3 +25811,52 @@ input[type="radio"]:not(:checked):focus-visible{
     border-radius:20px!important;
   }
 }
+
+
+/* 검색창 전체 영역 포커스/클릭 개선 + 네이버 중복 태그 정리 */
+#view-benefits .filter-sticky .panel.searchbox{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+  min-height:44px!important;
+  padding:0 10px!important;
+  border-radius:16px!important;
+  background:#f3f8ff!important;
+  border:1px solid #dbeafe!important;
+  cursor:text!important;
+  box-shadow:none!important;
+}
+#view-benefits .filter-sticky .panel.searchbox:focus-within{
+  border-color:#2563eb!important;
+  box-shadow:0 0 0 2px rgba(37,99,235,.18)!important;
+}
+#view-benefits .filter-sticky .panel.searchbox > span{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  pointer-events:none!important;
+}
+#view-benefits .filter-sticky .panel.searchbox #searchInput{
+  flex:1 1 auto!important;
+  width:100%!important;
+  min-width:0!important;
+  height:100%!important;
+  min-height:34px!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#view-benefits .filter-sticky .panel.searchbox #searchInput:focus,
+#view-benefits .filter-sticky .panel.searchbox #searchInput:focus-visible{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+#view-benefits .filter-sticky .panel.searchbox #resetBtn{
+  flex:0 0 30px!important;
+  cursor:pointer!important;
+}
