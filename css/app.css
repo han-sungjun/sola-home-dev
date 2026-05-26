@@ -25868,48 +25868,58 @@ input[type="radio"]:not(:checked):focus-visible{
 }
 
 
-/* ===== 혜택 검색 input 영역 전체 배경 확장 보정 =====
-   - 기존 input 자체 배경은 제거
-   - 검색 패널 내부에 배경 레이어를 깔아 돋보기부터 초기화 버튼 전까지 자연스럽게 연결
-*/
-#view-benefits .filter-sticky .panel.searchbox{
-  position:relative !important;
+/* ===== v72: 혜택 검색창 전체 영역 배경 확장 보정 =====
+   검색 input 자체가 아니라 panel.searchbox 전체를 하나의 검색 필드처럼 보이게 처리합니다. */
+html body #view-benefits .filter-sticky .panel.searchbox{
   display:flex !important;
   align-items:center !important;
+  width:100% !important;
+  box-sizing:border-box !important;
   gap:8px !important;
+  padding:6px 9px !important;
+  min-height:38px !important;
+  border-radius:16px !important;
+  background:#f1f7ff !important;
+  border:1px solid rgba(191,219,254,.78) !important;
   overflow:hidden !important;
-  background:#fff !important;
 }
-#view-benefits .filter-sticky .panel.searchbox::before{
-  content:"";
-  position:absolute;
-  left:12px;
-  right:46px;
-  top:50%;
-  height:30px;
-  transform:translateY(-50%);
-  border-radius:0;
-  background:var(--upick-field-bg, #f1f7ff);
-  pointer-events:none;
-  z-index:0;
-}
-#view-benefits .filter-sticky .panel.searchbox > span,
-#view-benefits .filter-sticky .panel.searchbox > input,
-#view-benefits .filter-sticky .panel.searchbox > button{
-  position:relative !important;
+html body #view-benefits .filter-sticky .panel.searchbox > span{
+  flex:0 0 auto !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#2563eb !important;
   z-index:1 !important;
 }
-#view-benefits .filter-sticky .panel.searchbox > input#searchInput,
-#view-benefits .filter-sticky .panel.searchbox > input[type="text"]{
+html body #view-benefits .filter-sticky .panel.searchbox input#searchInput,
+html body #view-benefits .filter-sticky .panel.searchbox input[type="text"]{
   flex:1 1 auto !important;
   width:100% !important;
   min-width:0 !important;
-  background:transparent !important;
+  min-height:24px !important;
+  height:24px !important;
+  padding:0 !important;
+  margin:0 !important;
   border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  background-color:transparent !important;
+}
+html body #view-benefits .filter-sticky .panel.searchbox input#searchInput:focus,
+html body #view-benefits .filter-sticky .panel.searchbox input[type="text"]:focus{
+  background:transparent !important;
+  background-color:transparent !important;
   box-shadow:none !important;
 }
-#view-benefits .filter-sticky .panel.searchbox > .icon-btn,
-#view-benefits .filter-sticky .panel.searchbox > #resetBtn{
+html body #view-benefits .filter-sticky .panel.searchbox .icon-btn#resetBtn{
   flex:0 0 30px !important;
+  width:30px !important;
+  height:30px !important;
+  min-width:30px !important;
+  min-height:30px !important;
+  margin-left:2px !important;
   background:#fff !important;
+  border:1px solid rgba(191,219,254,.9) !important;
+  z-index:1 !important;
 }
