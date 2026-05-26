@@ -379,10 +379,14 @@ function resetAdminSensitiveUI(){
       alertConfirmEl.textContent = confirmText;
       alertCancelEl.textContent = cancelText;
       alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
-      alertEl.classList.add('show');
+      alertEl.classList.remove('show', 'is-closing');
       alertEl.setAttribute('aria-hidden', 'false');
+      alertEl.offsetHeight;
       requestAnimationFrame(() => {
-        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+        requestAnimationFrame(() => {
+          alertEl.classList.add('show');
+          (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+        });
       });
       return new Promise((resolve) => {
         alertResolver = resolve;
@@ -414,6 +418,7 @@ function resetAdminSensitiveUI(){
     }
 
     function closeModal(result=false){
+      alertEl.classList.add('is-closing');
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
       const focusTarget = alertFocusTarget;
@@ -421,13 +426,13 @@ function resetAdminSensitiveUI(){
       alertResolver = null;
       alertFocusTarget = null;
 
-      if (focusTarget) {
-        setTimeout(() => {
-          try { focusTarget.focus(); } catch (_) {}
-        }, 30);
-      }
-
-      if(resolver) resolver(result);
+      setTimeout(() => {
+        alertEl.classList.remove('is-closing');
+        if (focusTarget) {
+          try { focusTarget.focus({preventScroll:true}); } catch (_) { try { focusTarget.focus(); } catch(__){} }
+        }
+        if(resolver) resolver(result);
+      }, 260);
     }
 
     alertConfirmEl?.addEventListener('click', () => closeModal(true));
@@ -4221,7 +4226,7 @@ function fillForm(item){
 
     async function deleteAiDoc(collectionName, id){
       if(!collectionName || !id) return;
-      const ok = window.confirm('정말 삭제하시겠습니까?');
+      const ok = await openModalConfirm('정말 삭제하시겠습니까?', null, '삭제 확인', '삭제', '취소');
       if(!ok) return;
       await deleteDoc(doc(db, collectionName, id));
       openModalAlert('선택한 AI 데이터가 삭제되었습니다.', null, '삭제 완료');

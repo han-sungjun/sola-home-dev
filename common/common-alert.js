@@ -89,16 +89,22 @@
   function openLayer(){
     ensureAlert();
     lastFocus = document.activeElement;
-    alertEl.classList.remove('is-closing');
-    alertEl.classList.add('show');
+    alertEl.classList.remove('show', 'is-closing');
     alertEl.setAttribute('aria-hidden','false');
     setOpenLock(true);
 
     if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
       try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
     }
+
+    // 첫 호출에서도 opacity:0 상태가 한 프레임 이상 그려진 뒤 show가 붙어야 fade-in이 동작합니다.
+    alertEl.offsetHeight;
     requestAnimationFrame(function(){
-      try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
+      requestAnimationFrame(function(){
+        if(!alertEl) return;
+        alertEl.classList.add('show');
+        try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
+      });
     });
   }
 
@@ -118,7 +124,7 @@
       if(focusTarget && typeof focusTarget.focus === 'function'){
         try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
       }
-    }, 240);
+    }, 260);
     lastFocus = null;
   }
 

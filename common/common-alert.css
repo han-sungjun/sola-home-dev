@@ -18,7 +18,7 @@ dialog.app-alert{
   margin:0!important;
   padding:20px!important;
   border:0!important;
-  display:none!important;
+  display:flex!important;
   align-items:center!important;
   justify-content:center!important;
   box-sizing:border-box!important;
@@ -27,17 +27,49 @@ dialog.app-alert{
   backdrop-filter:blur(6px)!important;
   -webkit-backdrop-filter:blur(6px)!important;
   overflow:hidden!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:
+    opacity var(--upick-motion-normal, 220ms) var(--upick-motion-ease, cubic-bezier(.22,.61,.36,1)),
+    visibility 0s linear var(--upick-motion-normal, 220ms)!important;
 }
 
 .app-alert.show,
 dialog.app-alert[open].show{
-  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:
+    opacity var(--upick-motion-normal, 220ms) var(--upick-motion-ease, cubic-bezier(.22,.61,.36,1)),
+    visibility 0s linear 0s!important;
+}
+
+.app-alert.is-closing,
+dialog.app-alert[open].is-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+
+dialog.app-alert:not([open]){
+  display:none!important;
 }
 
 dialog.app-alert::backdrop{
   background:rgba(15,23,42,.46)!important;
   backdrop-filter:blur(6px)!important;
   -webkit-backdrop-filter:blur(6px)!important;
+  opacity:0!important;
+  transition:opacity var(--upick-motion-normal, 220ms) var(--upick-motion-ease, cubic-bezier(.22,.61,.36,1))!important;
+}
+
+dialog.app-alert[open].show::backdrop{
+  opacity:1!important;
+}
+
+dialog.app-alert[open].is-closing::backdrop{
+  opacity:0!important;
 }
 
 .app-alert-card,

@@ -294,7 +294,7 @@ async function showAppAlert({
   }
 
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
-    window.alert(message);
+    window.showCommonAlert ? window.showCommonAlert({ title, message, confirmText: normalizedConfirmText }) : window.alert(message);
     if (typeof onConfirm === 'function') onConfirm();
     else if (closeSheetOnConfirm) closeSheet();
     return Promise.resolve({ action: 'confirm', value: true });
@@ -314,8 +314,12 @@ async function showAppAlert({
   alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
-  alertEl.classList.add('show');
+  alertEl.classList.remove('show', 'is-closing');
   alertEl.setAttribute('aria-hidden', 'false');
+  alertEl.offsetHeight;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => alertEl.classList.add('show'));
+  });
 
   alertConfirmEl.onclick = null;
   alertCancelEl.onclick = null;
@@ -331,6 +335,7 @@ async function showAppAlert({
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
+      alertEl.classList.add('is-closing');
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
 
@@ -338,15 +343,18 @@ async function showAppAlert({
       alertConfirmEl.onclick = null;
       alertCancelEl.onclick = null;
 
-      try {
-        if (typeof callback === 'function') {
-          await callback();
-        } else if (shouldCloseSheet) {
-          closeSheet();
+      setTimeout(async () => {
+        alertEl.classList.remove('is-closing');
+        try {
+          if (typeof callback === 'function') {
+            await callback();
+          } else if (shouldCloseSheet) {
+            closeSheet();
+          }
+        } finally {
+          resolve({ action, value: isConfirm });
         }
-      } finally {
-        resolve({ action, value: isConfirm });
-      }
+      }, 260);
     };
 
     alertConfirmEl.onclick = () => finish('confirm');
