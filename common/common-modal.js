@@ -9,6 +9,7 @@
   var currentOptions = null;
   var currentPlaceholder = null;
   var initialized = false;
+  var closeTimer = null;
 
   function ensureRoot(){
     if(root) return root;
@@ -46,23 +47,32 @@
 
   function close(){
     if(!overlay) return;
+    var targetOverlay = overlay;
+    var targetStage = stage;
     var opts = currentOptions || {};
     var content = currentContent;
-    if(content && currentPlaceholder && currentPlaceholder.parentNode){
-      currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
-      currentPlaceholder.remove();
-    }else if(content && content.parentNode){
-      content.parentNode.removeChild(content);
-    }
-    document.removeEventListener('keydown', trapEsc, true);
-    overlay.remove();
-    overlay = null;
-    stage = null;
-    currentContent = null;
-    currentOptions = null;
-    currentPlaceholder = null;
-    unlockBody();
-    if(typeof opts.onClose === 'function') opts.onClose(content);
+    if(closeTimer) window.clearTimeout(closeTimer);
+    targetOverlay.classList.add('is-closing');
+    targetOverlay.classList.remove('is-open');
+    if(targetStage) targetStage.classList.add('is-closing');
+    closeTimer = window.setTimeout(function(){
+      if(content && currentPlaceholder && currentPlaceholder.parentNode){
+        currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
+        currentPlaceholder.remove();
+      }else if(content && content.parentNode){
+        content.parentNode.removeChild(content);
+      }
+      document.removeEventListener('keydown', trapEsc, true);
+      if(targetOverlay && targetOverlay.parentNode) targetOverlay.remove();
+      overlay = null;
+      stage = null;
+      currentContent = null;
+      currentOptions = null;
+      currentPlaceholder = null;
+      closeTimer = null;
+      unlockBody();
+      if(typeof opts.onClose === 'function') opts.onClose(content);
+    }, 240);
   }
 
   function open(options){
@@ -95,6 +105,9 @@
     stage.appendChild(content);
     overlay.appendChild(stage);
     root.appendChild(overlay);
+    requestAnimationFrame(function(){
+      if(overlay) overlay.classList.add('is-open');
+    });
 
     overlay.addEventListener('click', function(event){
       if(event.target === overlay){
@@ -130,4 +143,68 @@
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
+})();
+
+/* ===== v70: native <dialog> fade-in/out bridge ===== */
+(function(){
+  'use strict';
+  if(!window.HTMLDialogElement || window.__upickDialogMotionPatched) return;
+  window.__upickDialogMotionPatched = true;
+  var proto = window.HTMLDialogElement.prototype;
+  var nativeShowModal = proto.showModal;
+  var nativeShow = proto.show;
+  var nativeClose = proto.close;
+  var DURATION = 220;
+
+  function shouldSkip(dialog){
+    return !dialog || dialog.classList.contains('app-alert') || dialog.dataset.motion === 'none';
+  }
+  function markOpen(dialog){
+    if(shouldSkip(dialog)) return;
+    dialog.classList.remove('is-closing');
+    dialog.classList.add('upick-dialog-motion');
+    dialog.setAttribute('aria-hidden','false');
+    requestAnimationFrame(function(){ dialog.classList.add('is-open'); });
+  }
+  function cancelClosing(dialog){
+    if(!dialog) return;
+    if(dialog.__upickDialogCloseTimer){
+      clearTimeout(dialog.__upickDialogCloseTimer);
+      dialog.__upickDialogCloseTimer = null;
+    }
+    dialog.__upickDialogClosing = false;
+    dialog.classList.remove('is-closing');
+  }
+
+  proto.showModal = function(){
+    cancelClosing(this);
+    if(!this.open) nativeShowModal.apply(this, arguments);
+    markOpen(this);
+  };
+  proto.show = function(){
+    cancelClosing(this);
+    if(!this.open) nativeShow.apply(this, arguments);
+    markOpen(this);
+  };
+  proto.close = function(returnValue){
+    var dialog = this;
+    if(shouldSkip(dialog) || dialog.__upickDialogForceClose || !dialog.open){
+      return nativeClose.apply(dialog, arguments);
+    }
+    if(dialog.__upickDialogClosing) return;
+    dialog.__upickDialogClosing = true;
+    dialog.classList.add('is-closing');
+    dialog.classList.remove('is-open');
+    dialog.setAttribute('aria-hidden','true');
+    dialog.__upickDialogCloseTimer = setTimeout(function(){
+      dialog.__upickDialogForceClose = true;
+      try{ nativeClose.call(dialog, returnValue); }
+      finally{
+        dialog.__upickDialogForceClose = false;
+        dialog.__upickDialogClosing = false;
+        dialog.__upickDialogCloseTimer = null;
+        dialog.classList.remove('is-closing','is-open');
+      }
+    }, DURATION);
+  };
 })();

@@ -12191,6 +12191,8 @@ startCrowdDynamicRefresh();
  if(opener && opener.focus) lastGnbOpener = opener;
  else if(document.activeElement && document.activeElement.closest && !gnbSheet?.contains(document.activeElement)) lastGnbOpener = document.activeElement;
 
+ gnbSheet?.classList.remove('is-closing');
+ gnbOverlay?.classList.remove('is-closing');
  gnbSheet?.classList.add('show');
  gnbOverlay?.classList.add('show');
  gnbSheet?.setAttribute('aria-hidden', 'false');
@@ -12233,13 +12235,19 @@ startCrowdDynamicRefresh();
  [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
  { duration:180, easing:'ease-out' }
  );
+ gnbSheet?.classList.add('is-closing');
+ gnbOverlay?.classList.add('is-closing');
  gnbSheet?.classList.remove('show');
  gnbOverlay?.classList.remove('show');
  gnbSheet?.setAttribute('aria-hidden', 'true');
- document.body.style.overflow = '';
- document.body.classList.remove('gnb-open');
- gnbSheet?.style.removeProperty('transform');
- if(options.restoreFocus !== false) restoreGnbOpenerFocus();
+ setTimeout(() => {
+   gnbSheet?.classList.remove('is-closing');
+   gnbOverlay?.classList.remove('is-closing');
+   document.body.style.overflow = '';
+   document.body.classList.remove('gnb-open');
+   gnbSheet?.style.removeProperty('transform');
+   if(options.restoreFocus !== false) restoreGnbOpenerFocus();
+ }, 240);
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {

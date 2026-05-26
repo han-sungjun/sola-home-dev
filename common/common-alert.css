@@ -717,3 +717,34 @@ body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+
+/* ===== v70: 공통 알럿/컨펌 fade-in/out 모션 ===== */
+:root{
+  --upick-motion-fast:160ms;
+  --upick-motion-normal:220ms;
+  --upick-motion-slow:280ms;
+  --upick-motion-ease:cubic-bezier(.22,.61,.36,1);
+}
+.app-alert.is-closing,
+dialog.app-alert.is-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  transition:opacity var(--upick-motion-normal) var(--upick-motion-ease)!important;
+}
+.app-alert.show,
+dialog.app-alert[open].show{
+  opacity:1!important;
+  visibility:visible!important;
+  transition:opacity var(--upick-motion-normal) var(--upick-motion-ease)!important;
+}
+.app-alert.is-closing .app-alert-card,
+dialog.app-alert.is-closing .app-alert-card{
+  opacity:0!important;
+  transform:translateY(10px) scale(.98)!important;
+}
+@media (prefers-reduced-motion:reduce){
+  .app-alert, .app-alert-card, dialog.app-alert, dialog.app-alert .app-alert-card{transition:none!important;}
+}

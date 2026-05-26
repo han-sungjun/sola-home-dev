@@ -89,6 +89,7 @@
   function openLayer(){
     ensureAlert();
     lastFocus = document.activeElement;
+    alertEl.classList.remove('is-closing');
     alertEl.classList.add('show');
     alertEl.setAttribute('aria-hidden','false');
     setOpenLock(true);
@@ -103,15 +104,21 @@
 
   function closeLayer(){
     if(!alertEl) return;
+    var focusTarget = lastFocus;
+    alertEl.classList.add('is-closing');
     alertEl.classList.remove('show');
     alertEl.setAttribute('aria-hidden','true');
-    if(alertEl.tagName === 'DIALOG' && alertEl.open){
-      try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
-    }
-    setOpenLock(false);
-    if(lastFocus && typeof lastFocus.focus === 'function'){
-      try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
-    }
+    window.setTimeout(function(){
+      if(!alertEl || alertEl.classList.contains('show')) return;
+      alertEl.classList.remove('is-closing');
+      if(alertEl.tagName === 'DIALOG' && alertEl.open){
+        try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
+      }
+      setOpenLock(false);
+      if(focusTarget && typeof focusTarget.focus === 'function'){
+        try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
+      }
+    }, 240);
     lastFocus = null;
   }
 

@@ -3071,6 +3071,8 @@ function fillForm(item){
     const adminGnbOverlay = qs('#adminGnbOverlay');
     const adminGnbCloseBtn = qs('#adminGnbCloseBtn');
     function openAdminGnb(){
+      adminGnbSheet?.classList.remove('is-closing');
+      adminGnbOverlay?.classList.remove('is-closing');
       adminGnbSheet?.classList.add('show');
       adminGnbOverlay?.classList.add('show');
       adminGnbSheet?.setAttribute('aria-hidden','false');
@@ -3091,11 +3093,17 @@ function fillForm(item){
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
         { duration:180, easing:'ease-out' }
       );
+      adminGnbSheet?.classList.add('is-closing');
+      adminGnbOverlay?.classList.add('is-closing');
       adminGnbSheet?.classList.remove('show');
       adminGnbOverlay?.classList.remove('show');
       adminGnbSheet?.setAttribute('aria-hidden','true');
-      document.body.style.overflow='';
-      document.body.classList.remove('gnb-open');
+      setTimeout(() => {
+        adminGnbSheet?.classList.remove('is-closing');
+        adminGnbOverlay?.classList.remove('is-closing');
+        document.body.style.overflow='';
+        document.body.classList.remove('gnb-open');
+      }, 240);
     }
     adminGnbToggleBtn?.addEventListener('click', openAdminGnb);
     adminGnbCloseBtn?.addEventListener('click', closeAdminGnb);
