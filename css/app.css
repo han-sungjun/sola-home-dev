@@ -26066,3 +26066,48 @@ body.upick-detail-notice-open #detailModal[open].upick-preserve-scroll-dialog,
 body.upick-detail-notice-open #noticeModal[open].upick-preserve-scroll-dialog {
     contain: layout paint !important;
 }
+
+
+/* ===== Nested image/news preview position fix =====
+   상세/공지 팝업 위에서 사진/소식 이미지 확대 팝업을 열 때,
+   상세 팝업의 preserve-scroll 처리와 커스텀 백드롭이 확대 팝업 위치에 간섭하지 않도록 보정합니다. */
+body.upick-nested-preview-open .upick-detail-notice-backdrop {
+    pointer-events: none !important;
+}
+
+body.upick-nested-preview-open .benefit-image-preview-overlay,
+body.upick-nested-preview-open .ai-image-zoom-overlay,
+body.upick-nested-preview-open .news-image-preview-overlay,
+body.upick-nested-preview-open .image-preview-overlay,
+body.upick-nested-preview-open [data-image-preview-overlay] {
+    position: fixed !important;
+    inset: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    transform: none !important;
+    z-index: 10080 !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box !important;
+}
+
+body.upick-nested-preview-open .benefit-image-preview-dialog,
+body.upick-nested-preview-open .ai-image-zoom-dialog,
+body.upick-nested-preview-open .news-image-preview-dialog,
+body.upick-nested-preview-open .image-preview-dialog,
+body.upick-nested-preview-open [data-image-preview-dialog] {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 auto !important;
+    max-width: min(92vw, 460px) !important;
+    max-height: calc(92dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+}

@@ -7954,6 +7954,9 @@ function renderCalendarDayModal(){
  }
 
  function openBenefitImagePreview(slider, startIndex = 0, title = '혜택 사진'){
+ try{ window.__upickReleaseDetailNoticeOpenScrollGuard?.(); }catch(_){}
+ document.body.classList.add('upick-nested-preview-open');
+
  removeLegacyBenefitPhotoViewer();
  let images = [];
  try{ images = JSON.parse(slider?.dataset?.benefitPhotoImages || '[]'); }catch(_){ images = []; }
@@ -8056,6 +8059,7 @@ function renderCalendarDayModal(){
    overlay.setAttribute('aria-hidden','true');
    try{ if(typeof overlay.close === 'function' && overlay.open) overlay.close(); }catch(_){}
    document.body.classList.remove('benefit-image-preview-open');
+ document.body.classList.remove('upick-nested-preview-open');
    // dialog close/focus 복귀 과정에서 상세 썸네일 focus 이벤트가 다시 실행될 수 있어
    // 닫힌 직후와 다음 프레임에 동일 index를 한 번 더 고정합니다.
    requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
@@ -8194,6 +8198,13 @@ function openDialogPreservePageScroll(dialog){
 
  const originalScrollTo = window.scrollTo ? window.scrollTo.bind(window) : null;
  let guardActive = true;
+ const releaseOpenScrollGuard = () => {
+   guardActive = false;
+   try{
+     if(originalScrollTo) window.scrollTo = originalScrollTo;
+   }catch(_){}
+ };
+ window.__upickReleaseDetailNoticeOpenScrollGuard = releaseOpenScrollGuard;
  const keepScroll = () => {
    try{
      if(originalScrollTo) originalScrollTo(x, y);
@@ -8275,10 +8286,7 @@ function openDialogPreservePageScroll(dialog){
          dialog.setAttribute('aria-hidden','false');
        }
        setTimeout(() => {
-         guardActive = false;
-         try{
-           if(originalScrollTo) window.scrollTo = originalScrollTo;
-         }catch(_){}
+         releaseOpenScrollGuard();
        }, 180);
      }, 36);
    });
