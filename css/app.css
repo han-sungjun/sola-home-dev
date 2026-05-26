@@ -25866,3 +25866,50 @@ input[type="radio"]:not(:checked):focus-visible{
 @media (prefers-reduced-motion:reduce){
   .gnb-overlay,.gnb-sheet{transition:none!important;}
 }
+
+
+/* ===== 혜택 검색 input 영역 전체 배경 확장 보정 =====
+   - 기존 input 자체 배경은 제거
+   - 검색 패널 내부에 배경 레이어를 깔아 돋보기부터 초기화 버튼 전까지 자연스럽게 연결
+*/
+#view-benefits .filter-sticky .panel.searchbox{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  overflow:hidden !important;
+  background:#fff !important;
+}
+#view-benefits .filter-sticky .panel.searchbox::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:46px;
+  top:50%;
+  height:30px;
+  transform:translateY(-50%);
+  border-radius:0;
+  background:var(--upick-field-bg, #f1f7ff);
+  pointer-events:none;
+  z-index:0;
+}
+#view-benefits .filter-sticky .panel.searchbox > span,
+#view-benefits .filter-sticky .panel.searchbox > input,
+#view-benefits .filter-sticky .panel.searchbox > button{
+  position:relative !important;
+  z-index:1 !important;
+}
+#view-benefits .filter-sticky .panel.searchbox > input#searchInput,
+#view-benefits .filter-sticky .panel.searchbox > input[type="text"]{
+  flex:1 1 auto !important;
+  width:100% !important;
+  min-width:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+#view-benefits .filter-sticky .panel.searchbox > .icon-btn,
+#view-benefits .filter-sticky .panel.searchbox > #resetBtn{
+  flex:0 0 30px !important;
+  background:#fff !important;
+}
