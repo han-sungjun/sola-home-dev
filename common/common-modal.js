@@ -159,12 +159,26 @@
   function shouldSkip(dialog){
     return !dialog || dialog.classList.contains('app-alert') || dialog.dataset.motion === 'none';
   }
+  function prepareOpen(dialog){
+    if(shouldSkip(dialog)) return;
+    dialog.classList.add('upick-dialog-motion');
+    dialog.classList.remove('is-open','is-closing');
+    dialog.setAttribute('aria-hidden','true');
+  }
   function markOpen(dialog){
     if(shouldSkip(dialog)) return;
     dialog.classList.remove('is-closing');
     dialog.classList.add('upick-dialog-motion');
     dialog.setAttribute('aria-hidden','false');
-    requestAnimationFrame(function(){ dialog.classList.add('is-open'); });
+    // 최초 호출 시에도 opacity:0/transform 초기 상태가 먼저 계산되도록 한 프레임을 보장합니다.
+    // showModal() 직후 같은 프레임에 is-open을 붙이면 첫 1회만 페이드가 생략될 수 있습니다.
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if(dialog.open && !dialog.__upickDialogClosing){
+          dialog.classList.add('is-open');
+        }
+      });
+    });
   }
   function cancelClosing(dialog){
     if(!dialog) return;
@@ -178,11 +192,13 @@
 
   proto.showModal = function(){
     cancelClosing(this);
+    prepareOpen(this);
     if(!this.open) nativeShowModal.apply(this, arguments);
     markOpen(this);
   };
   proto.show = function(){
     cancelClosing(this);
+    prepareOpen(this);
     if(!this.open) nativeShow.apply(this, arguments);
     markOpen(this);
   };
