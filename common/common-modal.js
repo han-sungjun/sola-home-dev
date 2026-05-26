@@ -277,11 +277,16 @@
     var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
-    if(!this.open) nativeShowModal.apply(this, arguments);
+
+    // 중요: native showModal() 호출 전에 페이지 스크롤을 먼저 잠급니다.
+    // showModal()이 포커스/렌더링 과정에서 문서를 top으로 이동시키는 것을 막고,
+    // 배경 화면은 현재 위치에 그대로 둔 상태로 팝업만 띄웁니다.
     if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
       this.__upickNativeScrollLocked = true;
       lockNativeDialogScroll(savedScrollY);
     }
+
+    if(!this.open) nativeShowModal.apply(this, arguments);
     resetDialogScroll(this);
     markOpen(this);
   };
@@ -290,11 +295,14 @@
     var savedScrollY = getPageScrollY();
     cancelClosing(this);
     prepareOpen(this);
-    if(!this.open) nativeShow.apply(this, arguments);
+
+    // native show() 역시 먼저 스크롤 잠금 후 표시해야 배경 위치가 흔들리지 않습니다.
     if(!shouldSkip(this) && !wasOpen && !this.__upickNativeScrollLocked){
       this.__upickNativeScrollLocked = true;
       lockNativeDialogScroll(savedScrollY);
     }
+
+    if(!this.open) nativeShow.apply(this, arguments);
     resetDialogScroll(this);
     markOpen(this);
   };
@@ -329,3 +337,5 @@
     dialog.__upickDialogCloseTimer = setTimeout(finish, DURATION);
   };
 })();
+
+/* lock-before-show-fixed */
