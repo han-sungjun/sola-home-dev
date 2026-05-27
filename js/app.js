@@ -7789,13 +7789,20 @@ function renderCalendarDayModal(){
  qs('#calendarNotifyBefore').value = '30';
  qs('#calendarReservationMemo').value = '';
  modal.dataset.benefitId = item.id || '';
- if(isLayerOpenLike(modal)) closeDialogSafe(modal);
- try{ modal.classList.add('upick-nested-modal'); }catch(_){}
- openDialogSafe(modal, { initialFocusSelector:'#calendarVisitDate', duration:320 });
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal, { duration:160 });
+ try{
+   modal.classList.add('upick-nested-modal');
+   modal.classList.remove('is-closing','upick-motion-closing');
+   delete modal.dataset.upickMotionClosing;
+ }catch(_){}
+ // 버튼 클릭 이벤트 버블링이 끝난 뒤 중첩 팝업을 열어 상세 팝업의 클릭/포커스 처리와 충돌하지 않게 합니다.
+ setTimeout(() => {
+   openDialogSafe(modal, { initialFocusSelector:'#calendarVisitDate', duration:320 });
+ }, 0);
  }
  function closeCalendarReservationModal(){
  const modal = qs('#calendarReservationModal');
- if(modal?.open) closeDialogSafe(modal);
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal, { duration:320 });
  }
  async function saveCalendarReservation(event){
  event?.preventDefault?.();
@@ -8510,7 +8517,17 @@ function renderCalendarDayModal(){
      openBenefitImagePreview(photoSliderEl, Number(photoSliderEl.dataset.currentIndex || 0), item.name || '혜택 사진');
    };
  }
- qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
+ {
+   const reservationBtn = qs('#openCalendarReservationBtn');
+   if(reservationBtn){
+     reservationBtn.onclick = (event) => {
+       event.preventDefault();
+       event.stopPropagation();
+       if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+       openCalendarReservationModal(item);
+     };
+   }
+ }
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
  qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
