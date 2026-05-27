@@ -5131,8 +5131,17 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
  if(state.userLocation) recalculateBenefitDistances();
  state.loading = false;
- renderAll();
- handleCleanDeepLink();
+ const activeDetailModal = qs('#detailModal');
+ const shouldPreserveOpenDetail = !!(activeDetailModal && isLayerOpenLike(activeDetailModal) && activeDetailModal.dataset.benefitId);
+ if(shouldPreserveOpenDetail){
+   // 혜택 상세가 열린 상태에서 즐겨찾기/조회수 등의 Firestore snapshot이 들어오면
+   // 전체 목록을 다시 그리면서 모달이 흔들리거나 닫히는 현상이 발생할 수 있어
+   // 상세 모달은 그대로 유지하고, 헤더 버튼 상태만 동기화합니다.
+   try{ syncFavoriteButtonsForId(activeDetailModal.dataset.benefitId); }catch(_){}
+ }else{
+   renderAll();
+   handleCleanDeepLink();
+ }
  markInitialDataLoaded('benefits');
  setTimeout(prepareInitialBenefitDistances, 300);
  }, () => {
@@ -7840,8 +7849,25 @@ function renderCalendarDayModal(){
  updatedAt: serverTimestamp()
  });
  closeCalendarReservationModal();
- await openModalAlert('방문 알림이 등록되었습니다.\n캘린더 메뉴에서 확인할 수 있습니다.');
- changeView('calendar');
+ const goCalendar = await openModalConfirm(
+   '방문 알림이 등록되었습니다.\n캘린더 화면에서 확인하시겠습니까?',
+   null,
+   '방문 알림 등록 완료',
+   '캘린더에서 확인',
+   '계속 혜택 보기'
+ );
+ if(goCalendar){
+   closeDetailDialogPreservingPage(qs('#detailModal'));
+   changeView('calendar');
+   try{
+     calendarUiState.selectedDateKey = dateValue;
+     calendarUiState.cursorDate = dateFromKey(dateValue);
+     calendarUiState.dayModalDateKey = dateValue;
+     calendarUiState.focusAfterModalDateKey = dateValue;
+     renderCalendarReservations();
+     setTimeout(() => openCalendarDayModal(dateValue), 180);
+   }catch(_){}
+ }
  }catch(error){
  console.error('캘린더 예약 저장 실패', error);
  await openModalAlert('예약 알림 저장 중 오류가 발생했습니다. Firestore 규칙을 확인해 주세요.');
