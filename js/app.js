@@ -3968,7 +3968,7 @@ function openNewsImagePreview(src='', title='소식 이미지'){
        document.body.classList.remove('news-image-preview-open');
        const img = overlay.querySelector('img');
        if(img) img.removeAttribute('src');
-     }, 260);
+     }, 320);
    };
    overlay.addEventListener('click', (event) => {
      if(event.target === overlay || event.target.closest('.news-image-preview-close')) closePreview();
@@ -8525,9 +8525,15 @@ function openCalendarReservationModal(item={}){
        else activeImg.addEventListener('load', fitDialogToActiveImage, { once:true });
      }
    }
-   if(count){ count.textContent = ''; count.hidden = true; }
+   if(count){
+     count.hidden = images.length <= 1;
+     count.textContent = images.length > 1 ? `${index + 1}/${images.length}` : '';
+   }
    if(titleEl) titleEl.textContent = title;
-   if(dotsEl){ dotsEl.hidden = true; dotsEl.innerHTML = ''; }
+   if(dotsEl){
+     dotsEl.hidden = images.length <= 1;
+     dotsEl.innerHTML = images.length > 1 ? images.map((_, dotIndex) => `<span class="${dotIndex === index ? 'active' : ''}"></span>`).join('') : '';
+   }
  };
  const readPreviewIndexFromDom = () => {
    const saved = Number(overlay?.dataset?.previewCurrentIndex);
@@ -8571,7 +8577,7 @@ function openCalendarReservationModal(item={}){
      requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
      window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
      try{ slider?.focus?.({preventScroll:true}); }catch(_){}
-   }, 260);
+   }, 320);
  };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
@@ -14715,3 +14721,70 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind,{once:true}); else bind();
 }catch(_){}})();
+
+
+/* ===== v20260527 image preview final fade/fullscreen patch ===== */
+(function(){
+  'use strict';
+  const OPEN_CLASS = 'show';
+  const CLOSING_CLASS = 'closing';
+  const DURATION = 320;
+
+  function raf2(fn){ requestAnimationFrame(() => requestAnimationFrame(fn)); }
+  function keepImageZoomOnTop(el){
+    try{
+      if(typeof window.__upickBringPopupToFront === 'function') window.__upickBringPopupToFront(el);
+    }catch(_){ }
+  }
+
+  window.openAiImageZoomFromElement = function(source){
+    const trigger = source && source.closest ? (source.closest('[data-ai-image-zoom]') || source) : source;
+    const src = trigger?.dataset?.aiImageSrc || trigger?.getAttribute?.('src') || trigger?.querySelector?.('img')?.src || '';
+    const title = trigger?.dataset?.aiImageTitle || trigger?.querySelector?.('img')?.alt || '이미지 확대 보기';
+    if(!src) return false;
+    const layer = document.getElementById('aiImageZoomBackdrop');
+    const img = document.getElementById('aiImageZoomImg');
+    const titleEl = document.getElementById('aiImageZoomTitle');
+    const closeBtn = document.getElementById('aiImageZoomCloseBtn');
+    if(!layer || !img) return false;
+    if(titleEl) titleEl.textContent = title || '이미지 확대 보기';
+    img.src = src;
+    img.alt = title || '확대 이미지';
+    layer.classList.remove(CLOSING_CLASS);
+    layer.classList.add('upick-ai-image-fade-layer');
+    layer.setAttribute('aria-hidden','false');
+    keepImageZoomOnTop(layer);
+    document.body.classList.add('ai-image-zoom-open');
+    raf2(() => {
+      layer.classList.add(OPEN_CLASS);
+      try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){ }
+    });
+    return false;
+  };
+
+  window.closeAiImageZoom = function(){
+    const layer = document.getElementById('aiImageZoomBackdrop');
+    const img = document.getElementById('aiImageZoomImg');
+    if(!layer || layer.dataset.upickAiImageClosing === '1') return false;
+    layer.dataset.upickAiImageClosing = '1';
+    layer.classList.add(CLOSING_CLASS);
+    layer.classList.remove(OPEN_CLASS);
+    layer.setAttribute('aria-hidden','true');
+    window.setTimeout(() => {
+      layer.classList.remove(CLOSING_CLASS);
+      delete layer.dataset.upickAiImageClosing;
+      document.body.classList.remove('ai-image-zoom-open');
+      if(img) img.removeAttribute('src');
+    }, DURATION);
+    return false;
+  };
+
+  document.addEventListener('click', function(event){
+    const layer = document.getElementById('aiImageZoomBackdrop');
+    if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
+      event.preventDefault();
+      event.stopPropagation();
+      window.closeAiImageZoom();
+    }
+  }, true);
+})();
