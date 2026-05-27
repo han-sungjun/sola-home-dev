@@ -104,16 +104,24 @@
   var ALERT_LOCK_EVENTS = ['pointerdown','mousedown','touchstart','touchmove','wheel','click','dblclick'];
 
   /*
-   * Hard scroll freeze
-   * - overflow:hidden 만으로는 관리자/입장/계정 만들기 페이지에서 브라우저 스크롤바 또는
-   *   별도 스크롤 컨테이너가 살아나는 경우가 있어, 현재 scrollY를 보존한 fixed lock을 병행합니다.
-   * - 해제 시 저장 위치로 복귀하므로 최상단 튐을 방지합니다.
+   * Stable scroll lock
+   * - 관리자/입장/계정 만들기 페이지에서 알럿 표시 시 스크롤바가 사라지면
+   *   닫을 때 최상단 튐/lock 잔류가 발생할 수 있습니다.
+   * - 그래서 body fixed 방식이 아니라 "스크롤바는 유지"하고 wheel/touch/key/scroll만 막습니다.
+   * - 스크롤바 레일은 항상 남겨 레이아웃 이동을 방지합니다.
    */
   if(!window.__upickHardScrollFreeze){
     window.__upickHardScrollFreeze = (function(){
       var reasons = {};
       var saved = null;
       var containers = [];
+      var resetting = false;
+      var keyBlockInstalled = false;
+      var scrollBlockInstalled = false;
+      var SCROLL_KEYS = {
+        'ArrowUp':true,'ArrowDown':true,'PageUp':true,'PageDown':true,
+        'Home':true,'End':true,' ':true,'Spacebar':true
+      };
 
       function collectContainers(){
         var list = [];
@@ -129,6 +137,57 @@
         return Object.keys(reasons).some(function(key){ return reasons[key]; });
       }
 
+      function allowModalScroll(target){
+        if(!target || !target.closest) return false;
+        return !!target.closest('.app-alert-card,.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
+      }
+
+      function blockScrollKeys(event){
+        if(!saved || allowModalScroll(event.target)) return;
+        if(SCROLL_KEYS[event.key]){
+          event.preventDefault();
+          event.stopPropagation();
+          if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+        }
+      }
+
+      function keepScrollPosition(){
+        if(!saved || resetting) return;
+        var doc = document.documentElement;
+        var body = document.body;
+        var x = window.pageXOffset || doc.scrollLeft || body.scrollLeft || 0;
+        var y = window.pageYOffset || doc.scrollTop || body.scrollTop || 0;
+        if(x !== saved.x || y !== saved.y){
+          resetting = true;
+          window.scrollTo(saved.x, saved.y);
+          requestAnimationFrame(function(){ resetting = false; });
+        }
+      }
+
+      function installGuards(){
+        if(!keyBlockInstalled){
+          document.addEventListener('keydown', blockScrollKeys, true);
+          keyBlockInstalled = true;
+        }
+        if(!scrollBlockInstalled){
+          window.addEventListener('scroll', keepScrollPosition, {capture:true, passive:true});
+          document.addEventListener('scroll', keepScrollPosition, {capture:true, passive:true});
+          scrollBlockInstalled = true;
+        }
+      }
+
+      function removeGuards(){
+        if(keyBlockInstalled){
+          document.removeEventListener('keydown', blockScrollKeys, true);
+          keyBlockInstalled = false;
+        }
+        if(scrollBlockInstalled){
+          window.removeEventListener('scroll', keepScrollPosition, {capture:true});
+          document.removeEventListener('scroll', keepScrollPosition, {capture:true});
+          scrollBlockInstalled = false;
+        }
+      }
+
       function apply(){
         if(saved) return;
         var doc = document.documentElement;
@@ -138,42 +197,42 @@
         containers = collectContainers().map(function(el){
           return {
             el: el,
-            overflow: el.style.overflow,
-            overflowY: el.style.overflowY,
             overscrollBehavior: el.style.overscrollBehavior,
+            touchAction: el.style.touchAction,
             scrollTop: el.scrollTop
           };
         });
         saved = {
           x:x, y:y,
-          htmlOverflow: doc.style.overflow,
+          htmlOverflowY: doc.style.overflowY,
+          htmlOverflowX: doc.style.overflowX,
           htmlOverscroll: doc.style.overscrollBehavior,
-          bodyPosition: body.style.position,
-          bodyTop: body.style.top,
-          bodyLeft: body.style.left,
-          bodyRight: body.style.right,
-          bodyWidth: body.style.width,
-          bodyOverflow: body.style.overflow,
+          htmlScrollbarGutter: doc.style.scrollbarGutter,
+          bodyOverflowY: body.style.overflowY,
+          bodyOverflowX: body.style.overflowX,
           bodyOverscroll: body.style.overscrollBehavior,
+          bodyScrollbarGutter: body.style.scrollbarGutter,
           bodyTouchAction: body.style.touchAction
         };
-        doc.style.overflow = 'hidden';
+
+        // 스크롤바는 계속 보이게 하고, 실제 이동은 이벤트/scroll guard로 차단합니다.
+        doc.style.overflowY = 'scroll';
+        doc.style.overflowX = 'hidden';
         doc.style.overscrollBehavior = 'none';
-        body.style.position = 'fixed';
-        body.style.top = (-y) + 'px';
-        body.style.left = '0';
-        body.style.right = '0';
-        body.style.width = '100%';
-        body.style.overflow = 'hidden';
+        doc.style.scrollbarGutter = 'stable';
+        body.style.overflowY = 'scroll';
+        body.style.overflowX = 'hidden';
         body.style.overscrollBehavior = 'none';
+        body.style.scrollbarGutter = 'stable';
         body.style.touchAction = 'none';
         containers.forEach(function(item){
-          item.el.style.overflow = 'hidden';
-          item.el.style.overflowY = 'hidden';
           item.el.style.overscrollBehavior = 'none';
+          item.el.style.touchAction = 'none';
         });
         body.classList.add('upick-hard-scroll-lock');
         doc.classList.add('upick-hard-scroll-lock');
+        installGuards();
+        window.scrollTo(x, y);
       }
 
       function restore(){
@@ -182,22 +241,21 @@
         var body = document.body;
         var x = saved.x;
         var y = saved.y;
-        doc.style.overflow = saved.htmlOverflow;
+        removeGuards();
+        doc.style.overflowY = saved.htmlOverflowY;
+        doc.style.overflowX = saved.htmlOverflowX;
         doc.style.overscrollBehavior = saved.htmlOverscroll;
-        body.style.position = saved.bodyPosition;
-        body.style.top = saved.bodyTop;
-        body.style.left = saved.bodyLeft;
-        body.style.right = saved.bodyRight;
-        body.style.width = saved.bodyWidth;
-        body.style.overflow = saved.bodyOverflow;
+        doc.style.scrollbarGutter = saved.htmlScrollbarGutter;
+        body.style.overflowY = saved.bodyOverflowY;
+        body.style.overflowX = saved.bodyOverflowX;
         body.style.overscrollBehavior = saved.bodyOverscroll;
+        body.style.scrollbarGutter = saved.bodyScrollbarGutter;
         body.style.touchAction = saved.bodyTouchAction;
         containers.forEach(function(item){
           if(item.el){
-            item.el.style.overflow = item.overflow;
-            item.el.style.overflowY = item.overflowY;
             item.el.style.overscrollBehavior = item.overscrollBehavior;
-            try{ item.el.scrollTop = item.scrollTop; }catch(_){}
+            item.el.style.touchAction = item.touchAction;
+            try{ item.el.scrollTop = item.scrollTop; }catch(_){ }
           }
         });
         containers = [];
@@ -211,7 +269,8 @@
         lock:function(reason){ reasons[reason || 'default'] = true; apply(); },
         unlock:function(reason){ delete reasons[reason || 'default']; restore(); },
         sync:function(reason, active){ active ? this.lock(reason) : this.unlock(reason); },
-        isLocked:function(){ return !!saved; }
+        isLocked:function(){ return !!saved; },
+        forceUnlock:function(){ reasons = {}; restore(); }
       };
     })();
   }

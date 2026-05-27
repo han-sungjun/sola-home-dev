@@ -951,3 +951,29 @@ body.upick-hard-scroll-lock #appAlert .app-alert-card *{
   touch-action:auto!important;
   pointer-events:auto!important;
 }
+
+/* ===== Fix v20260527-4: 잠금 중에도 스크롤바 레일 유지 =====
+   알럿/바텀팝업이 뜰 때 스크롤바가 사라지면 닫힘 후 최상단 튐/lock 잔류처럼 보일 수 있어
+   모든 페이지에서 스크롤바 영역은 계속 유지합니다. 실제 스크롤 이동은 JS lock guard가 차단합니다. */
+html,
+body{
+  scrollbar-gutter: stable;
+}
+html.upick-alert-open,
+body.upick-alert-open,
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock,
+html.upick-hard-scroll-lock,
+body.upick-hard-scroll-lock{
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: none !important;
+  scrollbar-gutter: stable !important;
+}
+body.upick-hard-scroll-lock{
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+}
