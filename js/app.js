@@ -7846,20 +7846,29 @@ function renderCalendarDayModal(){
  renderCalendarReservations();
  focusCalendarDate(key);
  }
- function openCalendarReservationModal(item={}){
+ function isCalendarDayDetailStackActive(){
+ const dayModal = qs('#calendarDayModal');
+ const detailModal = qs('#detailModal');
+ return !!(dayModal && detailModal && isLayerOpenLike(dayModal) && isLayerOpenLike(detailModal) && detailModal.dataset.openedFromCalendarDay === '1');
+}
+function openCalendarReservationModal(item={}){
  if(!state.currentUser){ openModalAlert('입장이 필요합니다.'); return; }
  const modal = qs('#calendarReservationModal');
  if(!modal) return;
+ const stackedFromDay = isCalendarDayDetailStackActive();
+ const baseDateKey = stackedFromDay && calendarUiState.dayModalDateKey ? calendarUiState.dayModalDateKey : todayInputValue();
  qs('#calendarBenefitId').value = item.id || '';
  qs('#calendarSelectedStore').textContent = `${item.name || '혜택 매장'}${item.discountText ? ' · ' + item.discountText : ''}`;
- qs('#calendarVisitDate').value = todayInputValue();
+ qs('#calendarVisitDate').value = baseDateKey;
  qs('#calendarVisitTime').value = defaultVisitTimeValue();
  qs('#calendarNotifyBefore').value = '30';
  qs('#calendarReservationMemo').value = '';
  modal.dataset.benefitId = item.id || '';
+ modal.dataset.fromCalendarDayStack = stackedFromDay ? '1' : '0';
  if(isLayerOpenLike(modal)) closeDialogSafe(modal, { duration:160 });
  try{
    modal.classList.add('upick-nested-modal');
+   modal.classList.toggle('upick-from-calendar-day-stack', stackedFromDay);
    modal.classList.remove('is-closing','upick-motion-closing');
    delete modal.dataset.upickMotionClosing;
  }catch(_){}
@@ -7888,7 +7897,7 @@ function renderCalendarDayModal(){
  const notifyAtDate = new Date(visitAtDate.getTime() - before * 60 * 1000);
  if(visitAtDate.getTime() <= Date.now() - 60000){ await openModalAlert('방문 예정 시간은 현재 이후로 선택해 주세요.'); return; }
  const memo = String(qs('#calendarReservationMemo')?.value || '').trim();
- await addDoc(collection(db, CALENDAR_RESERVATIONS_COLLECTION), {
+ const savedReservationRef = await addDoc(collection(db, CALENDAR_RESERVATIONS_COLLECTION), {
  uid: state.currentUser.uid,
  benefitId: item.id,
  storeName: item.name || '',
@@ -7907,7 +7916,36 @@ function renderCalendarDayModal(){
  createdAt: serverTimestamp(),
  updatedAt: serverTimestamp()
  });
+ const reservationModal = qs('#calendarReservationModal');
+ const savedFromCalendarDayStack = reservationModal?.dataset?.fromCalendarDayStack === '1' || isCalendarDayDetailStackActive();
  closeCalendarReservationModal();
+ if(savedFromCalendarDayStack){
+   await openModalAlert('방문 알림이 등록되었습니다.', null, '방문 알림 등록 완료');
+   const localReservation = normalizeReservation({
+     uid: state.currentUser.uid,
+     benefitId: item.id,
+     storeName: item.name || '',
+     category: item.category || '',
+     phone: item.phone || '',
+     address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+     discountText: item.discountText || '',
+     visitAt: visitAtDate,
+     notifyAt: notifyAtDate,
+     notifyBeforeMinutes: before,
+     memo,
+     status: 'scheduled'
+   }, savedReservationRef?.id || `local-${Date.now()}`);
+   if(!state.calendarReservations.some(v => String(v.id) === String(localReservation.id))){
+     state.calendarReservations = [...state.calendarReservations, localReservation];
+   }
+   calendarUiState.dayModalDateKey = dateValue;
+   calendarUiState.focusAfterModalDateKey = dateValue;
+   calendarUiState.selectedDateKey = dateValue;
+   calendarUiState.cursorDate = dateFromKey(dateValue);
+   renderCalendarReservations();
+   if(isLayerOpenLike(qs('#calendarDayModal'))) renderCalendarDayModal();
+   return;
+ }
  const goCalendar = await openModalConfirm(
    '방문 알림이 등록되었습니다.\n캘린더 화면에서 확인하시겠습니까?',
    null,

@@ -26581,3 +26581,17 @@ body.upick-modal-scroll-event-lock{
 #detailModal.upick-div-dialog.upick-over-calendar-day > .upick-div-dialog-panel{
   z-index:2!important;
 }
+
+/* ===== v20260527: calendar day > detail > reservation triple stack ===== */
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack,
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack[open],
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack.show,
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack.upick-motion-open,
+#calendarReservationModal.upick-from-calendar-day-stack[role="dialog"][aria-modal="true"]{
+  z-index:2147483595!important;
+}
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack > .upick-div-dialog-panel{
+  position:relative!important;
+  z-index:2!important;
+  pointer-events:auto!important;
+}
