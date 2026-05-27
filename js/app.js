@@ -2069,6 +2069,73 @@ function isLayerOpenLike(modal){
  return !!(modal && (modal.open || modal.hasAttribute('open') || modal.classList.contains('show') || modal.classList.contains('upick-motion-open')));
 }
 
+
+/* v20260527: 공통 팝업 스택 관리자
+   - fixed z-index 경쟁을 없애고, 팝업을 열 때마다 순번 기반 z-index를 부여합니다.
+   - CSS 파일 로드 순서나 dialog/div 혼재로 인한 묻힘 현상을 방지합니다.
+   - 알럿은 별도 공통 알럿 z-index가 더 높으므로 여기서는 일반 팝업/모달만 관리합니다. */
+const UpickPopupStack = window.UpickPopupStack || (function(){
+  let seq = 0;
+  const base = 50000;
+  const step = 20;
+  const opened = [];
+
+  function isStackTarget(el){
+    if(!el || !el.id) return false;
+    if(el.id === 'appAlert' || el.classList?.contains('app-alert')) return false;
+    if(el.id === 'globalLoadingBar') return false;
+    return !!(
+      el.classList?.contains('upick-div-dialog') ||
+      el.classList?.contains('upick-div-modal') ||
+      el.classList?.contains('upick-motion-dialog') ||
+      el.matches?.('[role="dialog"][aria-modal="true"]')
+    );
+  }
+
+  function prune(){
+    for(let i = opened.length - 1; i >= 0; i -= 1){
+      const el = opened[i];
+      if(!el || !document.documentElement.contains(el) || !(el.hasAttribute('open') || el.classList.contains('show') || el.classList.contains('upick-motion-open'))){
+        opened.splice(i, 1);
+      }
+    }
+  }
+
+  function bring(el){
+    if(!isStackTarget(el)) return 0;
+    prune();
+    const oldIndex = opened.indexOf(el);
+    if(oldIndex >= 0) opened.splice(oldIndex, 1);
+    opened.push(el);
+    seq += 1;
+    const z = base + (seq * step);
+    el.dataset.upickStackIndex = String(opened.length - 1);
+    el.dataset.upickStackZ = String(z);
+    try{ el.style.setProperty('z-index', String(z), 'important'); }catch(_){ el.style.zIndex = String(z); }
+
+    const panel = el.querySelector?.(':scope > .upick-div-modal-panel, :scope > .upick-div-dialog-panel');
+    if(panel){
+      panel.style.setProperty('position', 'relative', 'important');
+      panel.style.setProperty('z-index', '1', 'important');
+    }
+    return z;
+  }
+
+  function release(el){
+    if(!el) return;
+    const i = opened.indexOf(el);
+    if(i >= 0) opened.splice(i, 1);
+    delete el.dataset.upickStackIndex;
+    delete el.dataset.upickStackZ;
+    try{ el.style.removeProperty('z-index'); }catch(_){ el.style.zIndex = ''; }
+    prune();
+  }
+
+  function top(){ prune(); return opened[opened.length - 1] || null; }
+  return { bring, release, top, prune };
+})();
+window.UpickPopupStack = UpickPopupStack;
+
 function openLayerElementLikeDialog(modal){
  if(!modal) return;
  try{
@@ -2103,6 +2170,7 @@ function openAccountMotionDialog(modal, focusSelector){
  panel?.classList?.add('upick-motion-panel');
  openLayerElementLikeDialog(modal);
  modal.setAttribute('aria-hidden','false');
+ try{ UpickPopupStack.bring(modal); }catch(_){}
  if(window.UpickMotion){
   window.UpickMotion.open(modal,{
    activeClass:'show',
@@ -2128,6 +2196,7 @@ function closeAccountMotionDialog(modal, afterClose){
   panel?.classList?.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-panel','upick-motion-open','upick-motion-closing');
   modal.setAttribute('aria-hidden','true');
   closeLayerElementLikeDialog(modal);
+  try{ UpickPopupStack.release(modal); }catch(_){}
   if(typeof afterClose === 'function') afterClose();
  };
  if(window.UpickMotion){
@@ -8925,6 +8994,7 @@ function openCalendarReservationModal(item={}){
  if(!el) return;
  if(isMotionDialogExcluded(el) || !window.UpickMotion){
   openNativeDialogSafe(el);
+  try{ UpickPopupStack.bring(el); }catch(_){}
   return;
  }
  if(el.dataset.upickMotionClosing === '1') return;
@@ -8935,6 +9005,7 @@ function openCalendarReservationModal(item={}){
  if(!isDivMotionDialog(el)) el.classList.add('upick-motion-panel');
  el.setAttribute('aria-hidden','false');
  openNativeDialogSafe(el);
+ try{ UpickPopupStack.bring(el); }catch(_){}
  window.UpickMotion.open(el,{
   activeClass:'show',
   closingClass:'is-closing',
@@ -8955,6 +9026,7 @@ function openCalendarReservationModal(item={}){
  const afterClose = typeof options.afterClose === 'function' ? options.afterClose : null;
  if(isMotionDialogExcluded(el) || !window.UpickMotion || !(el.open || el.hasAttribute('open') || el.classList.contains('show'))){
   closeNativeDialogSafe(el);
+  try{ UpickPopupStack.release(el); }catch(_){}
   if(afterClose) afterClose();
   return;
  }
@@ -8968,6 +9040,7 @@ function openCalendarReservationModal(item={}){
   duration:Number.isFinite(options.duration) ? options.duration : 240,
   afterClose:function(){
    closeNativeDialogSafe(el);
+   try{ UpickPopupStack.release(el); }catch(_){}
    cleanupMotionDialogClasses(el);
    try{ cleanupMotionDialogClasses(el.querySelector(':scope > .upick-div-dialog-panel')); }catch(_){}
    el.setAttribute('aria-hidden','true');
