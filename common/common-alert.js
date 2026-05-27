@@ -291,6 +291,28 @@
     alertInteractionLockActive = false;
   }
 
+
+  function hasVisibleAppAlert(){
+    var el = alertEl || qs('#appAlert');
+    if(!el) return false;
+    if(el.classList && el.classList.contains('show')) return true;
+    if(el.tagName === 'DIALOG' && el.open && el.classList && el.classList.contains('show')) return true;
+    return false;
+  }
+
+  function forceClearAlertLockIfClosed(){
+    if(hasVisibleAppAlert()) return;
+    document.documentElement.classList.remove('upick-alert-open');
+    document.body.classList.remove('upick-alert-open');
+    removeAlertInteractionLock();
+    if(window.__upickHardScrollFreeze){
+      window.__upickHardScrollFreeze.unlock('alert');
+    }
+    if(typeof window.__upickSyncModalScrollLock === 'function'){
+      window.__upickSyncModalScrollLock();
+    }
+  }
+
   function setOpenLock(open){
     document.documentElement.classList.toggle('upick-alert-open', !!open);
     document.body.classList.toggle('upick-alert-open', !!open);
@@ -358,6 +380,8 @@
     function afterClose(){
       closeNativeDialogIfNeeded();
       setOpenLock(false);
+      forceClearAlertLockIfClosed();
+      setTimeout(forceClearAlertLockIfClosed, ALERT_CLOSE_DURATION + 80);
       if(lastFocus && typeof lastFocus.focus === 'function'){
         try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
       }
@@ -442,7 +466,7 @@
             });
           })
           .then(function(){ resolve(true); })
-          .finally(restoreAlertButtons);
+          .finally(function(){ restoreAlertButtons(); setTimeout(forceClearAlertLockIfClosed, 0); setTimeout(forceClearAlertLockIfClosed, 120); });
       };
       confirmBtn.onclick = finish;
       openLayer();
@@ -486,7 +510,7 @@
             });
           })
           .then(function(){ resolve(result); })
-          .finally(restoreAlertButtons);
+          .finally(function(){ restoreAlertButtons(); setTimeout(forceClearAlertLockIfClosed, 0); setTimeout(forceClearAlertLockIfClosed, 120); });
       };
       confirmBtn.onclick = function(){ finish(true); };
       cancelBtn.onclick = function(){ finish(false); };
@@ -636,7 +660,11 @@
     '.app-alert.show',
     '.common-alert.show',
     '.modal-alert.show',
-    '.common-modal-overlay',
+    '.common-modal-overlay.show',
+    '.common-modal-overlay.is-open',
+    '.common-modal-overlay[open]',
+    '.modal-backdrop.show',
+    '.modal-backdrop.is-open',
     'dialog[open]',
     '.sheet-modal.show',
     '.sheet-modal.is-open',
@@ -701,7 +729,16 @@
   }
 
   function sync(){
-    setLayerLock(!!findOpenLayer());
+    var openLayer = !!findOpenLayer();
+    setLayerLock(openLayer);
+    if(!openLayer && !hasVisibleAppAlert()){
+      document.documentElement.classList.remove('upick-alert-open');
+      document.body.classList.remove('upick-alert-open');
+      if(window.__upickHardScrollFreeze){
+        window.__upickHardScrollFreeze.unlock('alert');
+        window.__upickHardScrollFreeze.unlock('layer');
+      }
+    }
   }
 
   window.__upickSyncModalScrollLock = sync;

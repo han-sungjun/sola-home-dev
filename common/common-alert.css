@@ -977,3 +977,28 @@ body.upick-hard-scroll-lock{
   right: auto !important;
   width: auto !important;
 }
+
+
+/* ===== Fix v20260527-5: 스크롤바 유지형 lock 최종 보정 =====
+   잠금 클래스가 붙어도 스크롤바 레일은 항상 유지합니다.
+   실제 이동 차단은 common-alert.js의 wheel/touch/key/scroll guard가 담당합니다. */
+html.upick-alert-open,
+body.upick-alert-open,
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock,
+html.upick-hard-scroll-lock,
+body.upick-hard-scroll-lock{
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable !important;
+  overscroll-behavior: none !important;
+}
+body.upick-alert-open,
+body.upick-layer-scroll-lock,
+body.upick-hard-scroll-lock{
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+}
