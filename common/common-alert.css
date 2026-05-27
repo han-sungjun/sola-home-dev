@@ -806,3 +806,32 @@ dialog.app-alert.upick-motion-layer[open].upick-motion-closing{
     transform 360ms cubic-bezier(.22,.61,.36,1),
     box-shadow 360ms cubic-bezier(.22,.61,.36,1)!important;
 }
+
+
+/* ===== Fix: GNB 위 알럿 표시 중에는 뒤쪽 GNB 클릭/호버를 완전히 차단 ===== */
+html.upick-alert-open #gnbOverlay,
+body.upick-alert-open #gnbOverlay,
+html.upick-alert-open #gnbSheet,
+body.upick-alert-open #gnbSheet,
+html.upick-alert-open .gnb-overlay,
+body.upick-alert-open .gnb-overlay,
+html.upick-alert-open .gnb-sheet,
+body.upick-alert-open .gnb-sheet,
+html.upick-alert-open #gnbSheet *,
+body.upick-alert-open #gnbSheet *,
+html.upick-alert-open .gnb-sheet *,
+body.upick-alert-open .gnb-sheet * {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+html.upick-alert-open #appAlert,
+body.upick-alert-open #appAlert,
+html.upick-alert-open #appAlert *,
+body.upick-alert-open #appAlert *,
+html.upick-alert-open .app-alert,
+body.upick-alert-open .app-alert,
+html.upick-alert-open .app-alert *,
+body.upick-alert-open .app-alert * {
+  pointer-events: auto !important;
+}

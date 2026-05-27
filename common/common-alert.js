@@ -80,9 +80,28 @@
     }
   }
 
+  function setGnbAlertShield(open){
+    var active = !!open;
+    document.querySelectorAll('#gnbOverlay, #gnbSheet, .gnb-overlay, .gnb-sheet').forEach(function(el){
+      if(!el) return;
+      if(active){
+        if(!el.dataset.upickAlertPrevPointerEvents) el.dataset.upickAlertPrevPointerEvents = el.style.pointerEvents || '__empty__';
+        el.style.pointerEvents = 'none';
+        el.setAttribute('data-upick-alert-shielded','true');
+      }else{
+        var prev = el.dataset.upickAlertPrevPointerEvents;
+        if(prev === '__empty__') el.style.pointerEvents = '';
+        else if(prev) el.style.pointerEvents = prev;
+        delete el.dataset.upickAlertPrevPointerEvents;
+        el.removeAttribute('data-upick-alert-shielded');
+      }
+    });
+  }
+
   function setOpenLock(open){
     document.documentElement.classList.toggle('upick-alert-open', !!open);
     document.body.classList.toggle('upick-alert-open', !!open);
+    setGnbAlertShield(open);
     if(typeof window.__upickSyncModalScrollLock === 'function'){
       setTimeout(window.__upickSyncModalScrollLock, 0);
     }
@@ -370,8 +389,7 @@
     'upick-loading-lock',
     'ui-loading-lock',
     'upick-modal-lock',
-    'upick-modal-hard-lock',
-    'upick-alert-open'
+    'upick-modal-hard-lock'
   ];
 
   function hasVisibleAlert(){
