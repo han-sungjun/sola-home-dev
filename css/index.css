@@ -2731,6 +2731,15 @@ body {
 .account-recovery-panel {
   max-height: min(86vh, 760px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.account-recovery-panel .sheet-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 2px;
 }
 .account-recovery-tabs {
   grid-template-columns: repeat(3, minmax(0, 1fr));

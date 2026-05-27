@@ -785,8 +785,12 @@ dialog.app-alert.upick-motion-layer[open].upick-motion-closing{
 /* ===== v20260527-light: 알럿/모달 lock 성능 보정 =====
    전체 DOM에 pointer-events:none을 거는 방식은 공개앱 성능을 떨어뜨리므로 사용하지 않습니다.
    알럿/모달의 실제 레이어와 JS 이벤트 가드가 배경 클릭/스크롤만 차단합니다. */
-html,
+html{
+  overflow-y:scroll;
+  scrollbar-gutter:stable;
+}
 body{
+  overflow-x:hidden;
   scrollbar-gutter:stable;
 }
 html.upick-alert-open,
@@ -828,4 +832,27 @@ dialog.app-alert{
 .page-loader{
   pointer-events:none!important;
   z-index:2147483000!important;
+}
+
+
+/* ===== v20260527-stable-scrollbar-width: 페이지 가로폭 흔들림 방지 =====
+   알럿/바텀팝업이 열리고 닫힐 때 스크롤바 레일을 항상 유지합니다. */
+html{
+  overflow-y:scroll!important;
+  scrollbar-gutter:stable!important;
+}
+body{
+  overflow-x:hidden!important;
+  scrollbar-gutter:stable!important;
+}
+html.upick-alert-open,
+body.upick-alert-open,
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock{
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  position:static!important;
+  width:auto!important;
+  max-width:none!important;
+  scrollbar-gutter:stable!important;
 }
