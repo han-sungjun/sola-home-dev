@@ -84,3 +84,15 @@
   --upick-motion-panel-y:100%;
   --upick-motion-panel-scale:1;
 }
+
+/* GNB는 위치 계산이 고정되어 있어 overlay는 공통 fade, sheet는 기존 slide 전환을 유지합니다. */
+.gnb-overlay.upick-motion-layer{
+  display:block!important;
+}
+.gnb-overlay.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing){
+  pointer-events:none!important;
+}
+.gnb-sheet.is-closing,
+.gnb-sheet.upick-motion-closing{
+  pointer-events:none!important;
+}

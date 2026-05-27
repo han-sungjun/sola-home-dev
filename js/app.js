@@ -12333,8 +12333,15 @@ async function askAiAssistant(rawQuestion=''){
  });
  if(active) active.classList.add('active');
  if(typeof updateBottomNavActiveState === 'function') updateBottomNavActiveState();
- qs('#gnbSheet')?.classList.remove('show');
- qs('#gnbOverlay')?.classList.remove('show');
+ const openGnbSheet = qs('#gnbSheet');
+ const openGnbOverlay = qs('#gnbOverlay');
+ if(openGnbSheet?.classList.contains('show') || openGnbOverlay?.classList.contains('show')){
+   if(typeof closeGnb === 'function') closeGnb({ restoreFocus:false });
+   else{
+     openGnbSheet?.classList.remove('show');
+     openGnbOverlay?.classList.remove('show');
+   }
+ }
 }
  const renderAll=()=>{initAiRetryButtonSingletonObserver();createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();renderCalendarReservations();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
 
@@ -12402,11 +12409,18 @@ startCrowdDynamicRefresh();
  if(opener && opener.focus) lastGnbOpener = opener;
  else if(document.activeElement && document.activeElement.closest && !gnbSheet?.contains(document.activeElement)) lastGnbOpener = document.activeElement;
 
- gnbSheet?.classList.add('show');
- gnbOverlay?.classList.add('show');
- gnbSheet?.setAttribute('aria-hidden', 'false');
- gnbSheet?.classList.remove('gnb-enter');
- requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
+ if(gnbSheet){
+   gnbSheet.classList.remove('is-closing','upick-motion-closing');
+   gnbSheet.classList.add('show');
+   gnbSheet.setAttribute('aria-hidden', 'false');
+   gnbSheet.classList.remove('gnb-enter');
+   requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
+ }
+ if(window.UpickMotion && gnbOverlay){
+   window.UpickMotion.open(gnbOverlay, { duration:220 });
+ }else{
+   gnbOverlay?.classList.add('show');
+ }
  document.body.style.overflow = 'hidden';
  document.body.classList.add('gnb-open');
  const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
@@ -12440,17 +12454,27 @@ startCrowdDynamicRefresh();
 
  function closeGnb(options = {}){
  const closeBtn = gnbCloseBtn;
+ if(window.UpickMotion?.isClosing?.(gnbOverlay)) return;
  closeBtn?.animate(
  [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
  { duration:180, easing:'ease-out' }
  );
+ gnbSheet?.classList.add('is-closing','upick-motion-closing');
  gnbSheet?.classList.remove('show');
- gnbOverlay?.classList.remove('show');
  gnbSheet?.setAttribute('aria-hidden', 'true');
- document.body.style.overflow = '';
- document.body.classList.remove('gnb-open');
- gnbSheet?.style.removeProperty('transform');
- if(options.restoreFocus !== false) restoreGnbOpenerFocus();
+ const finishClose = () => {
+   gnbSheet?.classList.remove('is-closing','upick-motion-closing','gnb-enter');
+   document.body.style.overflow = '';
+   document.body.classList.remove('gnb-open');
+   gnbSheet?.style.removeProperty('transform');
+   if(options.restoreFocus !== false) restoreGnbOpenerFocus();
+ };
+ if(window.UpickMotion && gnbOverlay){
+   window.UpickMotion.close(gnbOverlay, { duration:240, afterClose: finishClose });
+ }else{
+   gnbOverlay?.classList.remove('show');
+   setTimeout(finishClose, 240);
+ }
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {

@@ -474,10 +474,17 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       qsa('.admin-view').forEach(el => el.classList.remove('active'));
       (qs(`#view-${view}`) || qs('#view-dashboard'))?.classList.add('active');
       syncAdminNavActive(view);
-      qs('#adminGnbSheet')?.classList.remove('show');
-      qs('#adminGnbOverlay')?.classList.remove('show');
-      document.body.style.overflow = '';
-      document.body.classList.remove('gnb-open');
+      const openAdminGnbSheet = qs('#adminGnbSheet');
+      const openAdminGnbOverlay = qs('#adminGnbOverlay');
+      if(openAdminGnbSheet?.classList.contains('show') || openAdminGnbOverlay?.classList.contains('show')){
+        if(typeof closeAdminGnb === 'function') closeAdminGnb();
+        else{
+          openAdminGnbSheet?.classList.remove('show');
+          openAdminGnbOverlay?.classList.remove('show');
+          document.body.style.overflow = '';
+          document.body.classList.remove('gnb-open');
+        }
+      }
       window.scrollTo({ top: 0, behavior: 'auto' });
       if(view === 'community') setTimeout(() => loadAdminCommunityPosts('active'), 80);
       if(view === 'ai') setTimeout(() => openAIManager(aiAdminState.tab || 'faq'), 80);
@@ -3071,11 +3078,18 @@ function fillForm(item){
     const adminGnbOverlay = qs('#adminGnbOverlay');
     const adminGnbCloseBtn = qs('#adminGnbCloseBtn');
     function openAdminGnb(){
-      adminGnbSheet?.classList.add('show');
-      adminGnbOverlay?.classList.add('show');
-      adminGnbSheet?.setAttribute('aria-hidden','false');
-      adminGnbSheet?.classList.remove('gnb-enter');
-      requestAnimationFrame(() => adminGnbSheet?.classList.add('gnb-enter'));
+      if(adminGnbSheet){
+        adminGnbSheet.classList.remove('is-closing','upick-motion-closing');
+        adminGnbSheet.classList.add('show');
+        adminGnbSheet.setAttribute('aria-hidden','false');
+        adminGnbSheet.classList.remove('gnb-enter');
+        requestAnimationFrame(() => adminGnbSheet?.classList.add('gnb-enter'));
+      }
+      if(window.UpickMotion && adminGnbOverlay){
+        window.UpickMotion.open(adminGnbOverlay, { duration:220 });
+      }else{
+        adminGnbOverlay?.classList.add('show');
+      }
       document.body.style.overflow='hidden';
       document.body.classList.add('gnb-open');
       const homeBtn = adminGnbSheet?.querySelector('.gnb-home-active');
@@ -3087,15 +3101,25 @@ function fillForm(item){
       }
     }
     function closeAdminGnb(){
+      if(window.UpickMotion?.isClosing?.(adminGnbOverlay)) return;
       adminGnbCloseBtn?.animate(
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
         { duration:180, easing:'ease-out' }
       );
+      adminGnbSheet?.classList.add('is-closing','upick-motion-closing');
       adminGnbSheet?.classList.remove('show');
-      adminGnbOverlay?.classList.remove('show');
       adminGnbSheet?.setAttribute('aria-hidden','true');
-      document.body.style.overflow='';
-      document.body.classList.remove('gnb-open');
+      const finishClose = () => {
+        adminGnbSheet?.classList.remove('is-closing','upick-motion-closing','gnb-enter');
+        document.body.style.overflow='';
+        document.body.classList.remove('gnb-open');
+      };
+      if(window.UpickMotion && adminGnbOverlay){
+        window.UpickMotion.close(adminGnbOverlay, { duration:240, afterClose: finishClose });
+      }else{
+        adminGnbOverlay?.classList.remove('show');
+        setTimeout(finishClose, 240);
+      }
     }
     adminGnbToggleBtn?.addEventListener('click', openAdminGnb);
     adminGnbCloseBtn?.addEventListener('click', closeAdminGnb);
