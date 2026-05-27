@@ -26538,3 +26538,19 @@ body.upick-modal-scroll-event-lock{
   #calendarReservationModal.upick-div-dialog.upick-nested-modal{padding:10px!important;}
   #calendarReservationModal.upick-div-dialog.upick-nested-modal > .upick-div-dialog-panel{width:calc(100vw - 20px)!important;border-radius:26px!important;}
 }
+
+
+/* ===== v20260527: calendar day modal 위 혜택 상세 중첩 표시 ===== */
+#detailModal.upick-div-dialog.upick-over-calendar-day{
+  z-index:2147483900!important;
+}
+#detailModal.upick-div-dialog.upick-over-calendar-day .upick-div-modal-backdrop{
+  background:rgba(7,26,61,.36)!important;
+  backdrop-filter:blur(7px)!important;
+  -webkit-backdrop-filter:blur(7px)!important;
+}
+#calendarDayModal.upick-div-dialog[open],
+#calendarDayModal.upick-div-dialog.show,
+#calendarDayModal.upick-div-dialog.upick-motion-open{
+  z-index:2147483700!important;
+}

@@ -6072,7 +6072,11 @@ function closeDetailDialogPreservingPage(modal, options = {}){
    didAfterClose = true;
    try{ if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground(); }catch(_){}
    resetDetailDialogScroll(modal);
-   if(modal.id === 'detailModal') modal.dataset.benefitId = '';
+   if(modal.id === 'detailModal'){
+     modal.classList.remove('upick-over-calendar-day');
+     try{ delete modal.dataset.openedFromCalendarDay; }catch(_){ modal.removeAttribute('data-opened-from-calendar-day'); }
+     modal.dataset.benefitId = '';
+   }
    if(modal.id === 'detailModal' && parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
    if(modal.id === 'noticeModal' && parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
    if(modal.id === 'detailModal' && window.__upickFavoriteRenderPending){
@@ -7589,10 +7593,37 @@ ${item.content || ''}`);
  if(btn.dataset.boundCalendarOpen === '1') return;
  btn.dataset.boundCalendarOpen = '1';
  btn.addEventListener('click', (event) => {
+ event.preventDefault();
  event.stopPropagation();
+ if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
  const item = state.benefits.find(v => v.id === btn.dataset.calendarOpenBenefit);
- if(item) openDetail(item);
- else openModalAlert('현재 혜택 목록에서 해당 매장을 찾지 못했습니다.');
+ if(!item){
+   openModalAlert('현재 혜택 목록에서 해당 매장을 찾지 못했습니다.');
+   return;
+ }
+ const dayModal = qs('#calendarDayModal');
+ const openBenefitDetail = () => {
+   const detailModal = qs('#detailModal');
+   const shouldStackOverDay = !!(dayModal && isLayerOpenLike(dayModal));
+   try{
+     if(shouldStackOverDay && detailModal){
+       detailModal.classList.add('upick-over-calendar-day');
+       detailModal.dataset.openedFromCalendarDay = '1';
+     }
+   }catch(_){}
+   openDetail(item);
+   try{
+     if(shouldStackOverDay && detailModal){
+       requestAnimationFrame(() => {
+         detailModal.classList.add('upick-over-calendar-day');
+         detailModal.dataset.openedFromCalendarDay = '1';
+       });
+     }
+   }catch(_){}
+ };
+ // 저장 날짜 팝업은 그대로 유지하고, 혜택 상세만 그 위 레이어로 띄웁니다.
+ // 사용자가 혜택 상세를 닫으면 같은 날짜 팝업에서 다른 알림을 바로 이어서 확인할 수 있습니다.
+ openBenefitDetail();
  });
  });
  scope.querySelectorAll?.('[data-calendar-cancel]')?.forEach(btn => {
@@ -7922,6 +7953,11 @@ function renderCalendarDayModal(){
  cancelledAt:serverTimestamp(),
  updatedAt:serverTimestamp()
  }, { merge:true });
+ // Firestore snapshot이 도착하기 전에도 현재 열려 있는 날짜 팝업에서 즉시 제거합니다.
+ const target = state.calendarReservations.find(v => String(v.id) === String(id));
+ if(target) target.status = 'cancelled';
+ renderCalendarReservations();
+ if(isLayerOpenLike(qs('#calendarDayModal'))) renderCalendarDayModal();
  }catch(error){
  console.error('캘린더 예약 취소 실패', error);
  await openModalAlert('예약 알림 취소 중 오류가 발생했습니다.');
