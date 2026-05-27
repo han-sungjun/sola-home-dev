@@ -28961,3 +28961,60 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-nav.next{right:22px 
     border-radius:22px !important;
   }
 }
+
+/* ===== v20260528 swipe image preview repair ===== */
+.benefit-image-preview-overlay .benefit-image-preview-body{
+  overflow:hidden !important;
+  padding:14px 12px 74px !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-track{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  width:100% !important;
+  height:100% !important;
+  min-width:100% !important;
+  max-width:100% !important;
+  overflow:visible !important;
+  will-change:transform !important;
+  touch-action:pan-y pinch-zoom !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-slide{
+  flex:0 0 100% !important;
+  width:100% !important;
+  min-width:100% !important;
+  max-width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+  padding:0 !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-frame{
+  width:100% !important;
+  min-width:100% !important;
+  max-width:100% !important;
+  height:100% !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+  border-radius:20px !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-frame img,
+.benefit-image-preview-overlay .benefit-image-preview-slide img{
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  border-radius:20px !important;
+  box-sizing:border-box !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-count{
+  left:20px !important;
+  bottom:24px !important;
+  display:inline-flex !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-count[hidden]{display:none !important;}
+.benefit-image-preview-overlay .benefit-image-preview-frame-count{display:none !important;}

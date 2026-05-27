@@ -8516,17 +8516,17 @@ function openCalendarReservationModal(item={}){
    const dotsHtml = '';
    const countHtml = '';
    if(track){
-     // v20260527: 확대 팝업에서는 현재 이미지만 렌더링합니다.
-     // 여러 이미지를 flex track에 모두 올려두면 모바일 폭/패딩 계산에 따라 다음 이미지가 오른쪽에 비치는 현상이 발생합니다.
-     // 상세 내부 슬라이더와 인덱스는 별도로 동기화하므로, 확대 팝업은 단일 active slide만 유지하는 것이 가장 안정적입니다.
-     const activeUrl = images[index];
-     track.innerHTML = `<div class="benefit-image-preview-slide active"><div class="benefit-image-preview-frame"><img src="${escapeAttr(activeUrl)}" alt="${escapeAttr(title)} ${index + 1}번째 사진" draggable="false"></div></div>`;
-     track.style.transition = 'none';
-     track.style.transform = 'translate3d(0,0,0)';
+     // v20260528: 스와이프 구조는 유지하되 각 slide를 정확히 100% 폭으로 고정합니다.
+     // frame/body에서 overflow를 hidden 처리해 다음 이미지가 옆에 비치지 않도록 합니다.
+     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide ${i === index ? 'active' : ''}" data-preview-index="${i}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div></div>`).join('');
+     track.style.transition = animate ? 'transform 260ms cubic-bezier(.22,1,.36,1)' : 'none';
+     track.style.transform = `translate3d(${-index * 100}%,0,0)`;
      const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
      if(activeImg){
        if(activeImg.complete) requestAnimationFrame(fitDialogToActiveImage);
        else activeImg.addEventListener('load', fitDialogToActiveImage, { once:true });
+     }else{
+       requestAnimationFrame(fitDialogToActiveImage);
      }
    }
    if(count){
@@ -8598,8 +8598,8 @@ function openCalendarReservationModal(item={}){
  let activeInput = '';
  const resetTrack = (animate = true) => {
    if(!track) return;
-   track.style.transition = 'none';
-   track.style.transform = 'translate3d(0,0,0)';
+   track.style.transition = animate ? 'transform 260ms cubic-bezier(.22,1,.36,1)' : 'none';
+   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
  };
  overlay.onclick = (event) => {
    const closeTarget = event.target.closest('.benefit-image-preview-close');
