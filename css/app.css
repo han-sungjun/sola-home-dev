@@ -28849,3 +28849,26 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-nav.next{right:22px 
     bottom:15px!important;
   }
 }
+
+
+/* ===== v20260527-90: 설정 모음 위 계정/비밀번호 팝업 스택 보정 =====
+   설정 모음은 CommonModal overlay(2147483000) 위에 표시되므로,
+   계정 정보 수정/비밀번호 변경은 항상 그보다 위의 body-level overlay로 띄웁니다. */
+#accountEditModal.upick-div-modal,
+#passwordChangeModal.upick-div-modal{
+  z-index:2147483560!important;
+}
+#accountEditModal .upick-div-modal-backdrop,
+#passwordChangeModal .upick-div-modal-backdrop{
+  z-index:0!important;
+}
+#accountEditModal .upick-div-modal-panel,
+#passwordChangeModal .upick-div-modal-panel{
+  z-index:2!important;
+}
+body > #accountEditModal.upick-div-modal.show,
+body > #passwordChangeModal.upick-div-modal.show,
+body > #accountEditModal.upick-div-modal.upick-motion-open,
+body > #passwordChangeModal.upick-div-modal.upick-motion-open{
+  z-index:2147483560!important;
+}

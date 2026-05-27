@@ -2162,6 +2162,12 @@ function getAccountDivModalPanel(modal){
 
 function openAccountMotionDialog(modal, focusSelector){
  if(!modal) return;
+ // 설정 모음(CommonModal) 내부에서 버튼을 눌러도 계정/비밀번호 팝업은
+ // 항상 body 직속 최상위 레이어로 띄워서 뒤로 묻히지 않게 합니다.
+ try{
+  if(modal.parentElement !== document.body) document.body.appendChild(modal);
+  modal.style.setProperty('z-index', '2147483560', 'important');
+ }catch(_){}
  if(isLayerOpenLike(modal)) closeLayerElementLikeDialog(modal);
  const panel = getAccountDivModalPanel(modal);
  modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open','upick-motion-layer','upick-motion-panel','upick-motion-dialog');
@@ -2171,6 +2177,7 @@ function openAccountMotionDialog(modal, focusSelector){
  openLayerElementLikeDialog(modal);
  modal.setAttribute('aria-hidden','false');
  try{ UpickPopupStack.bring(modal); }catch(_){}
+ try{ modal.style.setProperty('z-index', '2147483560', 'important'); }catch(_){}
  if(window.UpickMotion){
   window.UpickMotion.open(modal,{
    activeClass:'show',
