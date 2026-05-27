@@ -14779,12 +14779,15 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return false;
   };
 
+  // 바깥영역 클릭은 닫힘 동작으로 처리하지 않습니다.
+  // 닫기는 우측 상단 X 버튼만 담당하도록 고정합니다.
   document.addEventListener('click', function(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
     if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
       event.preventDefault();
       event.stopPropagation();
-      window.closeAiImageZoom();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      return false;
     }
   }, true);
 })();
