@@ -5047,13 +5047,42 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  setTimeout(restore, 220);
  }
 
+
+ function isDetailModalForBenefitOpen(id){
+ const modal = qs('#detailModal');
+ return !!(id && modal && isLayerOpenLike(modal) && String(modal.dataset.benefitId || '') === String(id));
+ }
+
+ function syncFavoriteButtonsForId(id){
+ if(!id) return;
+ const isFavorite = getFavorites().includes(id);
+ const icon = `/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg`;
+ document.querySelectorAll(`[data-favorite-id="${CSS.escape(id)}"], #modalFavBtn`).forEach((btn) => {
+   try{
+     if(btn.id === 'modalFavBtn' || btn.classList.contains('fav-icon-btn') || btn.classList.contains('fav-iconbtn') || btn.classList.contains('fav-btn')){
+       const img = btn.querySelector('img');
+       if(img) img.setAttribute('src', icon);
+       else if(btn.id === 'modalFavBtn') btn.innerHTML = `<img class="upick-svg-icon" src="${icon}" alt="" loading="lazy" decoding="async">`;
+       btn.classList.toggle('is-favorite', isFavorite);
+       btn.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
+       btn.setAttribute('aria-label', isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가');
+       btn.title = isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가';
+     }
+   }catch(_){ }
+ });
+ }
+
  function subscribeFavorites(){
  const favoritesRef = getFavoritesCollectionRef();
  if(!favoritesRef) return;
  onSnapshot(favoritesRef, (snapshot) => {
  const activeFavoriteId = document.activeElement?.dataset?.favoriteId || '';
  state.favoriteIds = snapshot.docs.map((d) => d.id);
- renderAll();
+ if(activeFavoriteId && isDetailModalForBenefitOpen(activeFavoriteId)){
+   syncFavoriteButtonsForId(activeFavoriteId);
+ }else{
+   renderAll();
+ }
  if(activeFavoriteId) restoreFavoriteButtonFocus(activeFavoriteId);
  }, (error) => {
  console.error('즐겨찾기 로드 실패', error);
@@ -5082,7 +5111,11 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  }
 
  state.favoriteIds = Array.from(set);
- renderAll();
+ if(isDetailModalForBenefitOpen(id)){
+   syncFavoriteButtonsForId(id);
+ }else{
+   renderAll();
+ }
  restoreFavoriteButtonFocus(id);
  return isAdding;
  }catch(error){
@@ -6009,6 +6042,7 @@ function closeDetailDialogPreservingPage(modal){
  const afterClose = () => {
    try{ if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground(); }catch(_){}
    resetDetailDialogScroll(modal);
+   if(modal.id === 'detailModal') modal.dataset.benefitId = '';
    if(modal.id === 'detailModal' && parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
    if(modal.id === 'noticeModal' && parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
    if(Number.isFinite(y)) holdStablePageScrollY(y, 700);
@@ -7733,7 +7767,7 @@ function renderCalendarDayModal(){
 }
  function closeCalendarDayModal(){
  const modal = qs('#calendarDayModal');
- if(modal?.open) closeDialogSafe(modal);
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal);
  }
  function syncCalendarFocusFromDayModal(){
  const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
@@ -7755,8 +7789,9 @@ function renderCalendarDayModal(){
  qs('#calendarNotifyBefore').value = '30';
  qs('#calendarReservationMemo').value = '';
  modal.dataset.benefitId = item.id || '';
- if(modal.open) closeDialogSafe(modal);
- openDialogSafe(modal, { initialFocusSelector:'#calendarVisitDate' });
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal);
+ try{ modal.classList.add('upick-nested-modal'); }catch(_){}
+ openDialogSafe(modal, { initialFocusSelector:'#calendarVisitDate', duration:320 });
  }
  function closeCalendarReservationModal(){
  const modal = qs('#calendarReservationModal');
@@ -8439,6 +8474,7 @@ function renderCalendarDayModal(){
  const isFav=getFavorites().includes(item.id);
  qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${benefitBusinessHoursPanelHtml(item)}${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
+ if(modal) modal.dataset.benefitId = String(item.id || '');
  if(isLayerOpenLike(modal)) closeDetailDialogPreservingPage(modal);
  window.__upickPendingModalScrollY = pageScrollY;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(pageScrollY); }catch(_){}
@@ -8489,7 +8525,10 @@ function renderCalendarDayModal(){
      }
    }catch(_){}
  }, 700);
- qs('#modalFavBtn').onclick=async ()=>{
+ qs('#modalFavBtn').onclick=async (event)=>{
+ event?.preventDefault?.();
+ event?.stopPropagation?.();
+ if(typeof event?.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
  const isFavorite = await toggleFavorite(item.id, item.name);
  const btn = qs('#modalFavBtn');
  if (btn) {

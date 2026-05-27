@@ -26333,3 +26333,127 @@ body.upick-modal-scroll-event-lock{
   #detailModal .modal-body,
   #noticeModal .modal-body{padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px))!important;}
 }
+
+/* ===== v20260527: detail div modal nested calendar/favorite stability fix ===== */
+#calendarReservationModal.upick-div-dialog,
+#calendarDayModal.upick-div-dialog,
+#qrModal.upick-div-dialog,
+#communityEditorModal.upick-div-dialog,
+#communityDetailModal.upick-div-dialog,
+#communityReportModal.upick-div-dialog{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))!important;
+  border:0!important;
+  border-radius:0!important;
+  background:rgba(15,23,42,0)!important;
+  box-shadow:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  z-index:2147483700!important;
+  box-sizing:border-box!important;
+  transform:none!important;
+  transition:opacity .32s ease, background-color .32s ease, backdrop-filter .32s ease, visibility 0s linear .32s!important;
+}
+#calendarReservationModal.upick-div-dialog[open],
+#calendarDayModal.upick-div-dialog[open],
+#qrModal.upick-div-dialog[open],
+#communityEditorModal.upick-div-dialog[open],
+#communityDetailModal.upick-div-dialog[open],
+#communityReportModal.upick-div-dialog[open],
+#calendarReservationModal.upick-div-dialog.show,
+#calendarDayModal.upick-div-dialog.show,
+#qrModal.upick-div-dialog.show,
+#communityEditorModal.upick-div-dialog.show,
+#communityDetailModal.upick-div-dialog.show,
+#communityReportModal.upick-div-dialog.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-open,
+#calendarDayModal.upick-div-dialog.upick-motion-open,
+#qrModal.upick-div-dialog.upick-motion-open,
+#communityEditorModal.upick-div-dialog.upick-motion-open,
+#communityDetailModal.upick-div-dialog.upick-motion-open,
+#communityReportModal.upick-div-dialog.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  background:rgba(15,23,42,.42)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  transition:opacity .32s ease, background-color .32s ease, backdrop-filter .32s ease, visibility 0s linear 0s!important;
+}
+#calendarReservationModal.upick-div-dialog.is-closing,
+#calendarDayModal.upick-div-dialog.is-closing,
+#qrModal.upick-div-dialog.is-closing,
+#communityEditorModal.upick-div-dialog.is-closing,
+#communityDetailModal.upick-div-dialog.is-closing,
+#communityReportModal.upick-div-dialog.is-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-closing,
+#calendarDayModal.upick-div-dialog.upick-motion-closing,
+#qrModal.upick-div-dialog.upick-motion-closing,
+#communityEditorModal.upick-div-dialog.upick-motion-closing,
+#communityDetailModal.upick-div-dialog.upick-motion-closing,
+#communityReportModal.upick-div-dialog.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  background:rgba(15,23,42,0)!important;
+}
+#calendarReservationModal.upick-div-dialog > .upick-div-dialog-panel,
+#calendarDayModal.upick-div-dialog > .upick-div-dialog-panel,
+#qrModal.upick-div-dialog > .upick-div-dialog-panel,
+#communityEditorModal.upick-div-dialog > .upick-div-dialog-panel,
+#communityDetailModal.upick-div-dialog > .upick-div-dialog-panel,
+#communityReportModal.upick-div-dialog > .upick-div-dialog-panel{
+  position:relative!important;
+  z-index:1!important;
+  pointer-events:auto!important;
+  background:#fff!important;
+  color:#0f172a!important;
+  border:1px solid rgba(191,219,254,.72)!important;
+  border-radius:30px!important;
+  box-shadow:0 30px 70px rgba(15,23,42,.26)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  box-sizing:border-box!important;
+}
+#calendarReservationModal.upick-div-dialog > .upick-div-dialog-panel{
+  width:min(430px, calc(100vw - 24px))!important;
+  max-height:min(88dvh,720px)!important;
+}
+#calendarReservationModal.upick-div-dialog .modal-head,
+#calendarReservationModal.upick-div-dialog .modal-body,
+#calendarReservationModal.upick-div-dialog form,
+#calendarReservationModal.upick-div-dialog button,
+#calendarReservationModal.upick-div-dialog input,
+#calendarReservationModal.upick-div-dialog select,
+#calendarReservationModal.upick-div-dialog textarea{
+  pointer-events:auto!important;
+}
+#calendarReservationModal.upick-div-dialog .modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+}
+#detailModal #modalFavBtn,
+#detailModal #openCalendarReservationBtn,
+#detailModal .modal-head button{
+  pointer-events:auto!important;
+}
+@media(max-width:520px){
+  #calendarReservationModal.upick-div-dialog{padding:10px!important;}
+  #calendarReservationModal.upick-div-dialog > .upick-div-dialog-panel{width:calc(100vw - 20px)!important;border-radius:26px!important;}
+}
