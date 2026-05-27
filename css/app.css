@@ -26017,3 +26017,42 @@ body.upick-modal-scroll-event-lock{
   overflow-y:auto!important;
   overscroll-behavior:contain!important;
 }
+
+
+/* ===== v20260527: account edit/password change div modal compatibility ===== */
+#accountEditModal.upick-div-modal,
+#passwordChangeModal.upick-div-modal{
+  position:fixed!important;
+  inset:50% auto auto 50%!important;
+  transform:translate(-50%,-50%) translateY(18px) scale(.965)!important;
+  width:min(92vw,520px)!important;
+  max-height:calc(100dvh - 48px)!important;
+  overflow:auto!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  z-index:2147483400!important;
+  box-sizing:border-box!important;
+  transition:opacity .32s ease, transform .32s ease, visibility 0s linear .32s!important;
+}
+#accountEditModal.upick-div-modal[open],
+#passwordChangeModal.upick-div-modal[open],
+#accountEditModal.upick-div-modal.show,
+#passwordChangeModal.upick-div-modal.show,
+#accountEditModal.upick-div-modal.upick-motion-open,
+#passwordChangeModal.upick-div-modal.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transform:translate(-50%,-50%) translateY(0) scale(1)!important;
+  transition:opacity .32s ease, transform .32s ease, visibility 0s linear 0s!important;
+}
+#accountEditModal.upick-div-modal.is-closing,
+#passwordChangeModal.upick-div-modal.is-closing,
+#accountEditModal.upick-div-modal.upick-motion-closing,
+#passwordChangeModal.upick-div-modal.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transform:translate(-50%,-50%) translateY(18px) scale(.965)!important;
+}

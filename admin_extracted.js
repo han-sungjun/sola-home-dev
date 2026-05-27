@@ -468,8 +468,8 @@ function resetAdminSensitiveUI(){
       }
     }
 
-    alertConfirmEl?.addEventListener('click', () => closeModal(true));
-    alertCancelEl?.addEventListener('click', () => closeModal(false));
+    alertConfirmEl?.addEventListener('click', () => { if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return; closeModal(true); });
+    alertCancelEl?.addEventListener('click', () => { if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return; closeModal(false); });
     // 바깥 영역 클릭 닫힘 방지: 명시 버튼으로만 닫습니다.
 window.addEventListener('keydown', (event) => {
       if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return;

@@ -924,3 +924,54 @@ body[data-loading-mode="login"]{
 #appAlert.app-alert .app-alert-card{
   pointer-events:auto!important;
 }
+
+
+/* ===== v20260527 final: div 기반 공통 알럿 fade 복구 =====
+   display:none 기반이면 dialog->div 전환 후 첫 프레임/닫힘 프레임이 바로 끊겨
+   페이드가 사라져 보입니다. 레이어는 항상 flex로 두고 opacity/visibility로만 제어합니다. */
+#appAlert.app-alert,
+.app-alert{
+  display:flex!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity .32s ease, visibility 0s linear .32s, backdrop-filter .32s ease!important;
+}
+#appAlert.app-alert.show,
+#appAlert.app-alert.upick-motion-open,
+.app-alert.show,
+.app-alert.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity .32s ease, visibility 0s linear 0s, backdrop-filter .32s ease!important;
+}
+#appAlert.app-alert.is-closing,
+#appAlert.app-alert.upick-motion-closing,
+.app-alert.is-closing,
+.app-alert.upick-motion-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+#appAlert.app-alert .app-alert-card,
+.app-alert .app-alert-card{
+  opacity:0!important;
+  transform:translateY(18px) scale(.965)!important;
+  transition:opacity .32s ease, transform .32s ease, box-shadow .32s ease!important;
+}
+#appAlert.app-alert.show .app-alert-card,
+#appAlert.app-alert.upick-motion-open .app-alert-card,
+.app-alert.show .app-alert-card,
+.app-alert.upick-motion-open .app-alert-card{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+#appAlert.app-alert.is-closing .app-alert-card,
+#appAlert.app-alert.upick-motion-closing .app-alert-card,
+.app-alert.is-closing .app-alert-card,
+.app-alert.upick-motion-closing .app-alert-card{
+  opacity:0!important;
+  transform:translateY(18px) scale(.965)!important;
+}

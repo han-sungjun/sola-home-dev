@@ -1551,8 +1551,8 @@ function openModalAlert(message, focusTarget=null, title='안내'){
  if(resolver) resolver(result);
  }
 
- alertConfirmEl.addEventListener('click', () => closeModal(true));
- alertCancelEl.addEventListener('click', () => closeModal(false));
+ alertConfirmEl.addEventListener('click', () => { if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return; closeModal(true); });
+ alertCancelEl.addEventListener('click', () => { if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return; closeModal(false); });
  // 앱 알림은 바깥 영역 클릭으로 닫지 않습니다.
 window.addEventListener('keydown', (event) => {
  if(!alertEl.classList.contains('show')) return;
@@ -2061,12 +2061,36 @@ function preventBackdropClose(event){
   qs(selector)?.addEventListener('click', preventBackdropClose, true);
 });
 
+function isLayerOpenLike(modal){
+ return !!(modal && (modal.open || modal.hasAttribute('open') || modal.classList.contains('show') || modal.classList.contains('upick-motion-open')));
+}
+
+function openLayerElementLikeDialog(modal){
+ if(!modal) return;
+ try{
+  if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
+  else modal.setAttribute('open','');
+ }catch(_){
+  try{ modal.setAttribute('open',''); }catch(__){}
+ }
+}
+
+function closeLayerElementLikeDialog(modal){
+ if(!modal) return;
+ try{
+  if(typeof modal.close === 'function' && modal.open) modal.close();
+  else modal.removeAttribute('open');
+ }catch(_){
+  try{ modal.removeAttribute('open'); }catch(__){}
+ }
+}
+
 function openAccountMotionDialog(modal, focusSelector){
  if(!modal) return;
- if(modal.open) modal.close();
+ if(isLayerOpenLike(modal)) closeLayerElementLikeDialog(modal);
  modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open','upick-motion-layer','upick-motion-panel');
  modal.classList.add('upick-motion-dialog','upick-motion-layer','upick-motion-panel');
- modal.showModal();
+ openLayerElementLikeDialog(modal);
  modal.setAttribute('aria-hidden','false');
  if(window.UpickMotion){
   window.UpickMotion.open(modal,{
@@ -2082,11 +2106,11 @@ function openAccountMotionDialog(modal, focusSelector){
 }
 
 function closeAccountMotionDialog(modal, afterClose){
- if(!modal || !modal.open){ if(typeof afterClose === 'function') afterClose(); return; }
+ if(!isLayerOpenLike(modal)){ if(typeof afterClose === 'function') afterClose(); return; }
  var done=function(){
   modal.classList.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-layer','upick-motion-panel','upick-motion-open','upick-motion-closing');
   modal.setAttribute('aria-hidden','true');
-  if(modal.open) modal.close();
+  closeLayerElementLikeDialog(modal);
   if(typeof afterClose === 'function') afterClose();
  };
  if(window.UpickMotion){
@@ -8665,7 +8689,7 @@ function renderCalendarDayModal(){
   return;
  }
  if(el.dataset.upickMotionClosing === '1') return;
- if(el.open) closeNativeDialogSafe(el);
+ if(el.open || el.hasAttribute('open')) closeNativeDialogSafe(el);
  cleanupMotionDialogClasses(el);
  el.classList.add('upick-motion-dialog','upick-motion-layer','upick-motion-panel');
  el.setAttribute('aria-hidden','false');
@@ -8688,7 +8712,7 @@ function renderCalendarDayModal(){
  function closeDialogSafe(el, options = {}){
  if(!el) return;
  const afterClose = typeof options.afterClose === 'function' ? options.afterClose : null;
- if(isMotionDialogExcluded(el) || !window.UpickMotion || !el.open){
+ if(isMotionDialogExcluded(el) || !window.UpickMotion || !(el.open || el.hasAttribute('open') || el.classList.contains('show'))){
   closeNativeDialogSafe(el);
   if(afterClose) afterClose();
   return;

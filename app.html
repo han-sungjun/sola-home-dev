@@ -37,12 +37,12 @@
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/css/app.css?v=20260527-modal-dialog-center-v90" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
-<link href="/common/common-motion.css?v=2026052702" rel="stylesheet"/>
-<link href="/common/common-alert.css?v=2026051601" rel="stylesheet"/>
+<link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260527fadefix" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=2026052405" rel="stylesheet"/>
 <link href="/common/common-modal.css?v=2026051604" rel="stylesheet"/>
-<script defer="" src="/common/common-motion.js?v=2026052702"></script>
-<script defer="" src="/common/common-alert.js?v=2026051601"></script>
+<script defer="" src="/common/common-motion.js?v=20260527fadefix"></script>
+<script defer="" src="/common/common-alert.js?v=20260527fadefix"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
 <script defer="" src="/common/common-modal.js?v=2026051604"></script>
 </head>
@@ -1562,7 +1562,7 @@
     </div>
   </div>
 </dialog>
-<dialog id="accountEditModal">
+<div id="accountEditModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="modal-head">
 <div class="pill">
           계정 정보 수정
@@ -1639,7 +1639,7 @@
 </form>
 </div>
 </dialog>
-<dialog id="passwordChangeModal">
+<div id="passwordChangeModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="modal-head">
 <div class="pill">
           비밀번호 변경
@@ -1683,7 +1683,7 @@
 </div>
 </form>
 </div>
-</dialog>
+</div>
 <div aria-hidden="true" class="app-alert" id="appAlert">
 <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
 <div class="app-alert-head">
