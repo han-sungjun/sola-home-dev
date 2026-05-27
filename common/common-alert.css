@@ -915,3 +915,39 @@ body.upick-layer-scroll-lock #appAlert > *:not(.app-alert-card){
   pointer-events:none!important;
   cursor:default!important;
 }
+
+/* ===== Fix v20260527-4: 관리자/입장/계정 만들기 스크롤 하드락 =====
+   body/html overflow만으로 잠기지 않는 브라우저 스크롤과 .app 계열 스크롤 컨테이너를 함께 잠급니다. */
+html.upick-hard-scroll-lock,
+body.upick-hard-scroll-lock{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+  scroll-behavior:auto!important;
+}
+body.upick-hard-scroll-lock{
+  max-width:100%!important;
+}
+body.upick-hard-scroll-lock > *:not(#appAlert):not(.app-alert):not(dialog.app-alert){
+  overscroll-behavior:none!important;
+}
+body.upick-alert-open .app,
+body.upick-alert-open #mainContent,
+body.upick-alert-open .shell,
+body.upick-layer-scroll-lock .app,
+body.upick-layer-scroll-lock #mainContent,
+body.upick-layer-scroll-lock .shell,
+body.upick-hard-scroll-lock .app,
+body.upick-hard-scroll-lock #mainContent,
+body.upick-hard-scroll-lock .shell{
+  overscroll-behavior:none!important;
+}
+body.upick-alert-open #appAlert,
+body.upick-alert-open #appAlert .app-alert-card,
+body.upick-alert-open #appAlert .app-alert-card *,
+body.upick-hard-scroll-lock #appAlert,
+body.upick-hard-scroll-lock #appAlert .app-alert-card,
+body.upick-hard-scroll-lock #appAlert .app-alert-card *{
+  touch-action:auto!important;
+  pointer-events:auto!important;
+}

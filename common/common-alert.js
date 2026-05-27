@@ -103,6 +103,119 @@
 
   var ALERT_LOCK_EVENTS = ['pointerdown','mousedown','touchstart','touchmove','wheel','click','dblclick'];
 
+  /*
+   * Hard scroll freeze
+   * - overflow:hidden 만으로는 관리자/입장/계정 만들기 페이지에서 브라우저 스크롤바 또는
+   *   별도 스크롤 컨테이너가 살아나는 경우가 있어, 현재 scrollY를 보존한 fixed lock을 병행합니다.
+   * - 해제 시 저장 위치로 복귀하므로 최상단 튐을 방지합니다.
+   */
+  if(!window.__upickHardScrollFreeze){
+    window.__upickHardScrollFreeze = (function(){
+      var reasons = {};
+      var saved = null;
+      var containers = [];
+
+      function collectContainers(){
+        var list = [];
+        ['#mainContent','.app','.shell','.admin-page','.page','.content','.tab-content'].forEach(function(sel){
+          document.querySelectorAll(sel).forEach(function(el){
+            if(el && el !== document.body && el !== document.documentElement && list.indexOf(el) < 0) list.push(el);
+          });
+        });
+        return list;
+      }
+
+      function hasReason(){
+        return Object.keys(reasons).some(function(key){ return reasons[key]; });
+      }
+
+      function apply(){
+        if(saved) return;
+        var doc = document.documentElement;
+        var body = document.body;
+        var x = window.pageXOffset || doc.scrollLeft || body.scrollLeft || 0;
+        var y = window.pageYOffset || doc.scrollTop || body.scrollTop || 0;
+        containers = collectContainers().map(function(el){
+          return {
+            el: el,
+            overflow: el.style.overflow,
+            overflowY: el.style.overflowY,
+            overscrollBehavior: el.style.overscrollBehavior,
+            scrollTop: el.scrollTop
+          };
+        });
+        saved = {
+          x:x, y:y,
+          htmlOverflow: doc.style.overflow,
+          htmlOverscroll: doc.style.overscrollBehavior,
+          bodyPosition: body.style.position,
+          bodyTop: body.style.top,
+          bodyLeft: body.style.left,
+          bodyRight: body.style.right,
+          bodyWidth: body.style.width,
+          bodyOverflow: body.style.overflow,
+          bodyOverscroll: body.style.overscrollBehavior,
+          bodyTouchAction: body.style.touchAction
+        };
+        doc.style.overflow = 'hidden';
+        doc.style.overscrollBehavior = 'none';
+        body.style.position = 'fixed';
+        body.style.top = (-y) + 'px';
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.width = '100%';
+        body.style.overflow = 'hidden';
+        body.style.overscrollBehavior = 'none';
+        body.style.touchAction = 'none';
+        containers.forEach(function(item){
+          item.el.style.overflow = 'hidden';
+          item.el.style.overflowY = 'hidden';
+          item.el.style.overscrollBehavior = 'none';
+        });
+        body.classList.add('upick-hard-scroll-lock');
+        doc.classList.add('upick-hard-scroll-lock');
+      }
+
+      function restore(){
+        if(!saved || hasReason()) return;
+        var doc = document.documentElement;
+        var body = document.body;
+        var x = saved.x;
+        var y = saved.y;
+        doc.style.overflow = saved.htmlOverflow;
+        doc.style.overscrollBehavior = saved.htmlOverscroll;
+        body.style.position = saved.bodyPosition;
+        body.style.top = saved.bodyTop;
+        body.style.left = saved.bodyLeft;
+        body.style.right = saved.bodyRight;
+        body.style.width = saved.bodyWidth;
+        body.style.overflow = saved.bodyOverflow;
+        body.style.overscrollBehavior = saved.bodyOverscroll;
+        body.style.touchAction = saved.bodyTouchAction;
+        containers.forEach(function(item){
+          if(item.el){
+            item.el.style.overflow = item.overflow;
+            item.el.style.overflowY = item.overflowY;
+            item.el.style.overscrollBehavior = item.overscrollBehavior;
+            try{ item.el.scrollTop = item.scrollTop; }catch(_){}
+          }
+        });
+        containers = [];
+        saved = null;
+        body.classList.remove('upick-hard-scroll-lock');
+        doc.classList.remove('upick-hard-scroll-lock');
+        requestAnimationFrame(function(){ window.scrollTo(x, y); });
+      }
+
+      return {
+        lock:function(reason){ reasons[reason || 'default'] = true; apply(); },
+        unlock:function(reason){ delete reasons[reason || 'default']; restore(); },
+        sync:function(reason, active){ active ? this.lock(reason) : this.unlock(reason); },
+        isLocked:function(){ return !!saved; }
+      };
+    })();
+  }
+
   function installAlertInteractionLock(){
     if(alertInteractionLockActive) return;
     alertInteractionLockActive = true;
@@ -122,6 +235,9 @@
   function setOpenLock(open){
     document.documentElement.classList.toggle('upick-alert-open', !!open);
     document.body.classList.toggle('upick-alert-open', !!open);
+    if(window.__upickHardScrollFreeze){
+      window.__upickHardScrollFreeze.sync('alert', !!open);
+    }
     if(open) installAlertInteractionLock();
     else removeAlertInteractionLock();
     if(typeof window.__upickSyncModalScrollLock === 'function'){
@@ -520,6 +636,9 @@
     scrollLockActive = active;
     document.documentElement.classList.toggle('upick-layer-scroll-lock', active);
     document.body.classList.toggle('upick-layer-scroll-lock', active);
+    if(window.__upickHardScrollFreeze){
+      window.__upickHardScrollFreeze.sync('layer', active);
+    }
   }
 
   function sync(){
