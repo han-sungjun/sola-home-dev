@@ -8518,7 +8518,7 @@ function openCalendarReservationModal(item={}){
    if(track){
      // v20260528: 스와이프 구조는 유지하되 각 slide를 정확히 100% 폭으로 고정합니다.
      // frame/body에서 overflow를 hidden 처리해 다음 이미지가 옆에 비치지 않도록 합니다.
-     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide ${i === index ? 'active' : ''}" data-preview-index="${i}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div></div>`).join('');
+     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide ${i === index ? 'active' : ''}" data-preview-index="${i}"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div>`).join('');
      track.style.transition = animate ? 'transform 260ms cubic-bezier(.22,1,.36,1)' : 'none';
      track.style.transform = `translate3d(${-index * 100}%,0,0)`;
      const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
