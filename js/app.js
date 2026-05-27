@@ -2066,7 +2066,7 @@ function openAccountMotionDialog(modal, focusSelector){
    activeClass:'show',
    closingClass:'is-closing',
    panel:modal,
-   duration:240,
+   duration:320,
    afterOpen:function(){ requestAnimationFrame(function(){ qs(focusSelector)?.focus?.({preventScroll:true}); }); }
   });
  }else{
@@ -2087,13 +2087,13 @@ function closeAccountMotionDialog(modal, afterClose){
    activeClass:'show',
    closingClass:'is-closing',
    panel:modal,
-   duration:240,
+   duration:320,
    afterClose:done
   });
  }else{
   modal.classList.remove('show');
   modal.classList.add('is-closing');
-  window.setTimeout(done,240);
+  window.setTimeout(done,320);
  }
 }
 

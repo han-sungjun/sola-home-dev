@@ -671,19 +671,57 @@ body.gnb-open .bottom-nav{
 
 #accountEditModal.upick-motion-layer,
 #passwordChangeModal.upick-motion-layer{
+  --account-popup-motion-duration:320ms;
+  opacity:0 !important;
   transition:
-    opacity var(--upick-motion-normal) var(--upick-motion-ease),
-    transform var(--upick-motion-normal) var(--upick-motion-ease-out),
-    visibility 0s linear var(--upick-motion-normal) !important;
-  transform:translateY(10px) scale(.985) !important;
+    opacity var(--account-popup-motion-duration) var(--upick-motion-ease-out),
+    transform var(--account-popup-motion-duration) var(--upick-motion-ease-out),
+    visibility 0s linear var(--account-popup-motion-duration) !important;
+  transform:translateY(18px) scale(.965) !important;
 }
+#accountEditModal.upick-motion-layer::backdrop,
+#passwordChangeModal.upick-motion-layer::backdrop{
+  background:rgba(15,23,42,0) !important;
+  -webkit-backdrop-filter:blur(0) !important;
+  backdrop-filter:blur(0) !important;
+  transition:
+    background-color var(--account-popup-motion-duration) var(--upick-motion-ease),
+    backdrop-filter var(--account-popup-motion-duration) var(--upick-motion-ease) !important;
+}
+#accountEditModal.show,
 #accountEditModal.upick-motion-open,
+#passwordChangeModal.show,
 #passwordChangeModal.upick-motion-open{
+  opacity:1 !important;
   transform:translateY(0) scale(1) !important;
+  transition:
+    opacity var(--account-popup-motion-duration) var(--upick-motion-ease-out),
+    transform var(--account-popup-motion-duration) var(--upick-motion-ease-out),
+    visibility 0s linear 0s !important;
 }
+#accountEditModal.show::backdrop,
+#accountEditModal.upick-motion-open::backdrop,
+#passwordChangeModal.show::backdrop,
+#passwordChangeModal.upick-motion-open::backdrop{
+  background:rgba(15,23,42,.52) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+  backdrop-filter:blur(10px) !important;
+}
+#accountEditModal.is-closing,
 #accountEditModal.upick-motion-closing,
+#passwordChangeModal.is-closing,
 #passwordChangeModal.upick-motion-closing{
-  transform:translateY(10px) scale(.985) !important;
+  opacity:0 !important;
+  transform:translateY(18px) scale(.965) !important;
+  pointer-events:none !important;
+}
+#accountEditModal.is-closing::backdrop,
+#accountEditModal.upick-motion-closing::backdrop,
+#passwordChangeModal.is-closing::backdrop,
+#passwordChangeModal.upick-motion-closing::backdrop{
+  background:rgba(15,23,42,0) !important;
+  -webkit-backdrop-filter:blur(0) !important;
+  backdrop-filter:blur(0) !important;
 }
 
 #accountEditModal .modal-head,
