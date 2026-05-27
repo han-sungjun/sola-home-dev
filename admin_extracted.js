@@ -396,8 +396,10 @@ function resetAdminSensitiveUI(){
     }
 
     function openModalAlert(message, focusTarget=null, title='안내'){
-      if(typeof window.showCommonAlert === 'function'){
-        return window.showCommonAlert({
+      const engine = window.UpickAlert || {};
+      const alertFn = engine.alert || window.showCommonAlert || window.showAlert;
+      if(typeof alertFn === 'function'){
+        return alertFn({
           title,
           message,
           confirmText:'확인',
@@ -408,8 +410,10 @@ function resetAdminSensitiveUI(){
     }
 
     function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
-      if(typeof window.showCommonConfirm === 'function'){
-        return window.showCommonConfirm({
+      const engine = window.UpickAlert || {};
+      const confirmFn = engine.confirm || window.showCommonConfirm || window.showConfirm;
+      if(typeof confirmFn === 'function'){
+        return confirmFn({
           title,
           message,
           confirmText,
@@ -421,6 +425,9 @@ function resetAdminSensitiveUI(){
     }
 
     async function closeModal(result=false){
+      // 관리자 페이지의 예전 로컬 알럿 닫힘 이벤트는 공통 div 알럿 엔진이 있으면 동작하지 않습니다.
+      // 공통 엔진이 fade-out 완료 후 콜백/focus 이동까지 단독으로 처리해야 애니메이션이 끊기지 않습니다.
+      if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return;
       if(!alertEl || alertEl.dataset.upickClosing === '1') return;
       alertEl.dataset.upickClosing = '1';
       alertConfirmEl.disabled = true;
@@ -465,6 +472,7 @@ function resetAdminSensitiveUI(){
     alertCancelEl?.addEventListener('click', () => closeModal(false));
     // 바깥 영역 클릭 닫힘 방지: 명시 버튼으로만 닫습니다.
 window.addEventListener('keydown', (event) => {
+      if(window.UpickAlert && typeof window.UpickAlert.alert === 'function') return;
       if(!alertEl?.classList.contains('show')) return;
       if(event.key === 'Escape') closeModal(false);
     });
