@@ -2963,11 +2963,40 @@ async function refreshPushStatus(){
  await setDoc(doc(db, 'user_stats', uid), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '입주민', role: profile.role || profile.userRole || '', score: increment(safePoints), activityCount: increment(1), lastActivityType: type, lastBenefitId: benefitId || null, updatedAt: serverTimestamp()}, { merge:true });
  }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
  }
+ function getResidentReactionActorKey(){
+ const profile = state.currentUserProfile || {};
+ const stored = (typeof getStoredLoginUser === 'function' ? getStoredLoginUser() : {}) || {};
+ const loginId = String(profile.loginId || profile.loginID || profile.userId || profile.username || stored.loginId || stored.loginID || '').trim();
+ const uid = String(state.currentUser?.uid || stored.uid || '').trim();
+ const raw = loginId || uid;
+ return raw.replace(/[\/#[\]$]/g, '_').replace(/\s+/g, '_');
+ }
+ function buildResidentReactionDocId(benefitId = '', reactionType = 'like'){
+ const actorKey = getResidentReactionActorKey();
+ if(!benefitId || !actorKey) return '';
+ return `${benefitId}_${actorKey}_${reactionType}`;
+ }
+ function getResidentReactionButtons(benefitId = ''){
+ return qsa('.reaction-btn').filter((btn) => {
+   const box = btn.closest?.('.reaction-box');
+   return !benefitId || String(box?.dataset?.benefitId || '') === String(benefitId);
+ });
+ }
+ function setResidentReactionButtonState(btn, reactionType, active){
+ const activeClass = getReactionActiveClass(reactionType);
+ ['active-like','active-recommend','active-hot'].forEach((cls) => btn.classList.remove(cls));
+ btn.classList.toggle(activeClass, !!active);
+ btn.dataset.active = active ? '1' : '0';
+ btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+ }
+
  async function handleResidentReaction(benefitId = '', reactionType = 'like'){
- if(!benefitId || !state.currentUser?.uid){ await openModalAlert('입장 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
+ const actorKey = getResidentReactionActorKey();
+ if(!benefitId || !state.currentUser?.uid || !actorKey){ await openModalAlert('입장 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
 
  const uid = state.currentUser.uid;
- const reactionId = `${benefitId}_${uid}_${reactionType}`;
+ const profile = state.currentUserProfile || {};
+ const reactionId = buildResidentReactionDocId(benefitId, reactionType);
  const reactionRef = doc(db, 'benefit_reactions', reactionId);
 
  const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
@@ -3007,6 +3036,8 @@ async function refreshPushStatus(){
    await setDoc(reactionRef, {
      benefitId,
      uid,
+     reactionUserKey: actorKey,
+     loginId: profile.loginId || profile.loginID || '',
      type: reactionType,
      createdAt: serverTimestamp()
    }, { merge:true });
@@ -3045,19 +3076,18 @@ async function refreshPushStatus(){
  }
 
  async function refreshResidentReactionButtons(benefitId = ''){
- const uid = state.currentUser?.uid;
- if(!benefitId || !uid) return;
+ const actorKey = getResidentReactionActorKey();
+ const buttons = getResidentReactionButtons(benefitId);
 
- const buttons = qsa('.reaction-btn');
+ // 계정이 바뀌었거나 아직 반응 정보를 읽기 전이면 우선 전부 비활성화합니다.
+ buttons.forEach((btn) => setResidentReactionButtonState(btn, btn.dataset.reaction || 'like', false));
+ if(!benefitId || !state.currentUser?.uid || !actorKey) return;
+
  await Promise.all(buttons.map(async (btn) => {
    const reactionType = btn.dataset.reaction || 'like';
-   const reactionId = `${benefitId}_${uid}_${reactionType}`;
-   const activeClass = getReactionActiveClass(reactionType);
+   const reactionId = buildResidentReactionDocId(benefitId, reactionType);
    const snap = await getDoc(doc(db, 'benefit_reactions', reactionId)).catch(() => null);
-
-   btn.classList.toggle(activeClass, !!snap?.exists?.());
-   btn.dataset.active = snap?.exists?.() ? '1' : '0';
-   btn.setAttribute('aria-pressed', snap?.exists?.() ? 'true' : 'false');
+   setResidentReactionButtonState(btn, reactionType, !!snap?.exists?.());
  }));
  }
 
@@ -3065,7 +3095,7 @@ async function refreshPushStatus(){
  const benefitId = item?.id || qs('.reaction-box')?.dataset?.benefitId || '';
  refreshResidentReactionButtons(benefitId).catch(() => {});
 
- qsa('.reaction-btn').forEach((btn) => {
+ getResidentReactionButtons(benefitId).forEach((btn) => {
    btn.onclick = async (event) => {
      event.preventDefault();
      event.stopPropagation();
@@ -3080,9 +3110,7 @@ async function refreshPushStatus(){
        const result = await handleResidentReaction(benefitId, reactionType);
 
        if(result?.changed){
-         btn.classList.toggle(activeClass, !!result.active);
-         btn.dataset.active = result.active ? '1' : '0';
-         btn.setAttribute('aria-pressed', result.active ? 'true' : 'false');
+         setResidentReactionButtonState(btn, reactionType, !!result.active);
 
          // 기존 알럿 대신 버튼 상태만 바꾸되, 아주 짧은 토스트성 피드백이 필요하면 alert가 아닌 상태 표시만 남김
          const help = btn.closest('.reaction-box')?.previousElementSibling;
@@ -14782,10 +14810,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   document.addEventListener('click', function(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
     if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
-      // AI 이미지 확대 팝업은 혜택/소식 이미지 팝업과 동일하게
-      // 바깥 영역 클릭으로 닫히지 않도록 합니다. 닫기는 X 버튼만 사용합니다.
+      // AI 이미지 확대 팝업은 바깥 영역 클릭으로 닫지 않습니다.
+      // X 버튼, ESC 처리처럼 명시적인 닫기 동작만 허용합니다.
       event.preventDefault();
-      event.stopPropagation();
+      event.stopImmediatePropagation();
       return false;
     }
   }, true);
