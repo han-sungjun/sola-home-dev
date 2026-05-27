@@ -389,13 +389,19 @@ function resetAdminSensitiveUI(){
       });
     }
 
+    function focusAfterCommonAlert(target){
+      if(target && typeof target.focus === 'function'){
+        try{ target.focus({preventScroll:true}); }catch(_){ try{ target.focus(); }catch(__){} }
+      }
+    }
+
     function openModalAlert(message, focusTarget=null, title='안내'){
       if(typeof window.showCommonAlert === 'function'){
-        return window.showCommonAlert({ title, message, confirmText:'확인' }).then((result)=>{
-          if(focusTarget && typeof focusTarget.focus === 'function'){
-            try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
-          }
-          return result;
+        return window.showCommonAlert({
+          title,
+          message,
+          confirmText:'확인',
+          onClose:() => focusAfterCommonAlert(focusTarget)
         });
       }
       return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'' });
@@ -403,11 +409,12 @@ function resetAdminSensitiveUI(){
 
     function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
       if(typeof window.showCommonConfirm === 'function'){
-        return window.showCommonConfirm({ title, message, confirmText, cancelText }).then((result)=>{
-          if(result === false && focusTarget && typeof focusTarget.focus === 'function'){
-            try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
-          }
-          return result;
+        return window.showCommonConfirm({
+          title,
+          message,
+          confirmText,
+          cancelText,
+          onCancel:() => focusAfterCommonAlert(focusTarget)
         });
       }
       return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
