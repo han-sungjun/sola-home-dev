@@ -205,61 +205,32 @@ dialog[open],
 }
 
 
-/* ===== Fix v4: 알럿 표시 중 body/html 잠금이 확인 버튼을 막지 않도록 해제 ===== */
-html:has(dialog[open]),
-body:has(dialog[open]),
-html:has(#appAlert[open]),
-body:has(#appAlert[open]),
-html:has(.common-alert.show),
-body:has(.common-alert.show),
-html:has(.app-alert.show),
-body:has(.app-alert.show),
-html:has(.modal-alert.show),
-body:has(.modal-alert.show) {
-  overflow: auto !important;
-  overscroll-behavior: auto !important;
-  touch-action: auto !important;
-  pointer-events: auto !important;
+/* ===== Fix v4 replaced: 알럿/모달 잠금 중 스크롤 해제 금지 =====
+   이전 버전의 :has(dialog[open]) overflow:auto 보정은 알럿/바텀팝업 표시 중
+   페이지 스크롤이 살아나는 원인이 되어 제거했습니다. 버튼 클릭 보장은 z-index/pointer-events만 담당합니다. */
+#globalLoadingBar,
+.global-loading,
+.page-loader{
+  pointer-events:none!important;
+  z-index:2147483000!important;
 }
-
-html:has(dialog[open]) #globalLoadingBar,
-body:has(dialog[open]) #globalLoadingBar,
-html:has(#appAlert[open]) #globalLoadingBar,
-body:has(#appAlert[open]) #globalLoadingBar,
-html:has(.common-alert.show) #globalLoadingBar,
-body:has(.common-alert.show) #globalLoadingBar,
-html:has(.app-alert.show) #globalLoadingBar,
-body:has(.app-alert.show) #globalLoadingBar,
-html:has(.modal-alert.show) #globalLoadingBar,
-body:has(.modal-alert.show) #globalLoadingBar,
-html:has(dialog[open]) .global-loading,
-body:has(dialog[open]) .global-loading,
-html:has(.common-alert.show) .global-loading,
-body:has(.common-alert.show) .global-loading {
-  display: none !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-dialog[open],
-#appAlert[open],
+#appAlert,
 #appAlert.show,
-.common-alert.show,
+.app-alert,
 .app-alert.show,
-.modal-alert.show {
-  pointer-events: auto !important;
-  z-index: 2147483600 !important;
+dialog.app-alert,
+dialog.app-alert[open],
+.common-alert.show,
+.modal-alert.show{
+  z-index:2147483600!important;
 }
-
-dialog[open] button,
 #appAlert button,
-.common-alert button,
 .app-alert button,
-.modal-alert button {
-  pointer-events: auto !important;
+dialog.app-alert button,
+.common-alert.show button,
+.modal-alert.show button{
+  pointer-events:auto!important;
 }
-
-
 
 /* DEV 배지 높이 정렬 */
 .hero-top-row,
@@ -903,4 +874,44 @@ html.upick-alert-open .app-alert .app-alert-card,
 body.upick-alert-open .app-alert .app-alert-card *,
 html.upick-alert-open .app-alert .app-alert-card *{
   pointer-events:auto!important;
+}
+
+
+/* ===== Fix v20260527-3: 알럿/바텀팝업/모달 공통 스크롤 잠금 최종 보정 =====
+   관리자/입장/계정 만들기 페이지에서 알럿 또는 바텀팝업이 열려도 배경 스크롤이 움직이지 않도록 합니다.
+   fixed body 방식은 사용하지 않아 닫을 때 최상단 튐을 피합니다. */
+html.upick-alert-open,
+body.upick-alert-open,
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  scroll-behavior:auto!important;
+}
+body.upick-alert-open,
+body.upick-layer-scroll-lock{
+  touch-action:none!important;
+}
+body.upick-alert-open #appAlert,
+body.upick-alert-open #appAlert .app-alert-card,
+body.upick-alert-open #appAlert .app-alert-card *,
+body.upick-layer-scroll-lock #appAlert,
+body.upick-layer-scroll-lock #appAlert .app-alert-card,
+body.upick-layer-scroll-lock #appAlert .app-alert-card *,
+body.upick-layer-scroll-lock .common-modal-overlay,
+body.upick-layer-scroll-lock .common-modal-overlay *,
+body.upick-layer-scroll-lock .sheet-modal.show,
+body.upick-layer-scroll-lock .sheet-modal.show *,
+body.upick-layer-scroll-lock .bottom-sheet.show,
+body.upick-layer-scroll-lock .bottom-sheet.show *,
+body.upick-layer-scroll-lock .gnb-sheet.show,
+body.upick-layer-scroll-lock .gnb-sheet.show *,
+body.upick-layer-scroll-lock dialog[open],
+body.upick-layer-scroll-lock dialog[open] *{
+  touch-action:auto!important;
+}
+body.upick-alert-open #appAlert > *:not(.app-alert-card),
+body.upick-layer-scroll-lock #appAlert > *:not(.app-alert-card){
+  pointer-events:none!important;
+  cursor:default!important;
 }

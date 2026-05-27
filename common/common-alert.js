@@ -101,18 +101,20 @@
     if(event.stopImmediatePropagation) event.stopImmediatePropagation();
   }
 
+  var ALERT_LOCK_EVENTS = ['pointerdown','mousedown','touchstart','touchmove','wheel','click','dblclick'];
+
   function installAlertInteractionLock(){
     if(alertInteractionLockActive) return;
     alertInteractionLockActive = true;
-    ['pointerdown','mousedown','touchstart','click','dblclick'].forEach(function(type){
-      document.addEventListener(type, blockOutsideAlertInteraction, true);
+    ALERT_LOCK_EVENTS.forEach(function(type){
+      document.addEventListener(type, blockOutsideAlertInteraction, { capture:true, passive:false });
     });
   }
 
   function removeAlertInteractionLock(){
     if(!alertInteractionLockActive) return;
-    ['pointerdown','mousedown','touchstart','click','dblclick'].forEach(function(type){
-      document.removeEventListener(type, blockOutsideAlertInteraction, true);
+    ALERT_LOCK_EVENTS.forEach(function(type){
+      document.removeEventListener(type, blockOutsideAlertInteraction, { capture:true });
     });
     alertInteractionLockActive = false;
   }
@@ -124,6 +126,7 @@
     else removeAlertInteractionLock();
     if(typeof window.__upickSyncModalScrollLock === 'function'){
       setTimeout(window.__upickSyncModalScrollLock, 0);
+      setTimeout(window.__upickSyncModalScrollLock, ALERT_CLOSE_DURATION + 40);
     }
   }
 
@@ -403,62 +406,147 @@
 })();
 
 
-/* ===== Fix v4: 알럿 표시 중 로딩 잠금 클래스가 확인 버튼을 막지 않도록 강제 해제 ===== */
+/* ===== Fix v4 revised: 알럿 버튼 클릭 보장 보정 =====
+   더 이상 modal/alert 잠금 클래스를 제거하지 않습니다.
+   잠금 클래스 제거가 관리자/입장/계정 만들기 페이지의 배경 스크롤 재활성화와
+   확인 후 lock 잔류를 유발할 수 있어, 로딩바 pointer-events/z-index만 정리합니다. */
 (function(){
-  const LOCK_CLASSES = [
-    'upick-loading-lock',
-    'ui-loading-lock',
-    'upick-modal-lock',
-    'upick-modal-hard-lock'
-  ];
-
   function hasVisibleAlert(){
     return !!document.querySelector(
-      'dialog[open], #appAlert[open], #appAlert.show, .common-alert.show, .app-alert.show, .modal-alert.show, [data-upick-common-alert][open]'
+      '#appAlert.show, dialog.app-alert[open], .common-alert.show, .app-alert.show, .modal-alert.show, [data-upick-common-alert][open]'
     );
   }
 
-  function unlockForAlertClick(){
+  function keepAlertClickable(){
     if(!hasVisibleAlert()) return;
-
-    LOCK_CLASSES.forEach(function(cls){
-      document.body && document.body.classList.remove(cls);
-      document.documentElement && document.documentElement.classList.remove(cls);
-    });
 
     document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(loader){
       loader.style.pointerEvents = 'none';
       loader.style.zIndex = '2147483000';
-      loader.classList.remove('show');
-      loader.setAttribute('aria-hidden', 'true');
     });
 
-    document.querySelectorAll('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert').forEach(function(alertEl){
-      alertEl.style.pointerEvents = 'auto';
-      alertEl.style.zIndex = '2147483600';
+    document.querySelectorAll('#appAlert.show, dialog.app-alert[open], .common-alert.show, .app-alert.show, .modal-alert.show').forEach(function(alertNode){
+      alertNode.style.zIndex = '2147483600';
     });
 
-    document.querySelectorAll('dialog[open] button, #appAlert button, .common-alert button, .app-alert button, .modal-alert button').forEach(function(btn){
-      btn.style.pointerEvents = 'auto';
-      btn.disabled = false;
-      btn.removeAttribute('aria-disabled');
+    document.querySelectorAll('#appAlert.show .app-alert-card, #appAlert.show .app-alert-card *, dialog.app-alert[open] .app-alert-card, dialog.app-alert[open] .app-alert-card *, .common-alert.show button, .app-alert.show button, .modal-alert.show button').forEach(function(el){
+      el.style.pointerEvents = 'auto';
     });
   }
 
-  window.__upickUnlockForAlertClick = unlockForAlertClick;
+  window.__upickUnlockForAlertClick = keepAlertClickable;
 
   document.addEventListener('click', function(event){
-    if(event.target && event.target.closest && event.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')){
-      unlockForAlertClick();
+    if(event.target && event.target.closest && event.target.closest('#appAlert, dialog.app-alert, .common-alert, .app-alert, .modal-alert')){
+      keepAlertClickable();
     }
   }, true);
 
   document.addEventListener('keydown', function(event){
-    if(event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') unlockForAlertClick();
+    if(event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') keepAlertClickable();
   }, true);
 
-  const timer = setInterval(unlockForAlertClick, 180);
-  window.addEventListener('beforeunload', function(){ clearInterval(timer); });
-  document.addEventListener('DOMContentLoaded', unlockForAlertClick);
-  window.addEventListener('load', unlockForAlertClick);
+  document.addEventListener('DOMContentLoaded', keepAlertClickable);
+  window.addEventListener('load', keepAlertClickable);
+})();
+
+/* ===== Fix v20260527-3: 알럿/바텀팝업/모달 공통 스크롤 잠금 매니저 ===== */
+(function(){
+  'use strict';
+
+  var scrollLockActive = false;
+  var selectors = [
+    '#appAlert.show',
+    'dialog.app-alert[open]',
+    '.app-alert.show',
+    '.common-alert.show',
+    '.modal-alert.show',
+    '.common-modal-overlay',
+    'dialog[open]',
+    '.sheet-modal.show',
+    '.sheet-modal.is-open',
+    '.bottom-sheet.show',
+    '.bottom-sheet.is-open',
+    '.auth-bottom-sheet.show',
+    '.auth-bottom-sheet.is-open',
+    '.account-recovery-sheet.show',
+    '.account-recovery-sheet.is-open',
+    '.admin-modal.show',
+    '.admin-modal.is-open',
+    '.admin-dialog.show',
+    '.admin-dialog.is-open',
+    '.modal.show',
+    '.modal.is-open',
+    '.modal-overlay.show',
+    '.modal-overlay.is-open',
+    '#gnbSheet.show',
+    '.gnb-sheet.show'
+  ];
+
+  function isActuallyVisible(el){
+    if(!el || el.closest('[aria-hidden="true"]')) return false;
+    if(el.matches && el.matches('#appAlert') && !el.classList.contains('show')) return false;
+    var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+    if(style && (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0 && !el.classList.contains('upick-motion-closing'))) return false;
+    return !!(el.offsetWidth || el.offsetHeight || (el.getClientRects && el.getClientRects().length));
+  }
+
+  function findOpenLayer(){
+    for(var i=0;i<selectors.length;i++){
+      var list = document.querySelectorAll(selectors[i]);
+      for(var j=0;j<list.length;j++){
+        if(isActuallyVisible(list[j])) return list[j];
+      }
+    }
+    return null;
+  }
+
+  function allowScrollInside(target){
+    if(!target || !target.closest) return false;
+    return !!target.closest('.app-alert-card,.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
+  }
+
+  function blockBackgroundScroll(event){
+    if(!scrollLockActive) return;
+    if(allowScrollInside(event.target)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+  }
+
+  function setLayerLock(active){
+    active = !!active;
+    if(scrollLockActive === active) return;
+    scrollLockActive = active;
+    document.documentElement.classList.toggle('upick-layer-scroll-lock', active);
+    document.body.classList.toggle('upick-layer-scroll-lock', active);
+  }
+
+  function sync(){
+    setLayerLock(!!findOpenLayer());
+  }
+
+  window.__upickSyncModalScrollLock = sync;
+
+  document.addEventListener('wheel', blockBackgroundScroll, {capture:true, passive:false});
+  document.addEventListener('touchmove', blockBackgroundScroll, {capture:true, passive:false});
+  document.addEventListener('scroll', function(){
+    if(scrollLockActive && !findOpenLayer()) setLayerLock(false);
+  }, true);
+
+  if(window.MutationObserver){
+    new MutationObserver(function(){
+      requestAnimationFrame(sync);
+    }).observe(document.documentElement, {
+      subtree:true,
+      childList:true,
+      attributes:true,
+      attributeFilter:['class','style','open','aria-hidden','hidden']
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', sync);
+  window.addEventListener('load', sync);
+  window.addEventListener('resize', sync);
+  setTimeout(sync, 0);
 })();
