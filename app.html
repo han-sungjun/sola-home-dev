@@ -1742,7 +1742,7 @@
           </button>
 </div>
 </div>
-<div aria-hidden="true" aria-modal="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop" role="dialog" data-modal-backdrop-lock-bound="1">
+<div aria-hidden="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop">
   <div class="ai-image-zoom-card" role="document">
     <div class="ai-image-zoom-title" id="aiImageZoomTitle">
           이미지 확대 보기
@@ -1774,3 +1774,29 @@
   <script defer src="/common/dev-badge-visibility.js"></script>
 </body>
 </html>
+
+
+// backdropGuardApplied
+(function () {
+  const backdrop = document.getElementById('aiImageZoomBackdrop');
+  const closeBtn = document.querySelector('.ai-image-zoom-close');
+
+  if (!backdrop) return;
+
+  backdrop.addEventListener('click', function (e) {
+    if (e.target === backdrop) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (typeof closeAiImageZoom === 'function') {
+        closeAiImageZoom();
+      }
+    });
+  }
+})();

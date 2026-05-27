@@ -2963,40 +2963,11 @@ async function refreshPushStatus(){
  await setDoc(doc(db, 'user_stats', uid), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '입주민', role: profile.role || profile.userRole || '', score: increment(safePoints), activityCount: increment(1), lastActivityType: type, lastBenefitId: benefitId || null, updatedAt: serverTimestamp()}, { merge:true });
  }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
  }
- function getResidentReactionActorKey(){
- const profile = state.currentUserProfile || {};
- const stored = (typeof getStoredLoginUser === 'function' ? getStoredLoginUser() : {}) || {};
- const loginId = String(profile.loginId || profile.loginID || profile.userId || profile.username || stored.loginId || stored.loginID || '').trim();
- const uid = String(state.currentUser?.uid || stored.uid || '').trim();
- const raw = loginId || uid;
- return raw.replace(/[\/#[\]$]/g, '_').replace(/\s+/g, '_');
- }
- function buildResidentReactionDocId(benefitId = '', reactionType = 'like'){
- const actorKey = getResidentReactionActorKey();
- if(!benefitId || !actorKey) return '';
- return `${benefitId}_${actorKey}_${reactionType}`;
- }
- function getResidentReactionButtons(benefitId = ''){
- return qsa('.reaction-btn').filter((btn) => {
-   const box = btn.closest?.('.reaction-box');
-   return !benefitId || String(box?.dataset?.benefitId || '') === String(benefitId);
- });
- }
- function setResidentReactionButtonState(btn, reactionType, active){
- const activeClass = getReactionActiveClass(reactionType);
- ['active-like','active-recommend','active-hot'].forEach((cls) => btn.classList.remove(cls));
- btn.classList.toggle(activeClass, !!active);
- btn.dataset.active = active ? '1' : '0';
- btn.setAttribute('aria-pressed', active ? 'true' : 'false');
- }
-
  async function handleResidentReaction(benefitId = '', reactionType = 'like'){
- const actorKey = getResidentReactionActorKey();
- if(!benefitId || !state.currentUser?.uid || !actorKey){ await openModalAlert('입장 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
+ if(!benefitId || !state.currentUser?.uid){ await openModalAlert('입장 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
 
  const uid = state.currentUser.uid;
- const profile = state.currentUserProfile || {};
- const reactionId = buildResidentReactionDocId(benefitId, reactionType);
+ const reactionId = `${benefitId}_${uid}_${reactionType}`;
  const reactionRef = doc(db, 'benefit_reactions', reactionId);
 
  const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
@@ -3036,8 +3007,6 @@ async function refreshPushStatus(){
    await setDoc(reactionRef, {
      benefitId,
      uid,
-     reactionUserKey: actorKey,
-     loginId: profile.loginId || profile.loginID || '',
      type: reactionType,
      createdAt: serverTimestamp()
    }, { merge:true });
@@ -3076,18 +3045,19 @@ async function refreshPushStatus(){
  }
 
  async function refreshResidentReactionButtons(benefitId = ''){
- const actorKey = getResidentReactionActorKey();
- const buttons = getResidentReactionButtons(benefitId);
+ const uid = state.currentUser?.uid;
+ if(!benefitId || !uid) return;
 
- // 계정이 바뀌었거나 아직 반응 정보를 읽기 전이면 우선 전부 비활성화합니다.
- buttons.forEach((btn) => setResidentReactionButtonState(btn, btn.dataset.reaction || 'like', false));
- if(!benefitId || !state.currentUser?.uid || !actorKey) return;
-
+ const buttons = qsa('.reaction-btn');
  await Promise.all(buttons.map(async (btn) => {
    const reactionType = btn.dataset.reaction || 'like';
-   const reactionId = buildResidentReactionDocId(benefitId, reactionType);
+   const reactionId = `${benefitId}_${uid}_${reactionType}`;
+   const activeClass = getReactionActiveClass(reactionType);
    const snap = await getDoc(doc(db, 'benefit_reactions', reactionId)).catch(() => null);
-   setResidentReactionButtonState(btn, reactionType, !!snap?.exists?.());
+
+   btn.classList.toggle(activeClass, !!snap?.exists?.());
+   btn.dataset.active = snap?.exists?.() ? '1' : '0';
+   btn.setAttribute('aria-pressed', snap?.exists?.() ? 'true' : 'false');
  }));
  }
 
@@ -3095,7 +3065,7 @@ async function refreshPushStatus(){
  const benefitId = item?.id || qs('.reaction-box')?.dataset?.benefitId || '';
  refreshResidentReactionButtons(benefitId).catch(() => {});
 
- getResidentReactionButtons(benefitId).forEach((btn) => {
+ qsa('.reaction-btn').forEach((btn) => {
    btn.onclick = async (event) => {
      event.preventDefault();
      event.stopPropagation();
@@ -3110,7 +3080,9 @@ async function refreshPushStatus(){
        const result = await handleResidentReaction(benefitId, reactionType);
 
        if(result?.changed){
-         setResidentReactionButtonState(btn, reactionType, !!result.active);
+         btn.classList.toggle(activeClass, !!result.active);
+         btn.dataset.active = result.active ? '1' : '0';
+         btn.setAttribute('aria-pressed', result.active ? 'true' : 'false');
 
          // 기존 알럿 대신 버튼 상태만 바꾸되, 아주 짧은 토스트성 피드백이 필요하면 alert가 아닌 상태 표시만 남김
          const help = btn.closest('.reaction-box')?.previousElementSibling;
@@ -14807,34 +14779,14 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return false;
   };
 
-  function isAiImageBackdropOutsideEvent(event){
+  document.addEventListener('click', function(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
-    if(!layer || !layer.classList.contains(OPEN_CLASS)) return false;
-    const card = layer.querySelector('.ai-image-zoom-card');
-    const closeBtn = layer.querySelector('.ai-image-zoom-close');
-    const target = event.target;
-
-    // 닫기 버튼은 명시 닫기 동작이므로 허용합니다.
-    if(closeBtn && target && (target === closeBtn || closeBtn.contains(target))) return false;
-
-    // 카드 내부 클릭/스크롤/이미지 조작은 허용합니다.
-    if(card && target && (target === card || card.contains(target))) return false;
-
-    // 카드 바깥의 백드롭 영역은 절대 닫기 트리거로 전달하지 않습니다.
-    return target === layer || (target && target.closest && target.closest('#aiImageZoomBackdrop') === layer);
-  }
-
-  function blockAiImageBackdropOutsideEvent(event){
-    if(!isAiImageBackdropOutsideEvent(event)) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-    return false;
-  }
-
-  ['pointerdown','mousedown','mouseup','pointerup','touchstart','touchend','click','dblclick'].forEach(function(type){
-    document.addEventListener(type, blockAiImageBackdropOutsideEvent, {capture:true, passive:false});
-  });
+    if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
+      event.preventDefault();
+      event.stopPropagation();
+      window.closeAiImageZoom();
+    }
+  }, true);
 })();
 
 /* ===== v20260527 image viewer shell/count final fix ===== */
@@ -14843,27 +14795,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   function ensureAiImageZoomCard(){
     var layer = document.getElementById('aiImageZoomBackdrop');
-    if(!layer) return;
-    layer.setAttribute('role','dialog');
-    layer.setAttribute('aria-modal','true');
-    layer.dataset.modalBackdropLockBound = '1';
-    if(!layer.__upickAiNoOutsideCloseBound){
-      layer.__upickAiNoOutsideCloseBound = true;
-      ['pointerdown','mousedown','mouseup','pointerup','touchstart','touchend','click','dblclick'].forEach(function(type){
-        layer.addEventListener(type, function(event){
-          var card = layer.querySelector('.ai-image-zoom-card');
-          var close = layer.querySelector('.ai-image-zoom-close');
-          var target = event.target;
-          if(close && (target === close || close.contains(target))) return;
-          if(card && (target === card || card.contains(target))) return;
-          event.preventDefault();
-          event.stopPropagation();
-          if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-          return false;
-        }, {capture:true, passive:false});
-      });
-    }
-    if(layer.querySelector('.ai-image-zoom-card')) return;
+    if(!layer || layer.querySelector('.ai-image-zoom-card')) return;
     var title = document.getElementById('aiImageZoomTitle');
     var close = document.getElementById('aiImageZoomCloseBtn');
     var scroll = document.getElementById('aiImageZoomScroll');
@@ -14912,103 +14844,28 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   }, true);
 })();
 
-/* ===== v20260527 AI image zoom X-only close hard guard ===== */
-(function(){
-  'use strict';
 
-  var realClose = null;
-  var allowCloseOnce = false;
+// backdropGuardApplied
+(function () {
+  const backdrop = document.getElementById('aiImageZoomBackdrop');
+  const closeBtn = document.querySelector('.ai-image-zoom-close');
 
-  function getLayer(){ return document.getElementById('aiImageZoomBackdrop'); }
-  function getCard(layer){ return layer && layer.querySelector('.ai-image-zoom-card'); }
-  function getCloseBtn(layer){ return layer && (layer.querySelector('#aiImageZoomCloseBtn') || layer.querySelector('.ai-image-zoom-close')); }
-  function isOpen(layer){ return !!(layer && (layer.classList.contains('show') || document.body.classList.contains('ai-image-zoom-open'))); }
+  if (!backdrop) return;
 
-  function rememberRealClose(){
-    if(typeof window.closeAiImageZoom === 'function' && window.closeAiImageZoom !== guardedClose){
-      realClose = window.closeAiImageZoom;
+  backdrop.addEventListener('click', function (e) {
+    if (e.target === backdrop) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
     }
-  }
+  }, true);
 
-  function callRealClose(){
-    rememberRealClose();
-    if(typeof realClose === 'function') return realClose.apply(window, arguments);
-    var layer = getLayer();
-    var img = document.getElementById('aiImageZoomImg');
-    if(layer){
-      layer.classList.remove('show','closing');
-      layer.setAttribute('aria-hidden','true');
-    }
-    document.body.classList.remove('ai-image-zoom-open');
-    if(img) img.removeAttribute('src');
-    return false;
-  }
-
-  function guardedClose(force){
-    if(force === true || allowCloseOnce === true){
-      allowCloseOnce = false;
-      return callRealClose();
-    }
-    return false;
-  }
-
-  function closeFromButton(event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-    }
-    allowCloseOnce = true;
-    return guardedClose(true);
-  }
-
-  function blockOutsideEvent(event){
-    var layer = getLayer();
-    if(!isOpen(layer)) return;
-    var card = getCard(layer);
-    var closeBtn = getCloseBtn(layer);
-    var target = event.target;
-
-    if(closeBtn && target && (target === closeBtn || closeBtn.contains(target))) return;
-    if(card && target && (target === card || card.contains(target))) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-    return false;
-  }
-
-  function bind(){
-    rememberRealClose();
-    window.__upickAiImageZoomRealClose = realClose;
-    window.closeAiImageZoom = guardedClose;
-
-    var layer = getLayer();
-    if(layer){
-      layer.setAttribute('role','dialog');
-      layer.setAttribute('aria-modal','true');
-      layer.dataset.aiOutsideCloseDisabled = '1';
-    }
-    var closeBtn = getCloseBtn(layer);
-    if(closeBtn && closeBtn.dataset.aiXOnlyCloseBound !== '1'){
-      closeBtn.dataset.aiXOnlyCloseBound = '1';
-      closeBtn.removeAttribute('onclick');
-      closeBtn.addEventListener('click', closeFromButton, true);
-      closeBtn.addEventListener('pointerdown', function(event){ event.stopPropagation(); }, true);
-      closeBtn.addEventListener('mousedown', function(event){ event.stopPropagation(); }, true);
-      closeBtn.addEventListener('touchstart', function(event){ event.stopPropagation(); }, {capture:true, passive:false});
-    }
-  }
-
-  ['pointerdown','mousedown','mouseup','pointerup','touchstart','touchend','click','dblclick'].forEach(function(type){
-    document.addEventListener(type, blockOutsideEvent, {capture:true, passive:false});
-  });
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
-  else bind();
-  window.addEventListener('load', bind, {once:true});
-  document.addEventListener('click', function(){ setTimeout(bind, 0); }, true);
-  if(window.MutationObserver){
-    new MutationObserver(bind).observe(document.documentElement, {childList:true, subtree:true});
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (typeof closeAiImageZoom === 'function') {
+        closeAiImageZoom();
+      }
+    });
   }
 })();
