@@ -219,3 +219,146 @@ dialog.upick-motion-dialog.upick-motion-closing::backdrop{
 #communityReportModal.upick-motion-dialog{
   --upick-motion-panel-y:10px;
 }
+
+
+/* v94: public app modal layers converted from <dialog> to div.
+   div modal = full-screen overlay, inner .upick-div-dialog-panel = actual popup card. */
+.upick-div-dialog.upick-motion-dialog{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483600!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))!important;
+  border:0!important;
+  border-radius:0!important;
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity 240ms var(--upick-motion-ease), background-color 240ms var(--upick-motion-ease), backdrop-filter 240ms var(--upick-motion-ease), visibility 0s linear 240ms!important;
+}
+.upick-div-dialog.upick-motion-dialog[open],
+.upick-div-dialog.upick-motion-dialog.show,
+.upick-div-dialog.upick-motion-dialog.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  background:rgba(15,23,42,.42)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  backdrop-filter:blur(8px)!important;
+  transition:opacity 240ms var(--upick-motion-ease), background-color 240ms var(--upick-motion-ease), backdrop-filter 240ms var(--upick-motion-ease), visibility 0s linear 0s!important;
+}
+.upick-div-dialog.upick-motion-dialog.is-closing,
+.upick-div-dialog.upick-motion-dialog.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+}
+.upick-div-dialog:not([open]):not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing){
+  display:none!important;
+}
+.upick-div-dialog > .upick-div-dialog-panel{
+  display:flex!important;
+  flex-direction:column!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+  background:#fff!important;
+  color:#0f172a!important;
+  border-radius:30px!important;
+  box-shadow:0 32px 70px rgba(15,23,42,.25)!important;
+  opacity:0!important;
+  transform:translateY(12px) scale(.985)!important;
+  transition:opacity 240ms var(--upick-motion-ease-out), transform 240ms var(--upick-motion-ease-out)!important;
+  will-change:opacity,transform!important;
+  pointer-events:auto!important;
+}
+.upick-div-dialog.show > .upick-div-dialog-panel,
+.upick-div-dialog.upick-motion-open > .upick-div-dialog-panel,
+.upick-div-dialog > .upick-div-dialog-panel.upick-motion-open{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+.upick-div-dialog.is-closing > .upick-div-dialog-panel,
+.upick-div-dialog.upick-motion-closing > .upick-div-dialog-panel,
+.upick-div-dialog > .upick-div-dialog-panel.is-closing,
+.upick-div-dialog > .upick-div-dialog-panel.upick-motion-closing{
+  opacity:0!important;
+  transform:translateY(12px) scale(.985)!important;
+}
+#calendarReservationModal > .upick-div-dialog-panel,
+#qrModal > .upick-div-dialog-panel,
+#communityEditorModal > .upick-div-dialog-panel,
+#communityDetailModal > .upick-div-dialog-panel,
+#communityReportModal > .upick-div-dialog-panel{
+  width:min(430px,calc(100vw - 24px))!important;
+  max-height:calc(100dvh - 42px)!important;
+}
+#calendarDayModal > .upick-div-dialog-panel{
+  width:min(460px,calc(100vw - 20px))!important;
+  max-height:min(92dvh,820px)!important;
+}
+#settingsSuiteModal > .upick-div-dialog-panel{
+  width:min(560px,calc(100vw - 24px))!important;
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  border-radius:30px!important;
+}
+.upick-div-dialog > .upick-div-dialog-panel > .modal-body,
+.upick-div-dialog > .upick-div-dialog-panel > .calendar-day-modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.upick-div-dialog > .upick-div-dialog-panel > .modal-head,
+.upick-div-dialog > .upick-div-dialog-panel > .calendar-day-modal-head{
+  flex:0 0 auto!important;
+}
+#settingsSuiteModal > .upick-div-dialog-panel > .gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#settingsSuiteModal .gnb-management-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+@media(max-width:520px){
+  .upick-div-dialog.upick-motion-dialog{padding:calc(10px + env(safe-area-inset-top,0px)) 9px calc(10px + env(safe-area-inset-bottom,0px))!important;}
+  #calendarReservationModal > .upick-div-dialog-panel,
+  #qrModal > .upick-div-dialog-panel,
+  #communityEditorModal > .upick-div-dialog-panel,
+  #communityDetailModal > .upick-div-dialog-panel,
+  #communityReportModal > .upick-div-dialog-panel{
+    width:calc(100vw - 18px)!important;
+    max-height:calc(100dvh - 32px)!important;
+    border-radius:26px!important;
+  }
+  #settingsSuiteModal > .upick-div-dialog-panel{
+    width:calc(100vw - 18px)!important;
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+    border-radius:26px!important;
+  }
+}

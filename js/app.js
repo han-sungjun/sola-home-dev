@@ -8697,6 +8697,27 @@ function renderCalendarDayModal(){
  el.removeAttribute('data-upick-motion-closing');
  }
 
+
+ function isDivMotionDialog(el){
+  return !!(el && (el.classList?.contains('upick-div-dialog') || el.tagName !== 'DIALOG'));
+ }
+
+ function ensureDivDialogPanel(el){
+  if(!el || !isDivMotionDialog(el) || el.dataset.upickDivPanelReady === '1') return el?.querySelector?.(':scope > .upick-div-dialog-panel') || el;
+  var panel = document.createElement('div');
+  panel.className = 'upick-div-dialog-panel';
+  while(el.firstChild){ panel.appendChild(el.firstChild); }
+  el.appendChild(panel);
+  el.dataset.upickDivPanelReady = '1';
+  el.addEventListener('click', function(event){
+    if(event.target === el){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+  return panel;
+ }
+
  function openDialogSafe(el, options = {}){
  if(!el) return;
  if(isMotionDialogExcluded(el) || !window.UpickMotion){
@@ -8706,13 +8727,15 @@ function renderCalendarDayModal(){
  if(el.dataset.upickMotionClosing === '1') return;
  if(el.open || el.hasAttribute('open')) closeNativeDialogSafe(el);
  cleanupMotionDialogClasses(el);
- el.classList.add('upick-motion-dialog','upick-motion-layer','upick-motion-panel');
+ const motionPanel = ensureDivDialogPanel(el);
+ el.classList.add('upick-motion-dialog','upick-motion-layer');
+ if(!isDivMotionDialog(el)) el.classList.add('upick-motion-panel');
  el.setAttribute('aria-hidden','false');
  openNativeDialogSafe(el);
  window.UpickMotion.open(el,{
   activeClass:'show',
   closingClass:'is-closing',
-  panel:el,
+  panel:motionPanel || el,
   duration:Number.isFinite(options.duration) ? options.duration : 240,
   afterOpen:function(){
    const focusTarget = options.initialFocusSelector ? qs(options.initialFocusSelector) : null;
@@ -8734,14 +8757,16 @@ function renderCalendarDayModal(){
  }
  if(el.dataset.upickMotionClosing === '1') return;
  el.dataset.upickMotionClosing = '1';
+ const motionPanel = ensureDivDialogPanel(el);
  window.UpickMotion.close(el,{
   activeClass:'show',
   closingClass:'is-closing',
-  panel:el,
+  panel:motionPanel || el,
   duration:Number.isFinite(options.duration) ? options.duration : 240,
   afterClose:function(){
    closeNativeDialogSafe(el);
    cleanupMotionDialogClasses(el);
+   try{ cleanupMotionDialogClasses(el.querySelector(':scope > .upick-div-dialog-panel')); }catch(_){}
    el.setAttribute('aria-hidden','true');
    try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
    if(afterClose) afterClose();
