@@ -80,28 +80,48 @@
     }
   }
 
-  function setGnbAlertShield(open){
-    var active = !!open;
-    document.querySelectorAll('#gnbOverlay, #gnbSheet, .gnb-overlay, .gnb-sheet').forEach(function(el){
-      if(!el) return;
-      if(active){
-        if(!el.dataset.upickAlertPrevPointerEvents) el.dataset.upickAlertPrevPointerEvents = el.style.pointerEvents || '__empty__';
-        el.style.pointerEvents = 'none';
-        el.setAttribute('data-upick-alert-shielded','true');
-      }else{
-        var prev = el.dataset.upickAlertPrevPointerEvents;
-        if(prev === '__empty__') el.style.pointerEvents = '';
-        else if(prev) el.style.pointerEvents = prev;
-        delete el.dataset.upickAlertPrevPointerEvents;
-        el.removeAttribute('data-upick-alert-shielded');
-      }
+  var alertInteractionLockActive = false;
+
+  function isInsideAlertCard(target){
+    if(!alertEl || !target) return false;
+    var card = getAlertPanel();
+    return !!(card && card.contains(target));
+  }
+
+  function blockOutsideAlertInteraction(event){
+    if(!alertInteractionLockActive || !alertEl) return;
+
+    // 알럿 카드 내부 버튼/입력만 허용합니다.
+    if(isInsideAlertCard(event.target)) return;
+
+    // 알럿 오버레이와 뒤쪽 GNB/팝업/본문은 모두 이벤트를 삼켜서
+    // 알럿 뒤 레이어가 닫히거나 클릭되는 것을 방지합니다.
+    event.preventDefault();
+    event.stopPropagation();
+    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+  }
+
+  function installAlertInteractionLock(){
+    if(alertInteractionLockActive) return;
+    alertInteractionLockActive = true;
+    ['pointerdown','mousedown','touchstart','click','dblclick'].forEach(function(type){
+      document.addEventListener(type, blockOutsideAlertInteraction, true);
     });
+  }
+
+  function removeAlertInteractionLock(){
+    if(!alertInteractionLockActive) return;
+    ['pointerdown','mousedown','touchstart','click','dblclick'].forEach(function(type){
+      document.removeEventListener(type, blockOutsideAlertInteraction, true);
+    });
+    alertInteractionLockActive = false;
   }
 
   function setOpenLock(open){
     document.documentElement.classList.toggle('upick-alert-open', !!open);
     document.body.classList.toggle('upick-alert-open', !!open);
-    setGnbAlertShield(open);
+    if(open) installAlertInteractionLock();
+    else removeAlertInteractionLock();
     if(typeof window.__upickSyncModalScrollLock === 'function'){
       setTimeout(window.__upickSyncModalScrollLock, 0);
     }
