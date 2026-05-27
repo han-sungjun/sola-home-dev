@@ -299,6 +299,7 @@
     if(el.tagName === 'DIALOG' && el.open && el.classList && el.classList.contains('show')) return true;
     return false;
   }
+  window.__upickHasVisibleAppAlert = hasVisibleAppAlert;
 
   function forceClearAlertLockIfClosed(){
     if(hasVisibleAppAlert()) return;
@@ -728,10 +729,21 @@
     }
   }
 
+  function hasVisibleAppAlertSafe(){
+    if(typeof window.__upickHasVisibleAppAlert === 'function'){
+      try{ return !!window.__upickHasVisibleAppAlert(); }catch(_){ }
+    }
+    var el = document.querySelector('#appAlert');
+    if(!el) return false;
+    if(el.classList && el.classList.contains('show')) return true;
+    if(el.tagName === 'DIALOG' && el.open && el.classList && el.classList.contains('show')) return true;
+    return false;
+  }
+
   function sync(){
     var openLayer = !!findOpenLayer();
     setLayerLock(openLayer);
-    if(!openLayer && !hasVisibleAppAlert()){
+    if(!openLayer && !hasVisibleAppAlertSafe()){
       document.documentElement.classList.remove('upick-alert-open');
       document.body.classList.remove('upick-alert-open');
       if(window.__upickHardScrollFreeze){
