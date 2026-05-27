@@ -6048,15 +6048,24 @@ function preservePageScrollForDialogOpen(modal, savedY){
  scheduleDetailDialogScrollReset(modal);
 }
 
-function closeDetailDialogPreservingPage(modal){
- // v94: 혜택 상세/공지 상세도 div 모달 생명주기로 닫아 fade-out과 스크롤 보존 순서를 통일합니다.
+function closeDetailDialogPreservingPage(modal, options = {}){
+ // v97: 혜택 상세/공지 상세 div 모달 닫힘 완료 뒤 후속 동작을 실행할 수 있게 통일합니다.
+ // 방문 알림 저장 후 '캘린더에서 확인'처럼 화면 전환이 필요한 흐름에서,
+ // 상세 fade-out과 changeView/renderAll이 서로 겹치지 않도록 afterClose 콜백을 지원합니다.
+ const extraAfterClose = typeof options?.afterClose === 'function' ? options.afterClose : null;
  try{
    const active = document.activeElement;
    if(active && active.blur) active.blur();
  }catch(_){}
- if(!modal) return;
+ if(!modal){
+   if(extraAfterClose) setTimeout(() => { try{ extraAfterClose(); }catch(_){} }, 0);
+   return;
+ }
  const y = Number(window.__upickClosingDetailScrollY || getStablePageScrollY());
+ let didAfterClose = false;
  const afterClose = () => {
+   if(didAfterClose) return;
+   didAfterClose = true;
    try{ if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground(); }catch(_){}
    resetDetailDialogScroll(modal);
    if(modal.id === 'detailModal') modal.dataset.benefitId = '';
@@ -6066,7 +6075,10 @@ function closeDetailDialogPreservingPage(modal){
      window.__upickFavoriteRenderPending = false;
      try{ renderAll(); }catch(_){}
    }
-   if(Number.isFinite(y)) holdStablePageScrollY(y, 700);
+   if(Number.isFinite(y) && !extraAfterClose) holdStablePageScrollY(y, 700);
+   if(extraAfterClose){
+     setTimeout(() => { try{ extraAfterClose(); }catch(_){} }, 0);
+   }
  };
  try{
    if(typeof closeDialogSafe === 'function') closeDialogSafe(modal, { duration:320, afterClose });
@@ -7869,16 +7881,27 @@ function renderCalendarDayModal(){
    '계속 혜택 보기'
  );
  if(goCalendar){
-   closeDetailDialogPreservingPage(qs('#detailModal'));
-   changeView('calendar');
-   try{
-     calendarUiState.selectedDateKey = dateValue;
-     calendarUiState.cursorDate = dateFromKey(dateValue);
-     calendarUiState.dayModalDateKey = dateValue;
-     calendarUiState.focusAfterModalDateKey = dateValue;
-     renderCalendarReservations();
-     setTimeout(() => openCalendarDayModal(dateValue), 180);
-   }catch(_){}
+   const openSavedDateOnCalendar = () => {
+     try{
+       calendarUiState.selectedDateKey = dateValue;
+       calendarUiState.cursorDate = dateFromKey(dateValue);
+       calendarUiState.dayModalDateKey = dateValue;
+       calendarUiState.focusAfterModalDateKey = dateValue;
+     }catch(_){}
+     changeView('calendar');
+     try{
+       renderCalendarReservations();
+       requestAnimationFrame(() => {
+         requestAnimationFrame(() => openCalendarDayModal(dateValue));
+       });
+     }catch(_){}
+   };
+   const detailModal = qs('#detailModal');
+   if(detailModal && isLayerOpenLike(detailModal)){
+     closeDetailDialogPreservingPage(detailModal, { afterClose: openSavedDateOnCalendar });
+   }else{
+     openSavedDateOnCalendar();
+   }
  }
  }catch(error){
  console.error('캘린더 예약 저장 실패', error);
