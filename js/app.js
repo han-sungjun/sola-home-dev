@@ -14807,16 +14807,34 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return false;
   };
 
-  document.addEventListener('click', function(event){
+  function isAiImageBackdropOutsideEvent(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
-    if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
-      // AI 이미지 확대 팝업은 바깥 영역 클릭으로 닫지 않습니다.
-      // X 버튼, ESC 처리처럼 명시적인 닫기 동작만 허용합니다.
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return false;
-    }
-  }, true);
+    if(!layer || !layer.classList.contains(OPEN_CLASS)) return false;
+    const card = layer.querySelector('.ai-image-zoom-card');
+    const closeBtn = layer.querySelector('.ai-image-zoom-close');
+    const target = event.target;
+
+    // 닫기 버튼은 명시 닫기 동작이므로 허용합니다.
+    if(closeBtn && target && (target === closeBtn || closeBtn.contains(target))) return false;
+
+    // 카드 내부 클릭/스크롤/이미지 조작은 허용합니다.
+    if(card && target && (target === card || card.contains(target))) return false;
+
+    // 카드 바깥의 백드롭 영역은 절대 닫기 트리거로 전달하지 않습니다.
+    return target === layer || (target && target.closest && target.closest('#aiImageZoomBackdrop') === layer);
+  }
+
+  function blockAiImageBackdropOutsideEvent(event){
+    if(!isAiImageBackdropOutsideEvent(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    return false;
+  }
+
+  ['pointerdown','mousedown','mouseup','pointerup','touchstart','touchend','click','dblclick'].forEach(function(type){
+    document.addEventListener(type, blockAiImageBackdropOutsideEvent, {capture:true, passive:false});
+  });
 })();
 
 /* ===== v20260527 image viewer shell/count final fix ===== */
@@ -14825,7 +14843,27 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   function ensureAiImageZoomCard(){
     var layer = document.getElementById('aiImageZoomBackdrop');
-    if(!layer || layer.querySelector('.ai-image-zoom-card')) return;
+    if(!layer) return;
+    layer.setAttribute('role','dialog');
+    layer.setAttribute('aria-modal','true');
+    layer.dataset.modalBackdropLockBound = '1';
+    if(!layer.__upickAiNoOutsideCloseBound){
+      layer.__upickAiNoOutsideCloseBound = true;
+      ['pointerdown','mousedown','mouseup','pointerup','touchstart','touchend','click','dblclick'].forEach(function(type){
+        layer.addEventListener(type, function(event){
+          var card = layer.querySelector('.ai-image-zoom-card');
+          var close = layer.querySelector('.ai-image-zoom-close');
+          var target = event.target;
+          if(close && (target === close || close.contains(target))) return;
+          if(card && (target === card || card.contains(target))) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+          return false;
+        }, {capture:true, passive:false});
+      });
+    }
+    if(layer.querySelector('.ai-image-zoom-card')) return;
     var title = document.getElementById('aiImageZoomTitle');
     var close = document.getElementById('aiImageZoomCloseBtn');
     var scroll = document.getElementById('aiImageZoomScroll');
