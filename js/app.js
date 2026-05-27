@@ -1446,6 +1446,10 @@ function setPushStatusUi(enabled){
  state.view = nextView;
  if(nextView === 'favorite' || nextView === 'top5' || nextView === 'map' || nextView === 'calendar' || nextView === 'shareinsights') state.filter = 'all';
  renderAll();
+ try{
+   document.dispatchEvent(new CustomEvent('upick:view-change', { detail:{ view: nextView } }));
+   window.dispatchEvent(new CustomEvent('upick:view-change', { detail:{ view: nextView } }));
+ }catch(_){}
  bindPremiumSectionTitles();
  if(nextView === 'map') setTimeout(() => renderMapMode({ fitBounds: true }), 80);
  restoreViewScroll(nextView);
