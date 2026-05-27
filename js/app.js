@@ -5813,8 +5813,8 @@ function getShareTrackingParams(){
  if(copyBtn) copyBtn.onclick = () => copyShareUrl(type, item);
 
  if(modal){
- if(modal.open) modal.close();
- modal.showModal();
+ if(modal.open) closeDialogSafe(modal);
+ openDialogSafe(modal, { initialFocusSelector:'#closeQrModal' });
  }
  }
 
@@ -7636,8 +7636,8 @@ ${item.content || ''}`);
  renderCalendarDayModal();
  const modal = qs('#calendarDayModal');
  if(!modal) return;
- if(modal.open) modal.close();
- modal.showModal();
+ if(modal.open) closeDialogSafe(modal);
+ openDialogSafe(modal, { initialFocusSelector:'#calendarDayCloseBtn' });
  }
  function moveCalendarDayModal(offset){
  const d = addDays(dateFromKey(calendarUiState.dayModalDateKey || calendarUiState.selectedDateKey), offset);
@@ -7686,7 +7686,7 @@ function renderCalendarDayModal(){
 }
  function closeCalendarDayModal(){
  const modal = qs('#calendarDayModal');
- if(modal?.open) modal.close();
+ if(modal?.open) closeDialogSafe(modal);
  }
  function syncCalendarFocusFromDayModal(){
  const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
@@ -7708,12 +7708,12 @@ function renderCalendarDayModal(){
  qs('#calendarNotifyBefore').value = '30';
  qs('#calendarReservationMemo').value = '';
  modal.dataset.benefitId = item.id || '';
- if(modal.open) modal.close();
- modal.showModal();
+ if(modal.open) closeDialogSafe(modal);
+ openDialogSafe(modal, { initialFocusSelector:'#calendarVisitDate' });
  }
  function closeCalendarReservationModal(){
  const modal = qs('#calendarReservationModal');
- if(modal?.open) modal.close();
+ if(modal?.open) closeDialogSafe(modal);
  }
  async function saveCalendarReservation(event){
  event?.preventDefault?.();
@@ -8611,8 +8611,94 @@ function renderCalendarDayModal(){
  }
  }
  function getCurrentNickname(){ return state.currentUserProfile?.nickname || state.userProfile?.nickname || state.profile?.nickname || getStoredLoginUser()?.loginId || '입주민'; }
- function openDialogSafe(el){ if(!el) return; if(typeof el.showModal === 'function' && !el.open) el.showModal(); else el.setAttribute('open',''); }
- function closeDialogSafe(el){ if(!el) return; if(typeof el.close === 'function' && el.open) el.close(); else el.removeAttribute('open'); }
+ const UPICK_MOTION_DIALOG_EXCLUDED_IDS = new Set([
+ 'detailModal',
+ 'noticeModal',
+ 'newsImagePreviewOverlay',
+ 'benefitImagePreviewOverlay'
+]);
+
+ function isMotionDialogExcluded(el){
+ return !el || UPICK_MOTION_DIALOG_EXCLUDED_IDS.has(el.id || '') || el.classList?.contains('news-image-preview-overlay') || el.classList?.contains('benefit-image-preview-overlay');
+ }
+
+ function openNativeDialogSafe(el){
+ if(!el) return;
+ try{
+  if(typeof el.showModal === 'function' && !el.open) el.showModal();
+  else el.setAttribute('open','');
+ }catch(_){
+  try{ el.setAttribute('open',''); }catch(__){}
+ }
+ }
+
+ function closeNativeDialogSafe(el){
+ if(!el) return;
+ try{
+  if(typeof el.close === 'function' && el.open) el.close();
+  else el.removeAttribute('open');
+ }catch(_){
+  try{ el.removeAttribute('open'); }catch(__){}
+ }
+ }
+
+ function cleanupMotionDialogClasses(el){
+ if(!el) return;
+ el.classList.remove('show','closing','is-closing','upick-motion-open','upick-motion-closing','upick-motion-layer','upick-motion-panel');
+ el.removeAttribute('data-upick-motion-closing');
+ }
+
+ function openDialogSafe(el, options = {}){
+ if(!el) return;
+ if(isMotionDialogExcluded(el) || !window.UpickMotion){
+  openNativeDialogSafe(el);
+  return;
+ }
+ if(el.dataset.upickMotionClosing === '1') return;
+ if(el.open) closeNativeDialogSafe(el);
+ cleanupMotionDialogClasses(el);
+ el.classList.add('upick-motion-dialog','upick-motion-layer','upick-motion-panel');
+ el.setAttribute('aria-hidden','false');
+ openNativeDialogSafe(el);
+ window.UpickMotion.open(el,{
+  activeClass:'show',
+  closingClass:'is-closing',
+  panel:el,
+  duration:Number.isFinite(options.duration) ? options.duration : 240,
+  afterOpen:function(){
+   const focusTarget = options.initialFocusSelector ? qs(options.initialFocusSelector) : null;
+   requestAnimationFrame(function(){
+    try{ (focusTarget || el.querySelector('[autofocus], button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') || el)?.focus?.({preventScroll:true}); }catch(_){}
+   });
+   try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+  }
+ });
+ }
+
+ function closeDialogSafe(el, options = {}){
+ if(!el) return;
+ const afterClose = typeof options.afterClose === 'function' ? options.afterClose : null;
+ if(isMotionDialogExcluded(el) || !window.UpickMotion || !el.open){
+  closeNativeDialogSafe(el);
+  if(afterClose) afterClose();
+  return;
+ }
+ if(el.dataset.upickMotionClosing === '1') return;
+ el.dataset.upickMotionClosing = '1';
+ window.UpickMotion.close(el,{
+  activeClass:'show',
+  closingClass:'is-closing',
+  panel:el,
+  duration:Number.isFinite(options.duration) ? options.duration : 240,
+  afterClose:function(){
+   closeNativeDialogSafe(el);
+   cleanupMotionDialogClasses(el);
+   el.setAttribute('aria-hidden','true');
+   try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+   if(afterClose) afterClose();
+  }
+ });
+ }
  function communityReportIconHtml(label='신고'){ return `<button class="report-icon-btn" type="button" data-community-action="report" title="${label}" aria-label="${label}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.29 3.86 3.19 16.14A2 2 0 0 0 4.9 19h14.2a2 2 0 0 0 1.71-2.86L13.71 3.86a2 2 0 0 0-3.42 0Z"></path></svg></button>`; }
  function isCommunityAdmin(){ try{ if(typeof isAdminRole === 'function' && isAdminRole()) return true; }catch(_){} const role = state.currentUserProfile?.role || state.userProfile?.role || state.profile?.role || ''; return role === 'admin' || role === 'root'; }
  function isCommunityOwner(data){ const user = auth.currentUser; return !!(user && data && data.authorUid === user.uid); }
@@ -14029,7 +14115,7 @@ document.addEventListener('keydown', (event) => {
  qs('#calendarDayDateBtn')?.addEventListener('click', () => { const picker = qs('#calendarDayDatePicker'); if(!picker) return; picker.value = calendarUiState.dayModalDateKey || dateKeyFromDate(new Date()); if(typeof picker.showPicker === 'function') picker.showPicker(); else picker.click(); });
  qs('#calendarDayDatePicker')?.addEventListener('change', (event) => { if(!event.target.value) return; calendarUiState.dayModalDateKey = event.target.value; calendarUiState.focusAfterModalDateKey = event.target.value; renderCalendarDayModal(); });
  qs('#calendarDayModal')?.addEventListener('close', syncCalendarFocusFromDayModal);
- qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
+ qs('#closeQrModal')?.addEventListener('click', () => closeDialogSafe(qs('#qrModal')));
  qs('#detailModal')?.addEventListener('close', () => {
  const y = Number(window.__upickClosingDetailScrollY);
  resetDetailDialogScroll(qs('#detailModal'));

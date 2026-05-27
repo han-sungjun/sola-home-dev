@@ -159,3 +159,63 @@
   visibility:visible!important;
   pointer-events:none!important;
 }
+
+
+/* Phase 4: 중간/풀 dialog 팝업 공통 fade
+   혜택 상세/공지 상세/이미지 확대류는 위치 계산 이슈 방지를 위해 JS에서 제외합니다. */
+dialog.upick-motion-dialog.upick-motion-layer{
+  opacity:0!important;
+  visibility:hidden!important;
+  transform:translateY(10px) scale(.985)!important;
+  transition:
+    opacity 220ms var(--upick-motion-ease-out),
+    transform 220ms var(--upick-motion-ease-out),
+    visibility 0s linear 220ms!important;
+  will-change:opacity,transform!important;
+}
+dialog.upick-motion-dialog.upick-motion-layer::backdrop{
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+  transition:
+    background-color 220ms var(--upick-motion-ease),
+    backdrop-filter 220ms var(--upick-motion-ease)!important;
+}
+dialog.upick-motion-dialog.show,
+dialog.upick-motion-dialog.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  transform:translateY(0) scale(1)!important;
+  transition:
+    opacity 220ms var(--upick-motion-ease-out),
+    transform 220ms var(--upick-motion-ease-out),
+    visibility 0s linear 0s!important;
+}
+dialog.upick-motion-dialog.show::backdrop,
+dialog.upick-motion-dialog.upick-motion-open::backdrop{
+  background:rgba(15,23,42,.42)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  backdrop-filter:blur(8px)!important;
+}
+dialog.upick-motion-dialog.is-closing,
+dialog.upick-motion-dialog.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  transform:translateY(10px) scale(.985)!important;
+  pointer-events:none!important;
+}
+dialog.upick-motion-dialog.is-closing::backdrop,
+dialog.upick-motion-dialog.upick-motion-closing::backdrop{
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+}
+
+#calendarDayModal.upick-motion-dialog,
+#calendarReservationModal.upick-motion-dialog,
+#qrModal.upick-motion-dialog,
+#communityEditorModal.upick-motion-dialog,
+#communityDetailModal.upick-motion-dialog,
+#communityReportModal.upick-motion-dialog{
+  --upick-motion-panel-y:10px;
+}
