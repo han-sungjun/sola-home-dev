@@ -882,3 +882,25 @@ body.upick-alert-open .app-alert,
 body.upick-alert-open dialog.app-alert{
   cursor:default!important;
 }
+
+
+/* ===== Fix v20260527-2: appAlert 내부에 잘못 남은 보조 UI는 알럿 클릭 대상으로 취급하지 않음 =====
+   공통 알럿이 열렸을 때 실제 클릭 허용 범위는 알럿 카드(.app-alert-card) 내부로 제한합니다. */
+body.upick-alert-open #appAlert > *:not(.app-alert-card),
+html.upick-alert-open #appAlert > *:not(.app-alert-card),
+body.upick-alert-open .app-alert > *:not(.app-alert-card),
+html.upick-alert-open .app-alert > *:not(.app-alert-card){
+  pointer-events:none!important;
+  cursor:default!important;
+}
+
+body.upick-alert-open #appAlert .app-alert-card,
+html.upick-alert-open #appAlert .app-alert-card,
+body.upick-alert-open #appAlert .app-alert-card *,
+html.upick-alert-open #appAlert .app-alert-card *,
+body.upick-alert-open .app-alert .app-alert-card,
+html.upick-alert-open .app-alert .app-alert-card,
+body.upick-alert-open .app-alert .app-alert-card *,
+html.upick-alert-open .app-alert .app-alert-card *{
+  pointer-events:auto!important;
+}
