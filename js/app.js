@@ -14911,3 +14911,104 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     window.setTimeout(patchBenefitPreviewCounter, 0);
   }, true);
 })();
+
+/* ===== v20260527 AI image zoom X-only close hard guard ===== */
+(function(){
+  'use strict';
+
+  var realClose = null;
+  var allowCloseOnce = false;
+
+  function getLayer(){ return document.getElementById('aiImageZoomBackdrop'); }
+  function getCard(layer){ return layer && layer.querySelector('.ai-image-zoom-card'); }
+  function getCloseBtn(layer){ return layer && (layer.querySelector('#aiImageZoomCloseBtn') || layer.querySelector('.ai-image-zoom-close')); }
+  function isOpen(layer){ return !!(layer && (layer.classList.contains('show') || document.body.classList.contains('ai-image-zoom-open'))); }
+
+  function rememberRealClose(){
+    if(typeof window.closeAiImageZoom === 'function' && window.closeAiImageZoom !== guardedClose){
+      realClose = window.closeAiImageZoom;
+    }
+  }
+
+  function callRealClose(){
+    rememberRealClose();
+    if(typeof realClose === 'function') return realClose.apply(window, arguments);
+    var layer = getLayer();
+    var img = document.getElementById('aiImageZoomImg');
+    if(layer){
+      layer.classList.remove('show','closing');
+      layer.setAttribute('aria-hidden','true');
+    }
+    document.body.classList.remove('ai-image-zoom-open');
+    if(img) img.removeAttribute('src');
+    return false;
+  }
+
+  function guardedClose(force){
+    if(force === true || allowCloseOnce === true){
+      allowCloseOnce = false;
+      return callRealClose();
+    }
+    return false;
+  }
+
+  function closeFromButton(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+    allowCloseOnce = true;
+    return guardedClose(true);
+  }
+
+  function blockOutsideEvent(event){
+    var layer = getLayer();
+    if(!isOpen(layer)) return;
+    var card = getCard(layer);
+    var closeBtn = getCloseBtn(layer);
+    var target = event.target;
+
+    if(closeBtn && target && (target === closeBtn || closeBtn.contains(target))) return;
+    if(card && target && (target === card || card.contains(target))) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+    return false;
+  }
+
+  function bind(){
+    rememberRealClose();
+    window.__upickAiImageZoomRealClose = realClose;
+    window.closeAiImageZoom = guardedClose;
+
+    var layer = getLayer();
+    if(layer){
+      layer.setAttribute('role','dialog');
+      layer.setAttribute('aria-modal','true');
+      layer.dataset.aiOutsideCloseDisabled = '1';
+    }
+    var closeBtn = getCloseBtn(layer);
+    if(closeBtn && closeBtn.dataset.aiXOnlyCloseBound !== '1'){
+      closeBtn.dataset.aiXOnlyCloseBound = '1';
+      closeBtn.removeAttribute('onclick');
+      closeBtn.addEventListener('click', closeFromButton, true);
+      closeBtn.addEventListener('pointerdown', function(event){ event.stopPropagation(); }, true);
+      closeBtn.addEventListener('mousedown', function(event){ event.stopPropagation(); }, true);
+      closeBtn.addEventListener('touchstart', function(event){ event.stopPropagation(); }, {capture:true, passive:false});
+    }
+  }
+
+  ['pointerdown','mousedown','mouseup','pointerup','touchstart','touchend','click','dblclick'].forEach(function(type){
+    document.addEventListener(type, blockOutsideEvent, {capture:true, passive:false});
+  });
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+  else bind();
+  window.addEventListener('load', bind, {once:true});
+  document.addEventListener('click', function(){ setTimeout(bind, 0); }, true);
+  if(window.MutationObserver){
+    new MutationObserver(bind).observe(document.documentElement, {childList:true, subtree:true});
+  }
+})();
