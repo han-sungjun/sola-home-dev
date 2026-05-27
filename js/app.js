@@ -3948,34 +3948,44 @@ function openNewsImagePreview(src='', title='소식 이미지'){
  if(!imageUrl) return;
  let overlay = document.getElementById('newsImagePreviewOverlay');
  if(!overlay){
-   overlay = document.createElement('dialog');
+   overlay = document.createElement('div');
    overlay.id = 'newsImagePreviewOverlay';
-   overlay.className = 'news-image-preview-overlay';
+   overlay.className = 'news-image-preview-overlay upick-image-fade-layer';
+   overlay.setAttribute('role','dialog');
+   overlay.setAttribute('aria-modal','true');
+   overlay.setAttribute('aria-hidden','true');
    overlay.innerHTML = `<div class="news-image-preview-dialog" role="document" aria-label="소식 이미지 확대"><div class="news-image-preview-head"><div class="news-image-preview-title">소식 이미지</div><button type="button" class="news-image-preview-close" aria-label="닫기">×</button></div><div class="news-image-preview-body"><img alt=""></div></div>`;
    document.body.appendChild(overlay);
    const closePreview = () => {
+     if(overlay.dataset.upickImageClosing === '1') return;
+     overlay.dataset.upickImageClosing = '1';
+     overlay.classList.add('closing');
      overlay.classList.remove('show');
      overlay.setAttribute('aria-hidden','true');
-     document.body.classList.remove('news-image-preview-open');
-     if(typeof overlay.close === 'function' && overlay.open) overlay.close();
+     window.setTimeout(() => {
+       overlay.classList.remove('closing');
+       delete overlay.dataset.upickImageClosing;
+       document.body.classList.remove('news-image-preview-open');
+       const img = overlay.querySelector('img');
+       if(img) img.removeAttribute('src');
+     }, 260);
    };
    overlay.addEventListener('click', (event) => {
      if(event.target === overlay || event.target.closest('.news-image-preview-close')) closePreview();
    });
-   overlay.addEventListener('cancel', (event) => {
-     event.preventDefault();
-     closePreview();
-   });
+   
  }
  const img = overlay.querySelector('img');
  if(img){
    img.src = imageUrl;
    img.alt = title || '소식 이미지';
  }
- overlay.classList.add('show');
+ overlay.classList.remove('closing');
+ delete overlay.dataset.upickImageClosing;
  overlay.setAttribute('aria-hidden','false');
+ overlay.setAttribute('open','');
  document.body.classList.add('news-image-preview-open');
- if(typeof overlay.showModal === 'function' && !overlay.open) overlay.showModal();
+ requestAnimationFrame(() => overlay.classList.add('show'));
 }
 
 document.addEventListener('click', (event) => {
@@ -8456,16 +8466,17 @@ function openCalendarReservationModal(item={}){
  images = images.filter(Boolean);
  if(!images.length) return;
  let index = Math.max(0, Math.min(images.length - 1, Number(startIndex) || 0));
- let overlay = document.querySelector('dialog.benefit-image-preview-overlay');
- const oldOverlay = document.querySelector('.benefit-image-preview-overlay:not(dialog)');
- if(oldOverlay) oldOverlay.remove();
- // 매번 새 dialog를 만들어 이전 open의 swipe/click 클로저가 남아 인덱스가 어긋나는 문제를 방지합니다.
+ let overlay = document.querySelector('.benefit-image-preview-overlay');
+ // 매번 새 div 팝업을 만들어 이전 open의 swipe/click 클로저가 남아 인덱스가 어긋나는 문제를 방지합니다.
  if(overlay) overlay.remove();
  overlay = null;
  if(!overlay){
-   overlay = document.createElement('dialog');
-   overlay.className = 'benefit-image-preview-overlay';
+   overlay = document.createElement('div');
+   overlay.className = 'benefit-image-preview-overlay upick-image-fade-layer';
+   overlay.setAttribute('role', 'dialog');
+   overlay.setAttribute('aria-modal', 'true');
    overlay.setAttribute('aria-label', '혜택 사진 확대');
+   overlay.setAttribute('aria-hidden', 'true');
    overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="document"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
    document.body.appendChild(overlay);
  }else if(overlay.parentElement !== document.body){
@@ -8548,15 +8559,19 @@ function openCalendarReservationModal(item={}){
  const close = () => {
    const closingIndex = getPreviewIndex();
    syncDetailSlider(false, closingIndex);
+   if(!overlay || overlay.dataset.upickImageClosing === '1') return;
+   overlay.dataset.upickImageClosing = '1';
+   overlay.classList.add('closing');
    overlay.classList.remove('show');
    overlay.setAttribute('aria-hidden','true');
-   try{ if(typeof overlay.close === 'function' && overlay.open) overlay.close(); }catch(_){}
-   document.body.classList.remove('benefit-image-preview-open');
-   // dialog close/focus 복귀 과정에서 상세 썸네일 focus 이벤트가 다시 실행될 수 있어
-   // 닫힌 직후와 다음 프레임에 동일 index를 한 번 더 고정합니다.
-   requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
-   window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
-   try{ slider?.focus?.({preventScroll:true}); }catch(_){}
+   window.setTimeout(() => {
+     overlay.classList.remove('closing');
+     delete overlay.dataset.upickImageClosing;
+     document.body.classList.remove('benefit-image-preview-open');
+     requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
+     window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
+     try{ slider?.focus?.({preventScroll:true}); }catch(_){}
+   }, 260);
  };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
@@ -8667,13 +8682,14 @@ function openCalendarReservationModal(item={}){
  removeLegacyBenefitPhotoViewer();
  overlay.setAttribute('aria-hidden','false');
  document.body.classList.add('benefit-image-preview-open');
- try{
-   if(typeof overlay.showModal === 'function' && !overlay.open) overlay.showModal();
- }catch(_){
-   try{ overlay.setAttribute('open',''); }catch(__){}
- }
- overlay.classList.add('show');
- requestAnimationFrame(() => { try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){} });
+ overlay.classList.remove('closing');
+ delete overlay.dataset.upickImageClosing;
+ overlay.setAttribute('aria-hidden','false');
+ overlay.setAttribute('open','');
+ requestAnimationFrame(() => {
+   overlay.classList.add('show');
+   try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){}
+ });
  setTimeout(removeLegacyBenefitPhotoViewer, 0);
  setTimeout(removeLegacyBenefitPhotoViewer, 80);
  }
