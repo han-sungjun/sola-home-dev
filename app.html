@@ -35,7 +35,7 @@
 <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/css/app.css?v=20260527-modal-dialog-center-v90" rel="stylesheet"/>
+<link href="/css/app.css?v=20260527-detail-notice-div-fade-v94" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
 <link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet"/>
 <link href="/common/common-alert.css?v=20260527fadefix" rel="stylesheet"/>
@@ -853,7 +853,9 @@
         </span>
 </button>
 </nav>
-<dialog id="detailModal">
+<div id="detailModal" class="upick-div-dialog upick-detail-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           혜택 상세
@@ -870,7 +872,8 @@
 </div>
 <div class="modal-body" id="modalBody">
 </div>
-</dialog>
+</div>
+</div>
 <div id="calendarReservationModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="modal-head">
 <div class="pill">
@@ -966,7 +969,9 @@
 </div>
 </div>
 </div>
-<dialog id="noticeModal">
+<div id="noticeModal" class="upick-div-dialog upick-notice-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           공지 상세
@@ -977,7 +982,8 @@
 </div>
 <div class="modal-body" id="noticeModalBody">
 </div>
-</dialog>
+</div>
+</div>
 <div id="communityEditorModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="modal-head">
 <div class="pill" id="communityEditorTitle">
@@ -1746,7 +1752,7 @@
 </div>
 </div>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
-<script src="/js/app.js?v=20260527-account-popup-motion-fix-v92" type="module">
+<script src="/js/app.js?v=20260527-detail-notice-div-fade-v94" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>

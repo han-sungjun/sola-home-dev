@@ -359,8 +359,8 @@
  }
 
  function closeContentModals(){
- try{ if(qs('#detailModal')?.open) qs('#detailModal').close(); }catch(_){}
- try{ if(qs('#noticeModal')?.open) qs('#noticeModal').close(); }catch(_){}
+ try{ if(isLayerOpenLike(qs('#detailModal'))) closeDialogSafe(qs('#detailModal')); }catch(_){}
+ try{ if(isLayerOpenLike(qs('#noticeModal'))) closeDialogSafe(qs('#noticeModal')); }catch(_){}
  }
 
  function handleCleanDeepLink({ force=false } = {}){
@@ -3510,7 +3510,7 @@ window.addEventListener('load', function(){
 
  const isStillCurrent = () => {
  const modal = qs('#detailModal');
- return modal?.open && state.activeDistanceBenefitId === itemId && state.distanceRequestSeq === requestSeq;
+ return isLayerOpenLike(modal) && state.activeDistanceBenefitId === itemId && state.distanceRequestSeq === requestSeq;
  };
 
  const applyDistanceText = (currentLocation, { cached = false } = {}) => {
@@ -5999,24 +5999,27 @@ function preservePageScrollForDialogOpen(modal, savedY){
 }
 
 function closeDetailDialogPreservingPage(modal){
- // v87: body fixed/top 복구 방식은 사용하지 않습니다.
- // 모달 바깥 스크롤 입력만 차단하므로 닫을 때 본문 위치를 강제로 복구하지 않습니다.
+ // v94: 혜택 상세/공지 상세도 div 모달 생명주기로 닫아 fade-out과 스크롤 보존 순서를 통일합니다.
  try{
    const active = document.activeElement;
    if(active && active.blur) active.blur();
  }catch(_){}
+ if(!modal) return;
+ const y = Number(window.__upickClosingDetailScrollY || getStablePageScrollY());
+ const afterClose = () => {
+   try{ if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground(); }catch(_){}
+   resetDetailDialogScroll(modal);
+   if(modal.id === 'detailModal' && parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
+   if(modal.id === 'noticeModal' && parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
+   if(Number.isFinite(y)) holdStablePageScrollY(y, 700);
+ };
  try{
-   if(modal){
-     if(typeof modal.close === 'function' && modal.open) modal.close();
-     else modal.removeAttribute('open');
-   }
+   if(typeof closeDialogSafe === 'function') closeDialogSafe(modal, { duration:320, afterClose });
+   else { closeNativeDialogSafe(modal); afterClose(); }
  }catch(_){
    try{ modal?.removeAttribute?.('open'); }catch(__){}
+   afterClose();
  }
- try{
-   if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground();
- }catch(_){}
- resetDetailDialogScroll(modal);
 }
 
 function shareActionsHtml(prefix){
@@ -6075,20 +6078,15 @@ ${item.content || ''}`);
 
  body.innerHTML = noticeHtml;
  try{
- if(modal.open) closeDetailDialogPreservingPage(modal);
+ if(isLayerOpenLike(modal)) closeDetailDialogPreservingPage(modal);
  window.__upickPendingModalScrollY = pageScrollY;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(pageScrollY); }catch(_){}
- if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
- else modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
- requestAnimationFrame(() => {
-   try{ (qs('#closeNoticeModal') || modal)?.focus?.({preventScroll:true}); }catch(_){}
-   restorePageScrollWithoutBodyLock(pageScrollY);
- });
+ openDialogSafe(modal, { duration:320, initialFocusSelector:'#closeNoticeModal' });
+ requestAnimationFrame(() => restorePageScrollWithoutBodyLock(pageScrollY));
  }catch(error){
  console.warn('[notice] 공지 모달 열기 실패', error);
- if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
- else modal.setAttribute('open', '');
+ openNativeDialogSafe(modal);
  preservePageScrollForDialogOpen(modal, pageScrollY);
  requestAnimationFrame(() => restorePageScrollWithoutBodyLock(pageScrollY));
  }
@@ -8441,16 +8439,12 @@ function renderCalendarDayModal(){
  const isFav=getFavorites().includes(item.id);
  qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${benefitBusinessHoursPanelHtml(item)}${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
- if(modal.open) closeDetailDialogPreservingPage(modal);
+ if(isLayerOpenLike(modal)) closeDetailDialogPreservingPage(modal);
  window.__upickPendingModalScrollY = pageScrollY;
  try{ if(typeof window.__upickLockModalBackgroundAt === 'function') window.__upickLockModalBackgroundAt(pageScrollY); }catch(_){}
- if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
- else modal.setAttribute('open', '');
  preservePageScrollForDialogOpen(modal, pageScrollY);
- requestAnimationFrame(() => {
-   try{ (qs('#closeModal') || modal)?.focus?.({preventScroll:true}); }catch(_){}
-   restorePageScrollWithoutBodyLock(pageScrollY);
- });
+ openDialogSafe(modal, { duration:320, initialFocusSelector:'#closeModal' });
+ requestAnimationFrame(() => restorePageScrollWithoutBodyLock(pageScrollY));
  const detailHeadActions = qs('#detailHeadActions');
  if(detailHeadActions) detailHeadActions.hidden = false;
  const headFavBtn = qs('#modalFavBtn');
@@ -8661,8 +8655,6 @@ function renderCalendarDayModal(){
  }
  function getCurrentNickname(){ return state.currentUserProfile?.nickname || state.userProfile?.nickname || state.profile?.nickname || getStoredLoginUser()?.loginId || '입주민'; }
  const UPICK_MOTION_DIALOG_EXCLUDED_IDS = new Set([
- 'detailModal',
- 'noticeModal',
  'newsImagePreviewOverlay',
  'benefitImagePreviewOverlay'
 ]);
@@ -8703,7 +8695,22 @@ function renderCalendarDayModal(){
  }
 
  function ensureDivDialogPanel(el){
-  if(!el || !isDivMotionDialog(el) || el.dataset.upickDivPanelReady === '1') return el?.querySelector?.(':scope > .upick-div-dialog-panel') || el;
+  if(!el || !isDivMotionDialog(el)) return el;
+  var existingPanel = el.querySelector?.(':scope > .upick-div-modal-panel, :scope > .upick-div-dialog-panel');
+  if(existingPanel){
+    el.dataset.upickDivPanelReady = '1';
+    if(el.dataset.upickBackdropClickBound !== '1'){
+      el.dataset.upickBackdropClickBound = '1';
+      el.addEventListener('click', function(event){
+        if(event.target === el || event.target.classList?.contains('upick-div-modal-backdrop')){
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+    }
+    return existingPanel;
+  }
+  if(el.dataset.upickDivPanelReady === '1') return el;
   var panel = document.createElement('div');
   panel.className = 'upick-div-dialog-panel';
   while(el.firstChild){ panel.appendChild(el.firstChild); }
@@ -14190,14 +14197,14 @@ document.addEventListener('keydown', (event) => {
  qs('#calendarDayDatePicker')?.addEventListener('change', (event) => { if(!event.target.value) return; calendarUiState.dayModalDateKey = event.target.value; calendarUiState.focusAfterModalDateKey = event.target.value; renderCalendarDayModal(); });
  qs('#calendarDayModal')?.addEventListener('close', syncCalendarFocusFromDayModal);
  qs('#closeQrModal')?.addEventListener('click', () => closeDialogSafe(qs('#qrModal')));
- qs('#detailModal')?.addEventListener('close', () => {
+ qs('#detailModal')?.addEventListener('upick:native-close', () => {
  const y = Number(window.__upickClosingDetailScrollY);
  resetDetailDialogScroll(qs('#detailModal'));
  if(parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
  if(window.__upickDetailCloseInProgress) return;
  if(Number.isFinite(y)) holdStablePageScrollY(y, 900);
  });
- qs('#noticeModal')?.addEventListener('close', () => {
+ qs('#noticeModal')?.addEventListener('upick:native-close', () => {
  const y = Number(window.__upickClosingDetailScrollY);
  resetDetailDialogScroll(qs('#noticeModal'));
  if(parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
