@@ -14847,65 +14847,45 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
 
 
-/**
- * AI 이미지 확대 팝업 닫기 보정
- * - backdrop 바깥 영역 클릭은 닫지 않음
- * - X 버튼만 닫기 허용
- */
-(function setupAiImageZoomCloseGuard() {
-  function bindGuard() {
+
+
+/* AI 이미지 확대 팝업: 바깥영역 클릭 닫힘 방지, X 버튼 닫힘 유지 */
+(function () {
+  function applyAiImageZoomGuard() {
     var backdrop = document.getElementById('aiImageZoomBackdrop');
-    if (!backdrop || backdrop.dataset.xOnlyCloseGuard === '1') return;
+    if (!backdrop || backdrop.dataset.aiOutsideGuard === '1') return;
 
-    backdrop.dataset.xOnlyCloseGuard = '1';
+    backdrop.dataset.aiOutsideGuard = '1';
 
-    backdrop.addEventListener('click', function (e) {
-      if (e.target === backdrop) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        return false;
-      }
-    }, true);
-
-    ['pointerdown', 'mousedown', 'touchstart'].forEach(function (type) {
-      backdrop.addEventListener(type, function (e) {
-        if (e.target === backdrop) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
+    ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach(function (eventName) {
+      backdrop.addEventListener(eventName, function (event) {
+        if (event.target === backdrop) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+          }
           return false;
         }
       }, true);
     });
 
     var closeBtn = document.getElementById('aiImageZoomCloseBtn') || backdrop.querySelector('.ai-image-zoom-close');
-    if (closeBtn && closeBtn.dataset.xOnlyCloseBound !== '1') {
-      closeBtn.dataset.xOnlyCloseBound = '1';
-      closeBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    if (closeBtn && closeBtn.dataset.aiCloseBound !== '1') {
+      closeBtn.dataset.aiCloseBound = '1';
+      closeBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
         if (typeof window.closeAiImageZoom === 'function') {
           window.closeAiImageZoom();
         }
       }, false);
     }
-  });
-    }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindGuard);
+    document.addEventListener('DOMContentLoaded', applyAiImageZoomGuard);
   } else {
-    bindGuard();
+    applyAiImageZoomGuard();
   }
-
-  document.addEventListener('click', function (e) {
-    var target = e.target;
-    if (target && target.id === 'aiImageZoomBackdrop') {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-    }
-  }, true);
 })();
