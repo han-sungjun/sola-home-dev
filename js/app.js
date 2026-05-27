@@ -2085,30 +2085,43 @@ function closeLayerElementLikeDialog(modal){
  }
 }
 
+function getAccountDivModalPanel(modal){
+  return modal?.querySelector?.('.upick-div-modal-panel') || modal;
+}
+
 function openAccountMotionDialog(modal, focusSelector){
  if(!modal) return;
  if(isLayerOpenLike(modal)) closeLayerElementLikeDialog(modal);
- modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open','upick-motion-layer','upick-motion-panel');
- modal.classList.add('upick-motion-dialog','upick-motion-layer','upick-motion-panel');
+ const panel = getAccountDivModalPanel(modal);
+ modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open','upick-motion-layer','upick-motion-panel','upick-motion-dialog');
+ panel?.classList?.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open','upick-motion-panel','upick-motion-dialog');
+ modal.classList.add('upick-div-modal','upick-motion-layer');
+ panel?.classList?.add('upick-motion-panel');
  openLayerElementLikeDialog(modal);
  modal.setAttribute('aria-hidden','false');
  if(window.UpickMotion){
   window.UpickMotion.open(modal,{
    activeClass:'show',
    closingClass:'is-closing',
-   panel:modal,
+   panel:panel,
    duration:320,
    afterOpen:function(){ requestAnimationFrame(function(){ qs(focusSelector)?.focus?.({preventScroll:true}); }); }
   });
  }else{
-  requestAnimationFrame(function(){ modal.classList.add('show'); qs(focusSelector)?.focus?.({preventScroll:true}); });
+  requestAnimationFrame(function(){
+    modal.classList.add('show','upick-motion-open');
+    panel?.classList?.add('upick-motion-open');
+    qs(focusSelector)?.focus?.({preventScroll:true});
+  });
  }
 }
 
 function closeAccountMotionDialog(modal, afterClose){
  if(!isLayerOpenLike(modal)){ if(typeof afterClose === 'function') afterClose(); return; }
+ const panel = getAccountDivModalPanel(modal);
  var done=function(){
   modal.classList.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-layer','upick-motion-panel','upick-motion-open','upick-motion-closing');
+  panel?.classList?.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-panel','upick-motion-open','upick-motion-closing');
   modal.setAttribute('aria-hidden','true');
   closeLayerElementLikeDialog(modal);
   if(typeof afterClose === 'function') afterClose();
@@ -2117,13 +2130,15 @@ function closeAccountMotionDialog(modal, afterClose){
   window.UpickMotion.close(modal,{
    activeClass:'show',
    closingClass:'is-closing',
-   panel:modal,
+   panel:panel,
    duration:320,
    afterClose:done
   });
  }else{
-  modal.classList.remove('show');
+  modal.classList.remove('show','upick-motion-open');
   modal.classList.add('is-closing');
+  panel?.classList?.remove('upick-motion-open');
+  panel?.classList?.add('is-closing');
   window.setTimeout(done,320);
  }
 }
