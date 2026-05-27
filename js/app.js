@@ -2057,25 +2057,27 @@ function preventBackdropClose(event){
 function openAccountMotionDialog(modal, focusSelector){
  if(!modal) return;
  if(modal.open) modal.close();
- modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open');
+ modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open','upick-motion-layer','upick-motion-panel');
+ modal.classList.add('upick-motion-dialog','upick-motion-layer','upick-motion-panel');
  modal.showModal();
  modal.setAttribute('aria-hidden','false');
  if(window.UpickMotion){
   window.UpickMotion.open(modal,{
    activeClass:'show',
-   closingClass:'closing',
+   closingClass:'is-closing',
+   panel:modal,
    duration:240,
-   afterOpen:function(){ requestAnimationFrame(function(){ qs(focusSelector)?.focus?.(); }); }
+   afterOpen:function(){ requestAnimationFrame(function(){ qs(focusSelector)?.focus?.({preventScroll:true}); }); }
   });
  }else{
-  requestAnimationFrame(function(){ modal.classList.add('show'); qs(focusSelector)?.focus?.(); });
+  requestAnimationFrame(function(){ modal.classList.add('show'); qs(focusSelector)?.focus?.({preventScroll:true}); });
  }
 }
 
 function closeAccountMotionDialog(modal, afterClose){
  if(!modal || !modal.open){ if(typeof afterClose === 'function') afterClose(); return; }
  var done=function(){
-  modal.classList.remove('show','closing','is-closing','upick-motion-layer','upick-motion-open','upick-motion-closing');
+  modal.classList.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-layer','upick-motion-panel','upick-motion-open','upick-motion-closing');
   modal.setAttribute('aria-hidden','true');
   if(modal.open) modal.close();
   if(typeof afterClose === 'function') afterClose();
@@ -2083,13 +2085,14 @@ function closeAccountMotionDialog(modal, afterClose){
  if(window.UpickMotion){
   window.UpickMotion.close(modal,{
    activeClass:'show',
-   closingClass:'closing',
+   closingClass:'is-closing',
+   panel:modal,
    duration:240,
    afterClose:done
   });
  }else{
   modal.classList.remove('show');
-  modal.classList.add('closing');
+  modal.classList.add('is-closing');
   window.setTimeout(done,240);
  }
 }
