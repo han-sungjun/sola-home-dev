@@ -14779,15 +14779,16 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return false;
   };
 
-  // AI 이미지 확대 팝업은 X 버튼으로만 닫습니다.
-  // 기존에는 배경 레이어(event.target === layer) 클릭 시 closeAiImageZoom()을 호출해서
-  // 문서 캡처 단계에서 먼저 닫히는 문제가 있었습니다.
+  // AI 이미지 확대 팝업은 바깥영역 클릭으로 닫지 않습니다.
+  // 기존에는 캡처 단계(document click)에서 event.target === layer 일 때
+  // closeAiImageZoom()이 먼저 호출되어 뒤쪽 guard보다 먼저 닫히는 문제가 있었습니다.
+  // 닫기는 X 버튼/명시적 closeAiImageZoom() 호출에서만 처리합니다.
   document.addEventListener('click', function(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
     if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
       event.preventDefault();
       event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
       return false;
     }
   }, true);
