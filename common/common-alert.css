@@ -756,3 +756,53 @@ dialog.app-alert.upick-motion-layer[open]{
   opacity:0!important;
   transform:translateY(10px) scale(.98)!important;
 }
+
+
+/* v2026052702: 콜백 알럿 fade-out 보정
+   확인/취소 콜백이 있는 알럿도 닫힘 모션이 끝난 뒤 후속 로직이 실행되도록 JS duration과 CSS 전환 시간을 맞춥니다. */
+.app-alert.upick-motion-layer,
+dialog.app-alert.upick-motion-layer[open]{
+  transition:
+    opacity 360ms cubic-bezier(.22,.61,.36,1),
+    background-color 360ms cubic-bezier(.22,.61,.36,1),
+    backdrop-filter 360ms cubic-bezier(.22,.61,.36,1),
+    visibility 0s linear 360ms!important;
+}
+.app-alert.upick-motion-layer.show,
+dialog.app-alert.upick-motion-layer[open].show{
+  transition:
+    opacity 280ms cubic-bezier(.22,.61,.36,1),
+    background-color 280ms cubic-bezier(.22,.61,.36,1),
+    backdrop-filter 280ms cubic-bezier(.22,.61,.36,1),
+    visibility 0s linear 0s!important;
+}
+.app-alert.upick-motion-layer.is-closing,
+.app-alert.upick-motion-layer.upick-motion-closing,
+dialog.app-alert.upick-motion-layer[open].is-closing,
+dialog.app-alert.upick-motion-layer[open].upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+  transition:
+    opacity 360ms cubic-bezier(.22,.61,.36,1),
+    background-color 360ms cubic-bezier(.22,.61,.36,1),
+    backdrop-filter 360ms cubic-bezier(.22,.61,.36,1),
+    visibility 0s linear 360ms!important;
+}
+.app-alert .app-alert-card.upick-motion-panel{
+  transition:
+    opacity 280ms cubic-bezier(.16,1,.3,1),
+    transform 280ms cubic-bezier(.16,1,.3,1),
+    box-shadow 280ms cubic-bezier(.16,1,.3,1)!important;
+}
+.app-alert.is-closing .app-alert-card.upick-motion-panel,
+.app-alert.upick-motion-closing .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(16px) scale(.975)!important;
+  transition:
+    opacity 360ms cubic-bezier(.22,.61,.36,1),
+    transform 360ms cubic-bezier(.22,.61,.36,1),
+    box-shadow 360ms cubic-bezier(.22,.61,.36,1)!important;
+}

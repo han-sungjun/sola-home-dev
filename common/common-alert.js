@@ -3,6 +3,8 @@
   'use strict';
 
   var queue = Promise.resolve();
+  var ALERT_OPEN_DURATION = 280;
+  var ALERT_CLOSE_DURATION = 360;
   var lastFocus = null;
   var alertEl = null;
   var titleEl = null;
@@ -116,7 +118,7 @@
       return window.UpickMotion.open(alertEl, {
         activeClass: 'show',
         panel: getAlertPanel(),
-        duration: 240,
+        duration: ALERT_OPEN_DURATION,
         beforeOpen: function(){
           openNativeDialogIfNeeded();
           setOpenLock(true);
@@ -149,7 +151,7 @@
       return window.UpickMotion.close(alertEl, {
         activeClass: 'show',
         panel: getAlertPanel(),
-        duration: 240,
+        duration: ALERT_CLOSE_DURATION,
         afterClose: afterClose
       });
     }
@@ -182,10 +184,22 @@
       }
       confirmBtn.onclick = null;
       cancelBtn.onclick = null;
+      var closing = false;
       var finish = function(){
+        if(closing) return;
+        closing = true;
         confirmBtn.onclick = null;
         cancelBtn.onclick = null;
-        Promise.resolve(closeLayer()).finally(function(){ resolve(true); });
+        confirmBtn.disabled = true;
+        if(cancelBtn) cancelBtn.disabled = true;
+        Promise.resolve(closeLayer()).then(function(){
+          resolve(true);
+        }).catch(function(){
+          resolve(true);
+        }).finally(function(){
+          confirmBtn.disabled = false;
+          if(cancelBtn) cancelBtn.disabled = false;
+        });
       };
       confirmBtn.onclick = finish;
       openLayer();
@@ -210,10 +224,22 @@
       }
       confirmBtn.onclick = null;
       cancelBtn.onclick = null;
+      var closing = false;
       var finish = function(value){
+        if(closing) return;
+        closing = true;
         confirmBtn.onclick = null;
         cancelBtn.onclick = null;
-        Promise.resolve(closeLayer()).finally(function(){ resolve(!!value); });
+        confirmBtn.disabled = true;
+        if(cancelBtn) cancelBtn.disabled = true;
+        Promise.resolve(closeLayer()).then(function(){
+          resolve(!!value);
+        }).catch(function(){
+          resolve(!!value);
+        }).finally(function(){
+          confirmBtn.disabled = false;
+          if(cancelBtn) cancelBtn.disabled = false;
+        });
       };
       confirmBtn.onclick = function(){ finish(true); };
       cancelBtn.onclick = function(){ finish(false); };
