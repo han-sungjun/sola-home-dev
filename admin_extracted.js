@@ -413,21 +413,45 @@ function resetAdminSensitiveUI(){
       return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
     }
 
-    function closeModal(result=false){
-      alertEl.classList.remove('show');
-      alertEl.setAttribute('aria-hidden', 'true');
+    async function closeModal(result=false){
+      if(!alertEl || alertEl.dataset.upickClosing === '1') return;
+      alertEl.dataset.upickClosing = '1';
+      alertConfirmEl.disabled = true;
+      if(alertCancelEl) alertCancelEl.disabled = true;
+
       const focusTarget = alertFocusTarget;
       const resolver = alertResolver;
       alertResolver = null;
       alertFocusTarget = null;
 
-      if (focusTarget) {
-        setTimeout(() => {
-          try { focusTarget.focus(); } catch (_) {}
-        }, 30);
-      }
+      const restoreFocus = () => {
+        if (focusTarget) {
+          setTimeout(() => {
+            try { focusTarget.focus({preventScroll:true}); } catch (_) { try { focusTarget.focus(); } catch (__) {} }
+          }, 30);
+        }
+      };
 
-      if(resolver) resolver(result);
+      try {
+        if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+          await window.UpickMotion.close(alertEl, {
+            activeClass: 'show',
+            panel: alertEl.querySelector('.app-alert-card'),
+            duration: 360,
+            afterClose: () => alertEl.setAttribute('aria-hidden', 'true')
+          });
+        }else{
+          alertEl.classList.remove('show');
+          await new Promise((done)=>setTimeout(done, 360));
+          alertEl.setAttribute('aria-hidden', 'true');
+        }
+      } finally {
+        alertEl.dataset.upickClosing = '0';
+        alertConfirmEl.disabled = false;
+        if(alertCancelEl) alertCancelEl.disabled = false;
+        restoreFocus();
+        if(resolver) resolver(result);
+      }
     }
 
     alertConfirmEl?.addEventListener('click', () => closeModal(true));
@@ -4237,7 +4261,7 @@ function fillForm(item){
 
     async function deleteAiDoc(collectionName, id){
       if(!collectionName || !id) return;
-      const ok = window.confirm('정말 삭제하시겠습니까?');
+      const ok = await openModalConfirm('정말 삭제하시겠습니까?', null, '삭제 확인', '삭제', '취소');
       if(!ok) return;
       await deleteDoc(doc(db, collectionName, id));
       openModalAlert('선택한 AI 데이터가 삭제되었습니다.', null, '삭제 완료');

@@ -312,17 +312,30 @@ async function showAppAlert({
   const normalizedCancelText = cancelText || '';
 
   if (typeof window.showCommonConfirm === 'function' && typeof window.showCommonAlert === 'function') {
+    const runConfirm = async () => {
+      if (typeof onConfirm === 'function') await onConfirm();
+      else if (closeSheetOnConfirm) closeSheet();
+    };
+    const runCancel = async () => {
+      if (typeof onCancel === 'function') await onCancel();
+      else if (closeSheetOnCancel) closeSheet();
+    };
     const ok = hasCancel
-      ? await window.showCommonConfirm({ title, message, confirmText: normalizedConfirmText, cancelText: normalizedCancelText || '취소' })
-      : await window.showCommonAlert({ title, message, confirmText: normalizedConfirmText });
-    try {
-      if (ok && typeof onConfirm === 'function') await onConfirm();
-      else if (!ok && typeof onCancel === 'function') await onCancel();
-      else if (ok && closeSheetOnConfirm) closeSheet();
-      else if (!ok && closeSheetOnCancel) closeSheet();
-    } finally {
-      return { action: ok ? 'confirm' : 'cancel', value: !!ok };
-    }
+      ? await window.showCommonConfirm({
+          title,
+          message,
+          confirmText: normalizedConfirmText,
+          cancelText: normalizedCancelText || '취소',
+          onConfirm: runConfirm,
+          onCancel: runCancel
+        })
+      : await window.showCommonAlert({
+          title,
+          message,
+          confirmText: normalizedConfirmText,
+          onConfirm: runConfirm
+        });
+    return { action: ok ? 'confirm' : 'cancel', value: !!ok };
   }
 
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {

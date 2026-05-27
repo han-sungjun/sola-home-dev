@@ -163,8 +163,11 @@
   }
 
   function normalizeOptions(input, maybeOptions){
-    if(typeof input === 'string') return Object.assign({ message: input }, maybeOptions || {});
-    return Object.assign({}, input || {});
+    var extra = {};
+    if(typeof maybeOptions === 'function') extra.callback = maybeOptions;
+    else if(maybeOptions && typeof maybeOptions === 'object') extra = maybeOptions;
+    if(typeof input === 'string') return Object.assign({ message: input }, extra);
+    return Object.assign({}, input || {}, extra);
   }
 
   function runAlertCallback(options, value){
@@ -292,10 +295,48 @@
     }
   }, true);
 
+  function focusAfterClose(target){
+    if(target && typeof target.focus === 'function'){
+      try{ target.focus({preventScroll:true}); }catch(_){ try{ target.focus(); }catch(__){} }
+    }
+  }
+
+  function openModalAlertCompat(message, focusTarget, title){
+    return showCommonAlert({
+      title: title || '안내',
+      message: message || '',
+      confirmText: '확인',
+      onClose: function(){ focusAfterClose(focusTarget); }
+    });
+  }
+
+  function openModalConfirmCompat(message, focusTarget, title, confirmText, cancelText){
+    return showCommonConfirm({
+      title: title || '확인',
+      message: message || '',
+      confirmText: confirmText || '확인',
+      cancelText: cancelText || '취소',
+      onCancel: function(){ focusAfterClose(focusTarget); }
+    });
+  }
+
+  window.UpickAlert = Object.assign(window.UpickAlert || {}, {
+    alert: showCommonAlert,
+    confirm: showCommonConfirm,
+    openModalAlert: openModalAlertCompat,
+    openModalConfirm: openModalConfirmCompat,
+    closeDuration: ALERT_CLOSE_DURATION,
+    openDuration: ALERT_OPEN_DURATION
+  });
+
   window.showCommonAlert = showCommonAlert;
   window.showCommonConfirm = showCommonConfirm;
-  window.showAppAlert = window.showAppAlert || showCommonAlert;
-  window.showAppConfirm = window.showAppConfirm || showCommonConfirm;
+  window.showAppAlert = showCommonAlert;
+  window.showAppConfirm = showCommonConfirm;
+  window.showAlert = showCommonAlert;
+  window.showConfirm = showCommonConfirm;
+  if(!window.openModalAlert) window.openModalAlert = openModalAlertCompat;
+  if(!window.openModalConfirm) window.openModalConfirm = openModalConfirmCompat;
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureAlert, {once:true});
   else ensureAlert();
