@@ -1,5 +1,4 @@
 수정 내용
-1. HTML 본문에 노출되던 // backdropGuardApplied 텍스트 제거
-2. AI 이미지 확대 팝업의 backdrop 클릭 닫힘 차단
-3. X 버튼 클릭은 정상 닫힘 유지
-4. 실행 코드는 JS 파일 내부에만 배치
+- js/app.js의 AI 이미지 확대 팝업 직접 호출형 클릭 핸들러에서 backdrop 클릭 시 closeAiImageZoom() 호출 제거
+- backdrop 자기 자신 클릭은 preventDefault + stopPropagation + stopImmediatePropagation 처리
+- X 버튼은 기존처럼 closeAiImageZoom() 실행 유지

@@ -14887,14 +14887,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
         e.stopPropagation();
         if (typeof window.closeAiImageZoom === 'function') {
           window.closeAiImageZoom();
-        } else if (typeof closeAiImageZoom === 'function') {
-          closeAiImageZoom();
-        } else {
-          backdrop.classList.remove('show');
-          backdrop.setAttribute('aria-hidden', 'true');
-          document.body.classList.remove('ai-image-zoom-open');
         }
-      });
+      }, false);
+    }
+  });
     }
   }
 
