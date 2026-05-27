@@ -96,3 +96,66 @@
 .gnb-sheet.upick-motion-closing{
   pointer-events:none!important;
 }
+
+/* GNB phase 3 보정: 슬라이드에 묻히지 않도록 overlay와 sheet 모두 opacity 전환을 분명하게 줍니다. */
+.gnb-overlay.upick-motion-layer{
+  display:block!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  background:rgba(7,18,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+  transition:
+    opacity 260ms var(--upick-motion-ease),
+    background-color 260ms var(--upick-motion-ease),
+    backdrop-filter 260ms var(--upick-motion-ease),
+    visibility 0s linear 260ms!important;
+}
+.gnb-overlay.upick-motion-layer.show,
+.gnb-overlay.upick-motion-layer.is-open,
+.gnb-overlay.upick-motion-layer.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  background:rgba(7,18,42,.46)!important;
+  -webkit-backdrop-filter:blur(7px)!important;
+  backdrop-filter:blur(7px)!important;
+  transition:
+    opacity 260ms var(--upick-motion-ease),
+    background-color 260ms var(--upick-motion-ease),
+    backdrop-filter 260ms var(--upick-motion-ease),
+    visibility 0s linear 0s!important;
+}
+.gnb-overlay.upick-motion-layer.is-closing,
+.gnb-overlay.upick-motion-layer.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  background:rgba(7,18,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+}
+
+.gnb-sheet{
+  opacity:0!important;
+  transition:
+    transform 300ms var(--upick-motion-ease-out),
+    opacity 260ms var(--upick-motion-ease),
+    visibility 0s linear 300ms!important;
+  will-change:transform,opacity!important;
+}
+.gnb-sheet.show{
+  opacity:1!important;
+  visibility:visible!important;
+  transition:
+    transform 300ms var(--upick-motion-ease-out),
+    opacity 260ms var(--upick-motion-ease),
+    visibility 0s linear 0s!important;
+}
+.gnb-sheet.is-closing,
+.gnb-sheet.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
