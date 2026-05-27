@@ -363,20 +363,34 @@ async function showAppAlert({
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
-      alertEl.classList.remove('show');
-      alertEl.setAttribute('aria-hidden', 'true');
-
       // 현재 알럿 버튼 핸들러를 먼저 비워 다음 알럿과 충돌하지 않게 합니다.
       alertConfirmEl.onclick = null;
       alertCancelEl.onclick = null;
+      alertConfirmEl.disabled = true;
+      alertCancelEl.disabled = true;
 
       try {
+        if (window.UpickMotion && typeof window.UpickMotion.close === 'function') {
+          await window.UpickMotion.close(alertEl, {
+            activeClass: 'show',
+            panel: alertEl.querySelector('.app-alert-card'),
+            duration: 360,
+            afterClose: () => alertEl.setAttribute('aria-hidden', 'true')
+          });
+        } else {
+          alertEl.classList.remove('show');
+          alertEl.setAttribute('aria-hidden', 'true');
+          await new Promise((done) => setTimeout(done, 360));
+        }
+
         if (typeof callback === 'function') {
           await callback();
         } else if (shouldCloseSheet) {
           closeSheet();
         }
       } finally {
+        alertConfirmEl.disabled = false;
+        alertCancelEl.disabled = false;
         resolve({ action, value: isConfirm });
       }
     };

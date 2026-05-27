@@ -167,6 +167,26 @@
     return Object.assign({}, input || {});
   }
 
+  function runAlertCallback(options, value){
+    var callback = null;
+    if(value === true){
+      callback = options.onConfirm || options.callback || options.onClose;
+    }else{
+      callback = options.onCancel || options.callback || options.onClose;
+    }
+    if(typeof callback !== 'function') return Promise.resolve();
+    try{
+      return Promise.resolve(callback(value));
+    }catch(error){
+      return Promise.reject(error);
+    }
+  }
+
+  function restoreAlertButtons(){
+    if(confirmBtn) confirmBtn.disabled = false;
+    if(cancelBtn) cancelBtn.disabled = false;
+  }
+
   function showCommonAlert(input, maybeOptions){
     var options = normalizeOptions(input, maybeOptions);
     return enqueue(function(resolve){
@@ -192,14 +212,17 @@
         cancelBtn.onclick = null;
         confirmBtn.disabled = true;
         if(cancelBtn) cancelBtn.disabled = true;
-        Promise.resolve(closeLayer()).then(function(){
-          resolve(true);
-        }).catch(function(){
-          resolve(true);
-        }).finally(function(){
-          confirmBtn.disabled = false;
-          if(cancelBtn) cancelBtn.disabled = false;
-        });
+
+        Promise.resolve(closeLayer())
+          .catch(function(){ return true; })
+          .then(function(){
+            // 콜백이 다른 팝업/GNB/시트 상태를 바꿔도 fade-out이 먼저 끝나도록 합니다.
+            return runAlertCallback(options, true).catch(function(error){
+              console.warn('[UpickAlert] callback failed:', error);
+            });
+          })
+          .then(function(){ resolve(true); })
+          .finally(restoreAlertButtons);
       };
       confirmBtn.onclick = finish;
       openLayer();
@@ -228,18 +251,22 @@
       var finish = function(value){
         if(closing) return;
         closing = true;
+        var result = !!value;
         confirmBtn.onclick = null;
         cancelBtn.onclick = null;
         confirmBtn.disabled = true;
         if(cancelBtn) cancelBtn.disabled = true;
-        Promise.resolve(closeLayer()).then(function(){
-          resolve(!!value);
-        }).catch(function(){
-          resolve(!!value);
-        }).finally(function(){
-          confirmBtn.disabled = false;
-          if(cancelBtn) cancelBtn.disabled = false;
-        });
+
+        Promise.resolve(closeLayer())
+          .catch(function(){ return true; })
+          .then(function(){
+            // confirm/cancel 각각의 콜백도 닫힘 모션 완료 후 실행합니다.
+            return runAlertCallback(options, result).catch(function(error){
+              console.warn('[UpickAlert] callback failed:', error);
+            });
+          })
+          .then(function(){ resolve(result); })
+          .finally(restoreAlertButtons);
       };
       confirmBtn.onclick = function(){ finish(true); };
       cancelBtn.onclick = function(){ finish(false); };
