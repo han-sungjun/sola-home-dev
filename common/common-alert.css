@@ -904,3 +904,23 @@ body[data-loading-mode="signup"],
 body[data-loading-mode="login"]{
   overflow-x:hidden!important;
 }
+
+
+/* v75: 공통 알럿은 dialog가 아닌 div 기반 레이어로 고정합니다. */
+#appAlert.app-alert{
+  position:fixed!important;
+  inset:0!important;
+  display:none!important;
+}
+#appAlert.app-alert.show{
+  display:flex!important;
+}
+#appAlert.app-alert:not(.show){
+  pointer-events:none!important;
+}
+#appAlert.app-alert.show{
+  pointer-events:auto!important;
+}
+#appAlert.app-alert .app-alert-card{
+  pointer-events:auto!important;
+}

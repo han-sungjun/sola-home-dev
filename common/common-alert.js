@@ -27,6 +27,19 @@
 
   function ensureAlert(){
     alertEl = qs('#appAlert');
+    // 공통 알럿은 <dialog>를 쓰지 않습니다.
+    // dialog는 브라우저 top-layer/close/focus 복귀가 섞여 fade-out 전에 콜백처럼 보이는 현상이 생겨
+    // 모든 페이지에서 div 기반 레이어로 통일합니다.
+    if(alertEl && alertEl.tagName === 'DIALOG'){
+      var div = document.createElement('div');
+      div.id = alertEl.id || 'appAlert';
+      div.className = alertEl.className || 'app-alert';
+      div.setAttribute('aria-hidden', alertEl.getAttribute('aria-hidden') || 'true');
+      div.innerHTML = alertEl.innerHTML;
+      try{ alertEl.close && alertEl.close(); }catch(_){}
+      alertEl.replaceWith(div);
+      alertEl = div;
+    }
     if(!alertEl){
       alertEl = document.createElement('div');
       alertEl.id = 'appAlert';
@@ -193,14 +206,10 @@
   }
 
   function openNativeDialogIfNeeded(){
-    if(alertEl && typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
-      try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
-    }
+    // div 기반 공통 알럿으로 통일했기 때문에 native dialog 동작은 사용하지 않습니다.
   }
   function closeNativeDialogIfNeeded(){
-    if(alertEl && alertEl.tagName === 'DIALOG' && alertEl.open){
-      try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
-    }
+    // div 기반 공통 알럿으로 통일했기 때문에 native dialog close 동작은 사용하지 않습니다.
   }
   function focusConfirm(){
     requestAnimationFrame(function(){
