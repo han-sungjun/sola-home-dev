@@ -717,3 +717,42 @@ body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+/* v2026052701: 1차 공통 페이드 적용 - 알럿/컨펌만 연결
+   display:none 상태에서 바로 show를 붙이면 첫 페인트가 생략될 수 있어,
+   UpickMotion이 준비 중인 레이어는 display:flex 상태로 먼저 배치한 뒤 opacity만 전환합니다. */
+.app-alert.upick-motion-layer,
+dialog.app-alert.upick-motion-layer[open]{
+  display:flex!important;
+}
+.app-alert.upick-motion-layer:not(.show){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.app-alert.upick-motion-layer.show{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.app-alert.upick-motion-layer.is-closing,
+.app-alert.upick-motion-layer.upick-motion-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+.app-alert .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(10px) scale(.98)!important;
+}
+.app-alert.show .app-alert-card.upick-motion-panel,
+.app-alert .app-alert-card.upick-motion-panel.upick-motion-open{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+.app-alert.is-closing .app-alert-card.upick-motion-panel,
+.app-alert.upick-motion-closing .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(10px) scale(.98)!important;
+}

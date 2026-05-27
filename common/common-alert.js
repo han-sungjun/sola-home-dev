@@ -86,33 +86,78 @@
     }
   }
 
-  function openLayer(){
-    ensureAlert();
-    lastFocus = document.activeElement;
-    alertEl.classList.add('show');
-    alertEl.setAttribute('aria-hidden','false');
-    setOpenLock(true);
-
-    if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
-      try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
-    }
+  function focusConfirm(){
     requestAnimationFrame(function(){
       try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
     });
   }
 
-  function closeLayer(){
-    if(!alertEl) return;
-    alertEl.classList.remove('show');
-    alertEl.setAttribute('aria-hidden','true');
-    if(alertEl.tagName === 'DIALOG' && alertEl.open){
+  function getAlertPanel(){
+    return alertEl ? qs('.app-alert-card', alertEl) : null;
+  }
+
+  function openNativeDialogIfNeeded(){
+    if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
+      try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
+    }
+  }
+
+  function closeNativeDialogIfNeeded(){
+    if(alertEl && alertEl.tagName === 'DIALOG' && alertEl.open){
       try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
     }
-    setOpenLock(false);
-    if(lastFocus && typeof lastFocus.focus === 'function'){
-      try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
+  }
+
+  function openLayer(){
+    ensureAlert();
+    lastFocus = document.activeElement;
+
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      return window.UpickMotion.open(alertEl, {
+        activeClass: 'show',
+        panel: getAlertPanel(),
+        duration: 240,
+        beforeOpen: function(){
+          openNativeDialogIfNeeded();
+          setOpenLock(true);
+        },
+        afterOpen: focusConfirm
+      });
     }
-    lastFocus = null;
+
+    alertEl.classList.add('show');
+    alertEl.setAttribute('aria-hidden','false');
+    setOpenLock(true);
+    openNativeDialogIfNeeded();
+    focusConfirm();
+    return Promise.resolve(true);
+  }
+
+  function closeLayer(){
+    if(!alertEl) return Promise.resolve(false);
+
+    function afterClose(){
+      closeNativeDialogIfNeeded();
+      setOpenLock(false);
+      if(lastFocus && typeof lastFocus.focus === 'function'){
+        try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
+      }
+      lastFocus = null;
+    }
+
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      return window.UpickMotion.close(alertEl, {
+        activeClass: 'show',
+        panel: getAlertPanel(),
+        duration: 240,
+        afterClose: afterClose
+      });
+    }
+
+    alertEl.classList.remove('show');
+    alertEl.setAttribute('aria-hidden','true');
+    afterClose();
+    return Promise.resolve(true);
   }
 
   function normalizeOptions(input, maybeOptions){
@@ -140,8 +185,7 @@
       var finish = function(){
         confirmBtn.onclick = null;
         cancelBtn.onclick = null;
-        closeLayer();
-        resolve(true);
+        Promise.resolve(closeLayer()).finally(function(){ resolve(true); });
       };
       confirmBtn.onclick = finish;
       openLayer();
@@ -169,8 +213,7 @@
       var finish = function(value){
         confirmBtn.onclick = null;
         cancelBtn.onclick = null;
-        closeLayer();
-        resolve(!!value);
+        Promise.resolve(closeLayer()).finally(function(){ resolve(!!value); });
       };
       confirmBtn.onclick = function(){ finish(true); };
       cancelBtn.onclick = function(){ finish(false); };
