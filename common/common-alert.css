@@ -115,8 +115,11 @@ dialog.app-alert[open].show .app-alert-card{
 .app-alert-cancel.hidden,.app-alert-confirm.hidden{display:none!important;}
 
 html.upick-alert-open,
-body.upick-alert-open{overflow:hidden!important;overscroll-behavior:none!important;}
-body.upick-alert-open{touch-action:none!important;}
+body.upick-alert-open{
+  /* 성능/튐 방지를 위해 overflow:hidden/fixed를 쓰지 않습니다.
+     알럿 레이어와 JS 이벤트 가드가 배경 클릭/스크롤만 차단합니다. */
+  scrollbar-gutter:stable!important;
+}
 body.upick-alert-open .app-alert-card{touch-action:auto!important;}
 
 @media (max-width:420px){
@@ -779,185 +782,12 @@ dialog.app-alert.upick-motion-layer[open].upick-motion-closing{
 }
 
 
-/* ===== Fix: GNB 위 알럿 표시 중에는 뒤쪽 GNB 클릭/호버를 완전히 차단 ===== */
-html.upick-alert-open #gnbOverlay,
-body.upick-alert-open #gnbOverlay,
-html.upick-alert-open #gnbSheet,
-body.upick-alert-open #gnbSheet,
-html.upick-alert-open .gnb-overlay,
-body.upick-alert-open .gnb-overlay,
-html.upick-alert-open .gnb-sheet,
-body.upick-alert-open .gnb-sheet,
-html.upick-alert-open #gnbSheet *,
-body.upick-alert-open #gnbSheet *,
-html.upick-alert-open .gnb-sheet *,
-body.upick-alert-open .gnb-sheet * {
-  pointer-events: none !important;
-  cursor: default !important;
-}
-
-html.upick-alert-open #appAlert,
-body.upick-alert-open #appAlert,
-html.upick-alert-open #appAlert *,
-body.upick-alert-open #appAlert *,
-html.upick-alert-open .app-alert,
-body.upick-alert-open .app-alert,
-html.upick-alert-open .app-alert *,
-body.upick-alert-open .app-alert * {
-  pointer-events: auto !important;
-}
-
-
-/* ===== Fix v20260527: 공통 알럿 표시 중 바깥 레이어 전체 lock =====
-   GNB/바텀시트/일반 팝업/본문에 남아 있는 클릭 영역을 모두 차단하고,
-   알럿 카드 내부 버튼만 클릭 가능하게 합니다. */
-html.upick-alert-open,
-body.upick-alert-open{
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
-  touch-action:none!important;
-}
-
-body.upick-alert-open > *:not(#appAlert):not(.app-alert):not(dialog.app-alert){
-  pointer-events:none!important;
-  cursor:default!important;
-}
-
-body.upick-alert-open > *:not(#appAlert):not(.app-alert):not(dialog.app-alert) *,
-body.upick-alert-open #gnbOverlay,
-body.upick-alert-open #gnbOverlay *,
-body.upick-alert-open #gnbSheet,
-body.upick-alert-open #gnbSheet *,
-body.upick-alert-open .gnb-overlay,
-body.upick-alert-open .gnb-overlay *,
-body.upick-alert-open .gnb-sheet,
-body.upick-alert-open .gnb-sheet *{
-  pointer-events:none!important;
-  cursor:default!important;
-}
-
-body.upick-alert-open #appAlert,
-body.upick-alert-open .app-alert,
-body.upick-alert-open dialog.app-alert,
-body.upick-alert-open #appAlert .app-alert-card,
-body.upick-alert-open .app-alert .app-alert-card,
-body.upick-alert-open dialog.app-alert .app-alert-card,
-body.upick-alert-open #appAlert .app-alert-card *,
-body.upick-alert-open .app-alert .app-alert-card *,
-body.upick-alert-open dialog.app-alert .app-alert-card *{
-  pointer-events:auto!important;
-}
-
-body.upick-alert-open #appAlert,
-body.upick-alert-open .app-alert,
-body.upick-alert-open dialog.app-alert{
-  cursor:default!important;
-}
-
-
-/* ===== Fix v20260527-2: appAlert 내부에 잘못 남은 보조 UI는 알럿 클릭 대상으로 취급하지 않음 =====
-   공통 알럿이 열렸을 때 실제 클릭 허용 범위는 알럿 카드(.app-alert-card) 내부로 제한합니다. */
-body.upick-alert-open #appAlert > *:not(.app-alert-card),
-html.upick-alert-open #appAlert > *:not(.app-alert-card),
-body.upick-alert-open .app-alert > *:not(.app-alert-card),
-html.upick-alert-open .app-alert > *:not(.app-alert-card){
-  pointer-events:none!important;
-  cursor:default!important;
-}
-
-body.upick-alert-open #appAlert .app-alert-card,
-html.upick-alert-open #appAlert .app-alert-card,
-body.upick-alert-open #appAlert .app-alert-card *,
-html.upick-alert-open #appAlert .app-alert-card *,
-body.upick-alert-open .app-alert .app-alert-card,
-html.upick-alert-open .app-alert .app-alert-card,
-body.upick-alert-open .app-alert .app-alert-card *,
-html.upick-alert-open .app-alert .app-alert-card *{
-  pointer-events:auto!important;
-}
-
-
-/* ===== Fix v20260527-3: 알럿/바텀팝업/모달 공통 스크롤 잠금 최종 보정 =====
-   관리자/입장/계정 만들기 페이지에서 알럿 또는 바텀팝업이 열려도 배경 스크롤이 움직이지 않도록 합니다.
-   fixed body 방식은 사용하지 않아 닫을 때 최상단 튐을 피합니다. */
-html.upick-alert-open,
-body.upick-alert-open,
-html.upick-layer-scroll-lock,
-body.upick-layer-scroll-lock{
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
-  scroll-behavior:auto!important;
-}
-body.upick-alert-open,
-body.upick-layer-scroll-lock{
-  touch-action:none!important;
-}
-body.upick-alert-open #appAlert,
-body.upick-alert-open #appAlert .app-alert-card,
-body.upick-alert-open #appAlert .app-alert-card *,
-body.upick-layer-scroll-lock #appAlert,
-body.upick-layer-scroll-lock #appAlert .app-alert-card,
-body.upick-layer-scroll-lock #appAlert .app-alert-card *,
-body.upick-layer-scroll-lock .common-modal-overlay,
-body.upick-layer-scroll-lock .common-modal-overlay *,
-body.upick-layer-scroll-lock .sheet-modal.show,
-body.upick-layer-scroll-lock .sheet-modal.show *,
-body.upick-layer-scroll-lock .bottom-sheet.show,
-body.upick-layer-scroll-lock .bottom-sheet.show *,
-body.upick-layer-scroll-lock .gnb-sheet.show,
-body.upick-layer-scroll-lock .gnb-sheet.show *,
-body.upick-layer-scroll-lock dialog[open],
-body.upick-layer-scroll-lock dialog[open] *{
-  touch-action:auto!important;
-}
-body.upick-alert-open #appAlert > *:not(.app-alert-card),
-body.upick-layer-scroll-lock #appAlert > *:not(.app-alert-card){
-  pointer-events:none!important;
-  cursor:default!important;
-}
-
-/* ===== Fix v20260527-4: 관리자/입장/계정 만들기 스크롤 하드락 =====
-   body/html overflow만으로 잠기지 않는 브라우저 스크롤과 .app 계열 스크롤 컨테이너를 함께 잠급니다. */
-html.upick-hard-scroll-lock,
-body.upick-hard-scroll-lock{
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
-  touch-action:none!important;
-  scroll-behavior:auto!important;
-}
-body.upick-hard-scroll-lock{
-  max-width:100%!important;
-}
-body.upick-hard-scroll-lock > *:not(#appAlert):not(.app-alert):not(dialog.app-alert){
-  overscroll-behavior:none!important;
-}
-body.upick-alert-open .app,
-body.upick-alert-open #mainContent,
-body.upick-alert-open .shell,
-body.upick-layer-scroll-lock .app,
-body.upick-layer-scroll-lock #mainContent,
-body.upick-layer-scroll-lock .shell,
-body.upick-hard-scroll-lock .app,
-body.upick-hard-scroll-lock #mainContent,
-body.upick-hard-scroll-lock .shell{
-  overscroll-behavior:none!important;
-}
-body.upick-alert-open #appAlert,
-body.upick-alert-open #appAlert .app-alert-card,
-body.upick-alert-open #appAlert .app-alert-card *,
-body.upick-hard-scroll-lock #appAlert,
-body.upick-hard-scroll-lock #appAlert .app-alert-card,
-body.upick-hard-scroll-lock #appAlert .app-alert-card *{
-  touch-action:auto!important;
-  pointer-events:auto!important;
-}
-
-/* ===== Fix v20260527-4: 잠금 중에도 스크롤바 레일 유지 =====
-   알럿/바텀팝업이 뜰 때 스크롤바가 사라지면 닫힘 후 최상단 튐/lock 잔류처럼 보일 수 있어
-   모든 페이지에서 스크롤바 영역은 계속 유지합니다. 실제 스크롤 이동은 JS lock guard가 차단합니다. */
+/* ===== v20260527-light: 알럿/모달 lock 성능 보정 =====
+   전체 DOM에 pointer-events:none을 거는 방식은 공개앱 성능을 떨어뜨리므로 사용하지 않습니다.
+   알럿/모달의 실제 레이어와 JS 이벤트 가드가 배경 클릭/스크롤만 차단합니다. */
 html,
 body{
-  scrollbar-gutter: stable;
+  scrollbar-gutter:stable;
 }
 html.upick-alert-open,
 body.upick-alert-open,
@@ -965,40 +795,37 @@ html.upick-layer-scroll-lock,
 body.upick-layer-scroll-lock,
 html.upick-hard-scroll-lock,
 body.upick-hard-scroll-lock{
-  overflow-y: scroll !important;
-  overflow-x: hidden !important;
-  overscroll-behavior: none !important;
-  scrollbar-gutter: stable !important;
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:stable!important;
+  overscroll-behavior:none!important;
+  scroll-behavior:auto!important;
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:auto!important;
 }
-body.upick-hard-scroll-lock{
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  width: auto !important;
+#appAlert,
+.app-alert,
+dialog.app-alert{
+  cursor:default!important;
+  pointer-events:auto!important;
 }
-
-
-/* ===== Fix v20260527-5: 스크롤바 유지형 lock 최종 보정 =====
-   잠금 클래스가 붙어도 스크롤바 레일은 항상 유지합니다.
-   실제 이동 차단은 common-alert.js의 wheel/touch/key/scroll guard가 담당합니다. */
-html.upick-alert-open,
-body.upick-alert-open,
-html.upick-layer-scroll-lock,
-body.upick-layer-scroll-lock,
-html.upick-hard-scroll-lock,
-body.upick-hard-scroll-lock{
-  overflow-y: scroll !important;
-  overflow-x: hidden !important;
-  scrollbar-gutter: stable !important;
-  overscroll-behavior: none !important;
+#appAlert > *:not(.app-alert-card),
+.app-alert > *:not(.app-alert-card){
+  pointer-events:none!important;
+  cursor:default!important;
 }
-body.upick-alert-open,
-body.upick-layer-scroll-lock,
-body.upick-hard-scroll-lock{
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  width: auto !important;
+#appAlert .app-alert-card,
+#appAlert .app-alert-card *,
+.app-alert .app-alert-card,
+.app-alert .app-alert-card *{
+  pointer-events:auto!important;
+}
+#globalLoadingBar,
+.global-loading,
+.page-loader{
+  pointer-events:none!important;
+  z-index:2147483000!important;
 }
