@@ -226,7 +226,7 @@ dialog.upick-motion-dialog.upick-motion-closing::backdrop{
 .upick-div-dialog.upick-motion-dialog{
   position:fixed!important;
   inset:0!important;
-  z-index:2147483600!important;
+  z-index:2147483000!important;
   width:100vw!important;
   height:100dvh!important;
   max-width:none!important;

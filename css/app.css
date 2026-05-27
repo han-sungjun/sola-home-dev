@@ -26554,3 +26554,30 @@ body.upick-modal-scroll-event-lock{
 #calendarDayModal.upick-div-dialog.upick-motion-open{
   z-index:2147483700!important;
 }
+
+/* ===== v20260527: calendar day/detail stacked modal z-index fix =====
+   Chrome clamps very large z-index values to 2147483647. Previous values over that
+   limit caused calendarDayModal and detailModal to share the same effective layer,
+   so the later DOM node stayed above the detail popup. Keep values below the clamp. */
+#calendarDayModal.upick-div-dialog,
+#calendarDayModal.upick-div-dialog[open],
+#calendarDayModal.upick-div-dialog.show,
+#calendarDayModal.upick-div-dialog.upick-motion-open{
+  z-index:2147483200!important;
+}
+#calendarReservationModal.upick-div-dialog,
+#calendarReservationModal.upick-div-dialog[open],
+#calendarReservationModal.upick-div-dialog.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-open{
+  z-index:2147483300!important;
+}
+#detailModal.upick-div-dialog.upick-over-calendar-day,
+#detailModal.upick-div-dialog.upick-over-calendar-day[open],
+#detailModal.upick-div-dialog.upick-over-calendar-day.show,
+#detailModal.upick-div-dialog.upick-over-calendar-day.upick-motion-open{
+  z-index:2147483400!important;
+}
+#detailModal.upick-div-dialog.upick-over-calendar-day > .upick-div-modal-panel,
+#detailModal.upick-div-dialog.upick-over-calendar-day > .upick-div-dialog-panel{
+  z-index:2!important;
+}
