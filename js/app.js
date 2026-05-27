@@ -2054,18 +2054,55 @@ function preventBackdropClose(event){
   qs(selector)?.addEventListener('click', preventBackdropClose, true);
 });
 
+function openAccountMotionDialog(modal, focusSelector){
+ if(!modal) return;
+ if(modal.open) modal.close();
+ modal.classList.remove('show','closing','is-closing','upick-motion-closing','upick-motion-open');
+ modal.showModal();
+ modal.setAttribute('aria-hidden','false');
+ if(window.UpickMotion){
+  window.UpickMotion.open(modal,{
+   activeClass:'show',
+   closingClass:'closing',
+   duration:240,
+   afterOpen:function(){ requestAnimationFrame(function(){ qs(focusSelector)?.focus?.(); }); }
+  });
+ }else{
+  requestAnimationFrame(function(){ modal.classList.add('show'); qs(focusSelector)?.focus?.(); });
+ }
+}
+
+function closeAccountMotionDialog(modal, afterClose){
+ if(!modal || !modal.open){ if(typeof afterClose === 'function') afterClose(); return; }
+ var done=function(){
+  modal.classList.remove('show','closing','is-closing','upick-motion-layer','upick-motion-open','upick-motion-closing');
+  modal.setAttribute('aria-hidden','true');
+  if(modal.open) modal.close();
+  if(typeof afterClose === 'function') afterClose();
+ };
+ if(window.UpickMotion){
+  window.UpickMotion.close(modal,{
+   activeClass:'show',
+   closingClass:'closing',
+   duration:240,
+   afterClose:done
+  });
+ }else{
+  modal.classList.remove('show');
+  modal.classList.add('closing');
+  window.setTimeout(done,240);
+ }
+}
+
 function openAccountEditModal(){
  fillAccountEditForm();
  const modal = qs('#accountEditModal');
- if(!modal) return;
- if(modal.open) modal.close();
- modal.showModal();
- requestAnimationFrame(() => qs('#accountNicknameInput')?.focus());
+ openAccountMotionDialog(modal, '#accountNicknameInput');
  }
 
  function closeAccountEditModal(){
  const modal = qs('#accountEditModal');
- if(modal?.open) modal.close();
+ closeAccountMotionDialog(modal);
  }
 
  async function saveAccountProfile(event){
@@ -2202,15 +2239,12 @@ function openPasswordChangeModal(){
   const modal = qs('#passwordChangeModal');
   if(!modal) return;
   resetPasswordChangeForm();
-  if(modal.open) modal.close();
-  modal.showModal();
-  requestAnimationFrame(() => qs('#currentPasswordInput')?.focus());
+  openAccountMotionDialog(modal, '#currentPasswordInput');
 }
 
 function closePasswordChangeModal(){
   const modal = qs('#passwordChangeModal');
-  if(modal?.open) modal.close();
-  resetPasswordChangeForm();
+  closeAccountMotionDialog(modal, resetPasswordChangeForm);
 }
 
 async function submitPasswordChange(event){

@@ -78,3 +78,9 @@
     transition-duration:1ms!important;
   }
 }
+
+/* BottomSheet는 카드 팝업보다 이동량이 커야 위치가 자연스럽습니다. */
+.sheet-modal .upick-motion-panel{
+  --upick-motion-panel-y:100%;
+  --upick-motion-panel-scale:1;
+}

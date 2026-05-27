@@ -652,7 +652,8 @@ body.gnb-open .bottom-nav{
  line-height:1.6;
 }
 
-#accountEditModal{
+#accountEditModal,
+#passwordChangeModal{
  width:min(460px,calc(100% - 24px));
  max-width:460px;
  border:none;
@@ -662,12 +663,33 @@ body.gnb-open .bottom-nav{
  background:rgba(255,255,255,.98);
  box-shadow:0 32px 70px rgba(15,23,42,.24);
 }
-#accountEditModal::backdrop{
+#accountEditModal::backdrop,
+#passwordChangeModal::backdrop{
  background:rgba(15,23,42,.46);
  backdrop-filter:blur(6px);
 }
-#accountEditModal .modal-head{padding:18px 20px 10px;align-items:center;}
-#accountEditModal .modal-body{padding:0 20px 22px;}
+
+#accountEditModal.upick-motion-layer,
+#passwordChangeModal.upick-motion-layer{
+  transition:
+    opacity var(--upick-motion-normal) var(--upick-motion-ease),
+    transform var(--upick-motion-normal) var(--upick-motion-ease-out),
+    visibility 0s linear var(--upick-motion-normal) !important;
+  transform:translateY(10px) scale(.985) !important;
+}
+#accountEditModal.upick-motion-open,
+#passwordChangeModal.upick-motion-open{
+  transform:translateY(0) scale(1) !important;
+}
+#accountEditModal.upick-motion-closing,
+#passwordChangeModal.upick-motion-closing{
+  transform:translateY(10px) scale(.985) !important;
+}
+
+#accountEditModal .modal-head,
+#passwordChangeModal .modal-head{padding:18px 20px 10px;align-items:center;}
+#accountEditModal .modal-body,
+#passwordChangeModal .modal-body{padding:0 20px 22px;}
 .account-edit-help{margin:0 0 16px;color:#475569;font-size:14px;line-height:1.7;}
 
 /* 계정 정보 수정/비밀번호 변경 모달 안내 박스: 계정 찾기와 동일한 읽기 흐름 */
@@ -721,16 +743,21 @@ body.gnb-open .bottom-nav{
 .account-edit-field input::placeholder{color:#94a3b8;}
 .account-edit-field input:focus{background:#fff;border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12);}
 .account-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
-#accountEditModal .btn{min-height:52px;border-radius:18px;}
+#accountEditModal .btn,
+#passwordChangeModal .btn{min-height:52px;border-radius:18px;}
 @media (max-width:420px){
  .gnb-settings-section-header,.gnb-account-card{flex-direction:column;align-items:flex-start;}
  .gnb-status-pill{align-self:flex-start;}
- #accountEditModal{width:calc(100% - 20px);border-radius:26px;}
- #accountEditModal .modal-head{padding:16px 16px 8px;}
- #accountEditModal .modal-body{padding:0 16px 18px;}
+ #accountEditModal,
+ #passwordChangeModal{width:calc(100% - 20px);border-radius:26px;}
+ #accountEditModal .modal-head,
+ #passwordChangeModal .modal-head{padding:16px 16px 8px;}
+ #accountEditModal .modal-body,
+ #passwordChangeModal .modal-body{padding:0 16px 18px;}
  /* 모바일 계정 정보 수정 모달: 취소/저장 버튼은 세로 분리하지 않고 한 줄 유지 */
  .account-edit-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
- #accountEditModal .account-edit-actions .btn{width:100%;min-width:0;}
+ #accountEditModal .account-edit-actions .btn,
+ #passwordChangeModal .account-edit-actions .btn{width:100%;min-width:0;}
 }
 
 /* ===== 입주민 글자 크기 조정: DB 저장형 접근성 옵션 ===== */
@@ -11271,6 +11298,7 @@ body.upick-modal-hard-lock{
 #calendarReservationModal,
 #qrModal,
 #accountEditModal,
+#passwordChangeModal,
 #communityEditorModal,
 #communityDetailModal,
 #communityReportModal{
@@ -11287,6 +11315,7 @@ body.upick-modal-hard-lock{
 #calendarReservationModal[open],
 #qrModal[open],
 #accountEditModal[open],
+#passwordChangeModal[open],
 #communityEditorModal[open],
 #communityDetailModal[open],
 #communityReportModal[open]{
@@ -11299,6 +11328,7 @@ body.upick-modal-hard-lock{
 #calendarReservationModal::backdrop,
 #qrModal::backdrop,
 #accountEditModal::backdrop,
+#passwordChangeModal::backdrop,
 #communityEditorModal::backdrop,
 #communityDetailModal::backdrop,
 #communityReportModal::backdrop{
