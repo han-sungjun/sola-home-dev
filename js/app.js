@@ -5077,12 +5077,20 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  if(!favoritesRef) return;
  onSnapshot(favoritesRef, (snapshot) => {
  const activeFavoriteId = document.activeElement?.dataset?.favoriteId || '';
+ const detailModal = qs('#detailModal');
+ const openDetailId = detailModal && isLayerOpenLike(detailModal) ? String(detailModal.dataset.benefitId || '') : '';
  state.favoriteIds = snapshot.docs.map((d) => d.id);
- if(activeFavoriteId && isDetailModalForBenefitOpen(activeFavoriteId)){
-   syncFavoriteButtonsForId(activeFavoriteId);
- }else{
-   renderAll();
+
+ // v95: 혜택 상세가 열린 상태에서는 즐겨찾기 snapshot으로 전체 목록을 다시 그리지 않습니다.
+ // 즐겨찾기 탭에서 해제 시 목록 카드가 사라지며 상세 팝업까지 닫히거나 혜택 탭으로 이동하는 현상을 방지합니다.
+ if(openDetailId){
+   syncFavoriteButtonsForId(openDetailId);
+   window.__upickFavoriteRenderPending = true;
+   if(activeFavoriteId) restoreFavoriteButtonFocus(activeFavoriteId);
+   return;
  }
+
+ renderAll();
  if(activeFavoriteId) restoreFavoriteButtonFocus(activeFavoriteId);
  }, (error) => {
  console.error('즐겨찾기 로드 실패', error);
@@ -6054,6 +6062,10 @@ function closeDetailDialogPreservingPage(modal){
    if(modal.id === 'detailModal') modal.dataset.benefitId = '';
    if(modal.id === 'detailModal' && parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
    if(modal.id === 'noticeModal' && parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
+   if(modal.id === 'detailModal' && window.__upickFavoriteRenderPending){
+     window.__upickFavoriteRenderPending = false;
+     try{ renderAll(); }catch(_){}
+   }
    if(Number.isFinite(y)) holdStablePageScrollY(y, 700);
  };
  try{
@@ -8518,6 +8530,7 @@ function renderCalendarDayModal(){
  if(detailHeadActions) detailHeadActions.hidden = false;
  const headFavBtn = qs('#modalFavBtn');
  if(headFavBtn){
+   headFavBtn.dataset.favoriteId = String(item.id || '');
    headFavBtn.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">`;
    headFavBtn.classList.toggle('is-favorite', isFav);
    headFavBtn.setAttribute('aria-pressed', isFav ? 'true' : 'false');
