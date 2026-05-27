@@ -14779,14 +14779,15 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return false;
   };
 
-  // 바깥영역 클릭은 닫힘 동작으로 처리하지 않습니다.
-  // 닫기는 우측 상단 X 버튼만 담당하도록 고정합니다.
+  // AI 이미지 확대 팝업은 X 버튼으로만 닫습니다.
+  // 기존에는 배경 레이어(event.target === layer) 클릭 시 closeAiImageZoom()을 호출해서
+  // 문서 캡처 단계에서 먼저 닫히는 문제가 있었습니다.
   document.addEventListener('click', function(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
     if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
       event.preventDefault();
       event.stopPropagation();
-      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
       return false;
     }
   }, true);
