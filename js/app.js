@@ -14782,9 +14782,11 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   document.addEventListener('click', function(event){
     const layer = document.getElementById('aiImageZoomBackdrop');
     if(layer && layer.classList.contains(OPEN_CLASS) && event.target === layer){
+      // AI 이미지 확대 팝업은 혜택/소식 이미지 팝업과 동일하게
+      // 바깥 영역 클릭으로 닫히지 않도록 합니다. 닫기는 X 버튼만 사용합니다.
       event.preventDefault();
       event.stopPropagation();
-      window.closeAiImageZoom();
+      return false;
     }
   }, true);
 })();
