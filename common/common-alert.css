@@ -808,7 +808,6 @@ body.upick-hard-scroll-lock{
   top:auto!important;
   left:auto!important;
   right:auto!important;
-  width:auto!important;
 }
 #appAlert,
 .app-alert,
@@ -852,7 +851,35 @@ body.upick-layer-scroll-lock{
   overflow-y:scroll!important;
   overflow-x:hidden!important;
   position:static!important;
-  width:auto!important;
-  max-width:none!important;
   scrollbar-gutter:stable!important;
+}
+
+
+/* ===== v20260527-final: 알럿/레이어 lock 중 페이지 폭 보존 =====
+   body/html의 width/max-width는 건드리지 않고 스크롤바 레일만 유지합니다. */
+html,
+body{
+  scrollbar-gutter:stable both-edges!important;
+}
+html.upick-alert-open,
+html.upick-layer-scroll-lock,
+html.upick-hard-scroll-lock,
+body.upick-alert-open,
+body.upick-layer-scroll-lock,
+body.upick-hard-scroll-lock{
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  scrollbar-gutter:stable both-edges!important;
+}
+body[data-loading-mode="signup"],
+body[data-loading-mode="signup"].upick-alert-open,
+body[data-loading-mode="signup"].upick-layer-scroll-lock,
+body[data-loading-mode="signup"].upick-hard-scroll-lock{
+  max-width:480px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
 }
