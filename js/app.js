@@ -2043,9 +2043,16 @@ function bindGlobalModalBackdropLock(){
   });
 }
 
-if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindGlobalModalBackdropLock, { once:true });
-else bindGlobalModalBackdropLock();
-// 성능 보정: 문서 전체 MutationObserver 감시는 공통 layer-system.js의 캡처 이벤트 차단으로 대체합니다.
+bindGlobalModalBackdropLock();
+
+const modalBackdropLockObserver = new MutationObserver(() => {
+  bindGlobalModalBackdropLock();
+});
+
+modalBackdropLockObserver.observe(document.documentElement, {
+  childList:true,
+  subtree:true
+});
 
 function preventBackdropClose(event){
   if(event.target === event.currentTarget){
@@ -9014,10 +9021,6 @@ function openCalendarReservationModal(item={}){
 
  function openDialogSafe(el, options = {}){
  if(!el) return;
- if(window.UpickLayer && el.matches && el.matches('.du-layer,[data-du-layer],.upick-div-dialog,.upick-div-modal,.sheet-modal,.ai-image-zoom-backdrop')){
-  window.UpickLayer.open(el, options);
-  return;
- }
  if(isMotionDialogExcluded(el) || !window.UpickMotion){
   openNativeDialogSafe(el);
   try{ UpickPopupStack.bring(el); }catch(_){}
@@ -9049,10 +9052,6 @@ function openCalendarReservationModal(item={}){
 
  function closeDialogSafe(el, options = {}){
  if(!el) return;
- if(window.UpickLayer && el.matches && el.matches('.du-layer,[data-du-layer],.upick-div-dialog,.upick-div-modal,.sheet-modal,.ai-image-zoom-backdrop')){
-  window.UpickLayer.close(el, options);
-  return;
- }
  const afterClose = typeof options.afterClose === 'function' ? options.afterClose : null;
  if(isMotionDialogExcluded(el) || !window.UpickMotion || !(el.open || el.hasAttribute('open') || el.classList.contains('show'))){
   closeNativeDialogSafe(el);
@@ -14760,17 +14759,13 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     img.alt = title || '확대 이미지';
     layer.classList.remove(CLOSING_CLASS);
     layer.classList.add('upick-ai-image-fade-layer');
+    layer.setAttribute('aria-hidden','false');
+    keepImageZoomOnTop(layer);
     document.body.classList.add('ai-image-zoom-open');
-    if(window.UpickLayer){
-      window.UpickLayer.open(layer, { duration:DURATION, initialFocusSelector:'#aiImageZoomCloseBtn' });
-    }else{
-      layer.setAttribute('aria-hidden','false');
-      keepImageZoomOnTop(layer);
-      raf2(() => {
-        layer.classList.add(OPEN_CLASS);
-        try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){ }
-      });
-    }
+    raf2(() => {
+      layer.classList.add(OPEN_CLASS);
+      try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){ }
+    });
     return false;
   };
 
@@ -14779,20 +14774,15 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     const img = document.getElementById('aiImageZoomImg');
     if(!layer || layer.dataset.upickAiImageClosing === '1') return false;
     layer.dataset.upickAiImageClosing = '1';
-    const finish = () => {
+    layer.classList.add(CLOSING_CLASS);
+    layer.classList.remove(OPEN_CLASS);
+    layer.setAttribute('aria-hidden','true');
+    window.setTimeout(() => {
       layer.classList.remove(CLOSING_CLASS);
       delete layer.dataset.upickAiImageClosing;
       document.body.classList.remove('ai-image-zoom-open');
       if(img) img.removeAttribute('src');
-    };
-    if(window.UpickLayer){
-      window.UpickLayer.close(layer, { duration:DURATION, restoreFocus:false, afterClose:finish });
-    }else{
-      layer.classList.add(CLOSING_CLASS);
-      layer.classList.remove(OPEN_CLASS);
-      layer.setAttribute('aria-hidden','true');
-      window.setTimeout(finish, DURATION);
-    }
+    }, DURATION);
     return false;
   };
 

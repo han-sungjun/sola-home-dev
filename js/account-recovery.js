@@ -34,8 +34,12 @@ function bindPageModalBackdropLock(){
   });
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindPageModalBackdropLock, { once:true });
-else bindPageModalBackdropLock();
+bindPageModalBackdropLock();
+
+new MutationObserver(() => bindPageModalBackdropLock()).observe(document.documentElement, {
+  childList:true,
+  subtree:true
+});
 
 const API = API_URL[ENV] || {};
 const qs = (selector) => document.querySelector(selector);
@@ -135,30 +139,31 @@ function openSheet(mode) {
   modal.setAttribute('aria-hidden', 'false');
   switchTab(nextMode);
 
-  const focusFirst = () => {
-    window.setTimeout(() => {
-      const first = sections[nextMode]?.querySelector('input, button');
-      first?.focus?.({ preventScroll:true });
-    }, 80);
-  };
-
-  if (window.UpickLayer) {
-    window.UpickLayer.open(modal, { duration:260, afterOpen:focusFirst, initialFocusSelector:'#accountHelpCloseBtn' });
-    return;
-  }
-
   if (window.UpickMotion) {
     window.UpickMotion.open(modal, {
       activeClass: 'show',
       closingClass: 'closing',
       panel,
       duration: 260,
-      afterOpen: focusFirst
+      afterOpen: () => {
+        window.setTimeout(() => {
+          const first = sections[nextMode]?.querySelector('input, button');
+          first?.focus?.();
+        }, 80);
+      }
     });
     return;
   }
 
-  requestAnimationFrame(() => { requestAnimationFrame(() => { modal.classList.add('show'); focusFirst(); }); });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      modal.classList.add('show');
+      window.setTimeout(() => {
+        const first = sections[nextMode]?.querySelector('input, button');
+        first?.focus?.();
+      }, 160);
+    });
+  });
 }
 
 function resetAccountRecoveryForm() {
@@ -211,11 +216,6 @@ function closeSheet() {
     resetAccountRecoveryForm();
     lastFocus?.focus?.();
   };
-
-  if (window.UpickLayer) {
-    window.UpickLayer.close(modal, { duration:280, afterClose });
-    return;
-  }
 
   if (window.UpickMotion) {
     window.UpickMotion.close(modal, {
@@ -445,11 +445,8 @@ qs('#openResetPwBtn')?.addEventListener('click', () => openSheet('reset'));
 closeBtn?.addEventListener('click', closeSheet);
 // account-recovery: 계정 복구 바텀시트는 바깥 영역 클릭으로 닫지 않습니다.
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && modal?.classList.contains('show')) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-}, true);
+  if (event.key === 'Escape' && modal?.classList.contains('show')) closeSheet();
+});
 tabs.nickname?.addEventListener('click', () => switchTab('nickname'));
 tabs.id?.addEventListener('click', () => switchTab('id'));
 tabs.reset?.addEventListener('click', () => switchTab('reset'));

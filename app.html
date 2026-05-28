@@ -41,11 +41,12 @@
 <link href="/common/common-alert.css?v=20260527fadefix" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=20260527-stack-fix" rel="stylesheet"/>
 <link href="/common/common-modal.css?v=2026051604" rel="stylesheet"/>
+<link href="/common/layer-system.css?v=20260529-safe" rel="stylesheet">
 <script defer="" src="/common/common-motion.js?v=20260527fadefix"></script>
 <script defer="" src="/common/common-alert.js?v=20260527fadefix"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
 <script defer="" src="/common/common-modal.js?v=2026051604"></script>
-  <link href="/common/layer-system.css?v=20260529-layer-unified" rel="stylesheet"/>
+<script defer src="/common/layer-system.js?v=20260529-safe"></script>
 </head>
 <body data-loading-mode="public">
 <div aria-hidden="false" class="global-loading show" data-initial-app-loading="1" id="globalLoadingBar">
@@ -854,9 +855,9 @@
         </span>
 </button>
 </nav>
-<div id="detailModal" class="upick-div-dialog upick-detail-div-modal du-layer du-layer--modal" data-du-layer="modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="detailModal" class="upick-div-dialog upick-detail-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" data-du-layer-panel role="document">
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           혜택 상세
@@ -867,7 +868,7 @@
 <img alt="" class="upick-svg-icon" decoding="async" loading="lazy" src="/icons/internal/calendar.svg"/>
 </button>
 </div>
-<button class="close-btn" data-du-layer-close id="closeModal">
+<button class="close-btn" id="closeModal">
           ✕
         </button>
 </div>
@@ -875,8 +876,8 @@
 </div>
 </div>
 </div>
-<div id="calendarReservationModal" class="upick-div-dialog upick-nested-modal du-layer du-layer--modal" data-du-layer="modal" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="upick-div-dialog-panel" data-du-layer-panel role="document">
+<div id="calendarReservationModal" class="upick-div-dialog upick-nested-modal" aria-hidden="true" role="dialog" aria-modal="true">
+<div class="upick-div-dialog-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           방문 알림 추가
@@ -943,7 +944,7 @@
 </div>
 </div>
 </div>
-<div id="calendarDayModal" class="upick-div-dialog du-layer du-layer--modal" data-du-layer="modal" aria-hidden="true" role="dialog" aria-modal="true">
+<div id="calendarDayModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="calendar-day-modal-head">
 <button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">
           ‹
@@ -972,14 +973,14 @@
 </div>
 </div>
 </div>
-<div id="noticeModal" class="upick-div-dialog upick-notice-div-modal du-layer du-layer--modal" data-du-layer="modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="noticeModal" class="upick-div-dialog upick-notice-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" data-du-layer-panel role="document">
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           공지 상세
         </div>
-<button class="close-btn" data-du-layer-close id="closeNoticeModal">
+<button class="close-btn" id="closeNoticeModal">
           ✕
         </button>
 </div>
@@ -1571,14 +1572,14 @@
     </div>
   </div>
 </div>
-<div id="accountEditModal" class="upick-div-modal du-layer du-layer--modal" data-du-layer="modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="accountEditModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" data-du-layer-panel role="document">
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           계정 정보 수정
         </div>
-<button class="close-btn" data-du-layer-close id="closeAccountEditModal" type="button">
+<button class="close-btn" id="closeAccountEditModal" type="button">
           ✕
         </button>
 </div>
@@ -1651,14 +1652,14 @@
 </div>
 </div>
 </div>
-<div id="passwordChangeModal" class="upick-div-modal du-layer du-layer--modal" data-du-layer="modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="passwordChangeModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" data-du-layer-panel role="document">
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           비밀번호 변경
         </div>
-<button class="close-btn" data-du-layer-close id="closePasswordChangeModal" type="button">
+<button class="close-btn" id="closePasswordChangeModal" type="button">
           ✕
         </button>
 </div>
@@ -1743,12 +1744,12 @@
           </button>
 </div>
 </div>
-<div aria-hidden="true" class="ai-image-zoom-backdrop du-layer du-layer--fullscreen" data-du-layer="fullscreen" id="aiImageZoomBackdrop">
-  <div class="ai-image-zoom-card" data-du-layer-panel role="document">
+<div aria-hidden="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop">
+  <div class="ai-image-zoom-card" role="document">
     <div class="ai-image-zoom-title" id="aiImageZoomTitle">
           이미지 확대 보기
         </div>
-    <button aria-label="닫기" class="ai-image-zoom-close" data-du-layer-close id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
+    <button aria-label="닫기" class="ai-image-zoom-close" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
           ×
         </button>
     <div class="ai-image-zoom-scroll" id="aiImageZoomScroll">
@@ -1756,8 +1757,7 @@
     </div>
   </div>
 </div>
-<script defer src="/common/layer-system.js?v=20260529-layer-unified"></script>
-	<script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
+<script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
 <script src="/js/app.js?v=20260527-mobile-image-modal-redesign-v2" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
