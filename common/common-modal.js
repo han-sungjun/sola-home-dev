@@ -56,7 +56,6 @@
     }
     document.removeEventListener('keydown', trapEsc, true);
     overlay.remove();
-    if(root) root.classList.remove('is-open');
     overlay = null;
     stage = null;
     currentContent = null;
@@ -68,7 +67,6 @@
 
   function open(options){
     options = options || {};
-    if(options.closeOnBackdrop !== true) options.closeOnBackdrop = false;
     close();
     ensureRoot();
 
@@ -97,11 +95,6 @@
     stage.appendChild(content);
     overlay.appendChild(stage);
     root.appendChild(overlay);
-    root.classList.add('is-open');
-    overlay.dataset.upickLayer = 'true';
-    overlay.dataset.upickLayerType = options.type || 'modal';
-    overlay.dataset.closeOnBackdrop = 'false';
-    overlay.setAttribute('data-upick-close-on-backdrop','false');
 
     overlay.addEventListener('click', function(event){
       if(event.target === overlay){

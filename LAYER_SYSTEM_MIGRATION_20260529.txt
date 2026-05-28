@@ -1,0 +1,37 @@
+더운정픽 공통 레이어 마이그레이션 2026-05-29
+
+적용 범위
+1. 공통 파일 추가
+- /common/layer-system.css
+- /common/layer-system.js
+
+2. 공통 레이어 3종 구분
+- bottom-sheet: accountHelpModal, gnbSheet
+- modal: detailModal, noticeModal, accountEditModal, passwordChangeModal, calendarReservationModal, calendarDayModal, community* modal, appAlert
+- fullscreen: aiImageZoomBackdrop
+
+3. 기존 팝업 마이그레이션
+- app.html 주요 모달/풀팝업 DOM에 data-du-layer / data-du-layer-panel / data-du-layer-close 부여
+- index.html 계정 찾기 바텀시트에 data-du-layer / data-du-layer-panel / data-du-layer-close 부여
+- js/app.js openDialogSafe / closeDialogSafe를 UpickLayer 우선 사용으로 연결
+- js/account-recovery.js 계정 찾기 바텀시트 open/close를 UpickLayer 우선 사용으로 연결
+- AI 이미지 확대 팝업 open/close를 UpickLayer로 연결
+
+4. 정책
+- 바깥 영역 클릭 닫힘 금지
+- ESC 닫힘 금지
+- X / 확인 / 취소 / 명시적 close 함수로만 닫힘
+- z-index는 열리는 순서대로 공통 부여
+- body 스크롤 상태는 기존 스크롤락 함수와 연동
+
+5. 성능 보정
+- 문서 전체 MutationObserver 기반 팝업 감시 제거
+- 캡처 단계 pointerdown/click 이벤트로 바깥 클릭만 차단
+- 기존 modal-backdrop-lock과 충돌하지 않도록 UpickLayer가 우선 처리
+
+검증 권장
+- 계정 찾기 바텀시트: 바깥 클릭 닫힘 금지, X 닫힘 정상
+- 혜택 상세: 열림/닫힘/스크롤 유지 정상
+- 공지 상세: 열림/닫힘 정상
+- 계정 정보 수정/비밀번호 변경: 설정 모음 위로 정상 노출
+- AI 이미지 확대: 바깥 클릭 닫힘 금지, X 닫힘 정상

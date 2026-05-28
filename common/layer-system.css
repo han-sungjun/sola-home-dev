@@ -1,130 +1,186 @@
-/* 더운정픽 공통 레이어 시스템 v20260528
-   - 레이어 타입을 sheet / modal / fullscreen 3개로 통합
-   - 모든 레이어는 바깥 영역 클릭으로 닫히지 않음
-   - 닫기는 X / 확인 / 취소 / 명시적 close 함수만 허용
+/* 더운정픽 공통 레이어 시스템 v20260529
+   bottom-sheet / modal / fullscreen 3종 통합
+   - 바깥 영역 클릭 닫힘 금지
+   - X/확인/취소/명시 close 함수로만 닫힘
 */
 :root{
-  --upick-layer-sheet-z:2147482800;
-  --upick-layer-modal-z:2147482900;
-  --upick-layer-fullscreen-z:2147483200;
-  --upick-layer-backdrop:rgba(15,23,42,.48);
-  --upick-layer-backdrop-strong:rgba(15,23,42,.58);
-  --upick-layer-blur:14px;
-}
-html.upick-layer-open,
-body.upick-layer-open{
-  overscroll-behavior:none!important;
+  --du-layer-z-base: 50000;
+  --du-layer-backdrop: rgba(15, 23, 42, .48);
+  --du-layer-blur: 12px;
+  --du-layer-radius: 28px;
+  --du-layer-ease: cubic-bezier(.22, 1, .36, 1);
 }
 
-/* 1) Bottom Sheet */
-.sheet-modal,
-.bottom-sheet,
-.auth-bottom-sheet,
-.account-recovery-sheet{
-  z-index:var(--upick-layer-sheet-z)!important;
+html.du-layer-open,
+body.du-layer-open{
+  overscroll-behavior: contain;
 }
+
+.du-layer,
+[data-du-layer]{
+  position: fixed;
+  inset: 0;
+  z-index: var(--du-layer-z, var(--du-layer-z-base));
+  display: flex;
+  background: var(--du-layer-backdrop);
+  -webkit-backdrop-filter: blur(var(--du-layer-blur));
+  backdrop-filter: blur(var(--du-layer-blur));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .24s ease, visibility .24s ease;
+}
+
+.du-layer.show,
+.du-layer[open],
+.du-layer.is-open,
+[data-du-layer].show,
+[data-du-layer][open],
+[data-du-layer].is-open,
+.upick-div-dialog.show,
+.upick-div-dialog[open],
+.upick-div-modal.show,
+.upick-div-modal[open],
 .sheet-modal.show,
-.sheet-modal.is-open,
-.bottom-sheet.show,
-.bottom-sheet.is-open,
-.auth-bottom-sheet.show,
-.auth-bottom-sheet.is-open,
-.account-recovery-sheet.show,
-.account-recovery-sheet.is-open{
-  background:var(--upick-layer-backdrop)!important;
-  backdrop-filter:blur(var(--upick-layer-blur))!important;
-  -webkit-backdrop-filter:blur(var(--upick-layer-blur))!important;
-}
-.sheet-modal .sheet-panel,
-.bottom-sheet .sheet-panel,
-.auth-bottom-sheet .sheet-panel,
-.account-recovery-sheet .sheet-panel{
-  border-radius:32px 32px 0 0!important;
-  box-shadow:0 -24px 72px rgba(15,23,42,.24)!important;
-  overflow:hidden!important;
-}
-.sheet-modal .sheet-body,
-.bottom-sheet .sheet-body,
-.auth-bottom-sheet .sheet-body,
-.account-recovery-sheet .sheet-body{
-  overscroll-behavior:contain!important;
-  -webkit-overflow-scrolling:touch!important;
+.ai-image-zoom-backdrop.show{
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
-/* 2) Center Modal */
-.common-modal-overlay,
-.upick-div-modal,
-.modal-overlay,
-.modal-backdrop,
-.admin-modal,
-.admin-dialog,
-#settingsSuiteModal.upick-div-dialog,
-#gnbAccountManageModal{
-  z-index:var(--upick-layer-modal-z)!important;
-}
-.common-modal-overlay{
-  background:var(--upick-layer-backdrop)!important;
-  backdrop-filter:blur(var(--upick-layer-blur))!important;
-  -webkit-backdrop-filter:blur(var(--upick-layer-blur))!important;
-}
-#settingsSuiteModal,
-#gnbAccountManageModal,
-#accountEditModal .upick-div-modal-panel,
-#passwordChangeModal .upick-div-modal-panel{
-  border-radius:30px!important;
-  box-shadow:0 32px 84px rgba(15,23,42,.28)!important;
-  overflow:hidden!important;
-}
-#settingsSuiteModal .gnb-management-body,
-#gnbAccountManageModal .gnb-management-body,
-#accountEditModal .modal-body,
-#passwordChangeModal .modal-body{
-  overscroll-behavior:contain!important;
-  -webkit-overflow-scrolling:touch!important;
+.du-layer.closing,
+.du-layer.is-closing,
+[data-du-layer].closing,
+[data-du-layer].is-closing,
+.upick-div-dialog.is-closing,
+.upick-div-modal.is-closing,
+.sheet-modal.closing,
+.ai-image-zoom-backdrop.closing{
+  pointer-events: none;
 }
 
-/* 3) Full Popup */
-.ai-image-zoom-backdrop,
-.upick-fullscreen-layer,
-[data-upick-layer-type="fullscreen"]{
-  z-index:var(--upick-layer-fullscreen-z)!important;
-  background:var(--upick-layer-backdrop-strong)!important;
-  backdrop-filter:blur(var(--upick-layer-blur))!important;
-  -webkit-backdrop-filter:blur(var(--upick-layer-blur))!important;
-}
-.ai-image-zoom-backdrop .ai-image-zoom-card{
-  border-radius:30px!important;
-  box-shadow:0 32px 88px rgba(15,23,42,.34)!important;
-  overflow:hidden!important;
-}
-.ai-image-zoom-backdrop .ai-image-zoom-scroll{
-  overscroll-behavior:contain!important;
-  -webkit-overflow-scrolling:touch!important;
-}
-
-/* 공통 닫기 버튼 터치 안정화 */
-.sheet-close,
-.gnb-management-close,
-.gnb-manage-close,
-.close-btn,
-.ai-image-zoom-close,
-[data-upick-layer-close]{
-  touch-action:manipulation!important;
-}
-
-/* 바깥 영역은 클릭해도 닫히지 않는 정책이므로, 커서도 닫힘 느낌을 주지 않음 */
-.sheet-modal,
-.bottom-sheet,
-.auth-bottom-sheet,
-.account-recovery-sheet,
-.common-modal-overlay,
-.upick-div-modal,
-.ai-image-zoom-backdrop{
-  cursor:default!important;
-}
-.sheet-panel,
-.common-modal-stage,
+[data-du-layer-panel],
+.du-layer__panel,
 .upick-div-modal-panel,
+.upick-div-dialog-panel,
+.sheet-panel,
 .ai-image-zoom-card{
-  cursor:auto!important;
+  position: relative;
+  max-width: min(92vw, 720px);
+  max-height: min(88dvh, 820px);
+  overflow: hidden;
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(226,232,240,.86);
+  box-shadow: 0 28px 80px rgba(15,23,42,.24);
+  color: #0f172a;
+  pointer-events: auto;
+}
+
+[data-du-layer="bottom-sheet"],
+[data-du-layer-type="bottom-sheet"],
+.du-layer--bottom-sheet,
+.sheet-modal{
+  align-items: flex-end;
+  justify-content: center;
+  padding: 18px 12px max(12px, env(safe-area-inset-bottom));
+}
+
+[data-du-layer="bottom-sheet"] [data-du-layer-panel],
+[data-du-layer-type="bottom-sheet"] [data-du-layer-panel],
+.du-layer--bottom-sheet .du-layer__panel,
+.sheet-modal .sheet-panel{
+  width: min(100%, 560px);
+  max-height: min(84dvh, 760px);
+  border-radius: 28px 28px 20px 20px;
+  transform: translate3d(0, 24px, 0) scale(.985);
+  transition: transform .28s var(--du-layer-ease), opacity .22s ease;
+}
+
+[data-du-layer="modal"],
+[data-du-layer-type="modal"],
+.du-layer--modal,
+.upick-div-modal,
+.upick-div-dialog{
+  align-items: center;
+  justify-content: center;
+  padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+}
+
+[data-du-layer="modal"] [data-du-layer-panel],
+[data-du-layer-type="modal"] [data-du-layer-panel],
+.du-layer--modal .du-layer__panel,
+.upick-div-modal > .upick-div-modal-panel,
+.upick-div-dialog > .upick-div-modal-panel,
+.upick-div-dialog > .upick-div-dialog-panel{
+  width: min(94vw, 760px);
+  border-radius: var(--du-layer-radius);
+  transform: translate3d(0, 10px, 0) scale(.982);
+  transition: transform .26s var(--du-layer-ease), opacity .22s ease;
+}
+
+[data-du-layer="fullscreen"],
+[data-du-layer-type="fullscreen"],
+.du-layer--fullscreen,
+.ai-image-zoom-backdrop,
+.benefit-image-preview-overlay{
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom));
+}
+
+[data-du-layer="fullscreen"] [data-du-layer-panel],
+[data-du-layer-type="fullscreen"] [data-du-layer-panel],
+.du-layer--fullscreen .du-layer__panel,
+.ai-image-zoom-card,
+.benefit-image-preview-frame{
+  width: min(96vw, 980px);
+  height: min(92dvh, 900px);
+  max-height: 92dvh;
+  border-radius: 28px;
+  transform: translate3d(0, 10px, 0) scale(.985);
+  transition: transform .26s var(--du-layer-ease), opacity .22s ease;
+}
+
+[data-du-layer].show [data-du-layer-panel],
+.du-layer.show .du-layer__panel,
+.sheet-modal.show .sheet-panel,
+.upick-div-modal.show > .upick-div-modal-panel,
+.upick-div-dialog.show > .upick-div-modal-panel,
+.upick-div-dialog.show > .upick-div-dialog-panel,
+.ai-image-zoom-backdrop.show .ai-image-zoom-card{
+  transform: translate3d(0,0,0) scale(1);
+}
+
+[data-du-layer] .modal-body,
+.upick-div-modal .modal-body,
+.upick-div-dialog .modal-body{
+  overflow: auto;
+  max-height: calc(88dvh - 88px);
+  -webkit-overflow-scrolling: touch;
+}
+
+[data-du-layer-close],
+.close-btn,
+.sheet-close,
+.ai-image-zoom-close{
+  cursor: pointer;
+}
+
+/* 레이어별 기존 구조 식별값 */
+#detailModal,
+#noticeModal,
+#accountEditModal,
+#passwordChangeModal,
+#calendarReservationModal,
+#calendarDayModal,
+#communityEditorModal,
+#communityDetailModal,
+#communityReportModal{
+  background: var(--du-layer-backdrop);
+  -webkit-backdrop-filter: blur(var(--du-layer-blur));
+  backdrop-filter: blur(var(--du-layer-blur));
+}
+
+#aiImageZoomBackdrop{
+  background: rgba(15,23,42,.72);
 }
