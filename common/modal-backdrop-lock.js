@@ -1,57 +1,50 @@
-/* 더운정픽 공통 모달 바깥 클릭 닫힘 방지
-   모든 dialog / alert / confirm / sheet / modal 계열은 바깥 영역 클릭으로 닫지 않습니다.
-   X, 취소, 확인 등 명시 버튼으로만 닫을 수 있습니다. */
+/* 더운정픽 모달 바깥 클릭 닫힘 방지 v20260528-perf
+   layer-system.js와 중복되는 MutationObserver/개별 바인딩을 제거하고,
+   가벼운 위임 방식만 유지합니다.
+*/
 (function(){
   'use strict';
 
-  function lockModalBackdropClick(event){
-    if(event.target === event.currentTarget){
-      event.preventDefault();
-      event.stopPropagation();
-      if(typeof event.stopImmediatePropagation === 'function'){
-        event.stopImmediatePropagation();
-      }
-    }
+  var BACKDROP_SELECTOR = [
+    'dialog',
+    '.app-alert',
+    '.sheet-modal',
+    '.bottom-sheet',
+    '.auth-bottom-sheet',
+    '.account-recovery-sheet',
+    '.common-modal-overlay',
+    '.modal',
+    '.modal-overlay',
+    '.modal-backdrop',
+    '.admin-modal',
+    '.admin-dialog',
+    '.upick-div-modal',
+    '.upick-div-modal-backdrop',
+    '.ai-image-zoom-backdrop',
+    '[role="dialog"]',
+    '[role="alertdialog"]',
+    '[data-upick-layer="true"]'
+  ].join(',');
+
+  function isBackdropTarget(target){
+    return !!(target && target.matches && target.matches(BACKDROP_SELECTOR));
   }
 
-  function bindModalBackdropLock(){
-    var selectors = [
-      'dialog',
-      '.app-alert',
-      '.sheet-modal',
-      '[role="dialog"]',
-      '[role="alertdialog"]',
-      '.modal',
-      '.modal-overlay',
-      '.modal-backdrop',
-      '.admin-modal',
-      '.admin-dialog',
-      '.upick-div-modal',
-      '.upick-div-modal-backdrop',
-      '.ai-image-zoom-backdrop',
-      '[data-upick-layer="true"]'
-    ];
-
-    document.querySelectorAll(selectors.join(',')).forEach(function(el){
-      if(el.dataset.modalBackdropLockBound === '1') return;
-      el.dataset.modalBackdropLockBound = '1';
-      el.addEventListener('click', lockModalBackdropClick, true);
-      el.addEventListener('pointerdown', lockModalBackdropClick, true);
-    });
+  function lockBackdrop(event){
+    if(!isBackdropTarget(event.target)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', bindModalBackdropLock, { once:true });
-  }else{
-    bindModalBackdropLock();
-  }
-
-  new MutationObserver(bindModalBackdropLock).observe(document.documentElement, {
-    childList:true,
-    subtree:true
-  });
+  document.addEventListener('pointerdown', lockBackdrop, true);
+  document.addEventListener('click', lockBackdrop, true);
 
   window.__UPICK_MODAL_BACKDROP_LOCK__ = {
-    bind: bindModalBackdropLock
+    bind: function(){
+      if(window.UpickLayerSystem && typeof window.UpickLayerSystem.sync === 'function'){
+        window.UpickLayerSystem.sync();
+      }
+    }
   };
 })();
