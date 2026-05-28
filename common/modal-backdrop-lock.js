@@ -25,7 +25,11 @@
       '.modal-overlay',
       '.modal-backdrop',
       '.admin-modal',
-      '.admin-dialog'
+      '.admin-dialog',
+      '.upick-div-modal',
+      '.upick-div-modal-backdrop',
+      '.ai-image-zoom-backdrop',
+      '[data-upick-layer="true"]'
     ];
 
     document.querySelectorAll(selectors.join(',')).forEach(function(el){

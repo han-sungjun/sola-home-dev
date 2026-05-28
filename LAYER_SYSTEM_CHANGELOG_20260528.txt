@@ -1,0 +1,37 @@
+더운정픽 공통 레이어 시스템 적용 내역 (2026-05-28)
+
+1. 신규 공통 파일 추가
+- /common/layer-system.css
+- /common/layer-system.js
+
+2. 레이어 타입 3종으로 통합
+- bottom-sheet: 계정 찾기처럼 하단에서 올라오는 시트
+- modal: 설정 모음, 계정 정보 수정, 비밀번호 변경처럼 중앙 카드형 팝업
+- fullscreen: AI 이미지 확대처럼 전체 화면 성격의 팝업
+
+3. 공통 정책
+- 바깥 영역 클릭 닫힘 금지
+- ESC 기본 닫힘 금지
+- 닫기는 X 버튼 / 확인 / 취소 / 명시적 close 함수로만 처리
+- 레이어별 z-index 기준 통합
+- 레이어 열림 상태를 html/body.upick-layer-open 으로 동기화
+
+4. 기존 공통 모달 보강
+- CommonModal.open()으로 열린 모달에 data-upick-layer / data-upick-layer-type 자동 부여
+- CommonModal root에 is-open 상태 동기화
+- closeOnBackdrop 기본값 false 유지
+
+5. 기존 backdrop lock 보강
+- upick-div-modal, upick-div-modal-backdrop, ai-image-zoom-backdrop, data-upick-layer 대상 추가
+
+6. 적용 HTML
+- index.html
+- signup.html
+- phone-verify.html
+- app.html
+- admin.html
+- error.html
+- policy.html
+- privacy.html
+- terms.html
+- guide.html
