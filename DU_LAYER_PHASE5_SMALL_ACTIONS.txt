@@ -1,0 +1,8 @@
+더운정픽 du-layer 통합 5차
+
+- 계정 삭제 확인창을 공통 small-action/danger 톤으로 자동 분류
+- 신고 팝업 communityReportModal에 small-action/report 규격 적용
+- 공유 QR 팝업 qrModal에 small-action/share 규격 적용
+- 작은 팝업 header/body/footer 여백과 버튼 그리드 통일
+- 바깥 클릭 닫힘 금지와 ESC 닫힘 금지 유지
+- 기존 기능 호출부는 유지하여 안정성 우선 적용

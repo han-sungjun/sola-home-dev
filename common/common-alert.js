@@ -292,10 +292,27 @@
     if(cancelBtn) cancelBtn.disabled = false;
   }
 
+  function applyAlertVariant(options, mode){
+    ensureAlert();
+    var title = String(options && options.title || '');
+    var confirmText = String(options && options.confirmText || '');
+    var message = String(options && options.message || '');
+    var explicit = String(options && (options.variant || options.tone || options.type) || '').toLowerCase();
+    var danger = explicit === 'danger' || /삭제|탈퇴|블라인드/.test(title + ' ' + confirmText + ' ' + message);
+    var report = explicit === 'report' || /신고/.test(title + ' ' + confirmText);
+    var share = explicit === 'share' || /공유|QR|링크|URL/.test(title + ' ' + confirmText);
+    alertEl.classList.remove('du-layer--small-action','du-layer--danger','du-layer--report','du-layer--share','du-layer--confirm','du-layer--alert');
+    alertEl.classList.add('du-layer--small-action', mode === 'confirm' ? 'du-layer--confirm' : 'du-layer--alert');
+    if(danger) alertEl.classList.add('du-layer--danger');
+    else if(report) alertEl.classList.add('du-layer--report');
+    else if(share) alertEl.classList.add('du-layer--share');
+  }
+
   function showCommonAlert(input, maybeOptions){
     var options = normalizeOptions(input, maybeOptions);
     return enqueue(function(resolve){
       ensureAlert();
+      applyAlertVariant(options, 'alert');
       titleEl.textContent = escapeText(options.title || '안내');
       messageEl.textContent = escapeText(options.message || '');
       confirmBtn.textContent = escapeText(options.confirmText || '확인');
@@ -325,6 +342,7 @@
     var options = normalizeOptions(input, maybeOptions);
     return enqueue(function(resolve){
       ensureAlert();
+      applyAlertVariant(options, 'confirm');
       titleEl.textContent = escapeText(options.title || '확인');
       messageEl.textContent = escapeText(options.message || '');
       confirmBtn.textContent = escapeText(options.confirmText || '확인');

@@ -41,6 +41,9 @@
     setAttr(layer, 'data-close-on-backdrop', 'false');
     setAttr(layer, 'data-du-close-on-backdrop', 'false');
     setAttr(layer, 'data-du-close-on-esc', 'false');
+    if(cfg.id === 'communityReportModal'){ addClass(layer, 'du-layer--small-action'); addClass(layer, 'du-layer--report'); setAttr(layer, 'data-du-small-modal', 'report'); }
+    if(cfg.id === 'qrModal'){ addClass(layer, 'du-layer--small-action'); addClass(layer, 'du-layer--share'); setAttr(layer, 'data-du-small-modal', 'share'); }
+    if(cfg.id === 'appAlert'){ addClass(layer, 'du-layer--small-action'); }
 
     var panel = cfg.panel ? layer.querySelector(cfg.panel) : null;
     if(!panel){
