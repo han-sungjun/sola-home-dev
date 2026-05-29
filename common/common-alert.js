@@ -130,7 +130,7 @@
 
   function allowInnerScroll(target){
     if(!target || !target.closest) return false;
-    var panel = target.closest('.app-alert-card,.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
+    var panel = target.closest('.app-alert-card,#settingsSuiteModal.show,#settingsSuiteModal[open],.settings-suite-dialog.show,.settings-suite-dialog[open],.gnb-management-dialog.show,.gnb-management-dialog[open],.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
     if(!panel) return false;
     var node = target;
     while(node && node !== panel.parentElement){
@@ -420,6 +420,12 @@
     '.auth-bottom-sheet.show','.auth-bottom-sheet.is-open','.account-recovery-sheet.show','.account-recovery-sheet.is-open',
     '.admin-modal.show','.admin-modal.is-open','.admin-dialog.show','.admin-dialog.is-open',
     '.modal.show','.modal.is-open','.modal-overlay.show','.modal-overlay.is-open',
+    '#settingsSuiteModal.show','#settingsSuiteModal[open]',
+    '.settings-suite-dialog.show','.settings-suite-dialog[open]',
+    '.gnb-management-dialog.show','.gnb-management-dialog[open]',
+    '.upick-div-modal.show','.upick-div-modal[open]',
+    '.upick-div-dialog.show','.upick-div-dialog[open]',
+    '.du-layer.show','.du-layer[open]',
     '#gnbSheet.show','.gnb-sheet.show'
   ];
   var active = false;
@@ -460,10 +466,21 @@
   ['click','pointerdown','transitionend','animationend','keyup'].forEach(function(type){
     document.addEventListener(type, requestSync, true);
   });
+  document.addEventListener('upick:layer-opened', requestSync, true);
+  document.addEventListener('upick:layer-closed', requestSync, true);
   if(window.MutationObserver){
     // 전체 DOM subtree 감시는 공개앱에서 비용이 커서 body/html의 class 변경 중심으로만 감지합니다.
     new MutationObserver(requestSync).observe(document.body || document.documentElement, {attributes:true, attributeFilter:['class','style','open','hidden']});
     new MutationObserver(requestSync).observe(document.documentElement, {attributes:true, attributeFilter:['class','style']});
+    var bindLayerObservers = function(){
+      document.querySelectorAll('#settingsSuiteModal,#accountEditModal,#passwordChangeModal,#detailModal,#noticeModal,#calendarDayModal,#calendarReservationModal,#qrModal,#communityEditorModal,#communityDetailModal,#communityReportModal,#appAlert,.app-alert,.sheet-modal,.du-layer').forEach(function(el){
+        if(!el || el.__upickLayerLockObserved) return;
+        el.__upickLayerLockObserved = '1';
+        new MutationObserver(requestSync).observe(el,{attributes:true,attributeFilter:['class','open','aria-hidden','style','hidden']});
+      });
+    };
+    bindLayerObservers();
+    new MutationObserver(bindLayerObservers).observe(document.body || document.documentElement,{childList:true,subtree:true});
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', requestSync, {once:true});
   else requestSync();
