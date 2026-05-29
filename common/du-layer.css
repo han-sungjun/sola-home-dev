@@ -456,3 +456,44 @@
     border-radius:17px !important;
   }
 }
+
+/* ===== v20260529-du-layer-phase3 =====
+   Header 실제 통합 3차: 동적 이미지 팝업(소식/혜택 사진)까지 du-layer header/body 규격으로 정리합니다. */
+.du-layer__header-main{
+  min-width:0;
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.du-layer__header-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+}
+.du-layer__header .du-layer__title{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.du-layer__footer{
+  flex:0 0 auto;
+  padding:14px 20px 18px;
+  border-top:1px solid rgba(226,232,240,.72);
+  background:linear-gradient(180deg, rgba(255,255,255,.86), rgba(248,251,255,.96));
+}
+.du-layer--fullscreen .du-layer__panel{
+  display:flex;
+  flex-direction:column;
+}
+/* 이미지 계열 중 AI만 헤더 선 제거, 소식/혜택 이미지는 선 유지 */
+#aiImageZoomBackdrop .du-layer__header{ border-bottom:0 !important; }
+.news-image-preview-overlay .du-layer__header,
+.benefit-image-preview-overlay .du-layer__header{ border-bottom:1px solid rgba(226,232,240,.95) !important; }
+/* dialog 내부 클릭만 허용하고 바깥 클릭은 시각적 변화 없이 무시 */
+.news-image-preview-overlay.du-layer,
+.benefit-image-preview-overlay.du-layer{ touch-action:auto; }
+.news-image-preview-dialog.du-layer__panel,
+.benefit-image-preview-dialog.du-layer__panel{ isolation:isolate; }

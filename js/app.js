@@ -3957,11 +3957,14 @@ function openNewsImagePreview(src='', title='소식 이미지'){
  if(!overlay){
    overlay = document.createElement('div');
    overlay.id = 'newsImagePreviewOverlay';
-   overlay.className = 'news-image-preview-overlay upick-image-fade-layer';
+   overlay.className = 'news-image-preview-overlay upick-image-fade-layer du-layer du-layer--modal';
    overlay.setAttribute('role','dialog');
    overlay.setAttribute('aria-modal','true');
    overlay.setAttribute('aria-hidden','true');
-   overlay.innerHTML = `<div class="news-image-preview-dialog" role="document" aria-label="소식 이미지 확대"><div class="news-image-preview-head"><div class="news-image-preview-title">소식 이미지</div><button type="button" class="news-image-preview-close" aria-label="닫기">×</button></div><div class="news-image-preview-body"><img alt=""></div></div>`;
+   overlay.setAttribute('data-du-layer','modal');
+   overlay.setAttribute('data-du-close-on-backdrop','false');
+   overlay.setAttribute('data-du-close-on-esc','false');
+   overlay.innerHTML = `<div class="news-image-preview-dialog du-layer__panel" data-du-layer-panel role="document" aria-label="소식 이미지 확대"><div class="news-image-preview-head du-layer__header" data-du-layer-header><div class="du-layer__header-main"><div class="news-image-preview-title du-layer__title">소식 이미지</div></div><div class="du-layer__header-actions"><button type="button" class="news-image-preview-close du-layer__close" data-du-layer-close aria-label="닫기">×</button></div></div><div class="news-image-preview-body du-layer__body" data-du-layer-body><img alt=""></div></div>`;
    document.body.appendChild(overlay);
    const closePreview = () => {
      if(overlay.dataset.upickImageClosing === '1') return;
@@ -3978,7 +3981,7 @@ function openNewsImagePreview(src='', title='소식 이미지'){
      }, 320);
    };
    overlay.addEventListener('click', (event) => {
-     if(event.target === overlay || event.target.closest('.news-image-preview-close')) closePreview();
+     if(event.target.closest('.news-image-preview-close,[data-du-layer-close]')) closePreview();
    });
    
  }
@@ -8479,12 +8482,15 @@ function openCalendarReservationModal(item={}){
  overlay = null;
  if(!overlay){
    overlay = document.createElement('div');
-   overlay.className = 'benefit-image-preview-overlay upick-image-fade-layer';
+   overlay.className = 'benefit-image-preview-overlay upick-image-fade-layer du-layer du-layer--fullscreen';
    overlay.setAttribute('role', 'dialog');
    overlay.setAttribute('aria-modal', 'true');
    overlay.setAttribute('aria-label', '혜택 사진 확대');
    overlay.setAttribute('aria-hidden', 'true');
-   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="document"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
+   overlay.setAttribute('data-du-layer', 'fullscreen');
+   overlay.setAttribute('data-du-close-on-backdrop', 'false');
+   overlay.setAttribute('data-du-close-on-esc', 'false');
+   overlay.innerHTML = `<div class="benefit-image-preview-dialog du-layer__panel" data-du-layer-panel role="document"><div class="benefit-image-preview-head du-layer__header" data-du-layer-header><div class="du-layer__header-main"><strong class="du-layer__title"></strong></div><div class="du-layer__header-actions"><button type="button" class="benefit-image-preview-close du-layer__close" data-du-layer-close aria-label="닫기">×</button></div></div><div class="benefit-image-preview-body du-layer__body" data-du-layer-body><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
    document.body.appendChild(overlay);
  }else if(overlay.parentElement !== document.body){
    document.body.appendChild(overlay);
@@ -8507,17 +8513,12 @@ function openCalendarReservationModal(item={}){
    const topLineH = 4;
    const indexSafeH = images.length > 1 ? (isMobile ? 32 : 34) : 0;
 
-   // v20260529: 혜택 상세 이미지 확대는 사진 비율에 맞춰 본문 높이를 재계산합니다.
-   // 기존처럼 팝업 전체 높이를 고정하면 가로 사진에서 위/아래 여백이 크게 생겨 보입니다.
+   // v20260529 phase3: 혜택 상세 이미지 확대는 스와이프 안정성을 위해 높이를 고정합니다.
+   // 사진 비율별로 팝업 높이가 달라지면 좌우 스와이프/페이지 인디케이터 위치가 흔들립니다.
    const fixedW = Math.min(920, vw - outerPad);
-   const activeImg = overlay?.querySelector?.('.benefit-image-preview-slide.active img');
-   const naturalW = Number(activeImg?.naturalWidth || 0);
-   const naturalH = Number(activeImg?.naturalHeight || 0);
-   const maxImageH = Math.max(220, vh - outerPad - headH - topLineH - indexSafeH);
-   const ratioImageH = naturalW > 0 && naturalH > 0 ? (fixedW * naturalH / naturalW) : maxImageH;
-   const imageH = Math.max(220, Math.min(maxImageH, ratioImageH));
-   const fixedBodyH = Math.round(imageH + indexSafeH);
-   const fixedDialogH = Math.round(headH + topLineH + fixedBodyH);
+   const fixedDialogH = Math.round(Math.min(vh - outerPad, isMobile ? vh - 24 : vh * 0.92));
+   const fixedBodyH = Math.max(260, fixedDialogH - headH - topLineH);
+   const imageH = fixedBodyH;
 
    dialog.style.setProperty('--benefit-preview-w', `${Math.round(fixedW)}px`);
    dialog.style.setProperty('--benefit-preview-dialog-h', `${fixedDialogH}px`);
@@ -8617,12 +8618,11 @@ function openCalendarReservationModal(item={}){
  };
  overlay.oncancel = (event) => {
    event.preventDefault();
-   close();
  };
  overlay.onkeydown = (event) => {
    if(event.key === 'Escape'){
      event.preventDefault();
-     close();
+     event.stopPropagation();
      return;
    }
    if(images.length > 1 && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')){
