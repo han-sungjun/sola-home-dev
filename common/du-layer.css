@@ -189,3 +189,62 @@
     border-radius:17px;
   }
 }
+
+/* v20260529-header-markup: 실제 헤더 마크업 공통화 보정 */
+.du-layer__header-main{
+  min-width:0;
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:6px;
+}
+.du-layer__header-main--calendar{
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.du-layer__header-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  min-width:0;
+}
+.du-layer__header-actions .detail-head-actions{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.du-layer__header-actions .detail-head-actions[hidden]{
+  display:none!important;
+}
+.du-layer__header .du-layer__badge,
+.du-layer__header .pill,
+.du-layer__header .gnb-management-kicker{
+  margin:0;
+}
+.du-layer__header .du-layer__close,
+.du-layer__header .close-btn,
+.du-layer__header .gnb-management-close,
+.du-layer__header .sheet-close,
+.du-layer__header .calendar-day-modal-close{
+  margin-left:0;
+}
+.du-layer > .upick-div-dialog-panel{
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(88dvh, 760px);
+}
+#qrModal.du-layer > .upick-div-dialog-panel{
+  width:min(540px, calc(100vw - 28px));
+}
+#calendarDayModal.du-layer > .upick-div-dialog-panel{
+  width:min(560px, calc(100vw - 28px));
+}
+@media(max-width:640px){
+  .du-layer__header-main--calendar{gap:8px;}
+  .du-layer__header-actions{gap:8px;}
+}
