@@ -867,3 +867,28 @@
   .du-detail-layout{gap:14px;}
   .du-detail-section-stack{gap:10px;}
 }
+
+
+/* v20260529-phase8 scroll/body tune */
+.du-layer .du-layer__body,
+.du-layer .modal-body,
+.du-layer .calendar-day-modal-body,
+.du-layer .calendar-day-modal-list{
+  min-height:0 !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+}
+#detailModal.du-layer .du-layer__body,
+#detailModal.du-layer .modal-body,
+#noticeModal.du-layer .du-layer__body,
+#noticeModal.du-layer .modal-body,
+#calendarDayModal.du-layer .calendar-day-modal-list,
+#calendarReservationModal.du-layer .du-layer__body,
+#calendarReservationModal.du-layer .modal-body{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock{
+  overscroll-behavior:none !important;
+}

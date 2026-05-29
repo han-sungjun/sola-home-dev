@@ -130,8 +130,9 @@
 
   function allowInnerScroll(target){
     if(!target || !target.closest) return false;
-    var panel = target.closest('.app-alert-card,#settingsSuiteModal.show,#settingsSuiteModal[open],.settings-suite-dialog.show,.settings-suite-dialog[open],.gnb-management-dialog.show,.gnb-management-dialog[open],.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
+    var panel = target.closest('.app-alert-card,.du-layer.show,.du-layer[open],.du-layer[aria-hidden="false"],.upick-div-modal.show,.upick-div-modal[open],.upick-div-modal[aria-hidden="false"],.upick-div-dialog.show,.upick-div-dialog[open],.upick-div-dialog[aria-hidden="false"],#settingsSuiteModal.show,#settingsSuiteModal[open],.settings-suite-dialog.show,.settings-suite-dialog[open],.gnb-management-dialog.show,.gnb-management-dialog[open],.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
     if(!panel) return false;
+    if(target.closest('.du-layer__body,.du-layer__panel,.modal-body,.calendar-day-modal-list,.calendar-day-modal-body,.upick-div-modal-panel,.upick-div-dialog-panel')) return true;
     var node = target;
     while(node && node !== panel.parentElement){
       if(isScrollable(node)) return true;

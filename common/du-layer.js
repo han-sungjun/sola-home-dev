@@ -196,3 +196,99 @@
   else init();
   window.addEventListener('load', init, {once:true});
 })();
+
+
+/* v20260529-phase8-stack-manager: du-layer 중첩 팝업 스크롤 락 안정화 */
+(function(){
+  'use strict';
+  if(window.DuLayerStackManager && window.DuLayerStackManager.__phase8) return;
+
+  var OPEN_SELECTORS = [
+    '.du-layer.show', '.du-layer[open]', '.du-layer[aria-hidden="false"]',
+    '.upick-div-modal.show', '.upick-div-modal[open]', '.upick-div-modal[aria-hidden="false"]',
+    '.upick-div-dialog.show', '.upick-div-dialog[open]', '.upick-div-dialog[aria-hidden="false"]',
+    '.common-modal-overlay.show', '.common-modal-overlay.is-open', '.common-modal-overlay[open]',
+    '#settingsSuiteModal.show', '#settingsSuiteModal[open]',
+    '#detailModal[open]', '#noticeModal[open]', '#calendarDayModal[open]', '#calendarReservationModal[open]',
+    '#qrModal[open]', '#accountEditModal[open]', '#passwordChangeModal[open]',
+    '.sheet-modal.show', '.sheet-modal.is-open', '.account-recovery-sheet.show', '.account-recovery-sheet.is-open',
+    '.app-alert.show'
+  ];
+
+  function isRealOpen(el){
+    if(!el || el.hidden) return false;
+    if(el.getAttribute('aria-hidden') === 'true') return false;
+    if(el.classList && (el.classList.contains('is-closing') || el.classList.contains('upick-motion-closing'))) return false;
+    var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+    if(style && (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0 && !el.classList.contains('show'))) return false;
+    return !!(el.offsetWidth || el.offsetHeight || (el.getClientRects && el.getClientRects().length));
+  }
+
+  function getOpenLayers(){
+    var found = [];
+    OPEN_SELECTORS.forEach(function(selector){
+      document.querySelectorAll(selector).forEach(function(el){
+        if(found.indexOf(el) < 0 && isRealOpen(el)) found.push(el);
+      });
+    });
+    return found;
+  }
+
+  function hasOpenLayer(){ return getOpenLayers().length > 0; }
+
+  function sync(){
+    var active = hasOpenLayer();
+    document.documentElement.classList.toggle('upick-layer-scroll-lock', active);
+    document.body.classList.toggle('upick-layer-scroll-lock', active);
+    if(window.__upickHardScrollFreeze && typeof window.__upickHardScrollFreeze.sync === 'function'){
+      window.__upickHardScrollFreeze.sync('layer', active);
+    }
+  }
+
+  var scheduled = false;
+  function requestSync(){
+    if(scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(function(){ scheduled = false; sync(); });
+  }
+
+  window.DuLayerStackManager = {
+    __phase8:true,
+    sync:sync,
+    requestSync:requestSync,
+    getOpenLayers:getOpenLayers,
+    hasOpenLayer:hasOpenLayer,
+    forceUnlock:function(){
+      document.documentElement.classList.remove('upick-layer-scroll-lock');
+      document.body.classList.remove('upick-layer-scroll-lock');
+      if(window.__upickHardScrollFreeze && typeof window.__upickHardScrollFreeze.forceUnlock === 'function'){
+        window.__upickHardScrollFreeze.forceUnlock();
+      }
+    }
+  };
+
+  window.__upickSyncModalScrollLock = requestSync;
+
+  ['click','pointerdown','transitionend','animationend','keyup','close','toggle'].forEach(function(type){
+    document.addEventListener(type, requestSync, true);
+  });
+  document.addEventListener('upick:layer-opened', requestSync, true);
+  document.addEventListener('upick:layer-closed', requestSync, true);
+  document.addEventListener('upick:alert-opened', requestSync, true);
+
+  if(window.MutationObserver){
+    var observeOne = function(el){
+      if(!el || el.__duPhase8Observed) return;
+      el.__duPhase8Observed = '1';
+      new MutationObserver(requestSync).observe(el, { attributes:true, attributeFilter:['class','open','aria-hidden','style','hidden'] });
+    };
+    var bind = function(){
+      document.querySelectorAll(OPEN_SELECTORS.join(',')).forEach(observeOne);
+    };
+    bind();
+    new MutationObserver(bind).observe(document.body || document.documentElement, { childList:true, subtree:true });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', requestSync, {once:true});
+  else requestSync();
+})();
