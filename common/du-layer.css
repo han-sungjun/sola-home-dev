@@ -1,0 +1,191 @@
+/* 더운정픽 공통 레이어 DOM 정리 v20260529
+   - 기존 팝업 DOM을 무리하게 교체하지 않고 du-layer 규격 클래스를 함께 부여합니다.
+   - 최종 목표: sheet / modal / fullscreen 3종 레이어 + header/body/footer 슬롯 통일
+*/
+:root{
+  --du-layer-backdrop: rgba(15,23,42,.52);
+  --du-layer-radius: 28px;
+  --du-layer-radius-sheet: 30px 30px 0 0;
+  --du-layer-line: rgba(148,163,184,.26);
+  --du-layer-text: #0f172a;
+  --du-layer-muted: #64748b;
+  --du-layer-panel-bg: rgba(255,255,255,.96);
+  --du-layer-shadow: 0 28px 80px rgba(15,23,42,.30);
+  --du-layer-z-sheet: 50000;
+  --du-layer-z-modal: 50100;
+  --du-layer-z-fullscreen: 50200;
+}
+
+.du-layer{
+  --du-layer-z: var(--du-layer-z-modal);
+  position: fixed;
+  inset: 0;
+  z-index: var(--du-layer-z);
+  box-sizing: border-box;
+}
+.du-layer[aria-hidden="true"]{ pointer-events:none; }
+.du-layer[aria-hidden="false"],
+.du-layer.show,
+.du-layer.is-open,
+.du-layer.open{ pointer-events:auto; }
+
+.du-layer--sheet{ --du-layer-z: var(--du-layer-z-sheet); }
+.du-layer--modal{ --du-layer-z: var(--du-layer-z-modal); }
+.du-layer--fullscreen{ --du-layer-z: var(--du-layer-z-fullscreen); }
+
+.du-layer__backdrop,
+.du-layer .upick-div-modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: var(--du-layer-backdrop);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.du-layer__panel,
+.du-layer .upick-div-modal-panel,
+.du-layer .upick-div-dialog-panel,
+.du-layer .gnb-management-shell,
+.du-layer .sheet-panel,
+.du-layer .ai-image-zoom-card{
+  box-sizing: border-box;
+  background: var(--du-layer-panel-bg);
+  color: var(--du-layer-text);
+  box-shadow: var(--du-layer-shadow);
+  border: 1px solid rgba(191,219,254,.75);
+  overflow: hidden;
+}
+
+/* 공통 헤더 슬롯 */
+.du-layer__header,
+.du-layer .modal-head,
+.du-layer .gnb-management-head,
+.du-layer .sheet-head{
+  box-sizing: border-box;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid var(--du-layer-line);
+}
+.du-layer .modal-head,
+.du-layer .gnb-management-head{
+  padding:20px 22px 16px;
+}
+.du-layer .sheet-head{
+  padding: 0 0 16px;
+  border-bottom:0;
+}
+
+.du-layer__title,
+.du-layer .gnb-management-head h3,
+.du-layer .sheet-title{
+  margin: 8px 0 0;
+  color: var(--du-layer-text);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+}
+.du-layer__subtitle,
+.du-layer .gnb-management-head p,
+.du-layer .sheet-desc{
+  margin: 8px 0 0;
+  color: var(--du-layer-muted);
+  font-weight: 750;
+  line-height: 1.55;
+  letter-spacing: -0.03em;
+}
+.du-layer__badge,
+.du-layer .pill,
+.du-layer .gnb-management-kicker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:100%;
+  min-height:38px;
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid rgba(147,197,253,.75);
+  background:rgba(248,251,255,.95);
+  color:#334155;
+  font-weight:850;
+  letter-spacing:-.03em;
+  box-shadow:0 10px 22px rgba(15,23,42,.06);
+}
+.du-layer .gnb-management-kicker{
+  min-height:28px;
+  padding:5px 11px;
+  color:#2563eb;
+  background:rgba(219,234,254,.85);
+  border-color:rgba(191,219,254,.8);
+  box-shadow:none;
+}
+
+.du-layer__close,
+.du-layer .close-btn,
+.du-layer .gnb-management-close,
+.du-layer .sheet-close,
+.du-layer .ai-image-zoom-close{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  border:1px solid rgba(191,219,254,.72);
+  background:rgba(248,251,255,.94);
+  color:#0f172a;
+  font-size:24px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:0 14px 34px rgba(15,23,42,.08);
+}
+
+.du-layer__body,
+.du-layer .modal-body,
+.du-layer .gnb-management-body,
+.du-layer .sheet-body{
+  box-sizing:border-box;
+  min-height:0;
+  -webkit-overflow-scrolling:touch;
+}
+
+.du-layer--modal .du-layer__panel,
+.du-layer--modal .upick-div-modal-panel,
+.du-layer--modal .upick-div-dialog-panel,
+.du-layer--modal .gnb-management-shell{
+  border-radius: var(--du-layer-radius);
+}
+.du-layer--sheet .du-layer__panel,
+.du-layer--sheet .sheet-panel{
+  border-radius: var(--du-layer-radius-sheet);
+}
+.du-layer--fullscreen .du-layer__panel,
+.du-layer--fullscreen .ai-image-zoom-card{
+  border-radius: 0;
+  width:100%;
+  height:100%;
+}
+
+/* 기존 계정 찾기 바텀시트에 공통 규격 표시만 추가 */
+#accountHelpModal.du-layer--sheet .sheet-panel{
+  max-height:min(86dvh, 760px);
+}
+
+@media (max-width: 640px){
+  .du-layer .modal-head,
+  .du-layer .gnb-management-head{
+    padding:18px 18px 14px;
+  }
+  .du-layer__close,
+  .du-layer .close-btn,
+  .du-layer .gnb-management-close,
+  .du-layer .sheet-close,
+  .du-layer .ai-image-zoom-close{
+    width:50px;
+    height:50px;
+    border-radius:17px;
+  }
+}
