@@ -43,7 +43,7 @@
     if(!alertEl){
       alertEl = document.createElement('div');
       alertEl.id = 'appAlert';
-      alertEl.className = 'app-alert';
+      alertEl.className = 'app-alert du-layer du-layer--modal';
       alertEl.setAttribute('aria-hidden','true');
       alertEl.innerHTML = ''+
         '<div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">'+
@@ -67,6 +67,19 @@
     confirmBtn = qs('#appAlertConfirm', alertEl) || qs('#appAlertConfirm');
     cancelBtn = qs('#appAlertCancel', alertEl) || qs('#appAlertCancel');
     actionsEl = qs('.app-alert-actions', alertEl);
+
+    alertEl.classList.add('du-layer','du-layer--modal');
+    alertEl.setAttribute('data-du-layer','modal');
+    alertEl.setAttribute('data-close-on-backdrop','false');
+    alertEl.setAttribute('data-du-close-on-backdrop','false');
+    alertEl.setAttribute('data-du-close-on-esc','false');
+    var cardEl = qs('.app-alert-card', alertEl);
+    if(cardEl){ cardEl.classList.add('du-layer__panel'); cardEl.setAttribute('data-du-layer-panel',''); }
+    var headEl = qs('.app-alert-head', alertEl);
+    if(headEl){ headEl.classList.add('du-layer__header'); headEl.setAttribute('data-du-layer-header',''); }
+    if(messageEl){ messageEl.classList.add('du-layer__body'); messageEl.setAttribute('data-du-layer-body',''); }
+    if(actionsEl){ actionsEl.classList.add('du-layer__footer'); actionsEl.setAttribute('data-du-layer-footer',''); }
+    if(titleEl){ titleEl.classList.add('du-layer__title'); }
 
     if(actionsEl && !cancelBtn){
       cancelBtn = document.createElement('button');
@@ -223,7 +236,7 @@
     if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
       return window.UpickMotion.open(alertEl, {
         activeClass:'show', panel:getAlertPanel(), duration:ALERT_OPEN_DURATION,
-        beforeOpen:function(){ openNativeDialogIfNeeded(); setOpenLock(true); },
+        beforeOpen:function(){ openNativeDialogIfNeeded(); setOpenLock(true); try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){} },
         afterOpen:focusConfirm
       });
     }
@@ -231,6 +244,7 @@
     alertEl.setAttribute('aria-hidden','false');
     openNativeDialogIfNeeded();
     setOpenLock(true);
+    try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){}
     focusConfirm();
     return Promise.resolve(true);
   }
@@ -351,8 +365,7 @@
       event.preventDefault();
       event.stopPropagation();
       if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-      if(cancelBtn && !cancelBtn.classList.contains('hidden')) cancelBtn.click();
-      else if(confirmBtn) confirmBtn.click();
+      return false;
     }
   }, true);
 

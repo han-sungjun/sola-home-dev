@@ -497,3 +497,90 @@
 .benefit-image-preview-overlay.du-layer{ touch-action:auto; }
 .news-image-preview-dialog.du-layer__panel,
 .benefit-image-preview-dialog.du-layer__panel{ isolation:isolate; }
+
+/* v20260529-phase4: 알럿/컨펌, CommonModal, 작은 액션 팝업까지 du-layer 슬롯에 편입 */
+#appAlert.du-layer{
+  --du-layer-z:2147483600;
+}
+#appAlert.du-layer .app-alert-card.du-layer__panel{
+  width:min(100%,380px) !important;
+  max-height:calc(100dvh - 48px) !important;
+}
+#appAlert.du-layer .app-alert-head.du-layer__header{
+  padding:0 !important;
+  min-height:auto !important;
+  border-bottom:0 !important;
+  background:transparent !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+}
+#appAlert.du-layer .app-alert-message.du-layer__body{
+  padding:0 !important;
+  overflow:visible !important;
+}
+#appAlert.du-layer .app-alert-actions.du-layer__footer{
+  margin-top:22px !important;
+  padding:0 !important;
+  border-top:0 !important;
+  background:transparent !important;
+}
+
+.common-modal-overlay.du-layer{
+  --du-layer-z:var(--du-layer-z-modal);
+  display:grid !important;
+  place-items:center !important;
+}
+.common-modal-overlay.du-layer .common-modal-stage.du-layer__panel{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+.common-modal-overlay.du-layer .gnb-management-head.du-layer__header,
+.common-modal-overlay.du-layer .modal-head.du-layer__header{
+  border-bottom:1px solid rgba(226,232,240,.74) !important;
+}
+
+/* 작은 액션형 팝업 footer 버튼 배열 통일 */
+.du-layer__footer,
+.du-layer .calendar-form-actions,
+.du-layer .calendar-day-modal-footer,
+.du-layer .community-report-actions,
+.du-layer .account-edit-actions,
+.du-layer .password-change-actions,
+.du-layer .qr-modal-footer,
+.du-layer .modal-actions,
+.du-layer .sheet-actions{
+  box-sizing:border-box;
+}
+.du-layer .community-report-actions,
+.du-layer .account-edit-actions,
+.du-layer .password-change-actions,
+.du-layer .qr-modal-footer{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:stretch;
+}
+.du-layer .community-report-actions > *,
+.du-layer .account-edit-actions > *,
+.du-layer .password-change-actions > *,
+.du-layer .qr-modal-footer > *{
+  flex:1 1 0;
+}
+
+/* 바텀시트 계열은 공통 핸들/헤더 여백 유지 */
+.du-layer--sheet .du-layer__panel{
+  border-radius:var(--du-layer-radius-sheet) !important;
+}
+.du-layer--sheet .du-layer__header{
+  border-bottom:0 !important;
+}
+
+/* ESC/바깥 클릭 비활성 정책을 시각적으로도 일관 유지 */
+.du-layer[data-du-close-on-backdrop="false"] .du-layer__backdrop,
+.du-layer[data-close-on-backdrop="false"] .du-layer__backdrop{
+  cursor:default;
+}

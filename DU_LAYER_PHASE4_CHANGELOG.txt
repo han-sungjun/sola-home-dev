@@ -1,0 +1,23 @@
+더운정픽 du-layer 통합 4차 변경 사항
+
+1. 알럿/컨펌 팝업 통합
+- #appAlert에 du-layer du-layer--modal 규격 부여
+- app-alert-card/head/message/actions를 panel/header/body/footer 슬롯으로 연결
+- 바깥 클릭 닫힘 금지 유지
+- ESC 키로 알럿/컨펌이 닫히지 않도록 보정
+
+2. CommonModal 동적 팝업 통합
+- CommonModal.open()으로 생성되는 overlay/stage에 du-layer 규격 부여
+- 동적 모달도 data-close-on-backdrop=false 정책 적용
+- CommonModal 열림 시 DuLayerAdapter 재동기화 이벤트 발생
+
+3. 작은 액션 팝업 footer 정리
+- QR / 신고 / 계정 수정 / 비밀번호 변경 / 캘린더 액션 영역을 du-layer__footer 기준으로 보정
+- footer 버튼 배열/간격 통일 CSS 추가
+
+4. 바텀시트 계열 보강
+- gnbSheet를 du-layer--sheet 후보에 추가
+- sheet 계열 헤더/패널 라운드 기준 보강
+
+5. 캐시 버전 갱신
+- du-layer.css/js, common-alert.css/js, common-modal.css/js v=20260529-phase4 적용

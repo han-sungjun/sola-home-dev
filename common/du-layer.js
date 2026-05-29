@@ -1,4 +1,4 @@
-/* 더운정픽 공통 레이어 어댑터 v20260529-header-unify3
+/* 더운정픽 공통 레이어 어댑터 v20260529-phase4
    기존 팝업을 한 번에 갈아엎지 않고, sheet/modal/fullscreen 규격 속성과 클래스를 부여합니다.
    바깥 영역 클릭 닫힘은 여기서 기본 차단합니다. X/확인/취소 같은 명시 버튼은 그대로 동작합니다.
 */
@@ -7,6 +7,8 @@
 
   var LAYERS = [
     { id:'accountHelpModal', type:'sheet', panel:'.sheet-panel', header:'.sheet-head', body:'.sheet-body', close:'.sheet-close' },
+    { id:'gnbSheet', type:'sheet', panel:'.gnb-sheet-panel,.gnb-panel,.gnb-sheet-inner', header:'.gnb-sheet-head,.gnb-head', body:'.gnb-sheet-body,.gnb-body,.gnb-menu', close:'.gnb-close,#gnbCloseBtn,[data-close-gnb]' },
+    { id:'appAlert', type:'modal', panel:'.app-alert-card', header:'.app-alert-head', body:'.app-alert-message', close:null },
     { id:'settingsSuiteModal', type:'modal', panel:'.gnb-management-shell', header:'.gnb-management-head', body:'.gnb-management-body', close:'.gnb-management-close' },
     { id:'detailModal', type:'modal', panel:'.upick-div-modal-panel', header:'.modal-head', body:'.modal-body', close:'.close-btn' },
     { id:'noticeModal', type:'modal', panel:'.upick-div-modal-panel', header:'.modal-head', body:'.modal-body', close:'.close-btn' },
@@ -66,20 +68,43 @@
     addClass(close, 'du-layer__close');
     if(close) setAttr(close, 'data-du-layer-close', '');
 
-    var footer = layer.querySelector('.du-layer__footer,.calendar-form-actions,.calendar-day-modal-footer,.community-report-actions,.account-edit-actions,.qr-modal-footer');
+    var footer = layer.querySelector('.du-layer__footer,.calendar-form-actions,.calendar-day-modal-footer,.community-report-actions,.account-edit-actions,.password-change-actions,.qr-modal-footer,.app-alert-actions,.modal-actions,.sheet-actions');
     addClass(footer, 'du-layer__footer');
     if(footer) setAttr(footer, 'data-du-layer-footer', '');
 
     var pill = layer.querySelector('.pill,.gnb-management-kicker');
     addClass(pill, 'du-layer__badge');
-    var title = layer.querySelector('.gnb-management-head h3,.sheet-title');
+    var title = layer.querySelector('.gnb-management-head h3,.sheet-title,.app-alert-title,.modal-title,.dialog-title');
     addClass(title, 'du-layer__title');
-    var subtitle = layer.querySelector('.gnb-management-head p,.sheet-desc');
+    var subtitle = layer.querySelector('.gnb-management-head p,.sheet-desc,.app-alert-message,.modal-desc,.dialog-desc');
     addClass(subtitle, 'du-layer__subtitle');
   }
 
-  function init(){
+
+
+  function enhanceOpenLayers(){
     LAYERS.forEach(enhanceLayer);
+    document.querySelectorAll('.common-modal-overlay').forEach(function(layer){
+      addClass(layer, 'du-layer');
+      addClass(layer, 'du-layer--modal');
+      setAttr(layer, 'data-du-layer', 'modal');
+      setAttr(layer, 'data-du-close-on-backdrop', 'false');
+      setAttr(layer, 'data-close-on-backdrop', 'false');
+      setAttr(layer, 'data-du-close-on-esc', 'false');
+      var stage = layer.querySelector('.common-modal-stage');
+      addClass(stage, 'du-layer__panel');
+      setAttr(stage, 'data-du-layer-panel', '');
+      var header = layer.querySelector('.du-layer__header,.modal-head,.gnb-management-head');
+      addClass(header, 'du-layer__header');
+      var body = layer.querySelector('.du-layer__body,.modal-body,.gnb-management-body');
+      addClass(body, 'du-layer__body');
+      var footer = layer.querySelector('.du-layer__footer,.modal-actions,.gnb-management-actions');
+      addClass(footer, 'du-layer__footer');
+    });
+  }
+
+  function init(){
+    enhanceOpenLayers();
 
     // 바깥 클릭 닫힘 전면 금지: 패널/버튼 내부 클릭은 절대 막지 않습니다.
     document.addEventListener('click', function(e){
@@ -107,7 +132,9 @@
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
   else init();
 
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, layers:LAYERS.slice() };
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, layers:LAYERS.slice() };
+  document.addEventListener('upick:layer-opened', enhanceOpenLayers);
+  document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();
 
 /* v20260529-ai-image-close-guard: AI 이미지 확대는 X 버튼에서만 닫히도록 최종 방어 */
