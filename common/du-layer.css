@@ -892,3 +892,88 @@ html.upick-layer-scroll-lock,
 body.upick-layer-scroll-lock{
   overscroll-behavior:none !important;
 }
+
+
+/* ===== DU Layer Phase9: detail/notice share footer unification ===== */
+#detailModal .du-detail-footer,
+#noticeModal .du-detail-footer{
+  display:block !important;
+  width:100% !important;
+  margin:2px 0 0 !important;
+  padding:0 !important;
+  border-top:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  position:relative !important;
+  inset:auto !important;
+}
+#detailModal .du-detail-footer .notice-detail-actions,
+#noticeModal .du-detail-footer .notice-detail-actions,
+#detailModal .du-detail-footer .share-actions,
+#noticeModal .du-detail-footer .share-actions{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+  width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+  align-items:stretch !important;
+}
+#detailModal .du-detail-footer .notice-detail-actions > *,
+#noticeModal .du-detail-footer .notice-detail-actions > *,
+#detailModal .du-detail-footer .share-actions > *,
+#noticeModal .du-detail-footer .share-actions > *{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+#detailModal .du-detail-footer .btn,
+#noticeModal .du-detail-footer .btn,
+#detailModal .du-detail-footer button,
+#noticeModal .du-detail-footer button{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:48px !important;
+  min-height:48px !important;
+  padding:0 10px !important;
+  border-radius:16px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.035em !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+}
+#detailModal .du-detail-footer :is(img,svg,.upick-inline-icon),
+#noticeModal .du-detail-footer :is(img,svg,.upick-inline-icon){
+  width:16px !important;
+  height:16px !important;
+  flex:0 0 16px !important;
+  margin:0 !important;
+  display:block !important;
+}
+@media(max-width:420px){
+  #detailModal .du-detail-footer .notice-detail-actions,
+  #noticeModal .du-detail-footer .notice-detail-actions,
+  #detailModal .du-detail-footer .share-actions,
+  #noticeModal .du-detail-footer .share-actions{
+    gap:8px !important;
+  }
+  #detailModal .du-detail-footer .btn,
+  #noticeModal .du-detail-footer .btn,
+  #detailModal .du-detail-footer button,
+  #noticeModal .du-detail-footer button{
+    height:46px !important;
+    min-height:46px !important;
+    padding:0 6px !important;
+    font-size:12px !important;
+    gap:5px !important;
+  }
+}

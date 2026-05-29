@@ -13669,7 +13669,7 @@ async function loadGnbMenusFromDb(){
   }
   const day = new Date().getDay();
   if(day === 0 || day === 6){
-    setBanner('주말에 많이 찾는 혜택을 확인해보세요!', 'top5', '/icons/internal/gift.svg');
+    setBanner('주말에 많이 찾는 혜택을 확인해보세요!', 'top5', '/icons/internal/benefit.svg');
     return;
   }
   setBanner('입주민 혜택을 한 번에 찾아보세요!', 'all', '/icons/internal/user.svg');
