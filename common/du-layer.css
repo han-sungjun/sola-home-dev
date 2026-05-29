@@ -323,3 +323,16 @@
   .du-layer__footer > button,
   .du-layer .qr-modal-footer > button{flex:1 1 0; min-width:0;}
 }
+
+
+/* v20260529: AI 이미지 확대는 문서형 헤더 구분선 제거 */
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header,
+#aiImageZoomBackdrop.du-layer--fullscreen .du-layer__header{
+  border-bottom:0 !important;
+  box-shadow:none !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header::after,
+#aiImageZoomBackdrop.du-layer--fullscreen .du-layer__header::after{
+  content:none !important;
+  display:none !important;
+}

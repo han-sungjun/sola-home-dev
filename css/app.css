@@ -28872,3 +28872,46 @@ body > #accountEditModal.upick-div-modal.upick-motion-open,
 body > #passwordChangeModal.upick-div-modal.upick-motion-open{
   z-index:2147483560!important;
 }
+
+
+/* v20260529 혜택 상세 이미지 확대 팝업 비율 보정
+   - 소식 이미지/혜택 상세 이미지는 헤더 구분선을 유지
+   - 혜택 상세 이미지 확대는 사진 비율에 맞춰 body 높이를 줄여 위/아래 빈 여백을 최소화 */
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-head,
+.benefit-image-preview-overlay .benefit-image-preview-head,
+.news-image-preview-head{
+  border-bottom:1px solid rgba(226,232,240,.95) !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-body{
+  height:var(--benefit-preview-body-h, auto) !important;
+  max-height:calc(100dvh - 82px) !important;
+  padding:0 !important;
+  background:#fff !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-track,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame{
+  height:var(--benefit-preview-h, 100%) !important;
+  background:#fff !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame img,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  background:#fff !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-count{
+  left:14px !important;
+  right:auto !important;
+  bottom:14px !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-dots{
+  bottom:18px !important;
+}
+/* AI 이미지 확대만 구분선을 제거 */
+.ai-image-zoom-backdrop .ai-image-zoom-title,
+.ai-image-zoom-backdrop .ai-image-zoom-head,
+#aiImageZoomBackdrop .du-layer__header{
+  border-bottom:0 !important;
+}

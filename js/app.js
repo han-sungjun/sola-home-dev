@@ -8507,16 +8507,22 @@ function openCalendarReservationModal(item={}){
    const topLineH = 4;
    const indexSafeH = images.length > 1 ? (isMobile ? 32 : 34) : 0;
 
-   // v20260523: 사진마다 팝업 크기가 바뀌지 않도록 전체 팝업 프레임을 고정합니다.
-   // 이미지는 고정된 body 안에서 object-fit: contain으로 비율에 맞춰 표시됩니다.
+   // v20260529: 혜택 상세 이미지 확대는 사진 비율에 맞춰 본문 높이를 재계산합니다.
+   // 기존처럼 팝업 전체 높이를 고정하면 가로 사진에서 위/아래 여백이 크게 생겨 보입니다.
    const fixedW = Math.min(920, vw - outerPad);
-   const fixedDialogH = Math.max(360, vh - outerPad);
-   const fixedBodyH = Math.max(260, fixedDialogH - headH - topLineH);
+   const activeImg = overlay?.querySelector?.('.benefit-image-preview-slide.active img');
+   const naturalW = Number(activeImg?.naturalWidth || 0);
+   const naturalH = Number(activeImg?.naturalHeight || 0);
+   const maxImageH = Math.max(220, vh - outerPad - headH - topLineH - indexSafeH);
+   const ratioImageH = naturalW > 0 && naturalH > 0 ? (fixedW * naturalH / naturalW) : maxImageH;
+   const imageH = Math.max(220, Math.min(maxImageH, ratioImageH));
+   const fixedBodyH = Math.round(imageH + indexSafeH);
+   const fixedDialogH = Math.round(headH + topLineH + fixedBodyH);
 
    dialog.style.setProperty('--benefit-preview-w', `${Math.round(fixedW)}px`);
-   dialog.style.setProperty('--benefit-preview-dialog-h', `${Math.round(fixedDialogH)}px`);
-   dialog.style.setProperty('--benefit-preview-h', `${Math.round(fixedBodyH - indexSafeH)}px`);
-   dialog.style.setProperty('--benefit-preview-body-h', `${Math.round(fixedBodyH)}px`);
+   dialog.style.setProperty('--benefit-preview-dialog-h', `${fixedDialogH}px`);
+   dialog.style.setProperty('--benefit-preview-h', `${Math.round(imageH)}px`);
+   dialog.style.setProperty('--benefit-preview-body-h', `${fixedBodyH}px`);
    resetTrack(false);
  };
  const render = (animate = true) => {
