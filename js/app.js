@@ -6201,6 +6201,67 @@ function shareActionsHtml(prefix){
  `;
  }
 
+
+function duDetailFooterHtml(inner = ''){
+ return `<div class="du-layer__footer du-detail-footer" data-du-layer-footer="">${inner || ''}</div>`;
+}
+
+function duDetailSectionHtml(className = '', inner = ''){
+ const safeClass = String(className || '').trim();
+ return `<section class="du-detail-section${safeClass ? ' ' + safeClass : ''}">${inner || ''}</section>`;
+}
+
+function renderNoticeDetailBody(item = {}){
+ const dateText = formatDateTime(item.updatedAt || item.createdAt);
+ return `
+ <article class="notice-detail-wrap du-detail-layout du-notice-detail-layout">
+   <section class="du-detail-summary du-notice-summary">
+     <div class="notice-detail-meta du-detail-meta">
+       ${item.pinned ? '<span class="notice-badge pin">중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
+       <span class="notice-badge">${escapeHtml(item.category || '일반')}</span>
+       ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
+     </div>
+     <h3 class="notice-detail-title du-detail-title">${escapeHtml(item.title || '공지사항')}</h3>
+   </section>
+   ${duDetailSectionHtml('notice-detail-panel du-detail-card du-notice-content-card', `
+     <strong class="du-detail-card-title">공지 내용</strong>
+     <div class="notice-detail-content du-detail-text">${escapeHtml(item.content || '')}</div>
+   `)}
+   ${duDetailFooterHtml(`<div class="notice-detail-actions">${shareActionsHtml('notice')}</div>`)}
+ </article>
+ `;
+}
+
+function renderBenefitDetailBody(item = {}){
+ const mainPanels = `
+   ${duDetailSectionHtml('panel benefit-condition-panel du-detail-card', `<strong class="benefit-detail-panel-title du-detail-card-title">혜택 조건</strong><div class="benefit-detail-body-text du-detail-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div>`)}
+   ${benefitBusinessHoursPanelHtml(item)}
+   ${supportProgramsPanelHtml(item)}
+   ${naverReservationPanelHtml(item)}
+   ${couponLinksPanelHtml(item)}
+   ${newsItemsPanelHtml(item)}
+   ${benefitPriceDetailsHtml(item)}
+   ${locationPanelHtml(item)}
+   ${benefitExtraInfoHtml(item)}
+   ${duDetailSectionHtml('panel benefit-contact-panel du-detail-card', `<strong class="du-detail-card-title" style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}`)}
+   ${benefitDetailDateHtml(item)}
+ `;
+ return `
+ <article class="detail-wrap du-detail-layout du-benefit-detail-layout">
+   <section class="du-detail-summary du-benefit-summary">
+     ${benefitDetailHeroHtml(item)}
+   </section>
+   <div class="du-detail-section-stack benefit-detail-section-stack">
+     ${mainPanels}
+   </div>
+   <section class="du-detail-section du-reaction-section">
+     ${residentReactionHtml(item)}
+   </section>
+   ${duDetailFooterHtml(shareActionsHtml('benefit'))}
+ </article>
+ `;
+}
+
  function openNotice(item, options = {}){
  if(!item) return;
  const pageScrollY = getStablePageScrollY();
@@ -6209,24 +6270,7 @@ function shareActionsHtml(prefix){
 
  const modal = qs('#noticeModal');
  const body = qs('#noticeModalBody');
- const dateText = formatDateTime(item.updatedAt || item.createdAt);
- const noticeHtml = `
- <div class="notice-detail-wrap">
- <div>
- <div class="notice-detail-meta">
- ${item.pinned ? '<span class="notice-badge pin">중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
- <span class="notice-badge">${escapeHtml(item.category || '일반')}</span>
- ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
- </div>
- <h3 class="notice-detail-title">${escapeHtml(item.title || '공지사항')}</h3>
- </div>
- <div class="notice-detail-panel">
- <strong>공지 내용</strong>
- <div class="notice-detail-content">${escapeHtml(item.content || '')}</div>
- </div>
- <div class="notice-detail-actions">${shareActionsHtml('notice')}</div>
- </div>
- `;
+ const noticeHtml = renderNoticeDetailBody(item);
 
  // 공지 모달 DOM이 아직 없거나 렌더링에서 누락된 경우에도 앱이 멈추지 않도록 방어
  if(!modal || !body){
@@ -8727,7 +8771,7 @@ function openCalendarReservationModal(item={}){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${benefitBusinessHoursPanelHtml(item)}${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=renderBenefitDetailBody(item);
  const modal=qs('#detailModal');
  if(modal) modal.dataset.benefitId = String(item.id || '');
  if(isLayerOpenLike(modal)) closeDetailDialogPreservingPage(modal);

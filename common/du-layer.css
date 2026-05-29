@@ -789,3 +789,81 @@
   #calendarDayModal.du-layer .calendar-day-modal-body.du-layer__body{padding:12px 14px 10px;}
   #calendarDayModal.du-layer .calendar-day-modal-footer.du-layer__footer{padding:12px 14px 16px;}
 }
+
+/* ===== DU Layer phase7: benefit/notice body structure ===== */
+.du-detail-layout{
+  display:grid;
+  gap:16px;
+  width:100%;
+}
+.du-detail-summary{
+  min-width:0;
+}
+.du-detail-meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.du-detail-title{
+  margin:0;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.du-detail-section-stack{
+  display:grid;
+  gap:12px;
+  margin:0;
+}
+.du-detail-section{
+  min-width:0;
+}
+.du-detail-card{
+  box-sizing:border-box;
+  width:100%;
+}
+.du-detail-card-title{
+  display:block;
+  margin-bottom:8px;
+  font-size:13px;
+  color:var(--muted, #64748b);
+}
+.du-detail-text{
+  white-space:pre-wrap;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  line-height:1.72;
+}
+.du-detail-footer{
+  margin-top:2px;
+  padding-top:0;
+  border-top:0;
+}
+.du-benefit-detail-layout .du-detail-footer,
+.du-notice-detail-layout .du-detail-footer{
+  position:relative;
+  inset:auto;
+  width:100%;
+  background:transparent;
+  box-shadow:none;
+}
+.du-benefit-detail-layout .share-actions,
+.du-notice-detail-layout .share-actions{
+  margin:0;
+}
+.du-benefit-detail-layout .benefit-detail-section-stack > .panel,
+.du-benefit-detail-layout .benefit-detail-section-stack > .du-detail-section,
+.du-notice-detail-layout .du-detail-section{
+  min-width:0;
+}
+.du-reaction-section:empty{
+  display:none;
+}
+#detailModal .modal-body.du-layer__body,
+#noticeModal .modal-body.du-layer__body{
+  display:block;
+}
+@media (max-width: 640px){
+  .du-detail-layout{gap:14px;}
+  .du-detail-section-stack{gap:10px;}
+}
