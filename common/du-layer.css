@@ -682,3 +682,110 @@
     grid-template-columns:1fr!important;
   }
 }
+
+/* ===== v20260530-du-layer-phase6-calendar =====
+   방문 예약 일자 팝업 헤더/본문/푸터를 공통 레이어 규격으로 정리합니다. */
+#calendarDayModal.du-layer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+#calendarDayModal.du-layer > .du-layer__panel,
+#calendarDayModal.du-layer > .upick-div-dialog-panel{
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(92dvh, 820px);
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  border-radius:30px;
+}
+#calendarDayModal.du-layer .calendar-day-modal-head.du-layer__header{
+  flex:0 0 auto;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px;
+  padding:18px 20px 16px;
+  border-bottom:1px solid var(--du-layer-line);
+}
+#calendarDayModal.du-layer .du-layer__header-main--calendar{
+  flex:1 1 auto;
+  min-width:0;
+  display:grid !important;
+  grid-template-columns:46px minmax(0, 1fr) 46px;
+  align-items:center;
+  gap:10px;
+}
+#calendarDayModal.du-layer .du-layer__header-main--calendar .calendar-day-modal-arrow,
+#calendarDayModal.du-layer .du-layer__header-main--calendar .calendar-day-modal-date{
+  margin:0 !important;
+  align-self:center;
+}
+#calendarDayModal.du-layer .calendar-day-modal-arrow{
+  width:46px;
+  height:46px;
+  border-radius:16px;
+}
+#calendarDayModal.du-layer .calendar-day-modal-date{
+  width:100%;
+  min-width:0;
+  height:46px;
+  padding:0 12px;
+  border-radius:17px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#calendarDayModal.du-layer .du-layer__header-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+}
+#calendarDayModal.du-layer .calendar-day-modal-close.du-layer__close{
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  margin:0 !important;
+}
+#calendarDayModal.du-layer .calendar-day-modal-body.du-layer__body{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:14px 20px 12px;
+  overflow:hidden !important;
+}
+#calendarDayModal.du-layer .calendar-day-modal-list{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:2px 4px 10px 0;
+}
+#calendarDayModal.du-layer .calendar-day-modal-footer.du-layer__footer{
+  flex:0 0 auto;
+  display:grid !important;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:14px 20px 20px;
+  border-top:1px solid var(--du-layer-line);
+  background:linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.98));
+}
+#calendarDayModal.du-layer .calendar-day-modal-footer .btn{
+  min-height:48px;
+}
+@media(max-width:480px){
+  #calendarDayModal.du-layer{padding:10px;}
+  #calendarDayModal.du-layer .calendar-day-modal-head.du-layer__header{padding:16px 14px 14px;gap:8px;}
+  #calendarDayModal.du-layer .du-layer__header-main--calendar{grid-template-columns:42px minmax(0, 1fr) 42px;gap:8px;}
+  #calendarDayModal.du-layer .calendar-day-modal-arrow{width:42px;height:42px;border-radius:15px;}
+  #calendarDayModal.du-layer .calendar-day-modal-date{height:42px;font-size:14px;}
+  #calendarDayModal.du-layer .calendar-day-modal-close.du-layer__close{width:50px;height:50px;border-radius:17px;}
+  #calendarDayModal.du-layer .calendar-day-modal-body.du-layer__body{padding:12px 14px 10px;}
+  #calendarDayModal.du-layer .calendar-day-modal-footer.du-layer__footer{padding:12px 14px 16px;}
+}
