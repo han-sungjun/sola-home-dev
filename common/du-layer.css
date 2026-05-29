@@ -336,3 +336,123 @@
   content:none !important;
   display:none !important;
 }
+
+/* v20260529-ai-image-compact-guard: AI 이미지 확대 전용 최종 보정
+   - 기존 app.css의 fixed 전체화면 이미지 뷰어 스타일을 du-layer 구조 안에서는 해제합니다.
+   - 헤더 여백을 줄이고, 바깥 영역 클릭 닫힘은 JS guard와 함께 차단합니다. */
+#aiImageZoomBackdrop.du-layer--fullscreen{
+  display:none !important;
+  background:rgba(15,23,42,.66) !important;
+  backdrop-filter:blur(14px) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen.show{
+  display:flex !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+  position:relative !important;
+  gap:0 !important;
+  padding:0 !important;
+  background:rgba(255,255,255,.98) !important;
+  border:1px solid rgba(191,219,254,.72) !important;
+  box-shadow:0 30px 80px rgba(15,23,42,.38) !important;
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header{
+  position:relative !important;
+  flex:0 0 64px !important;
+  min-height:64px !important;
+  height:64px !important;
+  padding:0 12px 0 22px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  background:rgba(255,255,255,.98) !important;
+  border-bottom:0 !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-title.du-layer__title,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-title{
+  position:static !important;
+  inset:auto !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  z-index:auto !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  color:#0f172a !important;
+  font-size:clamp(17px, 2vw, 21px) !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close.du-layer__close,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close{
+  position:static !important;
+  inset:auto !important;
+  top:auto !important;
+  right:auto !important;
+  z-index:auto !important;
+  flex:0 0 54px !important;
+  width:54px !important;
+  height:54px !important;
+  border-radius:18px !important;
+  border:1px solid rgba(191,219,254,.72) !important;
+  background:rgba(248,251,255,.96) !important;
+  color:#0f172a !important;
+  font-size:30px !important;
+  box-shadow:0 14px 34px rgba(15,23,42,.08) !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  position:relative !important;
+  inset:auto !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:auto !important;
+  padding:14px 16px 18px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:rgba(248,251,255,.72) !important;
+  border-radius:0 !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:100% !important;
+  object-fit:contain !important;
+  border-radius:18px !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+@media (min-width:760px){
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+    width:min(720px, calc(100vw - 48px)) !important;
+    height:min(88dvh, 860px) !important;
+    max-height:calc(100dvh - 48px) !important;
+    border-radius:26px !important;
+  }
+}
+@media (max-width:640px){
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header{
+    flex-basis:60px !important;
+    min-height:60px !important;
+    height:60px !important;
+    padding:0 10px 0 18px !important;
+  }
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close.du-layer__close,
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close{
+    flex-basis:50px !important;
+    width:50px !important;
+    height:50px !important;
+    border-radius:17px !important;
+  }
+}

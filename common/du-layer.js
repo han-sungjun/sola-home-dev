@@ -109,3 +109,57 @@
 
   window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, layers:LAYERS.slice() };
 })();
+
+/* v20260529-ai-image-close-guard: AI 이미지 확대는 X 버튼에서만 닫히도록 최종 방어 */
+(function(){
+  'use strict';
+  var allowUntil = 0;
+  function layer(){ return document.getElementById('aiImageZoomBackdrop'); }
+  function isOpen(el){ return !!(el && (el.classList.contains('show') || el.getAttribute('aria-hidden') === 'false')); }
+  function markAllow(){ allowUntil = Date.now() + 700; }
+  function bind(){
+    var el = layer();
+    if(!el || el.dataset.duAiCloseGuardFinal === '1') return;
+    el.dataset.duAiCloseGuardFinal = '1';
+    var close = document.getElementById('aiImageZoomCloseBtn') || el.querySelector('.ai-image-zoom-close');
+    if(close){
+      ['pointerdown','mousedown','touchstart','click','keydown'].forEach(function(name){
+        close.addEventListener(name, function(ev){
+          if(name === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') return;
+          markAllow();
+        }, true);
+      });
+    }
+    ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click'].forEach(function(name){
+      document.addEventListener(name, function(ev){
+        var current = layer();
+        if(!isOpen(current)) return;
+        if(!ev.target || !current.contains(ev.target)) return;
+        if(ev.target.closest && ev.target.closest('.ai-image-zoom-card,.ai-image-zoom-close,[data-du-layer-close]')) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(typeof ev.stopImmediatePropagation === 'function') ev.stopImmediatePropagation();
+        return false;
+      }, true);
+    });
+  }
+  function patchClose(){
+    if(typeof window.closeAiImageZoom !== 'function' || window.closeAiImageZoom.__duGuarded) return;
+    var original = window.closeAiImageZoom;
+    var guarded = function(){
+      var el = layer();
+      var activeEvent = window.event;
+      var byClose = activeEvent && activeEvent.target && activeEvent.target.closest && activeEvent.target.closest('#aiImageZoomCloseBtn,.ai-image-zoom-close,[data-du-layer-close]');
+      if(isOpen(el) && !byClose && Date.now() > allowUntil){
+        return false;
+      }
+      return original.apply(this, arguments);
+    };
+    guarded.__duGuarded = true;
+    window.closeAiImageZoom = guarded;
+  }
+  function init(){ bind(); patchClose(); setTimeout(patchClose, 0); setTimeout(patchClose, 300); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+  window.addEventListener('load', init, {once:true});
+})();
