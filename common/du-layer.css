@@ -248,3 +248,78 @@
   .du-layer__header-main--calendar{gap:8px;}
   .du-layer__header-actions{gap:8px;}
 }
+
+/* v20260529-header-unify2: header/body/footer 2차 통합 */
+.du-layer__footer,
+.du-layer .calendar-form-actions,
+.du-layer .calendar-day-modal-footer,
+.du-layer .community-report-actions,
+.du-layer .account-edit-actions,
+.du-layer .qr-modal-footer{
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  padding:16px 22px 20px;
+  border-top:1px solid var(--du-layer-line);
+  background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(248,251,255,.96));
+}
+.du-layer__footer .block,
+.du-layer .qr-modal-footer .block{width:auto; min-width:160px;}
+.du-layer__header .du-layer__title.du-layer__badge,
+.du-layer__header .pill.du-layer__title{
+  margin:0;
+  font-size:clamp(15px, 1.8vw, 18px);
+}
+.du-layer__header .du-layer__subtitle{max-width:100%;}
+
+/* AI 이미지 확대도 풀팝업 레이어 슬롯을 사용 */
+#aiImageZoomBackdrop.du-layer--fullscreen{
+  align-items:stretch;
+  justify-content:center;
+  padding:0;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+  width:min(920px, 100vw);
+  height:100dvh;
+  max-height:100dvh;
+  border-radius:0;
+  display:flex;
+  flex-direction:column;
+}
+#aiImageZoomBackdrop .ai-image-zoom-head.du-layer__header{
+  flex:0 0 auto;
+  padding:16px 20px;
+  background:rgba(255,255,255,.96);
+}
+#aiImageZoomBackdrop .ai-image-zoom-scroll.du-layer__body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+  padding:18px;
+}
+@media (min-width: 760px){
+  #aiImageZoomBackdrop.du-layer--fullscreen{
+    padding:24px;
+    align-items:center;
+  }
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+    height:min(92dvh, 980px);
+    border-radius:28px;
+  }
+}
+@media (max-width:640px){
+  .du-layer__footer,
+  .du-layer .calendar-form-actions,
+  .du-layer .calendar-day-modal-footer,
+  .du-layer .community-report-actions,
+  .du-layer .account-edit-actions,
+  .du-layer .qr-modal-footer{
+    padding:14px 18px 18px;
+    gap:10px;
+  }
+  .du-layer__footer > .btn,
+  .du-layer__footer > button,
+  .du-layer .qr-modal-footer > button{flex:1 1 0; min-width:0;}
+}

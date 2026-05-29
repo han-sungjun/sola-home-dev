@@ -1,4 +1,4 @@
-/* 더운정픽 공통 레이어 어댑터 v20260529
+/* 더운정픽 공통 레이어 어댑터 v20260529-header-unify2
    기존 팝업을 한 번에 갈아엎지 않고, sheet/modal/fullscreen 규격 속성과 클래스를 부여합니다.
    바깥 영역 클릭 닫힘은 여기서 기본 차단합니다. X/확인/취소 같은 명시 버튼은 그대로 동작합니다.
 */
@@ -18,7 +18,7 @@
     { id:'communityEditorModal', type:'modal', panel:null, header:'.modal-head', body:'.modal-body', close:'.close-btn' },
     { id:'communityDetailModal', type:'modal', panel:null, header:'.modal-head', body:'.modal-body', close:'.close-btn' },
     { id:'communityReportModal', type:'modal', panel:null, header:'.modal-head', body:'.modal-body', close:'.close-btn' },
-    { id:'aiImageZoomBackdrop', type:'fullscreen', panel:'.ai-image-zoom-card', header:'.ai-image-zoom-title', body:'.ai-image-zoom-scroll', close:'.ai-image-zoom-close' }
+    { id:'aiImageZoomBackdrop', type:'fullscreen', panel:'.ai-image-zoom-card', header:'.ai-image-zoom-head,.ai-image-zoom-title', body:'.ai-image-zoom-scroll', close:'.ai-image-zoom-close' }
   ];
 
   function addClass(el, cls){ if(el && !el.classList.contains(cls)) el.classList.add(cls); }
@@ -65,6 +65,10 @@
     var close = cfg.close ? layer.querySelector(cfg.close) : null;
     addClass(close, 'du-layer__close');
     if(close) setAttr(close, 'data-du-layer-close', '');
+
+    var footer = layer.querySelector('.du-layer__footer,.calendar-form-actions,.calendar-day-modal-footer,.community-report-actions,.account-edit-actions,.qr-modal-footer');
+    addClass(footer, 'du-layer__footer');
+    if(footer) setAttr(footer, 'data-du-layer-footer', '');
 
     var pill = layer.querySelector('.pill,.gnb-management-kicker');
     addClass(pill, 'du-layer__badge');
