@@ -7,7 +7,7 @@
 
   var LAYERS = [
     { id:'accountHelpModal', type:'sheet', panel:'.sheet-panel', header:'.sheet-head', body:'.sheet-body', close:'.sheet-close' },
-    { id:'gnbSheet', type:'sheet', panel:'.gnb-sheet-panel,.gnb-panel,.gnb-sheet-inner', header:'.gnb-sheet-head,.gnb-head', body:'.gnb-sheet-body,.gnb-body,.gnb-menu', close:'.gnb-close,#gnbCloseBtn,[data-close-gnb]' },
+    { id:'gnbSheet', type:'sheet', panel:null, header:'.gnb-top', body:'.gnb-content,.gnb-settings-wrap', close:'.gnb-close,#gnbCloseBtn,[data-close-gnb]' },
     { id:'appAlert', type:'modal', panel:'.app-alert-card', header:'.app-alert-head', body:'.app-alert-message', close:null },
     { id:'settingsSuiteModal', type:'modal', panel:'.gnb-management-shell', header:'.gnb-management-head', body:'.gnb-management-body', close:'.gnb-management-close' },
     { id:'detailModal', type:'modal', panel:'.upick-div-modal-panel', header:'.modal-head', body:'.modal-body', close:'.close-btn' },
@@ -28,7 +28,8 @@
   function closestLayer(el){ return el && el.closest && el.closest('.du-layer'); }
   function isPanelOrControl(target, layer){
     if(!target || !layer) return false;
-    if(target.closest('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.ai-image-zoom-card')) return true;
+    if(layer && layer.id === 'gnbSheet') return true;
+    if(target.closest('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.gnb-sheet,.gnb-content,.ai-image-zoom-card')) return true;
     if(target.closest('[data-du-layer-close],.close-btn,.gnb-management-close,.sheet-close,.ai-image-zoom-close')) return true;
     return false;
   }
@@ -103,8 +104,73 @@
     });
   }
 
+
+
+  function openSettingsSuiteSafe(trigger){
+    var modal = document.getElementById('settingsSuiteModal');
+    if(!modal) return false;
+    enhanceLayer({ id:'settingsSuiteModal', type:'modal', panel:'.gnb-management-shell', header:'.gnb-management-head', body:'.gnb-management-body', close:'.gnb-management-close' });
+    modal.classList.remove('is-closing','upick-motion-closing');
+    modal.classList.add('show','upick-motion-open');
+    modal.setAttribute('aria-hidden','false');
+    modal.dataset.duOpen = 'true';
+    document.documentElement.classList.add('upick-modal-open');
+    document.body.classList.add('upick-modal-open');
+    window.__duSettingsLastFocus = trigger || document.activeElement;
+    setTimeout(function(){
+      var close = modal.querySelector('#closeSettingsSuiteBtn,.gnb-management-close,.du-layer__close');
+      if(close && close.focus) close.focus({ preventScroll:true });
+    }, 0);
+    document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ id:'settingsSuiteModal' }}));
+    return true;
+  }
+
+  function closeSettingsSuiteSafe(){
+    var modal = document.getElementById('settingsSuiteModal');
+    if(!modal) return false;
+    modal.classList.add('is-closing','upick-motion-closing');
+    modal.classList.remove('show','upick-motion-open');
+    modal.setAttribute('aria-hidden','true');
+    delete modal.dataset.duOpen;
+    setTimeout(function(){
+      modal.classList.remove('is-closing','upick-motion-closing');
+      var anyOpen = document.querySelector('.du-layer[aria-hidden="false"],.du-layer.show,.du-layer.upick-motion-open,dialog[open]');
+      if(!anyOpen){
+        document.documentElement.classList.remove('upick-modal-open');
+        document.body.classList.remove('upick-modal-open');
+      }
+      var last = window.__duSettingsLastFocus;
+      if(last && last.focus) last.focus({ preventScroll:true });
+    }, 240);
+    return true;
+  }
+
+  function bindSettingsSuiteSafe(){
+    var openBtn = document.getElementById('openSettingsSuiteBtn');
+    var closeBtn = document.getElementById('closeSettingsSuiteBtn');
+    if(openBtn && openBtn.dataset.duSettingsSafeBound !== '1'){
+      openBtn.dataset.duSettingsSafeBound = '1';
+      openBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+        openSettingsSuiteSafe(openBtn);
+      }, true);
+    }
+    if(closeBtn && closeBtn.dataset.duSettingsSafeBound !== '1'){
+      closeBtn.dataset.duSettingsSafeBound = '1';
+      closeBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+        closeSettingsSuiteSafe();
+      }, true);
+    }
+  }
+
   function init(){
     enhanceOpenLayers();
+    bindSettingsSuiteSafe();
 
     // 바깥 클릭 닫힘 전면 금지: 패널/버튼 내부 클릭은 절대 막지 않습니다.
     document.addEventListener('click', function(e){
@@ -132,7 +198,7 @@
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
   else init();
 
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, layers:LAYERS.slice() };
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
   document.addEventListener('upick:layer-opened', enhanceOpenLayers);
   document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();
