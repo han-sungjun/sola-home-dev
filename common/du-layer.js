@@ -70,8 +70,20 @@
   }
 
   function mountLegacyTemplates(){
-    if(typeof window.__duLayerMountLegacyTemplates === 'function') window.__duLayerMountLegacyTemplates();
+    /* root3-dynamic-fix2: 기존처럼 모든 템플릿 팝업을 초기 로드 때 Root로 꺼내지 않습니다.
+       개별 팝업 DOM은 template 안에 보관하고, 실제로 필요할 때만 ensureLegacyLayer(id)로 Root에 주입합니다. */
     syncRoots();
+  }
+
+  function ensureLegacyLayer(id){
+    if(!id) return null;
+    var exists = document.getElementById(id);
+    if(exists) return mount(exists);
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || !tpl.content) return null;
+    var found = tpl.content.querySelector('#' + String(id).replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/])/g,'\\$1'));
+    if(!found) return null;
+    return mount(found);
   }
 
   function toNode(content){
@@ -298,7 +310,8 @@
   window.DuLayer.getRoot = getRoot;
   window.DuLayer.mount = mount;
   window.DuLayer.syncRoots = syncRoots;
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, mountLegacyTemplates:mountLegacyTemplates, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
+  window.DuLayer.ensure = ensureLegacyLayer;
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, mountLegacyTemplates:mountLegacyTemplates, ensure:ensureLegacyLayer, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
   document.addEventListener('upick:layer-opened', enhanceOpenLayers);
   document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();
