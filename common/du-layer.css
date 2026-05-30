@@ -1388,3 +1388,37 @@ body.upick-layer-scroll-lock{
   max-width:100%!important;
   box-sizing:border-box!important;
 }
+
+
+/* ===== v20260530-phase15: account recovery sheet right gutter cleanup =====
+   계정 찾기 바텀시트는 스크롤바 보정용 gutter 때문에 오른쪽 여백이 보였으므로
+   header/tabs/body 모두 동일하게 100% 폭을 사용하고 gutter/margin을 제거합니다. */
+#accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+  --account-help-scrollbar-gutter:0px!important;
+  --du-layer-current-gutter:0px!important;
+  overflow:hidden!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-head.du-layer__header,
+#accountHelpModal.du-layer--sheet .account-recovery-tabs,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body{
+  padding-right:0!important;
+  scrollbar-gutter:auto!important;
+}
+@media(max-width:520px){
+  #accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+    --du-layer-current-gutter:0px!important;
+  }
+  #accountHelpModal.du-layer--sheet .sheet-head.du-layer__header,
+  #accountHelpModal.du-layer--sheet .account-recovery-tabs,
+  #accountHelpModal.du-layer--sheet .sheet-body.du-layer__body{
+    width:100%!important;
+    max-width:100%!important;
+    margin-right:0!important;
+  }
+}
