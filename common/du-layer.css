@@ -1,3 +1,14 @@
+
+
+/* v20260531-root3: 공통 3 Root 컨테이너
+   Root 자체는 레이아웃을 갖지 않고, 실제 팝업(.du-layer)만 fixed 레이어로 동작합니다. */
+.du-layer-root{
+  position:static;
+  display:contents;
+}
+.du-layer-root:empty{
+  display:none;
+}
 /* 더운정픽 공통 레이어 DOM 정리 v20260529
    - 기존 팝업 DOM을 무리하게 교체하지 않고 du-layer 규격 클래스를 함께 부여합니다.
    - 최종 목표: sheet / modal / fullscreen 3종 레이어 + header/body/footer 슬롯 통일

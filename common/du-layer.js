@@ -22,6 +22,78 @@
     { id:'aiImageZoomBackdrop', type:'fullscreen', panel:'.ai-image-zoom-card', header:'.ai-image-zoom-head,.ai-image-zoom-title', body:'.ai-image-zoom-scroll', close:'.ai-image-zoom-close' }
   ];
 
+
+
+  /* v20260531-root3: 개별 팝업 DOM을 3개 공통 Root로 수용합니다.
+     최종 Root 1 전 단계이며, 기존 ID 기반 JS는 그대로 동작하도록 실제 노드는 유지합니다. */
+  var ROOT_DEFS = {
+    sheet: { id:'duSheetRoot', className:'du-layer-root du-layer-root--sheet', label:'바텀시트 공통 Root' },
+    modal: { id:'duModalRoot', className:'du-layer-root du-layer-root--modal', label:'모달 공통 Root' },
+    fullscreen: { id:'duFullPopupRoot', className:'du-layer-root du-layer-root--fullscreen', label:'풀팝업 공통 Root' }
+  };
+
+  function getLayerType(layer){
+    if(!layer) return 'modal';
+    var raw = layer.getAttribute('data-du-layer') || '';
+    if(raw === 'sheet' || layer.classList.contains('du-layer--sheet')) return 'sheet';
+    if(raw === 'fullscreen' || raw === 'full' || layer.classList.contains('du-layer--fullscreen') || layer.classList.contains('du-layer--full')) return 'fullscreen';
+    return 'modal';
+  }
+
+  function ensureLayerRoot(type){
+    type = ROOT_DEFS[type] ? type : 'modal';
+    var def = ROOT_DEFS[type];
+    var root = document.getElementById(def.id);
+    if(!root){
+      root = document.createElement('div');
+      root.id = def.id;
+      root.className = def.className;
+      root.setAttribute('data-du-layer-root', type);
+      root.setAttribute('aria-label', def.label);
+      (document.body || document.documentElement).appendChild(root);
+    }else{
+      def.className.split(/\s+/).forEach(function(cls){ if(cls) addClass(root, cls); });
+      root.setAttribute('data-du-layer-root', type);
+    }
+    return root;
+  }
+
+  function isLayerRoot(el){
+    return !!(el && el.getAttribute && el.getAttribute('data-du-layer-root'));
+  }
+
+  function mountLayerToRoot(layer){
+    if(!layer || isLayerRoot(layer) || !layer.classList || !layer.classList.contains('du-layer')) return;
+    if(layer.closest && layer.closest('[data-du-layer-root]')) return;
+    var type = getLayerType(layer);
+    var root = ensureLayerRoot(type);
+    root.appendChild(layer);
+  }
+
+  function mountKnownLayersToRoots(){
+    if(!document.body) return;
+    ensureLayerRoot('sheet');
+    ensureLayerRoot('modal');
+    ensureLayerRoot('fullscreen');
+    document.querySelectorAll('.du-layer').forEach(mountLayerToRoot);
+  }
+
+  function observeLayerRootMounts(){
+    if(!window.MutationObserver || !document.body || document.body.__duRoot3Observed) return;
+    document.body.__duRoot3Observed = '1';
+    new MutationObserver(function(records){
+      records.forEach(function(record){
+        Array.prototype.forEach.call(record.addedNodes || [], function(node){
+          if(!node || node.nodeType !== 1) return;
+          if(node.classList && node.classList.contains('du-layer')) mountLayerToRoot(node);
+          if(node.querySelectorAll){
+            node.querySelectorAll('.du-layer').forEach(mountLayerToRoot);
+          }
+        });
+      });
+    }).observe(document.body, { childList:true, subtree:true });
+  }
+
   function addClass(el, cls){ if(el && !el.classList.contains(cls)) el.classList.add(cls); }
   function setAttr(el, name, value){ if(el && el.getAttribute(name) !== String(value)) el.setAttribute(name, String(value)); }
   function closestLayer(el){ return el && el.closest && el.closest('.du-layer'); }
@@ -111,6 +183,8 @@
   function closeSettingsSuiteSafe(){ return false; }
 
   function init(){
+    mountKnownLayersToRoots();
+    observeLayerRootMounts();
     enhanceOpenLayers();
     // 바깥 클릭 닫힘 전면 금지: 패널/버튼 내부 클릭은 절대 막지 않습니다.
     document.addEventListener('click', function(e){
@@ -138,7 +212,11 @@
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
   else init();
 
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, mountKnownLayersToRoots:mountKnownLayersToRoots, ensureLayerRoot:ensureLayerRoot, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
+  window.DuLayer = window.DuLayer || {};
+  window.DuLayer.getRoot = ensureLayerRoot;
+  window.DuLayer.mount = mountLayerToRoot;
+  window.DuLayer.syncRoots = mountKnownLayersToRoots;
   document.addEventListener('upick:layer-opened', enhanceOpenLayers);
   document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();
