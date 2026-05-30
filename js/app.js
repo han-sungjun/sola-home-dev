@@ -3980,9 +3980,13 @@ function openNewsImagePreview(src='', title='소식 이미지'){
      window.setTimeout(() => {
        overlay.classList.remove('closing');
        delete overlay.dataset.upickImageClosing;
+       overlay.removeAttribute('open');
+       overlay.setAttribute('aria-hidden','true');
        document.body.classList.remove('news-image-preview-open');
        const img = overlay.querySelector('img');
        if(img) img.removeAttribute('src');
+       if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock();
+       if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
      }, 320);
    };
    overlay.addEventListener('click', (event) => {
@@ -6166,6 +6170,36 @@ function preservePageScrollForDialogOpen(modal, savedY){
  scheduleDetailDialogScrollReset(modal);
 }
 
+function forceCloseTransientImagePreviewLayers(){
+ const layers = [
+   { selector:'#newsImagePreviewOverlay', bodyClass:'news-image-preview-open' },
+   { selector:'.benefit-image-preview-overlay', bodyClass:'benefit-image-preview-open' },
+   { selector:'#aiImageZoomBackdrop', bodyClass:'' }
+ ];
+ layers.forEach(({ selector, bodyClass }) => {
+   document.querySelectorAll(selector).forEach((layer) => {
+     try{
+       layer.classList.remove('show','closing','is-open','upick-motion-open','upick-motion-closing');
+       layer.setAttribute('aria-hidden','true');
+       layer.removeAttribute('open');
+       delete layer.dataset.upickImageClosing;
+       if(layer.id === 'newsImagePreviewOverlay'){
+         const img = layer.querySelector('img');
+         if(img) img.removeAttribute('src');
+       }
+       if(layer.classList.contains('benefit-image-preview-overlay')){
+         layer.remove();
+       }
+     }catch(_){ }
+   });
+   if(bodyClass) document.body.classList.remove(bodyClass);
+ });
+ try{ document.body.classList.remove('benefit-image-preview-open','news-image-preview-open'); }catch(_){ }
+ if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0);
+ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') setTimeout(window.DuLayerStackManager.requestSync, 0);
+}
+window.__upickForceCloseTransientImagePreviewLayers = forceCloseTransientImagePreviewLayers;
+
 function closeDetailDialogPreservingPage(modal, options = {}){
  // v97: 혜택 상세/공지 상세 div 모달 닫힘 완료 뒤 후속 동작을 실행할 수 있게 통일합니다.
  // 방문 알림 저장 후 '캘린더에서 확인'처럼 화면 전환이 필요한 흐름에서,
@@ -6179,12 +6213,19 @@ function closeDetailDialogPreservingPage(modal, options = {}){
    if(extraAfterClose) setTimeout(() => { try{ extraAfterClose(); }catch(_){} }, 0);
    return;
  }
+ if(modal.id === 'detailModal' || modal.id === 'noticeModal') forceCloseTransientImagePreviewLayers();
  const y = Number(window.__upickClosingDetailScrollY || getStablePageScrollY());
  let didAfterClose = false;
  const afterClose = () => {
    if(didAfterClose) return;
    didAfterClose = true;
    try{ if(typeof window.__upickUnlockModalBackground === 'function') window.__upickUnlockModalBackground(); }catch(_){}
+   try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+   try{ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }catch(_){}
+   setTimeout(() => {
+     try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+     try{ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }catch(_){}
+   }, 380);
    resetDetailDialogScroll(modal);
    if(modal.id === 'detailModal'){
      modal.classList.remove('upick-over-calendar-day');
@@ -8656,9 +8697,13 @@ function openCalendarReservationModal(item={}){
    window.setTimeout(() => {
      overlay.classList.remove('closing');
      delete overlay.dataset.upickImageClosing;
+     overlay.removeAttribute('open');
+     overlay.setAttribute('aria-hidden','true');
      document.body.classList.remove('benefit-image-preview-open');
      requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
      window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
+     if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock();
+     if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
      try{ slider?.focus?.({preventScroll:true}); }catch(_){}
    }, 320);
  };
