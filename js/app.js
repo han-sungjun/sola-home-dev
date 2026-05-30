@@ -14976,3 +14976,171 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     applyAiImageZoomGuard();
   }
 })();
+
+/* v20260530-phase10-bottom-sheet: 정렬/반경 선택을 공통 바텀시트 계열로 통합 */
+(function(){
+  'use strict';
+
+  function isBottomSheetMode(){
+    try{
+      return window.matchMedia('(max-width: 640px), (pointer: coarse)').matches;
+    }catch(_){
+      return window.innerWidth <= 640;
+    }
+  }
+
+  function getOrCreateFilterSheet(){
+    var sheet = document.getElementById('duFilterSheet');
+    if(sheet) return sheet;
+
+    sheet = document.createElement('div');
+    sheet.id = 'duFilterSheet';
+    sheet.className = 'du-layer du-layer--sheet du-filter-sheet';
+    sheet.setAttribute('role', 'dialog');
+    sheet.setAttribute('aria-modal', 'true');
+    sheet.setAttribute('aria-hidden', 'true');
+    sheet.setAttribute('data-du-layer', 'sheet');
+    sheet.setAttribute('data-close-on-backdrop', 'false');
+    sheet.setAttribute('data-du-close-on-backdrop', 'false');
+    sheet.setAttribute('data-du-close-on-esc', 'false');
+    sheet.innerHTML = '' +
+      '<div class="du-layer__panel du-filter-sheet__panel" data-du-layer-panel role="document">' +
+        '<div class="du-sheet-handle" aria-hidden="true"></div>' +
+        '<div class="du-layer__header du-filter-sheet__header" data-du-layer-header>' +
+          '<div class="du-layer__header-main">' +
+            '<span class="du-layer__badge du-filter-sheet__badge" id="duFilterSheetBadge">선택</span>' +
+            '<h2 class="du-layer__title du-filter-sheet__title" id="duFilterSheetTitle">정렬 선택</h2>' +
+            '<p class="du-layer__subtitle du-filter-sheet__subtitle" id="duFilterSheetSubtitle">목록 표시 기준을 선택합니다.</p>' +
+          '</div>' +
+          '<div class="du-layer__header-actions">' +
+            '<button type="button" class="du-layer__close du-filter-sheet__close" id="duFilterSheetCloseBtn" data-du-layer-close aria-label="닫기">✕</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="du-layer__body du-filter-sheet__body" id="duFilterSheetBody" data-du-layer-body></div>' +
+      '</div>';
+    document.body.appendChild(sheet);
+
+    sheet.addEventListener('click', function(event){
+      if(event.target === sheet){
+        event.preventDefault();
+        event.stopPropagation();
+        if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      }
+    }, true);
+    sheet.addEventListener('pointerdown', function(event){
+      if(event.target === sheet){
+        event.preventDefault();
+        event.stopPropagation();
+        if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      }
+    }, true);
+    sheet.querySelector('#duFilterSheetCloseBtn')?.addEventListener('click', closeDuFilterSheet);
+    return sheet;
+  }
+
+  function getSheetOptions(type){
+    if(type === 'radius'){
+      return {
+        badge:'거리',
+        title:'거리 범위 선택',
+        subtitle:'현재 위치 기준으로 혜택 매장을 필터링합니다.',
+        current:String(state.distanceRadius || 'all'),
+        items:[
+          { value:'all', label:'전체 보기', desc:'거리 제한 없이 모든 혜택을 봅니다.' },
+          { value:'500', label:'500m 이내', desc:'가까운 도보권 혜택만 봅니다.' },
+          { value:'1000', label:'1km 이내', desc:'근처 생활권 혜택을 봅니다.' },
+          { value:'3000', label:'3km 이내', desc:'주변 상권까지 넓게 봅니다.' }
+        ]
+      };
+    }
+    return {
+      badge:'정렬',
+      title:'정렬 기준 선택',
+      subtitle:'혜택 목록을 원하는 기준으로 정렬합니다.',
+      current:String(state.benefitSortMode || 'default'),
+      items:[
+        { value:'default', label:'추천순', desc:'기본 추천 기준으로 봅니다.' },
+        { value:'latest', label:'최신순', desc:'최근 등록/수정된 혜택부터 봅니다.' },
+        { value:'top', label:'TOP 순', desc:'인기 반응이 높은 혜택부터 봅니다.' },
+        { value:'distance', label:'가까운순', desc:'현재 위치에서 가까운 혜택부터 봅니다.' }
+      ]
+    };
+  }
+
+  function renderFilterSheet(type){
+    var sheet = getOrCreateFilterSheet();
+    var config = getSheetOptions(type);
+    sheet.dataset.sheetType = type;
+    sheet.querySelector('#duFilterSheetBadge').textContent = config.badge;
+    sheet.querySelector('#duFilterSheetTitle').textContent = config.title;
+    sheet.querySelector('#duFilterSheetSubtitle').textContent = config.subtitle;
+    var body = sheet.querySelector('#duFilterSheetBody');
+    if(!body) return sheet;
+    body.innerHTML = '<div class="du-filter-sheet__list">' + config.items.map(function(item){
+      var active = item.value === config.current;
+      return '<button type="button" class="du-filter-sheet__option' + (active ? ' active' : '') + '" data-du-filter-value="' + item.value + '" aria-pressed="' + (active ? 'true' : 'false') + '">' +
+        '<span class="du-filter-sheet__option-text"><strong>' + item.label + '</strong><small>' + item.desc + '</small></span>' +
+        '<span class="du-filter-sheet__option-check" aria-hidden="true">✓</span>' +
+      '</button>';
+    }).join('') + '</div>';
+    body.querySelectorAll('[data-du-filter-value]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var value = btn.getAttribute('data-du-filter-value');
+        closeDuFilterSheet();
+        if(type === 'radius') applyRadiusPopoverValue(value);
+        else applySortPopoverValue(value);
+      });
+    });
+    return sheet;
+  }
+
+  function openDuFilterSheet(type){
+    var sheet = renderFilterSheet(type);
+    closeFilterPopovers();
+    sheet.classList.remove('closing','is-closing','upick-motion-closing');
+    sheet.classList.add('ready');
+    sheet.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function(){
+      sheet.classList.add('show');
+      sheet.querySelector('.du-filter-sheet__option.active, .du-filter-sheet__option, .du-filter-sheet__close')?.focus?.();
+      window.DuLayerAdapter?.enhanceOpenLayers?.();
+      window.DuLayerStackManager?.requestSync?.();
+    });
+  }
+
+  function closeDuFilterSheet(){
+    var sheet = document.getElementById('duFilterSheet');
+    if(!sheet) return;
+    sheet.classList.remove('show');
+    sheet.classList.add('closing');
+    sheet.setAttribute('aria-hidden', 'true');
+    window.setTimeout(function(){
+      sheet.classList.remove('ready','closing','is-closing','upick-motion-closing');
+      window.DuLayerStackManager?.requestSync?.();
+    }, 260);
+  }
+
+  document.addEventListener('click', function(event){
+    var sortBtn = event.target?.closest?.('#sortPopoverBtn');
+    var radiusBtn = event.target?.closest?.('#radiusPopoverBtn');
+    if(!sortBtn && !radiusBtn) return;
+    if(!isBottomSheetMode()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    openDuFilterSheet(radiusBtn ? 'radius' : 'sort');
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if(event.key !== 'Escape') return;
+    var sheet = document.getElementById('duFilterSheet');
+    if(!sheet || sheet.getAttribute('aria-hidden') === 'true') return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+
+  window.DuBottomSheet = Object.assign(window.DuBottomSheet || {}, {
+    openFilterSheet:openDuFilterSheet,
+    closeFilterSheet:closeDuFilterSheet
+  });
+})();
