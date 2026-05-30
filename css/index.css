@@ -3763,3 +3763,44 @@ input[type="radio"]:not(:checked):focus-visible{
     letter-spacing:-.04em!important;
   }
 }
+
+/* ===== v20260530-phase13: account recovery bottom sheet content width sync ===== */
+#accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+  --account-help-scrollbar-gutter:16px;
+}
+#accountHelpModal.du-layer--sheet .sheet-head.du-layer__header,
+#accountHelpModal.du-layer--sheet .account-recovery-tabs{
+  width:calc(100% - var(--account-help-scrollbar-gutter))!important;
+  max-width:calc(100% - var(--account-help-scrollbar-gutter))!important;
+  margin-right:var(--account-help-scrollbar-gutter)!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body{
+  scrollbar-gutter:stable!important;
+  padding-right:0!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sheet-section,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sheet-note-list,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .field,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sheet-inline-actions,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sheet-result{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .input,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .btn{
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+@media (max-width:520px){
+  #accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+    --account-help-scrollbar-gutter:16px;
+  }
+}
+@supports not (scrollbar-gutter: stable){
+  #accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+    --account-help-scrollbar-gutter:14px;
+  }
+}
