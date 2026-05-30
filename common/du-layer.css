@@ -38,7 +38,7 @@
   z-index: var(--du-layer-z);
   box-sizing: border-box;
 }
-.du-layer[aria-hidden="true"]{ pointer-events:none; }
+.du-layer[aria-hidden="true"]{ display:none!important; pointer-events:none; }
 .du-layer[aria-hidden="false"],
 .du-layer.show,
 .du-layer.is-open,

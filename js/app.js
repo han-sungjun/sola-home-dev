@@ -926,7 +926,29 @@ showForegroundPushToast({
  };
  let pendingNoticeOpened = false;
  
- const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+ 
+const __duLegacyElementLayerMap = {
+ detailModal:'detailModal', detailHeadActions:'detailModal', modalFavBtn:'detailModal', openCalendarReservationBtn:'detailModal', closeModal:'detailModal', modalBody:'detailModal',
+ calendarReservationModal:'calendarReservationModal', closeCalendarReservationModal:'calendarReservationModal', calendarReservationForm:'calendarReservationModal', calendarSelectedStore:'calendarReservationModal', calendarBenefitId:'calendarReservationModal', calendarVisitDate:'calendarReservationModal', calendarVisitTime:'calendarReservationModal', calendarNotifyBefore:'calendarReservationModal', calendarReservationMemo:'calendarReservationModal', cancelCalendarReservationBtn:'calendarReservationModal',
+ calendarDayModal:'calendarDayModal', calendarDayPrevBtn:'calendarDayModal', calendarDayDateBtn:'calendarDayModal', calendarDayNextBtn:'calendarDayModal', calendarDayCloseBtn:'calendarDayModal', calendarDayDatePicker:'calendarDayModal', calendarDayModalList:'calendarDayModal', calendarDayTodayBtn:'calendarDayModal', calendarDayCloseBottomBtn:'calendarDayModal',
+ noticeModal:'noticeModal', closeNoticeModal:'noticeModal', noticeModalBody:'noticeModal',
+ communityEditorModal:'communityEditorModal', communityEditorTitle:'communityEditorModal', closeCommunityEditor:'communityEditorModal', communityPostCategory:'communityEditorModal', communityPostTitle:'communityEditorModal', communityPostContent:'communityEditorModal', submitCommunityPostBtn:'communityEditorModal',
+ communityDetailModal:'communityDetailModal', closeCommunityDetail:'communityDetailModal', communityDetailBody:'communityDetailModal', communityCommentList:'communityDetailModal', communityCommentContent:'communityDetailModal', submitCommunityCommentBtn:'communityDetailModal',
+ communityReportModal:'communityReportModal', closeCommunityReportModal:'communityReportModal', communityReportReasons:'communityReportModal', cancelCommunityReportBtn:'communityReportModal', submitCommunityReportBtn:'communityReportModal',
+ qrModal:'qrModal', closeQrModal:'qrModal', qrCanvas:'qrModal', qrShareUrl:'qrModal', qrCopyBtn:'qrModal',
+ settingsSuiteModal:'settingsSuiteModal', closeSettingsSuiteBtn:'settingsSuiteModal', fontSizeSettingsSection:'settingsSuiteModal', fontSizeStatus:'settingsSuiteModal', userBottomNavSettingsSection:'settingsSuiteModal', userBottomNavCurrent:'settingsSuiteModal', userBottomNavPicker:'settingsSuiteModal', saveUserBottomNavBtn:'settingsSuiteModal', resetUserBottomNavBtn:'settingsSuiteModal', userBottomNavStatus:'settingsSuiteModal', openAccountEditBtn:'settingsSuiteModal', openPasswordChangeBtn:'settingsSuiteModal', logoutBtn:'settingsSuiteModal', withdrawBtn:'settingsSuiteModal',
+ accountEditModal:'accountEditModal', closeAccountEditModal:'accountEditModal', accountEditForm:'accountEditModal', accountNicknameInput:'accountEditModal', accountCheckNicknameBtn:'accountEditModal', accountNicknameMsg:'accountEditModal', accountProfilePreview:'accountEditModal', accountProfileUploadBtn:'accountEditModal', accountProfileUploadStatus:'accountEditModal', accountProfileFileInput:'accountEditModal', accountBuildingInput:'accountEditModal', accountUnitInput:'accountEditModal', cancelAccountEditBtn:'accountEditModal', saveAccountEditBtn:'accountEditModal',
+ passwordChangeModal:'passwordChangeModal', closePasswordChangeModal:'passwordChangeModal', passwordChangeForm:'passwordChangeModal', currentPasswordInput:'passwordChangeModal', newPasswordInput:'passwordChangeModal', newPasswordConfirmInput:'passwordChangeModal', passwordChangeMatchMessage:'passwordChangeModal', cancelPasswordChangeBtn:'passwordChangeModal', submitPasswordChangeBtn:'passwordChangeModal',
+ aiImageZoomBackdrop:'aiImageZoomBackdrop', aiImageZoomTitle:'aiImageZoomBackdrop', aiImageZoomCloseBtn:'aiImageZoomBackdrop', aiImageZoomScroll:'aiImageZoomBackdrop', aiImageZoomImg:'aiImageZoomBackdrop'
+};
+function __duEnsureForSelector(selector){
+ if(typeof selector !== 'string') return;
+ var m = selector.match(/^#([A-Za-z0-9_\-:]+)$/);
+ if(!m) return;
+ var layerId = __duLegacyElementLayerMap[m[1]];
+ if(layerId && window.DuLayer && typeof window.DuLayer.ensure === 'function') window.DuLayer.ensure(layerId);
+}
+const qs=(s)=>{__duEnsureForSelector(s);return document.querySelector(s);}, qsa=(s)=>[...document.querySelectorAll(s)];
 
  function isMobileEdgeBrowserGlobal() {
  const ua = String(navigator.userAgent || '').toLowerCase();
