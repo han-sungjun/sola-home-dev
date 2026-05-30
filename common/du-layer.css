@@ -1422,3 +1422,46 @@ body.upick-layer-scroll-lock{
     margin-right:0!important;
   }
 }
+
+/* ===== v20260530-phase16: account recovery password eye alignment =====
+   계정 찾기 바텀시트 폭 통일 규칙이 내부 버튼 전체에 width:100%를 적용하면서
+   비밀번호 보기/숨기기 아이콘 버튼까지 늘어나는 문제를 복구합니다. */
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sola-password-wrap{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sola-password-wrap > input,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sola-password-wrap > .input{
+  width:100%!important;
+  max-width:100%!important;
+  padding-right:52px!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sola-password-wrap > .sola-password-toggle,
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body button.sola-password-toggle{
+  position:absolute!important;
+  right:10px!important;
+  left:auto!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:34px!important;
+  min-width:34px!important;
+  max-width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 34px!important;
+  z-index:3!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-body.du-layer__body .sola-password-toggle svg{
+  width:20px!important;
+  height:20px!important;
+  display:block!important;
+}
