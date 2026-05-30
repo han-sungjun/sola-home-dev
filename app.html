@@ -40,12 +40,12 @@
 <link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet"/>
 <link href="/common/common-alert.css?v=20260529-phase4" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=20260527-stack-fix" rel="stylesheet"/>
-<link href="/common/du-layer.css?v=20260531-root3" rel="stylesheet"/>
+<link href="/common/du-layer.css?v=20260531-root3-dynamic" rel="stylesheet"/>
 <link href="/common/common-modal.css?v=20260529-phase4" rel="stylesheet"/>
 <script defer="" src="/common/common-motion.js?v=20260527fadefix"></script>
 <script defer="" src="/common/common-alert.js?v=20260529-scrollfix"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
-<script defer="" src="/common/du-layer.js?v=20260531-root3"></script>
+<script defer="" src="/common/du-layer.js?v=20260531-root3-dynamic"></script>
 <script defer="" src="/common/common-modal.js?v=20260529-phase4"></script>
 </head>
 <body data-loading-mode="public">
@@ -853,10 +853,11 @@
 </button>
 </nav>
 
-<!-- 공통 레이어 Root 3종: 최종 1 Root 전 단계 -->
-<div id="duSheetRoot" class="du-layer-root du-layer-root--sheet" data-du-layer-root="sheet" aria-label="바텀시트 공통 Root"></div>
-<div id="duModalRoot" class="du-layer-root du-layer-root--modal" data-du-layer-root="modal" aria-label="모달 공통 Root"></div>
-<div id="duFullPopupRoot" class="du-layer-root du-layer-root--fullscreen" data-du-layer-root="fullscreen" aria-label="풀팝업 공통 Root"></div>
+<!-- 더운정픽 공통 레이어 Root 3: HTML에는 Root만 고정하고, 팝업 실제 DOM은 아래 template에서 JS로 동적 주입합니다. -->
+<div id="duSheetRoot" class="du-layer-root" data-du-root="sheet"></div>
+<div id="duModalRoot" class="du-layer-root" data-du-root="modal"></div>
+<div id="duFullPopupRoot" class="du-layer-root" data-du-root="fullscreen"></div>
+<template id="duLayerLegacyTemplate">
 <div aria-hidden="true" aria-modal="true" class="upick-div-dialog upick-detail-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="detailModal" role="dialog">
 <div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
 <div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
@@ -1106,7 +1107,7 @@
             URL 복사
           </button></div></div></div>
 <script crossorigin="anonymous" integrity="sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J" src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js">
-</script>
+</template>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js">
 </script>
 <div class="gnb-overlay" id="gnbOverlay">
@@ -1643,6 +1644,48 @@
 </div>
 </div>
 </div>
+
+<div aria-hidden="true" aria-modal="true" class="ai-image-zoom-backdrop du-layer du-layer--fullscreen" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="fullscreen" id="aiImageZoomBackdrop" role="dialog">
+<div class="ai-image-zoom-card du-layer__panel" data-du-layer-panel="" role="document"><div class="ai-image-zoom-head du-layer__header" data-du-layer-header=""><div class="du-layer__header-main"><div class="ai-image-zoom-title du-layer__title" id="aiImageZoomTitle">
+          이미지 확대 보기
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="ai-image-zoom-close du-layer__close" data-du-layer-close="" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
+          ×
+        </button></div></div>
+
+
+<div class="ai-image-zoom-scroll du-layer__body" data-du-layer-body="" id="aiImageZoomScroll">
+<img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
+</div>
+</div>
+</div>
+
+</script>
+<script>
+(function(){
+  'use strict';
+  if(window.__duLayerRoot3Bootstrapped) return;
+  window.__duLayerRoot3Bootstrapped = true;
+  function rootFor(type){
+    var key = type === 'sheet' ? 'duSheetRoot' : (type === 'fullscreen' || type === 'full' ? 'duFullPopupRoot' : 'duModalRoot');
+    return document.getElementById(key);
+  }
+  function mountLegacyLayers(){
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || tpl.dataset.mounted === '1') return;
+    var stage = document.createElement('div');
+    stage.innerHTML = tpl.innerHTML;
+    Array.prototype.slice.call(stage.children).forEach(function(el){
+      if(!el || el.nodeType !== 1) return;
+      var type = el.getAttribute('data-du-layer') || (el.classList.contains('du-layer--fullscreen') ? 'fullscreen' : (el.classList.contains('du-layer--sheet') ? 'sheet' : 'modal'));
+      var root = rootFor(type);
+      if(root) root.appendChild(el);
+    });
+    tpl.dataset.mounted = '1';
+  }
+  window.__duLayerMountLegacyTemplates = mountLegacyLayers;
+  mountLegacyLayers();
+})();
+</script>
 <div aria-hidden="true" class="app-alert" id="appAlert">
 <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
 <div class="app-alert-head">
@@ -1685,19 +1728,6 @@
 <button aria-label="오늘 AI 유도 닫기" class="ai-daily-nudge-close" id="aiDailyNudgeCloseBtn" type="button">
             닫기
           </button>
-</div>
-</div>
-<div aria-hidden="true" aria-modal="true" class="ai-image-zoom-backdrop du-layer du-layer--fullscreen" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="fullscreen" id="aiImageZoomBackdrop" role="dialog">
-<div class="ai-image-zoom-card du-layer__panel" data-du-layer-panel="" role="document"><div class="ai-image-zoom-head du-layer__header" data-du-layer-header=""><div class="du-layer__header-main"><div class="ai-image-zoom-title du-layer__title" id="aiImageZoomTitle">
-          이미지 확대 보기
-        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="ai-image-zoom-close du-layer__close" data-du-layer-close="" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
-          ×
-        </button></div></div>
-
-
-<div class="ai-image-zoom-scroll du-layer__body" data-du-layer-body="" id="aiImageZoomScroll">
-<img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
-</div>
 </div>
 </div>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>

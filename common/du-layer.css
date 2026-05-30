@@ -1,18 +1,22 @@
-
-
-/* v20260531-root3: 공통 3 Root 컨테이너
-   Root 자체는 레이아웃을 갖지 않고, 실제 팝업(.du-layer)만 fixed 레이어로 동작합니다. */
-.du-layer-root{
-  position:static;
-  display:contents;
-}
-.du-layer-root:empty{
-  display:none;
-}
 /* 더운정픽 공통 레이어 DOM 정리 v20260529
    - 기존 팝업 DOM을 무리하게 교체하지 않고 du-layer 규격 클래스를 함께 부여합니다.
    - 최종 목표: sheet / modal / fullscreen 3종 레이어 + header/body/footer 슬롯 통일
 */
+
+/* v20260531-root3: 고정 Root 3만 HTML에 두고 실제 팝업은 JS로 Root 내부에 동적 주입 */
+.du-layer-root{
+  position:relative;
+  z-index:auto;
+}
+.du-layer-root:empty{
+  display:contents;
+}
+#duSheetRoot,
+#duModalRoot,
+#duFullPopupRoot{
+  display:contents;
+}
+
 :root{
   --du-layer-backdrop: rgba(15,23,42,.52);
   --du-layer-radius: 28px;
@@ -43,6 +47,54 @@
 .du-layer--sheet{ --du-layer-z: var(--du-layer-z-sheet); }
 .du-layer--modal{ --du-layer-z: var(--du-layer-z-modal); }
 .du-layer--fullscreen{ --du-layer-z: var(--du-layer-z-fullscreen); }
+
+.du-layer--modal{
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+.du-layer--modal > .du-layer__panel{
+  position:relative;
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(88dvh, 760px);
+  display:flex;
+  flex-direction:column;
+}
+.du-layer--modal > .du-layer__panel > .du-layer__body{
+  overflow:auto;
+}
+.du-layer--sheet{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.du-layer--sheet > .du-layer__panel{
+  position:relative;
+  width:min(720px, 100vw);
+  max-height:min(86dvh, 760px);
+  display:flex;
+  flex-direction:column;
+}
+.du-layer--sheet > .du-layer__panel > .du-layer__body{
+  overflow:auto;
+}
+.du-layer--fullscreen{
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+}
+.du-layer--fullscreen > .du-layer__panel{
+  position:relative;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.du-layer--fullscreen > .du-layer__panel > .du-layer__body{
+  flex:1 1 auto;
+  overflow:auto;
+}
+
 
 .du-layer__backdrop,
 .du-layer .upick-div-modal-backdrop{
