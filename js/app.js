@@ -15025,8 +15025,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     if(titleEl) titleEl.textContent = title || '이미지 확대 보기';
     img.src = src;
     img.alt = title || '확대 이미지';
-    layer.classList.remove(CLOSING_CLASS);
-    layer.classList.add('upick-ai-image-fade-layer');
+    layer.classList.remove(CLOSING_CLASS, 'upick-motion-closing');
+    layer.classList.add('upick-ai-image-fade-layer','upick-motion-layer');
+    const panel = layer.querySelector('.ai-image-zoom-card,.du-layer__panel,[data-du-layer-panel]');
+    if(panel) panel.classList.add('upick-motion-panel');
     layer.setAttribute('aria-hidden','false');
     keepImageZoomOnTop(layer);
     document.body.classList.add('ai-image-zoom-open');
@@ -15042,11 +15044,12 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     const img = document.getElementById('aiImageZoomImg');
     if(!layer || layer.dataset.upickAiImageClosing === '1') return false;
     layer.dataset.upickAiImageClosing = '1';
-    layer.classList.add(CLOSING_CLASS);
-    layer.classList.remove(OPEN_CLASS);
-    layer.setAttribute('aria-hidden','true');
+    layer.classList.add(CLOSING_CLASS, 'upick-motion-closing');
+    layer.classList.remove(OPEN_CLASS, 'upick-motion-open');
+    // fade-out이 보인 뒤 aria-hidden 처리합니다. 즉시 true를 주면 du-layer display:none 규칙 때문에 바로 사라집니다.
     window.setTimeout(() => {
-      layer.classList.remove(CLOSING_CLASS);
+      layer.classList.remove(CLOSING_CLASS, 'upick-motion-closing');
+      layer.setAttribute('aria-hidden','true');
       delete layer.dataset.upickAiImageClosing;
       document.body.classList.remove('ai-image-zoom-open');
       if(img) img.removeAttribute('src');

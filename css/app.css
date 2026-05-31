@@ -29373,3 +29373,81 @@ body[data-loading-mode="public"] main{
   opacity:1 !important;
   transform:translateY(0) scale(1) !important;
 }
+
+
+/* ===== root3 dynamic fade restore fix25: settings / visit reservation / AI image zoom ===== */
+/* [open] 또는 .show display 강제 규칙이 공통 motion을 덮지 않도록, 실제 표시 상태는 show/upick-motion-open으로만 결정합니다. */
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  transition:opacity 320ms cubic-bezier(.22,.61,.36,1), background-color 320ms cubic-bezier(.22,.61,.36,1), backdrop-filter 320ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 320ms!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.show,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-open,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.show,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-open,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-open,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.show,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity 320ms cubic-bezier(.22,.61,.36,1), background-color 320ms cubic-bezier(.22,.61,.36,1), backdrop-filter 320ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.is-closing,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-closing,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.is-closing,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.is-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-closing,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.closing,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer > .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer > .upick-div-dialog-panel,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer .ai-image-zoom-card{
+  opacity:0!important;
+  transform:translateY(14px) scale(.975)!important;
+  transition:opacity 320ms cubic-bezier(.16,1,.3,1), transform 320ms cubic-bezier(.16,1,.3,1)!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.show > .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-open > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.show > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-open > .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.show > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-open > .upick-div-dialog-panel,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.show .ai-image-zoom-card,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-open .ai-image-zoom-card{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.is-closing > .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-closing > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.is-closing > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-closing > .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.is-closing > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-closing > .upick-div-dialog-panel,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.closing .ai-image-zoom-card,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-closing .ai-image-zoom-card{
+  opacity:0!important;
+  transform:translateY(14px) scale(.975)!important;
+}
+/* AI 확대는 display:none/display:block 토글이 fade를 끊으므로 motion 상태에서는 항상 레이아웃을 유지합니다. */
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.show,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.closing,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-closing{
+  display:block!important;
+}
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer[aria-hidden="true"]:not(.closing):not(.upick-motion-closing):not(.show):not(.upick-motion-open){
+  display:none!important;
+}
