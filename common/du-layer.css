@@ -1607,3 +1607,132 @@ body.upick-layer-scroll-lock{
     border-radius:18px !important;
   }
 }
+
+
+/* v20260531-root3-dynamic-fix7: 설정 모음/페이드/이미지 확대 최종 보정
+   - 설정 모음의 outer layer에 남아 있던 gnb-management-dialog 폭/그림자/overflow 스타일을 제거
+   - 닫힘 중 aria-hidden 때문에 fade-out이 즉시 끊기는 문제 보정
+   - AI/혜택 이미지 확대에서 불필요한 내부 스크롤/배경 스크롤을 줄임 */
+#settingsSuiteModal.du-layer.gnb-management-dialog,
+#settingsSuiteModal.du-layer.settings-suite-dialog{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:24px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:rgba(15,23,42,.52) !important;
+  box-shadow:none !important;
+  overflow:hidden !important;
+  display:grid !important;
+  place-items:center !important;
+  opacity:0;
+  transform:none !important;
+  transition:opacity .18s ease !important;
+}
+#settingsSuiteModal.du-layer.gnb-management-dialog[aria-hidden="true"]:not(.upick-motion-closing),
+#settingsSuiteModal.du-layer.settings-suite-dialog[aria-hidden="true"]:not(.upick-motion-closing){
+  display:none !important;
+}
+#settingsSuiteModal.du-layer.gnb-management-dialog.show,
+#settingsSuiteModal.du-layer.gnb-management-dialog.is-open,
+#settingsSuiteModal.du-layer.gnb-management-dialog[aria-hidden="false"],
+#settingsSuiteModal.du-layer.settings-suite-dialog.show,
+#settingsSuiteModal.du-layer.settings-suite-dialog.is-open,
+#settingsSuiteModal.du-layer.settings-suite-dialog[aria-hidden="false"]{
+  opacity:1 !important;
+}
+#settingsSuiteModal.du-layer.gnb-management-dialog.upick-motion-closing,
+#settingsSuiteModal.du-layer.settings-suite-dialog.upick-motion-closing{
+  display:grid !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+#settingsSuiteModal.du-layer .gnb-management-shell.du-layer__panel{
+  width:min(560px, calc(100vw - 48px)) !important;
+  height:min(720px, calc(100dvh - 72px)) !important;
+  max-height:calc(100dvh - 72px) !important;
+  border-radius:28px !important;
+  background:rgba(255,255,255,.98) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  transform:translateY(10px) scale(.985);
+  transition:transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease !important;
+}
+#settingsSuiteModal.du-layer.show .gnb-management-shell.du-layer__panel,
+#settingsSuiteModal.du-layer.is-open .gnb-management-shell.du-layer__panel,
+#settingsSuiteModal.du-layer[aria-hidden="false"] .gnb-management-shell.du-layer__panel{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+}
+#settingsSuiteModal.du-layer.upick-motion-closing .gnb-management-shell.du-layer__panel{
+  opacity:0 !important;
+  transform:translateY(8px) scale(.985) !important;
+}
+#settingsSuiteModal.du-layer .gnb-management-head.du-layer__header{
+  flex:0 0 auto !important;
+  padding:20px 20px 16px !important;
+}
+#settingsSuiteModal.du-layer .gnb-management-body.du-layer__body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:18px 20px 22px !important;
+  scrollbar-gutter:auto !important;
+}
+@media(max-width:640px){
+  #settingsSuiteModal.du-layer.gnb-management-dialog,
+  #settingsSuiteModal.du-layer.settings-suite-dialog{
+    padding:12px !important;
+  }
+  #settingsSuiteModal.du-layer .gnb-management-shell.du-layer__panel{
+    width:calc(100vw - 24px) !important;
+    height:min(700px, calc(100dvh - 24px)) !important;
+    max-height:calc(100dvh - 24px) !important;
+    border-radius:26px !important;
+  }
+  #settingsSuiteModal.du-layer .gnb-management-head.du-layer__header{
+    padding:18px 18px 14px !important;
+  }
+  #settingsSuiteModal.du-layer .gnb-management-body.du-layer__body{
+    padding:16px 18px 20px !important;
+  }
+}
+
+/* 기존 keyframe이 계속 재시작되며 페이드가 깨지는 현상 방지: 설정 모음은 transition으로만 처리 */
+#settingsSuiteModal.du-layer.show,
+#settingsSuiteModal.du-layer.is-open,
+#settingsSuiteModal.du-layer[aria-hidden="false"],
+#settingsSuiteModal.du-layer.show .du-layer__panel,
+#settingsSuiteModal.du-layer.is-open .du-layer__panel,
+#settingsSuiteModal.du-layer[aria-hidden="false"] .du-layer__panel{
+  animation:none !important;
+}
+
+#aiImageZoomBackdrop.du-layer--fullscreen.show,
+#aiImageZoomBackdrop.du-layer--fullscreen[aria-hidden="false"]{
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  overflow:hidden !important;
+  scrollbar-gutter:auto !important;
+  overscroll-behavior:contain !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+  max-height:calc(100dvh - 64px) !important;
+  object-fit:contain !important;
+}
+body.upick-layer-open #aiImageZoomBackdrop.du-layer--fullscreen,
+body.upick-modal-open #aiImageZoomBackdrop.du-layer--fullscreen{
+  touch-action:none;
+}

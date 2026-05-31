@@ -192,10 +192,15 @@
   function closeLayer(layer){
     if(typeof layer === 'string') layer = document.getElementById(layer);
     if(!layer) return false;
-    layer.setAttribute('aria-hidden', 'true');
-    layer.classList.remove('show','is-open','open');
-    unmount(layer);
-    document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer } }));
+    layer.classList.remove('show','is-open','open','upick-motion-open');
+    layer.classList.add('upick-motion-closing');
+    setTimeout(function(){
+      layer.classList.remove('upick-motion-closing','upick-motion-layer');
+      layer.setAttribute('aria-hidden', 'true');
+      unmount(layer);
+      document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer } }));
+      if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+    }, 180);
     return true;
   }
 
@@ -317,10 +322,10 @@
     if(!layer) return false;
     layer.classList.remove('show','is-open','upick-motion-open');
     layer.classList.add('upick-motion-closing');
-    layer.setAttribute('aria-hidden','true');
     var opener = layer.__duLastOpener;
     setTimeout(function(){
       layer.classList.remove('upick-motion-closing','upick-motion-layer');
+      layer.setAttribute('aria-hidden','true');
       try{ layer.close && layer.open && layer.close(); }catch(_){ try{ layer.removeAttribute('open'); }catch(__){} }
       unmount(layer);
       document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer, source:'settings-suite' } }));
