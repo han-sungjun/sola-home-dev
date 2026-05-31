@@ -118,7 +118,8 @@
           '</div>'+
         '</div>'+
       '</div>';
-    document.body.appendChild(overlay);
+    if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(overlay, 'fullscreen');
+    else (document.getElementById('duFullPopupRoot') || document.body).appendChild(overlay);
 
     var img = overlay.querySelector('.benefit-image-preview-single-img');
     var count = overlay.querySelector('.benefit-image-preview-frame-count');

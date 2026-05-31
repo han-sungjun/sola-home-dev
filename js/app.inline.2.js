@@ -157,8 +157,9 @@
         initialFocusSelector: '.gnb-manage-close, #gnbShareActionSlot button, #gnbAdminActionSlot button'
       });
     }else{
-      document.body.appendChild(panel);
-      panel.classList.add('show');
+      (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(panel, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(panel));
+      panel.classList.add('du-layer','du-layer--modal','show');
+      panel.setAttribute('data-du-layer','modal');
     }
   }
 

@@ -18,7 +18,7 @@
       root = document.createElement('div');
       root.id = 'commonModalRoot';
       root.className = 'common-modal-root';
-      document.body.appendChild(root);
+      (document.getElementById('duModalRoot') || document.body).appendChild(root);
     }else{
       root.classList.add('common-modal-root');
     }
