@@ -359,8 +359,17 @@ async function showAppAlert({
   alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
-  alertEl.classList.add('show');
-  alertEl.setAttribute('aria-hidden', 'false');
+  const alertPanel = alertEl.querySelector('.app-alert-card');
+  if (window.UpickMotion && typeof window.UpickMotion.open === 'function') {
+    window.UpickMotion.open(alertEl, {
+      activeClass: 'show',
+      panel: alertPanel,
+      duration: 320
+    });
+  } else {
+    alertEl.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => requestAnimationFrame(() => alertEl.classList.add('show')));
+  }
 
   alertConfirmEl.onclick = null;
   alertCancelEl.onclick = null;

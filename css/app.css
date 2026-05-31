@@ -29313,3 +29313,63 @@ body[data-loading-mode="public"] main{
   border:1px solid rgba(255,255,255,.62)!important;
   background:rgba(255,255,255,.14)!important;
 }
+
+/* ===== v20260531-fix23: 이미지/AI 확대 팝업 fade lifecycle 재보정 =====
+   하단 hard override의 :not(.show) 규칙이 closing 상태까지 visibility:hidden 으로 만들어
+   일부 팝업의 fade-out 이 즉시 사라지는 문제를 막습니다. */
+.benefit-image-preview-overlay,
+.news-image-preview-overlay,
+.ai-image-zoom-backdrop{
+  transition:
+    opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    visibility 0s linear .32s,
+    background-color .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    backdrop-filter .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.benefit-image-preview-overlay.show,
+.news-image-preview-overlay.show,
+.ai-image-zoom-backdrop.show{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transition:
+    opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    visibility 0s linear 0s,
+    background-color .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    backdrop-filter .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.benefit-image-preview-overlay.closing,
+.news-image-preview-overlay.closing,
+.ai-image-zoom-backdrop.closing,
+.benefit-image-preview-overlay.upick-motion-closing,
+.news-image-preview-overlay.upick-motion-closing,
+.ai-image-zoom-backdrop.upick-motion-closing{
+  display:flex !important;
+  opacity:0 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+  transition:
+    opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    visibility 0s linear .32s,
+    background-color .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    backdrop-filter .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.benefit-image-preview-overlay.closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.closing .news-image-preview-dialog,
+.ai-image-zoom-backdrop.closing .ai-image-zoom-card,
+.ai-image-zoom-backdrop.closing .du-layer__panel,
+.benefit-image-preview-overlay.upick-motion-closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.upick-motion-closing .news-image-preview-dialog,
+.ai-image-zoom-backdrop.upick-motion-closing .ai-image-zoom-card,
+.ai-image-zoom-backdrop.upick-motion-closing .du-layer__panel{
+  opacity:0 !important;
+  transform:translateY(16px) scale(.985) !important;
+  transition:opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)), transform .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.news-image-preview-overlay.show .news-image-preview-dialog,
+.benefit-image-preview-overlay.show .benefit-image-preview-dialog,
+.ai-image-zoom-backdrop.show .ai-image-zoom-card,
+.ai-image-zoom-backdrop.show .du-layer__panel{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+}

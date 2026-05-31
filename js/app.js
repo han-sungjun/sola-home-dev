@@ -4094,7 +4094,7 @@ function openNewsImagePreview(src='', title='소식 이미지'){
  overlay.setAttribute('aria-hidden','false');
  overlay.setAttribute('open','');
  document.body.classList.add('news-image-preview-open');
- requestAnimationFrame(() => overlay.classList.add('show'));
+ requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
 }
 
 document.addEventListener('click', (event) => {
@@ -8943,10 +8943,10 @@ function openCalendarReservationModal(item={}){
  delete overlay.dataset.upickImageClosing;
  overlay.setAttribute('aria-hidden','false');
  overlay.setAttribute('open','');
- requestAnimationFrame(() => {
+ requestAnimationFrame(() => requestAnimationFrame(() => {
    overlay.classList.add('show');
    try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){}
- });
+ }));
  setTimeout(removeLegacyBenefitPhotoViewer, 0);
  setTimeout(removeLegacyBenefitPhotoViewer, 80);
  }
