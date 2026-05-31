@@ -11,13 +11,16 @@
   var initialized = false;
 
   function ensureRoot(){
-    if(root) return root;
-    root = document.getElementById('commonModalRoot');
+    if(root && root.isConnected) return root;
+    var duRoot = document.getElementById('duModalRoot');
+    root = duRoot || document.getElementById('commonModalRoot');
     if(!root){
       root = document.createElement('div');
       root.id = 'commonModalRoot';
       root.className = 'common-modal-root';
       document.body.appendChild(root);
+    }else{
+      root.classList.add('common-modal-root');
     }
     return root;
   }
