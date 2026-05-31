@@ -1736,3 +1736,36 @@ body.upick-layer-open #aiImageZoomBackdrop.du-layer--fullscreen,
 body.upick-modal-open #aiImageZoomBackdrop.du-layer--fullscreen{
   touch-action:none;
 }
+
+
+/* v20260531-root3-dynamic-fix9: 설정 모음 위에 계정 정보/비밀번호 팝업을 확실히 올림 */
+#settingsSuiteModal.du-layer.is-under-account-popup{
+  z-index:2147483500 !important;
+}
+#settingsSuiteModal.du-layer.is-under-account-popup .gnb-management-shell.du-layer__panel{
+  pointer-events:none !important;
+}
+#accountEditModal.du-layer,
+#passwordChangeModal.du-layer{
+  z-index:2147483560 !important;
+}
+#accountEditModal.du-layer.show,
+#accountEditModal.du-layer[open],
+#accountEditModal.du-layer[aria-hidden="false"],
+#passwordChangeModal.du-layer.show,
+#passwordChangeModal.du-layer[open],
+#passwordChangeModal.du-layer[aria-hidden="false"]{
+  z-index:2147483560 !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:24px !important;
+}
+#accountEditModal.du-layer.show > .du-layer__panel,
+#accountEditModal.du-layer[open] > .du-layer__panel,
+#accountEditModal.du-layer[aria-hidden="false"] > .du-layer__panel,
+#passwordChangeModal.du-layer.show > .du-layer__panel,
+#passwordChangeModal.du-layer[open] > .du-layer__panel,
+#passwordChangeModal.du-layer[aria-hidden="false"] > .du-layer__panel{
+  position:relative !important;
+  z-index:1 !important;
+}

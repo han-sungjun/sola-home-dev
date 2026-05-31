@@ -2233,11 +2233,20 @@ function getAccountDivModalPanel(modal){
 
 function openAccountMotionDialog(modal, focusSelector){
  if(!modal) return;
- // 설정 모음(CommonModal) 내부에서 버튼을 눌러도 계정/비밀번호 팝업은
- // 항상 body 직속 최상위 레이어로 띄워서 뒤로 묻히지 않게 합니다.
+ // Root3 전환 후 설정 모음이 열린 상태에서 계정/비밀번호 팝업을 열면
+ // 같은 modal root 안에서 z-index/DOM 순서가 섞일 수 있으므로,
+ // 계정 계열 팝업은 항상 현재 Root의 마지막 자식 + 최상위 z-index로 승격합니다.
  try{
   modal = __duMountLegacyElement(modal) || modal;
+  const modalRoot = document.getElementById('duModalRoot');
+  if(modalRoot && modal.parentNode === modalRoot) modalRoot.appendChild(modal);
+  modal.dataset.upickAccountOverlay = 'true';
   modal.style.setProperty('z-index', '2147483560', 'important');
+  const settings = document.getElementById('settingsSuiteModal');
+  if(settings && settings !== modal && (settings.classList.contains('show') || settings.hasAttribute('open') || settings.getAttribute('aria-hidden') === 'false')){
+    settings.classList.add('is-under-account-popup');
+    settings.style.setProperty('z-index', '2147483500', 'important');
+  }
  }catch(_){}
  if(isLayerOpenLike(modal)) closeLayerElementLikeDialog(modal);
  const panel = getAccountDivModalPanel(modal);
@@ -2275,6 +2284,16 @@ function closeAccountMotionDialog(modal, afterClose){
   modal.setAttribute('aria-hidden','true');
   closeLayerElementLikeDialog(modal);
   try{ UpickPopupStack.release(modal); }catch(_){}
+  try{
+    const accountOpen = document.querySelector('#accountEditModal.show,#accountEditModal[open],#accountEditModal[aria-hidden="false"],#passwordChangeModal.show,#passwordChangeModal[open],#passwordChangeModal[aria-hidden="false"]');
+    if(!accountOpen){
+      const settings = document.getElementById('settingsSuiteModal');
+      if(settings){
+        settings.classList.remove('is-under-account-popup');
+        settings.style.removeProperty('z-index');
+      }
+    }
+  }catch(_){}
   try{
     if(typeof window.__upickV8SyncModalScrollLock === 'function') setTimeout(window.__upickV8SyncModalScrollLock, 0);
     else if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0);
