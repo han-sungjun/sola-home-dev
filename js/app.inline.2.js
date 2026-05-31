@@ -2,8 +2,20 @@
   'use strict';
 
   function closeOperationManageModal(){
+    function cleanup(){
+      document.querySelectorAll('#gnbOperationManageModal').forEach(function(el){
+        if(el.closest && el.closest('.common-modal-overlay.show, .common-modal-overlay.is-open')) return;
+        var overlay = el.closest && el.closest('.common-modal-overlay');
+        if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        else if(el.parentNode) el.parentNode.removeChild(el);
+      });
+      try{ if(window.DuLayer && typeof window.DuLayer.cleanupInactive === 'function') window.DuLayer.cleanupInactive(); }catch(_){}
+      try{ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }catch(_){}
+      try{ if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0); }catch(_){}
+    }
     if(window.CommonModal && typeof window.CommonModal.close === 'function'){
       window.CommonModal.close();
+      setTimeout(cleanup, 280);
       return;
     }
 
@@ -11,6 +23,7 @@
     if(modal){
       modal.classList.remove('show', 'active', 'open');
       modal.setAttribute('aria-hidden', 'true');
+      setTimeout(cleanup, 240);
     }
   }
 
@@ -135,8 +148,7 @@
     removeStaleOperationPanels();
     var panel = makeOperationPanel();
     panel.querySelector('.gnb-manage-close')?.addEventListener('click', function(){
-      if(window.CommonModal && typeof window.CommonModal.close === 'function') window.CommonModal.close();
-      else panel.remove();
+      closeOperationManageModal();
     });
     panel.querySelector('#openAdminPageFromGnbBtn')?.addEventListener('click', openAdminConsole);
     panel.querySelector('#rootOpenAdminBtn')?.addEventListener('click', openAdminConsole);

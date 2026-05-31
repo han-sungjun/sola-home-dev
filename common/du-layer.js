@@ -207,6 +207,33 @@
     return layer;
   }
 
+
+  function isLayerOpenForCleanup(layer){
+    if(!layer || layer.hidden) return false;
+    if(layer.classList && (layer.classList.contains('show') || layer.classList.contains('is-open') || layer.classList.contains('open') || layer.classList.contains('upick-motion-open'))) return true;
+    if(layer.hasAttribute && layer.hasAttribute('open')) return true;
+    if(layer.getAttribute && layer.getAttribute('aria-hidden') === 'false') return true;
+    return false;
+  }
+
+  function cleanupInactiveLegacyLayers(){
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || !tpl.content) return;
+    LAYERS.forEach(function(cfg){
+      var layer = document.getElementById(cfg.id);
+      if(!layer || !layer.closest || !layer.closest('.du-layer-root')) return;
+      if(layer.dataset && layer.dataset.duDynamic === '1') return;
+      if(isLayerOpenForCleanup(layer)) return;
+      try{ unmount(layer); }catch(_){ }
+    });
+    ['#gnbOperationManageModal'].forEach(function(selector){
+      document.querySelectorAll(selector).forEach(function(el){
+        if(el.closest && el.closest('.common-modal-overlay')) return;
+        if(el.parentNode) el.parentNode.removeChild(el);
+      });
+    });
+  }
+
   function closeLayer(layer){
     if(typeof layer === 'string') layer = document.getElementById(layer);
     if(!layer) return false;
@@ -215,7 +242,9 @@
       layer.setAttribute('aria-hidden', 'true');
       unmount(layer);
       document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer } }));
+      cleanupInactiveLegacyLayers();
       if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+      if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0);
     }
     if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
       window.UpickMotion.close(layer, {
@@ -438,9 +467,10 @@
   window.DuLayer.getRoot = getRoot;
   window.DuLayer.mount = mount;
   window.DuLayer.syncRoots = syncRoots;
+  window.DuLayer.cleanupInactive = cleanupInactiveLegacyLayers;
   window.DuLayer.unmount = unmount;
   window.DuLayer.ensure = ensureLegacyLayer;
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, unmount:unmount, mountLegacyTemplates:mountLegacyTemplates, ensure:ensureLegacyLayer, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, cleanupInactive:cleanupInactiveLegacyLayers, unmount:unmount, mountLegacyTemplates:mountLegacyTemplates, ensure:ensureLegacyLayer, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
   document.addEventListener('upick:layer-opened', enhanceOpenLayers);
   document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();

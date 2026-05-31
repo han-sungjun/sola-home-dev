@@ -32,11 +32,22 @@
     document.body.style.top = '-' + scrollY + 'px';
   }
 
+  function hasCommonModalOverlay(){
+    return !!document.querySelector('.common-modal-overlay.show,.common-modal-overlay.is-open,.common-modal-overlay[aria-hidden="false"]');
+  }
+
+  function syncAfterClose(){
+    try{ if(window.DuLayer && typeof window.DuLayer.cleanupInactive === 'function') window.DuLayer.cleanupInactive(); }catch(_){}
+    try{ document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ id:'commonModalRoot', type:'modal' } })); }catch(_){}
+    try{ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }catch(_){}
+    try{ if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0); }catch(_){}
+  }
+
   function unlockBody(){
     document.documentElement.classList.remove('common-modal-lock');
     document.body.classList.remove('common-modal-lock');
     document.body.style.top = '';
-    window.scrollTo(0, scrollY || 0);
+    if(!hasCommonModalOverlay()) window.scrollTo(0, scrollY || 0);
   }
 
   function focusFirst(selector){
@@ -62,6 +73,9 @@
       }
       document.removeEventListener('keydown', trapEsc, true);
       if(closingOverlay && closingOverlay.parentNode) closingOverlay.remove();
+      document.querySelectorAll('.common-modal-overlay:not(.show):not(.is-open), .common-modal-overlay[aria-hidden="true"]').forEach(function(el){
+        if(el !== overlay && el.parentNode) el.parentNode.removeChild(el);
+      });
       if(overlay === closingOverlay){
         overlay = null;
         stage = null;
@@ -70,6 +84,8 @@
         currentPlaceholder = null;
       }
       unlockBody();
+      syncAfterClose();
+      setTimeout(syncAfterClose, 260);
       if(typeof opts.onClose === 'function') opts.onClose(content);
     }
     if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
