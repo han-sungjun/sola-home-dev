@@ -2276,14 +2276,30 @@ function openAccountMotionDialog(modal, focusSelector){
 }
 
 function closeAccountMotionDialog(modal, afterClose){
- if(!isLayerOpenLike(modal)){ if(typeof afterClose === 'function') afterClose(); return; }
+ if(!modal){ if(typeof afterClose === 'function') afterClose(); return; }
  const panel = getAccountDivModalPanel(modal);
+ var finished=false;
+ function syncAccountLockSoon(){
+  try{
+    if(typeof window.__upickV8SyncModalScrollLock === 'function') setTimeout(window.__upickV8SyncModalScrollLock, 0);
+    else if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0);
+    if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') setTimeout(window.DuLayerStackManager.requestSync, 0);
+  }catch(_){}
+ }
  var done=function(){
+  if(finished) return;
+  finished=true;
   modal.classList.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-layer','upick-motion-panel','upick-motion-open','upick-motion-closing');
   panel?.classList?.remove('show','closing','is-closing','upick-motion-dialog','upick-motion-panel','upick-motion-open','upick-motion-closing');
   modal.setAttribute('aria-hidden','true');
+  modal.removeAttribute('open');
   closeLayerElementLikeDialog(modal);
+  try{ modal.style.removeProperty('z-index'); }catch(_){}
   try{ UpickPopupStack.release(modal); }catch(_){}
+  try{
+    if(window.DuLayer && typeof window.DuLayer.unmount === 'function') window.DuLayer.unmount(modal);
+    else if(modal.parentNode && modal.closest && modal.closest('.du-layer-root')) modal.parentNode.removeChild(modal);
+  }catch(_){}
   try{
     const accountOpen = document.querySelector('#accountEditModal.show,#accountEditModal[open],#accountEditModal[aria-hidden="false"],#passwordChangeModal.show,#passwordChangeModal[open],#passwordChangeModal[aria-hidden="false"]');
     if(!accountOpen){
@@ -2294,26 +2310,26 @@ function closeAccountMotionDialog(modal, afterClose){
       }
     }
   }catch(_){}
-  try{
-    if(typeof window.__upickV8SyncModalScrollLock === 'function') setTimeout(window.__upickV8SyncModalScrollLock, 0);
-    else if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0);
-    document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ id: modal && modal.id } }));
-  }catch(_){}
+  try{ document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ id: modal && modal.id, source:'account-modal' } })); }catch(_){}
+  syncAccountLockSoon();
   if(typeof afterClose === 'function') afterClose();
  };
+ if(!isLayerOpenLike(modal)){ done(); return; }
  if(window.UpickMotion){
   window.UpickMotion.close(modal,{
    activeClass:'show',
    closingClass:'is-closing',
    panel:panel,
    duration:320,
+   ariaHidden:false,
    afterClose:done
   });
+  window.setTimeout(done, 420);
  }else{
   modal.classList.remove('show','upick-motion-open');
-  modal.classList.add('is-closing');
+  modal.classList.add('is-closing','upick-motion-closing');
   panel?.classList?.remove('upick-motion-open');
-  panel?.classList?.add('is-closing');
+  panel?.classList?.add('is-closing','upick-motion-closing');
   window.setTimeout(done,320);
  }
 }
@@ -2470,6 +2486,30 @@ function closePasswordChangeModal(){
   const modal = qs('#passwordChangeModal');
   closeAccountMotionDialog(modal, resetPasswordChangeForm);
 }
+
+// Root3 동적 이동 이후 X/취소 버튼이 template 상태에서 바인딩이 누락되어도
+// 계정/비밀번호 팝업은 캡처 단계에서 확실하게 닫히도록 보강합니다.
+(function bindAccountModalCloseDelegation(){
+  if(window.__upickAccountModalCloseDelegationBound) return;
+  window.__upickAccountModalCloseDelegationBound = true;
+  document.addEventListener('click', function(event){
+    const closeAccountBtn = event.target?.closest?.('#closeAccountEditModal,#cancelAccountEditBtn');
+    if(closeAccountBtn){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      closeAccountEditModal();
+      return;
+    }
+    const closePasswordBtn = event.target?.closest?.('#closePasswordChangeModal,#cancelPasswordChangeBtn');
+    if(closePasswordBtn){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      closePasswordChangeModal();
+    }
+  }, true);
+})();
 
 async function submitPasswordChange(event){
   event?.preventDefault?.();
