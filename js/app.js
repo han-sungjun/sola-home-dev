@@ -941,14 +941,28 @@ const __duLegacyElementLayerMap = {
  passwordChangeModal:'passwordChangeModal', closePasswordChangeModal:'passwordChangeModal', passwordChangeForm:'passwordChangeModal', currentPasswordInput:'passwordChangeModal', newPasswordInput:'passwordChangeModal', newPasswordConfirmInput:'passwordChangeModal', passwordChangeMatchMessage:'passwordChangeModal', cancelPasswordChangeBtn:'passwordChangeModal', submitPasswordChangeBtn:'passwordChangeModal',
  aiImageZoomBackdrop:'aiImageZoomBackdrop', aiImageZoomTitle:'aiImageZoomBackdrop', aiImageZoomCloseBtn:'aiImageZoomBackdrop', aiImageZoomScroll:'aiImageZoomBackdrop', aiImageZoomImg:'aiImageZoomBackdrop'
 };
-function __duEnsureForSelector(selector){
- if(typeof selector !== 'string') return;
- var m = selector.match(/^#([A-Za-z0-9_\-:]+)$/);
- if(!m) return;
- var layerId = __duLegacyElementLayerMap[m[1]];
- if(layerId && window.DuLayer && typeof window.DuLayer.ensure === 'function') window.DuLayer.ensure(layerId);
+function __duCssEscape(value){
+ try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value)); }catch(_){}
+ return String(value).replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/])/g,'\\$1');
 }
-const qs=(s)=>{__duEnsureForSelector(s);return document.querySelector(s);}, qsa=(s)=>[...document.querySelectorAll(s)];
+function __duFindLegacyElement(selector){
+ if(typeof selector !== 'string') return null;
+ var tpl = document.getElementById('duLayerLegacyTemplate');
+ if(!tpl || !tpl.content) return null;
+ try{ return tpl.content.querySelector(selector); }catch(_){ return null; }
+}
+function __duFindLegacyElements(selector){
+ var tpl = document.getElementById('duLayerLegacyTemplate');
+ if(!tpl || !tpl.content) return [];
+ try{ return Array.prototype.slice.call(tpl.content.querySelectorAll(selector)); }catch(_){ return []; }
+}
+function __duMountLegacyElement(el){
+ if(!el || el.isConnected) return el;
+ var layer = el.classList && el.classList.contains('du-layer') ? el : (el.closest ? el.closest('.du-layer') : null);
+ if(layer && window.DuLayer && typeof window.DuLayer.mount === 'function') return window.DuLayer.mount(layer);
+ return el;
+}
+const qs=(s)=>document.querySelector(s)||__duFindLegacyElement(s), qsa=(s)=>{const found=[...document.querySelectorAll(s)]; return found.length ? found : __duFindLegacyElements(s);};
 
  function isMobileEdgeBrowserGlobal() {
  const ua = String(navigator.userAgent || '').toLowerCase();
@@ -2160,6 +2174,7 @@ window.UpickPopupStack = UpickPopupStack;
 
 function openLayerElementLikeDialog(modal){
  if(!modal) return;
+ try{ modal = __duMountLegacyElement(modal) || modal; }catch(_){}
  try{
   if(typeof modal.showModal === 'function' && !modal.open) modal.showModal();
   else modal.setAttribute('open','');
@@ -2187,7 +2202,7 @@ function openAccountMotionDialog(modal, focusSelector){
  // 설정 모음(CommonModal) 내부에서 버튼을 눌러도 계정/비밀번호 팝업은
  // 항상 body 직속 최상위 레이어로 띄워서 뒤로 묻히지 않게 합니다.
  try{
-  if(modal.parentElement !== document.body) document.body.appendChild(modal);
+  modal = __duMountLegacyElement(modal) || modal;
   modal.style.setProperty('z-index', '2147483560', 'important');
  }catch(_){}
  if(isLayerOpenLike(modal)) closeLayerElementLikeDialog(modal);
@@ -3432,7 +3447,7 @@ function formatTravelDuration(minutes){
 
  async function showProximityBrowserNotification({ title = '근처 혜택 발견', message = '', item = null, stage = null } = {}){
  try{
- if(navigator.vibrate && stage?.vibrate) navigator.vibrate(stage.vibrate);
+ if(navigator.vibrate && stage?.vibrate && (navigator.userActivation?.isActive || document.hasFocus())){ try{ navigator.vibrate(stage.vibrate); }catch(_e){} }
  if(Notification?.permission !== 'granted') return;
  const benefitId = item?.id || '';
  const url = benefitId ? `/app?open=benefit&id=${encodeURIComponent(benefitId)}&from=proximity` : '/app';
@@ -9163,6 +9178,7 @@ function openCalendarReservationModal(item={}){
 
  function openDialogSafe(el, options = {}){
  if(!el) return;
+ try{ el = __duMountLegacyElement(el) || el; }catch(_){}
  if(isMotionDialogExcluded(el) || !window.UpickMotion){
   openNativeDialogSafe(el);
   try{ UpickPopupStack.bring(el); }catch(_){}
@@ -9198,6 +9214,7 @@ function openCalendarReservationModal(item={}){
  if(isMotionDialogExcluded(el) || !window.UpickMotion || !(el.open || el.hasAttribute('open') || el.classList.contains('show'))){
   closeNativeDialogSafe(el);
   try{ UpickPopupStack.release(el); }catch(_){}
+  try{ window.DuLayer?.unmount?.(el); }catch(_){}
   if(afterClose) afterClose();
   return;
  }
@@ -9216,6 +9233,7 @@ function openCalendarReservationModal(item={}){
    try{ cleanupMotionDialogClasses(el.querySelector(':scope > .upick-div-dialog-panel')); }catch(_){}
    el.setAttribute('aria-hidden','true');
    try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+   try{ window.DuLayer?.unmount?.(el); }catch(_){}
    if(afterClose) afterClose();
   }
  });

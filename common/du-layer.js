@@ -60,6 +60,28 @@
     return layer;
   }
 
+  function isLegacyLayer(layer){
+    if(!layer || !layer.id) return false;
+    return LAYERS.some(function(cfg){ return cfg.id === layer.id; });
+  }
+
+  function unmount(layer){
+    if(typeof layer === 'string') layer = document.getElementById(layer);
+    if(!layer || !layer.parentNode) return false;
+    if(layer.dataset && layer.dataset.duDynamic === '1'){
+      layer.parentNode.removeChild(layer);
+      return true;
+    }
+    if(!isLegacyLayer(layer)) return false;
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || !tpl.content) return false;
+    try{ layer.removeAttribute('open'); }catch(_){}
+    try{ layer.classList.remove('show','is-open','open','upick-motion-open','upick-motion-dialog','upick-motion-layer','upick-motion-panel'); }catch(_){}
+    try{ layer.setAttribute('aria-hidden','true'); }catch(_){}
+    tpl.content.appendChild(layer);
+    return true;
+  }
+
   function syncRoots(){
     ensureRoot('sheet'); ensureRoot('modal'); ensureRoot('fullscreen');
     document.querySelectorAll('.du-layer').forEach(function(layer){
@@ -172,9 +194,7 @@
     if(!layer) return false;
     layer.setAttribute('aria-hidden', 'true');
     layer.classList.remove('show','is-open','open');
-    if(layer.parentNode && layer.parentNode.classList && layer.parentNode.classList.contains('du-layer-root') && layer.dataset.duDynamic === '1'){
-      layer.parentNode.removeChild(layer);
-    }
+    unmount(layer);
     document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer } }));
     return true;
   }
@@ -310,8 +330,9 @@
   window.DuLayer.getRoot = getRoot;
   window.DuLayer.mount = mount;
   window.DuLayer.syncRoots = syncRoots;
+  window.DuLayer.unmount = unmount;
   window.DuLayer.ensure = ensureLegacyLayer;
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, mountLegacyTemplates:mountLegacyTemplates, ensure:ensureLegacyLayer, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, unmount:unmount, mountLegacyTemplates:mountLegacyTemplates, ensure:ensureLegacyLayer, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
   document.addEventListener('upick:layer-opened', enhanceOpenLayers);
   document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();
