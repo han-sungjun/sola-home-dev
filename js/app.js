@@ -15039,6 +15039,31 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return false;
   };
 
+  function syncAiImageZoomLocks(){
+    // AI 이미지 확대 팝업은 fade-out 때문에 닫힘 완료 전까지 aria-hidden 처리를 늦춥니다.
+    // 닫힘 완료 후에는 공통 lock 시스템을 명시적으로 재동기화해서 body/html lock 잔재를 제거합니다.
+    try{ window.DuLayerStackManager?.requestSync?.(); }catch(_){ }
+    try{ window.__upickSyncModalScrollLock?.(); }catch(_){ }
+    try{ window.__upickV8SyncModalScrollLock?.(); }catch(_){ }
+    window.setTimeout(function(){
+      try{ window.DuLayerStackManager?.requestSync?.(); }catch(_){ }
+      try{ window.__upickSyncModalScrollLock?.(); }catch(_){ }
+      try{ window.__upickV8SyncModalScrollLock?.(); }catch(_){ }
+      var stillOpen = false;
+      try{ stillOpen = !!(window.DuLayerStackManager && window.DuLayerStackManager.hasOpenLayer && window.DuLayerStackManager.hasOpenLayer()); }catch(_){ }
+      var modalOpen = !!document.querySelector([
+        '.du-layer.show', '.du-layer[open]', '.du-layer[aria-hidden="false"]',
+        '.upick-div-modal.show', '.upick-div-dialog.show', '.common-modal-overlay.show',
+        'dialog[open]', '.app-alert.show', '.sheet-modal.show'
+      ].join(','));
+      if(!stillOpen && !modalOpen){
+        document.documentElement.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','upick-modal-open');
+        document.body.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','upick-modal-open','ai-image-zoom-open');
+        try{ window.__upickHardScrollFreeze?.forceUnlock?.(); }catch(_){ }
+      }
+    }, 40);
+  }
+
   window.closeAiImageZoom = function(){
     const layer = document.getElementById('aiImageZoomBackdrop');
     const img = document.getElementById('aiImageZoomImg');
@@ -15054,6 +15079,8 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
       document.body.classList.remove('ai-image-zoom-open');
       if(img) img.removeAttribute('src');
       try{ window.DuLayer?.unmount?.(layer); }catch(_){ }
+      try{ document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer: layer, source: 'ai-image-zoom' } })); }catch(_){ }
+      syncAiImageZoomLocks();
     }, DURATION);
     return false;
   };
