@@ -8485,7 +8485,7 @@ function openCalendarReservationModal(item={}){
  const track = slider.querySelector('.benefit-detail-photo-track');
  if(track){
    track.style.transition = options.animate === false ? 'none' : '';
-   track.style.transform = `translate3d(${-index * getBenefitPhotoSlidePercent()}%,0,0)`;
+   track.style.transform = 'translate3d(0,0,0)';
  }
  slides.forEach((slide, i) => {
    const active = i === index;
@@ -8734,41 +8734,39 @@ function openCalendarReservationModal(item={}){
  };
  const ensureSlides = () => {
    if(!track) return;
-   const renderedKey = track.dataset.previewImagesKey || '';
-   const nextKey = images.join('||');
-   if(renderedKey === nextKey && track.querySelectorAll('.benefit-image-preview-slide').length === images.length){
-     track.style.width = '100%';
-     track.querySelectorAll('.benefit-image-preview-slide').forEach((slide) => {
-       slide.style.flex = '0 0 100%';
-       slide.style.width = '100%';
-       slide.style.maxWidth = '100%';
-     });
-     return;
+   const safeIndex = Math.max(0, Math.min(images.length - 1, Number(index) || 0));
+   const activeUrl = images[safeIndex] || '';
+   const nextKey = `${safeIndex}||${activeUrl}`;
+
+   // Root3 전환 후 기존 track 슬라이드 방식은 CSS/Root 보정이 겹치면
+   // 2번째 사진 위치가 빈 영역으로 밀릴 수 있습니다.
+   // 확대 팝업에서는 현재 사진 1장만 렌더하고, 스와이프 시 src 자체를 교체해 안정화합니다.
+   if(track.dataset.previewImagesKey !== nextKey || !track.querySelector('img')){
+     track.dataset.previewImagesKey = nextKey;
+     track.innerHTML = `<div class="benefit-image-preview-slide active" data-preview-index="${safeIndex}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(activeUrl)}" alt="${escapeAttr(title)} ${safeIndex + 1}번째 사진" draggable="false" loading="eager" decoding="async"></div></div>`;
+     const img = track.querySelector('img');
+     if(img){
+       img.addEventListener('load', fitDialogToActiveImage, { once:false });
+       img.addEventListener('error', () => {
+         const frame = img.closest('.benefit-image-preview-frame');
+         if(frame) frame.innerHTML = '<div class="benefit-image-preview-error">이미지를 불러올 수 없습니다.</div>';
+       }, { once:true });
+     }
    }
-   track.dataset.previewImagesKey = nextKey;
-   track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide" data-preview-index="${i}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false" loading="eager" decoding="async"></div></div>`).join('');
-   // 확대 팝업은 track 자체를 이미지 개수만큼 넓히고, 각 slide는 1장 폭만 차지하게 고정합니다.
-   // CSS 여러 패치가 겹치더라도 2번째 이후 사진이 빈 화면으로 밀리는 현상을 방지합니다.
    track.style.width = '100%';
+   track.style.transform = 'translate3d(0,0,0)';
    track.querySelectorAll('.benefit-image-preview-slide').forEach((slide) => {
+     slide.classList.add('active');
      slide.style.flex = '0 0 100%';
      slide.style.width = '100%';
      slide.style.maxWidth = '100%';
-   });
-   track.querySelectorAll('img').forEach((img) => {
-     img.addEventListener('load', () => {
-       if(img.closest('.benefit-image-preview-slide')?.classList.contains('active')) fitDialogToActiveImage();
-     }, { once:false });
    });
  };
  const render = (animate = true) => {
    ensureSlides();
    if(track){
-     track.querySelectorAll('.benefit-image-preview-slide').forEach((slide, i) => {
-       slide.classList.toggle('active', i === index);
-     });
      track.style.transition = animate ? '' : 'none';
-     track.style.transform = `translate3d(${-index * getBenefitPhotoSlidePercent()}%,0,0)`;
+     track.style.transform = 'translate3d(0,0,0)';
      const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
      if(activeImg){
        if(activeImg.complete) requestAnimationFrame(fitDialogToActiveImage);
@@ -8849,7 +8847,7 @@ function openCalendarReservationModal(item={}){
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
-   track.style.transform = `translate3d(${-index * getBenefitPhotoSlidePercent()}%,0,0)`;
+   track.style.transform = 'translate3d(0,0,0)';
  };
  overlay.onclick = (event) => {
    const closeTarget = event.target.closest('.benefit-image-preview-close');
@@ -8904,7 +8902,7 @@ function openCalendarReservationModal(item={}){
        if(track){
          const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
          const percent = (dx / width) * 100;
-         track.style.transform = `translate3d(${(-index * getBenefitPhotoSlidePercent()) + (percent / images.length)}%,0,0)`;
+         track.style.transform = `translate3d(${percent * 0.18}%,0,0)`;
        }
      }
    };

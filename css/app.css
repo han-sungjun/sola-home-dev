@@ -29217,3 +29217,41 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
   align-items:center !important;
   justify-content:center !important;
 }
+
+/* ===== v20260531-root3-dynamic-fix16: 혜택 확대 팝업 단일 이미지 렌더 안정화 ===== */
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-track{
+  width:100% !important;
+  min-width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  transform:translate3d(0,0,0);
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide{
+  flex:0 0 100% !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame{
+  width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-error{
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  opacity:.8;
+}
