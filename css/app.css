@@ -29198,3 +29198,22 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
 .benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img{
   min-width:0 !important;
 }
+
+
+/* v20260531-root3-dynamic-fix13: 혜택 사진 확대 슬라이드는 표준 100% 슬라이드 폭으로 고정 */
+.benefit-image-preview-overlay .benefit-image-preview-track{
+  width:100% !important;
+  display:flex !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-slide{
+  flex:0 0 100% !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-frame{
+  width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}

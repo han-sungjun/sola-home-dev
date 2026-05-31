@@ -8701,7 +8701,7 @@ function openCalendarReservationModal(item={}){
  const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
  const closeBtn = overlay.querySelector('.benefit-image-preview-close');
- const getSlidePercent = () => images.length > 0 ? (100 / images.length) : 100;
+ const getSlidePercent = () => 100;
  const getSlidePixel = () => Math.max(1, body?.clientWidth || body?.getBoundingClientRect?.().width || overlay?.getBoundingClientRect?.().width || 1);
  if(overlay) overlay.dataset.previewCurrentIndex = String(index);
  const fitDialogToActiveImage = () => {
@@ -8733,11 +8733,11 @@ function openCalendarReservationModal(item={}){
    const renderedKey = track.dataset.previewImagesKey || '';
    const nextKey = images.join('||');
    if(renderedKey === nextKey && track.querySelectorAll('.benefit-image-preview-slide').length === images.length){
-     track.style.width = `${images.length * 100}%`;
+     track.style.width = '100%';
      track.querySelectorAll('.benefit-image-preview-slide').forEach((slide) => {
-       slide.style.flex = `0 0 ${getSlidePercent()}%`;
-       slide.style.width = `${getSlidePercent()}%`;
-       slide.style.maxWidth = `${getSlidePercent()}%`;
+       slide.style.flex = '0 0 100%';
+       slide.style.width = '100%';
+       slide.style.maxWidth = '100%';
      });
      return;
    }
@@ -8745,11 +8745,11 @@ function openCalendarReservationModal(item={}){
    track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide" data-preview-index="${i}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false" loading="eager" decoding="async"></div></div>`).join('');
    // 확대 팝업은 track 자체를 이미지 개수만큼 넓히고, 각 slide는 1장 폭만 차지하게 고정합니다.
    // CSS 여러 패치가 겹치더라도 2번째 이후 사진이 빈 화면으로 밀리는 현상을 방지합니다.
-   track.style.width = `${images.length * 100}%`;
+   track.style.width = '100%';
    track.querySelectorAll('.benefit-image-preview-slide').forEach((slide) => {
-     slide.style.flex = `0 0 ${getSlidePercent()}%`;
-     slide.style.width = `${getSlidePercent()}%`;
-     slide.style.maxWidth = `${getSlidePercent()}%`;
+     slide.style.flex = '0 0 100%';
+     slide.style.width = '100%';
+     slide.style.maxWidth = '100%';
    });
    track.querySelectorAll('img').forEach((img) => {
      img.addEventListener('load', () => {
