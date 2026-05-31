@@ -79,7 +79,13 @@
       layer.parentNode.removeChild(layer);
       return true;
     }
-    if(!isLegacyLayer(layer)) return false;
+    if(!isLegacyLayer(layer)){
+      if(layer.closest && layer.closest('.du-layer-root')){
+        layer.parentNode.removeChild(layer);
+        return true;
+      }
+      return false;
+    }
     var tpl = document.getElementById('duLayerLegacyTemplate');
     if(!tpl || !tpl.content) return false;
     try{ layer.removeAttribute('open'); }catch(_){}

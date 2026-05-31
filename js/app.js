@@ -4053,6 +4053,7 @@ function openNewsImagePreview(src='', title='소식 이미지'){
    overlay = document.createElement('div');
    overlay.id = 'newsImagePreviewOverlay';
    overlay.className = 'news-image-preview-overlay upick-image-fade-layer upick-motion-layer du-layer du-layer--fullscreen';
+   overlay.dataset.duDynamic = '1';
    overlay.setAttribute('role','dialog');
    overlay.setAttribute('aria-modal','true');
    overlay.setAttribute('aria-hidden','true');
@@ -4079,8 +4080,9 @@ function openNewsImagePreview(src='', title='소식 이미지'){
        // Root3 편입 후 닫힘 애니메이션이 끝나면 DOM에서도 제거합니다.
        // 남은 투명 레이어가 클릭/lock 상태를 붙잡는 문제를 방지합니다.
        try{
-         if(window.DuLayer && typeof window.DuLayer.unmount === 'function') window.DuLayer.unmount(overlay);
-         else overlay.remove();
+         var removed = false;
+         if(window.DuLayer && typeof window.DuLayer.unmount === 'function') removed = !!window.DuLayer.unmount(overlay);
+         if(!removed) overlay.remove();
        }catch(_){
          try{ overlay.remove(); }catch(__){}
        }
@@ -4088,11 +4090,28 @@ function openNewsImagePreview(src='', title='소식 이미지'){
        if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
      }, 320);
    };
+   overlay.__upickCloseNewsImagePreview = closePreview;
    overlay.addEventListener('click', (event) => {
-     if(event.target.closest('.news-image-preview-close,[data-du-layer-close]')) closePreview();
+     if(event.target.closest('.news-image-preview-close,[data-du-layer-close]')) {
+       event.preventDefault();
+       event.stopPropagation();
+       closePreview();
+     }
    });
    
+ } else {
+   overlay.dataset.duDynamic = '1';
  }
+ window.__upickCloseNewsImagePreview = function(){
+   const current = document.getElementById('newsImagePreviewOverlay');
+   if(current && typeof current.__upickCloseNewsImagePreview === 'function') return current.__upickCloseNewsImagePreview();
+   if(current){
+     current.classList.add('closing','upick-motion-closing');
+     current.classList.remove('show','upick-motion-open','is-open');
+     current.setAttribute('aria-hidden','true');
+     window.setTimeout(() => { try{ current.remove(); }catch(_){}; document.body.classList.remove('news-image-preview-open'); if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }, 260);
+   }
+ };
  if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(overlay, 'fullscreen');
  else if(!overlay.closest('#duFullPopupRoot')) (document.getElementById('duFullPopupRoot') || document.body).appendChild(overlay);
  const img = overlay.querySelector('img');
@@ -4112,6 +4131,14 @@ function openNewsImagePreview(src='', title='소식 이미지'){
    if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
  }));
 }
+
+document.addEventListener('click', (event) => {
+ const close = event.target.closest?.('#newsImagePreviewOverlay .news-image-preview-close,#newsImagePreviewOverlay [data-du-layer-close]');
+ if(!close) return;
+ event.preventDefault();
+ event.stopPropagation();
+ if(typeof window.__upickCloseNewsImagePreview === 'function') window.__upickCloseNewsImagePreview();
+}, true);
 
 document.addEventListener('click', (event) => {
  const thumb = event.target.closest?.('[data-news-image]');
