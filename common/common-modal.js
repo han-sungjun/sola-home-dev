@@ -82,12 +82,13 @@
     if(!content) return null;
 
     overlay = document.createElement('div');
-    overlay.className = 'common-modal-overlay du-layer du-layer--modal' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.className = 'common-modal-overlay du-layer du-layer--modal show is-open upick-motion-layer upick-motion-open' + (options.overlayClass ? ' ' + options.overlayClass : '');
     overlay.setAttribute('data-du-layer','modal');
     overlay.setAttribute('data-close-on-backdrop','false');
     overlay.setAttribute('data-du-close-on-backdrop','false');
     overlay.setAttribute('data-du-close-on-esc','false');
     overlay.setAttribute('role','presentation');
+    overlay.setAttribute('aria-hidden','false');
 
     stage = document.createElement('div');
     stage.className = 'common-modal-stage du-layer__panel' + (options.stageClass ? ' ' + options.stageClass : '');
