@@ -4076,6 +4076,14 @@ function openNewsImagePreview(src='', title='소식 이미지'){
        document.body.classList.remove('news-image-preview-open');
        const img = overlay.querySelector('img');
        if(img) img.removeAttribute('src');
+       // Root3 편입 후 닫힘 애니메이션이 끝나면 DOM에서도 제거합니다.
+       // 남은 투명 레이어가 클릭/lock 상태를 붙잡는 문제를 방지합니다.
+       try{
+         if(window.DuLayer && typeof window.DuLayer.unmount === 'function') window.DuLayer.unmount(overlay);
+         else overlay.remove();
+       }catch(_){
+         try{ overlay.remove(); }catch(__){}
+       }
        if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock();
        if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
      }, 320);
