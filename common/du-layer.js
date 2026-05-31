@@ -292,8 +292,43 @@
 
 
 
-  function openSettingsSuiteSafe(){ return false; }
-  function closeSettingsSuiteSafe(){ return false; }
+  function openSettingsSuiteSafe(opener){
+    var layer = ensureLegacyLayer('settingsSuiteModal');
+    if(!layer) return false;
+    layer.__duLastOpener = opener || document.activeElement || null;
+    layer.hidden = false;
+    layer.removeAttribute('hidden');
+    try{ layer.showModal && layer.tagName === 'DIALOG' && !layer.open && layer.showModal(); }catch(_){ try{ layer.setAttribute('open',''); }catch(__){} }
+    layer.setAttribute('aria-hidden','false');
+    layer.classList.add('show','is-open','upick-motion-layer','upick-motion-open');
+    enhanceLayer({ id:'settingsSuiteModal', type:'modal', panel:'.gnb-management-shell', header:'.gnb-management-head', body:'.gnb-management-body', close:'.gnb-management-close' });
+    document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ layer:layer, source:'settings-suite' } }));
+    if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+    setTimeout(function(){
+      var body = layer.querySelector('.gnb-management-body');
+      if(body) body.scrollTop = 0;
+      var close = layer.querySelector('#closeSettingsSuiteBtn,.gnb-management-close');
+      try{ (close || layer).focus && (close || layer).focus({ preventScroll:true }); }catch(_){ }
+    }, 0);
+    return layer;
+  }
+  function closeSettingsSuiteSafe(){
+    var layer = document.getElementById('settingsSuiteModal');
+    if(!layer) return false;
+    layer.classList.remove('show','is-open','upick-motion-open');
+    layer.classList.add('upick-motion-closing');
+    layer.setAttribute('aria-hidden','true');
+    var opener = layer.__duLastOpener;
+    setTimeout(function(){
+      layer.classList.remove('upick-motion-closing','upick-motion-layer');
+      try{ layer.close && layer.open && layer.close(); }catch(_){ try{ layer.removeAttribute('open'); }catch(__){} }
+      unmount(layer);
+      document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer, source:'settings-suite' } }));
+      if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+      try{ opener && opener.focus && opener.focus({ preventScroll:true }); }catch(_){ }
+    }, 180);
+    return true;
+  }
 
   function init(){
     mountLegacyTemplates();
@@ -319,6 +354,23 @@
         e.stopPropagation();
       }
     }, true);
+
+    // 설정 모음은 Root3/template 구조에서 열릴 때만 Root로 올립니다.
+    document.addEventListener('click', function(e){
+      var openBtn = e.target && e.target.closest && e.target.closest('#openSettingsSuiteBtn,.gnb-summary-settings-btn,[data-open-settings-suite]');
+      if(openBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        openSettingsSuiteSafe(openBtn);
+        return;
+      }
+      var closeBtn = e.target && e.target.closest && e.target.closest('#closeSettingsSuiteBtn');
+      if(closeBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        closeSettingsSuiteSafe();
+      }
+    }, true);
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
@@ -326,6 +378,8 @@
 
   window.DuLayer = window.DuLayer || {};
   window.DuLayer.open = openLayer;
+  window.DuLayer.openSettingsSuite = openSettingsSuiteSafe;
+  window.DuLayer.closeSettingsSuite = closeSettingsSuiteSafe;
   window.DuLayer.close = closeLayer;
   window.DuLayer.getRoot = getRoot;
   window.DuLayer.mount = mount;

@@ -962,7 +962,40 @@ function __duMountLegacyElement(el){
  if(layer && window.DuLayer && typeof window.DuLayer.mount === 'function') return window.DuLayer.mount(layer);
  return el;
 }
-const qs=(s)=>document.querySelector(s)||__duFindLegacyElement(s), qsa=(s)=>{const found=[...document.querySelectorAll(s)]; return found.length ? found : __duFindLegacyElements(s);};
+function __duEnsureLayerByElementId(id){
+ const layerId = __duLegacyElementLayerMap[id];
+ if(!layerId) return null;
+ if(window.DuLayer && typeof window.DuLayer.ensure === 'function') return window.DuLayer.ensure(layerId);
+ const el = __duFindLegacyElement('#' + __duCssEscape(layerId));
+ return __duMountLegacyElement(el);
+}
+function __duQuerySelector(selector){
+ const direct = document.querySelector(selector);
+ if(direct) return direct;
+ if(typeof selector === 'string'){
+   const m = selector.trim().match(/^#([A-Za-z0-9_\-:.]+)$/);
+   if(m){
+     __duEnsureLayerByElementId(m[1]);
+     const mounted = document.querySelector(selector);
+     if(mounted) return mounted;
+   }
+ }
+ return __duFindLegacyElement(selector);
+}
+function __duQuerySelectorAll(selector){
+ const found = [...document.querySelectorAll(selector)];
+ if(found.length) return found;
+ if(typeof selector === 'string'){
+   const m = selector.trim().match(/^#([A-Za-z0-9_\-:.]+)$/);
+   if(m){
+     __duEnsureLayerByElementId(m[1]);
+     const mounted = [...document.querySelectorAll(selector)];
+     if(mounted.length) return mounted;
+   }
+ }
+ return __duFindLegacyElements(selector);
+}
+const qs=(s)=>__duQuerySelector(s), qsa=(s)=>__duQuerySelectorAll(s);
 
  function isMobileEdgeBrowserGlobal() {
  const ua = String(navigator.userAgent || '').toLowerCase();

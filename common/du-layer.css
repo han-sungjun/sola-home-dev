@@ -1528,3 +1528,82 @@ body.upick-layer-scroll-lock{
   height:20px!important;
   display:block!important;
 }
+
+
+/* v20260531-root3-dynamic-fix6: Root3 동적 주입 후 설정 모음 body/페이드/AI 확대 보정 */
+#settingsSuiteModal.du-layer--modal.show,
+#settingsSuiteModal.du-layer--modal.is-open,
+#settingsSuiteModal.du-layer--modal[aria-hidden="false"]{
+  display:grid !important;
+  place-items:center !important;
+  padding:24px !important;
+}
+#settingsSuiteModal .gnb-management-shell.du-layer__panel{
+  width:min(560px, calc(100vw - 28px)) !important;
+  max-height:min(88dvh, 760px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#settingsSuiteModal .gnb-management-body.du-layer__body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:auto !important;
+  padding:18px 20px 22px !important;
+}
+#settingsSuiteModal .gnb-management-body.du-layer__body:empty::before{
+  content:'설정 항목을 불러오는 중입니다.';
+  display:block;
+  color:#64748b;
+  font-weight:800;
+}
+
+.du-layer.show,
+.du-layer.is-open,
+.du-layer[aria-hidden="false"]{
+  animation:duLayerFadeIn .18s ease-out both;
+}
+.du-layer.show > .du-layer__panel,
+.du-layer.is-open > .du-layer__panel,
+.du-layer[aria-hidden="false"] > .du-layer__panel,
+.du-layer.show .du-layer__panel,
+.du-layer.is-open .du-layer__panel,
+.du-layer[aria-hidden="false"] .du-layer__panel{
+  animation:duPanelFadeIn .22s cubic-bezier(.2,.8,.2,1) both;
+}
+.du-layer.upick-motion-closing{
+  animation:duLayerFadeOut .16s ease-in both !important;
+}
+.du-layer.upick-motion-closing > .du-layer__panel,
+.du-layer.upick-motion-closing .du-layer__panel{
+  animation:duPanelFadeOut .16s ease-in both !important;
+}
+@keyframes duLayerFadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes duLayerFadeOut{from{opacity:1;}to{opacity:0;}}
+@keyframes duPanelFadeIn{from{opacity:0;transform:translateY(12px) scale(.985);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes duPanelFadeOut{from{opacity:1;transform:translateY(0) scale(1);}to{opacity:0;transform:translateY(8px) scale(.985);}}
+
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  overflow:hidden !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(248,251,255,.72) !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:calc(100dvh - 64px) !important;
+  object-fit:contain !important;
+  border-radius:0 !important;
+}
+@media (min-width:760px){
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+    width:auto !important;
+    max-height:calc(min(88dvh, 860px) - 64px) !important;
+    border-radius:18px !important;
+  }
+}
