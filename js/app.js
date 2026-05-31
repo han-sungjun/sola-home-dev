@@ -965,9 +965,10 @@ function __duMountLegacyElement(el){
 function __duEnsureLayerByElementId(id){
  const layerId = __duLegacyElementLayerMap[id];
  if(!layerId) return null;
- if(window.DuLayer && typeof window.DuLayer.ensure === 'function') return window.DuLayer.ensure(layerId);
- const el = __duFindLegacyElement('#' + __duCssEscape(layerId));
- return __duMountLegacyElement(el);
+ // Root3 dynamic fix8:
+ // 초기화/이벤트 바인딩 단계의 qs('#closeModal') 같은 조회만으로는 Root에 주입하지 않습니다.
+ // template 안의 기존 노드를 그대로 반환하고, 실제 openDialogSafe()/DuLayer.ensure() 호출 시에만 mount합니다.
+ return __duFindLegacyElement('#' + __duCssEscape(layerId));
 }
 function __duQuerySelector(selector){
  const direct = document.querySelector(selector);
@@ -14942,6 +14943,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     const src = trigger?.dataset?.aiImageSrc || trigger?.getAttribute?.('src') || trigger?.querySelector?.('img')?.src || '';
     const title = trigger?.dataset?.aiImageTitle || trigger?.querySelector?.('img')?.alt || '이미지 확대 보기';
     if(!src) return false;
+    try{ window.DuLayer?.ensure?.('aiImageZoomBackdrop'); }catch(_){ }
     const layer = document.getElementById('aiImageZoomBackdrop');
     const img = document.getElementById('aiImageZoomImg');
     const titleEl = document.getElementById('aiImageZoomTitle');
@@ -14975,6 +14977,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
       delete layer.dataset.upickAiImageClosing;
       document.body.classList.remove('ai-image-zoom-open');
       if(img) img.removeAttribute('src');
+      try{ window.DuLayer?.unmount?.(layer); }catch(_){ }
     }, DURATION);
     return false;
   };
