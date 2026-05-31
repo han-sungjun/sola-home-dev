@@ -1,6 +1,25 @@
 (function(){
   'use strict';
 
+  function hasVisibleDuLayer(){
+    return !!document.querySelector('.du-layer.show, .du-layer.is-open, .du-layer.open, .du-layer[aria-hidden="false"]');
+  }
+
+  function forceSyncLayerLockAfterOperationClose(){
+    try{ if(window.DuLayer && typeof window.DuLayer.cleanupInactive === 'function') window.DuLayer.cleanupInactive(); }catch(_){}
+    try{ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }catch(_){}
+    try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+    window.setTimeout(function(){
+      try{ if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock(); }catch(_){}
+      if(!hasVisibleDuLayer()){
+        document.documentElement.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','common-modal-lock');
+        document.body.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','common-modal-lock','upick-hard-scroll-lock');
+        document.body.style.overflow = '';
+        document.body.style.top = '';
+      }
+    }, 280);
+  }
+
   function closeOperationManageModal(){
     function cleanup(){
       document.querySelectorAll('#gnbOperationManageModal').forEach(function(el){
@@ -9,9 +28,7 @@
         if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
         else if(el.parentNode) el.parentNode.removeChild(el);
       });
-      try{ if(window.DuLayer && typeof window.DuLayer.cleanupInactive === 'function') window.DuLayer.cleanupInactive(); }catch(_){}
-      try{ if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync(); }catch(_){}
-      try{ if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0); }catch(_){}
+      forceSyncLayerLockAfterOperationClose();
     }
     if(window.CommonModal && typeof window.CommonModal.close === 'function'){
       window.CommonModal.close();
@@ -26,6 +43,18 @@
       setTimeout(cleanup, 240);
     }
   }
+
+  window.closeOperationManageModal = closeOperationManageModal;
+  window.closedOperationManageModal = closeOperationManageModal;
+
+  document.addEventListener('click', function(event){
+    var closeBtn = event.target && event.target.closest && event.target.closest('#gnbOperationManageModal .gnb-management-close, #gnbOperationManageModal [data-du-layer-close], .common-modal-overlay:has(#gnbOperationManageModal) .gnb-management-close');
+    if(!closeBtn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    closeOperationManageModal();
+  }, true);
+
 
   function closeGnbOnly(){
     var overlay = document.querySelector('#gnbOverlay, .gnb-overlay');
