@@ -57,6 +57,13 @@
     type = normalizeType(type || layer.getAttribute('data-du-layer') || (layer.classList && layer.classList.contains('du-layer--fullscreen') ? 'fullscreen' : (layer.classList && layer.classList.contains('du-layer--sheet') ? 'sheet' : 'modal')));
     var root = ensureRoot(type);
     if(layer.parentNode !== root) root.appendChild(layer);
+
+    // root3-dynamic-fix10: template에서 꺼낸 레이어도 기존 공통 페이드 시스템을 그대로 탑니다.
+    try{
+      addClass(layer, 'upick-motion-layer');
+      var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.ai-image-zoom-card,.benefit-image-preview-dialog,.news-image-preview-dialog');
+      addClass(panel, 'upick-motion-panel');
+    }catch(_){}
     return layer;
   }
 
@@ -105,7 +112,12 @@
     if(!tpl || !tpl.content) return null;
     var found = tpl.content.querySelector('#' + String(id).replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/])/g,'\\$1'));
     if(!found) return null;
-    return mount(found);
+    var mounted = mount(found);
+    try{
+      var cfg = LAYERS.filter(function(item){ return item.id === id; })[0];
+      if(cfg) enhanceLayer(cfg);
+    }catch(_){}
+    return mounted;
   }
 
   function toNode(content){

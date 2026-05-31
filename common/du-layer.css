@@ -1769,3 +1769,138 @@ body.upick-modal-open #aiImageZoomBackdrop.du-layer--fullscreen{
   position:relative !important;
   z-index:1 !important;
 }
+
+
+/* v20260531-root3-dynamic-fix10: 이미지 확대 스크롤 제거 + Root3 공통 페이드 복구 */
+.du-layer.upick-motion-layer,
+.du-layer.du-layer--modal,
+.du-layer.du-layer--sheet,
+.du-layer.du-layer--fullscreen,
+.benefit-image-preview-overlay.du-layer,
+.news-image-preview-overlay.du-layer{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), visibility 0s linear .24s !important;
+  will-change:opacity !important;
+}
+.du-layer.upick-motion-layer.show,
+.du-layer.upick-motion-layer.is-open,
+.du-layer.upick-motion-layer.upick-motion-open,
+.du-layer.upick-motion-layer[open],
+.du-layer.upick-motion-layer[aria-hidden="false"],
+.du-layer.du-layer--modal.show,
+.du-layer.du-layer--sheet.show,
+.du-layer.du-layer--fullscreen.show,
+.du-layer.du-layer--modal[open],
+.du-layer.du-layer--sheet[open],
+.du-layer.du-layer--fullscreen[open],
+.du-layer.du-layer--modal[aria-hidden="false"],
+.du-layer.du-layer--sheet[aria-hidden="false"],
+.du-layer.du-layer--fullscreen[aria-hidden="false"],
+.benefit-image-preview-overlay.du-layer.show,
+.benefit-image-preview-overlay.du-layer[open],
+.benefit-image-preview-overlay.du-layer[aria-hidden="false"],
+.news-image-preview-overlay.du-layer.show,
+.news-image-preview-overlay.du-layer[open],
+.news-image-preview-overlay.du-layer[aria-hidden="false"]{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s !important;
+}
+.du-layer.upick-motion-closing,
+.benefit-image-preview-overlay.du-layer.upick-motion-closing,
+.news-image-preview-overlay.du-layer.upick-motion-closing{
+  opacity:0 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+  transition:opacity .18s ease !important;
+}
+.du-layer .upick-motion-panel,
+.du-layer .du-layer__panel,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer .news-image-preview-dialog{
+  opacity:0 !important;
+  transform:translateY(12px) scale(.985) !important;
+  transition:opacity .26s cubic-bezier(.16,1,.3,1), transform .26s cubic-bezier(.16,1,.3,1) !important;
+  will-change:opacity, transform !important;
+}
+.du-layer.show .upick-motion-panel,
+.du-layer.is-open .upick-motion-panel,
+.du-layer.upick-motion-open .upick-motion-panel,
+.du-layer[open] .upick-motion-panel,
+.du-layer[aria-hidden="false"] .upick-motion-panel,
+.du-layer.show .du-layer__panel,
+.du-layer.is-open .du-layer__panel,
+.du-layer.upick-motion-open .du-layer__panel,
+.du-layer[open] .du-layer__panel,
+.du-layer[aria-hidden="false"] .du-layer__panel,
+.benefit-image-preview-overlay.du-layer.show .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer[open] .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer[aria-hidden="false"] .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.show .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer[open] .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer[aria-hidden="false"] .news-image-preview-dialog{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+}
+.du-layer.upick-motion-closing .upick-motion-panel,
+.du-layer.upick-motion-closing .du-layer__panel,
+.benefit-image-preview-overlay.du-layer.upick-motion-closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-closing .news-image-preview-dialog{
+  opacity:0 !important;
+  transform:translateY(8px) scale(.985) !important;
+  transition-duration:.18s !important;
+}
+
+/* 혜택 상세 이미지 확대 팝업: 카드 안쪽 세로 스크롤 영역 제거 */
+.benefit-image-preview-overlay.du-layer,
+dialog.benefit-image-preview-overlay.du-layer{
+  overflow:hidden !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  max-height:calc(100dvh - 36px) !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  scrollbar-gutter:auto !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame{
+  height:100% !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body img,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body img{
+  max-height:100% !important;
+  object-fit:contain !important;
+}
+
+/* AI 이미지 확대도 동일하게 내부 스크롤바가 보이지 않도록 고정 */
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  overflow:hidden !important;
+  scrollbar-width:none !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll::-webkit-scrollbar,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webkit-scrollbar,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webkit-scrollbar{
+  width:0 !important;
+  height:0 !important;
+  display:none !important;
+}
