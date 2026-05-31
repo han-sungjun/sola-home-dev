@@ -8472,6 +8472,10 @@ function openCalendarReservationModal(item={}){
  return { x: Number(source?.clientX || 0), y: Number(source?.clientY || 0) };
  }
 
+ function getBenefitPhotoSlidePercent(){
+ return 100;
+ }
+
  function setBenefitPhotoSlide(slider, nextIndex, options = {}){
  if(!slider) return;
  const slides = [...slider.querySelectorAll('.benefit-detail-photo-slide')];
@@ -8481,7 +8485,7 @@ function openCalendarReservationModal(item={}){
  const track = slider.querySelector('.benefit-detail-photo-track');
  if(track){
    track.style.transition = options.animate === false ? 'none' : '';
-   track.style.transform = `translate3d(${-index * getSlidePercent()}%,0,0)`;
+   track.style.transform = `translate3d(${-index * getBenefitPhotoSlidePercent()}%,0,0)`;
  }
  slides.forEach((slide, i) => {
    const active = i === index;
@@ -8764,7 +8768,7 @@ function openCalendarReservationModal(item={}){
        slide.classList.toggle('active', i === index);
      });
      track.style.transition = animate ? '' : 'none';
-     track.style.transform = `translate3d(${-index * getSlidePercent()}%,0,0)`;
+     track.style.transform = `translate3d(${-index * getBenefitPhotoSlidePercent()}%,0,0)`;
      const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
      if(activeImg){
        if(activeImg.complete) requestAnimationFrame(fitDialogToActiveImage);
@@ -8845,7 +8849,7 @@ function openCalendarReservationModal(item={}){
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
-   track.style.transform = `translate3d(${-index * getSlidePercent()}%,0,0)`;
+   track.style.transform = `translate3d(${-index * getBenefitPhotoSlidePercent()}%,0,0)`;
  };
  overlay.onclick = (event) => {
    const closeTarget = event.target.closest('.benefit-image-preview-close');
@@ -8900,7 +8904,7 @@ function openCalendarReservationModal(item={}){
        if(track){
          const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
          const percent = (dx / width) * 100;
-         track.style.transform = `translate3d(${(-index * getSlidePercent()) + (percent / images.length)}%,0,0)`;
+         track.style.transform = `translate3d(${(-index * getBenefitPhotoSlidePercent()) + (percent / images.length)}%,0,0)`;
        }
      }
    };
