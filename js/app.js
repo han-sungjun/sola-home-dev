@@ -8695,9 +8695,11 @@ function openCalendarReservationModal(item={}){
    overlay.setAttribute('data-du-close-on-backdrop', 'false');
    overlay.setAttribute('data-du-close-on-esc', 'false');
    overlay.innerHTML = `<div class="benefit-image-preview-dialog du-layer__panel" data-du-layer-panel role="document"><div class="benefit-image-preview-head du-layer__header" data-du-layer-header><div class="du-layer__header-main"><strong class="du-layer__title"></strong></div><div class="du-layer__header-actions"><button type="button" class="benefit-image-preview-close du-layer__close" data-du-layer-close aria-label="닫기">×</button></div></div><div class="benefit-image-preview-body du-layer__body" data-du-layer-body><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
-   document.body.appendChild(overlay);
- }else if(overlay.parentElement !== document.body){
-   document.body.appendChild(overlay);
+   if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(overlay, 'fullscreen');
+   else document.body.appendChild(overlay);
+ }else{
+   if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(overlay, 'fullscreen');
+   else if(overlay.parentElement !== document.body) document.body.appendChild(overlay);
  }
  const body = overlay.querySelector('.benefit-image-preview-body');
  const track = overlay.querySelector('.benefit-image-preview-track');
@@ -8815,11 +8817,9 @@ function openCalendarReservationModal(item={}){
    syncDetailSlider(false, closingIndex);
    if(!overlay || overlay.dataset.upickImageClosing === '1') return;
    overlay.dataset.upickImageClosing = '1';
-   overlay.classList.add('closing');
-   overlay.classList.remove('show');
-   overlay.setAttribute('aria-hidden','true');
-   window.setTimeout(() => {
-     overlay.classList.remove('closing');
+   const panel = overlay.querySelector('.benefit-image-preview-dialog,.du-layer__panel,[data-du-layer-panel]');
+   const finishClose = () => {
+     overlay.classList.remove('closing','is-closing','upick-motion-closing','show','is-open','upick-motion-open');
      delete overlay.dataset.upickImageClosing;
      overlay.removeAttribute('open');
      overlay.setAttribute('aria-hidden','true');
@@ -8828,8 +8828,16 @@ function openCalendarReservationModal(item={}){
      window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
      if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock();
      if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+     try{ overlay.remove(); }catch(_){}
      try{ slider?.focus?.({preventScroll:true}); }catch(_){}
-   }, 320);
+   };
+   overlay.classList.add('closing');
+   if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+     window.UpickMotion.close(overlay, { activeClass:'show', closingClass:'closing', panel, duration:280, ariaHidden:false, afterClose:finishClose });
+   }else{
+     overlay.classList.remove('show','is-open','upick-motion-open');
+     window.setTimeout(finishClose, 280);
+   }
  };
  const moveTo = (nextIndex, animate = true) => {
    index = (nextIndex + images.length) % images.length;
@@ -8937,16 +8945,21 @@ function openCalendarReservationModal(item={}){
  window.addEventListener('resize', fitDialogToActiveImage, { passive:true });
  syncDetailSlider(false);
  removeLegacyBenefitPhotoViewer();
- overlay.setAttribute('aria-hidden','false');
  document.body.classList.add('benefit-image-preview-open');
- overlay.classList.remove('closing');
+ overlay.classList.remove('closing','is-closing','upick-motion-closing','show','is-open','upick-motion-open');
  delete overlay.dataset.upickImageClosing;
- overlay.setAttribute('aria-hidden','false');
+ overlay.setAttribute('aria-hidden','true');
  overlay.setAttribute('open','');
- requestAnimationFrame(() => requestAnimationFrame(() => {
-   overlay.classList.add('show');
-   try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){}
- }));
+ const previewPanel = overlay.querySelector('.benefit-image-preview-dialog,.du-layer__panel,[data-du-layer-panel]');
+ if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+   window.UpickMotion.open(overlay, { activeClass:'show', panel:previewPanel, duration:280, afterOpen:function(){ try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){} } });
+ }else{
+   requestAnimationFrame(() => requestAnimationFrame(() => {
+     overlay.setAttribute('aria-hidden','false');
+     overlay.classList.add('show');
+     try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){}
+   }));
+ }
  setTimeout(removeLegacyBenefitPhotoViewer, 0);
  setTimeout(removeLegacyBenefitPhotoViewer, 80);
  }
