@@ -29294,3 +29294,22 @@ body[data-loading-mode="public"] main{
     max-width:480px !important;
   }
 }
+
+/* ===== 2026-05-31 Root3 운영 관리 팝업 표시/이동 보정 ===== */
+.gnb-operation-dialog--unified .gnb-management-head.operation,
+.gnb-operation-dialog--unified .gnb-management-head.operation *:not(.gnb-manage-close){
+  color:#fff!important;
+}
+.gnb-operation-dialog--unified .gnb-management-head.operation h3,
+.gnb-operation-dialog--unified .gnb-management-head.operation #gnbOperationManageTitle{
+  color:#fff!important;
+  text-shadow:0 1px 2px rgba(15,23,42,.22);
+}
+.gnb-operation-dialog--unified .gnb-management-head.operation p{
+  color:rgba(255,255,255,.82)!important;
+}
+.gnb-operation-dialog--unified .gnb-management-head.operation .gnb-management-kicker{
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.62)!important;
+  background:rgba(255,255,255,.14)!important;
+}

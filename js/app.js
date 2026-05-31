@@ -14194,16 +14194,23 @@ async function trackGnbMenuVisitByView(view){
   const view = btn.dataset.viewLink;
   const isInGnbSheet = !!btn.closest('#gnbSheet');
   const isInAllMenuGrid = !!btn.closest('#allMenuGrid');
+  const isInOperationModal = !!btn.closest('#gnbOperationManageModal');
   const isDynamicMenu = btn.hasAttribute('data-gnb-dynamic-menu');
 
-  // DB에서 렌더링된 GNB/전체기능 메뉴는 초기 qsa 바인딩 이후 생성되므로
-  // 이벤트 위임 방식으로 직접 화면 이동 + 방문 기록을 처리합니다.
-  if(view && (isDynamicMenu || isInGnbSheet || isInAllMenuGrid)){
+  // DB에서 렌더링된 GNB/전체기능 메뉴와 클릭 시 동적 생성되는 운영 관리 팝업은
+  // 초기 qsa 바인딩 이후 만들어질 수 있으므로 이벤트 위임 방식으로 직접 화면 이동합니다.
+  if(view && (isDynamicMenu || isInGnbSheet || isInAllMenuGrid || isInOperationModal)){
     event.preventDefault();
     event.stopPropagation();
     trackGnbMenuVisitByView(view);
     changeView(view);
     if(isInGnbSheet) closeGnb();
+    if(isInOperationModal){
+      try{
+        if(window.CommonModal && typeof window.CommonModal.close === 'function') window.CommonModal.close();
+      }catch(_){}
+      try{ closeGnb(); }catch(_){}
+    }
   }else if(isInGnbSheet || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn'){
     trackGnbMenuVisitByView(view);
   }
