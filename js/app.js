@@ -4052,7 +4052,7 @@ function openNewsImagePreview(src='', title='소식 이미지'){
  if(!overlay){
    overlay = document.createElement('div');
    overlay.id = 'newsImagePreviewOverlay';
-   overlay.className = 'news-image-preview-overlay upick-image-fade-layer du-layer du-layer--modal';
+   overlay.className = 'news-image-preview-overlay upick-image-fade-layer upick-motion-layer du-layer du-layer--modal';
    overlay.setAttribute('role','dialog');
    overlay.setAttribute('aria-modal','true');
    overlay.setAttribute('aria-hidden','true');
@@ -4064,11 +4064,11 @@ function openNewsImagePreview(src='', title='소식 이미지'){
    const closePreview = () => {
      if(overlay.dataset.upickImageClosing === '1') return;
      overlay.dataset.upickImageClosing = '1';
-     overlay.classList.add('closing');
-     overlay.classList.remove('show');
+     overlay.classList.add('closing','upick-motion-closing');
+     overlay.classList.remove('show','upick-motion-open','is-open');
      overlay.setAttribute('aria-hidden','true');
      window.setTimeout(() => {
-       overlay.classList.remove('closing');
+       overlay.classList.remove('closing','upick-motion-closing','is-closing');
        delete overlay.dataset.upickImageClosing;
        overlay.removeAttribute('open');
        overlay.setAttribute('aria-hidden','true');
@@ -4089,12 +4089,17 @@ function openNewsImagePreview(src='', title='소식 이미지'){
    img.src = imageUrl;
    img.alt = title || '소식 이미지';
  }
- overlay.classList.remove('closing');
+ overlay.classList.remove('show','closing','upick-motion-open','upick-motion-closing','is-open','is-closing');
  delete overlay.dataset.upickImageClosing;
  overlay.setAttribute('aria-hidden','false');
  overlay.setAttribute('open','');
  document.body.classList.add('news-image-preview-open');
- requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
+ // [open]/aria-hidden=false가 붙어도 첫 프레임은 opacity:0을 유지한 뒤, 다음 프레임에서 show를 추가해 fade-in을 보장합니다.
+ requestAnimationFrame(() => requestAnimationFrame(() => {
+   overlay.classList.add('show','upick-motion-open','is-open');
+   if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock();
+   if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+ }));
 }
 
 document.addEventListener('click', (event) => {
