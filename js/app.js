@@ -8726,11 +8726,25 @@ function openCalendarReservationModal(item={}){
    dialog.style.setProperty('--benefit-preview-body-h', `${fixedBodyH}px`);
    resetTrack(false);
  };
+ const ensureSlides = () => {
+   if(!track) return;
+   const renderedKey = track.dataset.previewImagesKey || '';
+   const nextKey = images.join('||');
+   if(renderedKey === nextKey && track.querySelectorAll('.benefit-image-preview-slide').length === images.length) return;
+   track.dataset.previewImagesKey = nextKey;
+   track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide" data-preview-index="${i}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false" loading="eager" decoding="async"></div></div>`).join('');
+   track.querySelectorAll('img').forEach((img) => {
+     img.addEventListener('load', () => {
+       if(img.closest('.benefit-image-preview-slide')?.classList.contains('active')) fitDialogToActiveImage();
+     }, { once:false });
+   });
+ };
  const render = (animate = true) => {
-   const dotsHtml = '';
-   const countHtml = '';
+   ensureSlides();
    if(track){
-     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false"></div></div>`).join('');
+     track.querySelectorAll('.benefit-image-preview-slide').forEach((slide, i) => {
+       slide.classList.toggle('active', i === index);
+     });
      track.style.transition = animate ? '' : 'none';
      track.style.transform = `translate3d(${-index * 100}%,0,0)`;
      const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
