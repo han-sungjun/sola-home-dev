@@ -29178,3 +29178,23 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
     gap:5px !important;
   }
 }
+
+/* ===== v20260531-root3-dynamic-fix12: 혜택 이미지 확대 다중 이미지 슬라이드 폭 보정 ===== */
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:stretch !important;
+  min-width:100% !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide{
+  min-width:0 !important;
+  flex-shrink:0 !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide.active{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img{
+  min-width:0 !important;
+}

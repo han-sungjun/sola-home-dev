@@ -8481,7 +8481,7 @@ function openCalendarReservationModal(item={}){
  const track = slider.querySelector('.benefit-detail-photo-track');
  if(track){
    track.style.transition = options.animate === false ? 'none' : '';
-   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+   track.style.transform = `translate3d(${-index * getSlidePercent()}%,0,0)`;
  }
  slides.forEach((slide, i) => {
    const active = i === index;
@@ -8701,6 +8701,8 @@ function openCalendarReservationModal(item={}){
  const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
  const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
  const closeBtn = overlay.querySelector('.benefit-image-preview-close');
+ const getSlidePercent = () => images.length > 0 ? (100 / images.length) : 100;
+ const getSlidePixel = () => Math.max(1, body?.clientWidth || body?.getBoundingClientRect?.().width || overlay?.getBoundingClientRect?.().width || 1);
  if(overlay) overlay.dataset.previewCurrentIndex = String(index);
  const fitDialogToActiveImage = () => {
    const dialog = overlay?.querySelector('.benefit-image-preview-dialog');
@@ -8730,9 +8732,25 @@ function openCalendarReservationModal(item={}){
    if(!track) return;
    const renderedKey = track.dataset.previewImagesKey || '';
    const nextKey = images.join('||');
-   if(renderedKey === nextKey && track.querySelectorAll('.benefit-image-preview-slide').length === images.length) return;
+   if(renderedKey === nextKey && track.querySelectorAll('.benefit-image-preview-slide').length === images.length){
+     track.style.width = `${images.length * 100}%`;
+     track.querySelectorAll('.benefit-image-preview-slide').forEach((slide) => {
+       slide.style.flex = `0 0 ${getSlidePercent()}%`;
+       slide.style.width = `${getSlidePercent()}%`;
+       slide.style.maxWidth = `${getSlidePercent()}%`;
+     });
+     return;
+   }
    track.dataset.previewImagesKey = nextKey;
    track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide" data-preview-index="${i}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false" loading="eager" decoding="async"></div></div>`).join('');
+   // 확대 팝업은 track 자체를 이미지 개수만큼 넓히고, 각 slide는 1장 폭만 차지하게 고정합니다.
+   // CSS 여러 패치가 겹치더라도 2번째 이후 사진이 빈 화면으로 밀리는 현상을 방지합니다.
+   track.style.width = `${images.length * 100}%`;
+   track.querySelectorAll('.benefit-image-preview-slide').forEach((slide) => {
+     slide.style.flex = `0 0 ${getSlidePercent()}%`;
+     slide.style.width = `${getSlidePercent()}%`;
+     slide.style.maxWidth = `${getSlidePercent()}%`;
+   });
    track.querySelectorAll('img').forEach((img) => {
      img.addEventListener('load', () => {
        if(img.closest('.benefit-image-preview-slide')?.classList.contains('active')) fitDialogToActiveImage();
@@ -8746,7 +8764,7 @@ function openCalendarReservationModal(item={}){
        slide.classList.toggle('active', i === index);
      });
      track.style.transition = animate ? '' : 'none';
-     track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+     track.style.transform = `translate3d(${-index * getSlidePercent()}%,0,0)`;
      const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
      if(activeImg){
        if(activeImg.complete) requestAnimationFrame(fitDialogToActiveImage);
@@ -8827,7 +8845,7 @@ function openCalendarReservationModal(item={}){
  const resetTrack = (animate = true) => {
    if(!track) return;
    track.style.transition = animate ? '' : 'none';
-   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+   track.style.transform = `translate3d(${-index * getSlidePercent()}%,0,0)`;
  };
  overlay.onclick = (event) => {
    const closeTarget = event.target.closest('.benefit-image-preview-close');
@@ -8882,7 +8900,7 @@ function openCalendarReservationModal(item={}){
        if(track){
          const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
          const percent = (dx / width) * 100;
-         track.style.transform = `translate3d(${(-index * 100) + percent}%,0,0)`;
+         track.style.transform = `translate3d(${(-index * getSlidePercent()) + (percent / images.length)}%,0,0)`;
        }
      }
    };
