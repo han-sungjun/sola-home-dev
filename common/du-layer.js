@@ -204,23 +204,42 @@
   function closeLayer(layer){
     if(typeof layer === 'string') layer = document.getElementById(layer);
     if(!layer) return false;
-    layer.classList.remove('show','is-open','open','upick-motion-open');
-    layer.classList.add('upick-motion-closing');
-    setTimeout(function(){
-      layer.classList.remove('upick-motion-closing','upick-motion-layer');
+    var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.ai-image-zoom-card,.benefit-image-preview-dialog,.news-image-preview-dialog');
+    function finish(){
       layer.setAttribute('aria-hidden', 'true');
       unmount(layer);
       document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer } }));
       if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
-    }, 180);
+    }
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      window.UpickMotion.close(layer, {
+        activeClass:'show',
+        panel:panel,
+        duration:240,
+        ariaHidden:false,
+        afterClose:finish
+      });
+    }else{
+      layer.classList.remove('show','is-open','open','upick-motion-open');
+      layer.classList.add('upick-motion-closing');
+      setTimeout(function(){ layer.classList.remove('upick-motion-closing'); finish(); }, 240);
+    }
     return true;
   }
 
   function openLayer(options){
     var layer = buildLayer(options || {});
     layer.dataset.duDynamic = '1';
+    layer.setAttribute('aria-hidden','true');
     mount(layer, options && options.type);
     enhanceLayer({ id:layer.id, type:normalizeType(options && options.type), panel:'.du-layer__panel', header:'.du-layer__header', body:'.du-layer__body', close:'.du-layer__close' });
+    var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel]');
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      window.UpickMotion.open(layer, { activeClass:'show', panel:panel, duration:240 });
+    }else{
+      layer.classList.add('show','is-open');
+      layer.setAttribute('aria-hidden','false');
+    }
     document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ layer:layer, options:options || {} } }));
     if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
     return layer;
@@ -316,9 +335,16 @@
     layer.hidden = false;
     layer.removeAttribute('hidden');
     try{ layer.showModal && layer.tagName === 'DIALOG' && !layer.open && layer.showModal(); }catch(_){ try{ layer.setAttribute('open',''); }catch(__){} }
-    layer.setAttribute('aria-hidden','false');
-    layer.classList.add('show','is-open','upick-motion-layer','upick-motion-open');
+    layer.setAttribute('aria-hidden','true');
+    layer.classList.add('upick-motion-layer');
     enhanceLayer({ id:'settingsSuiteModal', type:'modal', panel:'.gnb-management-shell', header:'.gnb-management-head', body:'.gnb-management-body', close:'.gnb-management-close' });
+    var settingsPanel = layer.querySelector('.gnb-management-shell,.du-layer__panel,[data-du-layer-panel]');
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      window.UpickMotion.open(layer, { activeClass:'show', panel:settingsPanel, duration:240 });
+    }else{
+      layer.setAttribute('aria-hidden','false');
+      layer.classList.add('show','is-open','upick-motion-open');
+    }
     document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ layer:layer, source:'settings-suite' } }));
     if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
     setTimeout(function(){
@@ -332,18 +358,23 @@
   function closeSettingsSuiteSafe(){
     var layer = document.getElementById('settingsSuiteModal');
     if(!layer) return false;
-    layer.classList.remove('show','is-open','upick-motion-open');
-    layer.classList.add('upick-motion-closing');
     var opener = layer.__duLastOpener;
-    setTimeout(function(){
-      layer.classList.remove('upick-motion-closing','upick-motion-layer');
+    var settingsPanel = layer.querySelector('.gnb-management-shell,.du-layer__panel,[data-du-layer-panel]');
+    function finishSettingsClose(){
       layer.setAttribute('aria-hidden','true');
       try{ layer.close && layer.open && layer.close(); }catch(_){ try{ layer.removeAttribute('open'); }catch(__){} }
       unmount(layer);
       document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer, source:'settings-suite' } }));
       if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
       try{ opener && opener.focus && opener.focus({ preventScroll:true }); }catch(_){ }
-    }, 180);
+    }
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      window.UpickMotion.close(layer, { activeClass:'show', panel:settingsPanel, duration:240, ariaHidden:false, afterClose:finishSettingsClose });
+    }else{
+      layer.classList.remove('show','is-open','upick-motion-open');
+      layer.classList.add('upick-motion-closing');
+      setTimeout(function(){ layer.classList.remove('upick-motion-closing'); finishSettingsClose(); }, 240);
+    }
     return true;
   }
 

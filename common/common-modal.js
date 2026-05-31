@@ -49,23 +49,36 @@
 
   function close(){
     if(!overlay) return;
+    var closingOverlay = overlay;
+    var closingStage = stage;
     var opts = currentOptions || {};
     var content = currentContent;
-    if(content && currentPlaceholder && currentPlaceholder.parentNode){
-      currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
-      currentPlaceholder.remove();
-    }else if(content && content.parentNode){
-      content.parentNode.removeChild(content);
+    function finishClose(){
+      if(content && currentPlaceholder && currentPlaceholder.parentNode){
+        currentPlaceholder.parentNode.insertBefore(content, currentPlaceholder);
+        currentPlaceholder.remove();
+      }else if(content && content.parentNode){
+        content.parentNode.removeChild(content);
+      }
+      document.removeEventListener('keydown', trapEsc, true);
+      if(closingOverlay && closingOverlay.parentNode) closingOverlay.remove();
+      if(overlay === closingOverlay){
+        overlay = null;
+        stage = null;
+        currentContent = null;
+        currentOptions = null;
+        currentPlaceholder = null;
+      }
+      unlockBody();
+      if(typeof opts.onClose === 'function') opts.onClose(content);
     }
-    document.removeEventListener('keydown', trapEsc, true);
-    overlay.remove();
-    overlay = null;
-    stage = null;
-    currentContent = null;
-    currentOptions = null;
-    currentPlaceholder = null;
-    unlockBody();
-    if(typeof opts.onClose === 'function') opts.onClose(content);
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      window.UpickMotion.close(closingOverlay, { activeClass:'show', panel:closingStage, duration:240, ariaHidden:false, afterClose:finishClose });
+    }else{
+      closingOverlay.classList.remove('show','is-open','upick-motion-open');
+      closingOverlay.classList.add('upick-motion-closing');
+      setTimeout(finishClose, 240);
+    }
   }
 
   function open(options){
@@ -82,13 +95,13 @@
     if(!content) return null;
 
     overlay = document.createElement('div');
-    overlay.className = 'common-modal-overlay du-layer du-layer--modal show is-open upick-motion-layer upick-motion-open' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.className = 'common-modal-overlay du-layer du-layer--modal upick-motion-layer' + (options.overlayClass ? ' ' + options.overlayClass : '');
     overlay.setAttribute('data-du-layer','modal');
     overlay.setAttribute('data-close-on-backdrop','false');
     overlay.setAttribute('data-du-close-on-backdrop','false');
     overlay.setAttribute('data-du-close-on-esc','false');
     overlay.setAttribute('role','presentation');
-    overlay.setAttribute('aria-hidden','false');
+    overlay.setAttribute('aria-hidden','true');
 
     stage = document.createElement('div');
     stage.className = 'common-modal-stage du-layer__panel' + (options.stageClass ? ' ' + options.stageClass : '');
@@ -104,6 +117,12 @@
     stage.appendChild(content);
     overlay.appendChild(stage);
     root.appendChild(overlay);
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      window.UpickMotion.open(overlay, { activeClass:'show', panel:stage, duration:240 });
+    }else{
+      overlay.classList.add('show','is-open','upick-motion-open');
+      overlay.setAttribute('aria-hidden','false');
+    }
     try{ document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ id:'commonModalRoot', type:'modal' } })); }catch(_){ }
 
     overlay.addEventListener('click', function(event){

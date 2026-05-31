@@ -265,6 +265,7 @@
     if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
       return window.UpickMotion.close(alertEl, {
         activeClass:'show', panel:getAlertPanel(), duration:ALERT_CLOSE_DURATION,
+        ariaHidden:false,
         afterClose:afterClose
       });
     }
