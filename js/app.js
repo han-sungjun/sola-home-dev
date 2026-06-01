@@ -8212,11 +8212,16 @@ function renderCalendarDayModal(){
  function syncCalendarFocusFromDayModal(){
  const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
  if(!key) return;
+ const x = window.scrollX || 0;
+ const y = window.scrollY || 0;
  const d = dateFromKey(key);
  calendarUiState.selectedDateKey = key;
  calendarUiState.cursorDate = d;
  renderCalendarReservations();
- focusCalendarDate(key);
+ focusCalendarDate(key, { scroll:false });
+ requestAnimationFrame(() => window.scrollTo(x, y));
+ setTimeout(() => window.scrollTo(x, y), 60);
+ setTimeout(() => window.scrollTo(x, y), 180);
  }
  function isCalendarDayDetailStackActive(){
  const dayModal = qs('#calendarDayModal');
