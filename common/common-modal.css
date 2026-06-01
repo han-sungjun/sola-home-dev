@@ -647,3 +647,39 @@ body{
   opacity:0!important;
   transform:translateY(14px) scale(.975)!important;
 }
+
+/* ===== v20260601: 설정 모음(CommonModal) 위 공통 알럿 최상단 보정 =====
+   appAlert는 du-layer 클래스를 함께 사용하므로, du-layer.css의 기본 z-index(5만대)가
+   뒤에서 적용되면 CommonModal 오버레이(2147483000)보다 낮아질 수 있습니다.
+   common-modal.css는 du-layer.css 이후 로드되므로 여기서 최종 우선순위를 고정합니다. */
+#appAlert.app-alert,
+#appAlert.app-alert.du-layer,
+#appAlert.app-alert.du-layer--modal,
+.app-alert.du-layer,
+.app-alert.du-layer--modal,
+dialog.app-alert,
+dialog.app-alert.du-layer,
+dialog.app-alert.du-layer--modal{
+  z-index:2147483600!important;
+  --du-layer-z:2147483600!important;
+}
+
+#appAlert.app-alert.show,
+#appAlert.app-alert.du-layer.show,
+.app-alert.du-layer.show,
+.app-alert.du-layer[aria-hidden="false"]{
+  z-index:2147483600!important;
+  --du-layer-z:2147483600!important;
+  pointer-events:auto!important;
+}
+
+#appAlert.app-alert .app-alert-card,
+.app-alert.du-layer .app-alert-card,
+dialog.app-alert .app-alert-card{
+  z-index:2147483601!important;
+}
+
+body.upick-alert-open .common-modal-overlay,
+html.upick-alert-open .common-modal-overlay{
+  z-index:2147483000!important;
+}

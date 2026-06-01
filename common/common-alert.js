@@ -72,6 +72,10 @@
     actionsEl = qs('.app-alert-actions', alertEl);
 
     alertEl.classList.add('du-layer','du-layer--modal');
+    // CommonModal(설정 모음) 위에서도 알럿/컨펌이 항상 최상단에 오도록
+    // CSS 변수와 inline z-index를 함께 고정합니다.
+    alertEl.style.setProperty('--du-layer-z', '2147483600', 'important');
+    alertEl.style.setProperty('z-index', '2147483600', 'important');
     alertEl.setAttribute('data-du-layer','modal');
     alertEl.setAttribute('data-close-on-backdrop','false');
     alertEl.setAttribute('data-du-close-on-backdrop','false');
@@ -236,6 +240,9 @@
 
   function openLayer(){
     ensureAlert();
+    // 열리는 순간에도 CommonModal/로딩바보다 위에 재고정합니다.
+    alertEl.style.setProperty('--du-layer-z', '2147483600', 'important');
+    alertEl.style.setProperty('z-index', '2147483600', 'important');
     lastFocus = document.activeElement;
     if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
       return window.UpickMotion.open(alertEl, {
