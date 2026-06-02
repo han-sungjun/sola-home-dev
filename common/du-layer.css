@@ -2279,3 +2279,31 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
     min-width:76px !important;
   }
 }
+
+/* ===== v20260602-root1-calendar-reservation-actions-equal-width =====
+   방문 알림 추가 팝업: 알림 등록/취소 버튼 폭 동일화 */
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items:center !important;
+  justify-content:stretch !important;
+  column-gap:14px !important;
+  width:auto !important;
+}
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn,
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-primary,
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-soft{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  flex:initial !important;
+  justify-content:center !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+}
+@media (max-width:640px){
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+    column-gap:12px !important;
+  }
+}
