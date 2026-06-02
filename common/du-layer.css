@@ -2224,3 +2224,58 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
   opacity:0!important;
   transform:translateY(14px) scale(.975)!important;
 }
+
+/* ===== v20260602-root1-calendar-reservation-footer-fix =====
+   방문 알림 추가 팝업: 본문 스크롤 안쪽에 액션 영역이 어색하게 끼어 보이는 문제 보정 */
+#calendarReservationModal.du-layer > .du-layer__panel,
+#calendarReservationModal.du-layer > .upick-div-dialog-panel{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+#calendarReservationModal.du-layer .du-layer__body,
+#calendarReservationModal.du-layer .modal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+}
+#calendarReservationModal.du-layer .calendar-form{
+  min-height:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+}
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+  flex:0 0 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:12px !important;
+  width:auto !important;
+  margin:18px -22px -20px !important;
+  padding:16px 22px 20px !important;
+  border-top:1px solid rgba(226,232,240,.92) !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.86), rgba(248,251,255,.98)) !important;
+  box-shadow:0 -14px 26px rgba(15,23,42,.045) !important;
+  position:sticky !important;
+  bottom:-20px !important;
+  z-index:3 !important;
+}
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn{
+  flex:0 0 auto !important;
+  min-width:84px !important;
+  min-height:46px !important;
+  margin:0 !important;
+}
+#calendarReservationModal.du-layer #calendarReservationMemo{
+  resize:none !important;
+}
+@media (max-width:640px){
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+    margin:16px -18px -18px !important;
+    padding:14px 18px 18px !important;
+    gap:10px !important;
+  }
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn{
+    min-width:76px !important;
+  }
+}
