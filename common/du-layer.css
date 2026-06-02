@@ -2357,3 +2357,72 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
     max-width:104px !important;
   }
 }
+
+
+/* ===== v20260602-root1-calendar-reservation-actions-footer-design =====
+   방문 알림 추가 팝업: 하단 액션을 본문 스크롤과 분리하고, 디자인 시안처럼 두 버튼 폭을 동일하게 정렬 */
+#calendarReservationModal.du-layer > .du-layer__panel,
+#calendarReservationModal.du-layer > .upick-div-dialog-panel{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+#calendarReservationModal.du-layer .du-layer__body,
+#calendarReservationModal.du-layer .modal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:auto !important;
+}
+#calendarReservationModal.du-layer .calendar-form{
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+}
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+  flex:0 0 auto !important;
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items:center !important;
+  justify-content:stretch !important;
+  gap:12px !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:16px 20px 20px !important;
+  border-top:1px solid rgba(226,232,240,.92) !important;
+  background:rgba(255,255,255,.96) !important;
+  box-shadow:none !important;
+  position:static !important;
+  bottom:auto !important;
+  z-index:3 !important;
+  box-sizing:border-box !important;
+}
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn,
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-primary,
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-soft{
+  flex:initial !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  min-height:46px !important;
+  margin:0 !important;
+  padding:0 16px !important;
+  justify-content:center !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+}
+#calendarReservationModal.du-layer #calendarReservationMemo{
+  resize:none !important;
+}
+@media (max-width:640px){
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+    gap:10px !important;
+    padding:14px 18px 18px !important;
+  }
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn,
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-primary,
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-soft{
+    min-height:46px !important;
+  }
+}
