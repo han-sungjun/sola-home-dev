@@ -8262,9 +8262,36 @@ function renderCalendarDayModal(){
  
  enforceCalendarDayModalTitleYear();
 }
+ function releaseCalendarDayModalScrollLock(){
+ const modal = qs('#calendarDayModal');
+ try{ window.__upickHardScrollFreeze?.unlock?.('calendar-day-modal'); }catch(_){}
+ const sync = () => {
+  try{ window.__upickSyncModalScrollLock?.(); }catch(_){}
+  try{ window.DuLayerStackManager?.requestSync?.(); }catch(_){}
+  try{ document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer: modal, source:'calendar-day-modal' } })); }catch(_){}
+  const stillOpen = !!document.querySelector([
+   'dialog[open]',
+   '.du-layer.show',
+   '.du-layer[open]',
+   '.du-layer[aria-hidden="false"]',
+   '.upick-div-dialog.show',
+   '.upick-div-modal.show',
+   '.sheet-modal.show',
+   '.app-alert.show'
+  ].join(','));
+  if(!stillOpen){
+   try{ window.__upickHardScrollFreeze?.forceUnlock?.(); }catch(_){}
+   document.documentElement.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','upick-modal-open','upick-alert-open');
+   document.body.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','upick-modal-open','upick-alert-open');
+  }
+ };
+ sync();
+ [0, 40, 120, 280, 520].forEach((delay) => setTimeout(sync, delay));
+ }
  function closeCalendarDayModal(){
  const modal = qs('#calendarDayModal');
- if(isLayerOpenLike(modal)) closeDialogSafe(modal);
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal, { afterClose: releaseCalendarDayModalScrollLock });
+ else releaseCalendarDayModalScrollLock();
  }
  function syncCalendarFocusFromDayModal(){
  const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
@@ -8278,6 +8305,7 @@ function renderCalendarDayModal(){
  renderCalendarReservations();
  focusCalendarDate(key, { scroll:false });
  holdCalendarPageScroll(x, y, 700);
+ releaseCalendarDayModalScrollLock();
  }
  function isCalendarDayDetailStackActive(){
  const dayModal = qs('#calendarDayModal');
