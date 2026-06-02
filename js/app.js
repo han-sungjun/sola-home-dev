@@ -8155,9 +8155,14 @@ ${item.content || ''}`);
  const el = document.querySelector(`[data-calendar-date="${CSS.escape(dateKey)}"]`) || document.querySelector(`[data-calendar-date-card="${CSS.escape(dateKey)}"]`);
  if(!el) return;
  if(options.scroll !== false) el.scrollIntoView({ behavior:'smooth', block:'center' });
+ try{
+  if(typeof el.focus === 'function') el.focus({ preventScroll:true });
+ }catch(_){
+  try{ if(typeof el.focus === 'function') el.focus(); }catch(__){}
+ }
  el.classList.add('focus-highlight');
  setTimeout(() => el.classList.remove('focus-highlight'), 1100);
- }, 80);
+ }, Number.isFinite(Number(options.delay)) ? Number(options.delay) : 80);
  }
  function getCalendarScrollSnapshot(){
  const nodes = [window, document.documentElement, document.body, qs('#mainContent'), qs('.app'), qs('#view-calendar')].filter(Boolean);
@@ -8288,24 +8293,29 @@ function renderCalendarDayModal(){
  sync();
  [0, 40, 120, 280, 520].forEach((delay) => setTimeout(sync, delay));
  }
+ let calendarDayModalCloseFocusRunning = false;
  function closeCalendarDayModal(){
  const modal = qs('#calendarDayModal');
- if(isLayerOpenLike(modal)) closeDialogSafe(modal, { afterClose: releaseCalendarDayModalScrollLock });
- else releaseCalendarDayModalScrollLock();
+ const afterClose = () => syncCalendarFocusFromDayModal({ source:'button' });
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal, { afterClose });
+ else afterClose();
  }
- function syncCalendarFocusFromDayModal(){
+ function syncCalendarFocusFromDayModal(options={}){
+ if(calendarDayModalCloseFocusRunning) return;
+ calendarDayModalCloseFocusRunning = true;
+ setTimeout(() => { calendarDayModalCloseFocusRunning = false; }, 650);
  const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
- const x = window.scrollX || 0;
- const y = window.scrollY || 0;
  try{ window.__upickHardScrollFreeze?.unlock?.('calendar-day-modal'); }catch(_){}
- if(!key) return;
+ if(!key){ releaseCalendarDayModalScrollLock(); return; }
  const d = dateFromKey(key);
  calendarUiState.selectedDateKey = key;
  calendarUiState.cursorDate = d;
  renderCalendarReservations();
- focusCalendarDate(key, { scroll:false });
- holdCalendarPageScroll(x, y, 700);
  releaseCalendarDayModalScrollLock();
+ // 날짜 팝업 안에서 이전/다음/오늘/날짜 선택으로 변경한 최종 날짜를
+ // 닫힘 이후 실제 캘린더 셀로 이동·포커싱합니다.
+ focusCalendarDate(key, { scroll:true, delay:90 });
+ focusCalendarDate(key, { scroll:true, delay:260 });
  }
  function isCalendarDayDetailStackActive(){
  const dayModal = qs('#calendarDayModal');
