@@ -2307,3 +2307,53 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
     column-gap:12px !important;
   }
 }
+
+/* ===== v20260602-root1-calendar-reservation-actions-compact-equal =====
+   방문 알림 추가 팝업: 하단 영역 분리감 제거 + 버튼 폭만 동일화 */
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+  display:flex !important;
+  flex:0 0 auto !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:12px !important;
+  width:100% !important;
+  margin:16px 0 0 !important;
+  padding:0 !important;
+  border-top:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  position:static !important;
+  bottom:auto !important;
+  z-index:auto !important;
+  grid-template-columns:none !important;
+  column-gap:12px !important;
+}
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn,
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-primary,
+#calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-soft{
+  flex:0 0 108px !important;
+  width:108px !important;
+  min-width:108px !important;
+  max-width:108px !important;
+  min-height:46px !important;
+  margin:0 !important;
+  padding:0 16px !important;
+  justify-content:center !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+}
+@media (max-width:640px){
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer{
+    gap:10px !important;
+    margin-top:16px !important;
+  }
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn,
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-primary,
+  #calendarReservationModal.du-layer .calendar-form-actions.du-layer__footer .btn.btn-soft{
+    flex-basis:104px !important;
+    width:104px !important;
+    min-width:104px !important;
+    max-width:104px !important;
+  }
+}
