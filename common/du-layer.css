@@ -3,7 +3,7 @@
    - 최종 목표: sheet / modal / fullscreen 3종 레이어 + header/body/footer 슬롯 통일
 */
 
-/* v20260531-root3: 고정 Root 3만 HTML에 두고 실제 팝업은 JS로 Root 내부에 동적 주입 */
+/* v20260531-root1: 고정 1 Root만 HTML에 두고 실제 팝업은 JS로 Root 내부에 동적 주입 */
 .du-layer-root{
   position:relative;
   z-index:auto;
@@ -11,9 +11,7 @@
 .du-layer-root:empty{
   display:contents;
 }
-#duSheetRoot,
-#duModalRoot,
-#duFullPopupRoot{
+#duLayerRoot{
   display:contents;
 }
 
@@ -1530,7 +1528,7 @@ body.upick-layer-scroll-lock{
 }
 
 
-/* v20260531-root3-dynamic-fix6: Root3 동적 주입 후 설정 모음 body/페이드/AI 확대 보정 */
+/* v20260531-root1-dynamic-fix6: Root1 동적 주입 후 설정 모음 body/페이드/AI 확대 보정 */
 #settingsSuiteModal.du-layer--modal.show,
 #settingsSuiteModal.du-layer--modal.is-open,
 #settingsSuiteModal.du-layer--modal[aria-hidden="false"]{
@@ -1609,7 +1607,7 @@ body.upick-layer-scroll-lock{
 }
 
 
-/* v20260531-root3-dynamic-fix7: 설정 모음/페이드/이미지 확대 최종 보정
+/* v20260531-root1-dynamic-fix7: 설정 모음/페이드/이미지 확대 최종 보정
    - 설정 모음의 outer layer에 남아 있던 gnb-management-dialog 폭/그림자/overflow 스타일을 제거
    - 닫힘 중 aria-hidden 때문에 fade-out이 즉시 끊기는 문제 보정
    - AI/혜택 이미지 확대에서 불필요한 내부 스크롤/배경 스크롤을 줄임 */
@@ -1738,7 +1736,7 @@ body.upick-modal-open #aiImageZoomBackdrop.du-layer--fullscreen{
 }
 
 
-/* v20260531-root3-dynamic-fix9: 설정 모음 위에 계정 정보/비밀번호 팝업을 확실히 올림 */
+/* v20260531-root1-dynamic-fix9: 설정 모음 위에 계정 정보/비밀번호 팝업을 확실히 올림 */
 #settingsSuiteModal.du-layer.is-under-account-popup{
   z-index:2147483500 !important;
 }
@@ -1771,7 +1769,7 @@ body.upick-modal-open #aiImageZoomBackdrop.du-layer--fullscreen{
 }
 
 
-/* v20260531-root3-dynamic-fix10: 이미지 확대 스크롤 제거 + Root3 공통 페이드 복구 */
+/* v20260531-root1-dynamic-fix10: 이미지 확대 스크롤 제거 + Root1 공통 페이드 복구 */
 .du-layer.upick-motion-layer,
 .du-layer.du-layer--modal,
 .du-layer.du-layer--sheet,
@@ -1906,7 +1904,7 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
 }
 
 
-/* v20260531-fix21: Root3 동적 팝업 공통 fade 복구 */
+/* v20260531-fix21: Root1 동적 팝업 공통 fade 복구 */
 .du-layer.upick-motion-layer{
   opacity:0!important;
   visibility:hidden!important;
@@ -1961,7 +1959,7 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
 }
 
 
-/* v20260531-root3-dynamic-fix22: fade lifecycle 보정
+/* v20260531-root1-dynamic-fix22: fade lifecycle 보정
    aria-hidden=false는 접근성 상태값으로만 사용하고, 시각적 open 상태는 show/is-open/upick-motion-open으로만 판단합니다.
    이전 규칙의 [aria-hidden="false"] 오픈 판정 때문에 첫 페인트 전에 opacity:1이 되어 fade-in/out이 사라지는 문제를 막습니다. */
 .du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing),
@@ -2037,7 +2035,7 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
 }
 
 
-/* v20260531-fix24: Root3/알럿/확대팝업 fade 최종 보정
+/* v20260531-fix24: Root1/알럿/확대팝업 fade 최종 보정
    [open]이나 aria-hidden=false 자체를 시각적 open 조건으로 쓰면 첫 프레임이 opacity:1로 고정되어
    fade-in이 사라집니다. 실제 표시 상태는 show/is-open/upick-motion-open만 사용합니다. */
 .du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing),
@@ -2151,7 +2149,7 @@ dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webk
   transition:opacity .24s cubic-bezier(.22,.61,.36,1), transform .24s cubic-bezier(.22,.61,.36,1)!important;
 }
 
-/* v20260531-root3-dynamic-fix27: 설정 모음/방문 알림 fade lifecycle hard override
+/* v20260531-root1-dynamic-fix27: 설정 모음/방문 알림 fade lifecycle hard override
    [open] / aria-hidden="false"가 먼저 붙어도 show/upick-motion-open 전까지는 초기 opacity 0 상태를 유지합니다. */
 #settingsSuiteModal.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
 #settingsSuiteModal.gnb-management-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),

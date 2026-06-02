@@ -35,18 +35,18 @@
 <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/css/app.css?v=20260531-root3-fade-fix28" rel="stylesheet"/>
+<link href="/css/app.css?v=20260531-root1-fade-fix28" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
-<link href="/common/common-motion.css?v=20260531-root3-fade-fix25" rel="stylesheet"/>
-<link href="/common/common-alert.css?v=20260531-root3-fade-fix25" rel="stylesheet"/>
+<link href="/common/common-motion.css?v=20260531-root1-fade-fix25" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260531-root1-fade-fix25" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=20260527-stack-fix" rel="stylesheet"/>
-<link href="/common/du-layer.css?v=20260531-root3-fade-fix28" rel="stylesheet"/>
+<link href="/common/du-layer.css?v=20260531-root1-fade-fix28" rel="stylesheet"/>
 <link href="/common/common-modal.css?v=20260601-alert-over-commonmodal-fix36" rel="stylesheet"/>
-<script defer="" src="/common/common-motion.js?v=20260531-root3-fade-fix25"></script>
+<script defer="" src="/common/common-motion.js?v=20260531-root1-fade-fix25"></script>
 <script defer="" src="/common/common-alert.js?v=20260601-alert-over-commonmodal-fix36"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
-<script defer="" src="/common/du-layer.js?v=20260601-root3-cleanup-fix34"></script>
-<script defer="" src="/common/common-modal.js?v=20260601-root3-cleanup-fix34"></script>
+<script defer="" src="/common/du-layer.js?v=20260601-root1-cleanup-fix34"></script>
+<script defer="" src="/common/common-modal.js?v=20260601-root1-cleanup-fix34"></script>
 </head>
 <body data-loading-mode="public">
 <div aria-hidden="false" class="global-loading show" data-initial-app-loading="1" id="globalLoadingBar">
@@ -853,10 +853,8 @@
 </button>
 </nav>
 
-<!-- 더운정픽 공통 레이어 Root 3: HTML에는 Root만 고정하고, 개별 팝업 DOM은 template에 보관하고 필요할 때만 JS로 동적 주입합니다. -->
-<div class="du-layer-root" data-du-root="sheet" id="duSheetRoot"></div>
-<div class="du-layer-root" data-du-root="modal" id="duModalRoot"></div>
-<div class="du-layer-root" data-du-root="fullscreen" id="duFullPopupRoot"></div>
+<!-- 더운정픽 공통 레이어 1 Root: 모든 sheet/modal/fullscreen 팝업을 하나의 Root에서 관리합니다. -->
+<div class="du-layer-root" data-du-root="unified" id="duLayerRoot"></div>
 <template id="duLayerLegacyTemplate"><div aria-hidden="true" aria-modal="true" class="upick-div-dialog upick-detail-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="detailModal" role="dialog">
 <div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
 <div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
@@ -1390,10 +1388,10 @@
 <script>
 (function(){
   'use strict';
-  if(window.__duLayerRoot3Bootstrapped) return;
-  window.__duLayerRoot3Bootstrapped = true;
+  if(window.__duLayerRoot1Bootstrapped) return;
+  window.__duLayerRoot1Bootstrapped = true;
   function rootFor(type){
-    var key = type === 'sheet' ? 'duSheetRoot' : (type === 'fullscreen' || type === 'full' ? 'duFullPopupRoot' : 'duModalRoot');
+    var key = type === 'sheet' ? 'duLayerRoot' : (type === 'fullscreen' || type === 'full' ? 'duLayerRoot' : 'duLayerRoot');
     return document.getElementById(key);
   }
   function mountLegacyLayers(){
@@ -1408,7 +1406,7 @@
     });
     tpl.dataset.mounted = '1';
   }
-  window.__duLayerMountLegacyTemplates = function(){ return false; }; /* Root3 dynamic: 초기 일괄 주입 금지 */
+  window.__duLayerMountLegacyTemplates = function(){ return false; }; /* Root1 dynamic: 초기 일괄 주입 금지 */
 })();
 </script>
 
@@ -1727,12 +1725,12 @@
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>
-<script src="./js/app.inline.1.js?v=20260531-root3-dynamic-fix29-bodyappend"></script>
-<script src="./js/app.inline.2.js?v=20260601-root3-cleanup-fix34"></script>
+<script src="./js/app.inline.1.js?v=20260531-root1-dynamic-fix29-bodyappend"></script>
+<script src="./js/app.inline.2.js?v=20260601-root1-cleanup-fix34"></script>
 <script src="./js/app.inline.3.js"></script>
 <script src="./js/app.inline.4.js"></script>
 <link href="./css/app.inline.1.css" rel="stylesheet"/>
-<script src="./js/app.inline.5.js?v=20260531-root3-dynamic-fix29-bodyappend"></script>
+<script src="./js/app.inline.5.js?v=20260531-root1-dynamic-fix29-bodyappend"></script>
 <link href="./css/app.inline.2.css" rel="stylesheet"/>
 <script defer="" src="/js/html-inline/app-inline-1-54a53359.js"></script>
 <script defer="" src="/common/dev-badge-visibility.js"></script>
