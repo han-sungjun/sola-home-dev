@@ -8359,10 +8359,21 @@ function openCalendarReservationModal(item={}){
  const benefitId = qs('#calendarBenefitId')?.value || qs('#calendarReservationModal')?.dataset.benefitId || '';
  const item = state.benefits.find(v => v.id === benefitId);
  if(!item){ await openModalAlert('혜택 매장 정보를 찾지 못했습니다.'); return; }
- const dateValue = qs('#calendarVisitDate')?.value || '';
- const timeValue = qs('#calendarVisitTime')?.value || '';
+ const dateInput = qs('#calendarVisitDate');
+ const timeInput = qs('#calendarVisitTime');
+ const dateValue = dateInput?.value || '';
+ const timeValue = timeInput?.value || '';
  const before = Number(qs('#calendarNotifyBefore')?.value || 30);
- if(!dateValue || !timeValue){ await openModalAlert('방문 예정일과 시간을 선택해 주세요.'); return; }
+ if(!dateValue){
+   await openModalAlert('방문 예정일을 선택해 주세요.', dateInput, '방문 알림 추가');
+   try{ dateInput?.focus?.({ preventScroll:true }); }catch(_){ try{ dateInput?.focus?.(); }catch(__){} }
+   return;
+ }
+ if(!timeValue){
+   await openModalAlert('방문 예정 시간을 선택해 주세요.', timeInput, '방문 알림 추가');
+   try{ timeInput?.focus?.({ preventScroll:true }); }catch(_){ try{ timeInput?.focus?.(); }catch(__){} }
+   return;
+ }
  const visitAtDate = new Date(`${dateValue}T${timeValue}:00`);
  if(Number.isNaN(visitAtDate.getTime())){ await openModalAlert('방문 예정 시간이 올바르지 않습니다.'); return; }
  const notifyAtDate = new Date(visitAtDate.getTime() - before * 60 * 1000);
@@ -14929,7 +14940,12 @@ document.addEventListener('keydown', (event) => {
  qs('#closeNoticeModal').onclick=()=>{closeDetailDialogPreservingPage(qs('#noticeModal'));};
  qs('#closeCalendarReservationModal')?.addEventListener('click', closeCalendarReservationModal);
  qs('#cancelCalendarReservationBtn')?.addEventListener('click', closeCalendarReservationModal);
- qs('#calendarReservationForm')?.addEventListener('submit', saveCalendarReservation);
+ const calendarReservationFormEl = qs('#calendarReservationForm');
+ if(calendarReservationFormEl){
+   calendarReservationFormEl.setAttribute('novalidate', 'novalidate');
+   calendarReservationFormEl.noValidate = true;
+   calendarReservationFormEl.addEventListener('submit', saveCalendarReservation);
+ }
  qs('#calendarRefreshBtn')?.addEventListener('click', renderCalendarReservations);
  qs('#calendarPrevBtn')?.addEventListener('click', () => moveCalendarView(-1));
  qs('#calendarNextBtn')?.addEventListener('click', () => moveCalendarView(1));
