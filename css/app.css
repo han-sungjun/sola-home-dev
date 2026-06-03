@@ -901,7 +901,7 @@ html[data-font-size="xlarge"] .gnb-body{padding-bottom:136px;}
 .calendar-empty{padding:24px 16px;border-radius:24px;background:#fff;border:1px solid var(--line-soft);box-shadow:var(--shadow);text-align:center;color:#64748b;line-height:1.7;}
 .calendar-form{display:grid;gap:12px;}
 .calendar-form-help{margin:0 0 4px;color:#475569;font-size:13px;line-height:1.7;}
-.calendar-help-box{display:grid;gap:4px;padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.65;font-weight:800;}
+.calendar-help-box{display:grid;gap:4px;padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.65;font-weight:800;margin: 12px 0 16px;}
 .calendar-help-item{position:relative;padding-left:12px;}
 .calendar-help-item::before{content:'•';position:absolute;left:0;top:0;color:#64748b;font-weight:900;}
 .calendar-selected-store{padding:13px 14px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-weight:900;line-height:1.45;}
