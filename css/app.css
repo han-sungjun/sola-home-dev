@@ -29547,3 +29547,62 @@ body[data-loading-mode="public"] main{
     border-radius:26px!important;
   }
 }
+
+/* ===== v20260603 Benefit ribbon clipping fix =====
+   혜택/즐겨찾기 카드의 NEW/종료 리본이 카드 좌측 밖으로 나가
+   모바일 뷰포트나 상위 스크롤 영역에서 잘리는 문제를 방지합니다. */
+#cardList,
+#favoriteList,
+#cardList .card,
+#favoriteList .card,
+#cardList .card-top,
+#favoriteList .card-top,
+#cardList.view-card .card,
+#cardList.view-card .card-top,
+#cardList.view-list .card,
+#cardList.view-list .card-top,
+#favoriteList.view-card .card,
+#favoriteList.view-card .card-top,
+#favoriteList.view-list .card,
+#favoriteList.view-list .card-top{
+  overflow: visible !important;
+}
+
+#cardList .card-top,
+#favoriteList .card-top,
+#cardList.view-card .card-top,
+#cardList.view-list .card-top,
+#favoriteList.view-card .card-top,
+#favoriteList.view-list .card-top{
+  position: relative !important;
+}
+
+#cardList .card-top > .benefit-end-badge.benefit-date-scope-card,
+#favoriteList .card-top > .benefit-end-badge.benefit-date-scope-card,
+#cardList.view-card .card-top > .benefit-end-badge.benefit-date-scope-card,
+#cardList:not(.view-list) .card-top > .benefit-end-badge.benefit-date-scope-card,
+#cardList.view-list .card-top > .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-card .card-top > .benefit-end-badge.benefit-date-scope-card,
+#favoriteList:not(.view-list) .card-top > .benefit-end-badge.benefit-date-scope-card,
+#favoriteList.view-list .card-top > .benefit-end-badge.benefit-date-scope-card{
+  left: 0 !important;
+  top: 2px !important;
+  transform: rotate(-24deg) !important;
+  transform-origin: left center !important;
+  z-index: 60 !important;
+}
+
+@media(max-width:520px){
+  #cardList .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-card .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #cardList:not(.view-list) .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #cardList.view-list .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-card .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList:not(.view-list) .card-top > .benefit-end-badge.benefit-date-scope-card,
+  #favoriteList.view-list .card-top > .benefit-end-badge.benefit-date-scope-card{
+    left: 0 !important;
+    top: 2px !important;
+    transform: rotate(-22deg) !important;
+  }
+}
