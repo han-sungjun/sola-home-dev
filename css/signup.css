@@ -2370,3 +2370,198 @@ body[data-loading-mode="signup"].upick-hard-scroll-lock{
   overflow-x:hidden!important;
   scrollbar-gutter:stable both-edges!important;
 }
+
+/* ===== v20260604: PC 계정 만들기 화면 스크롤바 제거/컴팩트 보정 =====
+   PC 브라우저에서는 회원가입 전체 카드가 화면 안에 들어오도록 높이를 압축하고,
+   기존 overflow-y:scroll 강제 지정으로 생기던 불필요한 세로 스크롤바를 제거합니다.
+   모바일/낮은 화면에서는 기존처럼 스크롤을 허용합니다. */
+html,
+body{
+  scrollbar-gutter:auto!important;
+}
+body[data-loading-mode="signup"],
+body[data-loading-mode="signup"].upick-alert-open,
+body[data-loading-mode="signup"].upick-layer-scroll-lock,
+body[data-loading-mode="signup"].upick-hard-scroll-lock{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:auto!important;
+}
+
+@media (min-width:768px) and (min-height:820px){
+  html,
+  body{
+    height:100%!important;
+    min-height:100%!important;
+    overflow-y:hidden!important;
+    overflow-x:hidden!important;
+  }
+
+  body[data-loading-mode="signup"],
+  body[data-loading-mode="signup"].upick-alert-open,
+  body[data-loading-mode="signup"].upick-layer-scroll-lock,
+  body[data-loading-mode="signup"].upick-hard-scroll-lock{
+    overflow-y:hidden!important;
+    overflow-x:hidden!important;
+  }
+
+  body[data-loading-mode="signup"] .page{
+    min-height:100dvh!important;
+    height:100dvh!important;
+    padding:10px 16px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell{
+    width:100%!important;
+    max-height:calc(100dvh - 20px)!important;
+    gap:10px!important;
+    padding:14px!important;
+    border-radius:30px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand{
+    padding:8px 11px!important;
+    gap:10px!important;
+    border-radius:20px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand .logo{
+    width:42px!important;
+    height:42px!important;
+    flex-basis:42px!important;
+    border-radius:15px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand .logo::before{
+    inset:7px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand h1{
+    font-size:19px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand p{
+    margin-top:2px!important;
+    font-size:11px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .hero{
+    padding:16px 20px!important;
+    border-radius:24px!important;
+  }
+
+  body[data-loading-mode="signup"] .hero-badge-row{
+    margin-bottom:10px!important;
+  }
+
+  body[data-loading-mode="signup"] .hero-badge-row .eyebrow,
+  body[data-loading-mode="signup"] .hero-badge-row .env-badge,
+  body[data-loading-mode="signup"] .hero-badge-row .hero-env,
+  body[data-loading-mode="signup"] .hero-badge-row .dev-env,
+  body[data-loading-mode="signup"] .hero-badge-row .dev-badge{
+    height:32px!important;
+    min-height:32px!important;
+    font-size:11px!important;
+    padding:0 12px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .hero h2{
+    margin:8px 0 6px!important;
+    font-size:24px!important;
+    line-height:1.15!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .hero p{
+    font-size:12.5px!important;
+    line-height:1.55!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .hero::before{
+    width:78px!important;
+    height:78px!important;
+    right:24px!important;
+    bottom:14px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .panel{
+    padding:16px 20px!important;
+    border-radius:24px!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .panel h3{
+    margin-bottom:5px!important;
+    font-size:20px!important;
+  }
+
+  body[data-loading-mode="signup"] .helper{
+    font-size:12px!important;
+    line-height:1.45!important;
+    margin:0!important;
+  }
+
+  body[data-loading-mode="signup"] .form{
+    gap:7px!important;
+    margin-top:9px!important;
+  }
+
+  body[data-loading-mode="signup"] .field{
+    gap:4px!important;
+  }
+
+  body[data-loading-mode="signup"] .field label{
+    font-size:12px!important;
+  }
+
+  body[data-loading-mode="signup"] .field input,
+  body[data-loading-mode="signup"] .field select,
+  body[data-loading-mode="signup"] .check-btn{
+    height:40px!important;
+    min-height:40px!important;
+    border-radius:14px!important;
+    font-size:13px!important;
+  }
+
+  body[data-loading-mode="signup"] .field input,
+  body[data-loading-mode="signup"] .field select{
+    padding-left:13px!important;
+    padding-right:13px!important;
+  }
+
+  body[data-loading-mode="signup"] select{
+    padding-right:40px!important;
+    background-position:right 14px center,0 0!important;
+  }
+
+  body[data-loading-mode="signup"] .input-row{
+    gap:7px!important;
+  }
+
+  body[data-loading-mode="signup"] .field-msg{
+    min-height:14px!important;
+    font-size:11px!important;
+    line-height:1.25!important;
+  }
+
+  body[data-loading-mode="signup"] .agree{
+    padding:10px 12px!important;
+    border-radius:15px!important;
+    font-size:12px!important;
+    line-height:1.4!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-action-row{
+    gap:8px!important;
+    margin-top:0!important;
+  }
+
+  body[data-loading-mode="signup"] .signup-action-row .btn,
+  body[data-loading-mode="signup"] .signup-action-row .btn-soft{
+    height:42px!important;
+    min-height:42px!important;
+    border-radius:15px!important;
+    font-size:13px!important;
+  }
+}
