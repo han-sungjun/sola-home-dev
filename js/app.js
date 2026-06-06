@@ -11986,20 +11986,16 @@ function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestio
  const root = chatRoot || scope || document;
  if(!root) return;
  try{
-   const retrySelector = '[data-ai-error-retry], .ai-error-retry-btn';
-   const retryButtons = Array.from(root.querySelectorAll(retrySelector));
-   const internalRetries = retryButtons.filter((btn) => !!btn.closest('.ai-answer-no-result[data-ai-no-result="true"]'));
-   const keeper = internalRetries.length ? internalRetries[internalRetries.length - 1] : (retryButtons.length ? retryButtons[retryButtons.length - 1] : null);
-   retryButtons.forEach((btn) => {
-     if(btn !== keeper) btn.remove();
-   });
+   // AI no-result / server-error bubbles should not expose a resend button.
+   // Keeping a singleton retry button caused a floating "다시 보내기" button to remain under the AI answer.
+   root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
    root.querySelectorAll('.ai-state-action-row, .ai-error-action-row, .ai-actions, .ai-retry-action-row').forEach((row) => {
      if(!row.querySelector('button, a, input, select, textarea')) row.remove();
    });
  }catch(_error){}
- }
+}
 
- function scheduleAiRetryButtonNormalize(scope){
+function scheduleAiRetryButtonNormalize(scope){
  try{
    const target = scope || qs('#aiChatWindow');
    normalizeAiErrorRetryButtons(target);
@@ -12183,20 +12179,11 @@ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
    openDetail(item);
    return;
  }
- try{
- const snap = await getDoc(doc(db, BENEFITS_COLLECTION, benefitId));
- if(snap.exists()){
-   const loaded = sanitizeBenefit(snap.data(), snap.id);
-   if(typeof isRecommendableBenefit === 'function' && !isRecommendableBenefit(loaded)){
-     openModalAlert('현재 추천 가능한 혜택이 아닙니다.');
-     return;
-   }
-   openDetail(loaded);
- } else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
- }catch(error){
- console.error('AI 혜택 딥링크 열기 실패', error);
- openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
- }
+ // AI 추천 카드에서는 Firestore 단건 조회를 다시 시도하지 않습니다.
+ // 숨김/폐점/종료/비공개 혜택은 보안 규칙상 읽기 자체가 차단될 수 있어
+ // getDoc을 호출하면 "Missing or insufficient permissions" 팝업이 발생합니다.
+ // 현재 공개 목록(state.benefits)에 없으면 추천 불가로 조용히 안내합니다.
+ openModalAlert('현재 추천 가능한 혜택이 아닙니다.'); }
  });
  });
  root.querySelectorAll('[data-social-link][data-benefit-id]').forEach(link => {
