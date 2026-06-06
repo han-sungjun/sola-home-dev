@@ -4525,15 +4525,38 @@ function getBenefitZoneInfo(item={}){
 }
 
 
+function normalizeAiIntentSpacing(text=''){
+ const raw = String(text || '').trim().toLowerCase();
+ const compact = raw.replace(/\s+/g, '');
+ return { raw, compact };
+}
+
+function hasAnyIntentToken(source='', tokens=[]){
+ const value = String(source || '');
+ return tokens.some((token) => value.includes(token));
+}
+
 function getRequestedCommercialZone(question=''){
- const q = String(question || '').trim();
- const compact = q.replace(/\s+/g, '');
- const asksStarfield = /스타필드|스타필드\s*빌리지|스타필드빌리지|내부\s*매장|내부\s*상권|몰\s*안|건물\s*안|실내\s*매장|스타필드\s*안/.test(q)
-   || /스타필드|스타필드빌리지|내부매장|내부상권|몰안|건물안|실내매장|스타필드안/.test(compact);
- const asksOutside = /외부\s*상권|외부\s*매장|외부\s*상가|주변\s*상권|주변\s*상가|단지\s*밖|밖에|바깥|외부쪽|외부\s*추천/.test(q)
-   || /외부상권|외부매장|외부상가|주변상권|주변상가|단지밖|외부쪽|외부추천/.test(compact);
- if(asksStarfield && !asksOutside) return 'starfield_inside';
- if(asksOutside && !asksStarfield) return 'outside_area';
+ const { raw:q, compact } = normalizeAiIntentSpacing(question);
+ const outsideTokens = [
+   '외부상권', '외부매장', '외부상가', '외부추천', '외부쪽',
+   '외부혜택', '밖매장', '밖상권', '주변상권', '주변상가',
+   '상가거리', '상권매장', '단지밖', '단지외부', '밖에', '바깥'
+ ];
+ const insideTokens = [
+   '스타필드내부', '스타필드안', '스타필드내', '스타필드빌리지안',
+   '스타필드빌리지내', '내부매장', '내부상권', '몰안', '몰내부',
+   '건물안', '실내매장'
+ ];
+ const asksOutside = /외부\s*(상권|매장|상가|추천|혜택)|외부쪽|주변\s*(상권|상가)|상가\s*거리|상권\s*매장|단지\s*(밖|외부)|밖\s*매장|밖\s*상권|밖에|바깥/.test(q)
+   || hasAnyIntentToken(compact, outsideTokens);
+ const asksInside = /스타필드\s*(내부|안|내)|스타필드\s*빌리지\s*(안|내)|내부\s*(매장|상권)|몰\s*(안|내부)|건물\s*안|실내\s*매장/.test(q)
+   || hasAnyIntentToken(compact, insideTokens);
+ const mentionsStarfieldOnly = /스타필드|스타필드\s*빌리지/.test(q) || hasAnyIntentToken(compact, ['스타필드', '스타필드빌리지']);
+ // 외부 상권/외부 매장 요청은 "스타필드 외부 상권"처럼 스타필드라는 단어가 함께 있어도 외부를 우선합니다.
+ if(asksOutside) return 'outside_area';
+ if(asksInside) return 'starfield_inside';
+ if(mentionsStarfieldOnly) return 'starfield_inside';
  return '';
 }
 
