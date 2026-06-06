@@ -9797,7 +9797,13 @@ function openCalendarReservationModal(item={}){
  const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
  return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-ai" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
  }).join('')}</div>` : '';
- const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}${buildAiRecommendationFeedbackHtml(item)}</div>`).join('')}</div>` : '';
+ const safeRecs = (Array.isArray(recs) ? recs : []).filter(item => {
+   if(!item) return false;
+   if(typeof isRecommendableBenefit !== 'function') return true;
+   const local = item.id ? (state.benefits || []).find(v => String(v.id) === String(item.id)) : null;
+   return local ? isRecommendableBenefit(local) : isRecommendableBenefit(item);
+ });
+ const recHtml = safeRecs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${safeRecs.length}개</small></div>${safeRecs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}${buildAiRecommendationFeedbackHtml(item)}</div>`).join('')}</div>` : '';
  const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
  return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
  }
@@ -11817,15 +11823,11 @@ function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestio
  const aiDownloadButtonsHtml = isNoResultAnswer ? '' : buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isNoResultAnswer){
- const noResultText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
+ const noResultText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
  const noResultSafe = escapeHtml(noResultText).replace(/\n/g, '<br>');
- const retryQuestion = String(retrySourceQuestion || question || '').trim();
  return `
  <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
  <div class="ai-answer-summary">${noResultSafe}</div>
- <div class="ai-state-action-row ai-no-result-action-row">
- <button class="ai-error-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">↻ 다시 보내기</button>
- </div>
  <span class="ai-mode-pill upgraded">등록된 안내를 찾지 못했어요.</span>
  </div>`;
  }
@@ -12174,13 +12176,23 @@ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  const benefitId = btn.dataset.aiOpenBenefitId || '';
  const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
  if(item){
- openDetail(item);
- return;
+   if(typeof isRecommendableBenefit === 'function' && !isRecommendableBenefit(item)){
+     openModalAlert('현재 추천 가능한 혜택이 아닙니다.');
+     return;
+   }
+   openDetail(item);
+   return;
  }
  try{
  const snap = await getDoc(doc(db, BENEFITS_COLLECTION, benefitId));
- if(snap.exists()) openDetail(sanitizeBenefit(snap.data(), snap.id));
- else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
+ if(snap.exists()){
+   const loaded = sanitizeBenefit(snap.data(), snap.id);
+   if(typeof isRecommendableBenefit === 'function' && !isRecommendableBenefit(loaded)){
+     openModalAlert('현재 추천 가능한 혜택이 아닙니다.');
+     return;
+   }
+   openDetail(loaded);
+ } else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
  }catch(error){
  console.error('AI 혜택 딥링크 열기 실패', error);
  openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
@@ -13519,7 +13531,7 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const fallbackText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
+ const fallbackText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
  if(pendingBubble){
    pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question, displayQuestion);
    bindAiAnswerActions(pendingBubble);
