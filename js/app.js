@@ -9850,7 +9850,7 @@ function getAiFeedbackAnswerText(btn){
 
 function buildAiAnswerFeedbackHtml(){
  return `<div class="ai-answer-feedback-row" aria-label="AI 답변 피드백">
-   <span class="ai-answer-feedback-label">도움이 되었나요?</span>
+   <span class="ai-answer-feedback-label">답변 평가</span>
    <button class="ai-answer-feedback-btn good" type="button" data-ai-answer-feedback="good" aria-label="좋은 답변이에요" title="좋은 답변이에요"><span aria-hidden="true">👍</span></button>
    <button class="ai-answer-feedback-btn bad" type="button" data-ai-answer-feedback="bad" aria-label="별로인 답변이에요" title="별로인 답변이에요"><span aria-hidden="true">👎</span></button>
  </div>`;
@@ -12428,6 +12428,7 @@ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  const category = item.category || '';
  return `
  <div class="ai-rec-feedback-row icon-only" aria-label="AI 추천 피드백">
+ <span class="ai-rec-feedback-label">추천 평가</span>
  <button class="ai-rec-feedback-btn good" type="button" data-ai-rec-feedback="good" data-ai-rec-id="${escapeAttr(id)}" data-ai-rec-name="${escapeAttr(name)}" data-ai-rec-category="${escapeAttr(category)}" aria-label="추천이 잘 맞았어요" title="추천이 잘 맞았어요"><span aria-hidden="true">👍</span></button>
  <button class="ai-rec-feedback-btn bad" type="button" data-ai-rec-feedback="bad" data-ai-rec-id="${escapeAttr(id)}" data-ai-rec-name="${escapeAttr(name)}" data-ai-rec-category="${escapeAttr(category)}" aria-label="추천이 별로예요" title="추천이 별로예요"><span aria-hidden="true">👎</span></button>
  </div>`;
