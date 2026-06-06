@@ -3078,6 +3078,19 @@ async function refreshPushStatus(){
  type,
  createdAt: serverTimestamp()
  });
+ const mlBenefit = (state.benefits || []).find(v => String(v.id) === String(benefitId)) || {};
+ if(typeof logPersonalAssistantEvent === 'function'){
+   logPersonalAssistantEvent({
+     action: type,
+     eventType: 'benefit_event',
+     targetType: 'benefit',
+     benefitId,
+     targetId: benefitId,
+     category: mlBenefit.category || '',
+     keyword: mlBenefit.name || mlBenefit.title || mlBenefit.benefit || '',
+     source: 'benefit_event'
+   }).catch(() => {});
+ }
  recordResidentActivity(type, residentActivityPoints(type), benefitId).catch(() => {});
  }catch(error){
  console.error('이벤트 기록 실패', type, benefitId, error);
