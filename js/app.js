@@ -77,6 +77,7 @@
  const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
  const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
+ const AI_RECOMMENDATION_FEEDBACK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/feedback` : '';
  const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
  const CHECK_NICKNAME_URL = API_URL?.[ENV]?.checkNickname || '';
  const UPDATE_ACCOUNT_PROFILE_URL = API_URL?.[ENV]?.updateAccountProfile || '';
@@ -9801,7 +9802,24 @@ function openCalendarReservationModal(item={}){
  return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
  }
 
- async function logPersonalAssistantEvent(payload={}){
+ 
+async function sendAiRecommendationFeedback(payload={}){
+ if(!AI_RECOMMENDATION_FEEDBACK_URL && !AI_ASSISTANT_LOG_URL) return;
+ try{
+ const idToken = await getAiIdTokenSafe();
+ const body = { env: ENV, source:'ai_recommendation_card', ...payload };
+ const url = AI_RECOMMENDATION_FEEDBACK_URL || AI_ASSISTANT_LOG_URL;
+ await fetch(url, {
+ method:'POST',
+ headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+ body: JSON.stringify(body)
+ });
+ }catch(error){
+ console.warn('AI 추천 피드백 저장 실패:', error);
+ }
+}
+
+async function logPersonalAssistantEvent(payload={}){
  if(!AI_ASSISTANT_LOG_URL) return;
  try{
  const idToken = await getAiIdTokenSafe();
@@ -11877,7 +11895,37 @@ function bindAiAnswerActions(scope){
      askAiAssistant(retryQuestion);
    });
  });
- root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
+ 
+root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
+ if(btn.dataset.aiRecFeedbackBound === 'true') return;
+ btn.dataset.aiRecFeedbackBound = 'true';
+ btn.addEventListener('click', async (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const feedback = btn.dataset.aiRecFeedback || '';
+ const card = btn.closest('.ai-auto-card, .ai-benefit-card-auto, .ai-answer-section');
+ const benefitId = btn.dataset.aiRecId || card?.dataset?.id || '';
+ const benefitName = btn.dataset.aiRecName || card?.dataset?.aiRecName || '';
+ const category = btn.dataset.aiRecCategory || card?.dataset?.aiRecCategory || '';
+ btn.classList.add('selected');
+ btn.parentElement?.querySelectorAll('[data-ai-rec-feedback]').forEach(other => { if(other !== btn) other.classList.remove('selected'); other.disabled = true; });
+ btn.disabled = false;
+ await sendAiRecommendationFeedback({
+ action: feedback === 'good' ? 'recommendation_feedback_good' : 'recommendation_feedback_bad',
+ feedback,
+ targetType:'benefit',
+ benefitId,
+ targetId: benefitId,
+ benefitName,
+ category,
+ question: (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '',
+ buttonLabel: btn.textContent || ''
+ });
+ btn.textContent = feedback === 'good' ? '반영됨' : '의견 반영됨';
+ });
+});
+
+root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  if(btn.dataset.aiDialogBound === 'true') return;
  btn.dataset.aiDialogBound = 'true';
  btn.addEventListener('click', (event) => {
@@ -12280,7 +12328,7 @@ function bindAiAnswerActions(scope){
  const mapLink = buildNaverMapLink(item);
 
  return `
- <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
+ <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}" data-ai-rec-name="${escapeAttr(item.name)}" data-ai-rec-category="${escapeAttr(item.category)}">
  <div class="ai-auto-card-head">
  <div>
  <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
@@ -12315,6 +12363,10 @@ function bindAiAnswerActions(scope){
  ${item.phone ? `<a class="ai-card-btn soft" href="tel:${escapeHtml(item.phone)}">전화</a>` : ''}
  <a class="ai-card-btn soft" href="${escapeHtml(mapLink)}" target="_blank" rel="noopener">지도 열기</a>
  ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
+ </div>
+ <div class="ai-rec-feedback-row" aria-label="AI 추천 피드백">
+ <button class="ai-rec-feedback-btn good" type="button" data-ai-rec-feedback="good" data-ai-rec-id="${escapeAttr(item.id)}" data-ai-rec-name="${escapeAttr(item.name)}" data-ai-rec-category="${escapeAttr(item.category)}">맞았어요</button>
+ <button class="ai-rec-feedback-btn bad" type="button" data-ai-rec-feedback="bad" data-ai-rec-id="${escapeAttr(item.id)}" data-ai-rec-name="${escapeAttr(item.name)}" data-ai-rec-category="${escapeAttr(item.category)}">별로예요</button>
  </div>
  </div>`;
  }
