@@ -9797,7 +9797,7 @@ function openCalendarReservationModal(item={}){
  const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
  return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-ai" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
  }).join('')}</div>` : '';
- const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
+ const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}${buildAiRecommendationFeedbackHtml(item)}</div>`).join('')}</div>` : '';
  const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
  return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
  }
@@ -11703,6 +11703,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestio
  <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
  <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
  </div>
+ ${buildAiRecommendationFeedbackHtml(item)}
  </div>`).join('');
  const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
  // 혜택/매장/날씨 기반 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
@@ -11919,9 +11920,11 @@ root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
  benefitName,
  category,
  question: (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '',
- buttonLabel: btn.textContent || ''
+ buttonLabel: btn.getAttribute('aria-label') || btn.textContent || ''
  });
- btn.textContent = feedback === 'good' ? '반영됨' : '의견 반영됨';
+ btn.innerHTML = feedback === 'good' ? '<span aria-hidden="true">✓</span>' : '<span aria-hidden="true">↺</span>';
+ btn.setAttribute('aria-label', feedback === 'good' ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨');
+ btn.title = feedback === 'good' ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨';
  });
 });
 
@@ -12311,6 +12314,17 @@ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  return item.link || '#';
  }
 
+ function buildAiRecommendationFeedbackHtml(item = {}){
+ const id = item.id || item.docId || '';
+ const name = item.name || item.title || item.storeName || '';
+ const category = item.category || '';
+ return `
+ <div class="ai-rec-feedback-row icon-only" aria-label="AI 추천 피드백">
+ <button class="ai-rec-feedback-btn good" type="button" data-ai-rec-feedback="good" data-ai-rec-id="${escapeAttr(id)}" data-ai-rec-name="${escapeAttr(name)}" data-ai-rec-category="${escapeAttr(category)}" aria-label="추천이 잘 맞았어요" title="추천이 잘 맞았어요"><span aria-hidden="true">👍</span></button>
+ <button class="ai-rec-feedback-btn bad" type="button" data-ai-rec-feedback="bad" data-ai-rec-id="${escapeAttr(id)}" data-ai-rec-name="${escapeAttr(name)}" data-ai-rec-category="${escapeAttr(category)}" aria-label="추천이 별로예요" title="추천이 별로예요"><span aria-hidden="true">👎</span></button>
+ </div>`;
+ }
+
  function renderAiAutoCard(rawItem){
  const item = normalizeAiCardItem(rawItem);
  const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
@@ -12364,10 +12378,7 @@ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  <a class="ai-card-btn soft" href="${escapeHtml(mapLink)}" target="_blank" rel="noopener">지도 열기</a>
  ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
  </div>
- <div class="ai-rec-feedback-row" aria-label="AI 추천 피드백">
- <button class="ai-rec-feedback-btn good" type="button" data-ai-rec-feedback="good" data-ai-rec-id="${escapeAttr(item.id)}" data-ai-rec-name="${escapeAttr(item.name)}" data-ai-rec-category="${escapeAttr(item.category)}">맞았어요</button>
- <button class="ai-rec-feedback-btn bad" type="button" data-ai-rec-feedback="bad" data-ai-rec-id="${escapeAttr(item.id)}" data-ai-rec-name="${escapeAttr(item.name)}" data-ai-rec-category="${escapeAttr(item.category)}">별로예요</button>
- </div>
+ ${buildAiRecommendationFeedbackHtml(item)}
  </div>`;
  }
 
