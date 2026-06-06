@@ -9850,7 +9850,7 @@ function getAiFeedbackAnswerText(btn){
 
 function buildAiAnswerFeedbackHtml(){
  return `<div class="ai-answer-feedback-row" aria-label="AI 답변 피드백">
-   <span class="ai-answer-feedback-label">답변이 도움이 되었나요?</span>
+   <span class="ai-answer-feedback-label">도움이 되었나요?</span>
    <button class="ai-answer-feedback-btn good" type="button" data-ai-answer-feedback="good" aria-label="좋은 답변이에요" title="좋은 답변이에요"><span aria-hidden="true">👍</span></button>
    <button class="ai-answer-feedback-btn bad" type="button" data-ai-answer-feedback="bad" aria-label="별로인 답변이에요" title="별로인 답변이에요"><span aria-hidden="true">👎</span></button>
  </div>`;
