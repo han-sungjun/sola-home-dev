@@ -12183,7 +12183,8 @@ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  // 숨김/폐점/종료/비공개 혜택은 보안 규칙상 읽기 자체가 차단될 수 있어
  // getDoc을 호출하면 "Missing or insufficient permissions" 팝업이 발생합니다.
  // 현재 공개 목록(state.benefits)에 없으면 추천 불가로 조용히 안내합니다.
- openModalAlert('현재 추천 가능한 혜택이 아닙니다.'); }
+ openModalAlert('현재 추천 가능한 혜택이 아닙니다.');
+ return;
  });
  });
  root.querySelectorAll('[data-social-link][data-benefit-id]').forEach(link => {
