@@ -11977,10 +11977,18 @@ function bindAiAnswerActions(scope){
  btn.addEventListener('click', async (event) => {
  event.preventDefault();
  event.stopPropagation();
+ const row = btn.closest('.ai-answer-feedback-row');
+ if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true') return;
  const feedback = btn.dataset.aiAnswerFeedback || '';
  btn.classList.add('selected');
- btn.parentElement?.querySelectorAll('[data-ai-answer-feedback]').forEach(other => { if(other !== btn) other.classList.remove('selected'); other.disabled = true; });
- btn.disabled = false;
+ btn.dataset.aiFeedbackSubmitted = 'true';
+ if(row) row.dataset.aiFeedbackSubmitted = 'true';
+ const buttons = row ? row.querySelectorAll('[data-ai-answer-feedback]') : btn.parentElement?.querySelectorAll('[data-ai-answer-feedback]');
+ buttons?.forEach(other => {
+   if(other !== btn) other.classList.remove('selected');
+   other.disabled = true;
+   other.dataset.aiFeedbackSubmitted = 'true';
+ });
  await sendAiAnswerFeedback({
    feedback,
    question: getAiFeedbackQuestionFromButton(btn),
@@ -12011,14 +12019,22 @@ root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
  btn.addEventListener('click', async (event) => {
  event.preventDefault();
  event.stopPropagation();
+ const row = btn.closest('.ai-rec-feedback-row');
+ if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true') return;
  const feedback = btn.dataset.aiRecFeedback || '';
  const card = btn.closest('.ai-auto-card, .ai-benefit-card-auto, .ai-answer-section');
  const benefitId = btn.dataset.aiRecId || card?.dataset?.id || '';
  const benefitName = btn.dataset.aiRecName || card?.dataset?.aiRecName || '';
  const category = btn.dataset.aiRecCategory || card?.dataset?.aiRecCategory || '';
  btn.classList.add('selected');
- btn.parentElement?.querySelectorAll('[data-ai-rec-feedback]').forEach(other => { if(other !== btn) other.classList.remove('selected'); other.disabled = true; });
- btn.disabled = false;
+ btn.dataset.aiFeedbackSubmitted = 'true';
+ if(row) row.dataset.aiFeedbackSubmitted = 'true';
+ const buttons = row ? row.querySelectorAll('[data-ai-rec-feedback]') : btn.parentElement?.querySelectorAll('[data-ai-rec-feedback]');
+ buttons?.forEach(other => {
+   if(other !== btn) other.classList.remove('selected');
+   other.disabled = true;
+   other.dataset.aiFeedbackSubmitted = 'true';
+ });
  await sendAiRecommendationFeedback({
  action: feedback === 'good' ? 'recommendation_feedback_good' : 'recommendation_feedback_bad',
  feedback,
@@ -12030,7 +12046,7 @@ root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
  question: (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '',
  buttonLabel: btn.getAttribute('aria-label') || btn.textContent || ''
  });
- btn.innerHTML = feedback === 'good' ? '<span aria-hidden="true">✓</span>' : '<span aria-hidden="true">↺</span>';
+ btn.innerHTML = '<span aria-hidden="true">✓</span>';
  btn.setAttribute('aria-label', feedback === 'good' ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨');
  btn.title = feedback === 'good' ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨';
  });
