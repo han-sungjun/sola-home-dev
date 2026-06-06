@@ -4524,6 +4524,25 @@ function getBenefitZoneInfo(item={}){
  return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'기본 분류' };
 }
 
+
+function getRequestedCommercialZone(question=''){
+ const q = String(question || '').trim();
+ const compact = q.replace(/\s+/g, '');
+ const asksStarfield = /스타필드|스타필드\s*빌리지|스타필드빌리지|내부\s*매장|내부\s*상권|몰\s*안|건물\s*안|실내\s*매장|스타필드\s*안/.test(q)
+   || /스타필드|스타필드빌리지|내부매장|내부상권|몰안|건물안|실내매장|스타필드안/.test(compact);
+ const asksOutside = /외부\s*상권|외부\s*매장|외부\s*상가|주변\s*상권|주변\s*상가|단지\s*밖|밖에|바깥|외부쪽|외부\s*추천/.test(q)
+   || /외부상권|외부매장|외부상가|주변상권|주변상가|단지밖|외부쪽|외부추천/.test(compact);
+ if(asksStarfield && !asksOutside) return 'starfield_inside';
+ if(asksOutside && !asksStarfield) return 'outside_area';
+ return '';
+}
+
+function isBenefitInRequestedCommercialZone(item={}, question=''){
+ const requested = getRequestedCommercialZone(question);
+ if(!requested) return true;
+ return getBenefitZoneInfo(item).type === requested;
+}
+
 function getBenefitStatsRow(item={}){
  const id = String(item.id || item.benefitId || '');
  if(!id) return null;
@@ -10724,7 +10743,7 @@ function getAiAttachmentType(item={}){
  function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
  try{
  return (state.benefits || [])
- .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+ .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)) && isBenefitInRequestedCommercialZone(item, question))
  .map(item => scoreAiBenefitMatch(item, question, answerText))
  .filter(v => v.score >= 3)
  .sort((a,b) => b.score - a.score)
@@ -10750,7 +10769,7 @@ function getAiAttachmentType(item={}){
  const tokens = getAiSearchTokens(question);
  const qNorm = normalizeAiSearchText(question);
  const pool = [];
- (state.benefits || []).filter(item => !item || typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)).forEach(item => pool.push({ type:'benefit', item }));
+ (state.benefits || []).filter(item => !item || ((typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)) && isBenefitInRequestedCommercialZone(item, question))).forEach(item => pool.push({ type:'benefit', item }));
  (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
  (state.aiKnowledge || []).forEach(item => pool.push({ type:item.type || 'ai', item }));
 
@@ -10852,7 +10871,7 @@ function getAiAttachmentType(item={}){
  const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|아이랑|아이하고|아이들과|자녀|키즈|부모님|부모|어르신|어른|시니어|노인|10대|십대|청소년|학생|20대|이십대|청년|젊은|30대|삼십대|40대|사십대|50대|오십대|60대|육십대|70대|칠십대|80대|팔십대|고령|데이트|혼밥|혼자|운동|헬스|필라테스|요가|스포츠|미용|헤어|네일|피부|뷰티|갈만한|갈만한곳|가기좋은|가기 좋은|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
  if(explicitRecommendation){
    const fallback = (state.benefits || [])
-     .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+     .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)) && isBenefitInRequestedCommercialZone(item, question))
      .map(item => {
        const score = Number(item.popularScore || item.score || item.recommendScore || 0)
          + Number(item.favoriteCount || 0) * 2
