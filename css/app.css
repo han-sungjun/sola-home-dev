@@ -29576,3 +29576,13 @@ body[data-loading-mode="public"] .shell{
 .ai-answer-feedback-btn.good.selected{background:#ecfdf5;border-color:#86efac;color:#047857}
 .ai-answer-feedback-btn.bad.selected{background:#fff7ed;border-color:#fdba74;color:#c2410c}
 .ai-answer-feedback-btn:disabled:not(.selected){opacity:.45;cursor:default;transform:none;box-shadow:none}
+
+/* ===== AI feedback duplicate guard ===== */
+.ai-rec-feedback-row[data-ai-feedback-submitted="true"],
+.ai-answer-feedback-row[data-ai-feedback-submitted="true"]{
+  pointer-events:none;
+}
+.ai-rec-feedback-row[data-ai-feedback-submitted="true"] .ai-rec-feedback-btn:not(.selected),
+.ai-answer-feedback-row[data-ai-feedback-submitted="true"] .ai-answer-feedback-btn:not(.selected){
+  opacity:.45;
+}

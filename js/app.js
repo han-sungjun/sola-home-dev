@@ -9820,6 +9820,91 @@ async function sendAiRecommendationFeedback(payload={}){
 }
 
 
+function normalizeAiFeedbackKeyPart(value='', max=500){
+ return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+
+function hashAiFeedbackKey(value=''){
+ const text = String(value || '');
+ let h1 = 0x811c9dc5;
+ let h2 = 0x01000193;
+ for(let i=0; i<text.length; i+=1){
+   const ch = text.charCodeAt(i);
+   h1 ^= ch;
+   h1 = Math.imul(h1, 16777619);
+   h2 = Math.imul(h2 ^ ch, 1597334677);
+ }
+ return `${(h1 >>> 0).toString(36)}${(h2 >>> 0).toString(36)}`;
+}
+
+function getAiFeedbackStorageKey(feedbackKey=''){
+ const uid = auth?.currentUser?.uid || 'guest';
+ return `dupick_ai_feedback_once_${uid}_${String(feedbackKey || '').slice(0, 160)}`;
+}
+
+function getAiSubmittedFeedbackValue(feedbackKey=''){
+ if(!feedbackKey) return '';
+ try{ return String(localStorage.getItem(getAiFeedbackStorageKey(feedbackKey)) || ''); }catch(_error){ return ''; }
+}
+
+function isAiFeedbackAlreadySubmitted(feedbackKey=''){
+ return !!getAiSubmittedFeedbackValue(feedbackKey);
+}
+
+function markAiFeedbackSubmittedOnce(feedbackKey='', feedback='submitted'){
+ if(!feedbackKey) return;
+ try{ localStorage.setItem(getAiFeedbackStorageKey(feedbackKey), String(feedback || 'submitted')); }catch(_error){}
+}
+
+function unmarkAiFeedbackSubmittedOnce(feedbackKey=''){
+ if(!feedbackKey) return;
+ try{ localStorage.removeItem(getAiFeedbackStorageKey(feedbackKey)); }catch(_error){}
+}
+
+function buildAiAnswerFeedbackKey(payload={}){
+ const user = auth?.currentUser;
+ const question = normalizeAiFeedbackKeyPart(payload.question || '', 700);
+ const answerText = normalizeAiFeedbackKeyPart(payload.answerText || '', 1200);
+ return `answer_${user?.uid || 'guest'}_${hashAiFeedbackKey(`${question}||${answerText}`)}`;
+}
+
+function buildAiRecommendationFeedbackKey(payload={}){
+ const user = auth?.currentUser;
+ const targetId = normalizeAiFeedbackKeyPart(payload.targetId || payload.benefitId || '', 160);
+ const name = normalizeAiFeedbackKeyPart(payload.benefitName || payload.name || '', 160);
+ const category = normalizeAiFeedbackKeyPart(payload.category || '', 80);
+ const question = normalizeAiFeedbackKeyPart(payload.question || '', 500);
+ return `recommendation_${user?.uid || 'guest'}_${hashAiFeedbackKey(`${targetId}||${name}||${category}||${question}`)}`;
+}
+
+function findAiFeedbackButtonByValue(row, fallbackBtn, feedback=''){
+ if(!row || !feedback) return fallbackBtn;
+ const attr = fallbackBtn?.dataset?.aiAnswerFeedback !== undefined ? 'data-ai-answer-feedback' : 'data-ai-rec-feedback';
+ return row.querySelector(`[${attr}="${CSS.escape(String(feedback))}"]`) || fallbackBtn;
+}
+
+function applyAiFeedbackSubmittedUi(row, selectedBtn, feedback=''){
+ if(row) row.dataset.aiFeedbackSubmitted = 'true';
+ const buttons = row ? row.querySelectorAll('[data-ai-answer-feedback],[data-ai-rec-feedback]') : selectedBtn?.parentElement?.querySelectorAll('[data-ai-answer-feedback],[data-ai-rec-feedback]');
+ buttons?.forEach(other => {
+   if(other !== selectedBtn) other.classList.remove('selected');
+   other.disabled = true;
+   other.dataset.aiFeedbackSubmitted = 'true';
+   other.setAttribute('aria-disabled', 'true');
+ });
+ if(selectedBtn){
+   selectedBtn.classList.add('selected');
+   selectedBtn.dataset.aiFeedbackSubmitted = 'true';
+   selectedBtn.disabled = true;
+   selectedBtn.setAttribute('aria-disabled', 'true');
+   selectedBtn.innerHTML = '<span aria-hidden="true">✓</span>';
+   const isGood = feedback === 'good';
+   const isAnswer = !!selectedBtn.dataset.aiAnswerFeedback;
+   selectedBtn.setAttribute('aria-label', isAnswer ? (isGood ? '좋은 답변으로 반영됨' : '별로예요 의견 반영됨') : (isGood ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨'));
+   selectedBtn.title = selectedBtn.getAttribute('aria-label') || '반영됨';
+ }
+}
+
 function getAiFeedbackQuestionFromButton(btn){
  try{
    const row = btn?.closest?.('.ai-message');
@@ -9872,13 +9957,16 @@ function ensureAiAnswerFeedback(scope){
 }
 
 async function sendAiAnswerFeedback(payload={}){
+ const user = auth?.currentUser;
+ if(!user || !db) return { ok:false, reason:'not_authenticated' };
+ const feedback = String(payload.feedback || '').toLowerCase();
+ const feedbackKey = String(payload.feedbackKey || buildAiAnswerFeedbackKey(payload));
+ const safeDocId = feedbackKey.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 180);
  try{
-   const user = auth?.currentUser;
-   if(!user || !db) return;
-   const feedback = String(payload.feedback || '').toLowerCase();
-   await addDoc(collection(db, 'ai_answer_feedback'), {
+   await setDoc(doc(db, 'ai_answer_feedback', safeDocId), {
      uid: user.uid,
      feedback,
+     feedbackKey,
      rating: feedback === 'good' ? 'helpful' : 'not_helpful',
      question: String(payload.question || '').slice(0, 1000),
      answerText: String(payload.answerText || '').slice(0, 3000),
@@ -9889,20 +9977,24 @@ async function sendAiAnswerFeedback(payload={}){
    });
    if(feedback === 'bad'){
      try{
-       await addDoc(collection(db, 'ai_failed_questions'), {
+       const failedDocId = `answer_bad_${safeDocId}`.slice(0, 190);
+       await setDoc(doc(db, 'ai_failed_questions', failedDocId), {
          uid: user.uid,
          question: String(payload.question || '').slice(0, 1000),
          answerText: String(payload.answerText || '').slice(0, 3000),
          source: 'answer_feedback_bad',
+         feedbackKey,
          status: 'new',
          reviewStatus: 'new',
          actionStatus: 'faq_candidate',
          createdAt: serverTimestamp()
        });
-     }catch(error){ console.warn('AI 실패 질문 후보 저장 실패:', error); }
+     }catch(error){ console.warn('AI 실패 질문 후보 저장 실패 또는 이미 반영됨:', error); }
    }
+   return { ok:true, feedbackKey, docId:safeDocId };
  }catch(error){
-   console.warn('AI 답변 피드백 저장 실패:', error);
+   console.warn('AI 답변 피드백 저장 실패 또는 이미 반영됨:', error);
+   return { ok:false, duplicate:true, feedbackKey, error };
  }
 }
 
@@ -11978,25 +12070,26 @@ function bindAiAnswerActions(scope){
  event.preventDefault();
  event.stopPropagation();
  const row = btn.closest('.ai-answer-feedback-row');
- if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true') return;
  const feedback = btn.dataset.aiAnswerFeedback || '';
- btn.classList.add('selected');
- btn.dataset.aiFeedbackSubmitted = 'true';
- if(row) row.dataset.aiFeedbackSubmitted = 'true';
- const buttons = row ? row.querySelectorAll('[data-ai-answer-feedback]') : btn.parentElement?.querySelectorAll('[data-ai-answer-feedback]');
- buttons?.forEach(other => {
-   if(other !== btn) other.classList.remove('selected');
-   other.disabled = true;
-   other.dataset.aiFeedbackSubmitted = 'true';
- });
- await sendAiAnswerFeedback({
+ const payload = {
    feedback,
    question: getAiFeedbackQuestionFromButton(btn),
    answerText: getAiFeedbackAnswerText(btn)
- });
- btn.innerHTML = '<span aria-hidden="true">✓</span>';
- btn.setAttribute('aria-label', feedback === 'good' ? '좋은 답변으로 반영됨' : '별로예요 의견 반영됨');
- btn.title = feedback === 'good' ? '좋은 답변으로 반영됨' : '별로예요 의견 반영됨';
+ };
+ const feedbackKey = buildAiAnswerFeedbackKey(payload);
+ payload.feedbackKey = feedbackKey;
+ const storedFeedback = getAiSubmittedFeedbackValue(feedbackKey);
+ if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true' || storedFeedback){
+   const reflectedFeedback = storedFeedback || feedback;
+   applyAiFeedbackSubmittedUi(row, findAiFeedbackButtonByValue(row, btn, reflectedFeedback), reflectedFeedback);
+   return;
+ }
+ markAiFeedbackSubmittedOnce(feedbackKey, feedback);
+ applyAiFeedbackSubmittedUi(row, btn, feedback);
+ const result = await sendAiAnswerFeedback(payload);
+ if(!result?.ok && !result?.duplicate){
+   unmarkAiFeedbackSubmittedOnce(feedbackKey);
+ }
  });
 });
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
@@ -12020,22 +12113,12 @@ root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
  event.preventDefault();
  event.stopPropagation();
  const row = btn.closest('.ai-rec-feedback-row');
- if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true') return;
  const feedback = btn.dataset.aiRecFeedback || '';
  const card = btn.closest('.ai-auto-card, .ai-benefit-card-auto, .ai-answer-section');
  const benefitId = btn.dataset.aiRecId || card?.dataset?.id || '';
  const benefitName = btn.dataset.aiRecName || card?.dataset?.aiRecName || '';
  const category = btn.dataset.aiRecCategory || card?.dataset?.aiRecCategory || '';
- btn.classList.add('selected');
- btn.dataset.aiFeedbackSubmitted = 'true';
- if(row) row.dataset.aiFeedbackSubmitted = 'true';
- const buttons = row ? row.querySelectorAll('[data-ai-rec-feedback]') : btn.parentElement?.querySelectorAll('[data-ai-rec-feedback]');
- buttons?.forEach(other => {
-   if(other !== btn) other.classList.remove('selected');
-   other.disabled = true;
-   other.dataset.aiFeedbackSubmitted = 'true';
- });
- await sendAiRecommendationFeedback({
+ const payload = {
  action: feedback === 'good' ? 'recommendation_feedback_good' : 'recommendation_feedback_bad',
  feedback,
  targetType:'benefit',
@@ -12045,10 +12128,19 @@ root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
  category,
  question: (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '',
  buttonLabel: btn.getAttribute('aria-label') || btn.textContent || ''
- });
- btn.innerHTML = '<span aria-hidden="true">✓</span>';
- btn.setAttribute('aria-label', feedback === 'good' ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨');
- btn.title = feedback === 'good' ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨';
+ };
+ const feedbackKey = buildAiRecommendationFeedbackKey(payload);
+ payload.feedbackKey = feedbackKey;
+ payload.feedbackDocId = feedbackKey.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 180);
+ const storedFeedback = getAiSubmittedFeedbackValue(feedbackKey);
+ if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true' || storedFeedback){
+   const reflectedFeedback = storedFeedback || feedback;
+   applyAiFeedbackSubmittedUi(row, findAiFeedbackButtonByValue(row, btn, reflectedFeedback), reflectedFeedback);
+   return;
+ }
+ markAiFeedbackSubmittedOnce(feedbackKey, feedback);
+ applyAiFeedbackSubmittedUi(row, btn, feedback);
+ await sendAiRecommendationFeedback(payload);
  });
 });
 
