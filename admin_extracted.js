@@ -3269,34 +3269,53 @@ function fillForm(item){
       if(profileList) profileList.innerHTML = '<div class="notice">사용자 프로필을 불러오는 중입니다.</div>';
       if(eventList) eventList.innerHTML = '<div class="notice">학습 이벤트를 불러오는 중입니다.</div>';
       try{
-        const [profileSnap, eventSnap, feedbackSnap] = await Promise.all([
+        const [profileSnap, eventSnap, feedbackSnap, answerFeedbackSnap] = await Promise.all([
           getDocs(query(collection(db, 'ai_ml_profiles'), orderBy('updatedAt','desc'), limit(30))).catch(() => getDocs(query(collection(db, 'ai_ml_profiles'), limit(30)))),
           getDocs(query(collection(db, 'ai_user_events'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_user_events'), limit(50)))),
-          getDocs(query(collection(db, 'ai_recommendation_feedback'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_recommendation_feedback'), limit(50))))
+          getDocs(query(collection(db, 'ai_recommendation_feedback'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_recommendation_feedback'), limit(50)))),
+          getDocs(query(collection(db, 'ai_answer_feedback'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_answer_feedback'), limit(50))))
         ]);
         const profiles = profileSnap.docs.map(d => ({ id:d.id, ...d.data() }));
         const events = eventSnap.docs.map(d => ({ id:d.id, ...d.data() }));
         const feedbacks = feedbackSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+        const answerFeedbacks = answerFeedbackSnap.docs.map(d => ({ id:d.id, ...d.data() }));
         const good = feedbacks.filter(v => String(v.feedback || '').toLowerCase() === 'good').length;
         const bad = feedbacks.filter(v => String(v.feedback || '').toLowerCase() === 'bad').length;
+        const answerGood = answerFeedbacks.filter(v => ['good','helpful'].includes(String(v.feedback || v.rating || '').toLowerCase())).length;
+        const answerBad = answerFeedbacks.filter(v => ['bad','not_helpful'].includes(String(v.feedback || v.rating || '').toLowerCase())).length;
+        const answerTotal = answerGood + answerBad;
+        const answerRate = answerTotal ? Math.round((answerGood / answerTotal) * 100) : 0;
         const totalProfileEvents = profiles.reduce((sum,row) => sum + Number(row.totalEvents || 0), 0);
-        if(qs('#mlFeedbackCount')) qs('#mlFeedbackCount').textContent = `${feedbacks.length}건`;
+        if(qs('#mlFeedbackCount')) qs('#mlFeedbackCount').textContent = `추천 ${feedbacks.length}건 · 답변 ${answerFeedbacks.length}건`;
         if(qs('#mlProfileCount')) qs('#mlProfileCount').textContent = `${profiles.length}명`;
         if(qs('#mlEventCount')) qs('#mlEventCount').textContent = `${events.length}건`;
         if(summaryEl){
           summaryEl.innerHTML = `
             <div class="ml-dashboard-metric"><strong>${profiles.length}</strong><span>학습 프로필</span></div>
             <div class="ml-dashboard-metric"><strong>${totalProfileEvents}</strong><span>누적 이벤트</span></div>
-            <div class="ml-dashboard-metric"><strong>${good}</strong><span>맞았어요</span></div>
-            <div class="ml-dashboard-metric"><strong>${bad}</strong><span>별로예요</span></div>`;
+            <div class="ml-dashboard-metric"><strong>${answerRate}%</strong><span>답변 만족도</span></div>
+            <div class="ml-dashboard-metric"><strong>${answerBad}</strong><span>답변 부정</span></div>
+            <div class="ml-dashboard-metric"><strong>${good}</strong><span>추천 맞음</span></div>
+            <div class="ml-dashboard-metric"><strong>${bad}</strong><span>추천 별로</span></div>`;
         }
         if(feedbackList){
-          feedbackList.innerHTML = feedbacks.length ? '' : '<div class="member-empty">추천 피드백이 없습니다.</div>';
-          feedbacks.forEach(row => {
+          const combinedFeedbacks = [
+            ...answerFeedbacks.map(row => ({...row, __kind:'answer'})),
+            ...feedbacks.map(row => ({...row, __kind:'recommendation'}))
+          ].sort((a,b) => {
+            const getMs = (v) => { try{ return typeof v?.createdAt?.toMillis === 'function' ? v.createdAt.toMillis() : (v?.createdAt?.seconds ? v.createdAt.seconds * 1000 : Date.parse(v?.createdAt || 0)); }catch(_){ return 0; } };
+            return getMs(b) - getMs(a);
+          }).slice(0, 80);
+          feedbackList.innerHTML = combinedFeedbacks.length ? '' : '<div class="member-empty">AI 피드백이 없습니다.</div>';
+          combinedFeedbacks.forEach(row => {
             const el=document.createElement('div');
             el.className='mini-item ml-dashboard-item';
-            const positive = String(row.feedback || '').toLowerCase() === 'good';
-            el.innerHTML=`<div class="mini-item-head"><div><h5>${positive ? '맞았어요' : '별로예요'} · ${escapeHtml(row.benefitName || row.targetName || row.targetId || '추천 항목')}</h5><div class="tags"><span class="tag ${positive ? 'live-tag' : 'hidden-tag'}">${escapeHtml(row.feedback || '-')}</span><span class="tag">${escapeHtml(row.category || '기타')}</span><span class="tag">${mlFormatDate(row.createdAt)}</span></div><div class="ml-dashboard-sub">${escapeHtml(row.question || row.buttonLabel || '')}</div></div></div>`;
+            const rawFeedback = String(row.feedback || row.rating || '').toLowerCase();
+            const positive = ['good','helpful'].includes(rawFeedback);
+            const kindLabel = row.__kind === 'answer' ? '답변' : '추천';
+            const title = row.__kind === 'answer' ? (row.question || 'AI 답변') : (row.benefitName || row.targetName || row.targetId || '추천 항목');
+            const sub = row.__kind === 'answer' ? (row.answerText || '') : (row.question || row.buttonLabel || '');
+            el.innerHTML=`<div class="mini-item-head"><div><h5>${kindLabel} · ${positive ? '좋아요' : '별로예요'} · ${escapeHtml(title)}</h5><div class="tags"><span class="tag ${positive ? 'live-tag' : 'hidden-tag'}">${escapeHtml(rawFeedback || '-')}</span><span class="tag">${escapeHtml(row.category || kindLabel)}</span><span class="tag">${mlFormatDate(row.createdAt)}</span></div><div class="ml-dashboard-sub">${escapeHtml(String(sub || '').slice(0, 180))}</div></div></div>`;
             feedbackList.appendChild(el);
           });
         }

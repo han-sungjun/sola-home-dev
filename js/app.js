@@ -9819,6 +9819,93 @@ async function sendAiRecommendationFeedback(payload={}){
  }
 }
 
+
+function getAiFeedbackQuestionFromButton(btn){
+ try{
+   const row = btn?.closest?.('.ai-message');
+   let cur = row?.previousElementSibling || null;
+   while(cur){
+     if(cur.classList?.contains('ai-message') && cur.classList?.contains('user')){
+       const clone = cur.cloneNode(true);
+       clone.querySelectorAll('small,button,a,script,style').forEach(el => el.remove());
+       const text = String(clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim();
+       if(text) return text;
+     }
+     cur = cur.previousElementSibling;
+   }
+ }catch(_error){}
+ return (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '';
+}
+
+function getAiFeedbackAnswerText(btn){
+ try{
+   const row = btn?.closest?.('.ai-message');
+   const bubble = row?.querySelector?.('.ai-bubble') || btn?.closest?.('.ai-bubble');
+   if(!bubble) return '';
+   const clone = bubble.cloneNode(true);
+   clone.querySelectorAll('.ai-answer-feedback-row,.ai-rec-feedback-row,button,a,script,style').forEach(el => el.remove());
+   return String(clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 3000);
+ }catch(_error){ return ''; }
+}
+
+function buildAiAnswerFeedbackHtml(){
+ return `<div class="ai-answer-feedback-row" aria-label="AI 답변 피드백">
+   <span class="ai-answer-feedback-label">답변이 도움이 되었나요?</span>
+   <button class="ai-answer-feedback-btn good" type="button" data-ai-answer-feedback="good" aria-label="좋은 답변이에요" title="좋은 답변이에요"><span aria-hidden="true">👍</span></button>
+   <button class="ai-answer-feedback-btn bad" type="button" data-ai-answer-feedback="bad" aria-label="별로인 답변이에요" title="별로인 답변이에요"><span aria-hidden="true">👎</span></button>
+ </div>`;
+}
+
+function ensureAiAnswerFeedback(scope){
+ const root = scope || qs('#aiChatWindow');
+ if(!root) return;
+ const bubbles = root.matches?.('.ai-bubble') ? [root] : Array.from(root.querySelectorAll('.ai-bubble'));
+ bubbles.forEach((bubble) => {
+   if(!bubble || bubble.querySelector('.ai-answer-feedback-row')) return;
+   if(bubble.querySelector('.ai-thinking')) return;
+   if(!bubble.closest('.ai-message.bot')) return;
+   const text = String(bubble.innerText || bubble.textContent || '').replace(/\s+/g, '').trim();
+   if(!text || text.length < 8) return;
+   if(/입주민전용AI생활도우미|무엇을도와드릴까요/.test(text) && !bubble.querySelector('.ai-answer')) return;
+   bubble.insertAdjacentHTML('beforeend', buildAiAnswerFeedbackHtml());
+ });
+}
+
+async function sendAiAnswerFeedback(payload={}){
+ try{
+   const user = auth?.currentUser;
+   if(!user || !db) return;
+   const feedback = String(payload.feedback || '').toLowerCase();
+   await addDoc(collection(db, 'ai_answer_feedback'), {
+     uid: user.uid,
+     feedback,
+     rating: feedback === 'good' ? 'helpful' : 'not_helpful',
+     question: String(payload.question || '').slice(0, 1000),
+     answerText: String(payload.answerText || '').slice(0, 3000),
+     source: 'ai_answer_bubble',
+     reviewStatus: 'new',
+     actionStatus: feedback === 'bad' ? 'needs_review' : 'none',
+     createdAt: serverTimestamp()
+   });
+   if(feedback === 'bad'){
+     try{
+       await addDoc(collection(db, 'ai_failed_questions'), {
+         uid: user.uid,
+         question: String(payload.question || '').slice(0, 1000),
+         answerText: String(payload.answerText || '').slice(0, 3000),
+         source: 'answer_feedback_bad',
+         status: 'new',
+         reviewStatus: 'new',
+         actionStatus: 'faq_candidate',
+         createdAt: serverTimestamp()
+       });
+     }catch(error){ console.warn('AI 실패 질문 후보 저장 실패:', error); }
+   }
+ }catch(error){
+   console.warn('AI 답변 피드백 저장 실패:', error);
+ }
+}
+
 async function logPersonalAssistantEvent(payload={}){
  if(!AI_ASSISTANT_LOG_URL) return;
  try{
@@ -11883,6 +11970,27 @@ function bindAiAnswerActions(scope){
    normalizeAiErrorRetryButtons(qs('#aiChatWindow') || root);
  }catch(_error){}
  bindAiDownloadButtons(root);
+ ensureAiAnswerFeedback(root);
+ root.querySelectorAll('[data-ai-answer-feedback]').forEach(btn => {
+ if(btn.dataset.aiAnswerFeedbackBound === 'true') return;
+ btn.dataset.aiAnswerFeedbackBound = 'true';
+ btn.addEventListener('click', async (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const feedback = btn.dataset.aiAnswerFeedback || '';
+ btn.classList.add('selected');
+ btn.parentElement?.querySelectorAll('[data-ai-answer-feedback]').forEach(other => { if(other !== btn) other.classList.remove('selected'); other.disabled = true; });
+ btn.disabled = false;
+ await sendAiAnswerFeedback({
+   feedback,
+   question: getAiFeedbackQuestionFromButton(btn),
+   answerText: getAiFeedbackAnswerText(btn)
+ });
+ btn.innerHTML = '<span aria-hidden="true">✓</span>';
+ btn.setAttribute('aria-label', feedback === 'good' ? '좋은 답변으로 반영됨' : '별로예요 의견 반영됨');
+ btn.title = feedback === 'good' ? '좋은 답변으로 반영됨' : '별로예요 의견 반영됨';
+ });
+});
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
    if(btn.dataset.aiRetryBound === 'true') return;
    btn.dataset.aiRetryBound = 'true';
