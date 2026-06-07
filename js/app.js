@@ -6432,6 +6432,7 @@ window.__upickForceCloseTransientImagePreviewLayers = forceCloseTransientImagePr
 
 
 let upickModalReturnFocusState = { benefit:null, notice:null };
+window.upickModalReturnFocusState = upickModalReturnFocusState;
 
 function upickCssEscape(value = ''){
  try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
@@ -6469,14 +6470,33 @@ function upickFindModalReturnFocusEl(type, id, explicitEl){
  return selector ? document.querySelector(selector) : null;
 }
 
+function upickGetReturnFocusTokenTarget(token){
+ const safeToken = upickCssEscape(token);
+ if(!safeToken) return null;
+ return document.querySelector('[data-upick-return-focus-token="' + safeToken + '"]');
+}
+
+function upickMakeReturnFocusToken(){
+ return 'rf-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+}
+
 function upickRememberModalReturnFocus(type, item = {}, explicitEl = null){
  const modalType = type === 'notice' ? 'notice' : 'benefit';
  const id = String(item?.id || '').trim();
  const target = upickFindModalReturnFocusEl(modalType, id, explicitEl);
+ let token = '';
+ if(target && target.isConnected){
+   token = target.dataset?.upickReturnFocusToken || '';
+   if(!token){
+     token = upickMakeReturnFocusToken();
+     try{ target.dataset.upickReturnFocusToken = token; }catch(_){ try{ target.setAttribute('data-upick-return-focus-token', token); }catch(__){} }
+   }
+ }
  upickModalReturnFocusState[modalType] = {
    id,
    selector: upickGetModalReturnFocusSelector(modalType, id),
    element: target && target.isConnected ? target : null,
+   token,
    view: state?.view || ''
  };
 }
@@ -6487,6 +6507,7 @@ function upickRestoreModalReturnFocus(type){
  if(!info) return false;
  const selector = info.selector || upickGetModalReturnFocusSelector(modalType, info.id);
  let target = info.element && info.element.isConnected ? info.element : null;
+ if(!target && info.token) target = upickGetReturnFocusTokenTarget(info.token);
  if(!target && selector) target = document.querySelector(selector);
  if(!target) return false;
  try{
@@ -16172,6 +16193,14 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   function findTop5Card(){
     syncExternalState();
+    try{
+      const info = window.upickModalReturnFocusState?.benefit || upickModalReturnFocusState?.benefit || null;
+      if(info){
+        const exact = info.element && info.element.isConnected ? info.element : (info.token ? upickGetReturnFocusTokenTarget(info.token) : null);
+        const exactCard = getTop5Card(exact);
+        if(exactCard) return exactCard;
+      }
+    }catch(_){ }
     if(isVisibleTop5Card(top5FocusState.element)) return top5FocusState.element;
     const selectors = [];
     const keys = [top5FocusState.returnFocusKey, top5FocusState.benefitId, top5FocusState.popularId]
