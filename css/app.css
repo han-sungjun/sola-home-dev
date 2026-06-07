@@ -29617,3 +29617,26 @@ body[data-loading-mode="public"] .shell{
   color:#1d4ed8;
   font-weight:900;
 }
+
+/* v86 focus restore: detail/notice modal close returns focus to the opener card */
+.card.upick-force-focus-ring,
+.notice-item.upick-force-focus-ring,
+.popular-item.upick-force-focus-ring,
+.hot-now-item.upick-force-focus-ring,
+.map-place-card.upick-force-focus-ring,
+[data-benefit-id].upick-force-focus-ring,
+[data-notice-id].upick-force-focus-ring,
+[data-map-benefit-id].upick-force-focus-ring {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14), var(--shadow) !important;
+}
+
+.card:focus-visible,
+.notice-item:focus-visible,
+.popular-item:focus-visible,
+.hot-now-item:focus-visible {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14), var(--shadow) !important;
+}

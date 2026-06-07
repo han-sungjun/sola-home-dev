@@ -5032,7 +5032,7 @@ function getDistanceSpreadMapPosition(nm, center, item, index, count, clusterIte
 function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:center.lat,lng:center.lng}; return getDistanceSpreadMapPosition(nm, center, fakeItem, index, count, []);}
  function renderSpreadClusterMarkers(nm, cluster){const center={lat:Number(cluster.lat),lng:Number(cluster.lng)}; const count=cluster.items.length; const sortedItems=[...(cluster.items||[])].sort((a,b)=>{const pa=getBenefitLatLng(a)||center; const pb=getBenefitLatLng(b)||center; const da=getDistanceMeters(center.lat,center.lng,pa.lat,pa.lng); const db=getDistanceMeters(center.lat,center.lng,pb.lat,pb.lng); return da-db;}); sortedItems.forEach((item,index)=>{const spreadPosition=getDistanceSpreadMapPosition(nm, center, item, index, count, sortedItems); const marker=new nm.Marker({position:spreadPosition,map:benefitMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(18,34)},zIndex:180+index}); nm.Event.addListener(marker,'click',()=>openDetail(item)); benefitMapMarkers.push(marker);});}
  function renderSpreadSamePositionMarkers(nm, cluster){renderSpreadClusterMarkers(nm, cluster);}
- function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'" tabindex="0" role="button" aria-label="'+escapeHtml((item.name||'매장')+' 혜택 상세 보기')+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div><span aria-hidden="true">보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{const openMapCardDetail=()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);}; card.addEventListener('click',openMapCardDetail); card.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openMapCardDetail();}});});}
+ function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'" tabindex="0" role="button" aria-label="'+escapeHtml((item.name||'매장')+' 혜택 상세 보기')+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div><span aria-hidden="true">보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{const openMapCardDetail=()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item, { returnFocusEl: card });}; card.addEventListener('click',openMapCardDetail); card.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openMapCardDetail();}});});}
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){benefitMapExpandedClusterKey=''; setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false)); nm.Event.addListener(benefitMapInstance,'click',()=>{if(benefitMapExpandedClusterKey){benefitMapExpandedClusterKey=''; renderMapMarkers(false); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}});}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; const zoom=benefitMapInstance.getZoom?Number(benefitMapInstance.getZoom()||15):15; const autoSpreadZoom=zoom>=17; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,zoom); const hasExpandedCluster=clusters.some(c=>getSamePositionClusterKey(c.items)===benefitMapExpandedClusterKey); if(benefitMapExpandedClusterKey&&!hasExpandedCluster) benefitMapExpandedClusterKey=''; clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const samePositionKey=getSamePositionClusterKey(c.items); if(c.items.length>1 && (autoSpreadZoom || (samePositionKey&&benefitMapExpandedClusterKey===samePositionKey))){renderSpreadClusterMarkers(nm,c); return;} const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapExpandedClusterKey=samePositionKey||''; benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.max(17, Math.min(19, Number(benefitMapInstance.getZoom()||15)+1))); renderMapMarkers(false); setMapModeStatus('확대된 지도에서는 모든 클러스터가 실제 거리와 방향을 기준으로 자동으로 펼쳐집니다.','muted');}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
@@ -6429,6 +6429,81 @@ function forceCloseTransientImagePreviewLayers(){
 }
 window.__upickForceCloseTransientImagePreviewLayers = forceCloseTransientImagePreviewLayers;
 
+
+
+let upickModalReturnFocusState = { benefit:null, notice:null };
+
+function upickCssEscape(value = ''){
+ try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
+ return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+}
+
+function upickGetModalReturnFocusSelector(type, id){
+ const safeId = upickCssEscape(id);
+ if(!safeId) return '';
+ if(type === 'notice') return `[data-notice-id="${safeId}"]`;
+ return [
+   `[data-benefit-id="${safeId}"]`,
+   `[data-map-benefit-id="${safeId}"]`,
+   `[data-ai-rec-id="${safeId}"]`,
+   `[data-calendar-open-benefit="${safeId}"]`
+ ].join(',');
+}
+
+function upickFindModalReturnFocusEl(type, id, explicitEl){
+ const interactiveSelector = '[data-benefit-id],[data-map-benefit-id],[data-notice-id],[data-ai-rec-id],[data-calendar-open-benefit],.card,.popular-item,.hot-now-item,.notice-item,.map-place-card';
+ if(explicitEl && explicitEl.nodeType === 1){
+   const el = explicitEl.closest ? (explicitEl.closest(interactiveSelector) || explicitEl) : explicitEl;
+   if(el && el.isConnected) return el;
+ }
+ try{
+   const active = document.activeElement;
+   if(active && active !== document.body && active.closest){
+     const activeCard = active.closest(interactiveSelector);
+     if(activeCard && activeCard.isConnected) return activeCard;
+   }
+ }catch(_){ }
+ const selector = upickGetModalReturnFocusSelector(type, id);
+ return selector ? document.querySelector(selector) : null;
+}
+
+function upickRememberModalReturnFocus(type, item = {}, explicitEl = null){
+ const modalType = type === 'notice' ? 'notice' : 'benefit';
+ const id = String(item?.id || '').trim();
+ const target = upickFindModalReturnFocusEl(modalType, id, explicitEl);
+ upickModalReturnFocusState[modalType] = {
+   id,
+   selector: upickGetModalReturnFocusSelector(modalType, id),
+   element: target && target.isConnected ? target : null,
+   view: state?.view || ''
+ };
+}
+
+function upickRestoreModalReturnFocus(type){
+ const modalType = type === 'notice' ? 'notice' : 'benefit';
+ const info = upickModalReturnFocusState[modalType];
+ if(!info) return false;
+ const selector = info.selector || upickGetModalReturnFocusSelector(modalType, info.id);
+ let target = info.element && info.element.isConnected ? info.element : null;
+ if(!target && selector) target = document.querySelector(selector);
+ if(!target) return false;
+ try{
+   if(!target.hasAttribute('tabindex')) target.setAttribute('tabindex','0');
+   if(!target.getAttribute('role')) target.setAttribute('role','button');
+ }catch(_){ }
+ const focusOnce = () => {
+   try{
+     target.classList.add('upick-force-focus-ring');
+     target.focus({ preventScroll:true });
+   }catch(_){ try{ target.focus(); }catch(__){} }
+   setTimeout(() => { try{ target.classList.remove('upick-force-focus-ring'); }catch(_){} }, 1400);
+ };
+ try{ target.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' }); }catch(_){ }
+ requestAnimationFrame(focusOnce);
+ setTimeout(focusOnce, 80);
+ return true;
+}
+
 function closeDetailDialogPreservingPage(modal, options = {}){
  // v97: 혜택 상세/공지 상세 div 모달 닫힘 완료 뒤 후속 동작을 실행할 수 있게 통일합니다.
  // 방문 알림 저장 후 '캘린더에서 확인'처럼 화면 전환이 필요한 흐름에서,
@@ -6468,6 +6543,10 @@ function closeDetailDialogPreservingPage(modal, options = {}){
      try{ renderAll(); }catch(_){}
    }
    if(Number.isFinite(y) && !extraAfterClose) holdStablePageScrollY(y, 700);
+   const restoreFocusType = modal.id === 'noticeModal' ? 'notice' : (modal.id === 'detailModal' ? 'benefit' : '');
+   if(restoreFocusType && !extraAfterClose){
+     setTimeout(() => { try{ upickRestoreModalReturnFocus(restoreFocusType); }catch(_){} }, 120);
+   }
    if(extraAfterClose){
      setTimeout(() => { try{ extraAfterClose(); }catch(_){} }, 0);
    }
@@ -6555,7 +6634,8 @@ function renderBenefitDetailBody(item = {}){
  function openNotice(item, options = {}){
  if(!item) return;
  const pageScrollY = getStablePageScrollY();
- const { skipUrlUpdate = false } = options;
+ const { skipUrlUpdate = false, returnFocusEl = null } = options;
+ upickRememberModalReturnFocus('notice', item, returnFocusEl);
  if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('notice', item.id);
 
  const modal = qs('#noticeModal');
@@ -6615,13 +6695,13 @@ ${item.content || ''}`);
 
  function openNoticeFromList(item, options = {}){
  if(!item) return;
- const { moveToNoticeView = false } = options;
+ const { moveToNoticeView = false, returnFocusEl = null } = options;
 
  if(moveToNoticeView && state.view !== 'notices'){
  changeView('notices');
  setTimeout(() => {
  scrollToNoticeCard(item.id);
- openNotice(item);
+ openNotice(item, { returnFocusEl });
  }, 120);
  return;
  }
@@ -6705,7 +6785,7 @@ ${item.content || ''}`);
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
  makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
- el.onclick = () => openNoticeFromList(item);
+ el.onclick = () => openNoticeFromList(item, { returnFocusEl: el });
  listEl.appendChild(el);
  });
  }
@@ -6723,7 +6803,7 @@ ${item.content || ''}`);
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
  makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
- el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true });
+ el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true, returnFocusEl: el });
  homeListEl.appendChild(el);
  });
  }
@@ -7516,7 +7596,7 @@ ${item.content || ''}`);
  const item = items.find((v) => v.id === id);
  makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || getMapMarkerLabel(item)}`);
  el.onclick = () => {
- if(item?.benefit) openDetail(item.benefit);
+ if(item?.benefit) openDetail(item.benefit, { returnFocusEl: el });
  };
  });
  }
@@ -7535,6 +7615,7 @@ ${item.content || ''}`);
  const row = document.createElement('article');
  const motionClass = getPopularRowMotionClass(item);
  row.className = `popular-item rank-${rank} ${motionClass}`.trim();
+ row.dataset.benefitId = String(item.id || item.benefit?.id || '');
  row.innerHTML = `
  <div class="popular-rank-wrap">
  ${getRankBadge(rank)}
@@ -7557,7 +7638,7 @@ ${item.content || ''}`);
  makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
  row.onclick = () => {
  if(item.benefit){
- openDetail(item.benefit);
+ openDetail(item.benefit, { returnFocusEl: row });
  }
  };
  wrap.appendChild(row);
@@ -7722,10 +7803,11 @@ ${item.content || ''}`);
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
  card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
+ card.dataset.benefitId = String(item.id || '');
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
  makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
- card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
- card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
+ card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item, { returnFocusEl: card });};
+ card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item, { returnFocusEl: card });});
  card.querySelectorAll('.fav-btn').forEach((btn)=>{
  btn.addEventListener('click',(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);});
  });
@@ -8039,7 +8121,7 @@ ${item.content || ''}`);
        detailModal.dataset.openedFromCalendarDay = '1';
      }
    }catch(_){}
-   openDetail(item);
+   openDetail(item, { returnFocusEl: btn });
    try{
      if(shouldStackOverDay && detailModal){
        requestAnimationFrame(() => {
@@ -9219,7 +9301,8 @@ function openCalendarReservationModal(item={}){
 
  function openDetail(item, options = {}){
  const pageScrollY = getStablePageScrollY();
- const { skipUrlUpdate = false } = options;
+ const { skipUrlUpdate = false, returnFocusEl = null } = options;
+ upickRememberModalReturnFocus('benefit', item, returnFocusEl);
  if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('benefit', item.id);
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
