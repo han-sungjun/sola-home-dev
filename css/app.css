@@ -29594,3 +29594,26 @@ body[data-loading-mode="public"] .shell{
 .ai-answer-feedback-row[data-ai-feedback-submitted="true"] .ai-answer-feedback-btn:not(.selected){
   opacity:.45;
 }
+
+
+/* v86: 지도 탭 혜택 카드 접근성 포커스링 복구 */
+.map-place-card{
+  position:relative;
+  outline:none;
+}
+.map-place-card:focus{
+  outline:none;
+}
+.map-place-card:focus-visible,
+.map-place-card.upick-force-focus-ring{
+  border-color:#2563eb !important;
+  outline:3px solid rgba(37,99,235,.95) !important;
+  outline-offset:3px !important;
+  box-shadow:0 0 0 6px rgba(37,99,235,.14), var(--shadow) !important;
+  z-index:2;
+}
+.map-place-card:focus-visible > span:last-child,
+.map-place-card.upick-force-focus-ring > span:last-child{
+  color:#1d4ed8;
+  font-weight:900;
+}
