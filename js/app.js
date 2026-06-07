@@ -16084,3 +16084,134 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     closeFilterSheet:closeDuFilterSheet
   });
 })();
+
+// v86.3: TOP5 detail modal return-focus hardening
+// TOP5 cards are rendered from popular stats and can differ from normal benefit cards.
+// Keep the exact opened TOP5 DOM element and restore focus after the detail modal closes.
+(function upickTop5ModalReturnFocusHardening(){
+  const top5FocusState = {
+    element: null,
+    benefitId: '',
+    popularId: '',
+    wasDetailOpen: false
+  };
+
+  function cssEscape(value = ''){
+    try{
+      if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || ''));
+    }catch(_){ }
+    return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+  }
+
+  function getTop5Card(target){
+    if(!target || !target.closest) return null;
+    return target.closest('#popularList .popular-item, .popular-item, .hot-now-item');
+  }
+
+  function rememberTop5Card(target){
+    const card = getTop5Card(target);
+    if(!card) return;
+    top5FocusState.element = card;
+    top5FocusState.benefitId = String(card.dataset.benefitId || card.getAttribute('data-benefit-id') || '').trim();
+    top5FocusState.popularId = String(card.dataset.popularId || card.getAttribute('data-popular-id') || '').trim();
+    window.__upickTop5ReturnFocusState = {
+      benefitId: top5FocusState.benefitId,
+      popularId: top5FocusState.popularId
+    };
+  }
+
+  function findTop5Card(){
+    if(top5FocusState.element && top5FocusState.element.isConnected) return top5FocusState.element;
+    const selectors = [];
+    if(top5FocusState.benefitId){
+      const id = cssEscape(top5FocusState.benefitId);
+      selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
+      selectors.push(`.hot-now-item[data-benefit-id="${id}"]`);
+      selectors.push(`.popular-item[data-benefit-id="${id}"]`);
+    }
+    if(top5FocusState.popularId){
+      const id = cssEscape(top5FocusState.popularId);
+      selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
+      selectors.push(`.hot-now-item[data-popular-id="${id}"]`);
+      selectors.push(`.popular-item[data-popular-id="${id}"]`);
+    }
+    for(const selector of selectors){
+      const found = document.querySelector(selector);
+      if(found) return found;
+    }
+    return null;
+  }
+
+  function restoreTop5Focus(){
+    const card = findTop5Card();
+    if(!card) return false;
+    try{
+      if(!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+      if(!card.getAttribute('role')) card.setAttribute('role', 'button');
+      card.classList.add('upick-force-focus-ring');
+      card.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' });
+    }catch(_){ }
+    const focusCard = () => {
+      try{
+        card.classList.add('upick-force-focus-ring');
+        card.focus({ preventScroll:true });
+      }catch(_){
+        try{ card.focus(); }catch(__){ }
+      }
+    };
+    requestAnimationFrame(focusCard);
+    setTimeout(focusCard, 80);
+    setTimeout(() => { try{ card.classList.remove('upick-force-focus-ring'); }catch(_){ } }, 1500);
+    return true;
+  }
+
+  function isDetailModalOpen(){
+    const modal = document.getElementById('detailModal');
+    if(!modal) return false;
+    return modal.hasAttribute('open')
+      || modal.classList.contains('show')
+      || modal.classList.contains('is-open')
+      || modal.getAttribute('aria-hidden') === 'false';
+  }
+
+  function handleDetailModalStateChange(){
+    const isOpen = isDetailModalOpen();
+    if(top5FocusState.wasDetailOpen && !isOpen && (top5FocusState.element || top5FocusState.benefitId || top5FocusState.popularId)){
+      setTimeout(restoreTop5Focus, 80);
+      setTimeout(restoreTop5Focus, 220);
+    }
+    top5FocusState.wasDetailOpen = isOpen;
+  }
+
+  document.addEventListener('pointerdown', (event) => rememberTop5Card(event.target), true);
+  document.addEventListener('click', (event) => rememberTop5Card(event.target), true);
+  document.addEventListener('keydown', (event) => {
+    if(event.key !== 'Enter' && event.key !== ' ') return;
+    rememberTop5Card(event.target);
+  }, true);
+
+  document.addEventListener('close', (event) => {
+    if(event.target && event.target.id === 'detailModal'){
+      setTimeout(restoreTop5Focus, 100);
+      setTimeout(restoreTop5Focus, 240);
+    }
+  }, true);
+
+  function bindObserver(){
+    const modal = document.getElementById('detailModal');
+    if(!modal || modal.__upickTop5ReturnFocusObserved) return;
+    modal.__upickTop5ReturnFocusObserved = true;
+    top5FocusState.wasDetailOpen = isDetailModalOpen();
+    if(window.MutationObserver){
+      new MutationObserver(handleDetailModalStateChange).observe(modal, {
+        attributes:true,
+        attributeFilter:['open','class','aria-hidden','style']
+      });
+    }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, { once:true });
+  else bindObserver();
+
+  window.__upickRestoreTop5ReturnFocus = restoreTop5Focus;
+})();
