@@ -6548,6 +6548,12 @@ function closeDetailDialogPreservingPage(modal, options = {}){
    const restoreFocusType = modal.id === 'noticeModal' ? 'notice' : (modal.id === 'detailModal' ? 'benefit' : '');
    if(restoreFocusType && !extraAfterClose){
      setTimeout(() => { try{ upickRestoreModalReturnFocus(restoreFocusType); }catch(_){} }, 120);
+     // TOP5 화면은 일반 혜택 카드와 같은 benefit id를 공유하므로,
+     // 일반 복귀 로직 뒤에 TOP5 카드로 한 번 더 확정 복귀시킵니다.
+     if(modal.id === 'detailModal' && String(state?.view || '') === 'top5'){
+       setTimeout(() => { try{ window.__upickRestoreTop5ReturnFocus && window.__upickRestoreTop5ReturnFocus(); }catch(_){} }, 260);
+       setTimeout(() => { try{ window.__upickRestoreTop5ReturnFocus && window.__upickRestoreTop5ReturnFocus(); }catch(_){} }, 480);
+     }
    }
    if(extraAfterClose){
      setTimeout(() => { try{ extraAfterClose(); }catch(_){} }, 0);
@@ -7622,6 +7628,8 @@ ${item.content || ''}`);
  // 상세 팝업 닫기 후 포커스 복귀 selector가 실제 혜택 id로 찾을 수 있게 benefit id를 우선 저장합니다.
  row.dataset.benefitId = String(item.benefit?.id || item.id || '');
  row.dataset.popularId = String(item.id || '');
+ row.dataset.returnFocusScope = 'top5';
+ row.dataset.returnFocusKey = String(item.benefit?.id || item.id || '');
  row.innerHTML = `
  <div class="popular-rank-wrap">
  ${getRankBadge(rank)}
@@ -7644,6 +7652,14 @@ ${item.content || ''}`);
  makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
  row.onclick = () => {
  if(item.benefit){
+   try{
+     window.__upickTop5ReturnFocusState = {
+       element: row,
+       benefitId: String(item.benefit?.id || item.id || ''),
+       popularId: String(item.id || ''),
+       returnFocusKey: String(item.benefit?.id || item.id || '')
+     };
+   }catch(_){ }
  openDetail(item.benefit, { returnFocusEl: row });
  }
  };
@@ -16085,14 +16101,14 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   });
 })();
 
-// v86.3: TOP5 detail modal return-focus hardening
-// TOP5 cards are rendered from popular stats and can differ from normal benefit cards.
-// Keep the exact opened TOP5 DOM element and restore focus after the detail modal closes.
+// v86.4: TOP5 detail modal return-focus hardening
+// TOP5는 일반 혜택 목록과 같은 benefit id를 공유하므로, 닫힘 후에는 현재 TOP5 목록 안의 카드만 우선 대상으로 복귀합니다.
 (function upickTop5ModalReturnFocusHardening(){
   const top5FocusState = {
     element: null,
     benefitId: '',
     popularId: '',
+    returnFocusKey: '',
     wasDetailOpen: false
   };
 
@@ -16103,9 +16119,21 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '\\$&');
   }
 
+  function isVisibleTop5Card(el){
+    if(!el || !el.isConnected) return false;
+    const view = document.getElementById('view-top5');
+    if(view && view.classList.contains('hidden')) return false;
+    try{
+      const rect = el.getBoundingClientRect();
+      if(rect.width <= 0 || rect.height <= 0) return false;
+    }catch(_){ }
+    return true;
+  }
+
   function getTop5Card(target){
     if(!target || !target.closest) return null;
-    return target.closest('#popularList .popular-item, .popular-item, .hot-now-item');
+    const card = target.closest('#popularList .popular-item, #popularList .hot-now-item, #view-top5 .popular-item, #view-top5 .hot-now-item');
+    return card && isVisibleTop5Card(card) ? card : null;
   }
 
   function rememberTop5Card(target){
@@ -16114,30 +16142,42 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     top5FocusState.element = card;
     top5FocusState.benefitId = String(card.dataset.benefitId || card.getAttribute('data-benefit-id') || '').trim();
     top5FocusState.popularId = String(card.dataset.popularId || card.getAttribute('data-popular-id') || '').trim();
+    top5FocusState.returnFocusKey = String(card.dataset.returnFocusKey || top5FocusState.benefitId || top5FocusState.popularId || '').trim();
     window.__upickTop5ReturnFocusState = {
+      element: card,
       benefitId: top5FocusState.benefitId,
-      popularId: top5FocusState.popularId
+      popularId: top5FocusState.popularId,
+      returnFocusKey: top5FocusState.returnFocusKey
     };
   }
 
+  function syncExternalState(){
+    const external = window.__upickTop5ReturnFocusState || null;
+    if(!external || typeof external !== 'object') return;
+    if(external.element && external.element.isConnected) top5FocusState.element = external.element;
+    if(external.benefitId) top5FocusState.benefitId = String(external.benefitId).trim();
+    if(external.popularId) top5FocusState.popularId = String(external.popularId).trim();
+    if(external.returnFocusKey) top5FocusState.returnFocusKey = String(external.returnFocusKey).trim();
+  }
+
   function findTop5Card(){
-    if(top5FocusState.element && top5FocusState.element.isConnected) return top5FocusState.element;
+    syncExternalState();
+    if(isVisibleTop5Card(top5FocusState.element)) return top5FocusState.element;
     const selectors = [];
-    if(top5FocusState.benefitId){
-      const id = cssEscape(top5FocusState.benefitId);
+    const keys = [top5FocusState.returnFocusKey, top5FocusState.benefitId, top5FocusState.popularId]
+      .map((v) => String(v || '').trim())
+      .filter(Boolean);
+    keys.forEach((key) => {
+      const id = cssEscape(key);
+      selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
       selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
-      selectors.push(`.hot-now-item[data-benefit-id="${id}"]`);
-      selectors.push(`.popular-item[data-benefit-id="${id}"]`);
-    }
-    if(top5FocusState.popularId){
-      const id = cssEscape(top5FocusState.popularId);
       selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
-      selectors.push(`.hot-now-item[data-popular-id="${id}"]`);
-      selectors.push(`.popular-item[data-popular-id="${id}"]`);
-    }
+      selectors.push(`#view-top5 .hot-now-item[data-benefit-id="${id}"]`);
+      selectors.push(`#view-top5 .hot-now-item[data-popular-id="${id}"]`);
+    });
     for(const selector of selectors){
       const found = document.querySelector(selector);
-      if(found) return found;
+      if(isVisibleTop5Card(found)) return found;
     }
     return null;
   }
@@ -16161,7 +16201,8 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     };
     requestAnimationFrame(focusCard);
     setTimeout(focusCard, 80);
-    setTimeout(() => { try{ card.classList.remove('upick-force-focus-ring'); }catch(_){ } }, 1500);
+    setTimeout(focusCard, 220);
+    setTimeout(() => { try{ card.classList.remove('upick-force-focus-ring'); }catch(_){ } }, 1600);
     return true;
   }
 
@@ -16176,9 +16217,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   function handleDetailModalStateChange(){
     const isOpen = isDetailModalOpen();
-    if(top5FocusState.wasDetailOpen && !isOpen && (top5FocusState.element || top5FocusState.benefitId || top5FocusState.popularId)){
-      setTimeout(restoreTop5Focus, 80);
-      setTimeout(restoreTop5Focus, 220);
+    if(top5FocusState.wasDetailOpen && !isOpen && (top5FocusState.element || top5FocusState.benefitId || top5FocusState.popularId || window.__upickTop5ReturnFocusState)){
+      setTimeout(restoreTop5Focus, 120);
+      setTimeout(restoreTop5Focus, 320);
+      setTimeout(restoreTop5Focus, 520);
     }
     top5FocusState.wasDetailOpen = isOpen;
   }
@@ -16192,8 +16234,9 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   document.addEventListener('close', (event) => {
     if(event.target && event.target.id === 'detailModal'){
-      setTimeout(restoreTop5Focus, 100);
-      setTimeout(restoreTop5Focus, 240);
+      setTimeout(restoreTop5Focus, 120);
+      setTimeout(restoreTop5Focus, 320);
+      setTimeout(restoreTop5Focus, 520);
     }
   }, true);
 
