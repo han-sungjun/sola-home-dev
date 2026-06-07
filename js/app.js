@@ -7584,7 +7584,7 @@ ${item.content || ''}`);
 
  panel.classList.remove('hidden');
  list.innerHTML = items.map((item, index) => `
- <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}">
+ <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">
  <div class="hot-now-left">
  <div class="hot-now-rank">${index + 1}</div>
  <div class="hot-now-copy">
@@ -7605,7 +7605,17 @@ ${item.content || ''}`);
  const item = items.find((v) => String(v.benefit?.id || v.id || '') === String(id || '') || String(v.id || '') === String(popularId || ''));
  makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || getMapMarkerLabel(item)}`);
  el.onclick = () => {
- if(item?.benefit) openDetail(item.benefit, { returnFocusEl: el });
+ if(item?.benefit){
+   try{
+     window.__upickTop5ReturnFocusState = {
+       element: el,
+       benefitId: String(item.benefit?.id || item.id || ''),
+       popularId: String(item.id || ''),
+       returnFocusKey: String(item.benefit?.id || item.id || '')
+     };
+   }catch(_){ }
+   openDetail(item.benefit, { returnFocusEl: el });
+ }
  };
  });
  }
@@ -16172,6 +16182,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
       selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
       selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
       selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
+      selectors.push(`#view-top5 .hot-now-item[data-return-focus-key="${id}"]`);
       selectors.push(`#view-top5 .hot-now-item[data-benefit-id="${id}"]`);
       selectors.push(`#view-top5 .hot-now-item[data-popular-id="${id}"]`);
     });
