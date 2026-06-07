@@ -4383,7 +4383,7 @@ function markerHtmlForItem(item){
  const label = getMapMarkerLabel(item);
  // 지도 마커는 한 줄 캡슐 구조를 유지합니다.
  // 상권 구분 + 예상 혼잡도 + 매장명을 모두 inline으로 배치해 높이 증가로 인한 깨짐을 막습니다.
- return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'">'+mapMarkerInlineBadgesHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
+ return '<div class="map-marker-store" data-map-benefit-id="'+escapeAttr(String(item?.id || ''))+'" role="button" tabindex="0" title="'+escapeAttr(String(item?.name || label))+'" aria-label="'+escapeAttr((item?.name || label)+' 혜택 상세 보기')+'">'+mapMarkerInlineBadgesHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
 }
 
 
@@ -6431,8 +6431,85 @@ window.__upickForceCloseTransientImagePreviewLayers = forceCloseTransientImagePr
 
 
 
-let upickModalReturnFocusState = { benefit:null, notice:null };
+let upickModalReturnFocusState = { benefit:null, notice:null, common:null };
 window.upickModalReturnFocusState = upickModalReturnFocusState;
+
+const UPICK_MODAL_RETURN_FOCUS_INTERACTIVE_SELECTOR = [
+ '[data-benefit-id]',
+ '[data-popular-id]',
+ '[data-map-benefit-id]',
+ '[data-notice-id]',
+ '[data-ai-rec-id]',
+ '[data-ai-open-benefit-id]',
+ '[data-calendar-open-benefit]',
+ '[data-focus-return-token]',
+ '[data-upick-return-focus-token]',
+ '.card',
+ '.popular-item',
+ '.hot-now-item',
+ '.notice-item',
+ '.map-place-card',
+ '.benefit-card',
+ '.favorite-card',
+ '.map-marker-store',
+ '[role="button"]',
+ 'button',
+ 'a[href]',
+ '[tabindex]:not([tabindex="-1"])'
+].join(',');
+
+function upickNormalizeReturnFocusEl(el){
+ if(!el || el.nodeType !== 1) return null;
+ try{
+   const target = el.closest ? (el.closest(UPICK_MODAL_RETURN_FOCUS_INTERACTIVE_SELECTOR) || el) : el;
+   return target && target.isConnected ? target : null;
+ }catch(_){ return el && el.isConnected ? el : null; }
+}
+
+function upickRememberCommonReturnFocus(explicitEl = null, meta = {}){
+ const target = upickNormalizeReturnFocusEl(explicitEl);
+ if(!target) return null;
+ let token = target.dataset?.upickReturnFocusToken || target.dataset?.focusReturnToken || '';
+ if(!token){
+   token = upickMakeReturnFocusToken();
+   try{ target.dataset.upickReturnFocusToken = token; }catch(_){ try{ target.setAttribute('data-upick-return-focus-token', token); }catch(__){} }
+ }
+ upickModalReturnFocusState.common = {
+   element: target,
+   token,
+   selector: '',
+   view: state?.view || '',
+   type: meta?.type || '',
+   id: String(meta?.id || '')
+ };
+ return target;
+}
+
+function upickGetLastUserReturnFocusEl(){
+ const info = upickModalReturnFocusState.common || null;
+ if(!info) return null;
+ if(info.element && info.element.isConnected) return info.element;
+ if(info.token) return upickGetReturnFocusTokenTarget(info.token);
+ return null;
+}
+
+(function upickBindCommonModalReturnFocusCapture(){
+ if(window.__upickCommonModalReturnFocusCaptureBound) return;
+ window.__upickCommonModalReturnFocusCaptureBound = true;
+ const rememberFromEvent = (event) => {
+   const target = upickNormalizeReturnFocusEl(event?.target);
+   if(target) upickRememberCommonReturnFocus(target, { type:'event' });
+ };
+ if(document && document.addEventListener){
+   document.addEventListener('pointerdown', rememberFromEvent, true);
+   document.addEventListener('click', rememberFromEvent, true);
+   document.addEventListener('keydown', (event) => {
+     if(event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+     rememberFromEvent(event);
+   }, true);
+   document.addEventListener('focusin', rememberFromEvent, true);
+ }
+})();
 
 function upickCssEscape(value = ''){
  try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
@@ -6454,15 +6531,14 @@ function upickGetModalReturnFocusSelector(type, id){
 }
 
 function upickFindModalReturnFocusEl(type, id, explicitEl){
- const interactiveSelector = '[data-benefit-id],[data-popular-id],[data-map-benefit-id],[data-notice-id],[data-ai-rec-id],[data-calendar-open-benefit],.card,.popular-item,.hot-now-item,.notice-item,.map-place-card';
- if(explicitEl && explicitEl.nodeType === 1){
-   const el = explicitEl.closest ? (explicitEl.closest(interactiveSelector) || explicitEl) : explicitEl;
-   if(el && el.isConnected) return el;
- }
+ const explicitTarget = upickNormalizeReturnFocusEl(explicitEl);
+ if(explicitTarget) return explicitTarget;
+ const lastUserTarget = upickGetLastUserReturnFocusEl();
+ if(lastUserTarget && lastUserTarget.isConnected) return lastUserTarget;
  try{
    const active = document.activeElement;
-   if(active && active !== document.body && active.closest){
-     const activeCard = active.closest(interactiveSelector);
+   if(active && active !== document.body){
+     const activeCard = upickNormalizeReturnFocusEl(active);
      if(activeCard && activeCard.isConnected) return activeCard;
    }
  }catch(_){ }
@@ -6499,6 +6575,7 @@ function upickRememberModalReturnFocus(type, item = {}, explicitEl = null){
    token,
    view: state?.view || ''
  };
+ if(target && target.isConnected) upickRememberCommonReturnFocus(target, { type: modalType, id });
 }
 
 function upickRestoreModalReturnFocus(type){
@@ -6526,6 +6603,9 @@ function upickRestoreModalReturnFocus(type){
  setTimeout(focusOnce, 80);
  return true;
 }
+
+window.upickRememberCommonReturnFocus = upickRememberCommonReturnFocus;
+window.upickRestoreModalReturnFocus = upickRestoreModalReturnFocus;
 
 function closeDetailDialogPreservingPage(modal, options = {}){
  // v97: 혜택 상세/공지 상세 div 모달 닫힘 완료 뒤 후속 동작을 실행할 수 있게 통일합니다.
