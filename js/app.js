@@ -6444,6 +6444,8 @@ function upickGetModalReturnFocusSelector(type, id){
  if(type === 'notice') return `[data-notice-id="${safeId}"]`;
  return [
    `[data-benefit-id="${safeId}"]`,
+   `.popular-item[data-benefit-id="${safeId}"]`,
+   `.hot-now-item[data-benefit-id="${safeId}"]`,
    `[data-map-benefit-id="${safeId}"]`,
    `[data-ai-rec-id="${safeId}"]`,
    `[data-calendar-open-benefit="${safeId}"]`
@@ -6451,7 +6453,7 @@ function upickGetModalReturnFocusSelector(type, id){
 }
 
 function upickFindModalReturnFocusEl(type, id, explicitEl){
- const interactiveSelector = '[data-benefit-id],[data-map-benefit-id],[data-notice-id],[data-ai-rec-id],[data-calendar-open-benefit],.card,.popular-item,.hot-now-item,.notice-item,.map-place-card';
+ const interactiveSelector = '[data-benefit-id],[data-popular-id],[data-map-benefit-id],[data-notice-id],[data-ai-rec-id],[data-calendar-open-benefit],.card,.popular-item,.hot-now-item,.notice-item,.map-place-card';
  if(explicitEl && explicitEl.nodeType === 1){
    const el = explicitEl.closest ? (explicitEl.closest(interactiveSelector) || explicitEl) : explicitEl;
    if(el && el.isConnected) return el;
@@ -7576,7 +7578,7 @@ ${item.content || ''}`);
 
  panel.classList.remove('hidden');
  list.innerHTML = items.map((item, index) => `
- <article class="hot-now-item" data-benefit-id="${escapeHtml(item.id)}">
+ <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}">
  <div class="hot-now-left">
  <div class="hot-now-rank">${index + 1}</div>
  <div class="hot-now-copy">
@@ -7593,7 +7595,8 @@ ${item.content || ''}`);
 
  list.querySelectorAll('.hot-now-item').forEach((el) => {
  const id = el.dataset.benefitId;
- const item = items.find((v) => v.id === id);
+ const popularId = el.dataset.popularId;
+ const item = items.find((v) => String(v.benefit?.id || v.id || '') === String(id || '') || String(v.id || '') === String(popularId || ''));
  makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || getMapMarkerLabel(item)}`);
  el.onclick = () => {
  if(item?.benefit) openDetail(item.benefit, { returnFocusEl: el });
@@ -7615,7 +7618,10 @@ ${item.content || ''}`);
  const row = document.createElement('article');
  const motionClass = getPopularRowMotionClass(item);
  row.className = `popular-item rank-${rank} ${motionClass}`.trim();
- row.dataset.benefitId = String(item.id || item.benefit?.id || '');
+ // v86.1: TOP5는 popular stat id와 실제 benefit id가 다를 수 있어
+ // 상세 팝업 닫기 후 포커스 복귀 selector가 실제 혜택 id로 찾을 수 있게 benefit id를 우선 저장합니다.
+ row.dataset.benefitId = String(item.benefit?.id || item.id || '');
+ row.dataset.popularId = String(item.id || '');
  row.innerHTML = `
  <div class="popular-rank-wrap">
  ${getRankBadge(rank)}
