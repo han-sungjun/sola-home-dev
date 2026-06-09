@@ -7685,7 +7685,7 @@ ${item.content || ''}`);
 
  panel.classList.remove('hidden');
  list.innerHTML = items.map((item, index) => `
- <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-list="hot-now" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">
+ <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">
  <div class="hot-now-left">
  <div class="hot-now-rank">${index + 1}</div>
  <div class="hot-now-copy">
@@ -7712,8 +7712,7 @@ ${item.content || ''}`);
        element: el,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
-       returnFocusKey: String(item.benefit?.id || item.id || ''),
-       listType: 'hot-now'
+       returnFocusKey: String(item.benefit?.id || item.id || '')
      };
    }catch(_){ }
    openDetail(item.benefit, { returnFocusEl: el });
@@ -7741,7 +7740,6 @@ ${item.content || ''}`);
  row.dataset.benefitId = String(item.benefit?.id || item.id || '');
  row.dataset.popularId = String(item.id || '');
  row.dataset.returnFocusScope = 'top5';
- row.dataset.returnFocusList = 'popular';
  row.dataset.returnFocusKey = String(item.benefit?.id || item.id || '');
  row.innerHTML = `
  <div class="popular-rank-wrap">
@@ -7754,7 +7752,7 @@ ${item.content || ''}`);
  ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
  ${item.isShareBest ? '<span class="share-best-badge"><img class="share-best-icon" src="/icons/internal/share-best.svg" alt="" loading="lazy" decoding="async"><span>공유 BEST</span></span>' : ''}
  </div>
- ${rank === 1 ? `<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn" data-benefit-id="${escapeHtml(item.benefit?.id || item.id || '')}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-list="popular-top1-cta" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">혜택 바로보기</button></div>` : ''}
+ ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
  ${renderPopularDetail(item)}
  </div>
  <div class="popular-score">
@@ -7763,34 +7761,36 @@ ${item.content || ''}`);
  </div>
  `;
  makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
- const openPopularDetailFrom = (returnFocusEl, listType = 'popular') => {
- if(item.benefit){
+ const rememberTop5ReturnFocus = (trigger) => {
    try{
      window.__upickTop5ReturnFocusState = {
-       element: returnFocusEl,
+       element: trigger,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
-       returnFocusKey: String(item.benefit?.id || item.id || ''),
-       listType
+       returnFocusKey: String(item.benefit?.id || item.id || '')
      };
    }catch(_){ }
-   openDetail(item.benefit, { returnFocusEl });
- }
  };
  row.onclick = (event) => {
-   const cta = event?.target?.closest?.('.top1-btn');
-   if(cta && row.contains(cta)) return;
-   openPopularDetailFrom(row, 'popular');
+ if(item.benefit){
+   const trigger = event?.currentTarget || row;
+   rememberTop5ReturnFocus(trigger);
+   openDetail(item.benefit, { returnFocusEl: trigger });
+ }
  };
+ wrap.appendChild(row);
  const top1Btn = row.querySelector('.top1-btn');
  if(top1Btn){
    top1Btn.addEventListener('click', (event) => {
      event.preventDefault();
      event.stopPropagation();
-     openPopularDetailFrom(top1Btn, 'popular-top1-cta');
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     if(!item.benefit) return;
+     const trigger = event.currentTarget || top1Btn;
+     rememberTop5ReturnFocus(trigger);
+     openDetail(item.benefit, { returnFocusEl: trigger });
    });
  }
- wrap.appendChild(row);
  const scoreTarget = Number(item.popularScore ?? item.score ?? 0);
  const countEl = row.querySelector('.popular-count');
  if(countEl){
@@ -16228,159 +16228,115 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   });
 })();
 
-// v86.4: TOP5 detail modal return-focus hardening
-// TOP5는 일반 혜택 목록과 같은 benefit id를 공유하므로, 닫힘 후에는 현재 TOP5 목록 안의 카드만 우선 대상으로 복귀합니다.
+// v86.5: TOP5 detail modal return-focus hardening
+// TOP5 안에서 상세를 실제로 연 DOM(예: TOP1의 혜택 바로보기 버튼, 지금 뜨는 매장 행, 일반 TOP5 카드)을 그대로 저장하고 복귀합니다.
 (function upickTop5ModalReturnFocusHardening(){
-  const top5FocusState = {
-    element: null,
-    benefitId: '',
-    popularId: '',
-    returnFocusKey: '',
-    listType: '',
-    wasDetailOpen: false
-  };
+  const top5FocusState = { element:null, benefitId:'', popularId:'', returnFocusKey:'', token:'', wasDetailOpen:false };
 
   function cssEscape(value = ''){
-    try{
-      if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || ''));
-    }catch(_){ }
+    try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
     return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '\\$&');
   }
 
-  function isVisibleTop5Card(el){
+  function isTop5VisibleTarget(el){
     if(!el || !el.isConnected) return false;
     const view = document.getElementById('view-top5');
     if(view && view.classList.contains('hidden')) return false;
-    try{
-      const rect = el.getBoundingClientRect();
-      if(rect.width <= 0 || rect.height <= 0) return false;
-    }catch(_){ }
+    if(!el.closest || !el.closest('#view-top5, #popularList, #hotNowList')) return false;
+    try{ const rect = el.getBoundingClientRect(); if(rect.width <= 0 || rect.height <= 0) return false; }catch(_){ }
     return true;
   }
 
-  function getTop5Card(target){
+  function getTop5Trigger(target){
     if(!target || !target.closest) return null;
-    const card = target.closest('#popularList .popular-item, #popularList .hot-now-item, #view-top5 .popular-item, #view-top5 .hot-now-item');
-    return card && isVisibleTop5Card(card) ? card : null;
+    const buttonTrigger = target.closest('#view-top5 .top1-btn, #popularList .top1-btn');
+    if(buttonTrigger && isTop5VisibleTarget(buttonTrigger)) return buttonTrigger;
+    const card = target.closest('#hotNowList .hot-now-item, #popularList .popular-item, #view-top5 .hot-now-item, #view-top5 .popular-item');
+    return card && isTop5VisibleTarget(card) ? card : null;
   }
 
-  function rememberTop5Card(target){
-    const card = getTop5Card(target);
-    if(!card) return;
-    // v4: TOP1 안의 '혜택 바로보기' 버튼은 카드가 아니라 버튼 자체가 복귀 대상입니다.
-    // 캡처 단계에서 부모 카드로 먼저 저장되면, 상세 닫힘 후 카드 포커스가 버튼 포커스를 덮어씁니다.
-    const cta = target?.closest?.('.top1-btn');
-    const focusTarget = cta && card.contains(cta) ? cta : card;
-    top5FocusState.element = focusTarget;
-    top5FocusState.cardElement = card;
-    top5FocusState.benefitId = String(focusTarget.dataset?.benefitId || card.dataset.benefitId || card.getAttribute('data-benefit-id') || '').trim();
-    top5FocusState.popularId = String(focusTarget.dataset?.popularId || card.dataset.popularId || card.getAttribute('data-popular-id') || '').trim();
-    top5FocusState.returnFocusKey = String(focusTarget.dataset?.returnFocusKey || card.dataset.returnFocusKey || top5FocusState.benefitId || top5FocusState.popularId || '').trim();
-    top5FocusState.listType = String(focusTarget.dataset?.returnFocusList || card.dataset.returnFocusList || '').trim() || (card.classList.contains('hot-now-item') ? 'hot-now' : 'popular');
+  function readIdsFromTop5Target(target){
+    const carrier = target?.closest?.('#hotNowList .hot-now-item, #popularList .popular-item, #view-top5 .hot-now-item, #view-top5 .popular-item') || target;
+    return {
+      benefitId: String(carrier?.dataset?.benefitId || carrier?.getAttribute?.('data-benefit-id') || '').trim(),
+      popularId: String(carrier?.dataset?.popularId || carrier?.getAttribute?.('data-popular-id') || '').trim(),
+      returnFocusKey: String(carrier?.dataset?.returnFocusKey || carrier?.getAttribute?.('data-return-focus-key') || '').trim()
+    };
+  }
+
+  function rememberTop5Trigger(target){
+    const trigger = getTop5Trigger(target);
+    if(!trigger) return;
+    const ids = readIdsFromTop5Target(trigger);
+    top5FocusState.element = trigger;
+    top5FocusState.benefitId = ids.benefitId;
+    top5FocusState.popularId = ids.popularId;
+    top5FocusState.returnFocusKey = ids.returnFocusKey || ids.benefitId || ids.popularId;
+    top5FocusState.token = String(trigger.dataset?.upickReturnFocusToken || trigger.dataset?.focusReturnToken || '').trim();
     window.__upickTop5ReturnFocusState = {
-      element: focusTarget,
-      cardElement: card,
+      element: trigger,
       benefitId: top5FocusState.benefitId,
       popularId: top5FocusState.popularId,
       returnFocusKey: top5FocusState.returnFocusKey,
-      listType: top5FocusState.listType
+      token: top5FocusState.token
     };
   }
 
   function syncExternalState(){
     const external = window.__upickTop5ReturnFocusState || null;
     if(!external || typeof external !== 'object') return;
-    if(external.element && external.element.isConnected) top5FocusState.element = external.element;
-    if(external.cardElement && external.cardElement.isConnected) top5FocusState.cardElement = external.cardElement;
+    if(external.element && isTop5VisibleTarget(external.element)) top5FocusState.element = external.element;
     if(external.benefitId) top5FocusState.benefitId = String(external.benefitId).trim();
     if(external.popularId) top5FocusState.popularId = String(external.popularId).trim();
     if(external.returnFocusKey) top5FocusState.returnFocusKey = String(external.returnFocusKey).trim();
-    if(external.listType) top5FocusState.listType = String(external.listType).trim();
+    if(external.token) top5FocusState.token = String(external.token).trim();
   }
 
-  function isVisibleTop5FocusTarget(el){
-    if(!el || !el.isConnected) return false;
-    const card = getTop5Card(el);
-    if(!card) return false;
-    try{
-      const rect = el.getBoundingClientRect();
-      if(rect.width <= 0 || rect.height <= 0) return false;
-    }catch(_){ }
-    return true;
-  }
-
-  function findTop5FocusTarget(){
+  function findTop5Target(){
     syncExternalState();
     try{
       const info = window.upickModalReturnFocusState?.benefit || upickModalReturnFocusState?.benefit || null;
       if(info){
         const exact = info.element && info.element.isConnected ? info.element : (info.token ? upickGetReturnFocusTokenTarget(info.token) : null);
-        if(isVisibleTop5FocusTarget(exact)) return exact;
+        const exactTrigger = getTop5Trigger(exact) || (isTop5VisibleTarget(exact) ? exact : null);
+        if(exactTrigger) return exactTrigger;
       }
     }catch(_){ }
-    if(isVisibleTop5FocusTarget(top5FocusState.element)) return top5FocusState.element;
-    const external = window.__upickTop5ReturnFocusState || null;
-    if(isVisibleTop5FocusTarget(external?.element)) return external.element;
-    return null;
-  }
-
-  function findTop5Card(){
-    syncExternalState();
-    try{
-      const info = window.upickModalReturnFocusState?.benefit || upickModalReturnFocusState?.benefit || null;
-      if(info){
-        const exact = info.element && info.element.isConnected ? info.element : (info.token ? upickGetReturnFocusTokenTarget(info.token) : null);
-        const exactCard = getTop5Card(exact);
-        if(exactCard) return exactCard;
-      }
-    }catch(_){ }
-    if(isVisibleTop5Card(top5FocusState.element)) return top5FocusState.element;
+    if(isTop5VisibleTarget(top5FocusState.element)) return top5FocusState.element;
+    if(top5FocusState.token){
+      const byToken = document.querySelector('[data-upick-return-focus-token="' + cssEscape(top5FocusState.token) + '"]');
+      if(isTop5VisibleTarget(byToken)) return byToken;
+    }
     const selectors = [];
-    const keys = [top5FocusState.returnFocusKey, top5FocusState.benefitId, top5FocusState.popularId]
-      .map((v) => String(v || '').trim())
-      .filter(Boolean);
+    const keys = [top5FocusState.returnFocusKey, top5FocusState.benefitId, top5FocusState.popularId].map((v) => String(v || '').trim()).filter(Boolean);
     keys.forEach((key) => {
       const id = cssEscape(key);
-      const hotNowSelectors = [
-        `#hotNowList .hot-now-item[data-return-focus-key="${id}"]`,
-        `#hotNowList .hot-now-item[data-benefit-id="${id}"]`,
-        `#hotNowList .hot-now-item[data-popular-id="${id}"]`,
-        `#view-top5 .hot-now-item[data-return-focus-key="${id}"]`,
-        `#view-top5 .hot-now-item[data-benefit-id="${id}"]`,
-        `#view-top5 .hot-now-item[data-popular-id="${id}"]`
-      ];
-      const popularSelectors = [
-        `#popularList .popular-item[data-return-focus-key="${id}"]`,
-        `#popularList .popular-item[data-benefit-id="${id}"]`,
-        `#popularList .popular-item[data-popular-id="${id}"]`
-      ];
-      selectors.push(...(top5FocusState.listType === 'hot-now' ? hotNowSelectors.concat(popularSelectors) : popularSelectors.concat(hotNowSelectors)));
+      selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
+      selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
+      selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
+      selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
     });
     for(const selector of selectors){
       const found = document.querySelector(selector);
-      if(isVisibleTop5Card(found)) return found;
+      if(isTop5VisibleTarget(found)) return found;
     }
     return null;
   }
 
   function restoreTop5Focus(){
-    const exactTarget = findTop5FocusTarget();
-    const card = exactTarget ? getTop5Card(exactTarget) : findTop5Card();
-    const target = exactTarget || card;
+    const target = findTop5Target();
     if(!target) return false;
     try{
-      if(!target.hasAttribute('tabindex') && target.tagName !== 'BUTTON' && target.tagName !== 'A') target.setAttribute('tabindex', '0');
-      if(!target.getAttribute('role') && target.tagName !== 'BUTTON' && target.tagName !== 'A') target.setAttribute('role', 'button');
+      if(!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '0');
+      if(!target.getAttribute('role') && target.tagName !== 'BUTTON') target.setAttribute('role', 'button');
       target.classList.add('upick-force-focus-ring');
-      (card || target).scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' });
+      target.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' });
     }catch(_){ }
     const focusTarget = () => {
-      try{
-        target.classList.add('upick-force-focus-ring');
-        target.focus({ preventScroll:true });
-      }catch(_){
-        try{ target.focus(); }catch(__){ }
-      }
+      try{ target.classList.add('upick-force-focus-ring'); target.focus({ preventScroll:true }); }
+      catch(_){ try{ target.focus(); }catch(__){ } }
     };
     requestAnimationFrame(focusTarget);
     setTimeout(focusTarget, 80);
@@ -16392,52 +16348,30 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   function isDetailModalOpen(){
     const modal = document.getElementById('detailModal');
     if(!modal) return false;
-    return modal.hasAttribute('open')
-      || modal.classList.contains('show')
-      || modal.classList.contains('is-open')
-      || modal.getAttribute('aria-hidden') === 'false';
+    return modal.hasAttribute('open') || modal.classList.contains('show') || modal.classList.contains('is-open') || modal.getAttribute('aria-hidden') === 'false';
   }
 
   function handleDetailModalStateChange(){
     const isOpen = isDetailModalOpen();
     if(top5FocusState.wasDetailOpen && !isOpen && (top5FocusState.element || top5FocusState.benefitId || top5FocusState.popularId || window.__upickTop5ReturnFocusState)){
-      setTimeout(restoreTop5Focus, 120);
-      setTimeout(restoreTop5Focus, 320);
-      setTimeout(restoreTop5Focus, 520);
+      setTimeout(restoreTop5Focus, 120); setTimeout(restoreTop5Focus, 320); setTimeout(restoreTop5Focus, 520);
     }
     top5FocusState.wasDetailOpen = isOpen;
   }
 
-  document.addEventListener('pointerdown', (event) => rememberTop5Card(event.target), true);
-  document.addEventListener('click', (event) => rememberTop5Card(event.target), true);
-  document.addEventListener('keydown', (event) => {
-    if(event.key !== 'Enter' && event.key !== ' ') return;
-    rememberTop5Card(event.target);
-  }, true);
-
-  document.addEventListener('close', (event) => {
-    if(event.target && event.target.id === 'detailModal'){
-      setTimeout(restoreTop5Focus, 120);
-      setTimeout(restoreTop5Focus, 320);
-      setTimeout(restoreTop5Focus, 520);
-    }
-  }, true);
+  document.addEventListener('pointerdown', (event) => rememberTop5Trigger(event.target), true);
+  document.addEventListener('click', (event) => rememberTop5Trigger(event.target), true);
+  document.addEventListener('keydown', (event) => { if(event.key !== 'Enter' && event.key !== ' ') return; rememberTop5Trigger(event.target); }, true);
+  document.addEventListener('close', (event) => { if(event.target && event.target.id === 'detailModal'){ setTimeout(restoreTop5Focus, 120); setTimeout(restoreTop5Focus, 320); setTimeout(restoreTop5Focus, 520); } }, true);
 
   function bindObserver(){
     const modal = document.getElementById('detailModal');
     if(!modal || modal.__upickTop5ReturnFocusObserved) return;
     modal.__upickTop5ReturnFocusObserved = true;
     top5FocusState.wasDetailOpen = isDetailModalOpen();
-    if(window.MutationObserver){
-      new MutationObserver(handleDetailModalStateChange).observe(modal, {
-        attributes:true,
-        attributeFilter:['open','class','aria-hidden','style']
-      });
-    }
+    if(window.MutationObserver){ new MutationObserver(handleDetailModalStateChange).observe(modal, { attributes:true, attributeFilter:['open','class','aria-hidden','style'] }); }
   }
-
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, { once:true });
   else bindObserver();
-
   window.__upickRestoreTop5ReturnFocus = restoreTop5Focus;
 })();
