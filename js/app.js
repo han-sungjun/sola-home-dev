@@ -7754,7 +7754,7 @@ ${item.content || ''}`);
  ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
  ${item.isShareBest ? '<span class="share-best-badge"><img class="share-best-icon" src="/icons/internal/share-best.svg" alt="" loading="lazy" decoding="async"><span>공유 BEST</span></span>' : ''}
  </div>
- ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
+ ${rank === 1 ? `<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn" data-benefit-id="${escapeHtml(item.benefit?.id || item.id || '')}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-list="popular-top1-cta" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">혜택 바로보기</button></div>` : ''}
  ${renderPopularDetail(item)}
  </div>
  <div class="popular-score">
@@ -7763,20 +7763,33 @@ ${item.content || ''}`);
  </div>
  `;
  makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
- row.onclick = () => {
+ const openPopularDetailFrom = (returnFocusEl, listType = 'popular') => {
  if(item.benefit){
    try{
      window.__upickTop5ReturnFocusState = {
-       element: row,
+       element: returnFocusEl,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
        returnFocusKey: String(item.benefit?.id || item.id || ''),
-       listType: 'popular'
+       listType
      };
    }catch(_){ }
- openDetail(item.benefit, { returnFocusEl: row });
+   openDetail(item.benefit, { returnFocusEl });
  }
  };
+ row.onclick = (event) => {
+   const cta = event?.target?.closest?.('.top1-btn');
+   if(cta && row.contains(cta)) return;
+   openPopularDetailFrom(row, 'popular');
+ };
+ const top1Btn = row.querySelector('.top1-btn');
+ if(top1Btn){
+   top1Btn.addEventListener('click', (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+     openPopularDetailFrom(top1Btn, 'popular-top1-cta');
+   });
+ }
  wrap.appendChild(row);
  const scoreTarget = Number(item.popularScore ?? item.score ?? 0);
  const countEl = row.querySelector('.popular-count');
