@@ -7752,7 +7752,7 @@ ${item.content || ''}`);
  ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
  ${item.isShareBest ? '<span class="share-best-badge"><img class="share-best-icon" src="/icons/internal/share-best.svg" alt="" loading="lazy" decoding="async"><span>공유 BEST</span></span>' : ''}
  </div>
- ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
+ ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn" data-benefit-id="'+escapeHtml(item.benefit?.id || item.id || '')+'" data-popular-id="'+escapeHtml(item.id || '')+'" data-return-focus-scope="top5" data-return-focus-kind="top1-button" data-return-focus-key="'+escapeHtml(item.benefit?.id || item.id || '')+'">혜택 바로보기</button></div>' : ''}
  ${renderPopularDetail(item)}
  </div>
  <div class="popular-score">
@@ -16231,7 +16231,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 // v86.5: TOP5 detail modal return-focus hardening
 // TOP5 안에서 상세를 실제로 연 DOM(예: TOP1의 혜택 바로보기 버튼, 지금 뜨는 매장 행, 일반 TOP5 카드)을 그대로 저장하고 복귀합니다.
 (function upickTop5ModalReturnFocusHardening(){
-  const top5FocusState = { element:null, benefitId:'', popularId:'', returnFocusKey:'', token:'', wasDetailOpen:false };
+  const top5FocusState = { element:null, benefitId:'', popularId:'', returnFocusKey:'', kind:'', token:'', wasDetailOpen:false };
 
   function cssEscape(value = ''){
     try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
@@ -16256,11 +16256,13 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   }
 
   function readIdsFromTop5Target(target){
-    const carrier = target?.closest?.('#hotNowList .hot-now-item, #popularList .popular-item, #view-top5 .hot-now-item, #view-top5 .popular-item') || target;
+    const isButton = !!target?.closest?.('#view-top5 .top1-btn, #popularList .top1-btn');
+    const carrier = isButton ? target.closest('#view-top5 .top1-btn, #popularList .top1-btn') : (target?.closest?.('#hotNowList .hot-now-item, #popularList .popular-item, #view-top5 .hot-now-item, #view-top5 .popular-item') || target);
     return {
       benefitId: String(carrier?.dataset?.benefitId || carrier?.getAttribute?.('data-benefit-id') || '').trim(),
       popularId: String(carrier?.dataset?.popularId || carrier?.getAttribute?.('data-popular-id') || '').trim(),
-      returnFocusKey: String(carrier?.dataset?.returnFocusKey || carrier?.getAttribute?.('data-return-focus-key') || '').trim()
+      returnFocusKey: String(carrier?.dataset?.returnFocusKey || carrier?.getAttribute?.('data-return-focus-key') || '').trim(),
+      kind: isButton ? 'top1-button' : String(carrier?.dataset?.returnFocusKind || carrier?.getAttribute?.('data-return-focus-kind') || '').trim()
     };
   }
 
@@ -16272,12 +16274,14 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     top5FocusState.benefitId = ids.benefitId;
     top5FocusState.popularId = ids.popularId;
     top5FocusState.returnFocusKey = ids.returnFocusKey || ids.benefitId || ids.popularId;
+    top5FocusState.kind = ids.kind || (trigger.classList?.contains('top1-btn') ? 'top1-button' : '');
     top5FocusState.token = String(trigger.dataset?.upickReturnFocusToken || trigger.dataset?.focusReturnToken || '').trim();
     window.__upickTop5ReturnFocusState = {
       element: trigger,
       benefitId: top5FocusState.benefitId,
       popularId: top5FocusState.popularId,
       returnFocusKey: top5FocusState.returnFocusKey,
+      kind: top5FocusState.kind,
       token: top5FocusState.token
     };
   }
@@ -16289,6 +16293,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     if(external.benefitId) top5FocusState.benefitId = String(external.benefitId).trim();
     if(external.popularId) top5FocusState.popularId = String(external.popularId).trim();
     if(external.returnFocusKey) top5FocusState.returnFocusKey = String(external.returnFocusKey).trim();
+    if(external.kind) top5FocusState.kind = String(external.kind).trim();
     if(external.token) top5FocusState.token = String(external.token).trim();
   }
 
@@ -16311,6 +16316,12 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     const keys = [top5FocusState.returnFocusKey, top5FocusState.benefitId, top5FocusState.popularId].map((v) => String(v || '').trim()).filter(Boolean);
     keys.forEach((key) => {
       const id = cssEscape(key);
+      if(top5FocusState.kind === 'top1-button'){
+        selectors.push(`#popularList .top1-btn[data-return-focus-key="${id}"]`);
+        selectors.push(`#popularList .top1-btn[data-benefit-id="${id}"]`);
+        selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"] .top1-btn`);
+        selectors.push(`#popularList .popular-item[data-benefit-id="${id}"] .top1-btn`);
+      }
       selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
       selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
       selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
