@@ -7685,7 +7685,7 @@ ${item.content || ''}`);
 
  panel.classList.remove('hidden');
  list.innerHTML = items.map((item, index) => `
- <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">
+ <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-list="hot-now" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">
  <div class="hot-now-left">
  <div class="hot-now-rank">${index + 1}</div>
  <div class="hot-now-copy">
@@ -7712,7 +7712,8 @@ ${item.content || ''}`);
        element: el,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
-       returnFocusKey: String(item.benefit?.id || item.id || '')
+       returnFocusKey: String(item.benefit?.id || item.id || ''),
+       listType: 'hot-now'
      };
    }catch(_){ }
    openDetail(item.benefit, { returnFocusEl: el });
@@ -7740,6 +7741,7 @@ ${item.content || ''}`);
  row.dataset.benefitId = String(item.benefit?.id || item.id || '');
  row.dataset.popularId = String(item.id || '');
  row.dataset.returnFocusScope = 'top5';
+ row.dataset.returnFocusList = 'popular';
  row.dataset.returnFocusKey = String(item.benefit?.id || item.id || '');
  row.innerHTML = `
  <div class="popular-rank-wrap">
@@ -7768,7 +7770,8 @@ ${item.content || ''}`);
        element: row,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
-       returnFocusKey: String(item.benefit?.id || item.id || '')
+       returnFocusKey: String(item.benefit?.id || item.id || ''),
+       listType: 'popular'
      };
    }catch(_){ }
  openDetail(item.benefit, { returnFocusEl: row });
@@ -16220,6 +16223,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     benefitId: '',
     popularId: '',
     returnFocusKey: '',
+    listType: '',
     wasDetailOpen: false
   };
 
@@ -16243,10 +16247,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   function getTop5Card(target){
     if(!target || !target.closest) return null;
-    // TOP5 화면에는 일반 랭킹(#popularList)과 "지금 뜨는 매장"(#hotNowList)이 함께 있습니다.
-    // 혜택 상세를 #hotNowList 항목에서 열었을 때 닫기 후 강제 복귀 로직이 #popularList 카드로 덮어쓰지 않도록
-    // 실제 트리거가 된 hot-now-item도 TOP5 복귀 카드로 인정합니다.
-    const card = target.closest('#popularList .popular-item, #popularList .hot-now-item, #hotNowList .hot-now-item, #view-top5 .popular-item, #view-top5 .hot-now-item');
+    const card = target.closest('#popularList .popular-item, #popularList .hot-now-item, #view-top5 .popular-item, #view-top5 .hot-now-item');
     return card && isVisibleTop5Card(card) ? card : null;
   }
 
@@ -16257,11 +16258,13 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     top5FocusState.benefitId = String(card.dataset.benefitId || card.getAttribute('data-benefit-id') || '').trim();
     top5FocusState.popularId = String(card.dataset.popularId || card.getAttribute('data-popular-id') || '').trim();
     top5FocusState.returnFocusKey = String(card.dataset.returnFocusKey || top5FocusState.benefitId || top5FocusState.popularId || '').trim();
+    top5FocusState.listType = card.classList.contains('hot-now-item') || card.dataset.returnFocusList === 'hot-now' ? 'hot-now' : 'popular';
     window.__upickTop5ReturnFocusState = {
       element: card,
       benefitId: top5FocusState.benefitId,
       popularId: top5FocusState.popularId,
-      returnFocusKey: top5FocusState.returnFocusKey
+      returnFocusKey: top5FocusState.returnFocusKey,
+      listType: top5FocusState.listType
     };
   }
 
@@ -16272,6 +16275,7 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     if(external.benefitId) top5FocusState.benefitId = String(external.benefitId).trim();
     if(external.popularId) top5FocusState.popularId = String(external.popularId).trim();
     if(external.returnFocusKey) top5FocusState.returnFocusKey = String(external.returnFocusKey).trim();
+    if(external.listType) top5FocusState.listType = String(external.listType).trim();
   }
 
   function findTop5Card(){
@@ -16291,15 +16295,20 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
       .filter(Boolean);
     keys.forEach((key) => {
       const id = cssEscape(key);
-      selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
-      selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
-      selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
-      selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
-      selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
-      selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
-      selectors.push(`#view-top5 .hot-now-item[data-return-focus-key="${id}"]`);
-      selectors.push(`#view-top5 .hot-now-item[data-benefit-id="${id}"]`);
-      selectors.push(`#view-top5 .hot-now-item[data-popular-id="${id}"]`);
+      const hotNowSelectors = [
+        `#hotNowList .hot-now-item[data-return-focus-key="${id}"]`,
+        `#hotNowList .hot-now-item[data-benefit-id="${id}"]`,
+        `#hotNowList .hot-now-item[data-popular-id="${id}"]`,
+        `#view-top5 .hot-now-item[data-return-focus-key="${id}"]`,
+        `#view-top5 .hot-now-item[data-benefit-id="${id}"]`,
+        `#view-top5 .hot-now-item[data-popular-id="${id}"]`
+      ];
+      const popularSelectors = [
+        `#popularList .popular-item[data-return-focus-key="${id}"]`,
+        `#popularList .popular-item[data-benefit-id="${id}"]`,
+        `#popularList .popular-item[data-popular-id="${id}"]`
+      ];
+      selectors.push(...(top5FocusState.listType === 'hot-now' ? hotNowSelectors.concat(popularSelectors) : popularSelectors.concat(hotNowSelectors)));
     });
     for(const selector of selectors){
       const found = document.querySelector(selector);
