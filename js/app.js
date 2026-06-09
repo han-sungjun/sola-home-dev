@@ -16267,13 +16267,19 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   function rememberTop5Card(target){
     const card = getTop5Card(target);
     if(!card) return;
-    top5FocusState.element = card;
-    top5FocusState.benefitId = String(card.dataset.benefitId || card.getAttribute('data-benefit-id') || '').trim();
-    top5FocusState.popularId = String(card.dataset.popularId || card.getAttribute('data-popular-id') || '').trim();
-    top5FocusState.returnFocusKey = String(card.dataset.returnFocusKey || top5FocusState.benefitId || top5FocusState.popularId || '').trim();
-    top5FocusState.listType = card.classList.contains('hot-now-item') || card.dataset.returnFocusList === 'hot-now' ? 'hot-now' : 'popular';
+    // v4: TOP1 안의 '혜택 바로보기' 버튼은 카드가 아니라 버튼 자체가 복귀 대상입니다.
+    // 캡처 단계에서 부모 카드로 먼저 저장되면, 상세 닫힘 후 카드 포커스가 버튼 포커스를 덮어씁니다.
+    const cta = target?.closest?.('.top1-btn');
+    const focusTarget = cta && card.contains(cta) ? cta : card;
+    top5FocusState.element = focusTarget;
+    top5FocusState.cardElement = card;
+    top5FocusState.benefitId = String(focusTarget.dataset?.benefitId || card.dataset.benefitId || card.getAttribute('data-benefit-id') || '').trim();
+    top5FocusState.popularId = String(focusTarget.dataset?.popularId || card.dataset.popularId || card.getAttribute('data-popular-id') || '').trim();
+    top5FocusState.returnFocusKey = String(focusTarget.dataset?.returnFocusKey || card.dataset.returnFocusKey || top5FocusState.benefitId || top5FocusState.popularId || '').trim();
+    top5FocusState.listType = String(focusTarget.dataset?.returnFocusList || card.dataset.returnFocusList || '').trim() || (card.classList.contains('hot-now-item') ? 'hot-now' : 'popular');
     window.__upickTop5ReturnFocusState = {
-      element: card,
+      element: focusTarget,
+      cardElement: card,
       benefitId: top5FocusState.benefitId,
       popularId: top5FocusState.popularId,
       returnFocusKey: top5FocusState.returnFocusKey,
@@ -16285,10 +16291,37 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     const external = window.__upickTop5ReturnFocusState || null;
     if(!external || typeof external !== 'object') return;
     if(external.element && external.element.isConnected) top5FocusState.element = external.element;
+    if(external.cardElement && external.cardElement.isConnected) top5FocusState.cardElement = external.cardElement;
     if(external.benefitId) top5FocusState.benefitId = String(external.benefitId).trim();
     if(external.popularId) top5FocusState.popularId = String(external.popularId).trim();
     if(external.returnFocusKey) top5FocusState.returnFocusKey = String(external.returnFocusKey).trim();
     if(external.listType) top5FocusState.listType = String(external.listType).trim();
+  }
+
+  function isVisibleTop5FocusTarget(el){
+    if(!el || !el.isConnected) return false;
+    const card = getTop5Card(el);
+    if(!card) return false;
+    try{
+      const rect = el.getBoundingClientRect();
+      if(rect.width <= 0 || rect.height <= 0) return false;
+    }catch(_){ }
+    return true;
+  }
+
+  function findTop5FocusTarget(){
+    syncExternalState();
+    try{
+      const info = window.upickModalReturnFocusState?.benefit || upickModalReturnFocusState?.benefit || null;
+      if(info){
+        const exact = info.element && info.element.isConnected ? info.element : (info.token ? upickGetReturnFocusTokenTarget(info.token) : null);
+        if(isVisibleTop5FocusTarget(exact)) return exact;
+      }
+    }catch(_){ }
+    if(isVisibleTop5FocusTarget(top5FocusState.element)) return top5FocusState.element;
+    const external = window.__upickTop5ReturnFocusState || null;
+    if(isVisibleTop5FocusTarget(external?.element)) return external.element;
+    return null;
   }
 
   function findTop5Card(){
@@ -16331,26 +16364,28 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
   }
 
   function restoreTop5Focus(){
-    const card = findTop5Card();
-    if(!card) return false;
+    const exactTarget = findTop5FocusTarget();
+    const card = exactTarget ? getTop5Card(exactTarget) : findTop5Card();
+    const target = exactTarget || card;
+    if(!target) return false;
     try{
-      if(!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
-      if(!card.getAttribute('role')) card.setAttribute('role', 'button');
-      card.classList.add('upick-force-focus-ring');
-      card.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' });
+      if(!target.hasAttribute('tabindex') && target.tagName !== 'BUTTON' && target.tagName !== 'A') target.setAttribute('tabindex', '0');
+      if(!target.getAttribute('role') && target.tagName !== 'BUTTON' && target.tagName !== 'A') target.setAttribute('role', 'button');
+      target.classList.add('upick-force-focus-ring');
+      (card || target).scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' });
     }catch(_){ }
-    const focusCard = () => {
+    const focusTarget = () => {
       try{
-        card.classList.add('upick-force-focus-ring');
-        card.focus({ preventScroll:true });
+        target.classList.add('upick-force-focus-ring');
+        target.focus({ preventScroll:true });
       }catch(_){
-        try{ card.focus(); }catch(__){ }
+        try{ target.focus(); }catch(__){ }
       }
     };
-    requestAnimationFrame(focusCard);
-    setTimeout(focusCard, 80);
-    setTimeout(focusCard, 220);
-    setTimeout(() => { try{ card.classList.remove('upick-force-focus-ring'); }catch(_){ } }, 1600);
+    requestAnimationFrame(focusTarget);
+    setTimeout(focusTarget, 80);
+    setTimeout(focusTarget, 220);
+    setTimeout(() => { try{ target.classList.remove('upick-force-focus-ring'); }catch(_){ } }, 1600);
     return true;
   }
 
