@@ -6916,7 +6916,9 @@ ${item.content || ''}`);
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
  makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
- el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true, returnFocusEl: el });
+ // 홈의 최근 공지는 전체 공지 탭으로 이동하지 않고 현재 홈 DOM에서 바로 상세를 엽니다.
+ // 그래야 닫을 때 실제로 상세를 띄운 홈 최근 공지 카드로 포커스가 복귀합니다.
+ el.onclick = () => openNotice(item, { returnFocusEl: el });
  homeListEl.appendChild(el);
  });
  }
