@@ -6559,7 +6559,10 @@ function upickMakeReturnFocusToken(){
 function upickRememberModalReturnFocus(type, item = {}, explicitEl = null){
  const modalType = type === 'notice' ? 'notice' : 'benefit';
  const id = String(item?.id || '').trim();
- const target = upickFindModalReturnFocusEl(modalType, id, explicitEl);
+ // 실제로 상세를 띄운 DOM이 전달되면 그것을 최우선으로 고정합니다.
+ // TOP5처럼 같은 benefitId가 여러 DOM에 반복될 때 fallback selector가 다른 DOM을 잡는 것을 방지합니다.
+ const explicitTarget = upickNormalizeReturnFocusEl(explicitEl);
+ const target = explicitTarget || upickFindModalReturnFocusEl(modalType, id, null);
  let token = '';
  if(target && target.isConnected){
    token = target.dataset?.upickReturnFocusToken || '';
@@ -6573,7 +6576,8 @@ function upickRememberModalReturnFocus(type, item = {}, explicitEl = null){
    selector: upickGetModalReturnFocusSelector(modalType, id),
    element: target && target.isConnected ? target : null,
    token,
-   view: state?.view || ''
+   view: state?.view || '',
+   explicit: !!explicitTarget
  };
  if(target && target.isConnected) upickRememberCommonReturnFocus(target, { type: modalType, id });
 }
@@ -7712,7 +7716,8 @@ ${item.content || ''}`);
        element: el,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
-       returnFocusKey: String(item.benefit?.id || item.id || '')
+       returnFocusKey: String(item.benefit?.id || item.id || ''),
+       kind: 'hot-now-item'
      };
    }catch(_){ }
    openDetail(item.benefit, { returnFocusEl: el });
@@ -7767,7 +7772,8 @@ ${item.content || ''}`);
        element: trigger,
        benefitId: String(item.benefit?.id || item.id || ''),
        popularId: String(item.id || ''),
-       returnFocusKey: String(item.benefit?.id || item.id || '')
+       returnFocusKey: String(item.benefit?.id || item.id || ''),
+       kind: trigger?.classList?.contains('top1-btn') ? 'top1-button' : (trigger?.classList?.contains('hot-now-item') ? 'hot-now-item' : 'popular-card')
      };
    }catch(_){ }
  };
@@ -16262,7 +16268,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
       benefitId: String(carrier?.dataset?.benefitId || carrier?.getAttribute?.('data-benefit-id') || '').trim(),
       popularId: String(carrier?.dataset?.popularId || carrier?.getAttribute?.('data-popular-id') || '').trim(),
       returnFocusKey: String(carrier?.dataset?.returnFocusKey || carrier?.getAttribute?.('data-return-focus-key') || '').trim(),
-      kind: isButton ? 'top1-button' : String(carrier?.dataset?.returnFocusKind || carrier?.getAttribute?.('data-return-focus-kind') || '').trim()
+      kind: isButton
+        ? 'top1-button'
+        : (String(carrier?.dataset?.returnFocusKind || carrier?.getAttribute?.('data-return-focus-kind') || '').trim()
+          || (carrier?.classList?.contains('hot-now-item') ? 'hot-now-item' : (carrier?.classList?.contains('popular-item') ? 'popular-card' : '')))
     };
   }
 
@@ -16321,13 +16330,22 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
         selectors.push(`#popularList .top1-btn[data-benefit-id="${id}"]`);
         selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"] .top1-btn`);
         selectors.push(`#popularList .popular-item[data-benefit-id="${id}"] .top1-btn`);
+      }else if(top5FocusState.kind === 'popular-card'){
+        selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
+        selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
+        selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
+      }else if(top5FocusState.kind === 'hot-now-item'){
+        selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
+        selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
+        selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
       }
-      selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
-      selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
-      selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
+      // kind가 없거나 위 selector가 렌더링 변경으로 실패할 때만 전체 fallback을 사용합니다.
       selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
       selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
       selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
     });
     for(const selector of selectors){
       const found = document.querySelector(selector);
