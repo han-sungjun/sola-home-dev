@@ -29640,3 +29640,36 @@ body[data-loading-mode="public"] .shell{
   outline-offset: 3px !important;
   box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14), var(--shadow) !important;
 }
+
+/* ===== v20260609-public-width-sync: 공개앱 본문/하단 네비 폭 정렬 ===== */
+html,
+body{
+  overflow-x:hidden!important;
+}
+body.env-dev.app-role-resident,
+body.app-role-resident{
+  width:100%!important;
+  max-width:480px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  overflow-x:hidden!important;
+}
+.app{
+  width:100%!important;
+  max-width:480px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  overflow-x:hidden!important;
+}
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  left:50%!important;
+  right:auto!important;
+  width:min(100vw, 480px)!important;
+  max-width:480px!important;
+  margin:0!important;
+  transform:translateX(-50%)!important;
+  box-sizing:border-box!important;
+}

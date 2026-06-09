@@ -3845,3 +3845,41 @@ input[type="radio"]:not(:checked):focus-visible{
   height:20px!important;
   display:block!important;
 }
+
+/* ===== v20260609-public-width-sync: 입장 페이지 폭 기준을 공개앱과 통일 ===== */
+html,
+body{
+  overflow-x:hidden!important;
+}
+body[data-loading-mode="entrance"]{
+  display:block!important;
+  width:100%!important;
+  max-width:480px!important;
+  min-height:100dvh!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  padding:0!important;
+  align-items:initial!important;
+  justify-content:initial!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+body[data-loading-mode="entrance"] > .wrap{
+  width:100%!important;
+  max-width:480px!important;
+  min-height:100dvh!important;
+  margin:0 auto!important;
+  padding:18px 16px 40px!important;
+  box-sizing:border-box!important;
+}
+body[data-loading-mode="entrance"] .login-premium-hero-shell{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+@media (max-width:480px){
+  body[data-loading-mode="entrance"] > .wrap{
+    padding-left:16px!important;
+    padding-right:16px!important;
+  }
+}
