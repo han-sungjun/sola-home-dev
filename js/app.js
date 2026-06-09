@@ -16243,7 +16243,10 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
 
   function getTop5Card(target){
     if(!target || !target.closest) return null;
-    const card = target.closest('#popularList .popular-item, #popularList .hot-now-item, #view-top5 .popular-item, #view-top5 .hot-now-item');
+    // TOP5 화면에는 일반 랭킹(#popularList)과 "지금 뜨는 매장"(#hotNowList)이 함께 있습니다.
+    // 혜택 상세를 #hotNowList 항목에서 열었을 때 닫기 후 강제 복귀 로직이 #popularList 카드로 덮어쓰지 않도록
+    // 실제 트리거가 된 hot-now-item도 TOP5 복귀 카드로 인정합니다.
+    const card = target.closest('#popularList .popular-item, #popularList .hot-now-item, #hotNowList .hot-now-item, #view-top5 .popular-item, #view-top5 .hot-now-item');
     return card && isVisibleTop5Card(card) ? card : null;
   }
 
