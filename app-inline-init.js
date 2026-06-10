@@ -63,3 +63,83 @@
   document.addEventListener('pointercancel', up, true);
   document.addEventListener('click', block, true);
 })();
+
+/* ===== v20260610-bottom-nav-body-lock-v1 =====
+   하단 네비바를 화면 기준이 아니라 실제 body > .app 쉘의 좌표/폭에 고정합니다.
+   DevTools 열기/닫기, 스크롤바 생성, 브라우저 리사이즈 때도 본문 폭과 동일하게 맞춥니다. */
+(function(){
+  'use strict';
+  var rafId = 0;
+  var last = { left: '', width: '' };
+
+  function getShell(){
+    return document.querySelector('body > .app') || document.querySelector('.app') || document.body;
+  }
+  function getNavs(){
+    return Array.prototype.slice.call(document.querySelectorAll('.bottom-nav, nav.bottom-nav, .mobile-bottom-nav, #bottomNav'));
+  }
+  function px(value){
+    return Math.round(Number(value || 0) * 100) / 100 + 'px';
+  }
+  function apply(){
+    rafId = 0;
+    var shell = getShell();
+    var navs = getNavs();
+    if(!shell || !navs.length) return;
+
+    var rect = shell.getBoundingClientRect();
+    if(!rect || rect.width <= 0) return;
+
+    var left = px(rect.left);
+    var width = px(rect.width);
+    if(left === last.left && width === last.width) return;
+    last.left = left;
+    last.width = width;
+
+    navs.forEach(function(nav){
+      if(!nav) return;
+      nav.style.setProperty('position', 'fixed', 'important');
+      nav.style.setProperty('left', left, 'important');
+      nav.style.setProperty('right', 'auto', 'important');
+      nav.style.setProperty('width', width, 'important');
+      nav.style.setProperty('max-width', width, 'important');
+      nav.style.setProperty('margin-left', '0', 'important');
+      nav.style.setProperty('margin-right', '0', 'important');
+      nav.style.setProperty('transform', 'none', 'important');
+      nav.style.setProperty('box-sizing', 'border-box', 'important');
+    });
+  }
+  function schedule(){
+    if(rafId) return;
+    rafId = requestAnimationFrame(apply);
+  }
+  function init(){
+    schedule();
+    setTimeout(schedule, 60);
+    setTimeout(schedule, 250);
+    window.addEventListener('resize', schedule, { passive:true });
+    window.addEventListener('orientationchange', function(){ setTimeout(schedule, 120); }, { passive:true });
+    window.addEventListener('load', schedule, { once:true });
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', schedule, { passive:true });
+      window.visualViewport.addEventListener('scroll', schedule, { passive:true });
+    }
+    if(window.ResizeObserver){
+      try{
+        var ro = new ResizeObserver(schedule);
+        ro.observe(getShell());
+        window.__upickBottomNavBodyLockResizeObserver = ro;
+      }catch(_){ }
+    }
+    if(window.MutationObserver){
+      try{
+        var mo = new MutationObserver(schedule);
+        mo.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style'] });
+        window.__upickBottomNavBodyLockMutationObserver = mo;
+      }catch(_){ }
+    }
+  }
+  window.__upickSyncBottomNavToBodyShell = schedule;
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
+  else init();
+})();

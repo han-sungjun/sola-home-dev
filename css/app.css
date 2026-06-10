@@ -29729,3 +29729,18 @@ body.gnb-open #bottomNav{
   transform:translateX(-50%)!important;
   box-sizing:border-box!important;
 }
+
+/* ===== v20260610-bottom-nav-body-lock-v1 CSS fallback =====
+   JS 적용 전에도 하단 네비 기준을 본문 쉘과 동일한 폭으로 통일합니다. */
+:root{
+  --du-public-shell-width:480px;
+  --du-public-shell-side-gap:22px;
+}
+.bottom-nav,
+nav.bottom-nav,
+.mobile-bottom-nav,
+#bottomNav{
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  box-sizing:border-box!important;
+}
