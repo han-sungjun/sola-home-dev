@@ -1836,7 +1836,7 @@
 })();
 </script>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
-<script src="/js/app.js?v=20260610-public-width-v7" type="module">
+<script src="/js/app.js?v=20260610-bottom-nav-hard-lock-v10" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>
@@ -1849,5 +1849,119 @@
 <link href="./css/app.inline.2.css" rel="stylesheet"/>
 <script defer="" src="/js/html-inline/app-inline-1-54a53359.js"></script>
 <script defer="" src="/common/dev-badge-visibility.js"></script>
+
+<script id="upick-public-bottom-nav-hard-lock-v10">
+(function(){
+  'use strict';
+
+  var raf = 0;
+  var burstTimer = 0;
+  var burstUntil = 0;
+  var observer = null;
+
+  function isPublic(){
+    return !!(document.body && document.body.getAttribute('data-loading-mode') === 'public');
+  }
+  function appEl(){
+    return document.querySelector('body[data-loading-mode="public"] > .app') || document.querySelector('body[data-loading-mode="public"] .app');
+  }
+  function navEl(){
+    return document.querySelector('body[data-loading-mode="public"] > nav.bottom-nav') || document.querySelector('body[data-loading-mode="public"] nav.bottom-nav') || document.querySelector('body[data-loading-mode="public"] .bottom-nav');
+  }
+  function px(n){
+    n = Number(n) || 0;
+    return (Math.round(n * 100) / 100) + 'px';
+  }
+  function apply(){
+    raf = 0;
+    if(!isPublic()) return;
+    var app = appEl();
+    var nav = navEl();
+    if(!app || !nav) return;
+
+    var rect = app.getBoundingClientRect();
+    var left = rect.left;
+    var width = rect.width || app.offsetWidth || app.clientWidth;
+    if(!width || width < 1) return;
+
+    var leftPx = px(left);
+    var widthPx = px(width);
+    document.documentElement.style.setProperty('--du-public-app-left-live', leftPx);
+    document.documentElement.style.setProperty('--du-public-app-width-live', widthPx);
+    document.body.style.setProperty('--du-public-app-left-live', leftPx);
+    document.body.style.setProperty('--du-public-app-width-live', widthPx);
+
+    nav.style.setProperty('position', 'fixed', 'important');
+    nav.style.setProperty('left', leftPx, 'important');
+    nav.style.setProperty('right', 'auto', 'important');
+    nav.style.setProperty('width', widthPx, 'important');
+    nav.style.setProperty('max-width', 'none', 'important');
+    nav.style.setProperty('min-width', '0', 'important');
+    nav.style.setProperty('margin-left', '0', 'important');
+    nav.style.setProperty('margin-right', '0', 'important');
+    nav.style.setProperty('box-sizing', 'border-box', 'important');
+    nav.style.setProperty('transform', document.body.classList.contains('gnb-open') ? 'translateY(18px)' : 'none', 'important');
+
+    if(window.syncBottomNavSafeOffset){
+      try{ window.syncBottomNavSafeOffset(); }catch(_){ }
+    }
+  }
+  function sync(){
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(apply);
+  }
+  function burst(ms){
+    burstUntil = Math.max(burstUntil, Date.now() + (ms || 1800));
+    sync();
+    if(burstTimer) return;
+    burstTimer = setInterval(function(){
+      sync();
+      if(Date.now() > burstUntil){
+        clearInterval(burstTimer);
+        burstTimer = 0;
+      }
+    }, 40);
+  }
+  function bind(){
+    burst(2500);
+    [0, 60, 140, 280, 520, 900, 1400, 2200].forEach(function(t){ setTimeout(sync, t); });
+    ['load','resize','orientationchange','pageshow','visibilitychange'].forEach(function(type){
+      window.addEventListener(type, function(){ burst(2200); }, {passive:true});
+    });
+    document.addEventListener('DOMContentLoaded', function(){ burst(2200); }, {once:true});
+    document.addEventListener('click', function(){ setTimeout(sync, 30); }, true);
+
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', function(){ burst(2400); }, {passive:true});
+      window.visualViewport.addEventListener('scroll', function(){ burst(900); }, {passive:true});
+    }
+    if(window.ResizeObserver){
+      try{
+        var ro = new ResizeObserver(function(){ burst(1200); });
+        var app = appEl();
+        var nav = navEl();
+        if(app) ro.observe(app);
+        if(nav) ro.observe(nav);
+        ro.observe(document.documentElement);
+        ro.observe(document.body);
+      }catch(_){ }
+    }
+    if(window.MutationObserver){
+      try{
+        observer = new MutationObserver(function(){ burst(900); });
+        observer.observe(document.body, {attributes:true, childList:true, subtree:true, attributeFilter:['class','style','data-loading-mode']});
+      }catch(_){ }
+    }
+    // 배포 환경에서 모듈 스크립트가 nav를 다시 그리거나 inline style을 덮는 경우가 있어
+    // 저비용 주기 동기화를 유지합니다.
+    setInterval(sync, 350);
+  }
+
+  window.__syncPublicBottomNav = function(){ burst(1800); };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+  else bind();
+})();
+</script>
+
 </body>
 </html>
