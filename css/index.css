@@ -3877,3 +3877,20 @@ body[data-loading-mode="entrance"] .wrap{
     max-width:var(--du-public-shell-width)!important;
   }
 }
+
+/* ===== v20260610-entry-width-lock-v6 ===== */
+html body[data-loading-mode="entrance"]{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  overflow-x:hidden !important;
+}
+html body[data-loading-mode="entrance"] > .wrap,
+html body[data-loading-mode="entrance"] .wrap{
+  width:min(100%, 480px) !important;
+  max-width:480px !important;
+  min-width:0 !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  box-sizing:border-box !important;
+}
