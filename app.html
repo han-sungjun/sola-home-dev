@@ -1750,11 +1750,23 @@
   function pickNav(){
     return document.querySelector('nav.bottom-nav, .bottom-nav, #bottomNav, .mobile-bottom-nav');
   }
+  function pickBenefitFixedBar(){
+    return document.querySelector('#view-benefits .filter-sticky');
+  }
+  function applyShellRectToFixedElement(el, left, width){
+    if(!el) return;
+    el.style.setProperty('left', left + 'px', 'important');
+    el.style.setProperty('right', 'auto', 'important');
+    el.style.setProperty('width', width + 'px', 'important');
+    el.style.setProperty('max-width', 'none', 'important');
+    el.style.setProperty('margin', '0', 'important');
+    el.style.setProperty('box-sizing', 'border-box', 'important');
+  }
   function syncBottomNavToShell(){
     raf = 0;
     var shell = pickShell();
     var nav = pickNav();
-    if(!shell || !nav) return;
+    if(!shell) return;
     var rect = shell.getBoundingClientRect();
     var left = Math.round(rect.left * 100) / 100;
     var width = Math.round(rect.width * 100) / 100;
@@ -1763,13 +1775,17 @@
     document.documentElement.style.setProperty('--du-app-shell-width', width + 'px');
     document.body.style.setProperty('--du-app-shell-left', left + 'px');
     document.body.style.setProperty('--du-app-shell-width', width + 'px');
-    nav.style.setProperty('left', left + 'px', 'important');
-    nav.style.setProperty('right', 'auto', 'important');
-    nav.style.setProperty('width', width + 'px', 'important');
-    nav.style.setProperty('max-width', 'none', 'important');
-    nav.style.setProperty('margin', '0', 'important');
-    nav.style.setProperty('box-sizing', 'border-box', 'important');
-    nav.style.setProperty('transform', document.body.classList.contains('gnb-open') ? 'translateY(18px)' : 'none', 'important');
+    if(nav){
+      applyShellRectToFixedElement(nav, left, width);
+      nav.style.setProperty('transform', document.body.classList.contains('gnb-open') ? 'translateY(18px)' : 'none', 'important');
+    }
+    var filter = pickBenefitFixedBar();
+    if(filter && filter.classList.contains('is-fixed')){
+      applyShellRectToFixedElement(filter, left, width);
+      filter.style.setProperty('position', 'fixed', 'important');
+      filter.style.setProperty('top', '0px', 'important');
+      filter.style.setProperty('transform', 'none', 'important');
+    }
     if(typeof window.syncBottomNavSafeOffset === 'function') window.syncBottomNavSafeOffset();
   }
   function schedule(){
@@ -1781,6 +1797,7 @@
   else schedule();
   window.addEventListener('load', schedule, {once:true});
   window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('scroll', schedule, {passive:true});
   window.addEventListener('orientationchange', function(){ setTimeout(schedule, 80); }, {passive:true});
   document.addEventListener('visibilitychange', schedule);
   document.addEventListener('upick:view-change', schedule);

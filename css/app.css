@@ -29713,3 +29713,30 @@ body.gnb-open #bottomNav,
 body.gnb-open .mobile-bottom-nav{
   transform:translateY(18px)!important;
 }
+
+
+/* ===== v20260610-fixed-filter-shell-lock-v2 =====
+   혜택 상단 고정바도 하단 네비와 같은 실제 .app 좌표/폭을 사용합니다.
+   기존 left:50% + width:480px 계산을 마지막 단계에서 덮어 DevTools/스크롤바 상태에서도 틀어지지 않게 합니다. */
+html body #view-benefits .filter-sticky.is-fixed,
+html body[data-loading-mode="public"] #view-benefits .filter-sticky.is-fixed{
+  position:fixed!important;
+  top:0!important;
+  left:var(--du-app-shell-left)!important;
+  right:auto!important;
+  width:var(--du-app-shell-width)!important;
+  max-width:none!important;
+  margin:0!important;
+  transform:none!important;
+  box-sizing:border-box!important;
+  padding:10px 12px 12px!important;
+  z-index:1200!important;
+  border-radius:0 0 22px 22px!important;
+}
+html body #view-benefits .filter-sticky.is-fixed .panel-filter-top-row,
+html body #view-benefits .filter-sticky.is-fixed .panel-searchbox,
+html body #view-benefits .filter-sticky.is-fixed .chips-scroll-bound,
+html body #view-benefits .filter-sticky.is-fixed .chips{
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
