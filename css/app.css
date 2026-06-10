@@ -29690,14 +29690,16 @@ body[data-loading-mode="public"].gnb-open nav.bottom-nav{
 :root{
   --app-fixed-left: 50%;
   --app-fixed-width: min(100%, 480px);
+  --bottom-nav-fixed-left: var(--app-fixed-left);
+  --bottom-nav-fixed-width: var(--app-fixed-width);
 }
 .bottom-nav,
 .bottom-tab,
 .mobile-bottom-nav,
 nav.bottom-nav{
-  left:var(--app-fixed-left) !important;
+  left:var(--bottom-nav-fixed-left) !important;
   right:auto !important;
-  width:var(--app-fixed-width) !important;
+  width:var(--bottom-nav-fixed-width) !important;
   max-width:none !important;
   margin:0 !important;
   transform:none !important;
