@@ -476,6 +476,9 @@
 /* 더운정픽 모달/바텀시트 스크롤 잠금 - lightweight sync */
 (function(){
   'use strict';
+  function qsa(sel, root){
+    try{ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }catch(_){ return []; }
+  }
   var selectors = [
     '.common-modal-overlay.show','.common-modal-overlay.is-open','.common-modal-overlay[open]',
     '.modal-backdrop.show','.modal-backdrop.is-open','dialog[open]:not(#appAlert)',
