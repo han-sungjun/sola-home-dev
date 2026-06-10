@@ -29744,3 +29744,11 @@ nav.bottom-nav,
   max-width:var(--du-public-shell-width)!important;
   box-sizing:border-box!important;
 }
+
+/* ===== v20260610-top-filter-body-lock-v2-safe fallback =====
+   JS 적용 전 기본값도 하단 네비와 같은 쉘 기준 폭으로 맞춥니다. */
+#view-benefits .filter-sticky.is-fixed{
+  width:min(calc(100% - var(--du-public-shell-side-gap, 22px)), var(--du-public-shell-width, 480px))!important;
+  max-width:var(--du-public-shell-width, 480px)!important;
+  box-sizing:border-box!important;
+}
