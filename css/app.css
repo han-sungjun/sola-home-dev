@@ -29684,3 +29684,28 @@ body[data-loading-mode="public"].gnb-open nav.bottom-nav{
     max-width:var(--du-public-shell-width)!important;
   }
 }
+
+/* ===== 20260610: fixed frame sync for desktop scrollbar/F12 width shift =====
+   fixed 요소(하단 네비/혜택 상단 고정바)를 viewport가 아니라 실제 .app 프레임 rect에 맞춘다. */
+:root{
+  --app-fixed-left: 50%;
+  --app-fixed-width: min(100%, 480px);
+}
+.bottom-nav,
+.bottom-tab,
+.mobile-bottom-nav,
+nav.bottom-nav{
+  left:var(--app-fixed-left) !important;
+  right:auto !important;
+  width:var(--app-fixed-width) !important;
+  max-width:none !important;
+  margin:0 !important;
+  transform:none !important;
+}
+#view-benefits .filter-sticky.is-fixed{
+  left:var(--app-fixed-left) !important;
+  right:auto !important;
+  width:var(--app-fixed-width) !important;
+  max-width:none !important;
+  transform:none !important;
+}
