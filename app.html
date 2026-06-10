@@ -1759,9 +1759,16 @@
     var nav = getBottomNav();
     if(!app || !nav) return;
 
+    var viewportWidth = Math.round((document.documentElement && document.documentElement.clientWidth) || window.innerWidth || 0);
     var rect = app.getBoundingClientRect();
     var left = round2(rect.left || 0);
     var width = round2(rect.width || app.offsetWidth || app.clientWidth || 0);
+    // F12/DevTools split view처럼 실제 앱 viewport가 좁아진 경우에는
+    // CSS media query와 동일하게 하단 네비도 즉시 viewport 기준으로 고정합니다.
+    if(viewportWidth > 0 && viewportWidth <= 700){
+      left = 0;
+      width = viewportWidth;
+    }
     if(width <= 0) return;
 
     // CSS 변수와 실제 nav inline style을 동시에 갱신합니다.
@@ -1836,7 +1843,7 @@
 })();
 </script>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
-<script src="/js/app.js?v=20260610-public-width-v6" type="module">
+<script src="/js/app.js?v=20260610-public-width-v7" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>
