@@ -29848,21 +29848,35 @@ html body[data-loading-mode="public"].gnb-open nav.bottom-nav{
 }
 
 
-/* ===== 더운정픽 public bottom nav F12/devtools alignment fix v8 =====
-   하단 네비를 viewport가 아니라 실제 공개앱 카드 폭/좌표에 맞춥니다.
-   JS가 --du-public-app-left-live / --du-public-app-width-live 값을 갱신합니다. */
-body[data-loading-mode="public"] .bottom-nav,
-body[data-loading-mode="public"] nav.bottom-nav{
-  position:fixed!important;
-  left:var(--du-public-app-left-live, 50%)!important;
-  right:auto!important;
-  width:var(--du-public-app-width-live, min(100%, 468px))!important;
-  max-width:none!important;
-  margin:0!important;
-  transform:none!important;
-  box-sizing:border-box!important;
+/* ===== v20260610-public-bottom-nav-final-app-rect-only-v8 =====
+   이전 v7의 max-width:700px viewport 기준 보정을 무효화합니다.
+   F12/DevTools 폭 변경 시 하단 네비만 left:0/width:100%로 빠지는 문제를 막고,
+   항상 실제 .app의 getBoundingClientRect() 좌표/폭과 동일하게 맞춥니다. */
+html body[data-loading-mode="public"] .bottom-nav,
+html body[data-loading-mode="public"] nav.bottom-nav{
+  left:var(--du-public-app-left-live, 0px) !important;
+  right:auto !important;
+  width:var(--du-public-app-width-live, min(100%, 480px)) !important;
+  max-width:none !important;
+  min-width:0 !important;
+  margin:0 !important;
+  transform:none !important;
+  box-sizing:border-box !important;
 }
-body[data-loading-mode="public"].gnb-open .bottom-nav,
-body[data-loading-mode="public"].gnb-open nav.bottom-nav{
-  transform:translateY(18px)!important;
+@media (max-width:700px){
+  html body[data-loading-mode="public"] .bottom-nav,
+  html body[data-loading-mode="public"] nav.bottom-nav{
+    left:var(--du-public-app-left-live, 0px) !important;
+    right:auto !important;
+    width:var(--du-public-app-width-live, min(100%, 480px)) !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    transform:none !important;
+    box-sizing:border-box !important;
+  }
+  html body[data-loading-mode="public"].gnb-open .bottom-nav,
+  html body[data-loading-mode="public"].gnb-open nav.bottom-nav{
+    transform:translateY(18px) !important;
+  }
 }
