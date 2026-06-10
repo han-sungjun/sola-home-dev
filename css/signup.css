@@ -2530,20 +2530,3 @@ body[data-loading-mode="signup"] .signup-premium-hero-shell{
     max-width:var(--du-public-shell-width)!important;
   }
 }
-
-/* ===== v20260610-signup-width-lock-v6 ===== */
-html body[data-loading-mode="signup"]{
-  width:100% !important;
-  max-width:none !important;
-  margin:0 !important;
-  overflow-x:hidden !important;
-}
-html body[data-loading-mode="signup"] > .page,
-html body[data-loading-mode="signup"] .page{
-  width:min(100%, 480px) !important;
-  max-width:480px !important;
-  min-width:0 !important;
-  margin-left:auto !important;
-  margin-right:auto !important;
-  box-sizing:border-box !important;
-}
