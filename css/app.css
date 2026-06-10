@@ -29716,3 +29716,33 @@ body[data-loading-mode="public"].gnb-open nav.bottom-nav{
     width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
   }
 }
+
+/* ===== v20260610-public-bottom-nav-app-rect-lock =====
+   하단 네비를 viewport/body 기준이 아니라 실제 공개앱 .app DOM의
+   getBoundingClientRect() 값에 잠급니다. PC 스크롤바, 브라우저 확대,
+   DevTools 분할 화면에서도 본문 외곽과 네비바 좌우가 동일하게 맞습니다. */
+body[data-loading-mode="public"]{
+  --du-public-app-left-live:50%;
+  --du-public-app-width-live:min(calc(100% - var(--du-public-shell-side-gap, 22px)), var(--du-public-shell-width, 480px));
+}
+body[data-loading-mode="public"] .bottom-nav,
+body[data-loading-mode="public"] nav.bottom-nav{
+  left:var(--du-public-app-left-live)!important;
+  right:auto!important;
+  width:var(--du-public-app-width-live)!important;
+  max-width:none!important;
+  transform:none!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+body[data-loading-mode="public"].gnb-open .bottom-nav,
+body[data-loading-mode="public"].gnb-open nav.bottom-nav{
+  transform:translateY(18px)!important;
+}
+@media(max-width:520px){
+  body[data-loading-mode="public"] .bottom-nav,
+  body[data-loading-mode="public"] nav.bottom-nav{
+    left:var(--du-public-app-left-live)!important;
+    width:var(--du-public-app-width-live)!important;
+  }
+}

@@ -35,7 +35,7 @@
 <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/css/app.css?v=20260610-public-nav-center-fix-v3" rel="stylesheet"/>
+<link href="/css/app.css?v=20260610-public-nav-app-rect-lock" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
 <link href="/common/common-motion.css?v=20260531-root1-fade-fix25" rel="stylesheet"/>
 <link href="/common/common-alert.css?v=20260531-root1-fade-fix25" rel="stylesheet"/>
@@ -1725,6 +1725,28 @@
 </div>
 </div>
 
+
+<script>
+(function(){
+  function syncPublicBottomNav(){
+    var body=document.body;
+    if(!body || body.getAttribute('data-loading-mode')!=='public') return;
+    var app=document.querySelector('body[data-loading-mode="public"] > .app');
+    if(!app) return;
+    var rect=app.getBoundingClientRect();
+    if(!rect || !rect.width) return;
+    body.style.setProperty('--du-public-app-left-live', rect.left + 'px');
+    body.style.setProperty('--du-public-app-width-live', rect.width + 'px');
+  }
+  window.addEventListener('load', syncPublicBottomNav, {passive:true});
+  window.addEventListener('resize', syncPublicBottomNav, {passive:true});
+  window.addEventListener('orientationchange', syncPublicBottomNav, {passive:true});
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(syncPublicBottomNav).catch(function(){}); }
+  syncPublicBottomNav();
+  setTimeout(syncPublicBottomNav, 0);
+  setTimeout(syncPublicBottomNav, 250);
+})();
+</script>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
 <script src="/js/app.js?v=202606091045-real-dom-focus-v5" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
