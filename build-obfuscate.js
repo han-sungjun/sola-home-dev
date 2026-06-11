@@ -28,6 +28,13 @@ const COPY_ONLY_FILES = new Set([
   'firebase-messaging-sw.js',
   'common/env-config.js',
   'common/firebase-config.js',
+  // 공통 레이어/알럿 계열은 Promise 큐, focus 복귀, MutationObserver 순서가 중요해서
+  // 강한 난독화 대상에서 제외합니다.
+  'common/common-alert.js',
+  'common/common-modal.js',
+  'common/common-motion.js',
+  'common/layer-system.js',
+  'common/du-layer.js',
   // 사진 확대 팝업/슬라이더 보정 스크립트는 pointer/touch 이벤트와
   // MutationObserver 의 순서가 중요해서 난독화하지 않고 안전 압축만 적용합니다.
   'js/app.inline.4.js',
