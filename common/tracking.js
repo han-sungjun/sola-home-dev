@@ -549,6 +549,12 @@ export async function getTodayStats() {
 // =========================
 
 export async function getVisitPathStats() {
+  const pageMap = {};
+  const addPage = (page, count = 1) => {
+    const key = safeText(page, "unknown");
+    pageMap[key] = (pageMap[key] || 0) + count;
+  };
+
   try {
     const today = startOfToday();
 
@@ -559,23 +565,36 @@ export async function getVisitPathStats() {
     );
 
     const snap = await getDocs(visitQuery);
-
-    const pageMap = {};
-
     snap.forEach(doc => {
       const d = doc.data();
-      const page = safeText(d.page, "unknown");
-      pageMap[page] = (pageMap[page] || 0) + 1;
+      addPage(d.page || d.path || d.url);
     });
-
-    return Object.entries(pageMap)
-      .map(([page, count]) => ({ page, count }))
-      .sort((a, b) => b.count - a.count);
-
   } catch (e) {
-    console.log("visit path stats error", e);
-    return [];
+    console.log("visit path stats createdAt query error", e);
   }
+
+  // 배포 직후 createdAt 인덱스/권한 차이로 위 쿼리가 비는 경우를 대비해 dateKey 기준으로 한 번 더 보강합니다.
+  if (!Object.keys(pageMap).length) {
+    try {
+      const dateKey = getDateKey();
+      const fallbackQuery = query(
+        collection(db, "visit_history"),
+        where("dateKey", "==", dateKey),
+        limit(TRACKING_STATS_LIMIT)
+      );
+      const fallbackSnap = await getDocs(fallbackQuery);
+      fallbackSnap.forEach(doc => {
+        const d = doc.data();
+        addPage(d.page || d.path || d.url);
+      });
+    } catch (e) {
+      console.log("visit path stats dateKey query error", e);
+    }
+  }
+
+  return Object.entries(pageMap)
+    .map(([page, count]) => ({ page, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 

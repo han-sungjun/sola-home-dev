@@ -13,7 +13,7 @@
     })();
     globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
-    const { mountIdleTimer } = await import(__solaNoCache("/common/tracking.js"));
+    const { mountIdleTimer, renderAdminStatsUI } = await import(__solaNoCache("/common/tracking.js"));
     const { ENV, FIREBASE_CONFIG, API_URL, TTS_SERVICE_URL } = await import(__solaNoCache("/common/env-config.js"));
     const { checkServerSessionOrLogout, startSessionKeepAlive, logoutServerSession, saveLoginSession } = await import(__solaNoCache("/common/session-client.js"));
 
@@ -52,7 +52,7 @@
       if(root) root.classList.toggle('admin-dashboard-locked', isLocked);
       const targets = [
         '#adminStatsCards', '#dashboardBenefitList', '#dashboardNoticeList', '#userActivityList',
-        '#recentActivityList', '#security404Box', '#communityReportTopList',
+        '#recentActivityList', '#security404Box', '#communityReportTopList', '#visitPathChart',
         '#visitPathChartCanvas', '#loginStatsChartCanvas', '#visitPathChartPlaceholder', '#loginStatsChartPlaceholder'
       ];
       targets.forEach((selector)=>{
@@ -3082,7 +3082,9 @@ function fillForm(item){
             ]);
           }
 
-          if (typeof window.refreshAdminStatsUIOnce === 'function') {
+          if (typeof renderAdminStatsUI === 'function') {
+            await renderAdminStatsUI();
+          } else if (typeof window.refreshAdminStatsUIOnce === 'function') {
             await window.refreshAdminStatsUIOnce();
           }
 
